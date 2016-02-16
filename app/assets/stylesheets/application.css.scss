@@ -13,3 +13,10 @@
  *= require_tree .
  *= require_self
  */
+.container {
+    width: 970px;
+    max-width: none !important;
+}
+.navbar-header {
+    float: left;
+}

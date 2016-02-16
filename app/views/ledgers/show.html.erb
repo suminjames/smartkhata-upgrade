@@ -1,0 +1,54 @@
+<p id="notice"><%= notice %></p>
+<h3><%= @ledger.name %></h3>
+<h4><%= "Opening Balance:  #{@ledger.opening_blnc.abs} #{@ledger.opening_blnc >= 0 ? 'dr': 'cr'}" %></h4>
+
+<% if @particulars.count > 0 %>
+<br><br>
+<h4>Particulars</h4>
+<div class="row">
+	<div class="col-xs-3"><h4>Description</h4></div>
+	<div class="col-xs-3">
+		<div class="col-xs-12"><h4>Opening Balance</h4></div>
+		<div class="col-xs-6"><h5>Dr</h5></div>
+		<div class="col-xs-6"><h5>Cr</h5></div>
+	</div>
+	<div class="col-xs-3">
+		<div class="col-xs-12"><h4>Transaction Amount</h4></div>
+		<div class="col-xs-6"><h5>Dr</h5></div>
+		<div class="col-xs-6"><h5>Cr</h5></div>
+	</div>
+	<div class="col-xs-3">
+		<div class="col-xs-12"><h4>Balance</h4></div>
+		<div class="col-xs-6"><h5>Dr</h5></div>
+		<div class="col-xs-6"><h5>Cr</h5></div>
+	</div>
+</div>
+<% end %>
+
+<% @particulars.each do |particular| %>
+	<div class="row">
+		<div class="col-xs-3">
+			<%= particular.description %>
+		</div>
+		<div class="col-xs-3">
+			<div class="col-xs-6"><%= particular.opening_blnc >= 0 ? particular.opening_blnc : "" %></div>
+			<div class="col-xs-6"><%= particular.opening_blnc < 0 ? particular.opening_blnc.abs : "" %></div>
+		</div>
+		<div class="col-xs-3">
+			<div class="col-xs-6"><%= particular.trn_type.to_i == Particular.trans_types['Dr'] ? particular.amnt : "" %></div>
+			<div class="col-xs-6"><%= particular.trn_type.to_i == Particular.trans_types['Cr'] ? particular.amnt : "" %></div>
+			
+		</div>
+		<div class="col-xs-3">
+			<div class="col-xs-6"><%= particular.running_blnc >= 0 ? particular.running_blnc : "" %></div>
+			<div class="col-xs-6"><%= particular.running_blnc < 0 ? particular.running_blnc.abs : "" %></div>
+			
+		</div>
+	</div>
+	<br><br>
+<% end %>
+
+<h4><%= "Closing Balance: #{@ledger.closing_blnc.abs} #{@ledger.closing_blnc >= 0 ? 'dr': 'cr'}" %></h4>
+
+<%= link_to 'Edit', edit_ledger_path(@ledger) %> |
+<%= link_to 'Back', ledgers_path %>

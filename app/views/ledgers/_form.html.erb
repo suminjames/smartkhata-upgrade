@@ -1,0 +1,16 @@
+<%= simple_form_for(@ledger) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs">
+  	<%= f.input :name %>
+  </div>
+  <div class="form-inputs">
+  	<%= f.collection_select(:group_id, Group.all, :id, :name,{},{:class=>'input-control'}) %>
+  </div>
+  <div class="form-inputs">
+  	<%= f.input :opening_blnc %>
+  </div>
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>

@@ -35,3 +35,8 @@ end
 group :production do
   gem 'puma'
 end
+
+gem 'nepali_calendar'
+
+gem 'roo', '~> 2.1.0'
+gem 'roo-xls'
