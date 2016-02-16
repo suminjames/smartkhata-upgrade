@@ -13,10 +13,17 @@
  *= require_tree .
  *= require_self
  */
+body {
+	    background-color: #222d32	;
+}
 .container {
     width: 970px;
     max-width: none !important;
 }
 .navbar-header {
     float: left;
+}
+.content-wrapper, .right-side, .main-footer {
+	margin-left: -15px;
+  margin-right: -15px;
 }

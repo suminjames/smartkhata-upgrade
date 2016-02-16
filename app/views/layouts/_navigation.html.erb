@@ -1,13 +1,21 @@
-<%# navigation styled for Bootstrap 3.0 %>
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <%= link_to 'Home', root_path, class: 'navbar-brand' %>
-    </div>
-    <div class="">
+<!-- Logo -->
+  <a href="<%= root_path %>" class="logo">
+    <!-- mini logo for sidebar mini 50x50 pixels -->
+    <span class="logo-mini"><b>S</b>K</span>
+    <!-- logo for regular state and mobile devices -->
+    <span class="logo-xs"><b>SmartKhata</b></span>
+  </a>
+  
+  <!-- Header Navbar -->
+  <nav class="navbar navbar-static-top" role="navigation">
+    <!-- Sidebar toggle button-->
+    <a href="#" class="sidebar-toggle" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+    <!-- Navbar Right Menu -->
+    <div class="navbar-custom-menu">
       <ul class="nav navbar-nav">
         <%= render 'layouts/navigation_links' %>
       </ul>
     </div>
-  </div>
-</nav>
+  </nav>

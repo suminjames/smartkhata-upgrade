@@ -37,6 +37,6 @@ group :production do
 end
 
 gem 'nepali_calendar'
-
+gem 'jquery-turbolinks' 
 gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
