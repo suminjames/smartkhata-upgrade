@@ -25,7 +25,7 @@ class VouchersController < ApplicationController
   # POST /vouchers
   # POST /vouchers.json
   def create
-    @voucher = Voucher.new(voucher_params)
+    @voucher = Voucher.new(voucher_params)    
     @cal = NepaliCalendar::Calendar.new
 
     bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
@@ -38,9 +38,15 @@ class VouchersController < ApplicationController
       # check if debit equal credit or amount is not zero
       
       @voucher.particulars.each do |particular|
-        @has_zero = true if particular.amnt == 0
-        particular.trn_type.to_i == Particular.trans_types['Dr'] ? @net_blnc + particular.amnt : @net_blnc + particular.amnt
+
+        if particular.amnt == 0
+          @has_zero = true 
+          break
+        end
+
+        particular.trn_type.to_i == Particular.trans_types['Dr'] ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
       end
+      # abort(@net_blnc.to_s)
       if @net_blnc == 0 && @has_zero == false
         Voucher.transaction do 
           @voucher.particulars.each do |particular|
@@ -54,10 +60,14 @@ class VouchersController < ApplicationController
           @success = true if @voucher.save 
         end
       else
-        @voucher.errors[:base] << "This person is invalid because ..."
+        if @has_zero
+           flash.now[:error] = "Dont act smart." 
+        else
+           flash.now[:error] = "Particulars should have balancing figures." 
+        end
       end
     else
-      @voucher.errors[:particular] << "This person is invalid because ..."
+      flash.now[:error] = "Particulars should be atleast 2"
     end
     
 
@@ -68,7 +78,7 @@ class VouchersController < ApplicationController
         format.html { redirect_to @voucher, notice: 'Voucher was successfully created.' }
         format.json { render :show, status: :created, location: @voucher }
       else
-        format.html { render :new, notice: 'Dont act smart.' }
+        format.html { render :new }
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
