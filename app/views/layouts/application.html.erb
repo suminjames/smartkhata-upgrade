@@ -21,7 +21,7 @@
       <header class="main-header row">
         <%= render 'layouts/navigation' %>
       </header>
-        
+
       <!-- Content Wrapper. Contains page content -->
       <div class="content-wrapper row">
         <section class="content">
@@ -29,7 +29,7 @@
           <%= yield %>
         </section>
       </div><!-- /.content-wrapper -->
-      
+
       <!-- Main Footer -->
       <footer class="main-footer">
         <!-- To the right -->
@@ -37,7 +37,7 @@
           Anything you want
         </div> -->
         <!-- Default to the left -->
-        <strong>Copyright &copy; 2015 |   <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
+        <strong>Copyright &copy; <%= Time.now.year %>|   <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
       </footer>
 
     </div><!-- ./wrapper -->
