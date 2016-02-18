@@ -46,6 +46,12 @@ class VouchersController < ApplicationController
 
         particular.trn_type.to_i == Particular.trans_types['Dr'] ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
       end
+
+      if @voucher.particulars.length == 2
+        @voucher.particulars[0].name = Ledger.find(@voucher.particulars[1].ledger_id).name
+        @voucher.particulars[1].name = Ledger.find(@voucher.particulars[0].ledger_id).name
+      end
+
       # abort(@net_blnc.to_s)
       if @net_blnc == 0 && @has_zero == false
         Voucher.transaction do 

@@ -26,10 +26,16 @@ class LedgersController < ApplicationController
   # POST /ledgers.json
   def create
     @ledger = Ledger.new(ledger_params)
-    @ledger.closing_blnc = @ledger.opening_blnc
-    puts(@ledger.to_json)
+    @success = false
+    if (@ledger.opening_blnc >= 0)
+      @ledger.opening_blnc = @ledger.opening_blnc * -1 if @ledger.opening_blnc_type.to_i == Particular.trans_types['Cr']
+      @ledger.closing_blnc = @ledger.opening_blnc
+      @success = true if @ledger.save
+    else
+      flash.now[:error] = "Dont act smart." 
+    end
     respond_to do |format|
-      if @ledger.save
+      if @success
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
@@ -71,6 +77,6 @@ class LedgersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def ledger_params
-      params.require(:ledger).permit(:name, :opening_blnc, :group_id)
+      params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type)
     end
 end
