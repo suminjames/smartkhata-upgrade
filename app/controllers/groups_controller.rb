@@ -5,43 +5,6 @@ class GroupsController < ApplicationController
   # GET /groups.json
   def index
     @groups = Group.all
-
-    @balance = Group.balance_sheet
-    @balance_dr = Hash.new
-    @balance_cr = Hash.new
-    @opening_balance_cr = 0;
-    @opening_balance_dr = 0;
-    @opening_balance_diff = 0;
-
-    @balance.each do |balance|
-      if balance.sub_report == Group.sub_reports['Assets']
-        @balance_dr[balance.name] = balance.closing_blnc
-        @opening_balance_dr += balance.closing_blnc
-      end
-      if balance.sub_report == Group.sub_reports['Liabilities']
-        @balance_cr[balance.name] = balance.closing_blnc
-        @opening_balance_cr += balance.closing_blnc
-      end
-       
-      
-    end
-    @opening_balance_diff = @opening_balance_dr + @opening_balance_cr
-
-
-    @balance = Group.pnl
-    @profit = Hash.new
-    @loss = Hash.new
-    @amnt = 0
-    @balance.each do |balance|
-      if balance.sub_report == Group.sub_reports['Income']
-        @profit[balance.name] = balance.closing_blnc 
-        @amnt += balance.closing_blnc
-      elsif balance.sub_report == Group.sub_reports['Expense']
-        @loss[balance.name] = balance.closing_blnc     
-        @amnt += balance.closing_blnc
-      end
-    end
-
   end
 
   # GET /groups/1

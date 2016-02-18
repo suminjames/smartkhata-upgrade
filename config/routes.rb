@@ -19,4 +19,9 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace 'report' do
+    resources :balancesheet 
+    resources :profitandloss
+  end
+
 end

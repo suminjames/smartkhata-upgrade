@@ -29,6 +29,11 @@ groups = Group.create([
 group.children << groups
 group.save!
 
+group = Group.find_by(name: "Direct Income")
+ledgers = Ledger.create([{name: "Purchase Commission"}])
+group.ledgers << ledgers
+group.save!
+
 group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
 groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
 group.children << groups
@@ -36,10 +41,15 @@ group.save!
 
 group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
 groups = Group.create([{ name: "Duties & Taxes"},{name: "Sundry Creditors"},{name: "Account Payables"}])
+ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}])
 group.children << groups
+group.ledgers << ledgers
 group.save!
 
 group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']})
-groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}])
+groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}])
 group.children << groups
+ledgers = Ledger.create([{name: "TDS"}])
+group.ledgers << ledgers
 group.save!
+
