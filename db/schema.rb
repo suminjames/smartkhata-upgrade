@@ -11,10 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160214072555) do
+ActiveRecord::Schema.define(version: 20160222061502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bills", force: :cascade do |t|
+    t.string   "bill_number"
+    t.decimal  "net_amount",  precision: 15, scale: 3, default: 0.0
+    t.integer  "type"
+    t.integer  "status"
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+  end
+
+  add_index "bills", ["bill_number"], name: "index_bills_on_bill_number", unique: true, using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -50,6 +61,29 @@ ActiveRecord::Schema.define(version: 20160214072555) do
     t.datetime "updated_at",                                          null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
+  end
+
+  create_table "share_transactions", force: :cascade do |t|
+    t.string   "contract_no"
+    t.string   "symbol"
+    t.integer  "buyer"
+    t.integer  "seller"
+    t.string   "client_name"
+    t.string   "client_code"
+    t.integer  "quantity"
+    t.decimal  "rate",             precision: 10, scale: 3, default: 0.0
+    t.decimal  "share_amount",     precision: 15, scale: 3, default: 0.0
+    t.decimal  "sebo",             precision: 15, scale: 3, default: 0.0
+    t.decimal  "commission",       precision: 15, scale: 3, default: 0.0
+    t.decimal  "dp_fee",           precision: 15, scale: 3, default: 0.0
+    t.decimal  "cgt",              precision: 15, scale: 3, default: 0.0
+    t.decimal  "net_amount",       precision: 15, scale: 3, default: 0.0
+    t.decimal  "bank_deposit",     precision: 15, scale: 3, default: 0.0
+    t.integer  "transaction_type"
+    t.date     "date"
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
+    t.integer  "bill_id"
   end
 
   create_table "users", force: :cascade do |t|

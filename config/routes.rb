@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :share_transactions
+  resources :bills
   resources :groups
   resources :ledgers
   resources :vouchers
