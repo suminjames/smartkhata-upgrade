@@ -96,6 +96,8 @@ GEM
     jbuilder (2.4.1)
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
+    jquery-hotkeys-rails (0.7.9.1)
+      railties (>= 3.1)
     jquery-rails (4.1.0)
       rails-dom-testing (~> 1.0)
       railties (>= 4.2.0)
@@ -225,6 +227,7 @@ DEPENDENCIES
   devise_invitable
   high_voltage
   jbuilder (~> 2.0)
+  jquery-hotkeys-rails (~> 0.7.9.1)
   jquery-rails
   jquery-turbolinks
   nepali_calendar
