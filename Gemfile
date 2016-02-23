@@ -7,6 +7,7 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
+gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
 group :development, :test do
   gem 'byebug'
 end
@@ -37,6 +38,6 @@ group :production do
 end
 
 gem 'nepali_calendar'
-gem 'jquery-turbolinks' 
+gem 'jquery-turbolinks'
 gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
