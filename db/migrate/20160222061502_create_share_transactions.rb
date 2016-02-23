@@ -1,7 +1,7 @@
 class CreateShareTransactions < ActiveRecord::Migration
   def change
     create_table :share_transactions do |t|
-  		t.string :contract_no
+  		t.decimal :contract_no, precision: 18, scale:0
     	t.string :symbol
     	t.integer :buyer
     	t.integer :seller

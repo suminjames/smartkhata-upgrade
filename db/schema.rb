@@ -17,7 +17,7 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   enable_extension "plpgsql"
 
   create_table "bills", force: :cascade do |t|
-    t.string   "bill_number"
+    t.integer  "bill_number"
     t.string   "client_name"
     t.decimal  "net_amount",     precision: 15, scale: 3, default: 0.0
     t.decimal  "balance_to_pay", precision: 15, scale: 3, default: 0.0
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   end
 
   create_table "share_transactions", force: :cascade do |t|
-    t.string   "contract_no"
+    t.decimal  "contract_no",      precision: 18
     t.string   "symbol"
     t.integer  "buyer"
     t.integer  "seller"

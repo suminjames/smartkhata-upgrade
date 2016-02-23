@@ -124,7 +124,7 @@ class Files::FloorsheetController < ApplicationController
 		
 
 		trasaction = ShareTransaction.create(
-			contract_no: arr[0].to_s,
+			contract_no: arr[0].to_i,
 			symbol: arr[1], 
 			buyer: arr[2],
 			seller: arr[3], 
@@ -188,7 +188,7 @@ class Files::FloorsheetController < ApplicationController
 			ledger.closing_blnc -= amount
 		end
 
-		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, description: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
+		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
 		ledger.save!
 	end
 
