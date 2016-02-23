@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery.turbolinks
 //= require jquery_ujs
+//= require jquery-hotkeys
 //= require turbolinks
 //= require bootstrap-sprockets
 //= require layout.min.js
