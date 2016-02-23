@@ -18,14 +18,17 @@ ActiveRecord::Schema.define(version: 20160222061502) do
 
   create_table "bills", force: :cascade do |t|
     t.string   "bill_number"
-    t.decimal  "net_amount",  precision: 15, scale: 3, default: 0.0
+    t.string   "client_name"
+    t.decimal  "net_amount",     precision: 15, scale: 3, default: 0.0
+    t.decimal  "balance_to_pay", precision: 15, scale: 3, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status"
-    t.datetime "created_at",                                         null: false
-    t.datetime "updated_at",                                         null: false
+    t.integer  "status",                                  default: 0
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
+    t.integer  "fy_code"
   end
 
-  add_index "bills", ["bill_number"], name: "index_bills_on_bill_number", unique: true, using: :btree
+  add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"

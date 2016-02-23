@@ -44,14 +44,15 @@ class Files::FloorsheetController < ApplicationController
 				return
 			end
 
-
+			fy_code = get_fy_code
 			# loop through 13th row to last row
 			# data starts from 13th row
 			ActiveRecord::Base.transaction do
 				(13..(xlsx.sheet(0).last_row)).each do |i|		
+				# (13..15).each do |i|	
 					@row_data = xlsx.sheet(0).row(i)		
 					break if @row_data[0] == nil	
-					@processed_data  << process_records(@row_data,hash_dp)
+					@processed_data  << process_records(@row_data,hash_dp, fy_code)
 				end
 			end
 		end
@@ -74,7 +75,7 @@ class Files::FloorsheetController < ApplicationController
 
 	# arr  => [Contract No.,Symbol,Buyer Broking Firm Code,Seller Broking Firm Code,Client Name,Client Code,Quantity ,Rate,Amount,Stock Comm.,Bank Deposit,NIL]
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
-	def process_records(arr,hash_dp)
+	def process_records(arr,hash_dp, fy_code)
 		@dp = 0
 		bill = nil
 
@@ -90,12 +91,13 @@ class Files::FloorsheetController < ApplicationController
 		else
 			# create or find a bill by the number
 			if hash_dp.has_key?(arr[5].to_s+arr[1].to_s+'buy')
-				bill = Bill.find_or_create_by(bill_number: hash_dp[arr[5].to_s+arr[1].to_s+'buy'])
+				bill = Bill.find_or_create_by(bill_number: hash_dp[arr[5].to_s+arr[1].to_s+'buy'], fy_code: fy_code)
 			else
 				@dp = 25
 				hash_dp[arr[5].to_s+arr[1].to_s+'buy'] = @bill_number
-				bill = Bill.find_or_create_by(bill_number: @bill_number) do |bill|
+				bill = Bill.find_or_create_by(bill_number: @bill_number, fy_code: fy_code) do |bill|
 					bill.bill_type = Bill.types['receive']
+					bill.client_name = arr[4]
 				end
 				@bill_number += 1
 			end
@@ -111,13 +113,14 @@ class Files::FloorsheetController < ApplicationController
 		@cgt = 0
 		@amnt = arr[8]
 		@commision = get_commision(@amnt)
+		@purchase_commission = @commision * 0.75
 		@nepse = @commision * 0.25
 		@tds = @commision * 0.75 * 0.15
 		@sebon = @amnt * 0.00015
 		@bank_deposit = @nepse + @tds + @sebon + @amnt
 
 		# amount to be debited to client account 
-		@client_dr = @nepse + @sebon + @amnt + @commision + @dp
+		@client_dr = @nepse + @sebon + @amnt + @purchase_commission + @dp
 		
 
 		trasaction = ShareTransaction.create(
@@ -166,7 +169,7 @@ class Files::FloorsheetController < ApplicationController
 		process_accounts(client_ledger,voucher,true,@client_dr)
 		process_accounts(nepse_ledger,voucher,false,@bank_deposit)
 		process_accounts(tds_ledger,voucher,true,@tds)
-		process_accounts(purchase_commission,voucher,false,@commision)
+		process_accounts(purchase_commission,voucher,false,@purchase_commission)
 		process_accounts(dp_ledger,voucher,false,@dp) if @dp > 0
 
 		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
@@ -191,29 +194,25 @@ class Files::FloorsheetController < ApplicationController
 
 	# get a unique bill number based on fiscal year
 	def get_bill_number
-		# convert current date to Bikram Sambat
+
+		bill = Bill.where(fy_code: get_fy_code).last
+
+		# initialize the bill with 1 if no bill is present
+		if bill.nil?
+			1
+		else
+			# increment the bill number
+			number = bill.bill_number + 1
+		end
+	end
+
+	def get_fy_code
 		@cal = NepaliCalendar::Calendar.new
 		date = Date.today
 		# grab the last 2 digit of year
 		date_bs = @cal.ad_to_bs(date.year, date.month, date.day).year.to_s[2..-1]
-
-		bill = Bill.last
-
-		# initialize the bill with 1 if no bill is present
-		if bill.nil?
-			(date_bs + (date_bs.to_i+1).to_s + "1").to_i
-		else
-
-			# increment the bill number keeping first four digit intact eg 72731
-			fy = bill.bill_number.to_s.split(//).first(2).join
-			number = bill.bill_number.to_s[4..-1].to_i
-
-			# if the last bill number is from another year than current reinitialize
-			if fy == date_bs
-				(fy+ ((fy.to_i+1).to_s)+(number+1).to_s).to_i
-			else
-				(date_bs + (date_bs.to_i+1).to_s + "1").to_i
-			end
-		end
+		(date_bs + (date_bs.to_i+1).to_s).to_i
 	end
+
+
 end
