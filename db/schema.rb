@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   create_table "bills", force: :cascade do |t|
     t.string   "bill_number"
     t.decimal  "net_amount",  precision: 15, scale: 3, default: 0.0
-    t.integer  "type"
+    t.integer  "bill_type"
     t.integer  "status"
     t.datetime "created_at",                                         null: false
     t.datetime "updated_at",                                         null: false
@@ -28,8 +28,11 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   add_index "bills", ["bill_number"], name: "index_bills_on_bill_number", unique: true, using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "file"
+    t.date     "report_date"
+    t.boolean  "ignore",      default: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   create_table "groups", force: :cascade do |t|
@@ -43,20 +46,21 @@ ActiveRecord::Schema.define(version: 20160222061502) do
 
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
-    t.decimal  "opening_blnc", precision: 10, scale: 3, default: 0.0
-    t.decimal  "closing_blnc", precision: 10, scale: 3, default: 0.0
+    t.string   "client_code"
+    t.decimal  "opening_blnc", precision: 15, scale: 3, default: 0.0
+    t.decimal  "closing_blnc", precision: 15, scale: 3, default: 0.0
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
     t.integer  "group_id"
   end
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc", precision: 10, scale: 3, default: 0.0
-    t.string   "trn_type"
+    t.decimal  "opening_blnc", precision: 15, scale: 3, default: 0.0
+    t.integer  "trn_type"
     t.string   "description"
     t.string   "name"
-    t.decimal  "amnt",         precision: 10, scale: 3, default: 0.0
-    t.decimal  "running_blnc", precision: 10, scale: 3, default: 0.0
+    t.decimal  "amnt",         precision: 15, scale: 3, default: 0.0
+    t.decimal  "running_blnc", precision: 15, scale: 3, default: 0.0
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
     t.integer  "ledger_id"

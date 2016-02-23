@@ -1,4 +1,6 @@
 class Files::FloorsheetController < ApplicationController
+	@@file = FileUpload::FILES[:floorsheet];
+
 	def new
 	end
 
@@ -24,12 +26,33 @@ class Files::FloorsheetController < ApplicationController
 			# get bill number
 			@bill_number = get_bill_number
 
+			 
+			# grab date from the first record
+			if xlsx.sheet(0).row(13)[0].nil?
+				flash.now[:error] = "The file is empty"
+				@error = true
+				return
+			end
+			date_data = xlsx.sheet(0).row(13)[0].to_s
+			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}" 
+
+			# do not reprocess file if it is already uploaded
+			floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
+			unless floorsheet_file.nil? 
+				flash.now[:error] = "The file is already uploaded"
+				@error = true
+				return
+			end
+
+
 			# loop through 13th row to last row
 			# data starts from 13th row
-			(13..(xlsx.sheet(0).last_row)).each do |i|	
-				@row_data = xlsx.sheet(0).row(i)		
-				break if @row_data[0] == nil	
-				@processed_data  << process_records(@row_data,hash_dp)
+			ActiveRecord::Base.transaction do
+				(13..(xlsx.sheet(0).last_row)).each do |i|		
+					@row_data = xlsx.sheet(0).row(i)		
+					break if @row_data[0] == nil	
+					@processed_data  << process_records(@row_data,hash_dp)
+				end
 			end
 		end
 	end
@@ -71,7 +94,9 @@ class Files::FloorsheetController < ApplicationController
 			else
 				@dp = 25
 				hash_dp[arr[5].to_s+arr[1].to_s+'buy'] = @bill_number
-				bill = Bill.find_or_create_by(bill_number: @bill_number)
+				bill = Bill.find_or_create_by(bill_number: @bill_number) do |bill|
+					bill.bill_type = Bill.types['receive']
+				end
 				@bill_number += 1
 			end
 
@@ -120,12 +145,48 @@ class Files::FloorsheetController < ApplicationController
 			bill.save!
 		end
 
+		
+
+		# create client ledger if not exist
+		client_ledger = Ledger.find_or_create_by!(client_code: arr[5]) do |ledger|
+			ledger.name = arr[4]
+		end
+		# assign the client ledgers to group clients
+		client_group = Group.find_or_create_by!(name: "Clients")
+		client_group.ledgers << client_ledger
+
+		# find or create predefined ledgers
+		purchase_commission = Ledger.find_or_create_by!(name: "Purchase Commission")
+		nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
+		tds_ledger = Ledger.find_or_create_by!(name: "TDS")
+		dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+
+		# update ledgers value
+		voucher = Voucher.create!
+		process_accounts(client_ledger,voucher,true,@client_dr)
+		process_accounts(nepse_ledger,voucher,false,@bank_deposit)
+		process_accounts(tds_ledger,voucher,true,@tds)
+		process_accounts(purchase_commission,voucher,false,@commision)
+		process_accounts(dp_ledger,voucher,false,@dp) if @dp > 0
+
+		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
+
 		arr.push(@client_dr,@tds,@commision,@bank_deposit,@dp)
+	end
 
-		# TODO
-		# Create ledgers and vouchers
-		# map to user
+	def process_accounts(ledger,voucher, debit, amount)
 
+		trn_type = debit ? Particular.trans_types['dr'] : Particular.trans_types['cr']
+		closing_blnc = ledger.closing_blnc
+
+		if debit
+			ledger.closing_blnc += amount 
+		else 
+			ledger.closing_blnc -= amount
+		end
+
+		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, description: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
+		ledger.save!
 	end
 
 	# get a unique bill number based on fiscal year
