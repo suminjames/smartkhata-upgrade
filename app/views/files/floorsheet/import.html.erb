@@ -1,3 +1,4 @@
+<% if(!@error) %>
 <%= @x %>
 <br>
 <% @processed_data.each do |item| %>
@@ -13,4 +14,8 @@
 	<%= item[15] %>,
 
 	<br>
+<% end %>
+
+<% else %>
+<%= link_to "Upload FloorSheet" ,new_files_floorsheet_path %>
 <% end %>

@@ -2,5 +2,5 @@ class Particular < ActiveRecord::Base
 	belongs_to :ledger
 	belongs_to :voucher
 
-	enum trans_types: [ "Dr", "Cr" ]
+	enum trans_types: [ "dr", "cr" ]
 end

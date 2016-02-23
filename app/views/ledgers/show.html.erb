@@ -30,8 +30,8 @@
 			<%= particular.name.blank? == false ? "as per details" : particular.name 	 %>
 		</div>
 		<div class="col-xs-3">
-			<div class="col-xs-6"><%= number_to_currency(particular.trn_type.to_i == Particular.trans_types['Dr'] ? particular.amnt : "" ) %></div>
-			<div class="col-xs-6"><%= number_to_currency(particular.trn_type.to_i == Particular.trans_types['Cr'] ? particular.amnt : "" ) %></div>
+			<div class="col-xs-6"><%= number_to_currency(particular.trn_type.to_i == Particular.trans_types['dr'] ? particular.amnt : "" ) %></div>
+			<div class="col-xs-6"><%= number_to_currency(particular.trn_type.to_i == Particular.trans_types['cr'] ? particular.amnt : "" ) %></div>
 			
 		</div>
 		<div class="col-xs-3">

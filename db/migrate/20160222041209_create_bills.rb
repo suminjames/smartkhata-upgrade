@@ -3,7 +3,7 @@ class CreateBills < ActiveRecord::Migration
     create_table :bills do |t|
     	t.string :bill_number
     	t.decimal :net_amount , precision: 15, scale: 3, default: 0
-    	t.integer :type
+    	t.integer :bill_type
     	t.integer :status
       t.timestamps null: false
       t.index :bill_number, unique: true
