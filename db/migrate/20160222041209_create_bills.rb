@@ -9,6 +9,7 @@ class CreateBills < ActiveRecord::Migration
     	t.integer :status , default: 0
       t.timestamps null: false
       t.integer :fy_code
+      t.references :client_account
       # t.index :bill_number
     end
 
