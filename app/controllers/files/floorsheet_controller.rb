@@ -86,7 +86,7 @@ class Files::FloorsheetController < ApplicationController
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
 	def process_records(arr,hash_dp, fy_code)
 		@dp = 0
-		@bill = nil
+		bill = nil
 
 		@type_of_transaction = ShareTransaction.trans_types['buy']
 		client = ClientAccount.find_or_create_by!(name: arr[4].upcase, nepse_code: arr[5].upcase)
@@ -156,9 +156,9 @@ class Files::FloorsheetController < ApplicationController
 		)
 
 		if @type_of_transaction == ShareTransaction.trans_types['buy']
-			@bill.share_transactions << trasaction
-			@bill.net_amount += trasaction.net_amount
-			@bill.save!
+			bill.share_transactions << trasaction
+			bill.net_amount += trasaction.net_amount
+			bill.save!
 		end
 
 
