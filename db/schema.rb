@@ -16,8 +16,7 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "bills", force: :cascade do |t|
-    t.string   "bill_number"
+  create_table "bills", force: :cascade do |t| t.string   "bill_number"
     t.decimal  "net_amount",  precision: 15, scale: 3, default: 0.0
     t.integer  "type"
     t.integer  "status"
