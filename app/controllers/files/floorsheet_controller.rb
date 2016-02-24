@@ -80,6 +80,9 @@ class Files::FloorsheetController < ApplicationController
 		bill = nil
 
 		@type_of_transaction = ShareTransaction.trans_types['buy']
+		client = ClientAccount.find_or_create_by!(name: arr[4].upcase, nepse_code: arr[5].upcase)
+
+
 		# check for the bank deposit value which is available only for buy
 		if arr[10].nil? 
 			# if client is charged already with dp fee  for selling particular isin in that day, do not charge again
@@ -91,13 +94,13 @@ class Files::FloorsheetController < ApplicationController
 		else
 			# create or find a bill by the number
 			if hash_dp.has_key?(arr[5].to_s+arr[1].to_s+'buy')
-				bill = Bill.find_or_create_by(bill_number: hash_dp[arr[5].to_s+arr[1].to_s+'buy'], fy_code: fy_code)
+				bill = Bill.find_or_create_by!(bill_number: hash_dp[arr[5].to_s+arr[1].to_s+'buy'], fy_code: fy_code)
 			else
 				@dp = 25
 				hash_dp[arr[5].to_s+arr[1].to_s+'buy'] = @bill_number
-				bill = Bill.find_or_create_by(bill_number: @bill_number, fy_code: fy_code) do |bill|
-					bill.bill_type = Bill.types['receive']
-					bill.client_name = arr[4]
+				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
+					b.bill_type = Bill.types['receive']
+					b.client_name = arr[4]
 				end
 				@bill_number += 1
 			end
@@ -122,14 +125,14 @@ class Files::FloorsheetController < ApplicationController
 		# amount to be debited to client account 
 		@client_dr = @nepse + @sebon + @amnt + @purchase_commission + @dp
 		
+		# get company information to store in the share transaction
+		company_info = IsinInfo.find_or_create_by(isin: arr[1])
 
 		trasaction = ShareTransaction.create(
 			contract_no: arr[0].to_i,
-			symbol: arr[1], 
+			isin_info_id: company_info.id, 
 			buyer: arr[2],
 			seller: arr[3], 
-			client_name: arr[4], 
-			client_code: arr[5],
 			quantity: arr[6],
 			rate: arr[7],
 			share_amount: arr[8],
@@ -139,7 +142,8 @@ class Files::FloorsheetController < ApplicationController
 			cgt: @cgt,
 			net_amount: @client_dr,
 			bank_deposit: arr[10],
-			transaction_type: @type_of_transaction
+			transaction_type: @type_of_transaction,
+			date: @date
 		)			
 
 		if @type_of_transaction == ShareTransaction.trans_types['buy']
@@ -202,7 +206,7 @@ class Files::FloorsheetController < ApplicationController
 			1
 		else
 			# increment the bill number
-			number = bill.bill_number + 1
+			bill.bill_number + 1
 		end
 	end
 

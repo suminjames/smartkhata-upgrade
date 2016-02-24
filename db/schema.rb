@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160222061502) do
+ActiveRecord::Schema.define(version: 20160224080631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,16 +19,59 @@ ActiveRecord::Schema.define(version: 20160222061502) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",     precision: 15, scale: 3, default: 0.0
-    t.decimal  "balance_to_pay", precision: 15, scale: 3, default: 0.0
+    t.decimal  "net_amount",        precision: 15, scale: 3, default: 0.0
+    t.decimal  "balance_to_pay",    precision: 15, scale: 3, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                  default: 0
-    t.datetime "created_at",                                            null: false
-    t.datetime "updated_at",                                            null: false
+    t.integer  "status",                                     default: 0
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
     t.integer  "fy_code"
+    t.integer  "client_account_id"
   end
 
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
+
+  create_table "client_accounts", force: :cascade do |t|
+    t.string   "boid"
+    t.string   "nepse_code"
+    t.date     "date"
+    t.string   "name"
+    t.string   "address1",            default: " "
+    t.string   "address1_perm"
+    t.string   "address2",            default: " "
+    t.string   "address2_perm"
+    t.string   "address3"
+    t.string   "address3_perm"
+    t.string   "city",                default: " "
+    t.string   "city_perm"
+    t.string   "state"
+    t.string   "state_perm"
+    t.string   "country",             default: " "
+    t.string   "country_perm"
+    t.string   "phone"
+    t.string   "phone_perm"
+    t.string   "customer_product_no"
+    t.string   "dp_id"
+    t.string   "dob"
+    t.string   "sex"
+    t.string   "nationality"
+    t.string   "stmt_cycle_code"
+    t.string   "ac_suspension_fl"
+    t.string   "profession_code"
+    t.string   "income_code"
+    t.string   "electronic_dividend"
+    t.string   "dividend_curr"
+    t.string   "email"
+    t.string   "father_husband"
+    t.string   "citizen_passport"
+    t.string   "granfather_spouse"
+    t.string   "purpose_code_add"
+    t.string   "add_holder"
+    t.boolean  "invited",             default: false
+    t.integer  "user_id"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
 
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"
@@ -45,6 +88,17 @@ ActiveRecord::Schema.define(version: 20160222061502) do
     t.integer  "sub_report"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "isin_infos", force: :cascade do |t|
+    t.string   "company"
+    t.string   "isin"
+    t.string   "sector"
+    t.decimal  "max",        precision: 10, scale: 3, default: 0.0
+    t.decimal  "min",        precision: 10, scale: 3, default: 0.0
+    t.decimal  "last_price", precision: 10, scale: 3, default: 0.0
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
   end
 
   create_table "ledgers", force: :cascade do |t|
@@ -72,11 +126,8 @@ ActiveRecord::Schema.define(version: 20160222061502) do
 
   create_table "share_transactions", force: :cascade do |t|
     t.decimal  "contract_no",      precision: 18
-    t.string   "symbol"
     t.integer  "buyer"
     t.integer  "seller"
-    t.string   "client_name"
-    t.string   "client_code"
     t.integer  "quantity"
     t.decimal  "rate",             precision: 10, scale: 3, default: 0.0
     t.decimal  "share_amount",     precision: 15, scale: 3, default: 0.0
@@ -91,6 +142,7 @@ ActiveRecord::Schema.define(version: 20160222061502) do
     t.datetime "created_at",                                              null: false
     t.datetime "updated_at",                                              null: false
     t.integer  "bill_id"
+    t.integer  "isin_info_id"
   end
 
   create_table "users", force: :cascade do |t|
