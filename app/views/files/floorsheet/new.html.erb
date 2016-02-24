@@ -1,5 +1,5 @@
 <div>
-	<h2>Upload Order file</h2>
+	<h2>Upload floorsheet file</h2>
 	<%= form_tag import_files_floorsheet_index_path, multipart: true do %>
 		<div class="form-group">
 			<%= file_field_tag :file %>
@@ -7,6 +7,6 @@
 		<div class="form-group">
 			<%= submit_tag "Import" ,   { :class => 'btn btn-primary' } %>
 		</div>
-	  
+
 	<% end %>
 </div>
