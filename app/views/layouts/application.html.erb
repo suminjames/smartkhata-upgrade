@@ -54,7 +54,6 @@
       -jquery-hotkeys-rails (gem that binds the plugin mentioned above) -->
     -->
   <%= javascript_tag do %>
-    console.log("<%= ledgers_path %>");
     $(document).bind('keyup', 'A', function() {
       // redirect to About page
       // similar behavior as clicking on a link

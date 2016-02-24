@@ -8,7 +8,7 @@ class Files::FloorsheetController < ApplicationController
 
 		# get file from import
 		@file = params[:file];
-		
+
 
 		if @file == nil
 			flash.now[:error] = "Please Upload a valid file"
@@ -26,7 +26,7 @@ class Files::FloorsheetController < ApplicationController
 			# get bill number
 			@bill_number = get_bill_number
 
-			 
+
 			# grab date from the first record
 			if xlsx.sheet(0).row(13)[0].nil?
 				flash.now[:error] = "The file is empty"
@@ -34,11 +34,11 @@ class Files::FloorsheetController < ApplicationController
 				return
 			end
 			date_data = xlsx.sheet(0).row(13)[0].to_s
-			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}" 
+			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}"
 
 			# do not reprocess file if it is already uploaded
 			floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
-			unless floorsheet_file.nil? 
+			unless floorsheet_file.nil?
 				flash.now[:error] = "The file is already uploaded"
 				@error = true
 				return
@@ -48,28 +48,37 @@ class Files::FloorsheetController < ApplicationController
 			# loop through 13th row to last row
 			# data starts from 13th row
 			ActiveRecord::Base.transaction do
-				(13..(xlsx.sheet(0).last_row)).each do |i|		
-				# (13..15).each do |i|	
-					@row_data = xlsx.sheet(0).row(i)		
-					break if @row_data[0] == nil	
+				(13..(xlsx.sheet(0).last_row)).each do |i|
+				# (13..15).each do |i|
+					@row_data = xlsx.sheet(0).row(i)
+					break if @row_data[0] == nil
 					@processed_data  << process_records(@row_data,hash_dp, fy_code)
 				end
 			end
 		end
 	end
 
-	def get_commision(amount)
+	def get_commission_rate(amount)
 		case amount
 			when 0..25000
-				25
+				"flat_25"
 			when 25001..50000
-				0.01*amount
+				"0.1"
 			when 50001..500000
-				0.009 * amount
+				"0.9"
 			when 500001..100000
-				0.008 * amount
+				"0.8"
 			else
-				0.007 * amount
+				"0.7"
+		end
+	end
+
+	def get_commision(amount)
+		commision_rate = get_commission_rate(amount)
+		if (commision_rate == "flat_25")
+			return 25
+		else
+			return amount * commision_rate.to_i * 0.01
 		end
 	end
 
@@ -77,14 +86,14 @@ class Files::FloorsheetController < ApplicationController
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
 	def process_records(arr,hash_dp, fy_code)
 		@dp = 0
-		bill = nil
+		@bill = nil
 
 		@type_of_transaction = ShareTransaction.trans_types['buy']
 		client = ClientAccount.find_or_create_by!(name: arr[4].upcase, nepse_code: arr[5].upcase)
 
 
 		# check for the bank deposit value which is available only for buy
-		if arr[10].nil? 
+		if arr[10].nil?
 			# if client is charged already with dp fee  for selling particular isin in that day, do not charge again
 			unless hash_dp.has_key?(arr[5].to_s+arr[1].to_s+'sell')
 				@dp = 25
@@ -122,17 +131,17 @@ class Files::FloorsheetController < ApplicationController
 		@sebon = @amnt * 0.00015
 		@bank_deposit = @nepse + @tds + @sebon + @amnt
 
-		# amount to be debited to client account 
+		# amount to be debited to client account
 		@client_dr = @nepse + @sebon + @amnt + @purchase_commission + @dp
-		
+
 		# get company information to store in the share transaction
 		company_info = IsinInfo.find_or_create_by(isin: arr[1])
 
 		trasaction = ShareTransaction.create(
 			contract_no: arr[0].to_i,
-			isin_info_id: company_info.id, 
+			isin_info_id: company_info.id,
 			buyer: arr[2],
-			seller: arr[3], 
+			seller: arr[3],
 			quantity: arr[6],
 			rate: arr[7],
 			share_amount: arr[8],
@@ -144,15 +153,15 @@ class Files::FloorsheetController < ApplicationController
 			bank_deposit: arr[10],
 			transaction_type: @type_of_transaction,
 			date: @date
-		)			
+		)
 
 		if @type_of_transaction == ShareTransaction.trans_types['buy']
-			bill.share_transactions << trasaction
-			bill.net_amount += trasaction.net_amount
-			bill.save!
+			@bill.share_transactions << trasaction
+			@bill.net_amount += trasaction.net_amount
+			@bill.save!
 		end
 
-		
+
 
 		# create client ledger if not exist
 		client_ledger = Ledger.find_or_create_by!(client_code: arr[5]) do |ledger|
@@ -187,8 +196,8 @@ class Files::FloorsheetController < ApplicationController
 		closing_blnc = ledger.closing_blnc
 
 		if debit
-			ledger.closing_blnc += amount 
-		else 
+			ledger.closing_blnc += amount
+		else
 			ledger.closing_blnc -= amount
 		end
 

@@ -1,4 +1,251 @@
 <p id="notice"><%= notice %></p>
+<%= @bill.get_share_amount %>
+<%
+# Everything that needs to be dynamically populated is stored in this section. Availability and prettifying is done in this section.
+bill_number = @bill.bill_number
+bill_date = @bill.created_at
+fiscal_year = @bill.fy_code
 
-<%= link_to 'Edit', edit_bill_path(@bill) %> |
+customer_name = @bill.client_name
+customer_nepse_code = 'TODO'
+customer_mobile_number = 'TODO'
+customer_phone_number = 'TODO'
+
+clearance_date_ad = 'TODO'
+clearance_date_bs = 'TODO'
+transaction_date_ad = 'TODO'
+transaction_date_bs = 'TODO'
+
+share_amount = 'TODO'
+sebo_commission = 'TODO'
+commision_amount = 'TODO'
+name_transfer_amount = 'TODO'
+dp_fee = 'TODO'
+capital_gain_tax = 'TODO'
+net_receivable_amount = 'TODO'
+net_payable_amount = 'TODO'
+%>
+
+<div class="clearfix" style="background:#eff4f6; padding:5px">
+
+  <!-- Static Company Header BEGINS -->
+  <div class="clearfix" style="background:#eff4f6">
+    TRISHAKTI SECURITIES PUBLIC LTD.<br>
+    Putalisadak, Kathmandu.<br>
+    <div class="row">
+      <div class="col-xs-3">
+        Phone: 977-1-4232132
+        <br>
+        Fax: 977-1-4232133
+        <br>
+        PAN: 302830905
+        <br>
+      </div>
+      <div class="col-xs-6 text-center">
+        Schedule-3
+        <br>
+        Relating to Sub-Regulation(I) of Regulation 16
+        <br>
+        Information note to cients on execution of transation
+        <br>
+      </div>
+    </div>
+    <div class="clearfix" style="padding-top:1em; border-bottom: solid 1px; border-bottom-color: #0d0c0c "></div>
+  </div>
+  <!-- Static Company Header ENDS-->
+
+  <!-- Bill No. and Bill Date BEGINS -->
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+    <div class="col-xs-4" style="background:#eff4f6">
+      Bill No:
+      <%= bill_number %>
+    </div>
+    <div class="col-xs-4" style="background:#eff4f6">
+      <!-- TODO
+      -correctly format  the date
+      -include nepali BS date
+      -include correct timezone?
+    -->
+      Bill Date:
+      <%= bill_date %>
+    </div>
+    <div class="col-xs-4" style="background:#eff4f6">
+      <!-- TODO
+      -correctly fetch the date
+    -->
+      Fiscal Year:
+      <%= fiscal_year %>
+    </div>
+  </div>
+  <!-- Bill No. and Bill Date ENDS -->
+
+  <!-- Customer Details BEGINS -->
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+    <div class="col-xs-4" style="background:#eff4f6">
+      <table class="table">
+        <tr>
+          <td>Customer:</td>
+          <td><%= customer_name %>
+          </td>
+        </tr>
+        <tr>
+          <td>NEPSE Code:</td>
+          <td><%= customer_nepse_code %></td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-4 col-xs-offset-4" style="background:#eff4f6">
+      <table class="table">
+        <tr>
+          <td>Mobile No.:</td>
+          <td><%= customer_mobile_number %></td>
+        </tr>
+        <tr>
+          <td>Telephone No.:</td>
+          <td><%= customer_phone_number %></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <!-- Customer Details ENDS -->
+
+  <!-- Transaction Details BEGINS -->
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+    <table class="table table-striped table-condensed">
+      <tr>
+        <th>Transaction No</th>
+        <th>No of Shares</th>
+        <th>Company Name</th>
+        <th>Share Rate</th>
+        <th>Base Price</th>
+        <th>Amount</th>
+        <th>Commission</th>
+        <th>Commission Amount</th>
+        <th>Capital Gain</th>
+      </tr>
+      <%
+@bill.share_transactions.each do | share_transaction |
+%>
+      <tr>
+        <!-- <th>Transaction No</th> -->
+        <td><%= share_transaction.contract_no %></td>
+        <!-- <th>No of Shares</th> -->
+        <td><%= share_transaction.quantity %></td>
+        <!-- <th>Company Name</th> -->
+        <td><%= share_transaction.symbol %></td>
+        <!-- <th>Share Rate</th> -->
+        <td><%= share_transaction.rate %></td>
+        <!-- <th>Base Price</th> -->
+        <td> TODO </td>
+        <!-- <th>Amount</th> -->
+        <td><%= share_transaction.quantity * share_transaction.rate.to_i %></td>
+        <!-- <th>Commission</th> -->
+        <td>0.9%</td>
+        <!-- <th>Commission Amount</th> -->
+        <td><%= share_transaction.commission %></td>
+        <!-- <th>Capital Gain</th> -->
+        <td> TODO</td>
+      </tr>
+
+      <%
+end
+%>
+    </table>
+  </div>
+  <!-- Transaction Details ENDS -->
+
+  <!-- Calculations at the Bottom BEGINS -->
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+    <div class="col-xs-6 text-center">
+      <table class="table table-condensed">
+        <tr>
+          <td>Share Amount:</td>
+          <td><%= share_amount %></td>
+        </tr>
+        <tr>
+          <td>SEBO Commission:</td>
+          <td><%= sebo_commission %></td>
+        </tr>
+        <tr>
+          <td>Commision Amount:</td>
+          <td><%= commision_amount %></td>
+        </tr>
+        <tr>
+          <td>Name Transfer Amount:</td>
+          <td><%= name_transfer_amount %></td>
+        </tr>
+        <tr>
+          <td>DP Fee:</td>
+          <td><%= dp_fee %></td>
+        </tr>
+        <tr>
+          <td>Capital Gain:</td>
+          <td><%= capital_gain_tax %></td>
+        </tr>
+        <tr>
+          <td>Net Receivable Amount:</td>
+          <td><%= net_receivable_amount %></td>
+        </tr>
+        <tr>
+          <td>Net Payable Amount:</td>
+          <td><%= net_payable_amount %></td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-6 text-center">
+      <!-- Dates section BEGINS -->
+      <div>
+        <table class="table table-condensed">
+          <tr>
+            <td>Date of clearance</td>
+            <td>:
+              <%= clearance_date_ad %>
+            </td>
+            <td>Miti</td>
+            <td>:
+              <%= clearance_date_bs %>
+            </td>
+          </tr>
+          <tr>
+            <td>Transaction Date</td>
+            <td>:
+              <%= transaction_date_ad %>
+            </td>
+            <td>Miti</td>
+            <td>:
+              <%= transaction_date_bs %>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <!-- Dates section ENDS -->
+
+      <!-- Authorised Signature section BEGINS -->
+      <div class="row" style="padding-top:100px">
+        <div class="col-xs-offset-2 text-center">
+          (Authorized Signature)
+          <br>
+          TRISHAKTI SECURITIES PUBLIC LTD.
+          <br>
+          Broker Code No.: 48
+          <br>
+          Nepal Stock Exchange
+        </div>
+      </div>
+      <!-- Authorised Signature section ENDS -->
+    </div>
+  </div>
+
+  <div class="clearfix" style="text-decoration:underline">
+    <!-- Footnote BEGINS -->
+    <em>
+      Note: Please bring this bill for enquiry and further processing.
+    </em>
+    <!-- Footnote ENDS -->
+  </div>
+</div>
+<!--
+<%= link_to 'Edit', edit_bill_path(@bill) %>
+|
 <%= link_to 'Back', bills_path %>
+-->
