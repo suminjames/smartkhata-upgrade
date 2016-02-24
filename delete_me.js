@@ -1,0 +1,25 @@
+#
+<
+ShareTransaction id : 2,
+contract_no : 201602143039932,
+symbol : "NMB",
+buyer : 48,
+seller : 58,
+client_name : "ARJUN BAHADUR KARKI",
+client_code : "AK110779",
+quantity : 80,
+rate : # < BigDecimal : 7 f9b52862640,'0.51E3',9(18) > ,
+share_amount : # < BigDecimal : 7 f9b528624d8,'0.408E5',9(18) > ,
+sebo : # < BigDecimal : 7 f9b52862370,'0.612E1',18(18) > ,
+commission : # < BigDecimal : 7 f9b52862258,'0.408E3',9(18) > ,
+dp_fee : # < BigDecimal : 7 f9b52862140,'0.25E2',9(18) > ,
+cgt : # < BigDecimal : 7 f9b52861fd8, '0.0',9(18) > ,
+net_amount : # < BigDecimal : 7 f9b52861df8, '0.4123912E5', 18(18) > ,
+bank_deposit : # < BigDecimal : 7 f9b52861c68, '0.4095402E5', 18(18) > ,
+transaction_type : 0,
+date : nil,
+created_at : "2016-02-24 04 : 59 : 47",
+updated_at : "2016-02-24 04 : 59 : 47",
+bill_id :
+2 > ,
+#

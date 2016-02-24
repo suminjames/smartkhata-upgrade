@@ -1,7 +1,30 @@
 <p id="notice"><%= notice %></p>
-<p>
-  <%= @whatever %>
-</p>
+<%= @bill.get_share_amount %>
+<%
+# Everything that needs to be dynamically populated is stored in this section. Availability and prettifying is done in this section.
+bill_number = @bill.bill_number
+bill_date = @bill.created_at
+fiscal_year = @bill.fy_code
+
+customer_name = @bill.client_name
+customer_nepse_code = 'TODO'
+customer_mobile_number = 'TODO'
+customer_phone_number = 'TODO'
+
+clearance_date_ad = 'TODO'
+clearance_date_bs = 'TODO'
+transaction_date_ad = 'TODO'
+transaction_date_bs = 'TODO'
+
+share_amount = 'TODO'
+sebo_commission = 'TODO'
+commision_amount = 'TODO'
+name_transfer_amount = 'TODO'
+dp_fee = 'TODO'
+capital_gain_tax = 'TODO'
+net_receivable_amount = 'TODO'
+net_payable_amount = 'TODO'
+%>
 
 <div class="clearfix" style="background:#eff4f6; padding:5px">
 
@@ -35,7 +58,7 @@
   <div class="clearfix" style="padding-top:1em; background:#eff4f6">
     <div class="col-xs-4" style="background:#eff4f6">
       Bill No:
-      <%= @bill.bill_number %>
+      <%= bill_number %>
     </div>
     <div class="col-xs-4" style="background:#eff4f6">
       <!-- TODO
@@ -44,13 +67,14 @@
       -include correct timezone?
     -->
       Bill Date:
-      <%= @bill.created_at%>
+      <%= bill_date %>
     </div>
     <div class="col-xs-4" style="background:#eff4f6">
       <!-- TODO
       -correctly fetch the date
     -->
-      Fiscal Year: 2072/2073
+      Fiscal Year:
+      <%= fiscal_year %>
     </div>
   </div>
   <!-- Bill No. and Bill Date ENDS -->
@@ -61,11 +85,12 @@
       <table class="table">
         <tr>
           <td>Customer:</td>
-          <td>John Doe</td>
+          <td><%= customer_name %>
+          </td>
         </tr>
         <tr>
           <td>NEPSE Code:</td>
-          <td>JD0123</td>
+          <td><%= customer_nepse_code %></td>
         </tr>
       </table>
     </div>
@@ -73,11 +98,11 @@
       <table class="table">
         <tr>
           <td>Mobile No.:</td>
-          <td>9898989898</td>
+          <td><%= customer_mobile_number %></td>
         </tr>
         <tr>
           <td>Telephone No.:</td>
-          <td>0148897879</td>
+          <td><%= customer_phone_number %></td>
         </tr>
       </table>
     </div>
@@ -98,28 +123,33 @@
         <th>Commission Amount</th>
         <th>Capital Gain</th>
       </tr>
+      <%
+@bill.share_transactions.each do | share_transaction |
+%>
       <tr>
-        <td>201698654356789</td>
-        <td>200(200*1)</td>
-        <td>Berkshire Hathaway</td>
-        <td>100934</td>
-        <td></td>
-        <td>23456789</td>
+        <!-- <th>Transaction No</th> -->
+        <td><%= share_transaction.contract_no %></td>
+        <!-- <th>No of Shares</th> -->
+        <td><%= share_transaction.quantity %></td>
+        <!-- <th>Company Name</th> -->
+        <td><%= share_transaction.symbol %></td>
+        <!-- <th>Share Rate</th> -->
+        <td><%= share_transaction.rate %></td>
+        <!-- <th>Base Price</th> -->
+        <td> TODO </td>
+        <!-- <th>Amount</th> -->
+        <td><%= share_transaction.quantity * share_transaction.rate.to_i %></td>
+        <!-- <th>Commission</th> -->
         <td>0.9%</td>
-        <td>876598</td>
-        <td></td>
+        <!-- <th>Commission Amount</th> -->
+        <td><%= share_transaction.commission %></td>
+        <!-- <th>Capital Gain</th> -->
+        <td> TODO</td>
       </tr>
-      <tr>
-        <td>201698654356789</td>
-        <td>200(200*1)</td>
-        <td>Berkshire Hathaway</td>
-        <td>100934</td>
-        <td></td>
-        <td>23456789</td>
-        <td>0.9%</td>
-        <td>876598</td>
-        <td></td>
-      </tr>
+
+      <%
+end
+%>
     </table>
   </div>
   <!-- Transaction Details ENDS -->
@@ -130,35 +160,35 @@
       <table class="table table-condensed">
         <tr>
           <td>Share Amount:</td>
-          <td>23423434</td>
+          <td><%= share_amount %></td>
         </tr>
         <tr>
           <td>SEBO Commission:</td>
-          <td>34.31</td>
+          <td><%= sebo_commission %></td>
         </tr>
         <tr>
           <td>Commision Amount:</td>
-          <td>2058.30</td>
+          <td><%= commision_amount %></td>
         </tr>
         <tr>
           <td>Name Transfer Amount:</td>
-          <td>0.00</td>
+          <td><%= name_transfer_amount %></td>
         </tr>
         <tr>
           <td>DP Fee:</td>
-          <td>25.00</td>
+          <td><%= dp_fee %></td>
         </tr>
         <tr>
-          <td>Capital Gain Text:</td>
-          <td>0.00</td>
+          <td>Capital Gain:</td>
+          <td><%= capital_gain_tax %></td>
         </tr>
         <tr>
           <td>Net Receivable Amount:</td>
-          <td>230817.81</td>
+          <td><%= net_receivable_amount %></td>
         </tr>
         <tr>
           <td>Net Payable Amount:</td>
-          <td></td>
+          <td><%= net_payable_amount %></td>
         </tr>
       </table>
     </div>
@@ -168,15 +198,23 @@
         <table class="table table-condensed">
           <tr>
             <td>Date of clearance</td>
-            <td>: 22-FEB-2016</td>
+            <td>:
+              <%= clearance_date_ad %>
+            </td>
             <td>Miti</td>
-            <td>: 2072-11-10</td>
+            <td>:
+              <%= clearance_date_bs %>
+            </td>
           </tr>
           <tr>
             <td>Transaction Date</td>
-            <td>: 22-FEB-2016</td>
+            <td>:
+              <%= transaction_date_ad %>
+            </td>
             <td>Miti</td>
-            <td>: 2072-11-10</td>
+            <td>:
+              <%= transaction_date_bs %>
+            </td>
           </tr>
         </table>
       </div>
@@ -206,7 +244,6 @@
     <!-- Footnote ENDS -->
   </div>
 </div>
-
 <!--
 <%= link_to 'Edit', edit_bill_path(@bill) %>
 |
