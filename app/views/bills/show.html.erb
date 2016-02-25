@@ -29,7 +29,7 @@ transaction_date_ad = transaction_date_ad.to_s + ' AD'
 
 share_amount = 'TODO'
 sebo_commission = 'TODO'
-commision_amount = 'TODO'
+commission_amount = 'TODO'
 name_transfer_amount = 'TODO'
 dp_fee = 'TODO'
 capital_gain_tax = 'TODO'
@@ -141,15 +141,15 @@ net_payable_amount = 'TODO'
         <!-- <th>Company Name</th> -->
         <td><%= share_transaction.isin_info.company %> (<%= share_transaction.isin_info.isin %>) </td>
         <!-- <th>Share Rate</th> -->
-        <td><%= share_transaction.rate %></td>
+        <td><%= share_transaction.commission_rate %></td>
         <!-- <th>Base Price</th> -->
         <td> TODO </td>
         <!-- <th>Amount</th> -->
-        <td><%= share_transaction.quantity * share_transaction.rate.to_i %></td>
+        <td><%= share_transaction.quantity * share_transaction.commission_rate.to_i %></td>
         <!-- <th>Commission</th> -->
         <td>0.9%</td>
         <!-- <th>Commission Amount</th> -->
-        <td><%= share_transaction.commission %></td>
+        <td><%= share_transaction.commission_amount%></td>
         <!-- <th>Capital Gain</th> -->
         <td> TODO</td>
       </tr>
@@ -174,8 +174,8 @@ end
           <td><%= sebo_commission %></td>
         </tr>
         <tr>
-          <td>Commision Amount:</td>
-          <td><%= commision_amount %></td>
+          <td>commission Amount:</td>
+          <td><%= commission_amount %></td>
         </tr>
         <tr>
           <td>Name Transfer Amount:</td>

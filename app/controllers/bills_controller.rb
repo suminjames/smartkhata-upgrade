@@ -10,7 +10,7 @@ class BillsController < ApplicationController
   # GET /bills/1
   # GET /bills/1.json
   def show
-    #TODO Display 'Bill not found is invalid Id'
+    #TODO Display 'Bill not found if invalid Id'
   end
 
   # GET /bills/new
