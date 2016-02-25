@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20160224080631) do
 
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
+    #TODO delete client_name as client_account_id has been added
     t.string   "client_name"
     t.decimal  "net_amount",        precision: 15, scale: 3, default: 0.0
     t.decimal  "balance_to_pay",    precision: 15, scale: 3, default: 0.0
@@ -129,9 +130,11 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.integer  "buyer"
     t.integer  "seller"
     t.integer  "quantity"
+    # TODO: rename rate to comission_rate
     t.decimal  "rate",             precision: 10, scale: 3, default: 0.0
     t.decimal  "share_amount",     precision: 15, scale: 3, default: 0.0
     t.decimal  "sebo",             precision: 15, scale: 3, default: 0.0
+    # TODO: rename rate to comission_amount
     t.decimal  "commission",       precision: 15, scale: 3, default: 0.0
     t.decimal  "dp_fee",           precision: 15, scale: 3, default: 0.0
     t.decimal  "cgt",              precision: 15, scale: 3, default: 0.0

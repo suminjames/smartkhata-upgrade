@@ -65,15 +65,18 @@ task :fetch_companies => :environment do
 
   end
 
-
   details =  get_isin_details
-  # pp details
   # store all details into IsinInfo Table
   details.each do |x|
-  	IsinInfo.find_or_create_by!(isin: x[:isin]) do |isin|
-      isin.company = x[:company]
-      isin.sector = x[:sector]
-    end
+       record = IsinInfo.find_or_create_by!(isin: x[:isin]) do |isin|
+       isin.company = x[:company]
+       isin.sector = x[:sector]
+     end
+     # update the company name if not available already
+     record.update( company: x[:company]) if record.company.nil?
+     # update the sector if not available already
+     record.update( sector: x[:sector]) if record.sector.nil? && !x[:sector].blank?
+
   end
   puts "#{date} : Sucessfully Fetched  Companies"
 
