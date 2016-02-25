@@ -17,7 +17,7 @@ class Files::FloorsheetController < ApplicationController
 			# read the xls file
 			xlsx = Roo::Spreadsheet.open(@file)
 
-			# hash to store unique combination of isin, trasaction type (buy/sell), client
+			# hash to store unique combination of isin, transaction type (buy/sell), client
 			hash_dp = Hash.new
 
 			# array to store processed data
@@ -73,12 +73,12 @@ class Files::FloorsheetController < ApplicationController
 		end
 	end
 
-	def get_commision(amount)
-		commision_rate = get_commission_rate(amount)
-		if (commision_rate == "flat_25")
+	def get_commission(amount)
+		commission_rate = get_commission_rate(amount)
+		if (commission_rate == "flat_25")
 			return 25
 		else
-			return amount * commision_rate.to_i * 0.01
+			return amount * commission_rate.to_f * 0.01
 		end
 	end
 
@@ -124,10 +124,10 @@ class Files::FloorsheetController < ApplicationController
 		# @bank_deposit: deposit to nepse
 		@cgt = 0
 		@amnt = arr[8]
-		@commision = get_commision(@amnt)
-		@purchase_commission = @commision * 0.75
-		@nepse = @commision * 0.25
-		@tds = @commision * 0.75 * 0.15
+		@commission = get_commission(@amnt)
+		@purchase_commission = @commission * 0.75
+		@nepse = @commission * 0.25
+		@tds = @commission * 0.75 * 0.15
 		@sebon = @amnt * 0.00015
 		@bank_deposit = @nepse + @tds + @sebon + @amnt
 
@@ -137,16 +137,16 @@ class Files::FloorsheetController < ApplicationController
 		# get company information to store in the share transaction
 		company_info = IsinInfo.find_or_create_by(isin: arr[1])
 
-		trasaction = ShareTransaction.create(
+		transaction = ShareTransaction.create(
 			contract_no: arr[0].to_i,
 			isin_info_id: company_info.id,
 			buyer: arr[2],
 			seller: arr[3],
 			quantity: arr[6],
-			rate: arr[7],
+			commission_rate: arr[7],
 			share_amount: arr[8],
 			sebo: @sebon,
-			commission: @commision,
+			commission_amount: @commission,
 			dp_fee: @dp,
 			cgt: @cgt,
 			net_amount: @client_dr,
@@ -156,8 +156,8 @@ class Files::FloorsheetController < ApplicationController
 		)
 
 		if @type_of_transaction == ShareTransaction.trans_types['buy']
-			bill.share_transactions << trasaction
-			bill.net_amount += trasaction.net_amount
+			bill.share_transactions << transaction
+			bill.net_amount += transaction.net_amount
 			bill.save!
 		end
 
@@ -187,7 +187,7 @@ class Files::FloorsheetController < ApplicationController
 
 		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
 
-		arr.push(@client_dr,@tds,@commision,@bank_deposit,@dp)
+		arr.push(@client_dr,@tds,@commission,@bank_deposit,@dp)
 	end
 
 	def process_accounts(ledger,voucher, debit, amount)

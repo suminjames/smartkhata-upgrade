@@ -9,8 +9,8 @@ class Bill < ActiveRecord::Base
 			return self.share_transactions.sum(:share_amount);
   end
 
-  # Returns total sebo commision from all child share_transactions
-  def get_sebo_commision
+  # Returns total sebo commission from all child share_transactions
+  def get_sebo_commission
 			return self.share_transactions.sum(:sebo);
   end
 
