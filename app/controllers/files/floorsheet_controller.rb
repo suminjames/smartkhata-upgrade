@@ -1,3 +1,4 @@
+#TODO: Bill status should be (be default) in pending
 class Files::FloorsheetController < ApplicationController
 	@@file = FileUpload::FILES[:floorsheet];
 
@@ -52,7 +53,7 @@ class Files::FloorsheetController < ApplicationController
 				# (13..15).each do |i|
 					@row_data = xlsx.sheet(0).row(i)
 					break if @row_data[0] == nil
-					@processed_data  << process_records(@row_data,hash_dp, fy_code)
+					@processed_data  << process_records(@row_data, hash_dp, fy_code)
 				end
 			end
 		end
@@ -82,80 +83,111 @@ class Files::FloorsheetController < ApplicationController
 		end
 	end
 
-	# arr  => [Contract No.,Symbol,Buyer Broking Firm Code,Seller Broking Firm Code,Client Name,Client Code,Quantity ,Rate,Amount,Stock Comm.,Bank Deposit,NIL]
+	# TODO: Change arr to hash (maybe)
+	# arr =[
+	# 	Contract No.,
+	# 	Symbol,
+	# 	Buyer Broking Firm Code,
+	# 	Seller Broking Firm Code,
+	# 	Client Name,
+	# 	Client Code,
+	# 	Quantity,
+	# 	Rate,
+	# 	Amount,
+	# 	Stock Comm.,
+	# 	Bank Deposit,
+	# 	NIL
+	# ]
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
-	def process_records(arr,hash_dp, fy_code)
-		@dp = 0
+	def process_records(arr ,hash_dp, fy_code)
+		contract_no = arr[0]
+		company_symbol = arr[1]
+		buyer_broking_firm_code = arr[2]
+		seller_broking_firm_code = arr[3]
+		client_name = arr[4]
+		client_name = arr[5]
+		share_quantity =  arr[6]
+		share_rate = arr[7]
+		share_net_amount = arr[8]
+		#TODO look into the usage of arr[9] (Stock Commission)
+		bank_deposit = arr[10]
+		# arr[11] = NIL
+
+
+		dp = 0
 		bill = nil
 
-		@type_of_transaction = ShareTransaction.trans_types['buy']
-		client = ClientAccount.find_or_create_by!(name: arr[4].upcase, nepse_code: arr[5].upcase)
+		type_of_transaction = ShareTransaction.trans_types['buy']
+		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_name.upcase)
 
 
 		# check for the bank deposit value which is available only for buy
-		if arr[10].nil?
+		if bank_deposit.nil?
 			# if client is charged already with dp fee  for selling particular isin in that day, do not charge again
-			unless hash_dp.has_key?(arr[5].to_s+arr[1].to_s+'sell')
-				@dp = 25
-				hash_dp[arr[5].to_s+arr[1].to_s+'sell'] = true
+			unless hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'sell')
+				dp = 25
+				hash_dp[client_name.to_s+company_symbol.to_s+'sell'] = true
 			end
-			@type_of_transaction = ShareTransaction.trans_types['sell']
+			type_of_transaction = ShareTransaction.trans_types['sell']
 		else
 			# create or find a bill by the number
-			if hash_dp.has_key?(arr[5].to_s+arr[1].to_s+'buy')
-				bill = Bill.find_or_create_by!(bill_number: hash_dp[arr[5].to_s+arr[1].to_s+'buy'], fy_code: fy_code)
+			if hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'buy')
+				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+company_symbol.to_s+'buy'], fy_code: fy_code)
 			else
-				@dp = 25
-				hash_dp[arr[5].to_s+arr[1].to_s+'buy'] = @bill_number
+				dp = 25
+				hash_dp[client_name.to_s+company_symbol.to_s+'buy'] = @bill_number
 				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
 					b.bill_type = Bill.types['receive']
-					b.client_name = arr[4]
+					b.client_name = client_name
 				end
 				@bill_number += 1
 			end
 
 		end
 
-		# @amnt: amount of the transaction
-		# @commission: Broker commission
-		# @nepse: nepse commission
-		# @tds: tds amount deducted from the broker commission
-		# @sebon: sebon fee
-		# @bank_deposit: deposit to nepse
-		@cgt = 0
-		@amnt = arr[8]
-		@commission = get_commission(@amnt)
-		@purchase_commission = @commission * 0.75
-		@nepse = @commission * 0.25
-		@tds = @commission * 0.75 * 0.15
-		@sebon = @amnt * 0.00015
-		@bank_deposit = @nepse + @tds + @sebon + @amnt
+		# amnt: amount of the transaction
+		# commission: Broker commission
+		# nepse: nepse commission
+		# tds: tds amount deducted from the broker commission
+		# sebon: sebon fee
+		# bank_deposit: deposit to nepse
+		cgt = 0
+		amnt = share_net_amount
+		commission = get_commission(amnt)
+		commission_rate = get_commission_rate(amnt)
+		purchase_commission = commission * 0.75
+		nepse = commission * 0.25
+		tds = commission * 0.75 * 0.15
+		sebon = amnt * 0.00015
+		bank_deposit = nepse + tds + sebon + amnt
 
 		# amount to be debited to client account
-		@client_dr = @nepse + @sebon + @amnt + @purchase_commission + @dp
+		@client_dr = nepse + sebon + amnt + purchase_commission + dp
 
 		# get company information to store in the share transaction
-		company_info = IsinInfo.find_or_create_by(isin: arr[1])
+		company_info = IsinInfo.find_or_create_by(isin: company_symbol)
 
+		# TODO: Include base price
 		transaction = ShareTransaction.create(
-			contract_no: arr[0].to_i,
+			contract_no: contract_no.to_i,
 			isin_info_id: company_info.id,
-			buyer: arr[2],
-			seller: arr[3],
-			quantity: arr[6],
-			commission_rate: arr[7],
-			share_amount: arr[8],
-			sebo: @sebon,
-			commission_amount: @commission,
-			dp_fee: @dp,
-			cgt: @cgt,
-			net_amount: @client_dr,
-			bank_deposit: arr[10],
-			transaction_type: @type_of_transaction,
+			buyer: buyer_broking_firm_code,
+			seller: seller_broking_firm_code,
+			quantity: share_quantity,
+			share_rate: share_rate,
+			share_amount: share_net_amount,
+			sebo: sebon,
+			commission_rate: commission_rate,
+			commission_amount: commission,
+			dp_fee: dp,
+			cgt: cgt,
+			net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amnt + purchase_commission + dp. Not to be confused with share_amount
+			bank_deposit: bank_deposit,
+			transaction_type: type_of_transaction,
 			date: @date
 		)
 
-		if @type_of_transaction == ShareTransaction.trans_types['buy']
+		if type_of_transaction == ShareTransaction.trans_types['buy']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.save!
@@ -164,15 +196,15 @@ class Files::FloorsheetController < ApplicationController
 
 
 		# create client ledger if not exist
-		client_ledger = Ledger.find_or_create_by!(client_code: arr[5]) do |ledger|
-			ledger.name = arr[4]
+		client_ledger = Ledger.find_or_create_by!(client_code: client_name) do |ledger|
+			ledger.name = client_name
 		end
 		# assign the client ledgers to group clients
 		client_group = Group.find_or_create_by!(name: "Clients")
 		client_group.ledgers << client_ledger
 
 		# find or create predefined ledgers
-		purchase_commission = Ledger.find_or_create_by!(name: "Purchase Commission")
+		purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
 		nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
 		tds_ledger = Ledger.find_or_create_by!(name: "TDS")
 		dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
@@ -180,14 +212,14 @@ class Files::FloorsheetController < ApplicationController
 		# update ledgers value
 		voucher = Voucher.create!
 		process_accounts(client_ledger,voucher,true,@client_dr)
-		process_accounts(nepse_ledger,voucher,false,@bank_deposit)
-		process_accounts(tds_ledger,voucher,true,@tds)
-		process_accounts(purchase_commission,voucher,false,@purchase_commission)
-		process_accounts(dp_ledger,voucher,false,@dp) if @dp > 0
+		process_accounts(nepse_ledger,voucher,false,bank_deposit)
+		process_accounts(tds_ledger,voucher,true,tds)
+		process_accounts(purchase_commission_ledger,voucher,false,purchase_commission)
+		process_accounts(dp_ledger,voucher,false,dp) if dp > 0
 
 		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
 
-		arr.push(@client_dr,@tds,@commission,@bank_deposit,@dp)
+		arr.push(@client_dr,tds,commission,bank_deposit,dp)
 	end
 
 	def process_accounts(ledger,voucher, debit, amount)
