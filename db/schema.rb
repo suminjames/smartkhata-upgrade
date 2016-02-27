@@ -129,6 +129,7 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.integer  "buyer"
     t.integer  "seller"
     t.integer  "quantity"
+    t.decimal  "share_rate",        precision: 10, scale: 3, default: 0.0
     t.decimal  "share_amount",      precision: 15, scale: 3, default: 0.0
     t.decimal  "sebo",              precision: 15, scale: 3, default: 0.0
     t.string   "commission_rate"
