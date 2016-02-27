@@ -105,7 +105,7 @@ class Files::FloorsheetController < ApplicationController
 		buyer_broking_firm_code = arr[2]
 		seller_broking_firm_code = arr[3]
 		client_name = arr[4]
-		client_name = arr[5]
+		client_nepse_code = arr[5]
 		share_quantity =  arr[6]
 		share_rate = arr[7]
 		share_net_amount = arr[8]
@@ -118,7 +118,7 @@ class Files::FloorsheetController < ApplicationController
 		bill = nil
 
 		type_of_transaction = ShareTransaction.trans_types['buy']
-		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_name.upcase)
+		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_nepse_code.upcase)
 
 
 		# check for the bank deposit value which is available only for buy
@@ -196,7 +196,7 @@ class Files::FloorsheetController < ApplicationController
 
 
 		# create client ledger if not exist
-		client_ledger = Ledger.find_or_create_by!(client_code: client_name) do |ledger|
+		client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
 			ledger.name = client_name
 		end
 		# assign the client ledgers to group clients
