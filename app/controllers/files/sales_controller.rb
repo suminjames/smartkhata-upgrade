@@ -1,5 +1,6 @@
 class Files::SalesController < ApplicationController
   def new
+    # new
   end
 
 	def import

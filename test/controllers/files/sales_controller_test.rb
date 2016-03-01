@@ -9,4 +9,9 @@ class Files::SalesControllerTest < ActionController::TestCase
     assert_response :success
     assert_select ".section-title", "Upload Sales CM file"
   end
+  # test "should get import"  do
+  #   get :import
+  #   assert_response :success
+  #   assert_select ".section-title", "Upload Sales CM file"
+  # end
 end
