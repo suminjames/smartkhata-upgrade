@@ -1,7 +1,16 @@
 <%# add navigation links to this file %>
 <li><%= link_to 'About', page_path('about') %></li>
+<li class="drop-down">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">File Uploads<span class="caret"></span></a>
+  <ul class="dropdown-menu" role="menu">
+    <li><%= link_to 'Orders', new_files_order_path	 %></li>
+    <li><%= link_to 'FloorSheet', new_files_floorsheet_path %></li>
+    <li><%= link_to 'Sales CM', new_files_sale_path	 %></li>
+  </ul>
+</li>
 <li><%= link_to 'Voucher', vouchers_path %></li>
 <li><%= link_to 'Ledger', ledgers_path %></li>
 <li><%= link_to 'Groups', groups_path %></li>
 <li><%= link_to 'Balance Sheet', report_balancesheet_index_path	 %></li>
 <li><%= link_to 'Profit & Loss', report_profitandloss_index_path %></li>
+  

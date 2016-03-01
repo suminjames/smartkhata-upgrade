@@ -1,7 +1,5 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Listing Ledgers</h1>
-
+<% provide(:section_title, "List of Ledgers") %>
+<%= link_to 'New Ledger', new_ledger_path %>
 <table class="table">
   <thead>
     <tr>
@@ -13,7 +11,7 @@
     <% @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name %></td>
-        <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> | 
+        <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> |
             <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %>
         </td>
       </tr>
@@ -22,5 +20,3 @@
 </table>
 
 <br>
-
-<%= link_to 'New Ledger', new_ledger_path %>

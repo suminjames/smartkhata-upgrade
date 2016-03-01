@@ -1,3 +1,4 @@
+<% provide(:section_title, "Reports: Profit and Loss") %>
 <% @cal = NepaliCalendar::Calendar.new
     # abort('asd')
 
@@ -23,7 +24,7 @@
     <td class='col-xs-6'>
       <% @loss.each do |assets| %>
         <div class="col-xs-6"><%= assets[0] %></div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>    
+        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>
       <% end %>
       <% if @amnt < 0 %>
         <div class="col-xs-6">Profit</div>
@@ -34,7 +35,7 @@
     <td class='col-xs-6'>
       <% @profit.each do |assets| %>
         <div class="col-xs-6"><%= assets[0] %></div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1] > 0 ? assets[1] * -1 : assets[1].abs) %></div> 
+        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1] > 0 ? assets[1] * -1 : assets[1].abs) %></div>
       <% end %>
       <% if @amnt > 0 %>
         <div class="col-xs-6">Loss</div>

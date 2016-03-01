@@ -16,28 +16,40 @@
     <![endif]-->
     <%= csrf_meta_tags %>
   </head>
-  <body class="skin-blue sidebar-mini">
-    <div class="wrapper container">
-      <header class="main-header row">
+  <body class="skin-blue layout-top-nav">
+    <div class="wrapper">
+      <header class="main-header">
         <%= render 'layouts/navigation' %>
       </header>
 
       <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper row">
-        <section class="content">
-          <%= render 'layouts/messages' %>
-          <%= yield %>
-        </section>
+      <div class="content-wrapper">
+        <div class="container">
+          <section class="content-main">
+            <%= render 'layouts/messages' %>
+            <div class="box box-default content-area">
+              <div class="box-header with-border content-area">
+                <h2 class="box-title section-title"><%= yield(:section_title) %></h2>
+              </div>
+              <div class="box-body content-area">
+                <%= yield %>
+              </div>
+
+            </div>
+          </section>
+        </div>
       </div><!-- /.content-wrapper -->
 
       <!-- Main Footer -->
       <footer class="main-footer">
-        <!-- To the right -->
-        <!-- <div class="pull-right hidden-xs">
-          Anything you want
-        </div> -->
-        <!-- Default to the left -->
-        <strong>Copyright &copy; <%= Time.now.year %>|   <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
+        <div class="container">
+          <!-- To the right -->
+          <!-- <div class="pull-right hidden-xs">
+            Anything you want
+          </div> -->
+          <!-- Default to the left -->
+          <strong>Copyright &copy; <%= Time.now.year %>|   <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
+        </div>
       </footer>
 
     </div><!-- ./wrapper -->

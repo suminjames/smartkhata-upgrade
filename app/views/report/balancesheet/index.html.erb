@@ -1,3 +1,4 @@
+<% provide(:section_title, "Reports:Balance Sheet") %>
 <% @cal = NepaliCalendar::Calendar.new
     # abort('asd')
 
@@ -24,7 +25,7 @@
       <% @balance_cr.each do |assets| %>
         <div class="col-xs-6"><%= assets[0] %></div>
         <div class="col-xs-6 text-right"><%= number_to_currency((assets[1] > 0 ? assets[1] * -1 : assets[1].abs)) %>
-        </div> 
+        </div>
       <% end %>
       <div class="col-xs-6">Opening Balance Difference</div>
       <div class="col-xs-6 text-right"><%= number_to_currency(@opening_balance_diff) %></div>
@@ -32,7 +33,7 @@
     <td>
       <% @balance_dr.each do |assets| %>
         <div class="col-xs-6"><%= assets[0] %></div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>    
+        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>
       <% end %>
     </td>
   </tr>
