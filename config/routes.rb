@@ -10,19 +10,19 @@ Rails.application.routes.draw do
   resources :users
 
   namespace 'files' do
-    resources :order do
+    resources :orders do
       collection {post :import}
     end
-    resources :floorsheet do
+    resources :floorsheets do
       collection {post :import}
     end
-    resources :purchase do
+    resources :sales do
       collection {post :import}
     end
   end
 
   namespace 'report' do
-    resources :balancesheet 
+    resources :balancesheet
     resources :profitandloss
   end
 

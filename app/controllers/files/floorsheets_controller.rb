@@ -1,5 +1,5 @@
 #TODO: Bill status should be (be default) in pending
-class Files::FloorsheetController < ApplicationController
+class Files::FloorsheetsController < ApplicationController
 	@@file = FileUpload::FILES[:floorsheet];
 
 	def new
@@ -236,28 +236,4 @@ class Files::FloorsheetController < ApplicationController
 		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
 		ledger.save!
 	end
-
-	# get a unique bill number based on fiscal year
-	def get_bill_number
-
-		bill = Bill.where(fy_code: get_fy_code).last
-
-		# initialize the bill with 1 if no bill is present
-		if bill.nil?
-			1
-		else
-			# increment the bill number
-			bill.bill_number + 1
-		end
-	end
-
-	def get_fy_code
-		@cal = NepaliCalendar::Calendar.new
-		date = Date.today
-		# grab the last 2 digit of year
-		date_bs = @cal.ad_to_bs(date.year, date.month, date.day).year.to_s[2..-1]
-		(date_bs + (date_bs.to_i+1).to_s).to_i
-	end
-
-
 end
