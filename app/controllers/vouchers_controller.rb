@@ -44,7 +44,7 @@ class VouchersController < ApplicationController
           break
         end
 
-        particular.trn_type.to_i == Particular.trans_types['dr'] ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
+        particular.transaction_type.to_i == Particular.transaction_type['dr'] ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
       end
 
       if @voucher.particulars.length == 2
@@ -58,7 +58,7 @@ class VouchersController < ApplicationController
           @voucher.particulars.each do |particular|
             ledger = Ledger.find(particular.ledger_id)
             closing_blnc = ledger.closing_blnc
-            ledger.closing_blnc = ( particular.trn_type.to_i == Particular.trans_types['dr'] ? closing_blnc + particular.amnt : closing_blnc - particular.amnt)
+            ledger.closing_blnc = ( particular.transaction_type.to_i == Particular.transaction_type['dr'] ? closing_blnc + particular.amnt : closing_blnc - particular.amnt)
             particular.opening_blnc = closing_blnc
             particular.running_blnc = ledger.closing_blnc
             ledger.save
@@ -122,6 +122,6 @@ class VouchersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def voucher_params
-      params.require(:voucher).permit(:date_bs, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:trn_type])
+      params.require(:voucher).permit(:date_bs, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type])
     end
 end

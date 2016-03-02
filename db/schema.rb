@@ -112,14 +112,14 @@ ActiveRecord::Schema.define(version: 20160224080631) do
   end
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc", precision: 15, scale: 3, default: 0.0
-    t.integer  "trn_type"
+    t.decimal  "opening_blnc",     precision: 15, scale: 3, default: 0.0
+    t.integer  "transaction_type"
     t.string   "description"
     t.string   "name"
-    t.decimal  "amnt",         precision: 15, scale: 3, default: 0.0
-    t.decimal  "running_blnc", precision: 15, scale: 3, default: 0.0
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.decimal  "amnt",             precision: 15, scale: 3, default: 0.0
+    t.decimal  "running_blnc",     precision: 15, scale: 3, default: 0.0
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
   end

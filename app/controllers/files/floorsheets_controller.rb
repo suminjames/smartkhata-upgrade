@@ -117,7 +117,7 @@ class Files::FloorsheetsController < ApplicationController
 		dp = 0
 		bill = nil
 
-		type_of_transaction = ShareTransaction.trans_types['buy']
+		type_of_transaction = ShareTransaction.transaction_type['buy']
 		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_nepse_code.upcase)
 
 
@@ -128,7 +128,7 @@ class Files::FloorsheetsController < ApplicationController
 				dp = 25
 				hash_dp[client_name.to_s+company_symbol.to_s+'sell'] = true
 			end
-			type_of_transaction = ShareTransaction.trans_types['sell']
+			type_of_transaction = ShareTransaction.transaction_type['sell']
 		else
 			# create or find a bill by the number
 			if hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'buy')
@@ -187,7 +187,7 @@ class Files::FloorsheetsController < ApplicationController
 			date: @date
 		)
 
-		if type_of_transaction == ShareTransaction.trans_types['buy']
+		if type_of_transaction == ShareTransaction.transaction_type['buy']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.save!
@@ -224,7 +224,7 @@ class Files::FloorsheetsController < ApplicationController
 
 	def process_accounts(ledger,voucher, debit, amount)
 
-		trn_type = debit ? Particular.trans_types['dr'] : Particular.trans_types['cr']
+		transaction_type = debit ? Particular.transaction_type['dr'] : Particular.transaction_type['cr']
 		closing_blnc = ledger.closing_blnc
 
 		if debit
@@ -233,7 +233,7 @@ class Files::FloorsheetsController < ApplicationController
 			ledger.closing_blnc -= amount
 		end
 
-		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
 		ledger.save!
 	end
 end

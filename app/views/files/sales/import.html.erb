@@ -1,2 +1,7 @@
 <% provide(:section_title, "Upload Order file") %>
-<%= @x %>
+<% if(!@error) %>
+<%= @processed_data %>
+
+<% else %>
+<%= link_to "Upload FloorSheet" ,new_files_floorsheet_path %>
+<% end %>

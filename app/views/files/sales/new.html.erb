@@ -1,6 +1,5 @@
 <% provide(:section_title, "Upload Sales CM file") %>
 <div>
-	<h2>Upload Order file</h2>
 	<%= form_tag import_files_sales_path, multipart: true do %>
 		<div class="form-group">
 			<%= file_field_tag :file %>

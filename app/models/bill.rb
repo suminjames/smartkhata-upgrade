@@ -1,7 +1,7 @@
 class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
-	enum types: [ "receive", "pay" ]
+	enum bill_type: [ "receive", "pay" ]
 	enum status: ["pending","partial","settled"]
 
   # Returns total share amount from all child share_transactions
