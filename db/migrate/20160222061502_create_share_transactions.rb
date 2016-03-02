@@ -15,9 +15,14 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.decimal :net_amount, precision: 15, scale: 3, default: 0
       t.decimal :bank_deposit, precision: 15, scale: 3, default: 0
       t.integer :transaction_type
+      t.decimal :settlement_id, precision:18, scale: 0
+      t.decimal :base_price, precision: 15, scale: 3, default: 0
+      t.decimal :amount_receivable, precision:15, scale: 3, default: 0
+      t.decimal :closeout_amount, precision:15, scale: 3, default:0
       t.date :date
       t.timestamps null: false
       t.references :bill
+      t.references :client_account
       t.references :isin_info
     end
   end
