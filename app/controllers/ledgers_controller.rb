@@ -28,7 +28,7 @@ class LedgersController < ApplicationController
     @ledger = Ledger.new(ledger_params)
     @success = false
     if (@ledger.opening_blnc >= 0)
-      @ledger.opening_blnc = @ledger.opening_blnc * -1 if @ledger.opening_blnc_type.to_i == Particular.trans_types['Cr']
+      @ledger.opening_blnc = @ledger.opening_blnc * -1 if @ledger.opening_blnc_type.to_i == Particular.transaction_type['Cr']
       @ledger.closing_blnc = @ledger.opening_blnc
       @success = true if @ledger.save
     else

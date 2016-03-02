@@ -1,5 +1,4 @@
-<p id="notice"><%= notice %></p>
-
+<% provide(:section_title, "Bill Details") %>
 <%
 # Everything that needs to be dynamically populated is stored in this section. Availability and prettifying is done in this section.
 # TODO: If a field value is not available, put 'N/A' in its placeholder.
@@ -31,10 +30,12 @@ share_amount = @bill.get_net_share_amount
 sebo_commission = @bill.get_net_sebo_commission
 net_commission_amount = @bill.get_net_commission
 name_transfer_amount = @bill.get_name_transfer_amount
-dp_fee = 'TODO'
-capital_gain_tax = 'TODO'
-net_receivable_amount = 'TODO'
-net_payable_amount = 'TODO'
+dp_fee = @bill.get_net_dp_fee
+capital_gain_tax = @bill.get_net_cgt
+# net_receivable_amount =  @bill.bill_type == 'receive' ? share_amount + sebo_commission + net_commission_amount + dp_fee + capital_gain_tax : 0.00
+# net_payable_amount =  @bill.bill_type == 'pay' ? share_amount - sebo_commission - net_commission_amount - dp_fee - capital_gain_tax : 0.00
+net_receivable_amount =  @bill.bill_type == 'receive' ? @bill.net_amount : 0.00
+net_payable_amount =  @bill.bill_type == 'pay' ? @bill.net_amount : 0.00
 %>
 
 <div class="clearfix" style="background:#eff4f6; padding:5px">
@@ -66,7 +67,7 @@ net_payable_amount = 'TODO'
   <!-- Static Company Header ENDS-->
 
   <!-- Bill No. and Bill Date BEGINS -->
-  <div class="row" style="padding-top:1em; background:#eff4f6">
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
     <div class="col-xs-4" style="background:#eff4f6">
       Bill No:
       <%= bill_number %>
@@ -84,8 +85,8 @@ net_payable_amount = 'TODO'
   <!-- Bill No. and Bill Date ENDS -->
 
   <!-- Customer Details BEGINS -->
-  <div class="row" style="padding-top:1em; background:#eff4f6">
-    <div class="col-xs-4" style="background:#eff4f6">
+  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+    <div class="col-xs-6" style="background:#eff4f6">
       <table class="table">
         <tr>
           <td>Customer:</td>
@@ -98,7 +99,7 @@ net_payable_amount = 'TODO'
         </tr>
       </table>
     </div>
-    <div class="col-xs-4 col-xs-offset-4 text-right" style="background:#eff4f6">
+    <div class="col-xs-6 text-right" style="background:#eff4f6">
       <table class="table">
         <tr>
           <td>Contact No.:</td>
@@ -208,6 +209,7 @@ end
         <tr>
           <td>Net Payable Amount:</td>
           <td><%= net_payable_amount %></td>
+
         </tr>
       </table>
     </div>

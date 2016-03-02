@@ -1,5 +1,5 @@
 #TODO: Bill status should be (be default) in pending
-class Files::FloorsheetController < ApplicationController
+class Files::FloorsheetsController < ApplicationController
 	@@file = FileUpload::FILES[:floorsheet];
 
 	def new
@@ -110,6 +110,7 @@ class Files::FloorsheetController < ApplicationController
 		share_rate = arr[7]
 		share_net_amount = arr[8]
 		#TODO look into the usage of arr[9] (Stock Commission)
+		commission = arr[9]
 		bank_deposit = arr[10]
 		# arr[11] = NIL
 
@@ -117,7 +118,7 @@ class Files::FloorsheetController < ApplicationController
 		dp = 0
 		bill = nil
 
-		type_of_transaction = ShareTransaction.trans_types['buy']
+		type_of_transaction = ShareTransaction.transaction_types['buy']
 		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_nepse_code.upcase)
 
 
@@ -128,7 +129,7 @@ class Files::FloorsheetController < ApplicationController
 				dp = 25
 				hash_dp[client_name.to_s+company_symbol.to_s+'sell'] = true
 			end
-			type_of_transaction = ShareTransaction.trans_types['sell']
+			type_of_transaction = ShareTransaction.transaction_types['sell']
 		else
 			# create or find a bill by the number
 			if hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'buy')
@@ -137,7 +138,7 @@ class Files::FloorsheetController < ApplicationController
 				dp = 25
 				hash_dp[client_name.to_s+company_symbol.to_s+'buy'] = @bill_number
 				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
-					b.bill_type = Bill.types['receive']
+					b.bill_type = Bill.bill_types['receive']
 					b.client_name = client_name
 				end
 				@bill_number += 1
@@ -153,13 +154,13 @@ class Files::FloorsheetController < ApplicationController
 		# bank_deposit: deposit to nepse
 		cgt = 0
 		amnt = share_net_amount
-		commission = get_commission(amnt)
+		# commission = get_commission(amnt)
 		commission_rate = get_commission_rate(amnt)
 		purchase_commission = commission * 0.75
 		nepse = commission * 0.25
 		tds = commission * 0.75 * 0.15
 		sebon = amnt * 0.00015
-		bank_deposit = nepse + tds + sebon + amnt
+		# bank_deposit = nepse + tds + sebon + amnt
 
 		# amount to be debited to client account
 		@client_dr = nepse + sebon + amnt + purchase_commission + dp
@@ -184,38 +185,43 @@ class Files::FloorsheetController < ApplicationController
 			net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amnt + purchase_commission + dp. Not to be confused with share_amount
 			bank_deposit: bank_deposit,
 			transaction_type: type_of_transaction,
-			date: @date
+			date: @date,
+			client_account_id: client.id
 		)
 
-		if type_of_transaction == ShareTransaction.trans_types['buy']
+		if type_of_transaction == ShareTransaction.transaction_types['buy']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.save!
+
+
+			# create client ledger if not exist
+			client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
+				ledger.name = client_name
+			end
+			# assign the client ledgers to group clients
+			client_group = Group.find_or_create_by!(name: "Clients")
+			client_group.ledgers << client_ledger
+
+			# find or create predefined ledgers
+			purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
+			nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
+			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
+			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+
+			# update ledgers value
+			voucher = Voucher.create!
+			process_accounts(client_ledger,voucher,true,@client_dr)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit)
+			process_accounts(tds_ledger,voucher,true,tds)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission)
+			process_accounts(dp_ledger,voucher,false,dp) if dp > 0
+
 		end
 
 
 
-		# create client ledger if not exist
-		client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
-			ledger.name = client_name
-		end
-		# assign the client ledgers to group clients
-		client_group = Group.find_or_create_by!(name: "Clients")
-		client_group.ledgers << client_ledger
 
-		# find or create predefined ledgers
-		purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
-		nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
-		tds_ledger = Ledger.find_or_create_by!(name: "TDS")
-		dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-
-		# update ledgers value
-		voucher = Voucher.create!
-		process_accounts(client_ledger,voucher,true,@client_dr)
-		process_accounts(nepse_ledger,voucher,false,bank_deposit)
-		process_accounts(tds_ledger,voucher,true,tds)
-		process_accounts(purchase_commission_ledger,voucher,false,purchase_commission)
-		process_accounts(dp_ledger,voucher,false,dp) if dp > 0
 
 		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
 
@@ -224,7 +230,7 @@ class Files::FloorsheetController < ApplicationController
 
 	def process_accounts(ledger,voucher, debit, amount)
 
-		trn_type = debit ? Particular.trans_types['dr'] : Particular.trans_types['cr']
+		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
 
 		if debit
@@ -233,31 +239,7 @@ class Files::FloorsheetController < ApplicationController
 			ledger.closing_blnc -= amount
 		end
 
-		Particular.create!(trn_type: trn_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
 		ledger.save!
 	end
-
-	# get a unique bill number based on fiscal year
-	def get_bill_number
-
-		bill = Bill.where(fy_code: get_fy_code).last
-
-		# initialize the bill with 1 if no bill is present
-		if bill.nil?
-			1
-		else
-			# increment the bill number
-			bill.bill_number + 1
-		end
-	end
-
-	def get_fy_code
-		@cal = NepaliCalendar::Calendar.new
-		date = Date.today
-		# grab the last 2 digit of year
-		date_bs = @cal.ad_to_bs(date.year, date.month, date.day).year.to_s[2..-1]
-		(date_bs + (date_bs.to_i+1).to_s).to_i
-	end
-
-
 end

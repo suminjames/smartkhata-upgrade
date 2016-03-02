@@ -112,14 +112,14 @@ ActiveRecord::Schema.define(version: 20160224080631) do
   end
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc", precision: 15, scale: 3, default: 0.0
-    t.integer  "trn_type"
+    t.decimal  "opening_blnc",     precision: 15, scale: 3, default: 0.0
+    t.integer  "transaction_type"
     t.string   "description"
     t.string   "name"
-    t.decimal  "amnt",         precision: 15, scale: 3, default: 0.0
-    t.decimal  "running_blnc", precision: 15, scale: 3, default: 0.0
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.decimal  "amnt",             precision: 15, scale: 3, default: 0.0
+    t.decimal  "running_blnc",     precision: 15, scale: 3, default: 0.0
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
   end
@@ -139,10 +139,15 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.decimal  "net_amount",        precision: 15, scale: 3, default: 0.0
     t.decimal  "bank_deposit",      precision: 15, scale: 3, default: 0.0
     t.integer  "transaction_type"
+    t.decimal  "settlement_id",     precision: 18
+    t.decimal  "base_price",        precision: 15, scale: 3, default: 0.0
+    t.decimal  "amount_receivable", precision: 15, scale: 3, default: 0.0
+    t.decimal  "closeout_amount",   precision: 15, scale: 3, default: 0.0
     t.date     "date"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "bill_id"
+    t.integer  "client_account_id"
     t.integer  "isin_info_id"
   end
 
