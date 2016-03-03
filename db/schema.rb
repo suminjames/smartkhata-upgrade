@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.string   "client_name"
     t.decimal  "net_amount",        precision: 15, scale: 3, default: 0.0
     t.decimal  "balance_to_pay",    precision: 15, scale: 3, default: 0.0
-    t.integer  "bill_type"
+    t.integer  "type"
     t.integer  "status",                                     default: 0
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
