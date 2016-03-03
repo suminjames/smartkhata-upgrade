@@ -6,13 +6,14 @@
 @cal = NepaliCalendar::Calendar.new
 
 bill_number = @bill.bill_number
-bill_date_ad = @bill.created_at #.to_s.slice(0..10).to_i
+bill_date_ad = @bill.created_at
 bill_date_bs = @cal.ad_to_bs(bill_date_ad.year, bill_date_ad.month, bill_date_ad.day).to_s + ' BS'
 bill_date_ad = bill_date_ad.to_s.slice(0..10) + ' AD'
 fiscal_year = @bill.fy_code
 
 # Client associated with the bill
-@client = ClientAccount.find(@bill.client_account_id)
+# @client = ClientAccount.find(@bill.client_account_id)
+@client = @bill.get_client
 
 customer_name = @client.name
 customer_nepse_code = @client.nepse_code

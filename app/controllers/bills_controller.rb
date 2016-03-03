@@ -4,13 +4,19 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
-    @bills = Bill.all
+    if params[:search_by] && params[:search_term]
+      @bills = Bill.search(params[:search_by], params[:search_term]).order(:bill_number).paginate(:page => params[:page], :per_page => 30)
+      else
+        #Order bills as per bill_number and not updated_at(which is the metric for default ordering)
+        @bills = Bill.order(:bill_number).paginate(:page => params[:page], :per_page => 30)
+    end
   end
 
   # GET /bills/1
   # GET /bills/1.json
   def show
     #TODO Display 'Bill not found if invalid Id'
+    @bill
   end
 
   # GET /bills/new
@@ -65,7 +71,10 @@ class BillsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_bill
-      @bill = Bill.find(params[:id])
+      # @bill = Bill.find(params[:id])
+      # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
+      # The bang operator '!' after find_by_id raises an error and halts the script
+      @bill = Bill.find_by_id!(params[:id]) 
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
