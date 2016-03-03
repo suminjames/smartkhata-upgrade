@@ -4,6 +4,26 @@ class Bill < ActiveRecord::Base
 	enum bill_type: [ :receive, :pay ]
 	enum status: [:raw,:pending,:partial,:settled]
 
+  # Performs query on search as per 'search_by' and 'search_term'
+  def self.search(search_by, search_term)
+    case search_by
+    when "client_name"
+      where("client_name ILIKE ?", "%#{search_term}%")
+    when "bill_number"
+      where("bill_number" => "#{search_term}")
+    when "date"
+      search_term = Date.parse(search_term)
+      where(
+      :updated_at => search_term.beginning_of_day..search_term.end_of_day)
+    when "date_range"
+      # TODO Check for valid date and notify user if invalid
+      date_from = Date.parse(search_term['date_from'])
+      date_to   = Date.parse(search_term['date_to'])
+      where(
+      :updated_at => date_from.beginning_of_day..date_to.end_of_day)
+    end
+  end
+
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
 			return self.share_transactions.sum(:share_amount);
@@ -19,7 +39,7 @@ class Bill < ActiveRecord::Base
 			return self.share_transactions.sum(:commission_amount);
   end
 
-  # TODO: Implement this
+  # TODO: Implement the method.
   def get_name_transfer_amount
 			return 'N/A'
   end
@@ -41,5 +61,9 @@ class Bill < ActiveRecord::Base
     #return self.share_transactions.sum(:sebo);
   end
 
+  # Returns client associated to this bill
+  def get_client
+    return ClientAccount.find(self.client_account_id)
+  end
 
 end

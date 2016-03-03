@@ -8,6 +8,8 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
+gem 'will_paginate', '~> 3.0.6'
+gem 'will_paginate-bootstrap'
 group :development, :test do
   gem 'byebug'
 end
