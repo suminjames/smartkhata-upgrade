@@ -1,4 +1,4 @@
-class Files::OrderController < ApplicationController
+class Files::OrdersController < ApplicationController
 	# 	@@file = FileUpload::FILES[:order];
 
 	def new
@@ -21,10 +21,10 @@ class Files::OrderController < ApplicationController
 
 			@x = Date.parse(xlsx.sheet(0).row(5)[9].tr('()',""))
 			(15..(xlsx.sheet(0).last_row)).each do |i|
-				
+
 				break if xlsx.sheet(0).row(i)[0] == nil
 				puts xlsx.sheet(0).row(i).inspect
-			end		
+			end
 		end
 	end
 end

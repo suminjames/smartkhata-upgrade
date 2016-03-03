@@ -74,7 +74,7 @@ class BillsController < ApplicationController
       # @bill = Bill.find(params[:id])
       # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
       # The bang operator '!' after find_by_id raises an error and halts the script
-      @bill = Bill.find_by_id!(params[:id])
+      @bill = Bill.find_by_id!(params[:id]) 
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

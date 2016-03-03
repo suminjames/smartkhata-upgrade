@@ -1,8 +1,8 @@
 class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
-	enum type: [ "receive", "pay" ]
-	enum status: ["pending","partial","settled"]
+	enum bill_type: [ :receive, :pay ]
+	enum status: [:raw,:pending,:partial,:settled]
 
   # Performs query on search as per 'search_by' and 'search_term'
   def self.search(search_by, search_term)
@@ -42,6 +42,16 @@ class Bill < ActiveRecord::Base
   # TODO: Implement the method.
   def get_name_transfer_amount
 			return 'N/A'
+  end
+
+  # Returns total net dp fee
+  def get_net_dp_fee
+			return self.share_transactions.sum(:dp_fee);
+  end
+
+  # Returns total net cgt
+  def get_net_cgt
+			return self.share_transactions.sum(:cgt);
   end
 
   # TODO

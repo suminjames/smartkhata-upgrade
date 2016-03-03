@@ -2,7 +2,7 @@ class CreateParticulars < ActiveRecord::Migration
   def change
     create_table :particulars do |t|
     	t.decimal :opening_blnc , precision: 15, scale: 3, default: 0
-    	t.integer :trn_type 
+    	t.integer :transaction_type 
       t.string :description
       t.string :name
     	t.decimal :amnt , precision: 15, scale: 3, default: 0

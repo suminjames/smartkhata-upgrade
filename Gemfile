@@ -44,3 +44,10 @@ gem 'jquery-turbolinks'
 gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
 gem 'mechanize', '2.7.3'
+
+
+group :test do
+  gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
+  gem 'guard'
+  gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+end

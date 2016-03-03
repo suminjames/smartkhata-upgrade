@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col-xs-3"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'input-control'}) %></div>
 	<div class="col-xs-3"><%= f.input :amnt ,label: false %></div>
-	<div class="col-xs-3"><%= f.select :trn_type, options_for_select(Particular.trans_types) %></div>
+	<div class="col-xs-3"><%= f.select :transaction_type, options_for_select(Particular.transaction_type) %></div>
 	<div class="col-xs-3"><%= f.input :description ,label: false %></div>
 </div>

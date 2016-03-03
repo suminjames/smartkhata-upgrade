@@ -1,0 +1,2 @@
+module Files::SalesHelper
+end
