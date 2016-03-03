@@ -1,4 +1,3 @@
-#TODO: Bill status should be (be default) in pending
 class Files::FloorsheetController < ApplicationController
 	@@file = FileUpload::FILES[:floorsheet];
 
@@ -137,7 +136,7 @@ class Files::FloorsheetController < ApplicationController
 				dp = 25
 				hash_dp[client_name.to_s+company_symbol.to_s+'buy'] = @bill_number
 				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
-					b.bill_type = Bill.types['receive']
+					b.bill_type = Bill.type['receive']
 					b.client_name = client_name
 				end
 				@bill_number += 1
