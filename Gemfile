@@ -34,6 +34,8 @@ group :development do
   gem 'capistrano-rvm', '~> 0.1.1'
   gem 'quiet_assets'
   gem 'rails_layout'
+  gem "bullet"
+  gem "awesome_print"
 end
 group :production do
   gem 'puma'

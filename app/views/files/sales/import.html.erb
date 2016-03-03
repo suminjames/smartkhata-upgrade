@@ -1,7 +1,7 @@
 <% provide(:section_title, "Upload Order file") %>
 <% if(!@error) %>
 <%= @processed_data %>
-
+<%= link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement_id), class: "btn btn-primary" %>
 <% else %>
-<%= link_to "Upload FloorSheet" ,new_files_floorsheet_path %>
+<%= link_to "Upload CM file" ,import_files_sales_path %>
 <% end %>
