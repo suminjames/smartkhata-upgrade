@@ -25,7 +25,7 @@ class VouchersController < ApplicationController
   # POST /vouchers
   # POST /vouchers.json
   def create
-    @voucher = Voucher.new(voucher_params)    
+    @voucher = Voucher.new(voucher_params)
     @cal = NepaliCalendar::Calendar.new
 
     bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
@@ -36,15 +36,14 @@ class VouchersController < ApplicationController
 
     if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
-      
+
       @voucher.particulars.each do |particular|
 
         if particular.amnt == 0
-          @has_zero = true 
+          @has_zero = true
           break
         end
-
-        particular.transaction_type.to_i == Particular.transaction_type['dr'] ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
+        (particular.dr?) ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
       end
 
       if @voucher.particulars.length == 2
@@ -54,28 +53,28 @@ class VouchersController < ApplicationController
 
       # abort(@net_blnc.to_s)
       if @net_blnc == 0 && @has_zero == false
-        Voucher.transaction do 
+        Voucher.transaction do
           @voucher.particulars.each do |particular|
             ledger = Ledger.find(particular.ledger_id)
             closing_blnc = ledger.closing_blnc
-            ledger.closing_blnc = ( particular.transaction_type.to_i == Particular.transaction_type['dr'] ? closing_blnc + particular.amnt : closing_blnc - particular.amnt)
+            ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
             particular.opening_blnc = closing_blnc
             particular.running_blnc = ledger.closing_blnc
             ledger.save
           end
-          @success = true if @voucher.save 
+          @success = true if @voucher.save
         end
       else
         if @has_zero
-           flash.now[:error] = "Dont act smart." 
+           flash.now[:error] = "Dont act smart."
         else
-           flash.now[:error] = "Particulars should have balancing figures." 
+           flash.now[:error] = "Particulars should have balancing figures."
         end
       end
     else
       flash.now[:error] = "Particulars should be atleast 2"
     end
-    
+
 
 
     # abort("Message goes here")

@@ -10,7 +10,7 @@
   <div class="form-inputs row">
     <br><br>
     <div class="col-xs-3"><%= f.input :opening_blnc %></div>
-    <div class="col-xs-3"><p><strong>Type </strong></p><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_type) %></div>
+    <div class="col-xs-3"><p><strong>Type </strong></p><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
   </div>
   <div class="form-actions">
     <%= f.button :submit %>
