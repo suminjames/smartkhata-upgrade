@@ -18,6 +18,15 @@ class Files::SalesController < ApplicationController
 			end
 
 
+      # initial constants
+      tds_rate = 0.15
+      broker_commission_rate = 0.75
+      # nepse charges tds which is payable by the broker
+      # so we need to deduct  the tds while charging the client
+      chargeable_on_sale_rate = broker_commission_rate * (1 - tds_rate)
+
+
+
       # grab settlement id from the fifth row first column
       settlement_id = xlsx.sheet(0).row(5)[0].to_i
 
@@ -75,20 +84,27 @@ class Files::SalesController < ApplicationController
             raise ActiveRecord::Rollback
             return
           end
-
+          amount_receivable = hash[:amount_receivable].delete(',').to_f
           transaction.settlement_id = hash[:settlement_id]
-          transaction.cgt = hash[:cgt]
-          transaction.base_price = hash[:base]
+          transaction.cgt = hash[:cgt].delete(',').to_f
+
+          # TODO remove hard code calculations
           # net amount is the amount that is payble to the client after charges
-          transaction.net_amount = hash[:amount_receivable].to_f- (transaction.commission_amount*0.75) - transaction.dp_fee
-          transaction.amount_receivable = hash[:amount_receivable].to_f
+          # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
+          # amount payble to client =
+          #   + amount from nepse
+          #   - broker commission
+          #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
+          #   - dp fee
+          # client pays the commission_amount
+          transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          transaction.amount_receivable = amount_receivable
           transaction.save!
-          
+
           @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
         end
       end
 
-      puts @success_check
       unless @success_check
         flash.now[:error] = "Please upload corresponding Floorsheet First"
         @error = true

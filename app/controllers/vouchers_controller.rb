@@ -10,6 +10,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/1
   # GET /vouchers/1.json
   def show
+    @particulars = @voucher.particulars
   end
 
   # GET /vouchers/new
@@ -31,28 +32,35 @@ class VouchersController < ApplicationController
     bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
     @voucher.date = @cal.bs_to_ad(bs_string_arr[0],bs_string_arr[1], bs_string_arr[2])
     @success = false
-    @has_zero = false
+    @has_error = false
+    @error_message = ""
     @net_blnc = 0;
 
     if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
 
       @voucher.particulars.each do |particular|
-
+        puts particular.ledger_id.nil?
+        puts "testing"
         if particular.amnt == 0
-          @has_zero = true
+          @has_error = true
+          @error_message ="Dont act smart."
+          break
+        elsif particular.ledger_id.nil?
+          @has_error = true
+          @error_message ="Dont act smart. Particulars cant be empty"
           break
         end
         (particular.dr?) ? @net_blnc += particular.amnt : @net_blnc -= particular.amnt
       end
 
-      if @voucher.particulars.length == 2
+      if @voucher.particulars.length == 2 && !@has_error
         @voucher.particulars[0].name = Ledger.find(@voucher.particulars[1].ledger_id).name
         @voucher.particulars[1].name = Ledger.find(@voucher.particulars[0].ledger_id).name
       end
 
       # abort(@net_blnc.to_s)
-      if @net_blnc == 0 && @has_zero == false
+      if @net_blnc == 0 && @has_error == false
         Voucher.transaction do
           @voucher.particulars.each do |particular|
             ledger = Ledger.find(particular.ledger_id)
@@ -65,8 +73,8 @@ class VouchersController < ApplicationController
           @success = true if @voucher.save
         end
       else
-        if @has_zero
-           flash.now[:error] = "Dont act smart."
+        if @has_error
+           flash.now[:error] = @error_message
         else
            flash.now[:error] = "Particulars should have balancing figures."
         end

@@ -61,10 +61,10 @@ class Files::FloorsheetsController < ApplicationController
 
 	def get_commission_rate(amount)
 		case amount
-			when 0..25000
+			when 0..2500
 				"flat_25"
-			when 25001..50000
-				"0.1"
+			when 2501..50000
+				"1"
 			when 50001..500000
 				"0.9"
 			when 500001..100000
@@ -110,7 +110,7 @@ class Files::FloorsheetsController < ApplicationController
 		share_rate = arr[7]
 		share_net_amount = arr[8]
 		#TODO look into the usage of arr[9] (Stock Commission)
-		commission = arr[9]
+		# commission = arr[9]
 		bank_deposit = arr[10]
 		# arr[11] = NIL
 
@@ -154,7 +154,7 @@ class Files::FloorsheetsController < ApplicationController
 		# bank_deposit: deposit to nepse
 		cgt = 0
 		amnt = share_net_amount
-		# commission = get_commission(amnt)
+		commission = get_commission(amnt)
 		commission_rate = get_commission_rate(amnt)
 		purchase_commission = commission * 0.75
 		nepse = commission * 0.25
@@ -169,6 +169,7 @@ class Files::FloorsheetsController < ApplicationController
 		company_info = IsinInfo.find_or_create_by(isin: company_symbol)
 
 		# TODO: Include base price
+
 		transaction = ShareTransaction.create(
 			contract_no: contract_no.to_i,
 			isin_info_id: company_info.id,
@@ -188,7 +189,7 @@ class Files::FloorsheetsController < ApplicationController
 			date: @date,
 			client_account_id: client.id
 		)
-
+		
 		if type_of_transaction == ShareTransaction.transaction_types['buy']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
@@ -228,18 +229,5 @@ class Files::FloorsheetsController < ApplicationController
 		arr.push(@client_dr,tds,commission,bank_deposit,dp)
 	end
 
-	def process_accounts(ledger,voucher, debit, amount)
 
-		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-		closing_blnc = ledger.closing_blnc
-
-		if debit
-			ledger.closing_blnc += amount
-		else
-			ledger.closing_blnc -= amount
-		end
-
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
-		ledger.save!
-	end
 end

@@ -16,5 +16,6 @@
 //= require jquery-hotkeys
 //= require turbolinks
 //= require bootstrap-sprockets
+//= require bootstrap-combobox.js
 //= require layout.min.js
 //= require_tree .

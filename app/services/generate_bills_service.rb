@@ -20,10 +20,16 @@ class GenerateBillsService
       share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id)
       share_transactions.each do |transaction|
 
-        # create a custom key to hold the similar isin transanction per user in a same bill
+        # create a custom key to hold the similar isin transaction per user in a same bill
         client_code = transaction.client_account_id
         script_id = transaction.isin_info_id
         custom_key = (client_code.to_s+'_'+script_id.to_s)
+        client_account = transaction.client_account
+        commission = transaction.commission_amount
+        sales_commission = commission * 0.75
+    		tds = commission * 0.75 * 0.15
+
+
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
@@ -48,6 +54,38 @@ class GenerateBillsService
         bill.share_transactions << transaction
         bill.net_amount += transaction.net_amount
         bill.save!
+
+        # create client ledger if not exist
+  			client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
+  				ledger.name = client_account.name
+  			end
+
+  			# assign the client ledgers to group clients
+  			client_group = Group.find_or_create_by!(name: "Clients")
+  			client_group.ledgers << client_ledger
+
+  			# find or create predefined ledgers
+  			sales_commission_ledger = Ledger.find_or_create_by!(name: "Sales Commission")
+  			nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
+  			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
+  			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+
+  			# update ledgers value
+  			voucher = Voucher.create!
+        # process_accounts(ledger,voucher, is_debit, amount)
+
+        # for a sales
+        # client is credited
+        # nepse is debited
+        # tds is debited
+        # sales commission is credited
+        # dp is credited
+
+  		  process_accounts(client_ledger,voucher,false,transaction.net_amount)
+  			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable)
+  			process_accounts(tds_ledger,voucher,true,tds)
+  			process_accounts(sales_commission_ledger,voucher,false,sales_commission)
+  			process_accounts(dp_ledger,voucher,false,transaction.dp_fee) if transaction.dp_fee  > 0
       end
       # mark the sales settlement as complete to prevent future processing
       @sales_settlement.complete!
