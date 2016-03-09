@@ -274,7 +274,6 @@ GEM
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (2.0.2)
-    timeliness (0.3.8)
     turbolinks (2.5.3)
       coffee-rails
     tzinfo (1.2.2)
