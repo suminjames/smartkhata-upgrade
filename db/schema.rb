@@ -11,10 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160224080631) do
+ActiveRecord::Schema.define(version: 20160308103842) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bank_accounts", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "account_number"
+    t.string   "address"
+    t.integer  "contact_number"
+    t.boolean  "default_for_purchase"
+    t.boolean  "default_for_sales"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
@@ -30,6 +41,14 @@ ActiveRecord::Schema.define(version: 20160224080631) do
   end
 
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
+
+  create_table "cheque_entries", force: :cascade do |t|
+    t.integer  "cheque_number"
+    t.integer  "bank_account_id"
+    t.integer  "particular_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
 
   create_table "client_accounts", force: :cascade do |t|
     t.string   "boid"
@@ -104,11 +123,12 @@ ActiveRecord::Schema.define(version: 20160224080631) do
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
-    t.decimal  "opening_blnc", precision: 15, scale: 3, default: 0.0
-    t.decimal  "closing_blnc", precision: 15, scale: 3, default: 0.0
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.decimal  "opening_blnc",    precision: 15, scale: 3, default: 0.0
+    t.decimal  "closing_blnc",    precision: 15, scale: 3, default: 0.0
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
     t.integer  "group_id"
+    t.integer  "bank_account_id"
   end
 
   create_table "particulars", force: :cascade do |t|
@@ -122,6 +142,14 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.datetime "updated_at",                                              null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
+  end
+
+  create_table "sales_settlements", force: :cascade do |t|
+    t.decimal  "settlement_id",   precision: 18
+    t.integer  "status",                         default: 0
+    t.date     "settlement_date"
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
   end
 
   create_table "share_transactions", force: :cascade do |t|
@@ -190,8 +218,9 @@ ActiveRecord::Schema.define(version: 20160224080631) do
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "voucher_type"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
 end

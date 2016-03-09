@@ -8,8 +8,8 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
-gem 'will_paginate', '~> 3.0.6'
-gem 'will_paginate-bootstrap'
+# gem 'will_paginate', '~> 3.0.6'
+# gem 'will_paginate-bootstrap'
 group :development, :test do
   gem 'byebug'
 end
@@ -25,6 +25,7 @@ gem 'pg'
 gem 'pundit'
 gem 'sendgrid'
 gem 'simple_form'
+gem "smart_listing"
 group :development do
   gem 'better_errors'
   gem 'capistrano', '~> 3.0.1'
@@ -34,6 +35,8 @@ group :development do
   gem 'capistrano-rvm', '~> 0.1.1'
   gem 'quiet_assets'
   gem 'rails_layout'
+  gem "bullet"
+  gem "awesome_print"
 end
 group :production do
   gem 'puma'
@@ -44,7 +47,7 @@ gem 'jquery-turbolinks'
 gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
 gem 'mechanize', '2.7.3'
-
+gem "haml"
 
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'

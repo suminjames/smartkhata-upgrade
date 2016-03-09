@@ -34,4 +34,30 @@ module ApplicationHelper
 		end
 	end
 
+	# process accounts to make changes on ledgers
+	def process_accounts(ledger,voucher, debit, amount)
+
+		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
+		closing_blnc = ledger.closing_blnc
+		puts transaction_type
+		if debit
+			ledger.closing_blnc += amount
+		else
+			ledger.closing_blnc -= amount
+		end
+
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: "as being purchased", voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc )
+		ledger.save!
+	end
+
+
+	# method to calculate the broker commission
+	def get_broker_commission(commission)
+		commission * 0.75
+	end
+
+	# method to calculate the tds
+	def get_broker_tds(broker_commission)
+		broker_commission * 0.15
+	end
 end

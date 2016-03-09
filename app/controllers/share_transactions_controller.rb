@@ -1,6 +1,9 @@
 class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
+  include SmartListing::Helper::ControllerExtensions
+  helper  SmartListing::Helper
+
   # GET /share_transactions
   # GET /share_transactions.json
   def index
@@ -56,7 +59,6 @@ class ShareTransactionsController < ApplicationController
   def destroy
     @share_transaction.destroy
     respond_to do |format|
-      format.html { redirect_to share_transactions_url, notice: 'Share transaction was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

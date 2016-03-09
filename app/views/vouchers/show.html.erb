@@ -1,4 +1,25 @@
 <p id="notice"><%= notice %></p>
+<% total = 0 %>
+<div class="box-body">
 
+
+
+
+<% @particulars.each do |particular| %>
+	<div class="row">
+		<div class="col-xs-3">
+			<%= particular.ledger.name 	 %>
+		</div>
+		<div class="col-xs-3">
+			<div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>
+			<div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></div>
+
+		</div>
+	</div>
+	<br><br>
+  <% total = (particular.dr?) ? total + particular.amnt : total - particular.amnt %>
+<% end %>
+</div>
+<%= "total:#{total}" %>
 <%= link_to 'Edit', edit_voucher_path(@voucher) %> |
 <%= link_to 'Back', vouchers_path %>

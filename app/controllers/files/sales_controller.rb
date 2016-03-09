@@ -10,23 +10,39 @@ class Files::SalesController < ApplicationController
 		if @file == nil
 			flash.now[:error] = "Please Upload a valid file"
 			@error = true
+      return
 		else
 			begin
 			  xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
 			rescue Zip::Error
 			  xlsx = Roo::Spreadsheet.open(@file)
 			end
-      # hash to store unique combination of isin, transaction type (buy/sell), client
-			hash_dp = Hash.new
+
+
+      # initial constants
+      tds_rate = 0.15
+      broker_commission_rate = 0.75
+      # nepse charges tds which is payable by the broker
+      # so we need to deduct  the tds while charging the client
+      chargeable_on_sale_rate = broker_commission_rate * (1 - tds_rate)
+
+
+
+      # grab settlement id from the fifth row first column
+      settlement_id = xlsx.sheet(0).row(5)[0].to_i
+
+			# do not reprocess file if it is already uploaded
+			settlement_cm_file = SalesSettlement.find_by(settlement_id: settlement_id)
+			unless settlement_cm_file.nil?
+				flash.now[:error] = "The file is already uploaded"
+				@error = true
+				return
+			end
+
+
+
 			# @x = Date.parse(xlsx.sheet(0).row(5)[9].tr('()',""))
 			@processed_data= []
-			# (5..(xlsx.sheet(0).last_row)).each do |i|
-      #
-			# 	break if xlsx.sheet(0).row(i)[0] == nil
-      #   # @processed_data  << xlsx.sheet(0).row(i)
-			# end
-
-
 
       xlsx.sheet(0).each(
         settlement_id: 'Settlement ID',
@@ -52,48 +68,52 @@ class Files::SalesController < ApplicationController
       end
       @processed_data = @processed_data.drop(1) if @processed_data[0][:settlement_id]=='Settlement ID'
 
-      # get bill number
-			@bill_number = get_bill_number
-      fy_code = get_fy_code
-      @processed_data.each do |hash|
-        client_code = hash[:client_code]
-        script_name = hash[:script_name]
+      # by default the process is incomplete
+      @success_check = true
 
-        transaction = ShareTransaction.find_or_create_by(
-          contract_no: hash[:contract_no].to_i,
-          transaction_type: ShareTransaction.transaction_types[:sell]
-    		)
-        transaction.settlement_id = hash[:settlement_id]
-        transaction.cgt = hash[:cgt]
-        transaction.base_price = hash[:base]
-        # net amount is the amount that is payble to the client after charges
-        transaction.net_amount = hash[:amount_receivable].to_f- (transaction.commission_amount*0.75) - transaction.dp_fee
-        transaction.amount_receivable = hash[:amount_receivable].to_f
-        transaction.save!
+      ActiveRecord::Base.transaction do
+        @processed_data.each do |hash|
 
-        if hash_dp.has_key?(client_code.to_s+script_name.to_s)
-          bill = Bill.find_or_create_by!(bill_number: hash_dp[client_code.to_s+script_name.to_s], fy_code: fy_code)
-        else
-          hash_dp[client_code.to_s+script_name.to_s] = @bill_number
-          bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code) do |b|
-            b.bill_type = Bill.bill_types['pay']
-            
-            # TODO possible error location check
-            b.client_name = transaction.client_account.name if !transaction.client_account.nil?
+          transaction = ShareTransaction.find_by(
+            contract_no: hash[:contract_no].to_i,
+            transaction_type: ShareTransaction.transaction_types[:sell]
+      		)
+
+
+          if transaction.nil?
+            @success_check = false
+            raise ActiveRecord::Rollback
+            return
           end
-          @bill_number += 1
+          amount_receivable = hash[:amount_receivable].delete(',').to_f
+          transaction.settlement_id = hash[:settlement_id]
+          transaction.cgt = hash[:cgt].delete(',').to_f
+
+          # TODO remove hard code calculations
+          # net amount is the amount that is payble to the client after charges
+          # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
+          # amount payble to client =
+          #   + amount from nepse
+          #   - broker commission
+          #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
+          #   - dp fee
+          # client pays the commission_amount
+          transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          transaction.amount_receivable = amount_receivable
+          transaction.save!
+
+          @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+          redirect_to sales_settlement_path(@sales_settlement_id) and return
         end
-
-        # TODO possible error location
-        bill.client_account_id = transaction.client_account_id
-        bill.share_transactions << transaction
-  			bill.net_amount += transaction.net_amount
-  			bill.save!
-
       end
 
-      # @process = @processed_data[0][:settlement_id]
-      # @x = get_fy_code
+      unless @success_check
+        flash.now[:error] = "Please upload corresponding Floorsheet First"
+        @error = true
+        return
+      end
+
+
 		end
 	end
 
