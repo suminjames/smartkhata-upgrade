@@ -17,6 +17,14 @@ class VouchersController < ApplicationController
   def new
     @voucher = Voucher.new
     @voucher.particulars = [Particular.new]
+
+    @voucher_type = Voucher.voucher_types[params[:voucher_type]]
+    case @voucher_type
+    when Voucher.voucher_types[:sales]
+      @ledger_list = BankAccount.all.uniq.collect(&:ledger)
+      @ledger_list << Ledger.find_by(name: "Cash")
+    end
+
   end
 
   # GET /vouchers/1/edit

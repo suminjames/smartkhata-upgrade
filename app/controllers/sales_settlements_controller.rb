@@ -1,5 +1,8 @@
 class SalesSettlementsController < ApplicationController
   before_action :set_sales_settlement, only: [:show, :edit, :update, :destroy]
+  # helper for smart listing
+  include SmartListing::Helper::ControllerExtensions
+  helper  SmartListing::Helper
 
   # GET /sales_settlements
   # GET /sales_settlements.json
@@ -10,6 +13,8 @@ class SalesSettlementsController < ApplicationController
   # GET /sales_settlements/1
   # GET /sales_settlements/1.json
   def show
+    @share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id)
+    @share_transactions_raw = smart_listing_create(:share_transactions, ShareTransaction.all, partial: "share_transactions/list", page_sizes: [50])
   end
 
   # GET /sales_settlements/new

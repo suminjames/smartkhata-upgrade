@@ -1,0 +1,12 @@
+%td{colspan: 6}
+  = form_for object, url: object.new_record? ? users_path : user_path(object),
+                     remote: true, html: {class: "form-horizontal"} do |f|
+    %p
+      Quantity:
+      = f.text_field :quantity
+    %p
+      Share Rate
+      = f.text_field :share_rate
+
+    = f.submit "Save", class: "btn btn-primary"
+    %button.btn.btn-link.cancel Cancel

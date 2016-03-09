@@ -49,6 +49,6 @@ group.save!
 group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']})
 groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}])
 group.children << groups
-ledgers = Ledger.create([{name: "TDS"}])
+ledgers = Ledger.create([{name: "TDS"},{name: "Cash"}])
 group.ledgers << ledgers
 group.save!

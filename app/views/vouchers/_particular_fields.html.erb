@@ -2,5 +2,5 @@
 	<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox'}) %></div>
 	<div class="col-xs-3"><%= f.input :amnt ,label: false %></div>
 	<div class="col-xs-2"><%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a) %></div>
-	<div class="col-xs-3"><%= f.input :description ,label: false %></div>
+	<div class="col-xs-3 cheque"><%= f.input :description ,label: false %></div>
 </div>

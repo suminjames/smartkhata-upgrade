@@ -28,3 +28,23 @@ ready = ->
   jQuery ->
     $('select.combobox').combobox()
 $(document).ready(ready)
+
+
+$ ->
+  $('select.combobox').on 'change', (event) ->
+    $this = $(this)
+    $val = $this.val()
+    if ($("select.combobox option[value="+$val+"]").text().indexOf('Bank:') == 0)
+      $this.parent().parent().find('.cheque').show()
+    else
+      $this.parent().parent().find('.cheque').hide()
+$ ->
+  $('#new_voucher').on 'submit', (event) ->
+    event.preventDefault()
+    $("select.combobox").each ->
+      $this = $(this)
+      $val = $val = $this.val()
+      if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
+        console.log('asd')
+      else
+        console.log('asdfdd')

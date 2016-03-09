@@ -10,6 +10,7 @@ class Files::SalesController < ApplicationController
 		if @file == nil
 			flash.now[:error] = "Please Upload a valid file"
 			@error = true
+      return
 		else
 			begin
 			  xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
@@ -102,6 +103,7 @@ class Files::SalesController < ApplicationController
           transaction.save!
 
           @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+          redirect_to sales_settlement_path(@sales_settlement_id) and return
         end
       end
 
@@ -110,6 +112,7 @@ class Files::SalesController < ApplicationController
         @error = true
         return
       end
+
 
 		end
 	end

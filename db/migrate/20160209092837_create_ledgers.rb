@@ -7,6 +7,7 @@ class CreateLedgers < ActiveRecord::Migration
     	t.decimal :closing_blnc , precision: 15, scale: 3, default: 0.00
       t.timestamps null: false
       t.references :group
+      t.references :bank_account
     end
   end
 end

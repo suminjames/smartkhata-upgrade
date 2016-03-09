@@ -4,6 +4,7 @@ class CreateVouchers < ActiveRecord::Migration
     	t.date :date
     	t.string :date_bs
     	t.string :desc
+      t.integer :voucher_type
       t.timestamps null: false
     end
   end

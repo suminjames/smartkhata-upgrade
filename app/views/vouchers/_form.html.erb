@@ -11,8 +11,19 @@
   	<%= f.date_field :date_bs, :value => @date %>
   </div>
 
+  <div class="form-inputs voucher">
+    <h3>Ledger to be Credited</h3>
+    <div class="row">
+      <div class="col-xs-4">
+        <%= select_tag "extra_ledger_id", options_from_collection_for_select(@ledger_list, 'id', 'name') %>
+      </div>
+      <div class="col-xs-4 cheque">
+        <%= number_field_tag "cheque" %>
+      </div>
+    </div>
 
-  <div class="form-inputs">
+  </div>
+  <div class="form-inputs voucher">
     <h3>Particulars</h3>
     <div class="row">
       <div class="col-xs-4"><h4>Ledger</h4></div>

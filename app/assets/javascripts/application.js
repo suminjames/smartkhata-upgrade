@@ -17,5 +17,6 @@
 //= require turbolinks
 //= require bootstrap-sprockets
 //= require bootstrap-combobox.js
+//= require smart_listing
 //= require layout.min.js
 //= require_tree .
