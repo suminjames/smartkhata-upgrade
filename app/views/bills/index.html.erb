@@ -1,126 +1,122 @@
-<p id="notice"><%= notice %></p>
 
-<%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-<%= hidden_field_tag :search_by, "client_name" %>
-<%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name" %>
-<%= submit_tag "Search" %>
-<% end %>
+<div class="clearfix submenu" >
+  <h4>
+    <%= link_to "List all Bills",  bills_path(show: "all") %>  |
+    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name") %>  |
+    <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number") %>  |
+    <%= link_to "Search by Date",  bills_path(search_by: "date") %>  |
+    <%= link_to "Search by Date Range",  bills_path(search_by: "date_range") %>
+    <!-- TODO -->
+    <!-- <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type") %> | -->
+  </h4>
+</div>
 
-<%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-<%= hidden_field_tag :search_by, "bill_number" %>
-<%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
-<%= submit_tag "Search" %>
-<% end %>
-
-<%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-<%= hidden_field_tag :search_by, "date" %>
-<%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Date" %>
-<%= submit_tag "Search" %>
-<% end %>
-
-<%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-<%= hidden_field_tag :search_by, "date_range" %>
+<div class="clearfix search-form">
 <%
-text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
-text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
-%>
-<%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "Date from" %>
-<%= text_field_tag "search_term[date_from]", text_field_value_2, placeholder: "Date to" %>
-<%= submit_tag "Search" %>
+if params[:search_by] == 'client_name'
+  %>
+  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+  <%= hidden_field_tag :search_by, "client_name" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name" %>
+  <%= submit_tag "Search" %>
+  <% end %>
 <% end %>
 
 
-<% if !@bills.present? %>
-  <p>There are no bills matching the term '<%= params[:search_term] %>'.</p>
+<%
+if params[:search_by] == 'bill_number'
+  %>
+  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+  <%= hidden_field_tag :search_by, "bill_number" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
+  <%= submit_tag "Search" %>
+  <% end %>
 <% end %>
 
-<h1>Listing Bills</h1>
+<%
+if params[:search_by] == 'date'
+  %>
+  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+  <%= hidden_field_tag :search_by, "date" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Date" %>
+  <%= submit_tag "Search" %>
+  <% end %>
+<% end %>
 
-    <% @bills.each do |bill|
-      # TODO Should a bill be allowed to be Edited or Destroyed
-      # TODO Should the bill number be prepended with fiscal year in the view and not in the model?
-      # TODO Trim unnecessary variables
+<%
+if params[:search_by] == 'date_range'
+  %>
+  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+  <%= hidden_field_tag :search_by, "date_range" %>
+  <%
+  text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+  text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+  %>
+  <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "Date from" %>
+  <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "Date to" %>
+  <%= submit_tag "Search" %>
+  <% end %>
+<% end %>
+</div>
 
-      @cal = NepaliCalendar::Calendar.new
-      bill_number = bill.fy_code.to_s + '-' + bill.bill_number.to_s
-      bill_date_ad = bill.updated_at#.to_s.slice(0..10).to_i
-      bill_date_bs = @cal.ad_to_bs(bill_date_ad.year, bill_date_ad.month, bill_date_ad.day).to_s + ' BS'
-      bill_date_ad = bill_date_ad.to_s.slice(0..10) + ' AD'
-      fiscal_year = bill.fy_code
 
-      # Client associated with the bill
-      @client = ClientAccount.find(bill.client_account_id)
+<% # OPTIMIZE Incorporate search term specific message %>
+<% if !params[:search_by].blank? && !params[:commit].blank? && !@bills.present? %>
+<% if params[:search_by] == 'date_range'  %>
+<p>There are no bills matching the date range '<%= params[:search_term]['date_from'] %>' to '<%= params[:search_term]['date_to'] %>'.</p>
+<% elsif %>
+<p>There are no bills matching the term '<%= params[:search_term] %>'.</p>
+<% end %>
+<% end %>
 
-      customer_name = @client.name
-      customer_nepse_code = @client.nepse_code
-      customer_contact_number_1 = @client.phone.blank? ? 'N/A' : @client.phone
-      customer_contact_number_2 = @client.phone_perm.blank? ? 'N/A' : @client.phone_perm
 
-      #TODO Find a way to implement clearance_date. As of now, the viable option is to add 3 WORKING DAYS to transaction date. Verify if it is the most efficient way.
-      clearance_date_ad = 'TODO'
-      clearance_date_bs = 'TODO'
-      transaction_date_ad = bill.share_transactions[0].date
-      transaction_date_bs = @cal.ad_to_bs(transaction_date_ad.year, transaction_date_ad.month, transaction_date_ad.day).to_s + ' BS'
-      transaction_date_ad = transaction_date_ad.to_s + ' AD'
+<% if !@bills.empty?
+  @bills.each do |bill|
+  # TODO Should a bill be allowed to be Edited or Destroyed
+  # TODO Should the bill number be prepended with fiscal year in the view and not in the model?
+  %>
 
-      share_amount = bill.get_net_share_amount
-      sebo_commission = bill.get_net_sebo_commission
-      net_commission_amount = bill.get_net_commission
-      name_transfer_amount = bill.get_name_transfer_amount
-      dp_fee = 'TODO'
-      capital_gain_tax = 'TODO'
-      net_receivable_amount = 'TODO'
-      net_payable_amount = 'TODO'
-      %>
-
-      <div class="clearfix" style="background:#eff4f6; padding:5px">
-        <!-- Bill (minified) BEGINS -->
-        <%
-
-        # The `companies` hash maps an ISIN to its number of occurences
-        companies = Hash.new(0);
-        bill.share_transactions.each do | share_transaction |
-          companies[share_transaction.isin_info.isin.to_s] +=1
-        end
-
-        # Prettifying the `companies` hash content for presentation view
-        company_count_str = ''
-        companies.each do |key, value|
-          company_count_str += key + "(" + value.to_s + ")" + " "
-        end
-
-        %>
-        <div class="row" style="padding-top:1em; background:#eff4f6">
-          <div class="col-xs-4" style="background:#eff4f6">
-            Bill No:
-            <%= bill_number %><br>
-            Bill Date:
-            <%= bill_date_ad %>
-            (<%= bill_date_bs %>)
-          </div>
-          <div class="col-xs-4" style="background:#eff4f6">
-            Customer: <%= customer_name.titlecase %> <br>
-            Bill Type: <!-- # TODO purchase or sales  -->
-          </div>
-          <div class="col-xs-4" style="background:#eff4f6">
-            Companies Transacted: <%=company_count_str %> <br>
-            Net Bill Amount: <!-- # TODO purchase or sales  -->
-          </table>
-        </div>
-
+  <div class="clearfix bill-card">
+    <!-- Bill (minified) BEGINS -->
+    <div class="clearfix">
+      <div class="col-xs-4">
+        <span class="key">Bill No:</span>
+        <%= bill.formatted_bill_number %><br>
+        <span class="key">Bill Date:</span>
+        <%= bill.formatted_bill_dates["bs"]%>
       </div>
-      <%= link_to 'Show Full View', bill, {:style=>'color:#2f8a93;'} %></td>
+      <div class="col-xs-4">
+        <span class="key">Customer:</span>
+        <%= bill.formatted_client_name %> <br>
+        <span class="key">Bill Type:</span>
+        <%= bill.formatted_type %> <br>
+      </div>
+      <div class="col-xs-4">
+        <span class="key">Companies Transacted:</span>
+        <%= bill.formatted_companies_list %> <br>
+        <span class="key">Net Bill Amount:</span>
+        <%= bill.formatted_net_bill_amount %> <br>
+      </table>
+    </div>
+  </div>
+  <div class="clearfix">
+    <div class="col-xs-12 text-center">
+      <%= link_to 'Show Full View', bill %></td>
       <!-- <td><%= link_to 'Edit', edit_bill_path(bill) %></td> -->
       <!-- <td><%= link_to 'Destroy', bill, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->
     </div>
-    <!-- Bill (minified) ENDS -->
+  </div>
+</div>
+<!-- Bill (minified) ENDS -->
 
-    <!-- Seperator Div -->
-    <div style="background:#ffffff; height:5px">
-    </div>
+<% end %>
+<% end %>
 
-      <% end %>
-
-      <% unless @bills.empty? %>
-        <%= will_paginate @bills%>
-      <% end %>
+<div class="text-center">
+  <% unless @bills.blank? %>
+  <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
+  <div class="text-center">
+    <%= page_entries_info @bills %>
+  </div>
+  <% end %>
+</div>

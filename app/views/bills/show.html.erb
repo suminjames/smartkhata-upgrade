@@ -1,114 +1,83 @@
 <% provide(:section_title, "Bill Details") %>
+
 <%
-# Everything that needs to be dynamically populated is stored in this section. Availability and prettifying is done in this section.
-# TODO: If a field value is not available, put 'N/A' in its placeholder.
-
-@cal = NepaliCalendar::Calendar.new
-
-bill_number = @bill.bill_number
-bill_date_ad = @bill.created_at
-bill_date_bs = @cal.ad_to_bs(bill_date_ad.year, bill_date_ad.month, bill_date_ad.day).to_s + ' BS'
-bill_date_ad = bill_date_ad.to_s.slice(0..10) + ' AD'
-fiscal_year = @bill.fy_code
-
 # Client associated with the bill
-# @client = ClientAccount.find(@bill.client_account_id)
 @client = @bill.get_client
-
-customer_name = @client.name
-customer_nepse_code = @client.nepse_code
-customer_contact_number_1 = @client.phone.blank? ? 'N/A' : @client.phone
-customer_contact_number_2 = @client.phone_perm.blank? ? 'N/A' : @client.phone_perm
-
-#TODO Find a way to implement clearance_date. As of now, the viable option is to add 3 WORKING DAYS to transaction date. Verify if it is the most efficient way.
-clearance_date_ad = 'TODO'
-clearance_date_bs = 'TODO'
-transaction_date_ad = @bill.share_transactions[0].date
-transaction_date_bs = @cal.ad_to_bs(transaction_date_ad.year, transaction_date_ad.month, transaction_date_ad.day).to_s + ' BS'
-transaction_date_ad = transaction_date_ad.to_s + ' AD'
-
-share_amount = @bill.get_net_share_amount
-sebo_commission = @bill.get_net_sebo_commission
-net_commission_amount = @bill.get_net_commission
-name_transfer_amount = @bill.get_name_transfer_amount
-dp_fee = @bill.get_net_dp_fee
-capital_gain_tax = @bill.get_net_cgt
-# net_receivable_amount =  @bill.bill_type == 'receive' ? share_amount + sebo_commission + net_commission_amount + dp_fee + capital_gain_tax : 0.00
-# net_payable_amount =  @bill.bill_type == 'pay' ? share_amount - sebo_commission - net_commission_amount - dp_fee - capital_gain_tax : 0.00
-net_receivable_amount =  @bill.bill_type == 'receive' ? @bill.net_amount : 0.00
-net_payable_amount =  @bill.bill_type == 'pay' ? @bill.net_amount : 0.00
 %>
 
-<div class="clearfix" style="background:#eff4f6; padding:5px">
+<div class="clearfix bill-full">
 
   <!-- Static Company Header BEGINS -->
-  <div class="clearfix" style="background:#eff4f6">
-    TRISHAKTI SECURITIES PUBLIC LTD.<br>
-    Putalisadak, Kathmandu.<br>
-    <div class="row">
-      <div class="col-xs-3">
-        Phone: 977-1-4232132
-        <br>
-        Fax: 977-1-4232133
-        <br>
-        PAN: 302830905
-        <br>
-      </div>
+  <div class="clearfix">
+    <strong>
+      TRISHAKTI SECURITIES PUBLIC LTD.<br>
+      Putalisadak, Kathmandu.<br>
+      <div class="row">
+        <div class="col-xs-3">
+          Phone: 977-1-4232132
+          <br>
+          Fax: 977-1-4232133
+          <br>
+          PAN: 302830905
+          <br>
+        </div>
+      </strong>
       <div class="col-xs-6 text-center">
         Schedule-3
         <br>
         Relating to Sub-Regulation(I) of Regulation 16
         <br>
-        Information note to cients on execution of transation
+        Information note to cients on execution of transaction
         <br>
       </div>
     </div>
-    <div class="clearfix" style="padding-top:1em; border-bottom: solid 1px; border-bottom-color: #0d0c0c "></div>
+    <div class="clearfix horizontal-line">
+    </div>
   </div>
   <!-- Static Company Header ENDS-->
 
   <!-- Bill No. and Bill Date BEGINS -->
-  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
-    <div class="col-xs-4" style="background:#eff4f6">
+  <div class="row">
+    <div class="col-xs-4">
       Bill No:
-      <%= bill_number %>
+      <%= @bill.formatted_bill_number %>
     </div>
-    <div class="col-xs-5" style="background:#eff4f6">
+    <div class="col-xs-5">
       Bill Date:
-      <%= bill_date_ad %>
-      (<%= bill_date_bs %>)
+      <%= @bill.formatted_bill_dates["ad"]%>
+      (<%= @bill.formatted_bill_dates["bs"]%>)
     </div>
-    <div class="col-xs-3 text-right" style="background:#eff4f6">
+    <div class="col-xs-3 text-right">
       Fiscal Year:
-      <%= fiscal_year %>
+      <%= @bill.fy_code%>
     </div>
   </div>
   <!-- Bill No. and Bill Date ENDS -->
 
   <!-- Customer Details BEGINS -->
-  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
-    <div class="col-xs-6" style="background:#eff4f6">
-      <table class="table">
+  <div class="row customer_details">
+    <div class="col-xs-6" >
+      <table class="table table-no-border">
         <tr>
           <td>Customer:</td>
-          <td><%= customer_name %>
+          <td><%= @bill.formatted_client_name%>
           </td>
         </tr>
         <tr>
           <td>NEPSE Code:</td>
-          <td><%= customer_nepse_code %></td>
+          <td><%= @client.nepse_code %></td>
         </tr>
       </table>
     </div>
-    <div class="col-xs-6 text-right" style="background:#eff4f6">
-      <table class="table">
+    <div class="col-xs-6 text-right">
+      <table class="table table-no-border">
         <tr>
           <td>Contact No.:</td>
-          <td><%= customer_contact_number_1 %></td>
+          <td><%= @bill.formatted_client_phones['primary'] %></td>
         </tr>
         <tr>
           <td></td>
-          <td><%= customer_contact_number_2 %></td>
+          <td><%= @bill.formatted_client_phones['secondary'] %></td>
         </tr>
       </table>
     </div>
@@ -116,11 +85,11 @@ net_payable_amount =  @bill.bill_type == 'pay' ? @bill.net_amount : 0.00
   <!-- Customer Details ENDS -->
 
   <!-- Transaction Details BEGINS -->
-  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
-    <div>
-      TODO: Relevant Purchase/Sale Order message here
+  <div class="clearfix transactions-section">
+    <div class="clearfix bill-message">
+    <%= @bill.formatted_bill_message %>
     </div>
-    <table class="table table-striped table-condensed">
+    <table class="table table-bordered table-condensed text-center table-no-border">
       <tr>
         <th>Transaction No</th>
         <th>No of Shares</th>
@@ -133,83 +102,71 @@ net_payable_amount =  @bill.bill_type == 'pay' ? @bill.net_amount : 0.00
         <th>Capital Gain</th>
       </tr>
       <%
-@bill.share_transactions.each do | share_transaction |
+      @bill.share_transactions.each do | share_transaction |
+        %>
+        <tr>
+          <!-- <th>Transaction No</th> -->
+          <td><%= share_transaction.contract_no %></td>
+          <!-- <th>No of Shares</th> -->
+          <td><%= share_transaction.quantity %></td>
+          <!-- <th>Company Name</th> -->
+          <td><%= share_transaction.formatted_company_name %></td>
+          <!-- <th>Share Rate</th> -->
+          <td><%= share_transaction.formatted_share_rate %></td>
+          <!-- <th>Base Price</th> -->
+          <td><%= share_transaction.formatted_base_price %></td>
+          <!-- <th>Amount</th> -->
+          <td><%= share_transaction.formatted_amount %></td>
+          <!-- <th>Commission Rate</th> -->
+          <td><%= share_transaction.formatted_commission_rate %></td>
+          <!-- <th>Commission Amount</th> -->
+          <td><%= share_transaction.formatted_commission_amount%></td>
+          <!-- <th>Capital Gain</th> -->
+          <td><%= 'TODO' %></td>
+        </tr>
 
-        transaction_no = share_transaction.contract_no
-        no_of_shares = share_transaction.quantity
-        company_name = share_transaction.isin_info.company.to_s + '(' + share_transaction.isin_info.isin.to_s + ')'
-        share_rate = number_to_currency (share_transaction.share_rate)
-        base_price = 'TODO'
-        amount = number_to_currency(share_transaction.share_amount)
-        commission_rate = share_transaction.commission_rate
-        commission_rate = commission_rate == "flat_25" ? "Flat NRs 25" : commission_rate.to_f.to_s + "%"
-        commission_amount = number_to_currency(share_transaction.commission_amount)
-        capital_gain = 'TODO'
-
-%>
-<tr>
-  <!-- <th>Transaction No</th> -->
-  <td><%= transaction_no %></td>
-  <!-- <th>No of Shares</th> -->
-  <td><%= no_of_shares %></td>
-  <!-- <th>Company Name</th> -->
-  <td><%= company_name %></td>
-  <!-- <th>Share Rate</th> -->
-  <td><%= share_rate %></td>
-  <!-- <th>Base Price</th> -->
-  <td><%= base_price %></td>
-  <!-- <th>Amount</th> -->
-  <td><%= amount %></td>
-  <!-- <th>Commission Rate</th> -->
-  <td><%= commission_rate %></td>
-  <!-- <th>Commission Amount</th> -->
-  <td><%= commission_amount%></td>
-  <!-- <th>Capital Gain</th> -->
-  <td><%= capital_gain %></td>
-</tr>
-
-<%
-end
-%>
+        <%
+      end
+      %>
     </table>
   </div>
   <!-- Transaction Details ENDS -->
 
   <!-- Calculations at the Bottom BEGINS -->
-  <div class="clearfix" style="padding-top:1em; background:#eff4f6">
+  <div class="clearfix calculation-section">
     <div class="col-xs-5 text-center">
-      <table class="table table-condensed text-right">
+      <table class="table table-no-border table-condensed text-right">
         <tr>
           <td>Share Amount:</td>
-          <td><%= share_amount %></td>
+          <td><%= @bill.formatted_net_share_amount %></td>
         </tr>
         <tr>
           <td>SEBO Commission:</td>
-          <td><%= sebo_commission %></td>
+          <td><%= @bill.formatted_net_sebo_commission %></td>
         </tr>
         <tr>
           <td>Net Commission Amount:</td>
-          <td><%= net_commission_amount %></td>
+          <td><%= @bill.formatted_net_commission %></td>
         </tr>
         <tr>
           <td>Name Transfer Amount:</td>
-          <td><%= name_transfer_amount %></td>
+          <td><%= @bill.formatted_name_transfer_amount %></td>
         </tr>
         <tr>
           <td>DP Fee:</td>
-          <td><%= dp_fee %></td>
+          <td><%= @bill.formatted_net_dp_fee %></td>
         </tr>
         <tr>
           <td>Capital Gain:</td>
-          <td><%= capital_gain_tax %></td>
+          <td><%= @bill.formatted_net_cgt %></td>
         </tr>
         <tr>
           <td>Net Receivable Amount:</td>
-          <td><%= net_receivable_amount %></td>
+          <td><%= @bill.formatted_net_receivable_amount %></td>
         </tr>
         <tr>
           <td>Net Payable Amount:</td>
-          <td><%= net_payable_amount %></td>
+          <td><%= @bill.formatted_net_payable_amount %></td>
 
         </tr>
       </table>
@@ -217,19 +174,19 @@ end
     <div class="col-xs-6 col-xs-offset-1 ">
       <!-- Dates section BEGINS -->
       <div>
-        <table class="table table-condensed text-right">
+        <table class="table table-no-border table-condensed text-right">
           <tr>
             <td>Date of clearance:</td>
             <td>
-              <%= clearance_date_ad %>
-               (<%= clearance_date_bs %>)
+              <%= @bill.formatted_clearance_dates['ad'] %>
+              (<%= @bill.formatted_clearance_dates['bs'] %>)
             </td>
           </tr>
           <tr>
             <td>Transaction Date:</td>
             <td>
-              <%= transaction_date_ad %>
-               (<%= transaction_date_bs %>)
+              <%= @bill.formatted_transaction_dates['ad'] %>
+              (<%= @bill.formatted_transaction_dates['bs'] %>)
             </td>
           </tr>
         </table>
@@ -237,8 +194,10 @@ end
       <!-- Dates section ENDS -->
 
       <!-- Authorised Signature section BEGINS -->
-      <div class="row" style="padding-top:100px">
-        <div class="col-xs-offset-1 text-center">
+      <div class="row signature-section">
+        <div class="col-xs-8 col-xs-offset-4 text-center">
+        <div class="clearfix horizontal-line">
+        </div>
           (Authorized Signature)
           <br>
           TRISHAKTI SECURITIES PUBLIC LTD.
@@ -252,10 +211,12 @@ end
     </div>
   </div>
 
-  <div class="clearfix" style="text-decoration:underline">
+  <div class="clearfix">
     <!-- Footnote BEGINS -->
     <em>
-      Note: Please bring this bill for enquiry and further processing.
+      <u>
+        Note: Please bring this bill for enquiry and further processing.
+      </u>
     </em>
     <!-- Footnote ENDS -->
   </div>
