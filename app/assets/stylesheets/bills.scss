@@ -51,7 +51,7 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 .calculation-section, .customer_details {
   table{
     td{
-      padding: 2px 0px;
+      padding: 2px 0px !important;
     }
   }
 }
@@ -73,12 +73,12 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 .transactions-section{
   table{
     td{
-      padding: 2px 4px;
-      border: 1px solid black;
+      padding: 2px 4px !important;
+      border: 1px solid black !important;
     }
     th{
       background-color: rgba(210, 209, 208, 0.31);
-      border: 1px solid black;
+      border: 1px solid black !important;
     }
   }
 }
