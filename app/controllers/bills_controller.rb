@@ -5,18 +5,56 @@ class BillsController < ApplicationController
   # GET /bills.json
   def index
     if params[:search_by] && params[:search_term]
-      @bills = Bill.search(params[:search_by], params[:search_term]).order(:bill_number).paginate(:page => params[:page], :per_page => 30)
-      else
-        #Order bills as per bill_number and not updated_at(which is the metric for default ordering)
-        @bills = Bill.order(:bill_number).paginate(:page => params[:page], :per_page => 30)
+      search_by = params[:search_by]
+      search_term = params[:search_term]
+      case search_by
+      when 'client_name'
+        @bills = Bill.find_by_client_name(search_term)
+      when 'bill_number'
+        @bills = Bill.find_by_bill_number(search_term)
+      when 'date'
+        date = search_term
+        if parsable_date? date
+          @bills = Bill.find_by_date(Date.parse(date))
+        else
+          @bills = ''
+          respond_to do |format|
+            format.html { render :index }
+            flash.now[:error] = 'Invalid date'
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      when 'date_range'
+        date_from = search_term['date_from']
+        date_to   = search_term['date_to']
+        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+        if parsable_date?(date_from) && parsable_date?(date_to)
+          date_from = Date.parse(date_from)
+          date_to   = Date.parse(date_to)
+          @bills = Bill.find_by_date_range(date_from, date_to)
+        else
+          @bills = ''
+          respond_to do |format|
+            flash.now[:error] = 'Invalid date(s)'
+            format.html { render :index }
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      end
+    elsif params[:show] == 'all'
+      # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
+      @bills = Bill
+    else
+      # Don't populate bills if at index with no query parameter
+      @bills = ''
     end
+    @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
   end
 
   # GET /bills/1
   # GET /bills/1.json
   def show
-    #TODO Display 'Bill not found if invalid Id'
-    @bill
+    @bill = Bill.find(params[:id]).decorate
   end
 
   # GET /bills/new
@@ -69,16 +107,17 @@ class BillsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_bill
-      # @bill = Bill.find(params[:id])
-      # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
-      # The bang operator '!' after find_by_id raises an error and halts the script
-      @bill = Bill.find_by_id!(params[:id]) 
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_bill
+    # @bill = Bill.find(params[:id])
+    # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
+    # The bang operator '!' after find_by_id raises an error and halts the script
+    @bill = Bill.find_by_id!(params[:id]).decorate
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def bill_params
-      params.fetch(:bill, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def bill_params
+    params.fetch(:bill, {})
+  end
+
 end
