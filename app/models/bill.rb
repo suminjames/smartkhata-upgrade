@@ -2,7 +2,7 @@ class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
 	enum bill_type: [ :receive, :pay ]
-	enum status: [:raw,:pending,:partial,:settled]
+	enum status: [:pending,:partial,:settled]
 
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%") }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }

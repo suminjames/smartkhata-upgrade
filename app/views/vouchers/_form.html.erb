@@ -5,43 +5,63 @@
 %>
 
 <%= simple_form_for(@voucher) do |f| %>
+  <!-- add hidden field to track the type -->
+  <%= hidden_field_tag 'voucher_type', @voucher_type %>
+  <%= hidden_field_tag 'client_account_id', @clent_account_id %>
+
   <%= f.error_notification %>
-  <div class="form-inputs">
-    <h4>Date</h4>
-  	<%= f.date_field :date_bs, :value => @date %>
+  <div class="form-inputs row">
+    <div class="col-sm-4">
+      <h4>Date</h4>
+    	<%= f.date_field :date_bs, :value => @date, class: 'form-control' %>
+    </div>
   </div>
-
+  <br>
   <div class="form-inputs voucher">
-    <h3>Ledger to be Credited</h3>
-    <div class="row">
-      <div class="col-xs-4">
-        <%= select_tag "extra_ledger_id", options_from_collection_for_select(@ledger_list, 'id', 'name') %>
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+        <h3 class="box-title">Ledger to be Debited</h3>
       </div>
-      <div class="col-xs-4 cheque">
-        <%= number_field_tag "cheque" %>
+      <div class="box-body">
+        <div class="row">
+          <div class="col-xs-4">
+            <%= select_tag "fixed_ledger_id", options_from_collection_for_select(@ledger_list, 'id', 'name'), class: 'select-ledger' %>
+          </div>
+          <div class="col-xs-4 cheque">
+            <%= number_field_tag "cheque_number",nil, placeholder: 'Enter cheque number', class: 'form-control cheque' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div class="form-inputs voucher">
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+        <h3 class="box-title">Particulars</h3>
+      </div>
+      <div class="box-body">
+        <div class="row">
+          <div class="col-xs-4"><h4>Ledger</h4></div>
+          <div class="col-xs-3"><h4>Amount</h4></div>
+          <div class="col-xs-2"><h4>Dr/Cr</h4></div>
+        </div>
+        <%= f.fields_for :particulars do |p| %>
+          <%= render 'particular_fields', f: p %>
+        <% end %>
+        <%= link_to_add_fields "Add Particular", f, :particulars %>
       </div>
     </div>
 
-  </div>
-  <div class="form-inputs voucher">
-    <h3>Particulars</h3>
-    <div class="row">
-      <div class="col-xs-4"><h4>Ledger</h4></div>
-      <div class="col-xs-3"><h4>Amount</h4></div>
-      <div class="col-xs-2"><h4>Transaction Type</h4></div>
-      <div class="col-xs-3"><h4>Details</h4></div>
-    </div>
 
-    <%= f.fields_for :particulars do |p| %>
-      <%= render 'particular_fields', f: p %>
-    <% end %>
-    <%= link_to_add_fields "Add Particular", f, :particulars %>
+
+
   </div>
   <div class="form-inputs">
     <h4>Narration</h4>
     <%= f.input  :desc, label: false %>
   </div>
   <div class="form-actions">
-    <%= f.submit  %>
+    <%= f.submit "submit", class: 'btn btn-primary'  %>
   </div>
 <% end %>

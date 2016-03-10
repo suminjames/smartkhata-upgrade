@@ -29,7 +29,7 @@ class Files::FloorsheetsController < ApplicationController
 
 
 			# grab date from the first record
-			if xlsx.sheet(0).row(13)[0].nil?
+			if xlsx.sheet(0).row(12)[0].nil?
 				flash.now[:error] = "The file is empty"
 				@error = true
 				return
@@ -49,7 +49,7 @@ class Files::FloorsheetsController < ApplicationController
 			# loop through 13th row to last row
 			# data starts from 13th row
 			ActiveRecord::Base.transaction do
-				(13..(xlsx.sheet(0).last_row)).each do |i|
+				(12..(xlsx.sheet(0).last_row)).each do |i|
 				# (13..15).each do |i|
 					@row_data = xlsx.sheet(0).row(i)
 					break if @row_data[0] == nil
@@ -189,16 +189,18 @@ class Files::FloorsheetsController < ApplicationController
 			date: @date,
 			client_account_id: client.id
 		)
-		
+
 		if type_of_transaction == ShareTransaction.transaction_types['buy']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
+			bill.balance_to_pay = bill.net_amount
 			bill.save!
 
 
 			# create client ledger if not exist
 			client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
 				ledger.name = client_name
+				ledger.client_account_id = client.id
 			end
 			# assign the client ledgers to group clients
 			client_group = Group.find_or_create_by!(name: "Clients")

@@ -1,6 +1,16 @@
-<div class="row">
-	<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox'}) %></div>
+<div class="row particular">
+	<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
 	<div class="col-xs-3"><%= f.input :amnt ,label: false %></div>
-	<div class="col-xs-2"><%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a) %></div>
-	<div class="col-xs-3 cheque"><%= f.input :description ,label: false %></div>
+	<!-- <div class="col-xs-2"><%= f.input :transaction_type ,:input_html => { :value => 'dr' }, label: false , readonly: true%></div> -->
+	<div class="col-xs-2">
+		<!--  hidden input to store the transaction type as disabled wont submit data to server -->
+		<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
+		<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
+	</div>
+	<!-- <div class="col-xs-2">
+		<%= f.input :transaction_type, label: false do %>
+		  <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
+		<% end %>
+	</div> -->
+	<div class="col-xs-3 cheque"><%= f.number_field :cheque_number,		placeholder: 'Enter cheque number', class: 'form-control cheque' %></div>
 </div>
