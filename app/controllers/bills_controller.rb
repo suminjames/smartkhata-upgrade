@@ -54,6 +54,7 @@ class BillsController < ApplicationController
   # GET /bills/1
   # GET /bills/1.json
   def show
+    @from_path =  request.referer
     @bill = Bill.find(params[:id]).decorate
   end
 
