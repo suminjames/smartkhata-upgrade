@@ -9,6 +9,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
+gem 'sankhya'
 gem 'kaminari'
 gem 'bootstrap-kaminari-views'
 group :development, :test do
