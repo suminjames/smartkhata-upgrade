@@ -7,7 +7,8 @@
 <%= simple_form_for(@voucher) do |f| %>
   <!-- add hidden field to track the type -->
   <%= hidden_field_tag 'voucher_type', @voucher_type %>
-  <%= hidden_field_tag 'client_account_id', @clent_account_id %>
+  <%= hidden_field_tag 'client_account_id', @client_account_id %>
+  <%= hidden_field_tag 'bill_id', @bill_id %>
 
   <%= f.error_notification %>
   <div class="form-inputs row">
@@ -17,10 +18,15 @@
     </div>
   </div>
   <br>
+  <% if @is_purchase_sales %>
   <div class="form-inputs voucher">
     <div class="box box-primary z-light-bg">
       <div class="box-header">
-        <h3 class="box-title">Ledger to be Debited</h3>
+        <% if @voucher_type == Voucher.voucher_types[:purchase] %>
+          <h3 class="box-title">Ledger to be Credited</h3>
+        <% else %>
+          <h3 class="box-title">Ledger to be Debited</h3>
+        <% end %>
       </div>
       <div class="box-body">
         <div class="row">
@@ -34,6 +40,7 @@
       </div>
     </div>
   </div>
+  <% end %>
   <br>
   <div class="form-inputs voucher">
     <div class="box box-primary z-light-bg">

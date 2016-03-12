@@ -1,6 +1,9 @@
 class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
+
+  has_many :particulars
+
 	enum bill_type: [ :receive, :pay ]
 	enum status: [:pending,:partial,:settled]
 

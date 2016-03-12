@@ -3,9 +3,16 @@
 	<div class="col-xs-3"><%= f.input :amnt ,label: false %></div>
 	<!-- <div class="col-xs-2"><%= f.input :transaction_type ,:input_html => { :value => 'dr' }, label: false , readonly: true%></div> -->
 	<div class="col-xs-2">
-		<!--  hidden input to store the transaction type as disabled wont submit data to server -->
-		<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
-		<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
+		<% if @voucher_type == Voucher.voucher_types[:sales] %>
+			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
+			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
+			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
+		<% elsif @voucher_type == Voucher.voucher_types[:purchase] %>
+			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "dr" }%>
+			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"dr"),{},{:disabled => true} %>
+		<% else %>
+			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a) %>
+		<% end %>
 	</div>
 	<!-- <div class="col-xs-2">
 		<%= f.input :transaction_type, label: false do %>

@@ -64,7 +64,7 @@ $ ->
   $('#new_voucher').on 'submit', (event) ->
     $(".particular").each ->
       $this = $(this)
-      if (parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
+      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
         $this.remove()
 
 
