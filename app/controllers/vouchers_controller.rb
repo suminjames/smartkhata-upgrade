@@ -119,13 +119,13 @@ class VouchersController < ApplicationController
         @bills.each do |bill|
           if bill.balance_to_pay <= net_blnc
             net_blnc = net_blnc - bill.balance_to_pay
-            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay}"
+            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay}  "
             bill.balance_to_pay = 0
             bill.status = Bill.statuses[:settled]
             @processed_bills << bill
           else
             bill.status = Bill.statuses[:partial]
-            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{net_blnc}"
+            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{net_blnc}  "
             bill.balance_to_pay = bill.balance_to_pay - net_blnc
             @processed_bills << bill
             break

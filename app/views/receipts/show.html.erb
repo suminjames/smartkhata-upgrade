@@ -1,34 +1,76 @@
 <p id="notice"><%= notice %></p>
+<% provide(:section_title, "Receipt Details") %>
 
-<p>
-  <strong>Name:</strong>
-  <%= @receipt.name %>
-</p>
+<div class="clearfix bill-full">
 
-<p>
-  <strong>Amount:</strong>
-  <%= @receipt.amount %>
-</p>
+  <!-- Static Company Header BEGINS -->
+  <div class="clearfix">
+    <strong>
+      TRISHAKTI SECURITIES PUBLIC LTD.<br>
+      Putalisadak, Kathmandu.<br>
+      <div class="row">
+        <div class="col-xs-3">
+          Phone: 977-1-4232132
+          <br>
+          Fax: 977-1-4232133
+          <br>
+          PAN: 302830905
+          <br>
+        </div>
+      </strong>
+      <div class="col-xs-6 text-center">
+        <h4><u>RECEIPT</u></h4>
+      </div>
+    </div>
+    <div class="clearfix horizontal-line">
+    </div>
+  </div>
+  <!-- Static Company Header ENDS-->
+  <br><br>
+  <!-- Receipt No. and Receipt Date BEGINS -->
+  <div class="row">
+    <div class="col-xs-4">
+      <p>Receipt No: <%= @receipt.id %></p>
+    </div>
+    <div class="col-xs-3 col-xs-offset-5 text-right">
+      <p>Date: <%= @receipt.date_bs%></p>
+    </div>
+  </div>
+  <!-- Receipt No. and Receipt Date ENDS -->
 
-<p>
-  <strong>Amount:</strong>
-  <%= @receipt.amount %>
-</p>
+  <!-- Receipt details START -->
+  <p>Received with thanks from: <strong><u><%= @receipt.name %></u></strong></p>
+  <p>the sum of   <strong>Rs.   <%= arabic_number(@receipt.amount) %></strong></p>
+  <p>(in words)<strong><u>  Rs.   <%= arabic_word(@receipt.amount) %> Only</u></strong></p>
+  <!-- Receipt details END -->
 
-<p>
-  <strong>Date bs:</strong>
-  <%= @receipt.date_bs %>
-</p>
+  <br><br><br>
+  <div class="row">
+    <div class="col-xs-3 col-xs-offset-4">
+      <br>
+      <hr class="clearfix horizontal-line">
+      <p class="text-center">Paid By</p>
+    </div>
+    <div class="col-xs-3 col-xs-offset-2">
+      <br>
+      <hr class="clearfix horizontal-line">
+      <p class="text-center">Received By</p>
+    </div>
 
-<p>
-  <strong>Description:</strong>
-  <%= @receipt.description %>
-</p>
-
-<p>
-  <strong>Cheque entry:</strong>
-  <%= @receipt.cheque_entry_id %>
-</p>
+  </div>
+  <hr class="clearfix horizontal-line">
+  <br><br>
+  <div class="clearfix">
+    <!-- Footnote BEGINS -->
+    <em>
+      <p><%= @receipt.description %></p>
+      <u>
+        Note: Please bring this receipt compulsarily when collecting the certificate.
+      </u>
+    </em>
+    <!-- Footnote ENDS -->
+  </div>
+</div>
 
 <%= link_to 'Edit', edit_receipt_path(@receipt) %> |
 <%= link_to 'Back', receipts_path %>

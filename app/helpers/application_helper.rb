@@ -95,4 +95,17 @@ module ApplicationHelper
 		return true
 	end
 
+
+	def arabic_word(decimal)
+		word = decimal.to_f.to_words
+		if word.kind_of?(Array)
+			word = "#{word[0]} And #{word[1]} Paisa"
+		end
+		word.titleize
+	end
+
+	def arabic_number(decimal)
+		decimal.to_f.to_amount
+	end
+
 end

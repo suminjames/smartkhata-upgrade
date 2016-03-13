@@ -80,3 +80,9 @@ section {
   @extend .btn-primary;
   @extend .btn-xs;
 }
+
+.btn-primary {
+  &:visited {
+    color: white;
+  }
+}
