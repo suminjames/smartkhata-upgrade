@@ -1,0 +1,21 @@
+@page {
+  size: A4;
+  margin-left: -0.5cm;
+  margin-right: -0.5cm;
+  margin-top: -1cm;
+}
+.box.box-default.content-area {
+  max-width: 768px;
+}
+
+.box-header.with-border.content-area {
+  display: none;
+}
+
+.box.box-default.content-area {
+  border-top-color: transparent;
+}
+
+footer.main-footer {
+  display: none;
+}

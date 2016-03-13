@@ -86,7 +86,11 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   border-top: 0px;
 }
 
-@media print{
-  
-
+@media print {
+  .custom-anchor {
+    display: none;
+  }
+  html * {
+    font-size: 8px !important;
+  }
 }
