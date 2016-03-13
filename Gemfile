@@ -49,7 +49,7 @@ gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
 gem 'mechanize', '2.7.3'
 gem "haml"
-
+gem 'sankhya'
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'guard'
