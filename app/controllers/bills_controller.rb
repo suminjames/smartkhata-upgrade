@@ -4,6 +4,7 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+  # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
     #default landing action for '/bills' should redirect to '/bills?search_by=bill_status&search_term=unsettled_bills'
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
@@ -12,7 +13,11 @@ class BillsController < ApplicationController
       end
       return
     end
-    if params[:search_by] && params[:search_term]
+
+    # Populate (and route when needed) as per the params
+    if params[:show] == 'all'
+      @bills = Bill.all
+    elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
@@ -52,13 +57,11 @@ class BillsController < ApplicationController
             format.html { render :index }
             format.json { render json: flash.now[:error], status: :unprocessable_entity }
           end
-        else
-          # If no matches for case 'search_by', return empty @bills
-          @bill = ''
         end
+      else
+        # If no matches for case 'search_by', return empty @bills
+        @bills = ''
       end
-    elsif params[:show] == 'all'
-      @bills = Bill.all
     else
       @bills = ''
     end
