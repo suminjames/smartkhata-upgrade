@@ -3,5 +3,5 @@
 <%= @processed_data %>
 <%= link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement_id), class: "btn btn-primary" %>
 <% else %>
-<%= link_to "Upload CM file" ,import_files_sales_path %>
+<%= link_to "Upload CM file", new_files_floorsheet_path%>
 <% end %>
