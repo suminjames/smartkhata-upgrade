@@ -3,6 +3,7 @@ class Ledger < ActiveRecord::Base
 	has_many :vouchers, :through => :particulars
 	belongs_to :group
 	belongs_to :bank_account
+	belongs_to :client_account
 	attr_accessor :opening_blnc_type
 	validates_presence_of :name
 	validate :positive_amount, on: :create

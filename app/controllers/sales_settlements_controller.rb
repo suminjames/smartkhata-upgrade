@@ -14,7 +14,7 @@ class SalesSettlementsController < ApplicationController
   # GET /sales_settlements/1.json
   def show
     @share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id)
-    @share_transactions_raw = smart_listing_create(:share_transactions, ShareTransaction.all, partial: "share_transactions/list", page_sizes: [50])
+    @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list", page_sizes: [50])
   end
 
   # GET /sales_settlements/new

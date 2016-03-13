@@ -53,11 +53,13 @@ class GenerateBillsService
         bill.client_account_id = transaction.client_account_id
         bill.share_transactions << transaction
         bill.net_amount += transaction.net_amount
+        bill.balance_to_pay = bill.net_amount
         bill.save!
 
         # create client ledger if not exist
   			client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
   				ledger.name = client_account.name
+          ledger.client_account_id =client_account.id
   			end
 
   			# assign the client ledgers to group clients

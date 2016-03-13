@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  amount: 
+  amount: 
+  date_bs: MyString
+  description: MyString
+  cheque_entry_id: 1
+
+two:
+  name: MyString
+  amount: 
+  amount: 
+  date_bs: MyString
+  description: MyString
+  cheque_entry_id: 1

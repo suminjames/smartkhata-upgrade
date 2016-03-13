@@ -1,6 +1,3 @@
-<% provide(:section_title, "Voucher Details") %>
-<p id="notice"><%= notice %></p>
-<% total = 0 %>
 <div class="box box-primary z-light-bg">
 	<div class="box-header">
 		<div class="row">
@@ -22,9 +19,6 @@
 				</div>
 			</div>
 			<br>
-		  <% total = (particular.dr?) ? total + particular.amnt : total - particular.amnt %>
 		<% end %>
 	</div>
 </div>
-<%= "total:#{total}" %><br>
-<%= link_to 'Back', vouchers_path %>

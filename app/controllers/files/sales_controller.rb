@@ -66,6 +66,7 @@ class Files::SalesController < ApplicationController
         @processed_data  << hash
 
       end
+
       @processed_data = @processed_data.drop(1) if @processed_data[0][:settlement_id]=='Settlement ID'
 
       # by default the process is incomplete
@@ -85,6 +86,7 @@ class Files::SalesController < ApplicationController
             raise ActiveRecord::Rollback
             return
           end
+
           amount_receivable = hash[:amount_receivable].delete(',').to_f
           transaction.settlement_id = hash[:settlement_id]
           transaction.cgt = hash[:cgt].delete(',').to_f
@@ -103,7 +105,7 @@ class Files::SalesController < ApplicationController
           transaction.save!
 
           @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
-          redirect_to sales_settlement_path(@sales_settlement_id) and return
+
         end
       end
 
@@ -112,7 +114,7 @@ class Files::SalesController < ApplicationController
         @error = true
         return
       end
-
+      redirect_to sales_settlement_path(@sales_settlement_id)
 
 		end
 	end
