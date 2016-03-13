@@ -1,42 +1,16 @@
-Smartkhata
-================
+# SmartKhata
 
 
 
-Documentation and Support
--------------------------
--------
-This application was generated with the [rails_apps_composer](https://github.com/RailsApps/rails_apps_composer) gem
-provided by the [RailsApps Project](http://railsapps.github.io/).
+## Documentation and Support
 
 
-Rails Composer is supported by developers who purchase our RailsApps tutorials.
+## Troubleshooting:
+- If there arises issues with the content display while printing using Chrome Print Dialog (Cmd+P or Ctrl+P), it might be solved by tweaking minimum font size in Chrome.
+  - In Chrome, Settings -> Advanced Settings -> Customize Fonts -> Set 'Minimum Font Size' to 0.
 
-This application requires:
+### Notes:
+- For markdown help, see
+  - https://guides.github.com/features/mastering-markdown/
+  - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 
-- Ruby 2.2.1
-- Rails 4.2.4
-
-TODO
--------
-* TESTING
-  * Implement GroupController's
-    * 'get_index'
-    * 'get_new'
-    * 'create_group'
-    * 'show_group'
-    * 'get_edit'
-    * 'should_update_group'
-
-  * Implement VoucherController's
-    * 'create_voucher'
-    * 'get_new'
-    * 'get_edit'
-
-  * Implement LedgersController's
-    * 'get_index'
-    * 'get_new'
-    * 'create_ledger'
-    * 'show_ledger'
-    * 'get_edit'
-    * 'update_edit'
