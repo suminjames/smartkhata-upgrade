@@ -8,7 +8,7 @@ class BillsController < ApplicationController
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
-        format.html { redirect_to bills_path( search_by: "bill_status", search_term: "unsettled_bills") }
+        format.html { redirect_to bills_path(search_by: "bill_status", search_term: "unsettled_bills") }
       end
       return
     end
@@ -52,10 +52,12 @@ class BillsController < ApplicationController
             format.html { render :index }
             format.json { render json: flash.now[:error], status: :unprocessable_entity }
           end
+        else
+          # If no matches for case 'search_by', return empty @bills
+          @bill = ''
         end
       end
     elsif params[:show] == 'all'
-      # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
       @bills = Bill.all
     else
       @bills = ''
