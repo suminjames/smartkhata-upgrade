@@ -5,9 +5,8 @@ class BillsController < ApplicationController
   # GET /bills.json
   def index
     #default landing action for '/bills' should redirect to '/bills?search_by=bill_status&search_term=unsettled_bills'
-    # abort params.count.to_s
-    # render action: index, search_by: "bill_status", search_term: "unsettled_bills" if params[:search_term].nil?
-    if params[:search_by].blank?
+    # OPTIMIZE - Refactor
+    if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
         format.html { redirect_to bills_path( search_by: "bill_status", search_term: "unsettled_bills") }
       end
@@ -57,7 +56,7 @@ class BillsController < ApplicationController
       end
     elsif params[:show] == 'all'
       # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
-      @bills = Bill
+      @bills = Bill.all
     else
       @bills = ''
     end
