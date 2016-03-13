@@ -4,7 +4,35 @@ class LedgersController < ApplicationController
   # GET /ledgers
   # GET /ledgers.json
   def index
-    @ledgers = Ledger.all
+    #default landing action for '/legers' should redirect to '/ledgers?show=all'
+    # OPTIMIZE - Refactor
+    if params[:show].blank? && params[:search_by].blank?
+      respond_to do |format|
+        format.html { redirect_to ledgers_path(show: "all") }
+      end
+      return
+    end
+    if params[:show] == "all"
+      @ledgers = Ledger.all
+    elsif params[:show] == "all_client"
+      @ledgers = Ledger.find_all_client_ledgers
+    elsif params[:search_by] && params[:search_term]
+      search_by = params[:search_by]
+      search_term = params[:search_term]
+      case search_by
+      when 'ledger_name'
+        ledger_name = search_term
+        @ledgers = Ledger.find_by_ledger_name(ledger_name)
+      else
+        # If no matches for case  'search_by', return empty @ledgers
+        @ledgers = ''
+      end
+    else
+      @ledgers = ''
+    end
+    # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
+    # TODO chain .decorate function
+    @ledgers = @ledgers.order(:name).page(params[:page]).per(20) unless @ledgers.blank?
   end
 
   # GET /ledgers/1

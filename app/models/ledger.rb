@@ -10,6 +10,8 @@ class Ledger < ActiveRecord::Base
 
 	before_create :update_closing_balance
 
+  scope :find_all_client_ledgers, -> { where.not(client_code: nil) }
+  scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
 
 	def update_closing_balance
 		unless self.opening_blnc.nil?

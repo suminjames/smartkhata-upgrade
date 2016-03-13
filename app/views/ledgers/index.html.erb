@@ -1,5 +1,35 @@
 <% provide(:section_title, "List of Ledgers") %>
-<%= link_to 'New Ledger', new_ledger_path %>
+
+
+<div class="clearfix submenu" >
+  <h5>
+    <%= link_to "All Ledgers",  ledgers_path(show: "all") %>  |
+    <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client") %> |
+    <%= link_to "Searcy by Name",  ledgers_path(search_by: "ledger_name") %> |
+    <%= link_to 'New Ledger', new_ledger_path %>
+  </h5>
+</div>
+
+
+<div class="clearfix search-form">
+  <%
+  if params[:search_by] == 'ledger_name'
+    %>
+    <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
+    <%= hidden_field_tag :search_by, "ledger_name" %>
+    <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Ledger Name" %>
+    <%= submit_tag "Search" %>
+    <% end %>
+  <% end %>
+</div>
+
+<% # OPTIMIZE Incorporate search term specific message %>
+<% if !params[:search_by].blank? && !params[:commit].blank? && !@ledgers.present? %>
+<% if params[:search_by] == 'ledger_name'  %>
+<p>There are no ledgers matching the name '<%= params[:search_term] %>'.</p>
+<% end %>
+<% end %>
+
 <table class="table">
   <thead>
     <tr>
@@ -8,15 +38,28 @@
   </thead>
 
   <tbody>
-    <% @ledgers.each do |ledger| %>
+
+    <% if !@ledgers.empty?
+      @ledgers.each do |ledger| %>
       <tr>
-        <td><%= ledger.name %></td>
+        <td><%= ledger.name.titleize %></td>
         <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> |
-            <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %>
+          <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %>
         </td>
       </tr>
+      <% end %>
     <% end %>
   </tbody>
 </table>
 
 <br>
+
+
+<div class="text-center">
+  <% unless @ledgers.blank? %>
+  <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
+  <div class="text-center">
+    <%= page_entries_info @ledgers%>
+  </div>
+  <% end %>
+</div>
