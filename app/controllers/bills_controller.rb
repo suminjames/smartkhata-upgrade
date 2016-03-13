@@ -31,9 +31,11 @@ class BillsController < ApplicationController
         type = search_term
         @bills = Bill.find_by_bill_type(type)
       when 'date'
-        date = search_term
-        if parsable_date? date
-          @bills = Bill.find_by_date(Date.parse(date))
+        # The date being entered are assumed to be BS date, not AD date
+        date_bs = search_term
+        if parsable_date? date_bs
+          date_ad = bs_to_ad(date_bs)
+          @bills = Bill.find_by_date(date_ad)
         else
           @bills = ''
           respond_to do |format|
@@ -43,13 +45,14 @@ class BillsController < ApplicationController
           end
         end
       when 'date_range'
-        date_from = search_term['date_from']
-        date_to   = search_term['date_to']
+        # The dates being entered are assumed to be BS dates, not AD dates
+        date_from_bs = search_term['date_from']
+        date_to_bs   = search_term['date_to']
         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-        if parsable_date?(date_from) && parsable_date?(date_to)
-          date_from = Date.parse(date_from)
-          date_to   = Date.parse(date_to)
-          @bills = Bill.find_by_date_range(date_from, date_to)
+        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+          date_from_ad = bs_to_ad(date_from_bs)
+          date_to_ad = bs_to_ad(date_to_bs)
+          @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
         else
           @bills = ''
           respond_to do |format|
