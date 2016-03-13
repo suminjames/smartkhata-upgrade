@@ -7,6 +7,8 @@ class Bill < ActiveRecord::Base
 	enum bill_type: [ :receive, :pay ]
 	enum status: [:pending,:partial,:settled]
 
+  scope :find_not_settled, -> { where.not(status: [statuses[:pending], statuses[:partial]]) }
+  scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%") }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(
