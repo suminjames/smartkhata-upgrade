@@ -4,6 +4,14 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+    #default landing action for '/bills' should redirect to '/bills?search_by=bill_status&search_term=unsettled_bills'
+    # OPTIMIZE - Refactor
+    if params[:show].blank? && params[:search_by].blank?
+      respond_to do |format|
+        format.html { redirect_to bills_path( search_by: "bill_status", search_term: "unsettled_bills") }
+      end
+      return
+    end
     if params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -12,6 +20,11 @@ class BillsController < ApplicationController
         @bills = Bill.find_by_client_name(search_term)
       when 'bill_number'
         @bills = Bill.find_by_bill_number(search_term)
+      when 'bill_status'
+        @bills = Bill.find_not_settled
+      when 'bill_type'
+        type = search_term
+        @bills = Bill.find_by_bill_type(type)
       when 'date'
         date = search_term
         if parsable_date? date
@@ -43,17 +56,18 @@ class BillsController < ApplicationController
       end
     elsif params[:show] == 'all'
       # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
-      @bills = Bill
+      @bills = Bill.all
     else
-      # Don't populate bills if at index with no query parameter
       @bills = ''
     end
+    # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
     @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
   end
 
   # GET /bills/1
   # GET /bills/1.json
   def show
+    @from_path =  request.referer
     @bill = Bill.find(params[:id]).decorate
   end
 
