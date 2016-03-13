@@ -119,7 +119,7 @@ class Files::FloorsheetsController < ApplicationController
 		bill = nil
 
 		type_of_transaction = ShareTransaction.transaction_types['buy']
-		client = ClientAccount.find_or_create_by!(name: client_name.upcase, nepse_code: client_nepse_code.upcase)
+		client = ClientAccount.find_or_create_by!(name: client_name.titleize, nepse_code: client_nepse_code.upcase)
 
 
 		# check for the bank deposit value which is available only for buy

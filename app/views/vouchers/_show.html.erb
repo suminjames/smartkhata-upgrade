@@ -1,0 +1,24 @@
+<div class="box box-primary z-light-bg">
+	<div class="box-header">
+		<div class="row">
+			<h3 class="box-title col-xs-6">Ledger Details</h3>
+			<h3 class="box-title col-xs-3">Dr</h3>
+			<h3 class="box-title col-xs-3">Cr</h3>
+		</div>
+	</div>
+	<div class="box-body">
+		<% @particulars.each do |particular| %>
+			<div class="row">
+				<div class="col-xs-6">
+					<%= particular.ledger.name 	 %>
+				</div>
+				<div class="col-xs-6 row">
+					<div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>
+					<div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></div>
+
+				</div>
+			</div>
+			<br>
+		<% end %>
+	</div>
+</div>
