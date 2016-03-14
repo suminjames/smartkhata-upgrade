@@ -70,7 +70,7 @@ module ApplicationHelper
 
 	# Converts a AD date (strictly in YYYY-MM-DD format) to BS date (of the same format)
 	# params ad_date- AD date  is a `Date` object not `String`
-	# return - AD date is a `Date` object
+	# return - BS date is a `Date` object
 	# TODO: Add validation for 1) the incoming AD date format, 2) the correctness(actual availability) of the AD date
 	def ad_to_bs (ad_date)
 		@cal = NepaliCalendar::Calendar.new

@@ -72,13 +72,62 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 
 .transactions-section{
   table{
+    // The width of this table is ought to be 900px.
+    // TODO: test the 900px width against small screens, and the fixed dimensions of the page.
+    width: 100%;
+    font-size: 14px;
+    font-family: arial;
+    table-layout: fixed;
     td{
       padding: 2px 4px !important;
       border: 1px solid black !important;
+      word-wrap: break-word;
     }
     th{
       background-color: rgba(210, 209, 208, 0.31);
       border: 1px solid black !important;
+      word-wrap: break-word;
+    }
+    // These widths have been calibrated for arial font of 14px.
+    // The sum of all these widths must be the width of the table.
+    colgroup {
+      // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
+      // Transaction No
+      .col-1 {
+        width: 135px;
+      }
+      // No of Shares
+      .col-2 {
+        width: 65px;
+      }
+      // Company Name
+      .col-3 {
+        width: 165px;
+      }
+      // Share Rate
+      .col-4 {
+        width: 70px;
+      }
+      // Base Price
+      .col-5 {
+        width: 70px;
+      }
+      // Amount
+      .col-6 {
+        width: 100px;
+      }
+      // Commission
+      .col-7 {
+        width: 95px;
+      }
+      // Commission Amount
+      .col-8 {
+        width: 100px;
+      }
+      // Capital Gain
+      .col-9 {
+        width: 100px;
+      }
     }
   }
 }
@@ -94,4 +143,61 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
     font-size: 10px !important;
     font-family: arial;
   }
+  .transactions-section{
+    table{
+      // The width of this table is ought to be approx 710px in print media (which is different from 900px of screen media)
+      width: 100%;
+      font-size: 10px;
+      font-family: arial;
+      table-layout: fixed;
+      td{
+        word-wrap: break-word;
+      }
+      th{
+        word-wrap: break-word;
+      }
+      // These widths have been calibrated for arial font of 10px. These widths of print meia are mathemtically proportional to their respecitve widths of screen media.
+      // The sum of all these widths must be the width of the table in print media.
+      colgroup {
+        // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
+        // Transaction No
+        .col-1 {
+          width: 107px;
+        }
+        // No of Shares
+        .col-2 {
+          width: 51px;
+        }
+        // Company Name
+        .col-3 {
+          width: 130px;
+        }
+        // Share Rate
+        .col-4 {
+          width: 55px;
+        }
+        // Base Price
+        .col-5 {
+          width: 55px;
+        }
+        // Amount
+        .col-6 {
+          width: 79px;
+        }
+        // Commission
+        .col-7 {
+          width: 75px;
+        }
+        // Commission Amount
+        .col-8 {
+          width: 79px;
+        }
+        // Capital Gain
+        .col-9 {
+          width: 79px;
+        }
+      }
+    }
+  }
 }
+

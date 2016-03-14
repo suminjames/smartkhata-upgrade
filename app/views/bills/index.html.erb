@@ -1,6 +1,6 @@
 <% provide(:section_title, "Bills") %>
 
-
+<!-- TODO: Incorporate 'arabic_number' to bill views -->
 <div class="clearfix submenu" >
   <h5>
     <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills")  %>  |
@@ -32,21 +32,22 @@ if params[:search_by] == 'bill_type'
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "bill_type" %>
   <div class="col-xs-3">
+    <!-- TODO: Select relevant option after search commit -->
     <%= select_tag 'search_term', options_for_select([['Pay','pay'], ['Receive','receive']]) %>
   </div>
   <%= submit_tag "Search" %>
   <% end %>
 <% end %>
 
-  <%
-  if params[:search_by] == 'bill_number'
-    %>
-      <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-      <%= hidden_field_tag :search_by, "bill_number" %>
-      <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
-      <%= submit_tag "Search" %>
-      <% end %>
-      <% end %>
+<%
+if params[:search_by] == 'bill_number'
+  %>
+  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+  <%= hidden_field_tag :search_by, "bill_number" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
+  <%= submit_tag "Search" %>
+  <% end %>
+<% end %>
 
 <%
 if params[:search_by] == 'date'

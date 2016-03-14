@@ -104,6 +104,44 @@
       <%
       @bill.share_transactions.each do | share_transaction |
         %>
+
+        <colgroup>
+          <col class="col-1">
+          <col class="col-2">
+          <col class="col-3">
+          <col class="col-4">
+          <col class="col-5">
+          <col class="col-6">
+          <col class="col-7">
+          <col class="col-8">
+          <col class="col-9">
+        </colgroup>
+
+        <%
+        # <!-- The following block needs to be (ruby) uncommented, and the enclosing ruby tags should be deleted to test the table off the potential widest content in relevant td's. -->
+        # <!-- Test Data BEGINS -->
+        # <!-- <th>Transaction No</th> -->
+        # <tr>
+        # <td>888888888888888</td>
+        # <!-- <th>No of Shares</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Company Name</th> -->
+        # <td>XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX</td>
+        # <!-- <th>Share Rate</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Base Price</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Amount</th> -->
+        # <td>99,99,999.00</td>
+        # <!-- <th>Commission Rate</th> -->
+        # <td>Flat 25</td>
+        # <!-- <th>Commission Amount</th> -->
+        # <td>99,99,999.00</td>
+        # <!--<th>Capital Gain</th> -->
+        # <td>99,99,999.00</td>
+        # </tr>
+        # <!-- Test Data ENDS -->
+        %>
         <tr>
           <!-- <th>Transaction No</th> -->
           <td><%= share_transaction.contract_no %></td>
