@@ -1,0 +1,22 @@
+
+#. Payroll
+-Type of employee
+  -full-time
+  -part-time
+    -Intern
+    -Agent
+
+-Type of payment
+  -Hourly Wage (for Interns)
+  -Fixed Salary
+  -Commission based
+
+-Leave days
+  -Employee Specific leave days
+
+-Calendar maintenance
+  -
+-Work Time (Hour/Day) Tracking
+-
+
+-
