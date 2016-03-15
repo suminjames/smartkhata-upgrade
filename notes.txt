@@ -1,9 +1,0 @@
-
-Bill
-  -List All
-  -Search
-    -by Client Name
-    -by Bill Number
-    -by Bill Type
-    -by a Date
-    -by Date Range
