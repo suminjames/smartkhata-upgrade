@@ -164,7 +164,7 @@ class VouchersController < ApplicationController
               bank_account = ledger.bank_account
               # TODO track the cheque entries whether it is from client or the broker
               cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id)
-              particular.cheque_entry = cheque_entry
+              particular.cheque_entries << cheque_entry
             end
 
             # Receipt.find_or_create_by()

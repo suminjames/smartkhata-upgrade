@@ -29,11 +29,11 @@ class Files::FloorsheetsController < ApplicationController
 
 
 			# grab date from the first record
-			if xlsx.sheet(0).row(12)[0].nil?
-				flash.now[:error] = "The file is empty"
-				@error = true
-				return
-			end
+			# if xlsx.sheet(0).row(12)[0].nil?
+			# 	flash.now[:error] = "The file is empty"
+			# 	@error = true
+			# 	return
+			# end
 			date_data = xlsx.sheet(0).row(13)[0].to_s
 			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}"
 
@@ -67,7 +67,7 @@ class Files::FloorsheetsController < ApplicationController
 				"1"
 			when 50001..500000
 				"0.9"
-			when 500001..100000
+			when 500001..1000000
 				"0.8"
 			else
 				"0.7"
@@ -163,7 +163,8 @@ class Files::FloorsheetsController < ApplicationController
 		# bank_deposit = nepse + tds + sebon + amnt
 
 		# amount to be debited to client account
-		@client_dr = nepse + sebon + amnt + purchase_commission + dp
+		# @client_dr = nepse + sebon + amnt + purchase_commission + dp
+		@client_dr = bank_deposit + purchase_commission - tds + dp if bank_deposit.present?
 
 		# get company information to store in the share transaction
 		company_info = IsinInfo.find_or_create_by(isin: company_symbol)
@@ -212,13 +213,14 @@ class Files::FloorsheetsController < ApplicationController
 			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
 			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
+			description = "as being purchased(#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!
-			process_accounts(client_ledger,voucher,true,@client_dr)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit)
-			process_accounts(tds_ledger,voucher,true,tds)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission)
-			process_accounts(dp_ledger,voucher,false,dp) if dp > 0
+			process_accounts(client_ledger,voucher,true,@client_dr,description)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
+			process_accounts(tds_ledger,voucher,true,tds,description)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
+			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
 
 		end
 

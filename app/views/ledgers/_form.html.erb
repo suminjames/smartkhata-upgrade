@@ -5,7 +5,9 @@
   	<%= f.input :name %>
   </div>
   <div class="form-inputs">
-  	<%= f.collection_select(:group_id, Group.all, :id, :name,{},{:class=>'input-control'}) %>
+    <%= f.input :group_id do %>
+		  <%= f.collection_select(:group_id, Group.all, :id, :name,{},{:class=>'form-control combobox'}) %>
+		<% end %>
   </div>
   <div class="form-inputs row">
     <br><br>

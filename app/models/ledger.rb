@@ -5,7 +5,9 @@ class Ledger < ActiveRecord::Base
 	belongs_to :bank_account
 	belongs_to :client_account
 	attr_accessor :opening_blnc_type
+
 	validates_presence_of :name
+	# validates_presence_of :group_id
 	validate :positive_amount, on: :create
 
 	before_create :update_closing_balance
