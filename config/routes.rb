@@ -27,6 +27,9 @@ Rails.application.routes.draw do
     resources :sales do
       collection {post :import}
     end
+    resources :dpa5 do
+      collection {post :import}
+    end
   end
 
   namespace 'report' do

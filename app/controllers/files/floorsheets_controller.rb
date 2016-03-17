@@ -29,21 +29,21 @@ class Files::FloorsheetsController < ApplicationController
 
 
 			# grab date from the first record
-			# if xlsx.sheet(0).row(12)[0].nil?
-			# 	flash.now[:error] = "The file is empty"
-			# 	@error = true
-			# 	return
-			# end
+			if xlsx.sheet(0).row(12)[0].nil?
+				flash.now[:error] = "The file is empty"
+				@error = true
+				return
+			end
 			date_data = xlsx.sheet(0).row(13)[0].to_s
 			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}"
 
 			# do not reprocess file if it is already uploaded
-			# floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
-			# unless floorsheet_file.nil?
-			# 	flash.now[:error] = "The file is already uploaded"
-			# 	@error = true
-			# 	return
-			# end
+			floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
+			unless floorsheet_file.nil?
+				flash.now[:error] = "The file is already uploaded"
+				@error = true
+				return
+			end
 
 			fy_code = get_fy_code
 			# loop through 13th row to last row
