@@ -115,8 +115,13 @@ if params[:search_by] == 'date_range'
       </table>
     </div>
   </div>
+  <br>
   <div class="clearfix">
     <div class="col-xs-12 text-center">
+      <% voucher_type = (bill.type == "receive") ? "sales": "purchase" %>
+      <% unless bill.settled? %>
+      <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
+      <% end %>
       <%= link_to 'Show Full View', bill %></td>
       <!-- <td><%= link_to 'Edit', edit_bill_path(bill) %></td> -->
       <!-- <td><%= link_to 'Destroy', bill, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->

@@ -28,7 +28,9 @@ class GenerateBillsService
         commission = transaction.commission_amount
         sales_commission = commission * 0.75
     		tds = commission * 0.75 * 0.15
-
+        company_symbol = transaction.isin_info.isin
+        share_quantity = transaction.quantity
+        share_rate = transaction.share_rate
 
 
         # check if the hash has value ( bill number) assigned to the custom key
@@ -57,6 +59,7 @@ class GenerateBillsService
         bill.save!
 
         # create client ledger if not exist
+
   			client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
   				ledger.name = client_account.name
           ledger.client_account_id =client_account.id
@@ -82,12 +85,12 @@ class GenerateBillsService
         # tds is debited
         # sales commission is credited
         # dp is credited
-
-  		  process_accounts(client_ledger,voucher,false,transaction.net_amount)
-  			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable)
-  			process_accounts(tds_ledger,voucher,true,tds)
-  			process_accounts(sales_commission_ledger,voucher,false,sales_commission)
-  			process_accounts(dp_ledger,voucher,false,transaction.dp_fee) if transaction.dp_fee  > 0
+        description = "as being sold(#{share_quantity}*#{company_symbol}@#{share_rate})"
+  		  process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
+  			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description)
+  			process_accounts(tds_ledger,voucher,true,tds,description)
+  			process_accounts(sales_commission_ledger,voucher,false,sales_commission,description)
+  			process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description) if transaction.dp_fee  > 0
       end
       # mark the sales settlement as complete to prevent future processing
       @sales_settlement.complete!
