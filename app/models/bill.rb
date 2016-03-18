@@ -3,6 +3,7 @@ class Bill < ActiveRecord::Base
   belongs_to :client_account
 
   has_many :particulars
+  has_many :vouchers
 
 	enum bill_type: [ :receive, :pay ]
 	enum status: [:pending,:partial,:settled]

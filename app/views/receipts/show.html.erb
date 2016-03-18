@@ -19,7 +19,11 @@
         </div>
       </strong>
       <div class="col-xs-6 text-center">
+        <% if @receipt.receipt? %>
         <h4><u>RECEIPT</u></h4>
+        <% else %>
+        <h4><u>PAYMENT</u></h4>
+        <% end %>
       </div>
     </div>
     <div class="clearfix horizontal-line">
@@ -30,7 +34,12 @@
   <!-- Receipt No. and Receipt Date BEGINS -->
   <div class="row">
     <div class="col-xs-4">
+      <% if @receipt.receipt? %>
       <p>Receipt No: <%= @receipt.id %></p>
+      <% else %>
+      <p>Payment No: <%= @receipt.id %></p>
+      <% end %>
+
     </div>
     <div class="col-xs-3 col-xs-offset-5 text-right">
       <p>Date: <%= @receipt.date_bs%></p>
@@ -39,7 +48,13 @@
   <!-- Receipt No. and Receipt Date ENDS -->
 
   <!-- Receipt details START -->
+  <% if @receipt.receipt? %>
   <p>Received with thanks from: <strong><u><%= @receipt.name %></u></strong></p>
+  <% else %>
+  <p>Paid To: <strong><u><%= @receipt.name %></u></strong></p>
+  <% end %>
+
+
   <p>the sum of   <strong>Rs.   <%= arabic_number(@receipt.amount) %></strong></p>
   <p>(in words)<strong><u>  Rs.   <%= arabic_word(@receipt.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
@@ -64,9 +79,11 @@
     <!-- Footnote BEGINS -->
     <em>
       <p><%= @receipt.description %></p>
+      <% if @receipt.receipt? %>
       <u>
         Note: Please bring this receipt compulsarily when collecting the certificate.
       </u>
+      <% end %>
     </em>
     <!-- Footnote ENDS -->
   </div>

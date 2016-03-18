@@ -87,9 +87,9 @@ class UploadDpa5
 			  electronic_dividend: data[79],
 			  dividend_curr: data[81],
 			  email: data[90].downcase,
-			  father_husband: data[99],
+			  father_mother: data[99],
 			  citizen_passport: data[100],
-			  granfather_spouse: data[105],
+			  granfather_father_inlaw: data[105],
 			  purpose_code_add: data[108],
 			  add_holder: data[109]
 

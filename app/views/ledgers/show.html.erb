@@ -7,7 +7,8 @@
 <div class="box-header with-border">
 	<div class="row">
 		<div class="col-xs-3"><h4>Particulars</h4></div>
-		<div class="col-xs-3"><h4>Description</h4></div>
+		<div class="col-xs-2"><h4>Bill</h4></div>
+		<div class="col-xs-1"><h4>Pay / Receipt</h4></div>
 		<div class="col-xs-3">
 			<div class="col-xs-12"><h4>Transaction Amount</h4></div>
 			<div class="col-xs-6"><h5>Dr</h5></div>
@@ -31,8 +32,13 @@
 			<% name = particular.name.blank? == true ? "as per details" : particular.name 	 %>
 			<%= link_to name, voucher_path(particular.voucher) , remote: true %>
 		</div>
-		<div class="col-xs-3">
-			<%= particular.description %>
+		<div class="col-xs-2">
+			<% if particular.bill.present? %>
+			<%= "#{particular.bill.fy_code}-#{particular.bill.bill_number}" %>
+			<% end %>
+		</div>
+		<div class="col-xs-1">
+			<%= "#{particular.voucher.receipt.id if particular.voucher.receipt.present?}"%>
 		</div>
 		<div class="col-xs-3">
 			<div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>

@@ -31,13 +31,27 @@ class CreateClientAccounts < ActiveRecord::Migration
     	t.string :electronic_dividend
     	t.string :dividend_curr
     	t.string :email
-    	t.string :father_husband
+    	t.string :father_mother
     	t.string :citizen_passport
-    	t.string :granfather_spouse
+    	t.string :granfather_father_inlaw
     	t.string :purpose_code_add
     	t.string :add_holder
+
+      t.string :husband_spouse
+      t.string :citizen_passport_date
+      t.string :citizen_passport_district
+      t.string :pan_no
+      t.string :dob_ad
+
+      t.string :bank_name
+      t.string :bank_account
+      t.string :bank_address
+
+      t.string :company_name
+      t.string :company_id
+
     	t.boolean :invited , default: false
-    	
+
     	t.references :user
     	t.timestamps null: false
     end

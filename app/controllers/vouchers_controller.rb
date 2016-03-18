@@ -131,11 +131,15 @@ class VouchersController < ApplicationController
             break
           end
         end
+
         # append the manually created particular to the list of  voucher particulars
         particular_single = Particular.new(ledger_id: @fixed_ledger_id, transaction_type: transaction_type, cheque_number: @cheque_number, amnt: receipt_amount)
         @voucher.particulars << particular_single
         net_blnc = 0
       end
+
+      # TODO this needs to fixed , hack for presentation
+      bill_id = @bills[0].id if @bills[0].present?
 
       # add the ledger name in case of 2 particulars
       if @voucher.particulars.length == 2 && !has_error
@@ -146,20 +150,22 @@ class VouchersController < ApplicationController
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         Voucher.transaction do
-
+          @receipt = nil
           @processed_bills.each(&:save)
           # TODO add the cheque tracking to receipt
           # TODO add bill tracking to receipt
           # TODO add number to receipt
           # TODO add client tracking
           if @is_purchase_sales
-            @receipt = Receipt.create(name: @client_account.name, amount: receipt_amount, description: description_bills, date_bs: @voucher.date_bs)
+            receipt_type = Receipt.receipt_types[:payment]
+            receipt_type = Receipt.receipt_types[:receipt] if @voucher_type == Voucher.voucher_types[:sales]
+            @receipt = Receipt.create(name: @client_account.name, amount: receipt_amount, description: description_bills, date_bs: @voucher.date_bs, receipt_type: receipt_type)
           end
 
           @voucher.particulars.each do |particular|
 
             ledger = Ledger.find(particular.ledger_id)
-
+            particular.bill_id = bill_id
             if (particular.cheque_number.present?)
               bank_account = ledger.bank_account
               # TODO track the cheque entries whether it is from client or the broker
@@ -177,6 +183,7 @@ class VouchersController < ApplicationController
           end
 
           success = true if @voucher.save
+          @voucher.receipt = @receipt
         end
       else
         if has_error

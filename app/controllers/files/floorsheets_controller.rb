@@ -216,11 +216,12 @@ class Files::FloorsheetsController < ApplicationController
 			description = "as being purchased(#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!
-			process_accounts(client_ledger,voucher,true,@client_dr,description)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
-			process_accounts(tds_ledger,voucher,true,tds,description)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
-			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
+			#TODO replace bill from particulars with bill from voucher
+			process_accounts(client_ledger,voucher,true,@client_dr,description,bill.id)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,bill.id)
+			process_accounts(tds_ledger,voucher,true,tds,description,bill.id)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,bill.id)
+			process_accounts(dp_ledger,voucher,false,dp,description,bill.id) if dp > 0
 
 		end
 

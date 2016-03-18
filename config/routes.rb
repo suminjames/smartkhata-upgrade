@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   devise_for :users
   resources :users
-
+  resources :client_accounts
   namespace 'files' do
     resources :orders do
       collection {post :import}

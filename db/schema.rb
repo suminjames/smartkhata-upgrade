@@ -55,17 +55,17 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.string   "nepse_code"
     t.date     "date"
     t.string   "name"
-    t.string   "address1",            default: " "
+    t.string   "address1",                  default: " "
     t.string   "address1_perm"
-    t.string   "address2",            default: " "
+    t.string   "address2",                  default: " "
     t.string   "address2_perm"
     t.string   "address3"
     t.string   "address3_perm"
-    t.string   "city",                default: " "
+    t.string   "city",                      default: " "
     t.string   "city_perm"
     t.string   "state"
     t.string   "state_perm"
-    t.string   "country",             default: " "
+    t.string   "country",                   default: " "
     t.string   "country_perm"
     t.string   "phone"
     t.string   "phone_perm"
@@ -81,15 +81,25 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.string   "electronic_dividend"
     t.string   "dividend_curr"
     t.string   "email"
-    t.string   "father_husband"
+    t.string   "father_mother"
     t.string   "citizen_passport"
-    t.string   "granfather_spouse"
+    t.string   "granfather_father_inlaw"
     t.string   "purpose_code_add"
     t.string   "add_holder"
-    t.boolean  "invited",             default: false
+    t.string   "husband_spouse"
+    t.string   "citizen_passport_date"
+    t.string   "citizen_passport_district"
+    t.string   "pan_no"
+    t.string   "dob_ad"
+    t.string   "bank_name"
+    t.string   "bank_account"
+    t.string   "bank_address"
+    t.string   "company_name"
+    t.string   "company_id"
+    t.boolean  "invited",                   default: false
     t.integer  "user_id"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
   end
 
   create_table "file_uploads", force: :cascade do |t|
@@ -152,7 +162,9 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.decimal  "amount",          precision: 15, scale: 2, default: 0.0
     t.string   "date_bs"
     t.string   "description"
+    t.integer  "receipt_type"
     t.integer  "cheque_entry_id"
+    t.integer  "voucher_id"
     t.datetime "created_at",                                             null: false
     t.datetime "updated_at",                                             null: false
   end
