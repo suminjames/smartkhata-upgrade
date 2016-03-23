@@ -160,7 +160,7 @@ class Files::FloorsheetsController < ApplicationController
 		nepse = commission * 0.25
 		tds = commission * 0.75 * 0.15
 		sebon = amnt * 0.00015
-		# bank_deposit = nepse + tds + sebon + amnt
+		bank_deposit = nepse + tds + sebon + amnt
 
 		# amount to be debited to client account
 		# @client_dr = nepse + sebon + amnt + purchase_commission + dp

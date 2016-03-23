@@ -107,13 +107,12 @@ class VouchersController < ApplicationController
     has_error = false
     error_message = ""
     net_blnc = 0
+    net_usable_blnc = 0
     receipt_amount = 0
 
 
-    # for voucher type sales and purchase the partiulars can be one but not 0
-    # as we add a counter balancing particulars dynamically
-    # for other types it has to be atleast 2
-    if @voucher.particulars.length > 1 || (@is_purchase_sales && @voucher.particulars.length > 0)
+    # it has to be atleast 2
+    if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
       @voucher.particulars.each do |particular|
         particular.amnt = particular.amnt || 0
@@ -127,37 +126,18 @@ class VouchersController < ApplicationController
           break
         end
         (particular.dr?) ? net_blnc += particular.amnt : net_blnc -= particular.amnt
+
+        # get a net usable balance to charge the client for billing purpose
+        if  @voucher_type == Voucher.voucher_types[:sales]
+          net_usable_blnc += (particular.dr?) ? particular.amnt : 0
+        elsif @voucher_type == Voucher.voucher_types[:purchase]
+          net_usable_blnc += (particular.cr?) ? particular.amnt : 0
+        end
+
       end
 
       # add the particular to the voucher for sales or purchase
       @processed_bills = []
-      # capture  the bill number and amount billed to description billed
-      description_bills = ""
-      if (@is_purchase_sales)
-        transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]
-        receipt_amount = net_blnc.abs
-        net_blnc = net_blnc.abs
-        @bills.each do |bill|
-          if bill.balance_to_pay <= net_blnc
-            net_blnc = net_blnc - bill.balance_to_pay
-            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay}  "
-            bill.balance_to_pay = 0
-            bill.status = Bill.statuses[:settled]
-            @processed_bills << bill
-          else
-            bill.status = Bill.statuses[:partial]
-            description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{net_blnc}  "
-            bill.balance_to_pay = bill.balance_to_pay - net_blnc
-            @processed_bills << bill
-            break
-          end
-        end
-
-        # append the manually created particular to the list of  voucher particulars
-        particular_single = Particular.new(ledger_id: @fixed_ledger_id, transaction_type: transaction_type, cheque_number: @cheque_number, amnt: receipt_amount)
-        @voucher.particulars << particular_single
-        net_blnc = 0
-      end
 
       # add the ledger name in case of 2 particulars
       if @voucher.particulars.length == 2 && !has_error
@@ -167,6 +147,29 @@ class VouchersController < ApplicationController
 
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
+        # capture  the bill number and amount billed to description billed
+        description_bills = ""
+        if (@is_purchase_sales && @client_account)
+          # transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]
+          receipt_amount = net_usable_blnc.abs
+          net_usable_blnc = net_usable_blnc.abs
+          @bills.each do |bill|
+            if bill.balance_to_pay <= net_usable_blnc
+              net_usable_blnc = net_usable_blnc - bill.balance_to_pay
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay} Date: #{bill.date_bs} | "
+              bill.balance_to_pay = 0
+              bill.status = Bill.statuses[:settled]
+              @processed_bills << bill
+            else
+              bill.status = Bill.statuses[:partial]
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{net_blnc} Date: #{bill.date_bs} | "
+              bill.balance_to_pay = bill.balance_to_pay - net_usable_blnc
+              @processed_bills << bill
+              break
+            end
+          end
+        end
+
         Voucher.transaction do
           @receipt = nil
           @processed_bills.each(&:save)

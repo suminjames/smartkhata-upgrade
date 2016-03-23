@@ -66,7 +66,6 @@ class Files::SalesController < ApplicationController
         @processed_data  << hash
 
       end
-
       @processed_data = @processed_data.drop(1) if @processed_data[0][:settlement_id]=='Settlement ID'
 
       # by default the process is incomplete
@@ -75,37 +74,38 @@ class Files::SalesController < ApplicationController
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
 
-          transaction = ShareTransaction.find_by(
-            contract_no: hash[:contract_no].to_i,
-            transaction_type: ShareTransaction.transaction_types[:sell]
-      		)
+          if (hash[:contract_no].present?)
+            transaction = ShareTransaction.find_by(
+              contract_no: hash[:contract_no].to_i,
+              transaction_type: ShareTransaction.transaction_types[:sell]
+        		)
 
 
-          if transaction.nil?
-            @success_check = false
-            raise ActiveRecord::Rollback
-            return
+            if transaction.nil?
+              @success_check = false
+              raise ActiveRecord::Rollback
+              return
+            end
+
+            amount_receivable = hash[:amount_receivable].delete(',').to_f
+            transaction.settlement_id = hash[:settlement_id]
+            transaction.cgt = hash[:cgt].delete(',').to_f
+
+            # TODO remove hard code calculations
+            # net amount is the amount that is payble to the client after charges
+            # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
+            # amount payble to client =
+            #   + amount from nepse
+            #   - broker commission
+            #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
+            #   - dp fee
+            # client pays the commission_amount
+            transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+            transaction.amount_receivable = amount_receivable
+            transaction.save!
+
+            @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
           end
-
-          amount_receivable = hash[:amount_receivable].delete(',').to_f
-          transaction.settlement_id = hash[:settlement_id]
-          transaction.cgt = hash[:cgt].delete(',').to_f
-
-          # TODO remove hard code calculations
-          # net amount is the amount that is payble to the client after charges
-          # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
-          # amount payble to client =
-          #   + amount from nepse
-          #   - broker commission
-          #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
-          #   - dp fee
-          # client pays the commission_amount
-          transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
-          transaction.amount_receivable = amount_receivable
-          transaction.save!
-
-          @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
-
         end
       end
 

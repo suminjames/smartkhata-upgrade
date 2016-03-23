@@ -29,7 +29,7 @@
         <% end %>
       </div>
       <div class="box-body">
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-xs-4 form-group">
             <%= select_tag "fixed_ledger_id", options_from_collection_for_select(@ledger_list, 'id', 'name'), class: 'select-ledger' %>
           </div>
@@ -40,7 +40,7 @@
               <%= number_field_tag "cheque_number",nil, placeholder: 'Enter cheque number', class: 'form-control cheque dr' %>
             <% end %>
           </div>
-        </div>
+        </div> -->
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => true} }  if ((
             @voucher_type == Voucher.voucher_types[:purchase] && p.object.transaction_type == 'cr'
