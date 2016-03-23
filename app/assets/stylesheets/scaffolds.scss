@@ -1,4 +1,3 @@
-$link-color: #2f8a93;
 body {
   background-color: #fff;
   color: #333;
@@ -20,15 +19,15 @@ pre {
 }
 
 a {
-  color: $link-color;
+  color: #000;
 
   &:visited {
-    color: $link-color;
+    color: #666;
   }
 
   &:hover {
     color: #fff;
-    background-color: $link-color;
+    background-color: #000;
   }
 }
 

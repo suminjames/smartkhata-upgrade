@@ -52,7 +52,7 @@ class CreateClientAccounts < ActiveRecord::Migration
 
     	t.boolean :invited , default: false
 
-    	t.references :user
+    	t.references :user,  index: true
     	t.timestamps null: false
     end
   end

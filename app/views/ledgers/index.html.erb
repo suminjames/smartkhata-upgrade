@@ -43,8 +43,9 @@
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>
-        <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> |
-          <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %>
+        <td><%= link_to 'Show', ledger %>
+        <!-- <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> |
+          <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %> -->
         </td>
       </tr>
       <% end %>

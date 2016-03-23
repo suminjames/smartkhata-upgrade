@@ -9,9 +9,8 @@ class CreateParticulars < ActiveRecord::Migration
     	t.decimal :amnt , precision: 15, scale: 2, default: 0
     	t.decimal :running_blnc , precision: 15, scale: 2, default: 0
       t.timestamps null: false
-      t.references :ledger
-      t.references :voucher
-      t.references :bill
+      t.references :ledger,  index: true
+      t.references :voucher,  index: true
     end
   end
 end

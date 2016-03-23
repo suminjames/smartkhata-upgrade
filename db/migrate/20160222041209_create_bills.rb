@@ -9,10 +9,15 @@ class CreateBills < ActiveRecord::Migration
     	t.integer :status , default: 0
       t.timestamps null: false
       t.integer :fy_code
-      t.references :client_account
+      t.references :client_account,  index: true
       # t.index :bill_number
     end
 
     add_index :bills, [:fy_code, :bill_number], unique: true
+
+    create_table :bills_vouchers, id: false do |t|
+      t.references :bill, index: true
+      t.references :voucher, index: true
+    end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160311125031) do
+ActiveRecord::Schema.define(version: 20160318122335) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,15 +40,29 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.integer  "client_account_id"
   end
 
+  add_index "bills", ["client_account_id"], name: "index_bills_on_client_account_id", using: :btree
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
+
+  create_table "bills_vouchers", id: false, force: :cascade do |t|
+    t.integer "bill_id"
+    t.integer "voucher_id"
+  end
+
+  add_index "bills_vouchers", ["bill_id"], name: "index_bills_vouchers_on_bill_id", using: :btree
+  add_index "bills_vouchers", ["voucher_id"], name: "index_bills_vouchers_on_voucher_id", using: :btree
 
   create_table "cheque_entries", force: :cascade do |t|
     t.integer  "cheque_number"
     t.integer  "bank_account_id"
     t.integer  "particular_id"
+    t.integer  "settlement_id"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
+
+  add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
+  add_index "cheque_entries", ["particular_id"], name: "index_cheque_entries_on_particular_id", using: :btree
+  add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree
 
   create_table "client_accounts", force: :cascade do |t|
     t.string   "boid"
@@ -102,6 +116,8 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.datetime "updated_at",                                null: false
   end
 
+  add_index "client_accounts", ["user_id"], name: "index_client_accounts_on_user_id", using: :btree
+
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"
     t.date     "report_date"
@@ -142,6 +158,10 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.integer  "client_account_id"
   end
 
+  add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
+  add_index "ledgers", ["client_account_id"], name: "index_ledgers_on_client_account_id", using: :btree
+  add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
+
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",     precision: 15, scale: 2, default: 0.0
     t.integer  "transaction_type"
@@ -154,20 +174,10 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.datetime "updated_at",                                              null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
-    t.integer  "bill_id"
   end
 
-  create_table "receipts", force: :cascade do |t|
-    t.string   "name"
-    t.decimal  "amount",          precision: 15, scale: 2, default: 0.0
-    t.string   "date_bs"
-    t.string   "description"
-    t.integer  "receipt_type"
-    t.integer  "cheque_entry_id"
-    t.integer  "voucher_id"
-    t.datetime "created_at",                                             null: false
-    t.datetime "updated_at",                                             null: false
-  end
+  add_index "particulars", ["ledger_id"], name: "index_particulars_on_ledger_id", using: :btree
+  add_index "particulars", ["voucher_id"], name: "index_particulars_on_voucher_id", using: :btree
 
   create_table "sales_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18
@@ -176,6 +186,23 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
   end
+
+  create_table "settlements", force: :cascade do |t|
+    t.string   "name"
+    t.decimal  "amount"
+    t.string   "date_bs"
+    t.string   "description"
+    t.integer  "settlement_type"
+    t.integer  "fy_code"
+    t.integer  "settlement_number"
+    t.integer  "voucher_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "settlements", ["fy_code"], name: "index_settlements_on_fy_code", using: :btree
+  add_index "settlements", ["settlement_number"], name: "index_settlements_on_settlement_number", using: :btree
+  add_index "settlements", ["voucher_id"], name: "index_settlements_on_voucher_id", using: :btree
 
   create_table "share_transactions", force: :cascade do |t|
     t.decimal  "contract_no",       precision: 18
@@ -203,6 +230,10 @@ ActiveRecord::Schema.define(version: 20160311125031) do
     t.integer  "client_account_id"
     t.integer  "isin_info_id"
   end
+
+  add_index "share_transactions", ["bill_id"], name: "index_share_transactions_on_bill_id", using: :btree
+  add_index "share_transactions", ["client_account_id"], name: "index_share_transactions_on_client_account_id", using: :btree
+  add_index "share_transactions", ["isin_info_id"], name: "index_share_transactions_on_isin_info_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -240,12 +271,17 @@ ActiveRecord::Schema.define(version: 20160311125031) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "vouchers", force: :cascade do |t|
+    t.integer  "fy_code"
+    t.integer  "voucher_number"
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.integer  "voucher_type"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.integer  "voucher_type",   default: 0
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
+  add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree
+
+  add_foreign_key "settlements", "vouchers"
 end

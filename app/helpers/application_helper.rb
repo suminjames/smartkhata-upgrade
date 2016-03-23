@@ -1,22 +1,18 @@
 module ApplicationHelper
-	def link_to_add_fields(name, f, association)
+	# moved the fiscal year module so that it is accesible in modal too
+	include FiscalYearModule
+
+	def link_to_add_fields(name, f, association, extra_info = nil	)
 		new_object = 	f.object.send(association).klass.new
 		id = new_object.object_id
 		fields = f.fields_for(association, new_object, child_index: id) do |builder|
-			render(association.to_s.singularize + "_fields" , f: builder)
+			# render(association.to_s.singularize + "_fields" , f: builder)
+			render :partial => association.to_s.singularize + "_fields", :locals => { :f => builder, :extra_info => extra_info }
 		end
 		link_to(name, '#', class: "add_fields btn btn-primary",  data:  {id: id, fields: fields.gsub("\n", "")})
 	end
 
-	# Get fy code based on current year
-	# TODO modify the method to return based on fiscal years
-	def get_fy_code
-		@cal = NepaliCalendar::Calendar.new
-		date = Date.today
-		# grab the last 2 digit of year
-		date_bs = @cal.ad_to_bs(date.year, date.month, date.day).year.to_s[2..-1]
-		(date_bs + (date_bs.to_i+1).to_s).to_i
-	end
+
 
 
 	# Get a unique bill number based on fiscal year
@@ -33,7 +29,7 @@ module ApplicationHelper
 	end
 
 	# process accounts to make changes on ledgers
-	def process_accounts(ledger,voucher, debit, amount, descr, bill_id = nil)
+	def process_accounts(ledger,voucher, debit, amount, descr, voucher_id)
 
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
@@ -44,7 +40,7 @@ module ApplicationHelper
 			ledger.closing_blnc -= amount
 		end
 
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, bill_id: bill_id)
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, voucher_id: voucher_id)
 		ledger.save!
 	end
 

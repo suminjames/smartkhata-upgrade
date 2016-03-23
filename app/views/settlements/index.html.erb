@@ -1,0 +1,28 @@
+<p id="notice"><%= notice %></p>
+<% provide(:section_title, "Listing Settlements") %>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+      <th>Date bs</th>
+      <th>Description</th>
+      <th>Settlement type</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @settlements.each do |settlement| %>
+      <tr>
+        <td><%= settlement.name %></td>
+        <td><%= settlement.amount %></td>
+        <td><%= settlement.date_bs %></td>
+        <td><%= settlement.description %></td>
+        <td><%= settlement.payment? ? 'receipt' : 'payment' %></td>
+        <!-- <td><%= settlement.voucher %></td> -->
+        <td><%= link_to 'Show', settlement %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

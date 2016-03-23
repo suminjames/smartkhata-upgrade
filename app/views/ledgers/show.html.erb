@@ -33,12 +33,12 @@
 			<%= link_to name, voucher_path(particular.voucher) , remote: true %>
 		</div>
 		<div class="col-xs-2">
-			<% if particular.bill.present? %>
-			<%= "#{particular.bill.fy_code}-#{particular.bill.bill_number}" %>
+			<% if particular.bills.count > 0 %>
+			<%= "#{particular.bills.first.fy_code}-#{particular.bills.first.bill_number}" %>
 			<% end %>
 		</div>
 		<div class="col-xs-1">
-			<%= "#{particular.voucher.receipt.id if particular.voucher.receipt.present?}"%>
+			<%= "#{particular.voucher.settlement.id if particular.voucher.settlement.present?}"%>
 		</div>
 		<div class="col-xs-3">
 			<div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>

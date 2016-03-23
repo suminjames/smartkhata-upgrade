@@ -21,9 +21,9 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.decimal :closeout_amount, precision:15, scale: 2, default:0
       t.date :date
       t.timestamps null: false
-      t.references :bill
-      t.references :client_account
-      t.references :isin_info
+      t.references :bill , index: true
+      t.references :client_account , index: true
+      t.references :isin_info , index: true
     end
   end
 end
