@@ -9,7 +9,6 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
-gem 'sankhya'
 gem 'kaminari'
 gem 'bootstrap-kaminari-views'
 group :development, :test do
@@ -30,6 +29,7 @@ gem 'simple_form'
 gem "smart_listing"
 group :development do
   gem 'better_errors'
+  gem 'hirb'
   gem 'capistrano', '~> 3.0.1'
   gem 'capistrano-bundler'
   gem 'capistrano-rails', '~> 1.1.0'
@@ -38,6 +38,7 @@ group :development do
   gem 'quiet_assets'
   gem 'rails_layout'
   gem "bullet"
+  gem "uniform_notifier"
   gem "awesome_print"
 end
 group :production do

@@ -15,20 +15,33 @@ class ShareTransactionDecorator < Draper::Decorator
   end
 
   def formatted_share_rate
-    h.number_to_currency (object.share_rate)
+    h.arabic_number (object.share_rate)
   end
 
   def formatted_amount
-    h.number_to_currency(object.share_amount)
+    h.arabic_number(object.share_amount)
   end
 
   def formatted_commission_amount
-    h.number_to_currency(object.commission_amount)
+    h.arabic_number(object.commission_amount)
   end
 
-  # TODO Implement the method.
+  # Every bill with bill_type `pay` has all it's share_transactions' transaction_type as `sell`
+  # Similarly, every bill with bill_type `receive` has all it's share_transactions' transaction_type as `buy`
   def formatted_base_price
-    'TODO'
+    if object.transaction_type == 'sell'
+      h.arabic_number(object.base_price)
+    else
+      'N/A'
+    end
+  end
+
+  def formatted_capital_gain
+    if object.transaction_type == 'sell'
+      h.arabic_number(object.cgt)
+    else
+      'N/A'
+    end
   end
 
   def formatted_commission_rate

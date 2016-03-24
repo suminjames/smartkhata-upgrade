@@ -1,17 +1,19 @@
 <% provide(:section_title, "Bills") %>
 
-<!-- TODO: Incorporate 'arabic_number' to bill views -->
 <div class="clearfix submenu" >
+  <%
+  def is_active_sub_menu_option(option)
+    return params[:search_by] == option
+  end
+  %>
   <h5>
-    <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills")  %>  |
-    <%= link_to "All Bills",  bills_path(show: "all") %>  |
-    <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type") %>  |
-    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name") %>  |
-    <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number") %>  |
-    <%= link_to "Search by Date",  bills_path(search_by: "date") %>  |
-    <%= link_to "Search by Date Range",  bills_path(search_by: "date_range") %>
-    <!-- TODO -->
-    <!-- <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type") %> | -->
+    <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills"), {:class => (is_active_sub_menu_option("bill_status")? "active-link" : "")}   %>  |
+    <%= link_to "All Bills",  bills_path(search_by: "all_bills"), {:class => (is_active_sub_menu_option("all_bills")? "active-link" : "")} %>  |
+    <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type"), {:class => (is_active_sub_menu_option("bill_type")? "active-link" : "")} %>  |
+    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} %>  |
+    <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number"), {:class => (is_active_sub_menu_option("bill_number")? "active-link" : "")} %>  |
+    <%= link_to "Search by Date",  bills_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %>  |
+    <%= link_to "Search by Date Range",  bills_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} %>
   </h5>
 </div>
 
@@ -32,8 +34,7 @@ if params[:search_by] == 'bill_type'
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "bill_type" %>
   <div class="col-xs-3">
-    <!-- TODO: Select relevant option after search commit -->
-    <%= select_tag 'search_term', options_for_select([['Pay','pay'], ['Receive','receive']]) %>
+    <%= select_tag :search_term, options_for_select([['Pay','pay'], ['Receive','receive']], params[:search_term] ) %>
   </div>
   <%= submit_tag "Search" %>
   <% end %>
@@ -88,8 +89,6 @@ if params[:search_by] == 'date_range'
 
 <% if !@bills.empty?
   @bills.each do |bill|
-  # TODO Should a bill be allowed to be Edited or Destroyed
-  # TODO Should the bill number be prepended with fiscal year in the view and not in the model?
   %>
 
   <div class="clearfix bill-card">
@@ -123,8 +122,6 @@ if params[:search_by] == 'date_range'
       <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
       <% end %>
       <%= link_to 'Show Full View', bill %></td>
-      <!-- <td><%= link_to 'Edit', edit_bill_path(bill) %></td> -->
-      <!-- <td><%= link_to 'Destroy', bill, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->
     </div>
   </div>
 </div>

@@ -1,6 +1,7 @@
 class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
+  has_many :isin_infos , through: :share_transactions
 
   has_and_belongs_to_many :vouchers
   has_many :particulars, through: :voucher
