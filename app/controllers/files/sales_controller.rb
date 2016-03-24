@@ -13,8 +13,8 @@ class Files::SalesController < ApplicationController
       return
 		else
 			begin
-			  xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
-			rescue Zip::Error
+			#   xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
+			# rescue Zip::Error
 			  xlsx = Roo::Spreadsheet.open(@file)
 			end
 
@@ -66,14 +66,22 @@ class Files::SalesController < ApplicationController
         @processed_data  << hash
 
       end
-
       @processed_data = @processed_data.drop(1) if @processed_data[0][:settlement_id]=='Settlement ID'
 
       # by default the process is incomplete
       @success_check = true
-
+      @error_msg = ""
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
+          # corrupt file check
+          unless hash[:contract_no].present?
+            @error_msg = "The file you have uploaded does not seem correct"
+            @success_check = false
+            raise ActiveRecord::Rollback
+            return
+          end
+
+
 
           transaction = ShareTransaction.find_by(
             contract_no: hash[:contract_no].to_i,
@@ -83,6 +91,7 @@ class Files::SalesController < ApplicationController
 
           if transaction.nil?
             @success_check = false
+            @error_msg = "Please upload corresponding Floorsheet First"
             raise ActiveRecord::Rollback
             return
           end
@@ -105,12 +114,12 @@ class Files::SalesController < ApplicationController
           transaction.save!
 
           @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
-
         end
       end
 
+
       unless @success_check
-        flash.now[:error] = "Please upload corresponding Floorsheet First"
+        flash.now[:error] = @error_msg
         @error = true
         return
       end

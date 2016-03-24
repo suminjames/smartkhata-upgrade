@@ -2,16 +2,16 @@
 
 one:
   name: MyString
-  amount: 
-  amount: 
+  amount: 9.99
   date_bs: MyString
   description: MyString
-  cheque_entry_id: 1
+  settlement_type: MyString
+  voucher_id: 
 
 two:
   name: MyString
-  amount: 
-  amount: 
+  amount: 9.99
   date_bs: MyString
   description: MyString
-  cheque_entry_id: 1
+  settlement_type: MyString
+  voucher_id: 

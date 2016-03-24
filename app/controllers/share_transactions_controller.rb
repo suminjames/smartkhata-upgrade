@@ -7,7 +7,25 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
-    @share_transactions = ShareTransaction.all
+    @clients = ClientAccount.all
+    if params[:show] == "all" || (params[:show].blank? && params[:search_by].blank?)
+      @share_transactions = ShareTransaction.all
+    elsif params[:search_by] && params[:search_term]
+      search_by = params[:search_by]
+      search_term = params[:search_term]
+      case search_by
+      when 'client'
+        @clients = ClientAccount.all
+        client_account_id = search_term.to_i
+        # TODO  move it to model
+        @share_transactions = ShareTransaction.where(client_account_id: client_account_id)
+      else
+        # If no matches for case  'search_by', return empty @ledgers
+        @share_transactions = []
+      end
+    else
+      @share_transactions = []
+    end
   end
 
   # GET /share_transactions/1
@@ -57,7 +75,7 @@ class ShareTransactionsController < ApplicationController
   # DELETE /share_transactions/1
   # DELETE /share_transactions/1.json
   def destroy
-    @share_transaction.destroy
+    @share_transaction.soft_delete
     respond_to do |format|
       format.json { head :no_content }
     end

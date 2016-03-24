@@ -68,41 +68,7 @@
         -See https://github.com/jeresig/jquery.hotkeys for usage
       -jquery-hotkeys-rails (gem that binds the plugin mentioned above) -->
   <%= javascript_tag do %>
-    $(document).bind('keyup', 'A', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= page_path('about')%>";
-    });
-    $(document).bind('keyup', 'V', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= vouchers_path %>";
-    });
-    $(document).bind('keyup', 'L', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= ledgers_path %>";
-    });
-    $(document).bind('keyup', 'B', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= bills_path %>";
-    });
-    $(document).bind('keyup', 'G', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= groups_path %>";
-    });
-    $(document).bind('keyup', 'S', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= report_balancesheet_index_path %>";
-    });
-    $(document).bind('keyup', 'P', function() {
-      // redirect to About page
-      // similar behavior as clicking on a link
-      window.location.href = "<%= report_profitandloss_index_path %>";
-    });
+
     <% end %>
     <!-- HOTKEYS ENDS-->
 

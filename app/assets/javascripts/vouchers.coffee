@@ -47,6 +47,17 @@ $(document).on 'click','.add_fields', (event) ->
 manage_cheque = ($this) ->
   $val = $this.val()
   if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
+    callback = (response) ->
+      $parent_row = $this.parent().parent()
+      $cheque = $parent_row.find('.cheque')
+      if parseInt(response) != 0
+
+        if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
+          $cheque.val(response)
+      else
+        $cheque.val("")
+    $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
+
     $this.parent().parent().find('.cheque').show()
   else
     $this.parent().parent().find('.cheque').hide()

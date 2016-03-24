@@ -1,4 +1,14 @@
 <p id="notice"><%= notice %></p>
+<p>Name: <strong><%= @bank_account.name %></strong></p>
+<p>Account Number:
+  <strong><%= @bank_account.account_number %></strong>
+</p>
+<p>Bank Address:
+  <strong><%= @bank_account.address %></strong>
+</p>
+<p>Contact Number:
+  <strong><%= @bank_account.contact_number %></strong>
+</p>
 
 <%= link_to 'Edit', edit_bank_account_path(@bank_account) %> |
 <%= link_to 'Back', bank_accounts_path %>

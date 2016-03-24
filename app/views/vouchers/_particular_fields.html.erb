@@ -1,9 +1,15 @@
+<% inverse = false %>
+<% inverse = extra_info[:inverse] if extra_info.present? %>
 <div class="row particular">
-	<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+	<% if inverse == true %>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, @ledger_list, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+	<% else %>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+	<% end %>
 	<div class="col-xs-3"><%= f.input :amnt ,label: false %></div>
 	<!-- <div class="col-xs-2"><%= f.input :transaction_type ,:input_html => { :value => 'dr' }, label: false , readonly: true%></div> -->
-	<div class="col-xs-2">
-		<% if @voucher_type == Voucher.voucher_types[:sales] %>
+	<div class="col-xs-2 type-selector">
+		<% if ( @voucher_type == Voucher.voucher_types[:sales] && inverse == false ) || ( @voucher_type == Voucher.voucher_types[:purchase] && inverse == true ) %>
 			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
@@ -11,7 +17,7 @@
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "dr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"dr"),{},{:disabled => true} %>
 		<% else %>
-			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a) %>
+			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
 		<% end %>
 	</div>
 	<!-- <div class="col-xs-2">
@@ -19,5 +25,5 @@
 		  <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
 		<% end %>
 	</div> -->
-	<div class="col-xs-3 cheque"><%= f.number_field :cheque_number,		placeholder: 'Enter cheque number', class: 'form-control cheque' %></div>
+	<div class="col-xs-3"><%= f.number_field :cheque_number,		placeholder: 'Enter cheque number', class: 'form-control cheque' %></div>
 </div>

@@ -1,7 +1,6 @@
-<p id="notice"><%= notice %></p>
-<% provide(:section_title, "Receipt Details") %>
+<% provide(:section_title, "Settlement Details") %>
 
-<div class="clearfix bill-full">
+<div class="clearfix billfull">
 
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
@@ -19,7 +18,11 @@
         </div>
       </strong>
       <div class="col-xs-6 text-center">
+        <% if @settlement.receipt? %>
         <h4><u>RECEIPT</u></h4>
+        <% else %>
+        <h4><u>PAYMENT</u></h4>
+        <% end %>
       </div>
     </div>
     <div class="clearfix horizontal-line">
@@ -30,18 +33,28 @@
   <!-- Receipt No. and Receipt Date BEGINS -->
   <div class="row">
     <div class="col-xs-4">
-      <p>Receipt No: <%= @receipt.id %></p>
+      <% if @settlement.receipt? %>
+      <p>Receipt No: <%= @settlement.id %></p>
+      <% else %>
+      <p>Payment No: <%= @settlement.id %></p>
+      <% end %>
+
     </div>
     <div class="col-xs-3 col-xs-offset-5 text-right">
-      <p>Date: <%= @receipt.date_bs%></p>
+      <p>Date: <%= @settlement.date_bs%></p>
     </div>
   </div>
   <!-- Receipt No. and Receipt Date ENDS -->
 
   <!-- Receipt details START -->
-  <p>Received with thanks from: <strong><u><%= @receipt.name %></u></strong></p>
-  <p>the sum of   <strong>Rs.   <%= arabic_number(@receipt.amount) %></strong></p>
-  <p>(in words)<strong><u>  Rs.   <%= arabic_word(@receipt.amount) %> Only</u></strong></p>
+  <% if @settlement.receipt? %>
+    <p>Received with thanks from: <strong><u><%= @settlement.name %></u></strong></p>
+  <% else %>
+    <p>Paid To: <strong><u><%= @settlement.name %></u></strong></p>
+  <% end %>
+
+  <p>the sum of   <strong>Rs.   <%= arabic_number(@settlement.amount) %></strong></p>
+  <p>(in words)<strong><u>  Rs.   <%= arabic_word(@settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
 
   <br><br><br>
@@ -63,14 +76,13 @@
   <div class="clearfix">
     <!-- Footnote BEGINS -->
     <em>
-      <p><%= @receipt.description %></p>
+      <p><%= @settlement.description %></p>
+      <% if @settlement.receipt? %>
       <u>
         Note: Please bring this receipt compulsarily when collecting the certificate.
       </u>
+      <% end %>
     </em>
     <!-- Footnote ENDS -->
   </div>
 </div>
-
-<%= link_to 'Edit', edit_receipt_path(@receipt) %> |
-<%= link_to 'Back', receipts_path %>

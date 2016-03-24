@@ -16,11 +16,11 @@ class Report::BalancesheetController < ApplicationController
 	      @balance_cr[balance.name] = balance.closing_blnc
 	      @opening_balance_cr += balance.closing_blnc
 	    end
-	     
-	    
+
+
 	  end
 	  @opening_balance_diff = @opening_balance_dr + @opening_balance_cr
-	  
+
 	  @opening_balance_cr -= @opening_balance_diff
 
 	end

@@ -1,0 +1,77 @@
+= simple_form_for(@client_account) do |f|
+  = f.error_notification
+
+  .row
+    .col-xs-12
+      %h3 Client Information
+      = hidden_field_tag 'from_path', @from_path
+      = f.input :name, placeholder: "Name"
+      = f.input :citizen_passport, label: "Citizen/Birth Certificate",placeholder: "Citizenship/Birth Certificate"
+      .row
+        .col-xs-6
+          = f.input :citizen_passport_date, label: "Citizen/Birth Certificate Issued Date"
+        .col-xs-6
+          = f.input :citizen_passport_district, label: "Citizen/Birth Certificate Issued District"
+
+      .row
+        .col-xs-6
+          = f.input :pan_no, label: "PAN"
+        .col-xs-6
+          = f.input :dob, placeholder: "Date of Birth"
+
+      = f.input :father_mother , label: "Father/Mother's Name",placeholder: "Father/Mother's Name"
+      = f.input :granfather_father_inlaw , label: "GrandFather's Name",placeholder: "GrandFather/Father In Law's Name"
+      = f.input :profession_code ,label: "Profession", placeholder: "Profession"
+      -# need place for spouse
+
+      %h4 If associated to any organisation or company
+      .row
+        .col-xs-8
+          = f.input :company_name , label: 'Company Name'
+        .col-xs-4
+          = f.input :company_id , label: 'Company Id'
+
+      %h3 Permanent address
+      = f.input :address1_perm , label: 'Address line 1'
+      = f.input :address1_perm , label: 'Address line 2'
+      = f.input :address1_perm , label: 'Address line 3'
+      .row
+        .col-xs-4
+          = f.input :city_perm, label: 'City'
+        .col-xs-4
+          = f.input :state_perm, label: 'State'
+        .col-xs-4
+          = f.input :country_perm, label: 'Country'
+        .col-xs-4
+          = f.input :phone_perm, label: 'Phone'
+        .col-xs-4
+          = f.input :email, label: 'Email'
+
+      %h3 Current address
+      = f.input :address1 , label: 'Address line 1'
+      = f.input :address1 , label: 'Address line 2'
+      = f.input :address1 , label: 'Address line 3'
+      .row
+        .col-xs-4
+          = f.input :city, label: 'City'
+        .col-xs-4
+          = f.input :state, label: 'State'
+        .col-xs-4
+          = f.input :country, label: 'Country'
+        .col-xs-4
+          = f.input :phone, label: 'Phone'
+
+      %h3 Bank / Financial Institution Information
+      = f.input :bank_name, label: 'Name'
+      = f.input :bank_address, label: 'Address'
+      = f.input :bank_account, label: 'Account No.'
+
+      %h3 Official Information
+      .row
+        .col-xs-6
+          = f.input :boid, label: 'BoId'
+        .col-xs-6
+          = f.input :nepse_code, label: 'Nepse Code'
+
+      .form-actions
+        = f.button :submit

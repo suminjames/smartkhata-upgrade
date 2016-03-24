@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  resources :receipts
-  resources :cheque_entries
+  resources :settlements
+  resources :settlements
+  resources :cheque_entries do
+    collection {get :get_cheque_number}  
+  end
   resources :bank_accounts
   resources :sales_settlements do
     collection do
@@ -16,7 +19,7 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   devise_for :users
   resources :users
-
+  resources :client_accounts
   namespace 'files' do
     resources :orders do
       collection {post :import}
@@ -25,6 +28,9 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :sales do
+      collection {post :import}
+    end
+    resources :dpa5 do
       collection {post :import}
     end
   end

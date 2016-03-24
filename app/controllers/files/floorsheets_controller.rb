@@ -29,21 +29,22 @@ class Files::FloorsheetsController < ApplicationController
 
 
 			# grab date from the first record
-			# if xlsx.sheet(0).row(12)[0].nil?
-			# 	flash.now[:error] = "The file is empty"
-			# 	@error = true
-			# 	return
-			# end
-			date_data = xlsx.sheet(0).row(13)[0].to_s
+			if xlsx.sheet(0).row(12)[0].nil?
+				flash.now[:error] = "The file is empty"
+				@error = true
+				return
+			end
+			date_data = xlsx.sheet(0).row(12)[0].to_s
 			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}"
 
+
 			# do not reprocess file if it is already uploaded
-			# floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
-			# unless floorsheet_file.nil?
-			# 	flash.now[:error] = "The file is already uploaded"
-			# 	@error = true
-			# 	return
-			# end
+			floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
+			unless floorsheet_file.nil?
+				flash.now[:error] = "The file is already uploaded"
+				@error = true
+				return
+			end
 
 			fy_code = get_fy_code
 			# loop through 13th row to last row
@@ -156,15 +157,15 @@ class Files::FloorsheetsController < ApplicationController
 		amnt = share_net_amount
 		commission = get_commission(amnt)
 		commission_rate = get_commission_rate(amnt)
-		purchase_commission = commission * 0.75
+		purchase_commission = commission * (0.75)
 		nepse = commission * 0.25
-		tds = commission * 0.75 * 0.15
+		tds = purchase_commission * 0.15
 		sebon = amnt * 0.00015
-		# bank_deposit = nepse + tds + sebon + amnt
+		bank_deposit = nepse + tds + sebon + amnt
 
 		# amount to be debited to client account
 		# @client_dr = nepse + sebon + amnt + purchase_commission + dp
-		@client_dr = bank_deposit + purchase_commission - tds + dp if bank_deposit.present?
+		@client_dr = (bank_deposit + purchase_commission - tds + dp) if bank_deposit.present?
 
 		# get company information to store in the share transaction
 		company_info = IsinInfo.find_or_create_by(isin: company_symbol)
@@ -216,11 +217,14 @@ class Files::FloorsheetsController < ApplicationController
 			description = "as being purchased(#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!
-			process_accounts(client_ledger,voucher,true,@client_dr,description)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
-			process_accounts(tds_ledger,voucher,true,tds,description)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
-			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
+			voucher.bills << [bill]
+			voucher.save!
+			#TODO replace bill from particulars with bill from voucher
+			process_accounts(client_ledger,voucher,true,@client_dr,description,voucher.id)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,voucher.id)
+			process_accounts(tds_ledger,voucher,true,tds,description,voucher.id)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,voucher.id)
+			process_accounts(dp_ledger,voucher,false,dp,description,voucher.id) if dp > 0
 
 		end
 

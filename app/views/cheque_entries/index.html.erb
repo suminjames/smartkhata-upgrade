@@ -1,25 +1,21 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Listing Cheque Entries</h1>
-
-<table>
+<% provide(:section_title, "Cheque Entries") %>
+<%= link_to 'New Cheque entry', new_cheque_entry_path %>
+<table class="table">
   <thead>
     <tr>
-      <th colspan="3"></th>
+      <th>Cheque Number</th>
+      <th>Bank </th>
     </tr>
   </thead>
 
   <tbody>
     <% @cheque_entries.each do |cheque_entry| %>
       <tr>
-        <td><%= link_to 'Show', cheque_entry %></td>
-        <td><%= link_to 'Edit', edit_cheque_entry_path(cheque_entry) %></td>
-        <td><%= link_to 'Destroy', cheque_entry, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= cheque_entry.cheque_number %></td>
+        <td><%= cheque_entry.bank_account.name %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
 <br>
-
-<%= link_to 'New Cheque entry', new_cheque_entry_path %>

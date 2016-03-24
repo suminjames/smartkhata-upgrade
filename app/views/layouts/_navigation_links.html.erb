@@ -5,6 +5,7 @@
     <li><%= link_to 'Orders', new_files_order_path	 %></li>
     <li><%= link_to 'FloorSheet', new_files_floorsheet_path %></li>
     <li><%= link_to 'Sales CM', new_files_sale_path	 %></li>
+    <li><%= link_to 'DpA5', new_files_dpa5_path %></li>
   </ul>
 </li>
 <li class="drop-down">
@@ -13,16 +14,27 @@
     <li><%= link_to 'Journal', new_voucher_path	 %></li>
     <li><%= link_to 'Purchase', new_voucher_path(voucher_type: "purchase") %></li>
     <li><%= link_to 'Sales', new_voucher_path(voucher_type: "sales") %></li>
+
   </ul>
 </li>
+<li><%= link_to 'Client Accounts', client_accounts_path %></li>
 <li><%= link_to 'Ledger', ledgers_path %></li>
 <li><%= link_to 'Bill', bills_path %></li>
-<li><%= link_to 'Groups', groups_path %></li>
+<!-- <li><%= link_to 'Groups', groups_path %></li> -->
 <li class="drop-down">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports<span class="caret"></span></a>
   <ul class="dropdown-menu" role="menu">
     <li><%= link_to 'Balance Sheet', report_balancesheet_index_path	 %></li>
     <li><%= link_to 'Profit & Loss', report_profitandloss_index_path %></li>
+    <li><%= link_to 'Share Inventory', share_transactions_path %></li>
+    <li><%= link_to 'Share Inventory by client', share_transactions_path(search_by: 'client') %></li>
   </ul>
 </li>
-<li><%= link_to 'Bank', bank_accounts_path %></li>
+
+<li class="drop-down">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bank<span class="caret"></span></a>
+  <ul class="dropdown-menu" role="menu">
+    <li><%= link_to 'New Bank', bank_accounts_path %></li>
+    <li><%= link_to 'Cheque Entry', new_cheque_entry_path %></li>
+  </ul>
+</li>

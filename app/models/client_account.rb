@@ -14,4 +14,8 @@ class ClientAccount < ActiveRecord::Base
 			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:pay])
 		end
   end
+
+	scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
+  scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
+
 end
