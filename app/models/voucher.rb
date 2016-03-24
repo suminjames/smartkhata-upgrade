@@ -11,6 +11,21 @@ class Voucher < ActiveRecord::Base
 
 	before_save :process_voucher
 
+	def voucher_code
+		case self.voucher_type
+		when voucher_types[:journal]
+			"JVR"
+		when voucher_types[:purchase]
+			"PVR"
+		when voucher_types[:sales]
+			"SVR"
+		when voucher_types[:contra]
+			"CVR"
+		else
+			""
+		end
+	end
+
 	private
 	def process_voucher
 		fy_code = get_fy_code
@@ -20,4 +35,6 @@ class Voucher < ActiveRecord::Base
 		self.voucher_number = last_voucher.present? ? last_voucher.voucher_number+1 : 1
 		self.fy_code = fy_code
 	end
+
+
 end

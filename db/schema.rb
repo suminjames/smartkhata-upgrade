@@ -73,11 +73,12 @@ ActiveRecord::Schema.define(version: 20160324092710) do
 
   create_table "cheque_entries", force: :cascade do |t|
     t.integer  "cheque_number"
+    t.integer  "additional_bank_id"
     t.integer  "bank_account_id"
     t.integer  "particular_id"
     t.integer  "settlement_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
@@ -183,15 +184,16 @@ ActiveRecord::Schema.define(version: 20160324092710) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
-    t.decimal  "amnt",             precision: 15, scale: 4, default: 0.0
-    t.decimal  "running_blnc",     precision: 15, scale: 4, default: 0.0
-    t.datetime "created_at",                                              null: false
-    t.datetime "updated_at",                                              null: false
+    t.decimal  "amnt",               precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
+    t.integer  "additional_bank_id"
+    t.datetime "created_at",                                                null: false
+    t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
   end
@@ -297,9 +299,10 @@ ActiveRecord::Schema.define(version: 20160324092710) do
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.integer  "voucher_type",   default: 0
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.integer  "voucher_type",    default: 0
+    t.boolean  "is_payment_bank"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree

@@ -46,21 +46,24 @@ $(document).on 'click','.add_fields', (event) ->
 
 manage_cheque = ($this) ->
   $val = $this.val()
+  $parent_row = $this.parent().parent()
+  $cheque = $parent_row.find('.cheque')
+
   if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
     callback = (response) ->
-      $parent_row = $this.parent().parent()
-      $cheque = $parent_row.find('.cheque')
       if parseInt(response) != 0
-
-        if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
-          $cheque.val(response)
+        $cheque.val(response)
       else
         $cheque.val("")
-    $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
 
-    $this.parent().parent().find('.cheque').show()
+    $this.parent().parent().find('.cheque-container').show()
+    if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
+      $this.parent().parent().find('.cheque-container.bank').hide()
+      $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
+
+
   else
-    $this.parent().parent().find('.cheque').hide()
+    $this.parent().parent().find('.cheque-container').hide()
 
 
 $ ->
@@ -83,7 +86,7 @@ $ ->
       $this = $(this)
       $val = $val = $this.val()
       if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
-        $input = $this.parent().parent().find('.cheque input')
+        $input = $this.parent().parent().find('input.cheque')
         if($input.val().trim().length == 0)
           $input.parent().addClass('has-error')
           $input.parent().append('<p class="error">Cheque cant be empty</p>')

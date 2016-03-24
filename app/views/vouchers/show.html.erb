@@ -1,9 +1,92 @@
 <% provide(:section_title, "Voucher Details") %>
 <p id="notice"><%= notice %></p>
 <% total = 0 %>
-Voucher Type : <%= @voucher.voucher_type.titleize %> <br>
-Voucher Number: <%= @voucher.voucher_number %> <br>
-Voucher Date: <%= @voucher.date_bs %>
+<% if @voucher.is_payment_bank %>
+<div class="box box-primary z-light-bg">
+
+	<div class="box-body">
+		<h3>Payment voucher Bank</h3>
+		<div class="row">
+
+			<div class="col-xs-5">
+				<p>Voucher Number: <%= "#{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+			</div>
+			<div class="col-xs-7 text-right">
+				<p>Voucher Date: <%= @voucher.date_bs %></p>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-6">
+			</div>
+			<div class="col-xs-6 text-right">
+				<p>Cr Account Name: <%= "#{@bank.account_number} #{@bank.name}" %></p>
+			</div>
+		</div>
+	</div>
+
+	<div class="box-header">
+		<div class="row">
+			<h3 class="box-title col-xs-4">Account Head</h3>
+			<h3 class="box-title col-xs-3">Particular</h3>
+			<h3 class="box-title col-xs-3">Cheque Number</h3>
+			<h3 class="box-title col-xs-2">Amount</h3>
+		</div>
+	</div>
+	<div class="box-body">
+		<div style='min-height: 200px'>
+			<% @particulars.each do |particular| %>
+				<div class="row">
+					<div class="col-xs-4">
+						<%= particular.ledger.name 	 %>
+					</div>
+					<div class="col-xs-3">
+						Being paid to <%= particular.ledger.name %> for
+						<%= @voucher.desc %>
+					</div>
+					<div class="col-xs-3">
+						<%= @cheque %>
+					</div>
+					<div class="col-xs-2">
+						<%= arabic_number(particular.amnt) %>
+					</div>
+				</div>
+				<br>
+			<% end %>
+		</div>
+
+		<br>
+		<br>
+		<div class="row">
+	    <div class="col-xs-3">
+	      <br>
+	      <hr class="clearfix horizontal-line">
+	      <p class="text-center">Prepared by By</p>
+	    </div>
+	    <div class="col-xs-3 col-xs-offset-1">
+	      <br>
+	      <hr class="clearfix horizontal-line">
+	      <p class="text-center">Approved By</p>
+	    </div>
+			<div class="col-xs-3 col-xs-offset-1">
+	      <br>
+	      <hr class="clearfix horizontal-line">
+	      <p class="text-center">Received By</p>
+	    </div>
+
+	  </div>
+	</div>
+</div>
+<% else %>
+<div class="row">
+
+	<div class="col-xs-5">
+		<p>Voucher Number: <%= "#{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+	</div>
+	<div class="col-xs-7 text-right">
+		<p>Voucher Date: <%= @voucher.date_bs %></p>
+	</div>
+</div>
 <div class="box box-primary z-light-bg">
 	<div class="box-header">
 		<div class="row">
@@ -29,5 +112,5 @@ Voucher Date: <%= @voucher.date_bs %>
 		<% end %>
 	</div>
 </div>
-<%= "total:#{total}" %><br>
+<% end %>
 <%= link_to 'Back', vouchers_path %>

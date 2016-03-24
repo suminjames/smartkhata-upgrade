@@ -1,6 +1,8 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
 <h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr': 'cr'}" %></h4>
+<h4><%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc >= 0 ? 'dr': 'cr'}" %></h4>
+
 <br><br>
 <% if @particulars.count > 0 %>
 <div class= "box box-warning">
@@ -56,7 +58,6 @@
 </div>
 </div>
 <% end %>
-<h4><%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc >= 0 ? 'dr': 'cr'}" %></h4>
 
 
 

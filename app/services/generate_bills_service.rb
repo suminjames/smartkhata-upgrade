@@ -77,6 +77,9 @@ class GenerateBillsService
 
   			# update ledgers value
   			voucher = Voucher.create!
+        voucher.bills << [bill]
+  			voucher.save!
+        
         # process_accounts(ledger,voucher, is_debit, amount)
 
         # for a sales
@@ -88,11 +91,11 @@ class GenerateBillsService
 
         # TODO replace bill from partiucalr with that in voucher
         description = "as being sold(#{share_quantity}*#{company_symbol}@#{share_rate})"
-  		  process_accounts(client_ledger,voucher,false,transaction.net_amount,description,bill.id)
-  			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description,bill.id)
-  			process_accounts(tds_ledger,voucher,true,tds,description,bill.id)
-  			process_accounts(sales_commission_ledger,voucher,false,sales_commission,description,bill.id)
-  			process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description,bill.id) if transaction.dp_fee  > 0
+  		  process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
+  			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description)
+  			process_accounts(tds_ledger,voucher,true,tds,description)
+  			process_accounts(sales_commission_ledger,voucher,false,sales_commission,description)
+  			process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description) if transaction.dp_fee  > 0
       end
       # mark the sales settlement as complete to prevent future processing
       @sales_settlement.complete!

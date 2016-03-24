@@ -220,11 +220,11 @@ class Files::FloorsheetsController < ApplicationController
 			voucher.bills << [bill]
 			voucher.save!
 			#TODO replace bill from particulars with bill from voucher
-			process_accounts(client_ledger,voucher,true,@client_dr,description,voucher.id)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,voucher.id)
-			process_accounts(tds_ledger,voucher,true,tds,description,voucher.id)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,voucher.id)
-			process_accounts(dp_ledger,voucher,false,dp,description,voucher.id) if dp > 0
+			process_accounts(client_ledger,voucher,true,@client_dr,description)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
+			process_accounts(tds_ledger,voucher,true,tds,description)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
+			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
 
 		end
 
