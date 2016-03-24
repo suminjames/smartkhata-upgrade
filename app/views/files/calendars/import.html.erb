@@ -1,0 +1,6 @@
+<% provide(:section_title, "Upload Calendar file") %>
+<% if(!@error) %>
+<%= @processed_data %>
+<% else %>
+<%= link_to "Upload Calendar file", new_files_calendar_path%>
+<% end %>
