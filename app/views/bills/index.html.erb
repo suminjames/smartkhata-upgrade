@@ -119,7 +119,13 @@ if params[:search_by] == 'date_range'
     <td><%= bill.formatted_status%></td>
     <td><%= bill.formatted_companies_list%></td>
     <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
-    <td><%= link_to 'View', bill %></td>
+    <td>
+      <!--  TODO: Optimize -->
+      <% voucher_type = (bill.type == "receive") ? "sales": "purchase" %>
+      <% unless bill.settled? %>
+      <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
+      <% end %>
+      <%= link_to 'View', bill %></td>
   </tr>
   <!-- Bill (row) ENDS -->
 

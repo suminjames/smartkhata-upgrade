@@ -51,6 +51,17 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   add_index "bills_vouchers", ["bill_id"], name: "index_bills_vouchers_on_bill_id", using: :btree
   add_index "bills_vouchers", ["voucher_id"], name: "index_bills_vouchers_on_voucher_id", using: :btree
 
+  create_table "calendars", force: :cascade do |t|
+    t.integer  "year",                       null: false
+    t.integer  "month",                      null: false
+    t.integer  "day",                        null: false
+    t.boolean  "is_holiday", default: false
+    t.integer  "date_type",                  null: false
+    t.text     "remarks"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
   create_table "cheque_entries", force: :cascade do |t|
     t.integer  "cheque_number"
     t.integer  "bank_account_id"

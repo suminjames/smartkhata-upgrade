@@ -1,3 +1,9 @@
+<!--
+TODO
+  -All Transaction should be grouped as per their isin_info_id .
+    -Implement Collapse/Expand
+  -All Transactions of a client grouped by isins
+ -->
 <% provide(:section_title, "Share Inventory Report") %>
 <div class="clearfix submenu" >
   <h5>
@@ -13,6 +19,7 @@
     %>
     <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
     <%= hidden_field_tag :search_by, "client" %>
+    <!--  TODO: Implement selected -->
     <div class="form-group">
       <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name'), class: 'form-control combobox' %>
     </div>
@@ -22,8 +29,14 @@
   <% end %>
 </div>
 
-<% if !@share_transactions.empty? %>
-<table class="table">
+<% if @share_transactions.empty? && params[:commit]=='Search' %>
+<div>
+  There are no Share Transactions for the selected client.
+</div>
+<% elsif #!@share_transactions.empty? %>
+<div>
+</div>
+<table class="table table-condensed table-striped">
   <thead>
     <tr>
       <th>Date</th>
