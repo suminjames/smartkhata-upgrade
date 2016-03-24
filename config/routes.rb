@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :banks
   resources :settlements
   resources :settlements
   resources :cheque_entries do

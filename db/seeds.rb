@@ -52,3 +52,6 @@ group.children << groups
 ledgers = Ledger.create([{name: "TDS"},{name: "Cash"}])
 group.ledgers << ledgers
 group.save!
+
+
+bank = Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
