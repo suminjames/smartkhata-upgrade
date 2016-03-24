@@ -13,8 +13,8 @@ class Files::SalesController < ApplicationController
       return
 		else
 			begin
-			  xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
-			rescue Zip::Error
+			#   xlsx = Roo::Spreadsheet.open(@file, extension: :xlsx)
+			# rescue Zip::Error
 			  xlsx = Roo::Spreadsheet.open(@file)
 			end
 
@@ -70,47 +70,56 @@ class Files::SalesController < ApplicationController
 
       # by default the process is incomplete
       @success_check = true
-
+      @error_msg = ""
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
-
-          if (hash[:contract_no].present?)
-            transaction = ShareTransaction.find_by(
-              contract_no: hash[:contract_no].to_i,
-              transaction_type: ShareTransaction.transaction_types[:sell]
-        		)
-
-
-            if transaction.nil?
-              @success_check = false
-              raise ActiveRecord::Rollback
-              return
-            end
-
-            amount_receivable = hash[:amount_receivable].delete(',').to_f
-            transaction.settlement_id = hash[:settlement_id]
-            transaction.cgt = hash[:cgt].delete(',').to_f
-
-            # TODO remove hard code calculations
-            # net amount is the amount that is payble to the client after charges
-            # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
-            # amount payble to client =
-            #   + amount from nepse
-            #   - broker commission
-            #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
-            #   - dp fee
-            # client pays the commission_amount
-            transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
-            transaction.amount_receivable = amount_receivable
-            transaction.save!
-
-            @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+          # corrupt file check
+          unless hash[:contract_no].present?
+            @error_msg = "The file you have uploaded does not seem correct"
+            @success_check = false
+            raise ActiveRecord::Rollback
+            return
           end
+
+
+
+          transaction = ShareTransaction.find_by(
+            contract_no: hash[:contract_no].to_i,
+            transaction_type: ShareTransaction.transaction_types[:sell]
+      		)
+
+
+          if transaction.nil?
+            @success_check = false
+            @error_msg = "Please upload corresponding Floorsheet First"
+            raise ActiveRecord::Rollback
+            return
+          end
+
+          amount_receivable = hash[:amount_receivable].delete(',').to_f
+          transaction.settlement_id = hash[:settlement_id]
+          transaction.cgt = hash[:cgt].delete(',').to_f
+
+          # TODO remove hard code calculations
+          # net amount is the amount that is payble to the client after charges
+          # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
+          # amount payble to client =
+          #   + amount from nepse
+          #   - broker commission
+          #   + tds of broker (it was charged by nepse , so should be reimbursed to client )
+          #   - dp fee
+          # client pays the commission_amount
+          transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          transaction.amount_receivable = amount_receivable
+          transaction.save!
+
+          @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
         end
       end
 
+
       unless @success_check
-        flash.now[:error] = "Please upload corresponding Floorsheet First"
+        flash.now[:error] = @error_msg
         @error = true
         return
       end

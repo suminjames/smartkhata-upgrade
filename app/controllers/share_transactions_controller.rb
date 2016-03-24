@@ -75,7 +75,7 @@ class ShareTransactionsController < ApplicationController
   # DELETE /share_transactions/1
   # DELETE /share_transactions/1.json
   def destroy
-    @share_transaction.destroy
+    @share_transaction.soft_delete
     respond_to do |format|
       format.json { head :no_content }
     end

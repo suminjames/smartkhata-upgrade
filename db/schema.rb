@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",        precision: 15, scale: 2, default: 0.0
-    t.decimal  "balance_to_pay",    precision: 15, scale: 2, default: 0.0
+    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",    precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
     t.integer  "status",                                     default: 0
     t.datetime "created_at",                                               null: false
@@ -139,9 +139,9 @@ ActiveRecord::Schema.define(version: 20160318122335) do
     t.string   "company"
     t.string   "isin"
     t.string   "sector"
-    t.decimal  "max",        precision: 10, scale: 2, default: 0.0
-    t.decimal  "min",        precision: 10, scale: 2, default: 0.0
-    t.decimal  "last_price", precision: 10, scale: 2, default: 0.0
+    t.decimal  "max",        precision: 10, scale: 4, default: 0.0
+    t.decimal  "min",        precision: 10, scale: 4, default: 0.0
+    t.decimal  "last_price", precision: 10, scale: 4, default: 0.0
     t.datetime "created_at",                                        null: false
     t.datetime "updated_at",                                        null: false
   end
@@ -149,8 +149,8 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
-    t.decimal  "opening_blnc",      precision: 15, scale: 2, default: 0.0
-    t.decimal  "closing_blnc",      precision: 15, scale: 2, default: 0.0
+    t.decimal  "opening_blnc",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_blnc",      precision: 15, scale: 4, default: 0.0
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "group_id"
@@ -163,13 +163,13 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",     precision: 15, scale: 2, default: 0.0
+    t.decimal  "opening_blnc",     precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
-    t.decimal  "amnt",             precision: 15, scale: 2, default: 0.0
-    t.decimal  "running_blnc",     precision: 15, scale: 2, default: 0.0
+    t.decimal  "amnt",             precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc",     precision: 15, scale: 4, default: 0.0
     t.datetime "created_at",                                              null: false
     t.datetime "updated_at",                                              null: false
     t.integer  "ledger_id"
@@ -209,21 +209,22 @@ ActiveRecord::Schema.define(version: 20160318122335) do
     t.integer  "buyer"
     t.integer  "seller"
     t.integer  "quantity"
-    t.decimal  "share_rate",        precision: 10, scale: 2, default: 0.0
-    t.decimal  "share_amount",      precision: 15, scale: 2, default: 0.0
-    t.decimal  "sebo",              precision: 15, scale: 2, default: 0.0
+    t.decimal  "share_rate",        precision: 10, scale: 4, default: 0.0
+    t.decimal  "share_amount",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "sebo",              precision: 15, scale: 4, default: 0.0
     t.string   "commission_rate"
-    t.decimal  "commission_amount", precision: 15, scale: 2, default: 0.0
-    t.decimal  "dp_fee",            precision: 15, scale: 2, default: 0.0
-    t.decimal  "cgt",               precision: 15, scale: 2, default: 0.0
-    t.decimal  "net_amount",        precision: 15, scale: 2, default: 0.0
-    t.decimal  "bank_deposit",      precision: 15, scale: 2, default: 0.0
+    t.decimal  "commission_amount", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dp_fee",            precision: 15, scale: 4, default: 0.0
+    t.decimal  "cgt",               precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "bank_deposit",      precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.decimal  "settlement_id",     precision: 18
-    t.decimal  "base_price",        precision: 15, scale: 2, default: 0.0
-    t.decimal  "amount_receivable", precision: 15, scale: 2, default: 0.0
-    t.decimal  "closeout_amount",   precision: 15, scale: 2, default: 0.0
+    t.decimal  "base_price",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount_receivable", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closeout_amount",   precision: 15, scale: 4, default: 0.0
     t.date     "date"
+    t.date     "deleted_at"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "bill_id"

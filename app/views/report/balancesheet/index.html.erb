@@ -4,7 +4,8 @@
 
     @date = @cal.ad_to_bs(Date.today.strftime("%Y").to_s, Date.today.strftime("%m").to_s, Date.today.strftime("%d").to_s)
 %>
-
+<%= @opening_balance_dr %>
+<%= (0.126).class %>
 <h2 class="text-center">Trishakti Securities Public Limited</h2>
 <h3 class="text-center">Balance Sheet</h3>
 <h4 class="text-center">As on <%= @date.to_s %></h4>

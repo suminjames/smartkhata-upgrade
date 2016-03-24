@@ -16,8 +16,8 @@ class GenerateBillsService
 
     # Begin Transaction
     ActiveRecord::Base.transaction do
-
-      share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id)
+      # only generate bill for the transactions which are not soft deleted
+      share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
       share_transactions.each do |transaction|
 
         # create a custom key to hold the similar isin transaction per user in a same bill
