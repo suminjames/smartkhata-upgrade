@@ -5,18 +5,17 @@ class BillsController < ApplicationController
   # GET /bills.json
   def index
   # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
-    #default landing action for '/bills' should redirect to '/bills?search_by=bill_status&search_term=unsettled_bills'
-    # OPTIMIZE - Refactor
+    #default landing action for '/bills'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
-        format.html { redirect_to bills_path(search_by: "bill_status", search_term: "unsettled_bills") }
+        format.html { redirect_to bills_path(search_by: "client_name") }
       end
       return
     end
 
     # Populate (and route when needed) as per the params
-    if params[:show] == 'all'
-      @bills = Bill.all
+    if params[:search_by] == 'all_bills'
+      @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -69,6 +68,7 @@ class BillsController < ApplicationController
       @bills = ''
     end
     # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
+    #TODO: Change 100 to 20
     @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
   end
 

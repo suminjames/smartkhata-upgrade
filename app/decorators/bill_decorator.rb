@@ -47,18 +47,18 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_net_receivable_amount
-    type == 'receive' ? h.number_to_currency(object.net_amount) : 0.00
+    type == 'receive' ? h.arabic_number(object.net_amount) : 0.00
   end
 
   def formatted_net_payable_amount
-    type == 'pay' ? h.number_to_currency(object.net_amount) : 0.00
+    type == 'pay' ? h.arabic_number(object.net_amount) : 0.00
   end
 
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
   def formatted_bill_message
     case type
     when 'pay'
-      bill_type_verb = "Purchashed"
+      bill_type_verb = "Sold"
     when 'receive'
       bill_type_verb = "Purchashed"
     else
@@ -75,14 +75,33 @@ class BillDecorator < ApplicationDecorator
     object.bill_type
   end
 
-  def formatted_type
-    object.bill_type.titleize
+  def status
+    object.status
   end
 
+  def formatted_type
+    case object.bill_type
+    when 'pay'
+      'Sales'
+    when 'receive'
+      'Purchase'
+    end
+  end
+
+  def formatted_status
+    status.titleize
+  end
+
+  # TODO  Look into its implementation
   def formatted_companies_list
     # The `companies` hash maps an ISIN to its number of occurences
     companies = Hash.new(0);
-    object.share_transactions.each do | share_transaction |
+    # for i in  0..object.share_transactions.count
+    #   companies[object.share_transactions[i].isin_info.isin.to_s] +=1
+    #   # companies[share_transaction.isin_info.isin.to_s] +=1
+    # end
+    object.share_transactions.each_with_index do | share_transaction, i |
+      # companies[share_transaction.isin_name.to_s] +=1
       companies[share_transaction.isin_info.isin.to_s] +=1
     end
     company_count_str = ''
@@ -93,27 +112,23 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_net_share_amount
-    h.number_to_currency(object.get_net_share_amount)
+    h.arabic_number(object.get_net_share_amount)
   end
 
   def formatted_net_sebo_commission
-    h.number_to_currency(object.get_net_sebo_commission)
+    h.arabic_number(object.get_net_sebo_commission)
   end
 
   def formatted_net_commission
-    h.number_to_currency(object.get_net_commission)
-  end
-
-  def formatted_name_transfer_amount
-    h.number_to_currency(object.get_name_transfer_amount)
+    h.arabic_number(object.get_net_commission)
   end
 
   def formatted_net_dp_fee
-    h.number_to_currency(object.get_net_dp_fee)
+    h.arabic_number(object.get_net_dp_fee)
   end
 
   def formatted_net_cgt
-    h.number_to_currency(object.get_net_cgt)
+    h.arabic_number(object.get_net_cgt)
   end
 
 end

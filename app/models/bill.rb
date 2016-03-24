@@ -1,15 +1,22 @@
 class Bill < ActiveRecord::Base
   has_many :share_transactions
   belongs_to :client_account
+  has_many :isin_infos , through: :share_transactions
 
   has_and_belongs_to_many :vouchers
   has_many :particulars, through: :voucher
 
 	enum bill_type: [ :receive, :pay ]
+
+  # Bill Status
+  # - Pending: No payment has been done.
+  # - Partial: Some but not all payment has been done.
+  # - Settled: All payment has been done.
 	enum status: [:pending,:partial,:settled]
 
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
+  #  TODO: Implement multi-name search
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%") }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(

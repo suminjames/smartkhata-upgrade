@@ -160,9 +160,8 @@
           <!-- <th>Commission Amount</th> -->
           <td><%= share_transaction.formatted_commission_amount%></td>
           <!-- <th>Capital Gain</th> -->
-          <td><%= 'TODO' %></td>
+          <td><%= share_transaction.formatted_capital_gain %></td>
         </tr>
-
         <%
       end
       %>
@@ -185,10 +184,6 @@
         <tr>
           <td>Net Commission Amount:</td>
           <td><%= @bill.formatted_net_commission %></td>
-        </tr>
-        <tr>
-          <td>Name Transfer Amount:</td>
-          <td><%= @bill.formatted_name_transfer_amount %></td>
         </tr>
         <tr>
           <td>DP Fee:</td>

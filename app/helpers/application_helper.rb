@@ -92,6 +92,7 @@ module ApplicationHelper
 	end
 
 
+	# Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
 	def arabic_word(decimal)
 		word = decimal.to_f.to_words
 		if word.kind_of?(Array)
@@ -100,6 +101,7 @@ module ApplicationHelper
 		word.titleize
 	end
 
+	# Similar to number_to_currency but with arabic way of comma separation.
 	def arabic_number(decimal)
 		decimal.to_f.to_amount
 	end

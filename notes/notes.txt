@@ -1,0 +1,45 @@
+
+#. Payroll
+-Type of employee
+  -full-time
+  -part-time
+    -Intern
+    -Agent
+
+-Type of payment
+  -Hourly Wage (for Interns)
+  -Fixed Salary
+  -Commission based
+
+-Leave days
+  -Employee Specific leave days
+
+-Calendar maintenance
+  -
+-Work Time (Hour/Day) Tracking
+
+#. Storyboard of workflow related to Payroll
+-Upon new employee hire
+  -Supervisor/Manager adds an employee to the system.
+    -All his details/information are stored in the system.
+    -His account is setup by assigning
+      -Employee Details
+      -Salary scale
+      -Other benefits
+    -Establish Authorization
+      -He is assigned privileges to the system.
+    -Establish Authentication
+      -A signup link is send to a unique email id (belonging to the employee), using which he can use to setup a password.
+
+-Upon pausing(not firing) an existing employee
+  -Revoke(temporarily but save in database) all existing
+    -Authorization
+    -Authentication
+  -However, don't delete the employee from the database.
+
+-Upon releasing(firing) an existing employee
+  -Revoke all existing
+    -Authorization
+    -Authentication
+  -However, don't delete the employee from the database.
+
