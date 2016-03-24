@@ -2,6 +2,7 @@ class Voucher < ActiveRecord::Base
 	include FiscalYearModule
 
 	has_many :particulars
+	has_many :share_transactions
 	has_many :ledgers, :through => :particulars
 	has_and_belongs_to_many :bills
 	accepts_nested_attributes_for :particulars
@@ -34,6 +35,7 @@ class Voucher < ActiveRecord::Base
 		last_voucher = Voucher.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).last
 		self.voucher_number = last_voucher.present? ? last_voucher.voucher_number+1 : 1
 		self.fy_code = fy_code
+		self.date = Time.now
 	end
 
 

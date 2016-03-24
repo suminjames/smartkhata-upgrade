@@ -216,9 +216,15 @@ class Files::FloorsheetsController < ApplicationController
 
 			description = "as being purchased(#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
-			voucher = Voucher.create!
-			voucher.bills << [bill]
+			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+			voucher.bills << bill
+			voucher.share_transactions << transaction
+
 			voucher.save!
+			# 
+			# transaction.voucher =  voucher
+			# transaction.save!
+
 			#TODO replace bill from particulars with bill from voucher
 			process_accounts(client_ledger,voucher,true,@client_dr,description)
 			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)

@@ -33,7 +33,6 @@ module ApplicationHelper
 
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
-		puts transaction_type
 		if debit
 			ledger.closing_blnc += amount
 		else
@@ -44,6 +43,22 @@ module ApplicationHelper
 		ledger.save!
 	end
 
+	def reverse_accounts(particular,voucher, descr)
+		transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
+		ledger = particular.ledger
+		amount = particular.amnt
+
+		closing_blnc = ledger.closing_blnc
+		if particular.cr?
+			ledger.closing_blnc += amount
+		else
+			ledger.closing_blnc -= amount
+		end
+
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+		ledger.save!
+
+	end
 
 	# method to calculate the broker commission
 	def get_broker_commission(commission)

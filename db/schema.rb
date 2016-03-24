@@ -249,6 +249,7 @@ ActiveRecord::Schema.define(version: 20160324092710) do
     t.date     "deleted_at"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
+    t.integer  "voucher_id"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.integer  "isin_info_id"
@@ -257,6 +258,7 @@ ActiveRecord::Schema.define(version: 20160324092710) do
   add_index "share_transactions", ["bill_id"], name: "index_share_transactions_on_bill_id", using: :btree
   add_index "share_transactions", ["client_account_id"], name: "index_share_transactions_on_client_account_id", using: :btree
   add_index "share_transactions", ["isin_info_id"], name: "index_share_transactions_on_isin_info_id", using: :btree
+  add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false

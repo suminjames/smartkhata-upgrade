@@ -76,10 +76,11 @@ class GenerateBillsService
   			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
   			# update ledgers value
-  			voucher = Voucher.create!
-        voucher.bills << [bill]
+  			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+        voucher.bills << bill
+        voucher.share_transactions << transaction
   			voucher.save!
-        
+
         # process_accounts(ledger,voucher, is_debit, amount)
 
         # for a sales
