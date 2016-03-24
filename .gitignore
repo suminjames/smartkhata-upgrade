@@ -84,3 +84,5 @@ pickle-email-*.html
 *~
 # Ignore Spring files.
 /spring/*.pid
+# Ignore nested wiki git repo.
+wiki/
