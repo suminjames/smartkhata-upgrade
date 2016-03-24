@@ -75,8 +75,21 @@ class BillDecorator < ApplicationDecorator
     object.bill_type
   end
 
+  def status
+    object.status
+  end
+
   def formatted_type
-    object.bill_type.titleize
+    case object.bill_type
+    when 'pay'
+      'Sales'
+    when 'receive'
+      'Purchase'
+    end
+  end
+
+  def formatted_status
+    status.titleize
   end
 
   # TODO  Look into its implementation
@@ -108,10 +121,6 @@ class BillDecorator < ApplicationDecorator
 
   def formatted_net_commission
     h.arabic_number(object.get_net_commission)
-  end
-
-  def formatted_name_transfer_amount
-    h.arabic_number(object.get_name_transfer_amount)
   end
 
   def formatted_net_dp_fee

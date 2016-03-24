@@ -7,10 +7,10 @@
   end
   %>
   <h5>
+    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} %>  |
     <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills"), {:class => (is_active_sub_menu_option("bill_status")? "active-link" : "")}   %>  |
     <%= link_to "All Bills",  bills_path(search_by: "all_bills"), {:class => (is_active_sub_menu_option("all_bills")? "active-link" : "")} %>  |
     <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type"), {:class => (is_active_sub_menu_option("bill_type")? "active-link" : "")} %>  |
-    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} %>  |
     <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number"), {:class => (is_active_sub_menu_option("bill_number")? "active-link" : "")} %>  |
     <%= link_to "Search by Date",  bills_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %>  |
     <%= link_to "Search by Date Range",  bills_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} %>
@@ -23,7 +23,7 @@ if params[:search_by] == 'client_name'
   %>
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "client_name" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name", :autofocus => true %>
   <%= submit_tag "Search" %>
   <% end %>
 <% end %>
@@ -34,7 +34,8 @@ if params[:search_by] == 'bill_type'
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "bill_type" %>
   <div class="col-xs-3">
-    <%= select_tag :search_term, options_for_select([['Pay','pay'], ['Receive','receive']], params[:search_term] ) %>
+    <!--  TODO Make values the same as keys, and change where relevant in controller logic.-->
+    <%= select_tag :search_term, options_for_select([['Sales','pay'], ['Purchase','receive']], params[:search_term] ) %>
   </div>
   <%= submit_tag "Search" %>
   <% end %>
@@ -88,46 +89,43 @@ if params[:search_by] == 'date_range'
 
 
 <% if !@bills.empty?
-  @bills.each do |bill|
   %>
+  <table class="table table-no-border table-striped table-condensed text-left">
+  <tr>
+    <th>S.N.</th>
+    <th>Bill No.</th>
+    <th>Bill Date</th>
+    <th>Customer</th>
+    <th>Type</th>
+    <th>Status</th>
+    <th class="text-center">Companies <br>Transacted</th>
+    <th class="text-center">Net <br>Bill Amount</th>
+    <th> Action </th>
+  </tr>
 
-  <div class="clearfix bill-card">
-    <!-- Bill (minified) BEGINS -->
-    <div class="clearfix">
-      <div class="col-xs-4">
-        <span class="key">Bill No:</span>
-        <%= bill.formatted_bill_number %><br>
-        <span class="key">Bill Date:</span>
-        <%= bill.formatted_bill_dates["bs"]%>
-      </div>
-      <div class="col-xs-4">
-        <span class="key">Customer:</span>
-        <%= bill.formatted_client_name %> <br>
-        <span class="key">Bill Type:</span>
-        <%= bill.formatted_type %> <br>
-      </div>
-      <div class="col-xs-4">
-        <span class="key">Companies Transacted:</span>
-        <%= bill.formatted_companies_list %> <br>
-        <span class="key">Net Bill Amount:</span>
-        <%= bill.formatted_net_bill_amount %> <br>
-      </table>
-    </div>
-  </div>
-  <br>
-  <div class="clearfix">
-    <div class="col-xs-12 text-center">
-      <% voucher_type = (bill.type == "receive") ? "sales": "purchase" %>
-      <% unless bill.settled? %>
-      <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
-      <% end %>
-      <%= link_to 'Show Full View', bill %></td>
-    </div>
-  </div>
-</div>
-<!-- Bill (minified) ENDS -->
+  <%
+  serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
 
-<% end %>
+  @bills.each_with_index do |bill, index|
+
+  %>
+  <!-- Bill (row) BEGINS -->
+  <tr>
+    <td><%= serial_number_count + index %></td>
+    <td><%= bill.formatted_bill_number%></td>
+    <td><%= bill.formatted_bill_dates["bs"]%></td>
+    <td><%= bill.formatted_client_name%></td>
+    <td><%= bill.formatted_type %></td>
+    <td><%= bill.formatted_status%></td>
+    <td><%= bill.formatted_companies_list%></td>
+    <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
+    <td><%= link_to 'View', bill %></td>
+  </tr>
+  <!-- Bill (row) ENDS -->
+
+
+  <% end %>
+</table>
 <% end %>
 
 <div class="text-center">

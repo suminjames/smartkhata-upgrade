@@ -5,11 +5,10 @@ class BillsController < ApplicationController
   # GET /bills.json
   def index
   # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
-    #default landing action for '/bills' should redirect to '/bills?search_by=bill_status&search_term=unsettled_bills'
-    # OPTIMIZE - Refactor
+    #default landing action for '/bills'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
-        format.html { redirect_to bills_path(search_by: "bill_status", search_term: "unsettled_bills") }
+        format.html { redirect_to bills_path(search_by: "client_name") }
       end
       return
     end
