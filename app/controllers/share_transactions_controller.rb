@@ -36,13 +36,15 @@ class ShareTransactionsController < ApplicationController
     end
     # Populate (and route when needed) as per the params
     if params[:show] == "all"
-      @share_transactions = ShareTransaction.all
+      @share_transactions = ShareTransaction.not_cancelled
+    elsif params[:search_by] == "cancelled"
+      @share_transactions = ShareTransaction.cancelled
     elsif params[:search_by] && params[:search_term] && params[:group_by]
       # TODO : Refactor
       client_account_id = params[:search_term].to_i
       # @share_transactions = ShareTransaction.where(client_account_id: client_account_id).order(:isin_info_id)
       # TODO: Order by isin_info isin(name) not id
-      @share_transactions = ShareTransaction.where(client_account_id: client_account_id).order(:isin_info_id)
+      @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -54,7 +56,7 @@ class ShareTransactionsController < ApplicationController
       when 'company'
         isin_info_id = search_term.to_i
         # TODO  move it to model
-        @share_transactions = ShareTransaction.where(isin_info_id: isin_info_id)
+        @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id)
       else
         # If no matches for case  'search_by', return empty @share_transactions
         @share_transactions = []
