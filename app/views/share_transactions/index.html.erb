@@ -99,8 +99,8 @@ TODO
               <th>Quantity in</th>
               <th>Quantity out</th>
               <th>Rate</th>
+              <th>Last Day Price</th>
               <th>Amount</th>
-              <th>Commission</th>
             </tr>
           </thead>
           <tbody>
@@ -138,8 +138,8 @@ TODO
                   <th>Quantity in</th>
                   <th>Quantity out</th>
                   <th>Rate</th>
+                  <th>Last Day Price</th>
                   <th>Amount</th>
-                  <th>Commission</th>
                 </tr>
               </thead>
               <%
@@ -160,8 +160,8 @@ TODO
               <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
               <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
               <td><%= share_transaction.share_rate %></td>
+              <td><%= "#TODO" %></td>
               <td><%= share_transaction.share_amount %></td>
-              <td><%= share_transaction.commission_amount %></td>
             </tr>
             <% end %>
             <!--  This tr is added so that the last isin group's total is printed out too. Refactor to a better implementation. -->
@@ -186,8 +186,8 @@ TODO
               <th>Quantity in</th>
               <th>Quantity out</th>
               <th>Rate</th>
+              <th>Last Day Price</th>
               <th>Amount</th>
-              <th>Commission</th>
             </tr>
           </thead>
           <tbody>
@@ -201,8 +201,8 @@ TODO
                 <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
                 <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
                 <td><%= share_transaction.share_rate %></td>
+                <td><%= "TODO" %></td>
                 <td><%= share_transaction.share_amount %></td>
-                <td><%= share_transaction.commission_amount %></td>
               </tr>
               <% end %>
             </tbody>
