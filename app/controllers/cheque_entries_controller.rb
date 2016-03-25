@@ -62,9 +62,9 @@ class ChequeEntriesController < ApplicationController
     elsif @start_cheque_number > @end_cheque_number
       has_error = true
       error_message = "Last cheque number should be greater than the first"
-    elsif (@end_cheque_number - @start_cheque_number) > 100
+    elsif (@end_cheque_number - @start_cheque_number) > 501
       has_error = true
-      error_message = "Only 100 cheque entries allowed"
+      error_message = "Only 500 cheque entries allowed"
     end
 
 

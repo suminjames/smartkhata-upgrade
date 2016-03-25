@@ -68,7 +68,6 @@ class BillsController < ApplicationController
       @bills = ''
     end
     # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
-    #TODO: Change 100 to 20
     @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
   end
 

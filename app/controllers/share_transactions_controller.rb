@@ -7,27 +7,65 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
+    #Instance variable to populate (in select field) all clients in 'search by client' option
     @clients = ClientAccount.all
-    if params[:show] == "all" || (params[:show].blank? && params[:search_by].blank?)
+    @companies= IsinInfo.all
+
+    # Cases
+    # show=all
+    # show=all  & group_by=company
+    # show=all  & group_by=company & date=xx
+    # show=all  & date=xx
+    # show=all  & date[from]=xx & date[to]=yy
+    # show=all  & group_by=company & date[from]=xx & date[to]=yy
+
+    # search_by=client
+    # search_by=client & client_id=z
+    # search_by=client & client_id=z & group_by=company
+    # search_by=client & client_id=z & group_by=company & date=xx
+    # search_by=client & client_id=z & date=xx
+    # search_by=client & client_id=z & date[from]=xx & date[to]=zz
+    # search_by=client & client_id=z & group_by=company & date[from]=xx & date[to]=zz
+
+    #default landing action for '/share_transactions'
+    if params[:show].blank? && params[:search_by].blank?
+      respond_to do |format|
+        format.html { redirect_to share_transactions_path(show: "all") }
+      end
+      return
+    end
+    # Populate (and route when needed) as per the params
+    if params[:show] == "all"
       @share_transactions = ShareTransaction.not_cancelled
     elsif params[:search_by] == "cancelled"
       @share_transactions = ShareTransaction.cancelled
+    elsif params[:search_by] && params[:search_term] && params[:group_by]
+      # TODO : Refactor
+      client_account_id = params[:search_term].to_i
+      # @share_transactions = ShareTransaction.where(client_account_id: client_account_id).order(:isin_info_id)
+      # TODO: Order by isin_info isin(name) not id
+      @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
       when 'client'
-        @clients = ClientAccount.all
         client_account_id = search_term.to_i
         # TODO  move it to model
         @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id)
+      when 'company'
+        isin_info_id = search_term.to_i
+        # TODO  move it to model
+        @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id)
       else
-        # If no matches for case  'search_by', return empty @ledgers
+        # If no matches for case  'search_by', return empty @share_transactions
         @share_transactions = []
       end
     else
       @share_transactions = []
     end
+    # @share_transactions = @share_transactions.order(:isin_info_id).page(params[:page]).per(20) unless @share_transactions.blank?
+    @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
   end
 
   # TODO MOVE THIS TO the index controller
@@ -40,9 +78,11 @@ class ShareTransactionsController < ApplicationController
       ActiveRecord::Base.transaction do
         if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
           @bill.balance_to_pay = 0
+          @bill.net_amount = 0
           @bill.cancelled!
         else
           @bill.balance_to_pay -= @share_transaction.net_amount
+          @bill.net_amount -= @share_transaction.net_amount
           @bill.partial!
         end
         @bill.save!
@@ -55,6 +95,7 @@ class ShareTransactionsController < ApplicationController
         @share_transaction.soft_delete
         @share_transaction.save!
       end
+      flash.now[:notice] = 'Deal cancelled succesfully.'
       @share_transaction = nil
     end
 
