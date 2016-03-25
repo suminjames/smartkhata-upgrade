@@ -1,9 +1,9 @@
 <div class="clearfix">
-  <h2>Search the Transaction for Cancelling</h2>
+  <h4>Search the Transaction for Cancelling</h4>
   <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
     <!--  TODO: Implement selected -->
     <div class="row">
-      <div class="form-group col-xs-6">
+      <div class="form-group col-xs-4">
         <%= text_field_tag :contract_no, nil, placeholder: "Search by Contract Number", :autofocus => true, class: 'form-control' %>
       </div>
       <div class="form-group col-xs-6">
@@ -11,11 +11,11 @@
       </div>
     </div>
 
-    <%= submit_tag "Search", class: 'btn btn-primary' %>
+    <%= submit_tag "Search", class: 'btn btn-sm' %>
   <% end %>
 
   <% if @share_transaction.present? %>
-    <h3>Verify the share transaction before cancelling.</h3>
+    <h4>Verify the share transaction before cancelling.</h4>
     <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
       <table class="table table-condensed table-striped">
         <thead>
@@ -43,7 +43,7 @@
         </tbody>
       </table>
       <%= hidden_field_tag 'id', @share_transaction.id %>
-      <%= submit_tag "Cancel", class: 'btn btn-primary' %>
+      <%= submit_tag "Cancel", class: 'btn btn-sm' %>
     <% end %>
   <% end %>
 </div>

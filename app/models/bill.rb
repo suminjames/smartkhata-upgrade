@@ -1,5 +1,5 @@
 class Bill < ActiveRecord::Base
-  has_many :share_transactions
+  has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   belongs_to :client_account
   has_many :isin_infos , through: :share_transactions
 

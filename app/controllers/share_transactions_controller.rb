@@ -78,9 +78,11 @@ class ShareTransactionsController < ApplicationController
       ActiveRecord::Base.transaction do
         if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
           @bill.balance_to_pay = 0
+          @bill.net_amount = 0
           @bill.cancelled!
         else
           @bill.balance_to_pay -= @share_transaction.net_amount
+          @bill.net_amount -= @share_transaction.net_amount
           @bill.partial!
         end
         @bill.save!
@@ -93,6 +95,7 @@ class ShareTransactionsController < ApplicationController
         @share_transaction.soft_delete
         @share_transaction.save!
       end
+      flash.now[:notice] = 'Deal cancelled succesfully.'
       @share_transaction = nil
     end
 
