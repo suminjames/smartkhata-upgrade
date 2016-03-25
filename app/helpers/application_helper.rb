@@ -121,4 +121,16 @@ module ApplicationHelper
 		decimal.to_f.round(2).to_amount
 	end
 
+	# get the list of latest price as hash
+	# isin being the key and price being the value
+	def get_latest_price_list
+		companies = IsinInfo.all
+
+		price_hash = {}
+		companies.each do |isin|
+			price_hash[isin.isin] = isin.last_price.to_f
+		end
+
+		price_hash
+	end
 end
