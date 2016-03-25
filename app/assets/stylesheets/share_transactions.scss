@@ -1,3 +1,38 @@
-// Place all the styles related to the ShareTransactions controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+$link_color: #2f8a93;
+.custom-anchor {
+  a {
+    color: $link_color;
+    &:visited {
+      color: $link_color;
+    }
+    &:hover {
+      color: #fff;
+      background-color: $link_color;
+    }
+  }
+}
+
+.submenu {
+  @extend .custom-anchor;
+  padding-bottom: 10px;
+  a.active-link {
+    color: #fff !important;
+    background-color: $link_color !important;
+    // border-bottom: thin dotted #529EA5;
+  }
+}
+.submenu-nested {
+  @extend .submenu;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.total-row {
+  font-size: 9px;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.table {
+  margin-bottom: 10px !important;
+}
