@@ -9,6 +9,7 @@ class ShareTransactionsController < ApplicationController
   def index
     #Instance variable to populate (in select field) all clients in 'search by client' option
     @clients = ClientAccount.all
+    @companies= IsinInfo.all
 
     # Cases
     # show=all
@@ -50,6 +51,10 @@ class ShareTransactionsController < ApplicationController
         client_account_id = search_term.to_i
         # TODO  move it to model
         @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id)
+      when 'company'
+        isin_info_id = search_term.to_i
+        # TODO  move it to model
+        @share_transactions = ShareTransaction.where(isin_info_id: isin_info_id)
       else
         # If no matches for case  'search_by', return empty @share_transactions
         @share_transactions = []

@@ -1,9 +1,5 @@
 <!--
 TODO
-  -All Transaction should be grouped as per their isin_info_id .
-    -Implement Collapse/Expand
-  -All Transactions of a client grouped by isins
-  -Implement remaining ( in - out )column
   -Filter by date / date-range
  -->
 <% provide(:section_title, "Share Inventory Report") %>
@@ -20,16 +16,32 @@ TODO
     <%
     if params[:search_by] == 'client'
       %>
-      <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(share_transactions_path, :method => "get", id: "search-form", class: "clearfix") do %>
       <%= hidden_field_tag :search_by, "client" %>
       <div class="col-sm-3">
         <!--  TODO: Implement selected -->
         <!--  TODO: Prettify the search form / select tag-->
         <div class="form-group">
-          <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name'), class: 'form-control combobox' %>
+          <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
         </div>
       </div>
-    <%= submit_tag "Search" class: 'btn btn-primary' %>
+      <%= submit_tag "Search", class: 'btn btn-sm' %>
+    <% end %>
+    <% end %>
+
+    <%
+    if params[:search_by] == 'company'
+      %>
+      <%= form_tag(share_transactions_path, :method => "get", id: "search-form", class: "clearfix") do %>
+      <%= hidden_field_tag :search_by, "company" %>
+      <div class="col-sm-3">
+        <!--  TODO: Implement selected -->
+        <!--  TODO: Prettify the search form / select tag-->
+        <div class="form-group">
+          <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'isin', params[:search_term]), class: 'form-control combobox' %>
+        </div>
+      </div>
+      <%= submit_tag "Search", class: 'btn btn-sm' %>
     <% end %>
     <% end %>
 
@@ -64,13 +76,19 @@ TODO
       %>
       <div>
         <!--  Include relevant client name above the table  -->
-        TODO: Client Name above the table
+        <%
+        if params[:search_by] == "client"
+        %>
+        <%= @clients[params[:search_term].to_i - 1 ].name %>
+        <%
+        end
+        %>
       </div>
       <% end %>
 
       <%
       # TODO: Refactor
-      if !params[:group_by].blank?
+      if params[:group_by].present? || params[:search_by] == "company"
         %>
         <table class="table table-condensed table-striped">
           <thead>
@@ -148,13 +166,12 @@ TODO
             <% end %>
             <!--  This tr is added so that the last isin group's total is printed out too. Refactor to a better implementation. -->
             <!--  Make the font smaller for this tr's tds-->
-            <tr class="total-row">
-              <td class="text-center" colspan=3>Total</td>
-              <td><%= total_in%></td>
-              <td><%= total_out%></td>
-              <td>Remaining</td>
-              <td><%= total_in - total_out%></td>
-            </tr>
+              <tr class="total-row">
+                <td class="text-center" colspan=3>Total</td>
+                <td><%= total_in%></td>
+                <td><%= total_out%></td>
+                <td colspan=3><%= total_in - total_out%> (Remaining)</td>
+              </tr>
           </tbody>
         </table>
         <%
