@@ -7,7 +7,7 @@ task :update_isin_prices => :environment do
   def get_only_isin_price(details)
     details.select{|i| (i[:company] != "" && i[:max] != "")}
   end
-
+  date = nil
   def get_isin_price
     continue = true
     count = 1
@@ -71,6 +71,6 @@ task :update_isin_prices => :environment do
     #   last: x[:last]
     #   )
   end
-  puts '#{date} : Successfully updated prices'
+  puts "#{date} : Successfully updated prices"
 
 end
