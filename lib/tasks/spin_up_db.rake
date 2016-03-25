@@ -6,4 +6,5 @@ task :churn_db => :environment do
   Rake::Task["db:seed"].invoke
   # Invokes another rake task
   Rake::Task["fetch_companies"].invoke
+  Rake::Task["update_isin_prices"].invoke
 end
