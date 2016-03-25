@@ -29,25 +29,20 @@
         <% end %>
       </div>
       <div class="box-body">
-        <!-- <div class="row">
-          <div class="col-xs-4 form-group">
-            <%= select_tag "fixed_ledger_id", options_from_collection_for_select(@ledger_list, 'id', 'name'), class: 'select-ledger' %>
-          </div>
-          <div class="col-xs-4">
-            <% if @voucher_type == Voucher.voucher_types[:purchase] %>
-              <%= number_field_tag "cheque_number",nil, placeholder: 'Enter cheque number', class: 'form-control cheque cr' %>
-            <% else %>
-              <%= number_field_tag "cheque_number",nil, placeholder: 'Enter cheque number', class: 'form-control cheque dr' %>
-            <% end %>
-          </div>
-        </div> -->
+        <div class="row">
+          <div class="col-xs-4"><h4>Ledger</h4></div>
+          <div class="col-xs-2"><h4>Amount</h4></div>
+          <div class="col-xs-1"><h4>Dr/Cr</h4></div>
+          <div class="col-xs-3"><h4>Cheque</h4></div>
+          <div class="col-xs-2"><h4>Bank</h4></div>
+        </div>
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => true} }  if ((
             @voucher_type == Voucher.voucher_types[:purchase] && p.object.transaction_type == 'cr'
           ) ||(@voucher_type == Voucher.voucher_types[:sales] && p.object.transaction_type == 'dr') )%>
         <% end %>
 
-        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true } %>
+        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true } if @voucher_type == Voucher.voucher_types[:sales] %>
       </div>
     </div>
   </div>
@@ -61,8 +56,10 @@
       <div class="box-body">
         <div class="row">
           <div class="col-xs-4"><h4>Ledger</h4></div>
-          <div class="col-xs-3"><h4>Amount</h4></div>
-          <div class="col-xs-2"><h4>Dr/Cr</h4></div>
+          <div class="col-xs-2"><h4>Amount</h4></div>
+          <div class="col-xs-1"><h4>Dr/Cr</h4></div>
+          <div class="col-xs-3"><h4>Cheque</h4></div>
+          <div class="col-xs-2"><h4>Bank</h4></div>
         </div>
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => false} }  unless (p.object.transaction_type.present? && (

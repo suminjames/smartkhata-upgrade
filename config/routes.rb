@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :banks
   resources :settlements
   resources :settlements
   resources :cheque_entries do
@@ -10,7 +11,11 @@ Rails.application.routes.draw do
       get 'generate_bills'
     end
   end
-  resources :share_transactions
+  resources :share_transactions do
+    collection do
+      get 'deal_cancel' 
+    end
+  end
   resources :bills
   resources :groups
   resources :ledgers

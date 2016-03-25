@@ -22,6 +22,7 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.date :date
       t.date :deleted_at
       t.timestamps null: false
+      t.references :voucher, index: true
       t.references :bill , index: true
       t.references :client_account , index: true
       t.references :isin_info , index: true

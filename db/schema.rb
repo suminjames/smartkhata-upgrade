@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160318122335) do
+ActiveRecord::Schema.define(version: 20160324092710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,15 @@ ActiveRecord::Schema.define(version: 20160318122335) do
     t.boolean  "default_for_sales"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+  end
+
+  create_table "banks", force: :cascade do |t|
+    t.string   "name"
+    t.string   "bank_code"
+    t.string   "address"
+    t.string   "contact_no"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "bills", force: :cascade do |t|
@@ -64,11 +73,12 @@ ActiveRecord::Schema.define(version: 20160318122335) do
 
   create_table "cheque_entries", force: :cascade do |t|
     t.integer  "cheque_number"
+    t.integer  "additional_bank_id"
     t.integer  "bank_account_id"
     t.integer  "particular_id"
     t.integer  "settlement_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
@@ -174,15 +184,16 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
-    t.decimal  "amnt",             precision: 15, scale: 4, default: 0.0
-    t.decimal  "running_blnc",     precision: 15, scale: 4, default: 0.0
-    t.datetime "created_at",                                              null: false
-    t.datetime "updated_at",                                              null: false
+    t.decimal  "amnt",               precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
+    t.integer  "additional_bank_id"
+    t.datetime "created_at",                                                null: false
+    t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
   end
@@ -238,6 +249,7 @@ ActiveRecord::Schema.define(version: 20160318122335) do
     t.date     "deleted_at"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
+    t.integer  "voucher_id"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.integer  "isin_info_id"
@@ -246,6 +258,7 @@ ActiveRecord::Schema.define(version: 20160318122335) do
   add_index "share_transactions", ["bill_id"], name: "index_share_transactions_on_bill_id", using: :btree
   add_index "share_transactions", ["client_account_id"], name: "index_share_transactions_on_client_account_id", using: :btree
   add_index "share_transactions", ["isin_info_id"], name: "index_share_transactions_on_isin_info_id", using: :btree
+  add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -288,9 +301,10 @@ ActiveRecord::Schema.define(version: 20160318122335) do
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.integer  "voucher_type",   default: 0
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.integer  "voucher_type",    default: 0
+    t.boolean  "is_payment_bank"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree

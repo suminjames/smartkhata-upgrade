@@ -1,0 +1,49 @@
+<div class="clearfix">
+  <h2>Search the Transaction for Cancelling</h2>
+  <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
+    <!--  TODO: Implement selected -->
+    <div class="row">
+      <div class="form-group col-xs-6">
+        <%= text_field_tag :contract_no, nil, placeholder: "Search by Contract Number", :autofocus => true, class: 'form-control' %>
+      </div>
+      <div class="form-group col-xs-6">
+        <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buy'], ['Sales','sell']] ) , class: 'form-control'%></div>
+      </div>
+    </div>
+
+    <%= submit_tag "Search", class: 'btn btn-primary' %>
+  <% end %>
+
+  <% if @share_transaction.present? %>
+    <h3>Verify the share transaction before cancelling.</h3>
+    <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
+      <table class="table table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Contract No </th>
+            <th>Client </th>
+            <th>Company</th>
+            <th>Quantity in</th>
+            <th>Quantity out</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+              <td><%= @share_transaction.date %></td>
+              <td><%= @share_transaction.contract_no %></td>
+              <td><%= @share_transaction.client_account.name %></td>
+              <td><%= @share_transaction.isin_info.company %></td>
+              <td class='quantity-in'><%= @share_transaction.quantity  if @share_transaction.buy? %></td>
+              <td class='quantity-out'><%= @share_transaction.quantity if @share_transaction.sell? %></td>
+            </tr>
+
+        </tbody>
+      </table>
+      <%= hidden_field_tag 'id', @share_transaction.id %>
+      <%= submit_tag "Cancel", class: 'btn btn-primary' %>
+    <% end %>
+  <% end %>
+</div>

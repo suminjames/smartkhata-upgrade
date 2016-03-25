@@ -12,7 +12,7 @@ class Bill < ActiveRecord::Base
   # - Pending: No payment has been done.
   # - Partial: Some but not all payment has been done.
   # - Settled: All payment has been done.
-	enum status: [:pending,:partial,:settled]
+	enum status: [:pending,:partial,:settled,:cancelled]
 
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }

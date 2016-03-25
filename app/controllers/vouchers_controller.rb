@@ -11,6 +11,11 @@ class VouchersController < ApplicationController
   # GET /vouchers/1.json
   def show
     @particulars = @voucher.particulars
+    if @voucher.is_payment_bank == true
+      @bank = @particulars.first.ledger.bank_account
+      @cheque = @particulars.first.cheque_number
+      @particulars =  @particulars.drop(1)
+    end
   end
 
   # GET /vouchers/new
@@ -174,7 +179,7 @@ class VouchersController < ApplicationController
           @receipt = nil
           @processed_bills.each(&:save)
           @voucher.bills << @processed_bills
-
+          @voucher.desc = description_bills
           # TODO add the cheque tracking to receipt
           # TODO add bill tracking to receipt
           # TODO add number to receipt
@@ -191,10 +196,17 @@ class VouchersController < ApplicationController
             ledger = Ledger.find(particular.ledger_id)
             # particular.bill_id = bill_id
             if (particular.cheque_number.present?)
+              # make the additional_bank_id nil for payment
+              if particular.cr?
+                particular.additional_bank_id = nil
+                @voucher.is_payment_bank = true
+              end
+
               bank_account = ledger.bank_account
               # TODO track the cheque entries whether it is from client or the broker
-              cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id)
+              cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
               particular.cheque_entries << cheque_entry
+
             end
 
             # Receipt.find_or_create_by()
@@ -206,6 +218,7 @@ class VouchersController < ApplicationController
             ledger.save
           end
           @voucher.settlement = @settlement
+
           success = true if @voucher.save
 
         end
@@ -224,8 +237,8 @@ class VouchersController < ApplicationController
     respond_to do |format|
       if success
         format.html {
-          redirect_to settlement_path(@settlement) if @settlement.present?
-          redirect_to @voucher, notice: 'Voucher was successfully created.' if @settlement.nil?
+          # redirect_to settlement_path(@settlement) if @settlement.present?
+          redirect_to @voucher, notice: 'Voucher was successfully created.'
         }
         format.json { render :show, status: :created, location: @voucher }
       else
@@ -312,6 +325,7 @@ class VouchersController < ApplicationController
         amount = amount.abs
       end
     end
+    amount = amount.round(2)
     return client_account, bill, bills, amount
   end
 
@@ -323,6 +337,6 @@ class VouchersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def voucher_params
-      params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type])
+      params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type, :cheque_number, :additional_bank_id])
     end
 end
