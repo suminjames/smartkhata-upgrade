@@ -13,17 +13,18 @@ class Voucher < ActiveRecord::Base
 	before_save :process_voucher
 
 	def voucher_code
+
 		case self.voucher_type
-		when voucher_types[:journal]
+		when 'journal'
 			"JVR"
-		when voucher_types[:purchase]
+		when 'purchase'
 			"PVR"
-		when voucher_types[:sales]
+		when 'sales'
 			"SVR"
-		when voucher_types[:contra]
+		when Voucher.voucher_types[:contra]
 			"CVR"
 		else
-			""
+			"NA"
 		end
 	end
 

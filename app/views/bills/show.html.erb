@@ -10,15 +10,15 @@
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
     <strong>
-      TRISHAKTI SECURITIES PUBLIC LTD.<br>
-      Putalisadak, Kathmandu.<br>
+      <%= current_tenant.full_name %><br>
+      <%= current_tenant.address %><br>
       <div class="row">
         <div class="col-xs-3">
-          Phone: 977-1-4232132
+          Phone: <%= current_tenant.phone_number %>
           <br>
-          Fax: 977-1-4232133
+          Fax: <%= current_tenant.fax_number %>
           <br>
-          PAN: 302830905
+          PAN: <%= current_tenant.pan_number %>
           <br>
         </div>
       </strong>
@@ -233,9 +233,9 @@
         </div>
           (Authorized Signature)
           <br>
-          TRISHAKTI SECURITIES PUBLIC LTD.
+          <%= current_tenant.full_name %>
           <br>
-          Broker Code No.: 48
+          Broker Code No.: <%= current_tenant.broker_code %>
           <br>
           Nepal Stock Exchange
         </div>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160324092710) do
+ActiveRecord::Schema.define(version: 20160325095133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -259,6 +259,19 @@ ActiveRecord::Schema.define(version: 20160324092710) do
   add_index "share_transactions", ["client_account_id"], name: "index_share_transactions_on_client_account_id", using: :btree
   add_index "share_transactions", ["isin_info_id"], name: "index_share_transactions_on_isin_info_id", using: :btree
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
+
+  create_table "tenants", force: :cascade do |t|
+    t.string   "name"
+    t.string   "dp_id"
+    t.string   "full_name"
+    t.string   "phone_number"
+    t.string   "address"
+    t.string   "pan_number"
+    t.string   "fax_number"
+    t.string   "broker_code"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false

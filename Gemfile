@@ -52,6 +52,7 @@ gem 'roo-xls'
 gem 'mechanize', '2.7.3'
 gem "haml"
 gem 'sankhya'
+gem 'apartment'
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'guard'
