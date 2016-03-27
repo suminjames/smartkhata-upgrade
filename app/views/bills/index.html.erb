@@ -34,8 +34,7 @@ if params[:search_by] == 'bill_type'
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "bill_type" %>
   <div class="col-xs-3">
-    <!--  TODO Make values the same as keys, and change where relevant in controller logic.-->
-    <%= select_tag :search_term, options_for_select([['Sales','pay'], ['Purchase','receive']], params[:search_term] ) %>
+    <%= select_tag :search_term, options_for_select([['Sales','sales'], ['Purchase','purchase']], params[:search_term] ) %>
   </div>
   <%= submit_tag "Search" %>
   <% end %>
