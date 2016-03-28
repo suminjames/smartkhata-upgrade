@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.2.1'
+ruby '2.3.0'
 gem 'rails', '4.2.4'
 gem 'sass-rails', '~> 5.0'
 gem 'draper', '~> 1.3'
@@ -40,6 +40,7 @@ group :development do
   gem "bullet"
   gem "uniform_notifier"
   gem "awesome_print"
+  gem 'capistrano3-puma'
 end
 group :production do
   gem 'puma'
