@@ -1,7 +1,7 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'roo'
-require 'awesome_print'
+# require 'awesome_print'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
