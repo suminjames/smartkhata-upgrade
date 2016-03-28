@@ -9,7 +9,7 @@
 		<div class="row">
 
 			<div class="col-xs-5">
-				<p>Voucher Number: <%= "#{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+				<p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
 			</div>
 			<div class="col-xs-7 text-right">
 				<p>Voucher Date: <%= @voucher.date_bs %></p>
@@ -79,9 +79,8 @@
 </div>
 <% else %>
 <div class="row">
-
 	<div class="col-xs-5">
-		<p>Voucher Number: <%= "#{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+		<p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
 	</div>
 	<div class="col-xs-7 text-right">
 		<p>Voucher Date: <%= @voucher.date_bs %></p>
@@ -113,4 +112,3 @@
 	</div>
 </div>
 <% end %>
-<%= link_to 'Back', vouchers_path %>

@@ -30,7 +30,7 @@ gem "smart_listing"
 group :development do
   gem 'better_errors'
   gem 'hirb'
-  gem 'capistrano', '~> 3.0.1'
+  gem 'capistrano', '~> 3.1'
   gem 'capistrano-bundler'
   gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
@@ -52,6 +52,7 @@ gem 'roo-xls'
 gem 'mechanize', '2.7.3'
 gem "haml"
 gem 'sankhya'
+gem 'apartment'
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'guard'

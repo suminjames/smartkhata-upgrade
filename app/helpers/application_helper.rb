@@ -30,7 +30,7 @@ module ApplicationHelper
 
 	# process accounts to make changes on ledgers
 	def process_accounts(ledger,voucher, debit, amount, descr)
-
+		ledger.lock!
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
 		if debit
@@ -47,7 +47,7 @@ module ApplicationHelper
 		transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		ledger = particular.ledger
 		amount = particular.amnt
-
+		ledger.lock!
 		closing_blnc = ledger.closing_blnc
 		if particular.cr?
 			ledger.closing_blnc += amount

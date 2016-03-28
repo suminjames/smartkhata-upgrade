@@ -10,4 +10,11 @@ class ApplicationController < ActionController::Base
     render :file => "#{Rails.root}/public/404.html",  :status => 404
   end
 
+  private
+
+  def current_tenant
+  	@current_tenant ||= Tenant.find_by(name: request.subdomain)
+  end
+  helper_method :current_tenant
+  
 end

@@ -6,7 +6,7 @@ class Bill < ActiveRecord::Base
   has_and_belongs_to_many :vouchers
   has_many :particulars, through: :voucher
 
-	enum bill_type: [ :receive, :pay ]
+	enum bill_type: [ :purchase, :sales ]
 
   # Bill Status
   # - Pending: No payment has been done.

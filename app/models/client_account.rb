@@ -7,11 +7,11 @@ class ClientAccount < ActiveRecord::Base
     end
 
 		def requiring_receive
-			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:receive])
+			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase])
 		end
 
 		def requiring_payment
-			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:pay])
+			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales])
 		end
   end
 

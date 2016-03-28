@@ -5,7 +5,7 @@
     @date = @cal.ad_to_bs(Date.today.strftime("%Y").to_s, Date.today.strftime("%m").to_s, Date.today.strftime("%d").to_s)
 %>
 
-<h2 class="text-center">Trishakti Securities Public Limited</h2>
+<h2 class="text-center"><%= current_tenant.full_name %></h2>
 <h3 class="text-center">Profit and Loss Account</h3>
 <h4 class="text-center">for the period end <%= @date %></h4>
 <br><br>
