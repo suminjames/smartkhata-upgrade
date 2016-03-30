@@ -79,3 +79,27 @@ tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisad
 	Apartment::Tenant.switch!('public')
 end
 
+
+# create admins for both
+Apartment::Tenant.switch!('trishakti')
+puts "Seeding trishakti broker data"
+
+new_user = User.find_or_create_by!(email: 'trishakti@danfeinfotech.com') do |user|
+        user.password = 'trispa8934'
+        user.password_confirmation = 'trispa8934'
+        user.confirm!
+        user.admin!
+      end
+puts 'CREATED ADMIN USER: ' << new_user.email
+
+Apartment::Tenant.switch!('dipshikha')
+puts "Seeding trishakti broker data"
+
+new_user = User.find_or_create_by!(email: 'dipshikha@danfeinfotech.com') do |user|
+        user.password = 'dipshikha5645'
+        user.password_confirmation = 'dipshikha5645'
+        user.confirm!
+        user.admin!
+      end
+puts 'CREATED ADMIN USER: ' << new_user.email
+Apartment::Tenant.switch!('public')
