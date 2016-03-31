@@ -1,0 +1,254 @@
+<%
+# Client associated with the bill
+@client = @bill.get_client
+%>
+
+<div class="clearfix bill-full">
+
+  <!-- Static Company Header BEGINS -->
+  <div class="clearfix">
+    <strong>
+      <%= current_tenant.full_name %><br>
+      <%= current_tenant.address %><br>
+      <div class="row">
+        <div class="col-xs-3">
+          Phone: <%= current_tenant.phone_number %>
+          <br>
+          Fax: <%= current_tenant.fax_number %>
+          <br>
+          PAN: <%= current_tenant.pan_number %>
+          <br>
+        </div>
+      </strong>
+      <div class="col-xs-6 text-center">
+        Schedule-3
+        <br>
+        Relating to Sub-Regulation(I) of Regulation 16
+        <br>
+        Information note to cients on execution of transaction
+        <br>
+      </div>
+    </div>
+    <div class="clearfix horizontal-line">
+    </div>
+  </div>
+  <!-- Static Company Header ENDS-->
+
+  <!-- Bill No. and Bill Date BEGINS -->
+  <div class="row">
+    <div class="col-xs-4">
+      Bill No:
+      <%= @bill.formatted_bill_number %>
+    </div>
+    <div class="col-xs-5">
+      Bill Date:
+      <%= @bill.formatted_bill_dates["ad"]%>
+      (<%= @bill.formatted_bill_dates["bs"]%>)
+    </div>
+    <div class="col-xs-3 text-right">
+      Fiscal Year:
+      <%= @bill.fy_code%>
+    </div>
+  </div>
+  <!-- Bill No. and Bill Date ENDS -->
+
+  <!-- Customer Details BEGINS -->
+  <div class="row customer_details">
+    <div class="col-xs-6" >
+      <table class="table table-no-border">
+        <tr>
+          <td>Customer:</td>
+          <td><%= @bill.formatted_client_name%>
+          </td>
+        </tr>
+        <tr>
+          <td>NEPSE Code:</td>
+          <td><%= @client.nepse_code %></td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-6 text-right">
+      <table class="table table-no-border">
+        <tr>
+          <td>Contact No.:</td>
+          <td><%= @bill.formatted_client_phones['primary'] %></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><%= @bill.formatted_client_phones['secondary'] %></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <!-- Customer Details ENDS -->
+
+  <!-- Transaction Details BEGINS -->
+  <div class="clearfix transactions-section">
+    <div class="clearfix bill-message">
+    <%= @bill.formatted_bill_message %>
+    </div>
+    <table class="table table-bordered table-condensed text-center table-no-border">
+      <tr>
+        <th>Transaction No</th>
+        <th>No of Shares</th>
+        <th>Company Name</th>
+        <th>Share Rate</th>
+        <th>Base Price</th>
+        <th>Amount</th>
+        <th>Commission</th>
+        <th>Commission Amount</th>
+        <th>Capital Gain</th>
+      </tr>
+      <%
+      @bill.share_transactions.each do | share_transaction |
+        %>
+
+        <colgroup>
+          <col class="col-1">
+          <col class="col-2">
+          <col class="col-3">
+          <col class="col-4">
+          <col class="col-5">
+          <col class="col-6">
+          <col class="col-7">
+          <col class="col-8">
+          <col class="col-9">
+        </colgroup>
+
+        <%
+        # <!-- The following block needs to be (ruby) uncommented, and the enclosing ruby tags should be deleted to test the table off the potential widest content in relevant td's. -->
+        # <!-- Test Data BEGINS -->
+        # <!-- <th>Transaction No</th> -->
+        # <tr>
+        # <td>888888888888888</td>
+        # <!-- <th>No of Shares</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Company Name</th> -->
+        # <td>XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX</td>
+        # <!-- <th>Share Rate</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Base Price</th> -->
+        # <td>99,999</td>
+        # <!-- <th>Amount</th> -->
+        # <td>99,99,999.00</td>
+        # <!-- <th>Commission Rate</th> -->
+        # <td>Flat 25</td>
+        # <!-- <th>Commission Amount</th> -->
+        # <td>99,99,999.00</td>
+        # <!--<th>Capital Gain</th> -->
+        # <td>99,99,999.00</td>
+        # </tr>
+        # <!-- Test Data ENDS -->
+        %>
+        <tr>
+          <!-- <th>Transaction No</th> -->
+          <td><%= share_transaction.contract_no %></td>
+          <!-- <th>No of Shares</th> -->
+          <td><%= share_transaction.quantity %></td>
+          <!-- <th>Company Name</th> -->
+          <td><%= share_transaction.formatted_company_name %></td>
+          <!-- <th>Share Rate</th> -->
+          <td><%= share_transaction.formatted_share_rate %></td>
+          <!-- <th>Base Price</th> -->
+          <td><%= share_transaction.formatted_base_price %></td>
+          <!-- <th>Amount</th> -->
+          <td><%= share_transaction.formatted_amount %></td>
+          <!-- <th>Commission Rate</th> -->
+          <td><%= share_transaction.formatted_commission_rate %></td>
+          <!-- <th>Commission Amount</th> -->
+          <td><%= share_transaction.formatted_commission_amount%></td>
+          <!-- <th>Capital Gain</th> -->
+          <td><%= share_transaction.formatted_capital_gain %></td>
+        </tr>
+        <%
+      end
+      %>
+    </table>
+  </div>
+  <!-- Transaction Details ENDS -->
+
+  <!-- Calculations at the Bottom BEGINS -->
+  <div class="clearfix calculation-section">
+    <div class="col-xs-5 text-center">
+      <table class="table table-no-border table-condensed text-right">
+        <tr>
+          <td>Share Amount:</td>
+          <td><%= @bill.formatted_net_share_amount %></td>
+        </tr>
+        <tr>
+          <td>SEBO Commission:</td>
+          <td><%= @bill.formatted_net_sebo_commission %></td>
+        </tr>
+        <tr>
+          <td>Net Commission Amount:</td>
+          <td><%= @bill.formatted_net_commission %></td>
+        </tr>
+        <tr>
+          <td>DP Fee:</td>
+          <td><%= @bill.formatted_net_dp_fee %></td>
+        </tr>
+        <tr>
+          <td>Capital Gain:</td>
+          <td><%= @bill.formatted_net_cgt %></td>
+        </tr>
+        <tr>
+          <td>Net Receivable Amount:</td>
+          <td><%= @bill.formatted_net_receivable_amount %></td>
+        </tr>
+        <tr>
+          <td>Net Payable Amount:</td>
+          <td><%= @bill.formatted_net_payable_amount %></td>
+
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-6 col-xs-offset-1 ">
+      <!-- Dates section BEGINS -->
+      <div>
+        <table class="table table-no-border table-condensed text-right">
+          <tr>
+            <td>Date of clearance:</td>
+            <td>
+              <%= @bill.formatted_clearance_dates['ad'] %>
+              (<%= @bill.formatted_clearance_dates['bs'] %>)
+            </td>
+          </tr>
+          <tr>
+            <td>Transaction Date:</td>
+            <td>
+              <%= @bill.formatted_transaction_dates['ad'] %>
+              (<%= @bill.formatted_transaction_dates['bs'] %>)
+            </td>
+          </tr>
+        </table>
+      </div>
+      <!-- Dates section ENDS -->
+
+      <!-- Authorised Signature section BEGINS -->
+      <div class="row signature-section">
+        <div class="col-xs-8 col-xs-offset-4 text-center">
+        <div class="clearfix horizontal-line">
+        </div>
+          (Authorized Signature)
+          <br>
+          <%= current_tenant.full_name %>
+          <br>
+          Broker Code No.: <%= current_tenant.broker_code %>
+          <br>
+          Nepal Stock Exchange
+        </div>
+      </div>
+      <!-- Authorised Signature section ENDS -->
+    </div>
+  </div>
+
+  <div class="clearfix">
+    <!-- Footnote BEGINS -->
+    <em>
+      <u>
+        Note: Please bring this bill for enquiry and further processing.
+      </u>
+    </em>
+    <!-- Footnote ENDS -->
+  </div>
+</div>

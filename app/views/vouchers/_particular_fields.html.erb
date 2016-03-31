@@ -9,11 +9,11 @@
 	<div class="col-xs-2"><%= f.input :amnt ,label: false %></div>
 	<!-- <div class="col-xs-2"><%= f.input :transaction_type ,:input_html => { :value => 'dr' }, label: false , readonly: true%></div> -->
 	<div class="col-xs-1 type-selector">
-		<% if ( @voucher_type == Voucher.voucher_types[:sales] && inverse == false ) || ( @voucher_type == Voucher.voucher_types[:purchase] && inverse == true ) %>
+		<% if ( @voucher_type == Voucher.voucher_types[:sales] && inverse == false  ) || ( @voucher_type == Voucher.voucher_types[:purchase] && inverse == true ) %>
 			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
-		<% elsif @voucher_type == Voucher.voucher_types[:purchase] %>
+		<% elsif @voucher_type == Voucher.voucher_types[:purchase] || (@voucher_type == Voucher.voucher_types[:sales] )%>
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "dr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"dr"),{},{:disabled => true} %>
 		<% else %>

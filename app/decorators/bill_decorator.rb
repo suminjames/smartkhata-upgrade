@@ -36,22 +36,17 @@ class BillDecorator < ApplicationDecorator
     {"primary" => phone_1, "secondary" => phone_2}
   end
 
-  # OPTIMIZE
+
   def formatted_net_bill_amount
-    case type
-    when "receive"
-      formatted_net_receivable_amount
-    when "pay"
-      formatted_net_payable_amount
-    end
+    h.arabic_number(object.net_amount)
   end
 
   def formatted_net_receivable_amount
-    type == 'receive' ? h.arabic_number(object.net_amount) : 0.00
+    object.purchase? ? h.arabic_number(object.net_amount) : 0.00
   end
 
   def formatted_net_payable_amount
-    type == 'pay' ? h.arabic_number(object.net_amount) : 0.00
+    object.sales? ? h.arabic_number(object.net_amount) : 0.00
   end
 
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
@@ -80,12 +75,7 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_type
-    case object.bill_type
-    when 'pay'
-      'Sales'
-    when 'receive'
-      'Purchase'
-    end
+    object.bill_type.titleize
   end
 
   def formatted_status

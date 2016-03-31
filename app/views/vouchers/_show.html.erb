@@ -1,4 +1,14 @@
+<div class="row">
+	<div class="col-xs-5">
+		<p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+	</div>
+	<div class="col-xs-7 text-right">
+		<p>Voucher Date: <%= @voucher.date_bs %></p>
+	</div>
+</div>
+
 <div class="box box-primary z-light-bg">
+
 	<div class="box-header">
 		<div class="row">
 			<h3 class="box-title col-xs-6">Ledger Details</h3>
@@ -22,3 +32,5 @@
 		<% end %>
 	</div>
 </div>
+
+<%= @voucher.desc %>

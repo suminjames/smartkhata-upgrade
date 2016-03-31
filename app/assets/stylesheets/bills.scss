@@ -3,18 +3,6 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 $link_color: #2f8a93;
 $bill_background_color: rgba(236, 240, 245, 0.42);
-.custom-anchor {
-  a {
-    color: $link_color;
-    &:visited {
-      color: $link_color;
-    }
-    &:hover {
-      color: #fff;
-      background-color: $link_color;
-    }
-  }
-}
 
 .submenu {
   @extend .custom-anchor;
@@ -208,4 +196,3 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
     }
   }
 }
-

@@ -13,13 +13,17 @@ Rails.application.routes.draw do
   end
   resources :share_transactions do
     collection do
-      get 'deal_cancel' 
+      get 'deal_cancel'
     end
   end
   resources :bills
   resources :groups
   resources :ledgers
-  resources :vouchers
+  resources :vouchers do
+    collection do
+      post 'finalize_payment'
+    end
+  end
   resources :particulars
   root to: 'visitors#index'
   devise_for :users

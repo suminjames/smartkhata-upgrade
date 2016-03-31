@@ -192,6 +192,8 @@ ActiveRecord::Schema.define(version: 20160325095133) do
     t.decimal  "amnt",               precision: 15, scale: 4, default: 0.0
     t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "additional_bank_id"
+    t.integer  "particular_status",                           default: 1
+    t.string   "date_bs"
     t.datetime "created_at",                                                null: false
     t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"
@@ -315,6 +317,7 @@ ActiveRecord::Schema.define(version: 20160325095133) do
     t.string   "date_bs"
     t.string   "desc"
     t.integer  "voucher_type",    default: 0
+    t.integer  "voucher_status",  default: 0
     t.boolean  "is_payment_bank"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false

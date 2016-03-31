@@ -4,14 +4,16 @@ class VouchersController < ApplicationController
   # GET /vouchers
   # GET /vouchers.json
   def index
-    @vouchers = Voucher.all
+    @vouchers = Voucher.pending.order("id ASC")
   end
 
   # GET /vouchers/1
   # GET /vouchers/1.json
   def show
-    @particulars = @voucher.particulars
-    if @voucher.is_payment_bank
+    @from_path =  request.referer || vouchers_path
+    full_view = params[:full] || false
+    @particulars = @voucher.particulars.order("id ASC")
+    if @voucher.is_payment_bank && !full_view
       @bank = @particulars.first.ledger.bank_account
       @cheque = @particulars.first.cheque_number
       @particulars =  @particulars.drop(1)
@@ -20,19 +22,20 @@ class VouchersController < ApplicationController
 
   # GET /vouchers/new
   def new
-    # get parameters for voucher types
+
+    # get parameters for voucher types and assign it as journal if not available
     @voucher_type = Voucher.voucher_types[params[:voucher_type]] || Voucher.voucher_types[:journal]
     # client account id ensures the vouchers are on the behalf of the client
     @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
     # get bill id if present
     @bill_id = params[:bill_id].to_i if params[:bill_id].present?
-    # ignore some validations when the voucher type is sales or purchase
+    # special cases are when voucher type is sales or purchase
     @is_purchase_sales = false
 
     # create new voucher
     @voucher = Voucher.new
 
-    # load additional data for voucher types
+    # load additional data for voucher types like default payment and receive ledgers
     # client purchase is voucher type sales
     # client sales is voucher type purchase
     if @voucher_type == Voucher.voucher_types[:sales] || @voucher_type == Voucher.voucher_types[:purchase]
@@ -51,17 +54,20 @@ class VouchersController < ApplicationController
 
     end
 
+    # get client account, bill , bills and amount
     @client_account,@bill,@bills,@amount = set_bill_client(@client_account_id, @bill_id, @voucher_type)
 
     # if client account is present create a particular with available information and assign it
-    # else create a particulars
+    # else create a general particular.
     @voucher.particulars = []
     if @is_purchase_sales
       transaction_type = @voucher_type == Voucher.voucher_types[:sales] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       @voucher.particulars << Particular.new(ledger_id: @default_ledger_id,amnt: @amount, transaction_type: transaction_type)
     end
 
+    # for sales and purchase we need two particular one for debit and one for credit
     @voucher.particulars <<  Particular.new(ledger_id: @client_account.ledger.id,amnt: @amount) if @client_account.present?
+    # a general particular for the voucher
     @voucher.particulars << Particular.new if @client_account.nil?
 
   end
@@ -138,7 +144,12 @@ class VouchersController < ApplicationController
         elsif @voucher_type == Voucher.voucher_types[:purchase]
           net_usable_blnc += (particular.cr?) ? particular.amnt : 0
         end
-
+        if (particular.cheque_number.present?)
+          if particular.cr?
+            particular.additional_bank_id = nil
+            @voucher.is_payment_bank = true
+          end
+        end
       end
 
       # add the particular to the voucher for sales or purchase
@@ -154,6 +165,8 @@ class VouchersController < ApplicationController
       if net_blnc == 0 && has_error == false
         # capture  the bill number and amount billed to description billed
         description_bills = ""
+        description_bills_short = ""
+
         if @is_purchase_sales && @client_account
           # transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]
           receipt_amount = net_usable_blnc.abs
@@ -163,17 +176,18 @@ class VouchersController < ApplicationController
             # round the balance_to_pay to 2 digits
             if bill.balance_to_pay.round(2) <= net_usable_blnc
               net_usable_blnc = net_usable_blnc - bill.balance_to_pay
-              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay} Date: #{ad_to_bs(bill.created_at)} "
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{number_to_currency(bill.balance_to_pay)} Date: #{ad_to_bs(bill.created_at)} "
               bill.balance_to_pay = 0
               bill.status = Bill.statuses[:settled]
               @processed_bills << bill
             else
               bill.status = Bill.statuses[:partial]
-              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{net_blnc} Date: #{ad_to_bs(bill.created_at)} "
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{number_to_currency(net_blnc)} Date: #{ad_to_bs(bill.created_at)} "
               bill.balance_to_pay = bill.balance_to_pay - net_usable_blnc
               @processed_bills << bill
               break
             end
+            description_bills_short += "Bill No.:#{bill.fy_code}-#{bill.bill_number}"
           end
         end
 
@@ -194,16 +208,20 @@ class VouchersController < ApplicationController
           end
 
           @voucher.particulars.each do |particular|
+            particular.pending!
 
+            if @is_purchase_sales
+              # if particular.cr?
+              #   particular.description = "Being paid for #{@voucher.desc}"
+              # else
+              #   particular.description = "Being Received for #{@voucher.desc}"
+              # end
+              particular.description = "as being settled for #{description_bills_short}"
+            end
             ledger = Ledger.find(particular.ledger_id)
             # particular.bill_id = bill_id
             if (particular.cheque_number.present?)
               # make the additional_bank_id nil for payment
-              if particular.cr?
-                particular.additional_bank_id = nil
-                @voucher.is_payment_bank = true
-              end
-
               bank_account = ledger.bank_account
               # TODO track the cheque entries whether it is from client or the broker
               cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
@@ -211,18 +229,23 @@ class VouchersController < ApplicationController
 
             end
 
-            # Receipt.find_or_create_by()
+            unless @voucher.is_payment_bank
 
-            closing_blnc = ledger.closing_blnc
-            ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
-            particular.opening_blnc = closing_blnc
-            particular.running_blnc = ledger.closing_blnc
-            ledger.save
+              ledger.lock!
+
+              closing_blnc = ledger.closing_blnc
+              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+              particular.opening_blnc = closing_blnc
+              particular.running_blnc = ledger.closing_blnc
+              particular.complete!
+              ledger.save!
+            end
+
           end
           @voucher.settlement = @settlement
-
+          # mark the voucher as settled if it is not payment bank
+          @voucher.complete! unless @voucher.is_payment_bank
           success = true if @voucher.save
-
         end
       else
         if has_error
@@ -273,6 +296,51 @@ class VouchersController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  # TODO make sure authorization is performed
+
+  def finalize_payment
+    success = false
+    @voucher = Voucher.find_by(id: params[:id].to_i)
+    from_path = params[:from_path] || vouchers_path
+
+    if @voucher
+      if params[:approve]
+        Voucher.transaction do
+          @voucher.particulars.each do |particular|
+            ledger = Ledger.find(particular.ledger_id)
+            ledger.lock!
+
+            closing_blnc = ledger.closing_blnc
+            ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+            particular.opening_blnc = closing_blnc
+            particular.running_blnc = ledger.closing_blnc
+            particular.complete!
+            ledger.save!
+          end
+          @voucher.rejected!
+          @voucher.save!
+          success = true
+        end
+      elsif  params[:reject]
+        @voucher.rejected!
+        success = true if @voucher.save!
+
+      end
+    end
+
+
+
+    # TODO remove what the fuck
+    respond_to do |format|
+      format.html {
+        redirect_to from_path, notice: 'Payment Voucher was successfully approved' if success
+        redirect_to from_path, alert: 'What the fuck' unless success
+      }
+      format.json { head :no_content }
+    end
+  end
+
 
   # returns client account, bill, group of bills and amount to be paid
   def set_bill_client(client_account_id, bill_id, voucher_type)
@@ -334,7 +402,7 @@ class VouchersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_voucher
-      @voucher = Voucher.find(params[:id])
+      @voucher = Voucher.find(params[:id]).decorate
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

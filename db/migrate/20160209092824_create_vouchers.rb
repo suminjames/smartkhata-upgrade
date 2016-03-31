@@ -7,6 +7,7 @@ class CreateVouchers < ActiveRecord::Migration
     	t.string :date_bs
     	t.string :desc
       t.integer :voucher_type, default: 0
+      t.integer :voucher_status, default: 0
       t.boolean :is_payment_bank
       t.timestamps null: false
     end

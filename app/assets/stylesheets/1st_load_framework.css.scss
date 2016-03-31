@@ -2,6 +2,9 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
+$link_color: #2f8a93;
+$bill_background_color: rgba(236, 240, 245, 0.42);
+
 // make all images responsive by default
 img {
   @extend .img-responsive;
