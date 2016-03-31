@@ -3,6 +3,7 @@ class CreateParticulars < ActiveRecord::Migration
     create_table :particulars do |t|
     	t.decimal :opening_blnc , precision: 15, scale: 4, default: 0
     	t.integer :transaction_type
+      t.integer :ledger_type, default: 0
       t.integer :cheque_number
       t.string :name
       t.string :description

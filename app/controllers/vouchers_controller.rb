@@ -12,11 +12,12 @@ class VouchersController < ApplicationController
   def show
     @from_path =  request.referer || vouchers_path
     full_view = params[:full] || false
-    @particulars = @voucher.particulars.order("id ASC")
+    @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
-      @bank = @particulars.first.ledger.bank_account
-      @cheque = @particulars.first.cheque_number
-      @particulars =  @particulars.drop(1)
+      @particular_with_bank = @particulars.has_bank.first
+      @bank = @particular_with_bank.ledger.bank_account
+      @cheque = @particular_with_bank.cheque_number
+      @particulars =  @particulars.general
     end
   end
 
@@ -145,6 +146,7 @@ class VouchersController < ApplicationController
           net_usable_blnc += (particular.cr?) ? particular.amnt : 0
         end
         if (particular.cheque_number.present?)
+          particular.has_bank!
           if particular.cr?
             particular.additional_bank_id = nil
             @voucher.is_payment_bank = true
@@ -176,13 +178,13 @@ class VouchersController < ApplicationController
             # round the balance_to_pay to 2 digits
             if bill.balance_to_pay.round(2) <= net_usable_blnc
               net_usable_blnc = net_usable_blnc - bill.balance_to_pay
-              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{number_to_currency(bill.balance_to_pay)} Date: #{ad_to_bs(bill.created_at)} "
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(bill.balance_to_pay)} Date: #{ad_to_bs(bill.created_at)} "
               bill.balance_to_pay = 0
               bill.status = Bill.statuses[:settled]
               @processed_bills << bill
             else
               bill.status = Bill.statuses[:partial]
-              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{number_to_currency(net_blnc)} Date: #{ad_to_bs(bill.created_at)} "
+              description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(net_blnc)} Date: #{ad_to_bs(bill.created_at)} "
               bill.balance_to_pay = bill.balance_to_pay - net_usable_blnc
               @processed_bills << bill
               break
@@ -303,7 +305,7 @@ class VouchersController < ApplicationController
     success = false
     @voucher = Voucher.find_by(id: params[:id].to_i)
     from_path = params[:from_path] || vouchers_path
-
+    message = ""
     if @voucher
       if params[:approve]
         Voucher.transaction do
@@ -321,11 +323,12 @@ class VouchersController < ApplicationController
           @voucher.rejected!
           @voucher.save!
           success = true
+          message = "Payment Voucher was successfully approved"
         end
       elsif  params[:reject]
         @voucher.rejected!
         success = true if @voucher.save!
-
+        message = 'Payment Voucher was successfully rejected'
       end
     end
 
@@ -334,8 +337,8 @@ class VouchersController < ApplicationController
     # TODO remove what the fuck
     respond_to do |format|
       format.html {
-        redirect_to from_path, notice: 'Payment Voucher was successfully approved' if success
-        redirect_to from_path, alert: 'What the fuck' unless success
+        redirect_to from_path, notice: message  if success
+        redirect_to from_path, alert: 'There was some error' unless success
       }
       format.json { head :no_content }
     end

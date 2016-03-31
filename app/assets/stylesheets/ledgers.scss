@@ -6,11 +6,14 @@
     // The width of this table is ought to be 900px.
     // TODO: test the 900px width against small screens, and the fixed dimensions of the page.
     width: 100%;
-    font-size: 12px;
+    font-size: 13px;
+    td, p {
+      font-size: 13px;
+      font-family: arial;
+    }
     font-family: arial;
     table-layout: fixed;
     td{
-      font-size: 12px;
       padding: 2px 4px !important;
       border: 1px solid black !important;
       word-wrap: break-word;
