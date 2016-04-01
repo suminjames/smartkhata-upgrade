@@ -123,12 +123,11 @@ module ApplicationHelper
 
 	# Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
 	# In the returned hash, 'isin' is the key and 'price' is the value.
-	# TODO: Also, there is a key 'last_updated' which has the timestamp, which is when the isins were last updated(crawled).
 	def get_latest_isin_price_list
 		companies = IsinInfo.all
 
 		price_hash = {}
-		companies.each_with_index do |isin, index|
+		companies.each do |isin|
 			price_hash[isin.isin] = isin.last_price.to_f
 		end
 
