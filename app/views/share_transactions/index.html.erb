@@ -1,70 +1,203 @@
+<!--  Notes:
+-As per Mr. Tank Gautam, "commission" column should be displayed in those that don't display
+'market rate'.
+-->
+
 <!--
-TODO
-  -Filter by date / date-range
- -->
+  TODO:
+    -Don't show any listing when filter_by is active???
+-->
+
 <% provide(:section_title, "Share Inventory Report") %>
+
+<!--Menu, Sub-menu, and Form logic BEGINS-->
 <div class="clearfix submenu" >
+  <%
+    def is_active_sub_menu_option(option)
+      return params[:search_by] == option || params[:show] == option
+    end
+  %>
   <h5>
-    <%= link_to "All Share Transactions",  share_transactions_path %>  |
-    <%= link_to "Search by Clients",  share_transactions_path(search_by: "client") %> |
-    <%= link_to "Search by Company",  share_transactions_path(search_by: "company") %>
+    <%= link_to "Search by Client",  share_transactions_path(search_by: "client"), {:class => (is_active_sub_menu_option("client")? "active-link" : "")} %> |
+    <%= link_to "Search by Company",  share_transactions_path(search_by: "company"), {:class => (is_active_sub_menu_option("company")? "active-link" : "")} %> |
+    <%= link_to "All Share Transactions",  share_transactions_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>
   </h5>
 </div>
 
-
 <div class="clearfix search-form submenu-nested">
-    <%
-    if params[:search_by] == 'client'
-      %>
-      <%= form_tag(share_transactions_path, :method => "get", id: "search-form", class: "clearfix") do %>
-      <%= hidden_field_tag :search_by, "client" %>
-      <div class="col-sm-3">
-        <!--  TODO: Implement selected -->
-        <!--  TODO: Prettify the search form / select tag-->
-        <div class="form-group">
-          <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
-        </div>
-      </div>
-      <%= submit_tag "Search", class: 'btn btn-sm' %>
-    <% end %>
-    <% end %>
-
-    <%
-    if params[:search_by] == 'company'
-      %>
-      <%= form_tag(share_transactions_path, :method => "get", id: "search-form", class: "clearfix") do %>
-      <%= hidden_field_tag :search_by, "company" %>
-      <div class="col-sm-3">
-        <!--  TODO: Implement selected -->
-        <!--  TODO: Prettify the search form / select tag-->
-        <div class="form-group">
-          <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'isin', params[:search_term]), class: 'form-control combobox' %>
-        </div>
-      </div>
-      <%= submit_tag "Search", class: 'btn btn-sm' %>
-    <% end %>
-    <% end %>
-
-    <%
-    if params[:show] == 'all'
-      %>
-      <%= link_to "Group by Company",  share_transactions_path(show: "all", group_by:"company") %>
+      <!--  All ShareTransaction listing sub-menu BEGINS-->
       <%
-    end
-    %>
-
-    <%
-    if params[:search_by] == 'client' && !params[:search_term].blank? && params[:commit] == "Search"
-      %>
-      <div class="clearfix">
-        <%= link_to "Group by Company",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "company", commit: "Search") %>
-      </div>
+      if params[:show] == 'all'
+        %>
+        <%= link_to "Group by Company",  share_transactions_path(show: "all", group_by: "company", filter_by: params[:filter_by], date: params[:date]) %>
       <%
-    end
-    %>
+        if params[:group_by] == 'company'
+        %>
+          <%= link_to "(x)", share_transactions_path(show: 'all', filter_by: params[:filter_by], date: params[:date]), class: 'remove-iconish' %>
+          <% end %>
+      |
+        <%= link_to "Filter by Date",  share_transactions_path(show: 'all', group_by:params[:group_by], filter_by: 'date') %>
+      <%
+        if params[:filter_by] == 'date'
+      %>
+          <%= link_to "(x)", share_transactions_path(show: 'all', group_by:params[:group_by]), class: 'remove-iconish' %>
+      <% end %>
+      |
+        <%= link_to "Filter by Date Range",  share_transactions_path(show: 'all', group_by: params[:group_by], filter_by: 'date_range') %>
+      <%
+      if params[:filter_by] == 'date_range'
+      %>
+      <%= link_to "(x)", share_transactions_path(show: 'all', group_by:params[:group_by]), class: 'remove-iconish' %>
+  <% end %>
 
-  </div>
+        <%
+        if params[:filter_by] == 'date_range'
+          %>
+          <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
+          <%= hidden_field_tag :show, 'all' %>
+          <%= hidden_field_tag :filter_by, "date_range" %>
+          <%= hidden_field_tag :group_by, params[:group_by]%>
+          <%
+          text_field_value_1 = params[:date][:from] unless params[:date].blank?
+          text_field_value_2 = params[:date][:to] unless params[:date].blank?
+          %>
+          <%= text_field_tag "date[from]", text_field_value_1, placeholder: "Date from" %>
+          <%= text_field_tag "date[to]", text_field_value_2, placeholder: "Date to" %>
+          <%= submit_tag "Search" %>
+          <% end %>
+          <% end %>
 
+          <%
+          if params[:filter_by] == 'date'
+            %>
+            <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
+            <%= hidden_field_tag :show, 'all' %>
+            <%= hidden_field_tag :filter_by, "date" %>
+            <%= hidden_field_tag :group_by, params[:group_by]%>
+            <%= text_field_tag :date, params[:date], placeholder: "Search by Date" %>
+            <%= submit_tag "Search" %>
+            <% end %>
+            <% end %>
+        <% end %>
+      <!--  All ShareTransaction listing sub-menu ENDS-->
+
+      <!--  Searcy by (Client || Company) listing sub-menu BEGINS-->
+        <%
+        if params[:search_by] == 'client' || params[:search_by] == 'company'
+          %>
+          <%= form_tag(share_transactions_path, :method => "get", id: "search-form", class: "clearfix") do %>
+          <%= hidden_field_tag :search_by, params[:search_by]%>
+          <div class="col-sm-3">
+            <!--  TODO: Prettify the search form / select tag-->
+            <%
+            if params[:search_by] == 'client'
+              %>
+            <div class="form-group">
+              <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
+            </div>
+            <% end %>
+            <%
+            if params[:search_by] == 'company'
+            %>
+              <div class="form-group">
+                <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'isin', params[:search_term]), class: 'form-control combobox' %>
+              </div>
+              <% end %>
+          </div>
+          <%= submit_tag "Search", class: 'btn btn-sm' %>
+          <% end %>
+          <%
+
+          if params[:search_term].present? && params[:commit] == "Search"
+            %>
+            <div class="clearfix">
+              <%
+              if params[:search_by] == 'client'
+                %>
+              <%= link_to "Group by Company",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "company", filter_by: params[:filter_by], date: params[:date],  commit: "Search") %>
+              <% end %>
+              <%
+              if params[:search_by] == 'company'
+                %>
+                  <%= link_to "Group by Client",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "client", filter_by: params[:filter_by], date: params[:date], commit: "Search") %>
+              <% end %>
+
+              <%
+                if params[:group_by] == 'company' || params[:group_by] == 'client'
+              %>
+                  <%= link_to "(x)", share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: params[:filter_by], date: params[:date], commit: 'Search'), class: 'remove-iconish' %>
+              <% end %>
+              |
+
+              <%= link_to "Filter by Date",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date', group_by:params[:group_by], commit: "Search") %>
+              <%
+                if params[:filter_by] == 'date'
+              %>
+              <%= link_to '(x)',  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by:params[:group_by], commit: "Search"), class: 'remove-iconish' %>
+              <% end %>
+              |
+
+              <%= link_to "Filter by Date Range",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date_range', group_by:params[:group_by], commit: "Search")%>
+              <%
+                if params[:filter_by] == 'date_range'
+              %>
+              <%= link_to "(x)",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by:params[:group_by], commit: "Search"), class: 'remove-iconish' %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%
+          if params[:filter_by] == 'date_range'
+            %>
+            <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
+              <%= hidden_field_tag :filter_by, "date_range" %>
+              <%= hidden_field_tag :search_by, params[:search_by] %>
+              <%= hidden_field_tag :search_term, params[:search_term] %>
+              <%= hidden_field_tag :group_by, params[:group_by]%>
+              <%
+              text_field_value_1 = params[:date]['from'] unless params[:date].blank?
+              text_field_value_2 = params[:date]['to'] unless params[:date].blank?
+              %>
+              <%= text_field_tag "date[from]", text_field_value_1, placeholder: "Date from" %>
+              <%= text_field_tag "date[to]", text_field_value_2, placeholder: "Date to" %>
+              <%= submit_tag "Search" %>
+            <% end %>
+            <%
+          end
+          %>
+
+          <%
+          if params[:filter_by] == 'date'
+            %>
+            <%= form_tag(share_transactions_path, :method => "get", id: "search-form") do %>
+              <%= hidden_field_tag :filter_by, "date" %>
+              <%= hidden_field_tag :search_by, params[:search_by] %>
+              <%= hidden_field_tag :search_term, params[:search_term] %>
+              <%= hidden_field_tag :group_by, params[:group_by]%>
+              <%= text_field_tag :date, params[:date], placeholder: "Search by Date" %>
+              <%= submit_tag "Search" %>
+            <% end %>
+      <% end %>
+
+  <% end %>
+  <!--  Searcy by (Client || Company) listing sub-menu ENDS-->
+
+</div>
+<!--Menu, Sub-menu, and Form logic ENDS-->
+
+
+<!--Pagination BEGINS-->
+<div class="text-center">
+  <% unless @share_transactions.blank? %>
+      <%= paginate @share_transactions, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @share_transactions%>
+      </div>
+  <% end %>
+</div>
+<!--Pagination ENDS-->
+
+<!--Listing (and grouping) of share transaction inventory BEGINS-->
     <%
     if @share_transactions.empty? && params[:commit]=='Search'
       %>
@@ -73,139 +206,257 @@ TODO
       </div>
       <%
     elsif @share_transactions.present?
-      %>
-      <div>
-        <!--  Include relevant client name above the table  -->
-        <%
-        if params[:search_by] == "client"
+      isin_prices = get_latest_isin_price_list
+    end
+    %>
+
+    <%
+    # Group by Client if search by company BLOCK BEGINS
+    if params[:search_by] == 'company' && params[:group_by] == 'client' && @share_transactions.present?
+      if params[:search_by] == "company"
         %>
-        <%= @clients[params[:search_term].to_i - 1 ].name %>
+        <div>
+          <h4><%= @share_transactions[0].isin_info.company %></h4>
+        </div>
         <%
+      end
+
+      # Initialized variables
+      counter = 0
+      total_in = 0
+      total_out = 0
+      previous_client_account_id = false
+
+      @share_transactions.each_with_index do |share_transaction, index|
+        # Logic to group share transactions (in view) as per isin_info.id (company)
+        if index == 0
+          #set 'previous_isin_id' to the first isin_info.id
+          previous_client_account_id = share_transaction.client_account_id
+          new_isin = true
         end
-        %>
-      </div>
-      <% end %>
 
+
+        if (previous_client_account_id != share_transaction.client_account_id)
+          new_isin = true
+          # Add total row and truncate the table
+          %>
+          <tr class="total-row">
+            <td class="text-center" colspan=3>Total</td>
+            <td><%= total_in%></td>
+            <td><%= total_out%></td>
+            <td colspan=3><%= total_in - total_out %> (Remaining)</td>
+          </tr>
+        </tbody>
+      </table>
       <%
-      # TODO: Refactor
-      if params[:group_by].present? || params[:search_by] == "company"
-        %>
-        <table class="table table-condensed table-striped">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Contract No </th>
-              <th>Company</th>
-              <th>Quantity in</th>
-              <th>Quantity out</th>
-              <th>Rate</th>
-              <th>Amount</th>
-              <th>Commission</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%
-            counter = 0
-            current_isin_id = 0
-            total_in = 0
-            total_out = 0
-            current_isin_id = 0
-            @share_transactions.each_with_index do |share_transaction, index| %>
-            <%
-            # Logic to group share transactions (in view) as per isin_info.id
-            if index == 0
-              current_isin_id = share_transaction.isin_info.id
-            elsif (current_isin_id != share_transaction.isin_info.id)
-              # Add total row and truncate the table
-              %>
-              <tr class="total-row">
-                <td class="text-center" colspan=3>Total</td>
-                <td><%= total_in%></td>
-                <td><%= total_out%></td>
-                <td colspan=3><%= total_in - total_out%> (Remaining)</td>
-              </tr>
-            </tbody>
-          </table>
+      # Start new total counts
+      total_in = 0
+      total_out = 0
+      # Shift current_isin_id to new one
+      previous_client_account_id = share_transaction.client_account_id
+    end
 
-          <!-- Start new group table -->
-          <table class="table table-condensed table-striped">
-            <tbody>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Contract No </th>
-                  <th>Company</th>
-                  <th>Quantity in</th>
-                  <th>Quantity out</th>
-                  <th>Rate</th>
-                  <th>Amount</th>
-                  <th>Commission</th>
-                </tr>
-              </thead>
-              <%
-              # Start new total counts
-              total_in = 0
-              total_out = 0
-              # Shift current_isin_id to new one
-              current_isin_id = share_transaction.isin_info.id
-            end
-            counter += 1
-            total_in += share_transaction.quantity if share_transaction.buy?
-            total_out += share_transaction.quantity if share_transaction.sell?
-            %>
-            <tr>
-              <td><%= share_transaction.date %></td>
-              <td><%= share_transaction.contract_no %></td>
-              <td><%= share_transaction.isin_info.isin%></td>
-              <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
-              <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
-              <td><%= share_transaction.share_rate %></td>
-              <td><%= share_transaction.share_amount %></td>
-              <td><%= share_transaction.commission_amount %></td>
-            </tr>
-            <% end %>
-            <!--  This tr is added so that the last isin group's total is printed out too. Refactor to a better implementation. -->
-            <!--  Make the font smaller for this tr's tds-->
-              <tr class="total-row">
-                <td class="text-center" colspan=3>Total</td>
-                <td><%= total_in%></td>
-                <td><%= total_out%></td>
-                <td colspan=3><%= total_in - total_out%> (Remaining)</td>
+    # TODO: See if the block below and above can be merged (or refactored).
+    if new_isin == true
+      %>
+      <table class="table table-condensed table-striped">
+        <thead>
+          <tr>
+            <td class="text-center" colspan=8><em><strong><%= share_transaction.client_account.name
+            %></td></strong></em>
+          </tr>
+          <tr>
+            <th>Date</th>
+            <th>Contract No </th>
+                <th>Company</th>
+                <th>Quantity <br> in</th>
+                <th>Quantity <br> out</th>
+                <th>Rate</th>
+                <th>Market <br> Rate</th>
+                <th>Amount</th>
               </tr>
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
         <%
-      else # if params[:group_by].blank?
+          new_isin = false
+          end
+          counter += 1
+          total_in += share_transaction.quantity if share_transaction.buy?
+          total_out += share_transaction.quantity if share_transaction.sell?
         %>
+        <tr>
+          <td><%= ad_to_bs(share_transaction.date) %></<td></td>
+          <td><%= share_transaction.contract_no %></td>
+          <td><%= share_transaction.isin_info.isin%></td>
+          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
+          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
+          <td><%= share_transaction.share_rate %></td>
+          <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
+          <td><%= share_transaction.share_amount %></td>
+        </tr>
+    <% end %>
+    <!--  This tr is added so that the last isin group's total is printed out too. Refactor to a better implementation. -->
+    <!--  Make the font smaller for this tr's tds-->
+    <tr class="total-row">
+      <td class="text-center" colspan=3>Total</td>
+      <td><%= total_in%></td>
+      <td><%= total_out%></td>
+      <td colspan=3><%= total_in - total_out%> (Remaining)</td>
+    </tr>
+    </tbody>
+    </table>
+<%
+  end
+  # Group by Client if search by company BLOCK ENDS
+
+  # Group by Company if client search or all company search BLOCK BEGINS
+  if params[:group_by] == 'company' && (params[:search_by] == 'client' || params[:show] ==
+      'all') && @share_transactions.present?
+    if params[:search_by] == "client"
+%>
+        <div>
+          <h4><%= @clients[params[:search_term].to_i - 1 ].name %></h4>
+        </div>
+    <%
+      end
+      # Initialized variables
+      counter = 0
+      total_in = 0
+      total_out = 0
+      previous_isin_id = 0
+      new_isin = false
+
+      @share_transactions.each_with_index do |share_transaction, index|
+        # Logic to group share transactions (in view) as per isin_info.id (company)
+        if index == 0
+          #set 'previous_isin_id' to the first isin_info.id
+          previous_isin_id = share_transaction.isin_info.id
+          new_isin = true
+        end
+
+
+        if (previous_isin_id != share_transaction.isin_info.id)
+          new_isin = true
+          # Add total row and truncate the table
+        %>
+          <tr class="total-row">
+            <td class="text-center" colspan=3>Total</td>
+            <td><%= total_in%></td>
+            <td><%= total_out%></td>
+            <td colspan=3><%= total_in - total_out %> (Remaining)</td>
+          </tr>
+          </tbody>
+          </table>
+        <%
+          # Start new total counts
+          total_in = 0
+          total_out = 0
+          # Shift current_isin_id to new one
+          previous_isin_id = share_transaction.isin_info.id
+          end
+
+          # TODO: See if the block below and above can be merged (or refactored).
+          if new_isin == true
+          %>
+            <table class="table table-condensed table-striped">
+              <thead>
+              <tr>
+                <td class="text-center" colspan=8><em><strong><%= share_transaction.isin_info.company %></td></strong></em>
+              </tr>
+              <tr>
+                <th>Date</th>
+                <th>Contract No </th>
+                <th>Company</th>
+                <th>Quantity <br> in</th>
+                <th>Quantity <br> out</th>
+                <th>Rate</th>
+                <th>Market <br> Rate</th>
+                <th>Amount</th>
+              </tr>
+              </thead>
+              <tbody>
+          <%
+            new_isin = false
+          end
+          counter += 1
+          total_in += share_transaction.quantity if share_transaction.buy?
+          total_out += share_transaction.quantity if share_transaction.sell?
+        %>
+        <tr>
+          <td><%= ad_to_bs(share_transaction.date) %></td>
+          <td><%= share_transaction.contract_no %></td>
+          <td><%= share_transaction.isin_info.isin%></td>
+          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
+          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
+          <td><%= share_transaction.share_rate %></td>
+          <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
+          <td><%= share_transaction.share_amount %></td>
+        </tr>
+    <% end %>
+    <!--  This tr is added so that the last isin group's total is printed out too. Refactor to a better implementation. -->
+    <!--  Make the font smaller for this tr's tds-->
+    <tr class="total-row">
+      <td class="text-center" colspan=3>Total</td>
+      <td><%= total_in%></td>
+      <td><%= total_out%></td>
+      <td colspan=3><%= total_in - total_out%> (Remaining)</td>
+    </tr>
+    </tbody>
+    </table>
+<%
+  end
+  # Group by Company if client search or all company search BLOCK ENDS
+%>
+
+<%
+  # No Group by TODO BLOCK BEGINS
+  if params[:group_by].blank?
+    if @share_transactions.present?
+%>
         <table class="table table-condensed table-striped">
           <thead>
-            <tr>
-              <th>Date</th>
-              <th>Contract No </th>
-              <th>Company</th>
-              <th>Quantity in</th>
-              <th>Quantity out</th>
-              <th>Rate</th>
-              <th>Amount</th>
-              <th>Commission</th>
-            </tr>
+          <tr>
+            <th>Date</th>
+            <th>Contract No </th>
+            <th>Company</th>
+            <th>Quantity <br> in</th>
+            <th>Quantity <br> out</th>
+            <th>Rate</th>
+            <th>Market <br> Rate</th>
+            <th>Amount</th>
+          </tr>
           </thead>
           <tbody>
-            <%
+          <%
             @share_transactions.each_with_index do |share_transaction, index|
-              %>
+          %>
               <tr>
-                <td><%= share_transaction.date %></td>
+                <td><%= ad_to_bs(share_transaction.date) %></td>
                 <td><%= share_transaction.contract_no %></td>
                 <td><%= share_transaction.isin_info.isin%></td>
                 <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
                 <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
                 <td><%= share_transaction.share_rate %></td>
+                <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
                 <td><%= share_transaction.share_amount %></td>
-                <td><%= share_transaction.commission_amount %></td>
               </tr>
-              <% end %>
-            </tbody>
-          </table>
           <% end %>
+          </tbody>
+        </table>
+    <% end %>
+<%
+  end
+  # No Group by TODO BLOCK ENDS
+%>
+<!--Listing (and grouping) of share transaction inventory ENDS-->
 
+<!--Pagination BEGINS-->
+<div class="text-center">
+  <% unless @share_transactions.blank? %>
+      <%= paginate @share_transactions, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @share_transactions%>
+      </div>
+  <% end %>
+</div>
+<!--Pagination ENDS-->

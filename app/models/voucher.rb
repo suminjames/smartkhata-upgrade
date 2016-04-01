@@ -7,23 +7,27 @@ class Voucher < ActiveRecord::Base
 	has_and_belongs_to_many :bills
 	accepts_nested_attributes_for :particulars
 	has_one :settlement
+
+	# purchase and sales kept as per the accounting norm
+  # however voucher types will be represented as payment and receive
 	enum voucher_type: [ :journal, :purchase, :sales, :contra ]
 
 
 	before_save :process_voucher
 
 	def voucher_code
+
 		case self.voucher_type
-		when voucher_types[:journal]
+		when 'journal'
 			"JVR"
-		when voucher_types[:purchase]
-			"PVR"
-		when voucher_types[:sales]
-			"SVR"
-		when voucher_types[:contra]
+		when 'purchase'
+			"PMT"
+		when 'sales'
+			"RCV"
+		when Voucher.voucher_types[:contra]
 			"CVR"
 		else
-			""
+			"NA"
 		end
 	end
 

@@ -11,7 +11,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/1.json
   def show
     @particulars = @voucher.particulars
-    if @voucher.is_payment_bank == true
+    if @voucher.is_payment_bank
       @bank = @particulars.first.ledger.bank_account
       @cheque = @particulars.first.cheque_number
       @particulars =  @particulars.drop(1)
@@ -116,7 +116,7 @@ class VouchersController < ApplicationController
     receipt_amount = 0
 
 
-    # it has to be atleast 2
+    # it has to be at least 2
     if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
       @voucher.particulars.each do |particular|
@@ -154,12 +154,14 @@ class VouchersController < ApplicationController
       if net_blnc == 0 && has_error == false
         # capture  the bill number and amount billed to description billed
         description_bills = ""
-        if (@is_purchase_sales && @client_account)
+        if @is_purchase_sales && @client_account
           # transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]
           receipt_amount = net_usable_blnc.abs
           net_usable_blnc = net_usable_blnc.abs
           @bills.each do |bill|
-            if bill.balance_to_pay <= net_usable_blnc
+            # since the data is stored to 4 digits and payment is only applicable in 2 digits
+            # round the balance_to_pay to 2 digits
+            if bill.balance_to_pay.round(2) <= net_usable_blnc
               net_usable_blnc = net_usable_blnc - bill.balance_to_pay
               description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{bill.balance_to_pay} Date: #{ad_to_bs(bill.created_at)} "
               bill.balance_to_pay = 0

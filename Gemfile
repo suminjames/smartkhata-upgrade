@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.2.1'
+ruby '2.3.0'
 gem 'rails', '4.2.4'
 gem 'sass-rails', '~> 5.0'
 gem 'draper', '~> 1.3'
@@ -30,7 +30,7 @@ gem "smart_listing"
 group :development do
   gem 'better_errors'
   gem 'hirb'
-  gem 'capistrano', '~> 3.0.1'
+  gem 'capistrano', '~> 3.1'
   gem 'capistrano-bundler'
   gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
@@ -40,6 +40,7 @@ group :development do
   gem "bullet"
   gem "uniform_notifier"
   gem "awesome_print"
+  gem 'capistrano3-puma'
 end
 group :production do
   gem 'puma'
@@ -52,6 +53,7 @@ gem 'roo-xls'
 gem 'mechanize', '2.7.3'
 gem "haml"
 gem 'sankhya'
+gem 'apartment'
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'guard'

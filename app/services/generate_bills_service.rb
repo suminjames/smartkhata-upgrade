@@ -43,7 +43,7 @@ class GenerateBillsService
           hash_dp[custom_key] = @bill_number
           # create a new bill
           bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code) do |b|
-            b.bill_type = Bill.bill_types['pay']
+            b.bill_type = Bill.bill_types['sales']
 
             # TODO possible error location check
             b.client_name = transaction.client_account.name if !transaction.client_account.nil?

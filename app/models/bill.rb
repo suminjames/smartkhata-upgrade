@@ -6,7 +6,7 @@ class Bill < ActiveRecord::Base
   has_and_belongs_to_many :vouchers
   has_many :particulars, through: :voucher
 
-	enum bill_type: [ :receive, :pay ]
+	enum bill_type: [ :purchase, :sales ]
 
   # Bill Status
   # - Pending: No payment has been done.
@@ -17,7 +17,7 @@ class Bill < ActiveRecord::Base
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
   #  TODO: Implement multi-name search
-  scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%") }
+  scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(
     :updated_at => date.beginning_of_day..date.end_of_day) }

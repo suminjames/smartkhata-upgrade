@@ -30,7 +30,7 @@ module ApplicationHelper
 
 	# process accounts to make changes on ledgers
 	def process_accounts(ledger,voucher, debit, amount, descr)
-
+		ledger.lock!
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
 		if debit
@@ -47,7 +47,7 @@ module ApplicationHelper
 		transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		ledger = particular.ledger
 		amount = particular.amnt
-
+		ledger.lock!
 		closing_blnc = ledger.closing_blnc
 		if particular.cr?
 			ledger.closing_blnc += amount
@@ -121,9 +121,9 @@ module ApplicationHelper
 		decimal.to_f.round(2).to_amount
 	end
 
-	# get the list of latest price as hash
-	# isin being the key and price being the value
-	def get_latest_price_list
+	# Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
+	# In the returned hash, 'isin' is the key and 'price' is the value.
+	def get_latest_isin_price_list
 		companies = IsinInfo.all
 
 		price_hash = {}
