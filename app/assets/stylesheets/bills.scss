@@ -8,9 +8,9 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   @extend .custom-anchor;
   padding-bottom: 10px;
   a.active-link {
-    color: #fff !important;
-    background-color: $link_color !important;
-    // border-bottom: thin dotted #529EA5;
+    //color: #fff !important;
+    //background-color: $link_color !important;
+     border-bottom: thin dotted #529EA5;
   }
 }
 

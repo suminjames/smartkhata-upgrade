@@ -1,5 +1,6 @@
 desc "Update Prices"
 task :update_isin_prices => :environment do
+  # TODO: Scrape individual pages and find the last traded price of each isin. Currently, scraping of the last traded price of companies that had trading in the last day is only done.
 
   require 'nokogiri'
   require 'open-uri'
@@ -7,7 +8,7 @@ task :update_isin_prices => :environment do
   def get_only_isin_price(details)
     details.select{|i| (i[:company] != "" && i[:max] != "")}
   end
-
+  date = nil
   def get_isin_price
     continue = true
     count = 1
@@ -71,6 +72,6 @@ task :update_isin_prices => :environment do
     #   last: x[:last]
     #   )
   end
-  puts '#{date} : Successfully updated prices'
-
+  puts "#{Time.now.to_s} : Successfully updated prices"
+  
 end

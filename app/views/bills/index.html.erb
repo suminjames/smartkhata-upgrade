@@ -86,6 +86,14 @@ if params[:search_by] == 'date_range'
 <% end %>
 <% end %>
 
+<div class="text-center">
+  <% unless @bills.blank? %>
+      <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @bills %>
+      </div>
+  <% end %>
+</div>
 
 <% if !@bills.empty?
   %>
@@ -103,9 +111,10 @@ if params[:search_by] == 'date_range'
   </tr>
 
   <%
-  serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
+    #For serial number to work properly with kaminari pagination
+    serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
 
-  @bills.each_with_index do |bill, index|
+    @bills.each_with_index do |bill, index|
 
   %>
   <!-- Bill (row) BEGINS -->
@@ -135,9 +144,9 @@ if params[:search_by] == 'date_range'
 
 <div class="text-center">
   <% unless @bills.blank? %>
-  <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
-  <div class="text-center">
-    <%= page_entries_info @bills %>
-  </div>
+      <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @bills %>
+      </div>
   <% end %>
 </div>

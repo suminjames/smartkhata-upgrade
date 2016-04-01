@@ -42,6 +42,9 @@ Rails.application.routes.draw do
     resources :dpa5 do
       collection {post :import}
     end
+    resources :calendars do
+      collection {post :import}
+    end
   end
 
   namespace 'report' do

@@ -4,11 +4,11 @@ class LedgersController < ApplicationController
   # GET /ledgers
   # GET /ledgers.json
   def index
-    #default landing action for '/legers' should redirect to '/ledgers?show=all'
+    #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
-        format.html { redirect_to ledgers_path(show: "all") }
+        format.html { redirect_to ledgers_path(search_by: "ledger_name") }
       end
       return
     end
@@ -16,6 +16,8 @@ class LedgersController < ApplicationController
       @ledgers = Ledger.all
     elsif params[:show] == "all_client"
       @ledgers = Ledger.find_all_client_ledgers
+    elsif params[:show] == "all_internal"
+      @ledgers = Ledger.find_all_internal_ledgers
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]

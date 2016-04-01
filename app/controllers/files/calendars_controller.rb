@@ -34,7 +34,7 @@ class Files::CalendarsController < ApplicationController
     puts "FUCK IT"
 		# puts @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
 
-    abort(@cal.ad_to_bs("2015", "06", "15").to_s)
+    abort(@cal.ad_to_bs("2015", "06", "14").to_s)
 
     from_date_ad.upto(to_date_ad) do |ad_date|
       p ad_date
