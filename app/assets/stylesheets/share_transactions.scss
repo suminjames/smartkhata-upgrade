@@ -16,9 +16,9 @@ $link_color: #2f8a93;
   @extend .custom-anchor;
   padding-bottom: 10px;
   a.active-link {
-    color: #fff !important;
-    background-color: $link_color !important;
-    // border-bottom: thin dotted #529EA5;
+    //color: #fff !important;
+    //background-color: $link_color !important;
+     border-bottom: thin dotted #529EA5;
   }
 }
 .submenu-nested {
@@ -35,4 +35,9 @@ $link_color: #2f8a93;
 
 .table {
   margin-bottom: 10px !important;
+}
+
+a.remove-iconish {
+  color: rgb(167, 165, 165) !important;
+  font-style: normal;
 }
