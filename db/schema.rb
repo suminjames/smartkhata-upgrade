@@ -17,15 +17,15 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   enable_extension "plpgsql"
 
   create_table "bank_accounts", force: :cascade do |t|
-    t.string   "name"
     t.integer  "account_number"
-    t.string   "address"
-    t.integer  "contact_number"
     t.boolean  "default_for_purchase"
     t.boolean  "default_for_sales"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.integer  "bank_id"
   end
+
+  add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
 
   create_table "banks", force: :cascade do |t|
     t.string   "name"

@@ -1,7 +1,10 @@
 class BankAccount < ActiveRecord::Base
   has_many :cheque_entries
   has_one :ledger
-  validates_presence_of :name, :account_number
+  belongs_to :bank
+
+  validates_presence_of :bank_id, :account_number
+
   before_save :change_default
   before_create :assign_group
   accepts_nested_attributes_for :ledger
