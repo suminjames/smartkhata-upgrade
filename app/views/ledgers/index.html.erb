@@ -2,11 +2,16 @@
 
 
 <div class="clearfix submenu" >
+  <%
+    def is_active_sub_menu_option(option)
+      return params[:search_by] == option || params[:show] == option
+    end
+  %>
   <h5>
-    <%= link_to 'Searcy by Ledger Name',  ledgers_path(search_by: "ledger_name") %> |
-    <%= link_to "All Ledgers",  ledgers_path(show: "all") %>  |
-    <%= link_to "All Internal Ledgers",  ledgers_path(show: "all_internal") %> |
-    <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client") %> |
+    <%= link_to 'Searcy by Ledger Name',  ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name")? "active-link" : "")} %> |
+    <%= link_to "All Ledgers",  ledgers_path(show: "all"), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
+    <%= link_to "All Internal Ledgers",  ledgers_path(show: "all_internal"), {:class => (is_active_sub_menu_option("all_internal")? "active-link" : "")} %> |
+    <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client"), {:class => (is_active_sub_menu_option("all_client")? "active-link" : "")} %> |
     <%= link_to 'New Ledger', new_ledger_path %>
   </h5>
 </div>
@@ -21,6 +26,15 @@
     <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Ledger Name", :autofocus => true  %>
     <%= submit_tag "Search" %>
     <% end %>
+  <% end %>
+</div>
+
+<div class="text-center">
+  <% unless @ledgers.blank? %>
+      <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @ledgers%>
+      </div>
   <% end %>
 </div>
 

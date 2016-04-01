@@ -8,43 +8,27 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
-    #Instance variable to populate (in select field) all clients in 'search by client' option
+    # Instance variables to populate client and companies in the view
     @clients = ClientAccount.all
     @companies = IsinInfo.all
-
-    # Cases
-    # show=all
-    # show=all  & group_by=company
-    # show=all  & group_by=company & date=xx
-    # show=all  & date=xx
-    # show=all  & date[from]=xx & date[to]=yy
-    # show=all  & group_by=company & date[from]=xx & date[to]=yy
-
-    # search_by=client
-    # search_by=client & client_id=z
-    # search_by=client & client_id=z & group_by=company
-    # search_by=client & client_id=z & group_by=company & date=xx
-    # search_by=client & client_id=z & date=xx
-    # search_by=client & client_id=z & date[from]=xx & date[to]=zz
-    # search_by=client & client_id=z & group_by=company & date[from]=xx & date[to]=zz
 
     # default landing action for '/share_transactions'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
-        format.html { redirect_to share_transactions_path(show: "all") }
+        format.html { redirect_to share_transactions_path(search_by: "client") }
       end
       return
     end
 
     # Populate (and route when needed) as per the params
     if params[:search_by] == "cancelled"
-      @share_transactions = ShareTransaction.cancelled
+      @share_transactions = ShareTransaction.cancelled.order(:isin_info_id)
     elsif params[:show] == 'all'
       if params[:filter_by] == 'date' && params[:date].present?
         date_bs = params[:date]
         if parsable_date? date_bs
           date_ad = bs_to_ad(date_bs)
-          @share_transactions = ShareTransaction.not_cancelled.find_by_date(date_ad)
+          @share_transactions = ShareTransaction.not_cancelled.find_by_date(date_ad).order(:isin_info_id)
         else
           @share_transactions = ''
           respond_to do |format|
@@ -61,7 +45,7 @@ class ShareTransactionsController < ApplicationController
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
           date_to_ad = bs_to_ad(date_to_bs)
-          @share_transactions = ShareTransaction.not_cancelled.find_by_date_range(date_from_ad, date_to_ad)
+          @share_transactions = ShareTransaction.not_cancelled.find_by_date_range(date_from_ad, date_to_ad).order(:isin_info_id)
         else
           @share_transactions = ''
           respond_to do |format|
@@ -71,40 +55,90 @@ class ShareTransactionsController < ApplicationController
           end
         end
       else
-        @share_transactions = ShareTransaction.not_cancelled
+        @share_transactions = ShareTransaction.not_cancelled.order(:isin_info_id)
       end
-    elsif params[:search_by] && params[:search_term] && params[:group_by] == 'company'
-      # Group by COMPANY
+    elsif params[:search_by] == 'client' && params[:search_term]
       client_account_id = params[:search_term].to_i
-      # TODO: Order by isin_info isin(name) not id
-      # @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
-      @share_transactions = ShareTransaction.not_cancelled.includes(:isin_info).select("isin_infos.*").where(client_account_id: client_account_id).order("isin_infos.company DESC").references(:isin_infos)
-    elsif params[:search_by] && params[:search_term] && params[:group_by] == 'client'
-      # TODO : Refactor
+      # @share_transactions to be returned if none of the following conditions are met
+      @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
+      if params[:filter_by] == 'date' && params[:date].present?
+        date_bs = params[:date]
+        if parsable_date? date_bs
+          date_ad = bs_to_ad(date_bs)
+          @share_transactions = ShareTransaction.find_by_date(date_ad)
+        else
+          @share_transactions = ''
+          respond_to do |format|
+            format.html { render :index }
+            flash.now[:error] = 'Invalid date'
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present?  && params[:date][:to].present?
+        # The dates being entered are assumed to be BS dates, not AD dates
+        date_from_bs = params[:date][:from]
+        date_to_bs   = params[:date][:to]
+        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+          date_from_ad = bs_to_ad(date_from_bs)
+          date_to_ad = bs_to_ad(date_to_bs)
+          @share_transactions = ShareTransaction.find_by_date_range(date_from_ad, date_to_ad)
+        else
+          @share_transactions = ''
+          respond_to do |format|
+            format.html { render :index }
+            flash.now[:error] = 'Invalid date'
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      end
+      if params[:group_by] == 'company'
+        @share_transactions = @share_transactions.includes(:isin_info).select("isin_infos.*").order("isin_infos.company").references(:isin_infos)
+      end
+    elsif params[:search_by] == 'company' && params[:search_term]
       isin_info_id = params[:search_term].to_i
-      @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id).order(:client_account_id)
-      # Group by CLIENT
-      # TODO : Refactor
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-      when 'client'
-        client_account_id = search_term.to_i
-        # TODO  move it to model
-        @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id)
-      when 'company'
-        isin_info_id = search_term.to_i
-        # TODO  move it to model
-        @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id)
-      else
-        # If no matches for case  'search_by', return empty @share_transactions
-        @share_transactions = []
+      # @share_transactions to be returned if none of the following conditions are met
+      @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id).order(:isin_info_id)
+
+      if params[:filter_by] == 'date' && params[:date].present?
+        date_bs = params[:date]
+        if parsable_date? date_bs
+          date_ad = bs_to_ad(date_bs)
+          @share_transactions = @share_transactions.find_by_date(date_ad)
+        else
+          @share_transactions = ''
+          respond_to do |format|
+            format.html { render :index }
+            flash.now[:error] = 'Invalid date'
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present?  && params[:date][:to].present?
+        # The dates being entered are assumed to be BS dates, not AD dates
+        date_from_bs = params[:date][:from]
+        date_to_bs   = params[:date][:to]
+        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+          date_from_ad = bs_to_ad(date_from_bs)
+          date_to_ad = bs_to_ad(date_to_bs)
+          @share_transactions = @share_transactions.find_by_date_range(date_from_ad, date_to_ad)
+        else
+          @share_transactions = ''
+          respond_to do |format|
+            format.html { render :index }
+            flash.now[:error] = 'Invalid date'
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
+        end
+      end
+      if params[:group_by] == 'client'
+        @share_transactions = @share_transactions.includes(:client_account).select("client_accounts.*").order("client_accounts.name").references(:client_accounts)
       end
     else
+      # Return empty if none of the above arguments (of params) is met
       @share_transactions = []
     end
-    @share_transactions = @share_transactions.order(:isin_info_id).page(params[:page]).per(20) unless @share_transactions.blank?
+    @share_transactions = @share_transactions.page(params[:page]).per(20) unless @share_transactions.blank?
     # @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
   end
 

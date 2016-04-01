@@ -12,10 +12,15 @@
 
 <!--Menu, Sub-menu, and Form logic BEGINS-->
 <div class="clearfix submenu" >
+  <%
+    def is_active_sub_menu_option(option)
+      return params[:search_by] == option || params[:show] == option
+    end
+  %>
   <h5>
-    <%= link_to "All Share Transactions",  share_transactions_path %>  |
-    <%= link_to "Search by Client",  share_transactions_path(search_by: "client") %> |
-    <%= link_to "Search by Company",  share_transactions_path(search_by: "company") %>
+    <%= link_to "Search by Client",  share_transactions_path(search_by: "client"), {:class => (is_active_sub_menu_option("client")? "active-link" : "")} %> |
+    <%= link_to "Search by Company",  share_transactions_path(search_by: "company"), {:class => (is_active_sub_menu_option("company")? "active-link" : "")} %> |
+    <%= link_to "All Share Transactions",  share_transactions_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>
   </h5>
 </div>
 
@@ -24,9 +29,26 @@
       <%
       if params[:show] == 'all'
         %>
-        <%= link_to "Group by Company",  share_transactions_path(show: "all", group_by: "company", filter_by: params[:filter_by] ) %> |
-        <%= link_to "Filter by Date",  share_transactions_path(show: 'all', group_by:params[:group_by], filter_by: 'date') %> |
+        <%= link_to "Group by Company",  share_transactions_path(show: "all", group_by: "company", filter_by: params[:filter_by], date: params[:date]) %>
+      <%
+        if params[:group_by] == 'company'
+        %>
+          <%= link_to "(x)", share_transactions_path(show: 'all', filter_by: params[:filter_by], date: params[:date]), class: 'remove-iconish' %>
+          <% end %>
+      |
+        <%= link_to "Filter by Date",  share_transactions_path(show: 'all', group_by:params[:group_by], filter_by: 'date') %>
+      <%
+        if params[:filter_by] == 'date'
+      %>
+          <%= link_to "(x)", share_transactions_path(show: 'all', group_by:params[:group_by]), class: 'remove-iconish' %>
+      <% end %>
+      |
         <%= link_to "Filter by Date Range",  share_transactions_path(show: 'all', group_by: params[:group_by], filter_by: 'date_range') %>
+      <%
+      if params[:filter_by] == 'date_range'
+      %>
+      <%= link_to "(x)", share_transactions_path(show: 'all', group_by:params[:group_by]), class: 'remove-iconish' %>
+  <% end %>
 
         <%
         if params[:filter_by] == 'date_range'
@@ -76,7 +98,7 @@
             <% end %>
             <%
             if params[:search_by] == 'company'
-              %>
+            %>
               <div class="form-group">
                 <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'isin', params[:search_term]), class: 'form-control combobox' %>
               </div>
@@ -86,22 +108,41 @@
           <% end %>
           <%
 
-          if params[:search_term].present? && params[:commit] == "Search" && @share_transactions.present?
+          if params[:search_term].present? && params[:commit] == "Search"
             %>
             <div class="clearfix">
               <%
               if params[:search_by] == 'client'
                 %>
-              <%= link_to "Group by Company",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "company", filter_by: params[:filter_by], commit: "Search") %> |
+              <%= link_to "Group by Company",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "company", filter_by: params[:filter_by], date: params[:date],  commit: "Search") %>
               <% end %>
               <%
               if params[:search_by] == 'company'
                 %>
-              <%= link_to "Group by Client",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "client", filter_by: params[:filter_by], commit: "Search") %> |
+                  <%= link_to "Group by Client",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by: "client", filter_by: params[:filter_by], date: params[:date], commit: "Search") %>
               <% end %>
 
-              <%= link_to "Filter by Date",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date', group_by:params[:group_by], commit: "Search") %> |
-              <%= link_to "Filter by Date Range",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date_range', group_by:params[:group_by], commit: "Search") %>
+              <%
+                if params[:group_by] == 'company' || params[:group_by] == 'client'
+              %>
+                  <%= link_to "(x)", share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: params[:filter_by], date: params[:date], commit: 'Search'), class: 'remove-iconish' %>
+              <% end %>
+              |
+
+              <%= link_to "Filter by Date",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date', group_by:params[:group_by], commit: "Search") %>
+              <%
+                if params[:filter_by] == 'date'
+              %>
+              <%= link_to '(x)',  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by:params[:group_by], commit: "Search"), class: 'remove-iconish' %>
+              <% end %>
+              |
+
+              <%= link_to "Filter by Date Range",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], filter_by: 'date_range', group_by:params[:group_by], commit: "Search")%>
+              <%
+                if params[:filter_by] == 'date_range'
+              %>
+              <%= link_to "(x)",  share_transactions_path(search_by: params[:search_by], search_term: params[:search_term], group_by:params[:group_by], commit: "Search"), class: 'remove-iconish' %>
+              <% end %>
             </div>
           <% end %>
 
@@ -171,7 +212,7 @@
 
     <%
     # Group by Client if search by company BLOCK BEGINS
-    if params[:search_by] == 'company' && params[:group_by] == 'client'
+    if params[:search_by] == 'company' && params[:group_by] == 'client' && @share_transactions.present?
       if params[:search_by] == "company"
         %>
         <div>
@@ -270,7 +311,7 @@
 
   # Group by Company if client search or all company search BLOCK BEGINS
   if params[:group_by] == 'company' && (params[:search_by] == 'client' || params[:show] ==
-      'all')
+      'all') && @share_transactions.present?
     if params[:search_by] == "client"
 %>
         <div>
