@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
   resources :share_transactions do
     collection do
-      get 'deal_cancel' 
+      get 'deal_cancel'
     end
   end
   resources :bills
@@ -36,6 +36,9 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :dpa5 do
+      collection {post :import}
+    end
+    resources :calendars do
       collection {post :import}
     end
   end

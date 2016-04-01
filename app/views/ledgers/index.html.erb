@@ -1,11 +1,12 @@
-<% provide(:section_title, "List of Ledgers") %>
+<% provide(:section_title, "Ledgers") %>
 
 
 <div class="clearfix submenu" >
   <h5>
+    <%= link_to 'Searcy by Ledger Name',  ledgers_path(search_by: "ledger_name") %> |
     <%= link_to "All Ledgers",  ledgers_path(show: "all") %>  |
+    <%= link_to "All Internal Ledgers",  ledgers_path(show: "all_internal") %> |
     <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client") %> |
-    <%= link_to "Searcy by Name",  ledgers_path(search_by: "ledger_name") %> |
     <%= link_to 'New Ledger', new_ledger_path %>
   </h5>
 </div>
@@ -17,7 +18,7 @@
     %>
     <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
     <%= hidden_field_tag :search_by, "ledger_name" %>
-    <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Ledger Name" %>
+    <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Ledger Name", :autofocus => true  %>
     <%= submit_tag "Search" %>
     <% end %>
   <% end %>

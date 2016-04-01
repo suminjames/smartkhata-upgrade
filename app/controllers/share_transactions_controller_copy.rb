@@ -4,7 +4,6 @@ class ShareTransactionsController < ApplicationController
   include SmartListing::Helper::ControllerExtensions
   helper  SmartListing::Helper
 
-  # TODO: http://stackoverflow.com/questions/22799631/postgresql-and-activerecord-where-regex-matching
   # GET /share_transactions
   # GET /share_transactions.json
   def index
@@ -35,6 +34,8 @@ class ShareTransactionsController < ApplicationController
       end
       return
     end
+
+    # TODO: implement date (and date range) filtering in non-All share transactions
 
     # Populate (and route when needed) as per the params
     if params[:search_by] == "cancelled"
@@ -73,18 +74,18 @@ class ShareTransactionsController < ApplicationController
       else
         @share_transactions = ShareTransaction.not_cancelled
       end
-    elsif params[:search_by] && params[:search_term] && params[:group_by] == 'company'
-      # Group by COMPANY
-      client_account_id = params[:search_term].to_i
-      # TODO: Order by isin_info isin(name) not id
-      # @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
-      @share_transactions = ShareTransaction.not_cancelled.includes(:isin_info).select("isin_infos.*").where(client_account_id: client_account_id).order("isin_infos.company DESC").references(:isin_infos)
     elsif params[:search_by] && params[:search_term] && params[:group_by] == 'client'
+      # Group by CLIENT
       # TODO : Refactor
       isin_info_id = params[:search_term].to_i
       @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id).order(:client_account_id)
-      # Group by CLIENT
+    elsif params[:search_by] && params[:search_term] && params[:group_by] == 'company'
+      # Group by COMPANY
       # TODO : Refactor
+      client_account_id = params[:search_term].to_i
+      # @share_transactions = ShareTransaction.where(client_account_id: client_account_id).order(:isin_info_id)
+      # TODO: Order by isin_info isin(name) not id
+      @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -104,8 +105,8 @@ class ShareTransactionsController < ApplicationController
     else
       @share_transactions = []
     end
-    @share_transactions = @share_transactions.order(:isin_info_id).page(params[:page]).per(20) unless @share_transactions.blank?
-    # @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
+    # @share_transactions = @share_transactions.order(:isin_info_id).page(params[:page]).per(20) unless @share_transactions.blank?
+    @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
   end
 
   # TODO MOVE THIS TO the index controller

@@ -121,13 +121,14 @@ module ApplicationHelper
 		decimal.to_f.round(2).to_amount
 	end
 
-	# get the list of latest price as hash
-	# isin being the key and price being the value
-	def get_latest_price_list
+	# Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
+	# In the returned hash, 'isin' is the key and 'price' is the value.
+	# TODO: Also, there is a key 'last_updated' which has the timestamp, which is when the isins were last updated(crawled).
+	def get_latest_isin_price_list
 		companies = IsinInfo.all
 
 		price_hash = {}
-		companies.each do |isin|
+		companies.each_with_index do |isin, index|
 			price_hash[isin.isin] = isin.last_price.to_f
 		end
 
