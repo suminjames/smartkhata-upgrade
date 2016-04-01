@@ -2,10 +2,8 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :name %>
+    <%= f.association :bank ,:input_html => { :class => 'combobox'} %>
     <%= f.input :account_number %>
-    <%= f.input :address %>
-    <%= f.input :contact_number %>
     <%= f.input :default_for_sales %>
     <%= f.input :default_for_purchase %>
 
@@ -16,7 +14,6 @@
         <div class="col-xs-3"><label>Type</label><%= p.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
       <% end %>
     </div>
-
 
   </div>
 

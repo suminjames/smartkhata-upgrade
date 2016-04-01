@@ -1,15 +1,15 @@
 <% provide(:section_title, "New Bank Account") %>
-<% if @bank_account.errors.any? %>
-  <div id="error_explanation">
-    <h2><%= pluralize(@bank_account.errors.count, "error") %> prohibited this article from being saved:</h2>
+<!--<% if @bank_account.errors.any? %>-->
+  <!--<div id="error_explanation">-->
+    <!--<h2><%= pluralize(@bank_account.errors.count, "error") %> prohibited this article from being saved:</h2>-->
 
-    <ul>
-    <% @bank_account.errors.full_messages.each do |msg| %>
-      <li><%= msg %></li>
-    <% end %>
-    </ul>
-  </div>
-<% end %>
+    <!--<ul>-->
+    <!--<% @bank_account.errors.full_messages.each do |msg| %>-->
+      <!--<li><%= msg %></li>-->
+    <!--<% end %>-->
+    <!--</ul>-->
+  <!--</div>-->
+<!--<% end %>-->
 <%= render 'form' %>
 
 <%= link_to 'Back', bank_accounts_path %>

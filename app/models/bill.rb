@@ -6,6 +6,9 @@ class Bill < ActiveRecord::Base
   has_and_belongs_to_many :vouchers
   has_many :particulars, through: :voucher
 
+  # verify this with views everytime before changing
+  # bill index
+  # bill show
 	enum bill_type: [ :purchase, :sales ]
 
   # Bill Status

@@ -19,7 +19,11 @@ Rails.application.routes.draw do
   resources :bills
   resources :groups
   resources :ledgers
-  resources :vouchers
+  resources :vouchers do
+    collection do
+      post 'finalize_payment'
+    end
+  end
   resources :particulars
   root to: 'visitors#index'
   devise_for :users

@@ -40,7 +40,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
-    @particulars = @ledger.particulars
+    @particulars = @ledger.particulars.complete.order("id ASC")
   end
 
   # GET /ledgers/new

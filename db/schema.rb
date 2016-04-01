@@ -17,15 +17,15 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   enable_extension "plpgsql"
 
   create_table "bank_accounts", force: :cascade do |t|
-    t.string   "name"
     t.integer  "account_number"
-    t.string   "address"
-    t.integer  "contact_number"
     t.boolean  "default_for_purchase"
     t.boolean  "default_for_sales"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.integer  "bank_id"
   end
+
+  add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
 
   create_table "banks", force: :cascade do |t|
     t.string   "name"
@@ -186,12 +186,15 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
+    t.integer  "ledger_type",                                 default: 0
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
     t.decimal  "amnt",               precision: 15, scale: 4, default: 0.0
     t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "additional_bank_id"
+    t.integer  "particular_status",                           default: 1
+    t.string   "date_bs"
     t.datetime "created_at",                                                null: false
     t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"
@@ -315,6 +318,7 @@ ActiveRecord::Schema.define(version: 20160325095133) do
     t.string   "date_bs"
     t.string   "desc"
     t.integer  "voucher_type",    default: 0
+    t.integer  "voucher_status",  default: 0
     t.boolean  "is_payment_bank"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false

@@ -86,3 +86,4 @@ pickle-email-*.html
 /spring/*.pid
 # Ignore nested wiki git repo.
 wiki/
+.rbenv-gemsets

@@ -117,29 +117,29 @@ if params[:search_by] == 'date_range'
     @bills.each_with_index do |bill, index|
 
   %>
-        <!-- Bill (row) BEGINS -->
-        <tr>
-          <td><%= serial_number_count + index %></td>
-          <td><%= bill.formatted_bill_number%></td>
-          <td><%= bill.formatted_bill_dates["bs"]%></td>
-          <td><%= bill.formatted_client_name%></td>
-          <td><%= bill.formatted_type %></td>
-          <td><%= bill.formatted_status%></td>
-          <td><%= bill.formatted_companies_list%></td>
-          <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
-          <td>
-            <!--  TODO: Optimize -->
-            <% voucher_type = (bill.type == "receive") ? "sales": "purchase" %>
-            <% unless bill.settled? %>
-                <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
-            <% end %>
-            <%= link_to 'View', bill %></td>
-        </tr>
-        <!-- Bill (row) ENDS -->
+  <!-- Bill (row) BEGINS -->
+  <tr>
+    <td><%= serial_number_count + index %></td>
+    <td><%= bill.formatted_bill_number%></td>
+    <td><%= bill.formatted_bill_dates["bs"]%></td>
+    <td><%= bill.formatted_client_name%></td>
+    <td><%= bill.formatted_type %></td>
+    <td><%= bill.formatted_status%></td>
+    <td><%= bill.formatted_companies_list%></td>
+    <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
+    <td>
+      <!--  TODO: Optimize -->
+      <% voucher_type = (bill.purchase?) ? "sales": "purchase" %>
+      <% unless bill.settled? %>
+      <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
+      <% end %>
+      <%= link_to 'View', bill %></td>
+  </tr>
+  <!-- Bill (row) ENDS -->
 
 
-    <% end %>
-  </table>
+  <% end %>
+</table>
 <% end %>
 
 <div class="text-center">

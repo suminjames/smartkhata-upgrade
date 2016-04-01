@@ -25,8 +25,11 @@ class BankAccountsController < ApplicationController
   # POST /bank_accounts
   # POST /bank_accounts.json
   def create
+
     @bank_account = BankAccount.new(bank_account_params)
-    @bank_account.ledger.name = "Bank:"+@bank_account.name+"(#{@bank_account.account_number})"
+    @bank = Bank.find_by(id: @bank_account.bank_id)
+      @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})" if @bank.present?
+
 
     respond_to do |format|
       if @bank_account.save
@@ -71,7 +74,7 @@ class BankAccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def bank_account_params
-      params.require(:bank_account).permit(:name, :address,:account_number,:default_for_sales,:default_for_purchase, :contact_number,
+      params.require(:bank_account).permit(:bank_id, :account_number,:default_for_sales,:default_for_purchase,
         ledger_attributes: [:opening_blnc, :opening_blnc_type])
     end
 end

@@ -20,3 +20,6 @@
 //= require smart_listing
 //= require layout.min.js
 //= require_tree .
+$(document).on('click', '.yamm .dropdown-menu', function(e) {
+  e.stopPropagation()
+})

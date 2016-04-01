@@ -75,10 +75,13 @@ class GenerateBillsService
   			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
   			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
+        description = "as being sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
+
   			# update ledgers value
   			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
         voucher.bills << bill
         voucher.share_transactions << transaction
+        voucher.desc = description
   			voucher.save!
 
         # process_accounts(ledger,voucher, is_debit, amount)
@@ -91,7 +94,7 @@ class GenerateBillsService
         # dp is credited
 
         # TODO replace bill from partiucalr with that in voucher
-        description = "as being sold(#{share_quantity}*#{company_symbol}@#{share_rate})"
+
   		  process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
   			process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description)
   			process_accounts(tds_ledger,voucher,true,tds,description)

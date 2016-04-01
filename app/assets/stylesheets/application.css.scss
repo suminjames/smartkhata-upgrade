@@ -25,7 +25,7 @@ body {
 }
 .content-wrapper, .right-side, .main-footer {
 	margin-left: -15px;
-  margin-right: -15px;
+  // margin-right: -15px;
 }
 
 .box-body.content-area {
@@ -135,6 +135,7 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   display: inline-block;
   text-align: left;
   vertical-align: middle;
+	width: 970px;
 }
 
 
@@ -159,4 +160,45 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   #pdf_link {
     display: none;
   }
+}
+
+/*!
+ * Yamm!3 - Yet another megamenu for Bootstrap 3
+ * http://geedmo.github.com/yamm3
+ *
+ * @geedmo - Licensed under the MIT license
+ */
+.yamm .nav,
+.yamm .collapse,
+.yamm .dropup,
+.yamm .dropdown {
+  position: static;
+}
+.yamm .container {
+  position: relative;
+}
+.yamm .dropdown-menu {
+  left: auto;
+}
+.yamm .yamm-content {
+  padding: 20px 30px;
+}
+.yamm .dropdown.yamm-fw .dropdown-menu {
+  left: 0;
+  right: 0;
+}
+
+
+
+// hack admin lte
+.navbar-right .dropdown-menu {
+    right: auto;
+    left: auto;
+}
+
+.sub-menu {
+	// background-color:lighten(#3C8DBC, 15%);;
+}
+.z-small-view {
+	font-size: 12px;
 }

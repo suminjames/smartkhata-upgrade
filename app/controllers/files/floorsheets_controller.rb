@@ -1,6 +1,7 @@
 #TODO: Bill status should be (be default) in pending
-class Files::FloorsheetsController < ApplicationController
+class Files::FloorsheetsController < Files::FilesController
 	@@file = FileUpload::FILES[:floorsheet];
+	@@file_name_contains = "FLOORSHEET"
 
 	def new
 	end
@@ -11,52 +12,98 @@ class Files::FloorsheetsController < ApplicationController
 		@file = params[:file];
 
 
-		if @file == nil
-			flash.now[:error] = "Please Upload a valid file"
-			@error = true
-		else
-			# read the xls file
-			xlsx = Roo::Spreadsheet.open(@file)
+		# grab date from the first record
+		file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
-			# hash to store unique combination of isin, transaction type (buy/sell), client
-			hash_dp = Hash.new
+		# read the xls file
+		xlsx = Roo::Spreadsheet.open(@file)
 
-			# array to store processed data
-			@processed_data = []
+		# hash to store unique combination of isin, transaction type (buy/sell), client
+		hash_dp = Hash.new
 
-			# get bill number
-			@bill_number = get_bill_number
+		# array to store processed data
+		@processed_data = []
+    @raw_data = []
+
+		# get bill number
+		@bill_number = get_bill_number
 
 
-			# grab date from the first record
-			if xlsx.sheet(0).row(12)[0].nil?
-				flash.now[:error] = "The file is empty"
-				@error = true
-				return
-			end
+
+		# grab date from the first record
+		file_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
+
+		date_data = xlsx.sheet(0).row(12)[3].to_s
+
+
+
+		# convert a string to date
+		@date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+
+
+		# TODO remove this
+		@older_detected= false
+		if @date.nil?
+			@older_detected = true
 			date_data = xlsx.sheet(0).row(12)[0].to_s
-			@date = "#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}"
+			@date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+		end
+
+		file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
+
+		# do not reprocess file if it is already uploaded
+		floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date)
+		# raise soft error and return if the file is already uploaded
+		file_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
 
-			# do not reprocess file if it is already uploaded
-			floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date.to_date)
-			unless floorsheet_file.nil?
-				flash.now[:error] = "The file is already uploaded"
-				@error = true
-				return
+		fy_code = get_fy_code
+		# loop through 13th row to last row
+		# parse the data
+		@total_amount = 0
+		(12..(xlsx.sheet(0).last_row)).each do |i|
+
+			@row_data = xlsx.sheet(0).row(i)
+
+			if (@row_data[0].to_s.tr(' ','') == 'Total')
+				@total_amount = @row_data[21].to_f
+				break
 			end
 
-			fy_code = get_fy_code
-			# loop through 13th row to last row
-			# data starts from 13th row
-			ActiveRecord::Base.transaction do
-				(12..(xlsx.sheet(0).last_row)).each do |i|
-				# (13..15).each do |i|
-					@row_data = xlsx.sheet(0).row(i)
-					break if @row_data[0] == nil
-					@processed_data  << process_records(@row_data, hash_dp, fy_code)
-				end
+			break if @row_data[0] == nil
+			# rawdata =[
+			# 	Contract No.,
+			# 	Symbol,
+			# 	Buyer Broking Firm Code,
+			# 	Seller Broking Firm Code,
+			# 	Client Name,
+			# 	Client Code,
+			# 	Quantity,
+			# 	Rate,
+			# 	Amount,
+			# 	Stock Comm.,
+			# 	Bank Deposit,
+			# ]
+			# TODO remove this hack
+			if @older_detected
+				@raw_data << [@row_data[0],@row_data[1],@row_data[2],@row_data[3],@row_data[4],@row_data[5],@row_data[6],@row_data[7],@row_data[8],@row_data[9],@row_data[10]]
+				@total_amount_file = 0
+			else
+				@raw_data << [@row_data[3],@row_data[7],@row_data[8],@row_data[10],@row_data[12],@row_data[15],@row_data[17],@row_data[19],@row_data[20],@row_data[23],@row_data[26]]
+				# sum of the amount section should be equal to the calculated sum
+				@total_amount_file = @raw_data.map {|d| d[8].to_f}.reduce(0, :+)
 			end
+		end
+
+
+
+		file_error("The amount dont match up") and return  if (@total_amount_file - @total_amount).abs > 0.1
+
+		ActiveRecord::Base.transaction do
+      @raw_data.each do |arr|
+        @processed_data  << process_records(arr, hash_dp, fy_code)
+      end
+      FileUpload.find_or_create_by!(file: @@file, report_date: @date)
 		end
 	end
 
@@ -97,7 +144,6 @@ class Files::FloorsheetsController < ApplicationController
 	# 	Amount,
 	# 	Stock Comm.,
 	# 	Bank Deposit,
-	# 	NIL
 	# ]
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
 	def process_records(arr ,hash_dp, fy_code)
@@ -214,14 +260,14 @@ class Files::FloorsheetsController < ApplicationController
 			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
 			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
-			description = "as being purchased(#{share_quantity}*#{company_symbol}@#{share_rate})"
+			description = "as being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
 			voucher.bills << bill
 			voucher.share_transactions << transaction
-
+			voucher.desc = "as being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			voucher.save!
-			# 
+			#
 			# transaction.voucher =  voucher
 			# transaction.save!
 
@@ -235,13 +281,11 @@ class Files::FloorsheetsController < ApplicationController
 		end
 
 
-
-
-
-		FileUpload.find_or_create_by!(file: @@file, report_date: @date.to_date)
-
 		arr.push(@client_dr,tds,commission,bank_deposit,dp)
 	end
 
-
+	# return true if the floor sheet data is invalid
+	def is_invalid_file_data(xlsx)
+		xlsx.sheet(0).row(11)[1].to_s.tr(' ','') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
+	end
 end
