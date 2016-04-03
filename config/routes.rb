@@ -16,7 +16,11 @@ Rails.application.routes.draw do
       get 'deal_cancel'
     end
   end
-  resources :bills
+  resources :bills do
+    collection do
+      get 'show_by_number'
+    end
+  end
   resources :groups
   resources :ledgers
   resources :vouchers do

@@ -58,7 +58,7 @@
   <p>By Cheque:
     <% @settlement.voucher.cheque_entries.each do |cheque| %>
       <br>
-      Cheque Number: <%= cheque.cheque_number %>  Bank: <%= cheque.bank_account.name %>,
+      Cheque Number: <%= cheque.cheque_number %>  Bank: <%= cheque.bank_account.bank_name %>,
     <% end %>
   </p>
   <% end %>

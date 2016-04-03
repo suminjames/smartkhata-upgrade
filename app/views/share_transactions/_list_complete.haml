@@ -1,4 +1,4 @@
--# be sure to make changes on list_complete too
+-# be sure to make changes on list.haml too
 
 - unless smart_listing.empty?
   %table.table.table-striped
@@ -11,9 +11,8 @@
       - smart_listing.collection.each do |o|
         %tr.editable{data: {id: o.id}}
           -# Render share transaction row partial
-          = smart_listing.render object: o, partial: "share_transactions/share_transaction", locals: {object: o}
+          = smart_listing.render object: o, partial: "share_transactions/share_transaction_no_edit", locals: {object: o}
   = smart_listing.paginate
   = smart_listing.pagination_per_page_links
-  = link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement.id), class: "btn btn-primary"
 - else
   %p.warning No records!
