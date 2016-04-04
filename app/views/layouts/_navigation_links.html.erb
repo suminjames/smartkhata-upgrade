@@ -1,3 +1,4 @@
+<% if user_signed_in? %>
 <%# add navigation links to this file %>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown">File Uploads<span class="caret"></span></a>
@@ -52,4 +53,5 @@
     <li><%= link_to 'Cancelled Transactions', share_transactions_path(search_by: 'cancelled') %></li>
   </ul>
 </li>
+<% end %>
 <%= render "layouts/nav_links_for_auth" %>
