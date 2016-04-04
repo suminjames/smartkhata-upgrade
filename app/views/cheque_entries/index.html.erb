@@ -4,7 +4,8 @@
   <thead>
     <tr>
       <th>Cheque Number</th>
-      <th>Bank </th>
+      <th>Bank Name</th>
+      <th>Account Number</th>
     </tr>
   </thead>
 
@@ -12,7 +13,8 @@
     <% @cheque_entries.each do |cheque_entry| %>
       <tr>
         <td><%= cheque_entry.cheque_number %></td>
-        <td><%= cheque_entry.bank_account.name %></td>
+        <td><%= cheque_entry.bank_account.bank.name %></td>
+        <td><%= cheque_entry.bank_account.account_number %></td>
       </tr>
     <% end %>
   </tbody>

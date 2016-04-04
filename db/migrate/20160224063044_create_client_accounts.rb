@@ -3,6 +3,7 @@ class CreateClientAccounts < ActiveRecord::Migration
     create_table :client_accounts do |t|
     	t.string :boid
     	t.string :nepse_code
+			t.integer :client_type, default: 0
     	t.date :date
     	t.string :name
     	t.string :address1 , default: " "

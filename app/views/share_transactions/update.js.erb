@@ -1,0 +1,3 @@
+<%# update.js.erb %>
+<%= smart_listing_item :share_transactions, :update, @share_transaction,
+                       @share_transaction.valid? ? "share_transactions/share_transaction" : "share_transactions/form" %>

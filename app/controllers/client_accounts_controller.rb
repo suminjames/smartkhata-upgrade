@@ -129,7 +129,8 @@
         :bank_account,
         :bank_address,
         :company_name,
-        :company_id
+        :company_id,
+        :client_type
         )
     end
 end

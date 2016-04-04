@@ -2,9 +2,9 @@
     <%= f.error_notification %>
 
     <div class="form-inputs">
-      <%= f.association :bank ,:input_html => { :class => 'combobox'} %>
+      <%= f.association :bank ,:input_html => { :class => 'combobox'}, disabled: true %>
 
-      <%= f.input :account_number %>
+      <%= f.input :account_number, disabled: true %>
       <%= f.input :default_for_sales %>
       <%= f.input :default_for_purchase %>
 

@@ -31,47 +31,48 @@ if params[:search_by] == 'boid'
 <% end %>
 </div>
 
-<div class="text-center">
-  <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-  <div class="text-center">
-    <%= page_entries_info @client_accounts %>
-  </div>
-</div>
-
 <% if !@client_accounts.blank? %>
-<div class="table-responsive">
-	<table class="table table-striped">
-	<thead>
-	  <tr>
-	  	<th>Sr.</th>
-	    <th>BOID</th>
-	    <th>Name</th>
-	    <th>Phone</th>
-	    <th>Email</th>
-	  </tr>
-	</thead>
-	<tbody>
-		<%
-      serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
-      
-			@client_accounts.each_with_index do |x, i| %>
-			<tr>
-				<td><%= serial_number_count + i %></td>
-			  <td><%= x.boid %></td>
-				<td><%= x.name %></td>
-	    	<td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
-	    	<td><%= x.email %></td>
-				<td><%= link_to 'edit', edit_client_account_path(x) %></td>
-			</tr>
-		<% end %>
-	</tbody>
-	</table>
-</div>
+    <div class="text-center">
+      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @client_accounts %>
+      </div>
+    </div>
 
-<div class="text-center">
-  <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-  <div class="text-center">
-    <%= page_entries_info @client_accounts %>
-  </div>
-</div>
+    <div class="table-responsive">
+
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Sr.</th>
+            <th>BOID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+        <%
+          serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
+
+          @client_accounts.each_with_index do |x, i| %>
+          <tr>
+            <td><%= serial_number_count + i %></td>
+            <td><%= x.boid %></td>
+            <td><%= x.name %></td>
+            <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
+            <td><%= x.email %></td>
+            <td><%= link_to 'edit', edit_client_account_path(x) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      </table>
+    </div>
+    <div class="text-center">
+      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @client_accounts %>
+      </div>
+    </div>
+
 <% end %>

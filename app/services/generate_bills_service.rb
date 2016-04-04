@@ -82,6 +82,7 @@ class GenerateBillsService
         voucher.bills << bill
         voucher.share_transactions << transaction
         voucher.desc = description
+        voucher.complete!
   			voucher.save!
 
         # process_accounts(ledger,voucher, is_debit, amount)

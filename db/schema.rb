@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20160325095133) do
 
   create_table "bank_accounts", force: :cascade do |t|
     t.integer  "account_number"
+    t.string   "bank_name"
     t.boolean  "default_for_purchase"
     t.boolean  "default_for_sales"
     t.datetime "created_at",           null: false
@@ -88,6 +89,7 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   create_table "client_accounts", force: :cascade do |t|
     t.string   "boid"
     t.string   "nepse_code"
+    t.integer  "client_type"
     t.date     "date"
     t.string   "name"
     t.string   "address1",                  default: " "

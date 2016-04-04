@@ -266,6 +266,7 @@ class Files::FloorsheetsController < Files::FilesController
 			voucher.bills << bill
 			voucher.share_transactions << transaction
 			voucher.desc = "as being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+			voucher.complete!
 			voucher.save!
 			#
 			# transaction.voucher =  voucher

@@ -28,7 +28,10 @@ class BankAccountsController < ApplicationController
 
     @bank_account = BankAccount.new(bank_account_params)
     @bank = Bank.find_by(id: @bank_account.bank_id)
-      @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})" if @bank.present?
+    if @bank.present?
+      @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
+      @bank_account.bank_name = @bank.name
+    end
 
 
     respond_to do |format|
@@ -46,7 +49,7 @@ class BankAccountsController < ApplicationController
   # PATCH/PUT /bank_accounts/1.json
   def update
     respond_to do |format|
-      if @bank_account.update(bank_account_params)
+      if @bank_account.update(bank_account_update_params)
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully updated.' }
         format.json { render :show, status: :ok, location: @bank_account }
       else
@@ -76,5 +79,9 @@ class BankAccountsController < ApplicationController
     def bank_account_params
       params.require(:bank_account).permit(:bank_id, :account_number,:default_for_sales,:default_for_purchase,
         ledger_attributes: [:opening_blnc, :opening_blnc_type])
+    end
+
+    def bank_account_update_params
+      params.require(:bank_account).permit(:default_for_sales,:default_for_purchase)
     end
 end

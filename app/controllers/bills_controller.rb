@@ -127,6 +127,22 @@ class BillsController < ApplicationController
     end
   end
 
+  def show_by_number
+    @bill_number = params[:number]
+    @bill = nil
+    if @bill_number
+      bill = @bill_number.to_s.split('-')
+      @bill = Bill.find_by(fy_code: bill[0], bill_number: bill[1].to_i) if bill.length == 2
+    end
+
+    if @bill
+      redirect_to bill_path(@bill) and return
+    else
+      render text: 'No bill found'
+    end
+
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_bill

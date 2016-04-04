@@ -26,9 +26,16 @@ class BankAccount < ActiveRecord::Base
 
   end
 
+  def name
+    "#{self.bank.bank_code }-#{self.account_number}"
+  end
 
+  def bank_name
+    "#{self.bank.name}"
+  end
   # assign the ledgers to group name bank accounts
   def assign_group
+
     group = Group.find_by(name: "Current Assets")
     group.ledgers << self.ledger
   end
