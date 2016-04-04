@@ -56,7 +56,7 @@ class ImportPayout
 
 
 
-					transaction = ShareTransaction.find_by(
+					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
 						transaction_type: ShareTransaction.transaction_types[:sell]
 					)
@@ -71,7 +71,7 @@ class ImportPayout
 					amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f
 					transaction.settlement_id = hash['SETT_ID']
 					transaction.cgt = hash['CGT'].delete(',').to_f
-
+					transaction.base_price = get_base_price(transaction)
 					# TODO remove hard code calculations
 					# net amount is the amount that is payble to the client after charges
 					# amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
@@ -141,5 +141,18 @@ class ImportPayout
 
 	def import_error(message)
 		@error_message = message
+	end
+
+	def get_base_price(transaction)
+		unless transaction.cgt > 0
+			0.0
+		else
+			if transaction.client_account.individual?
+				tax_rate = 0.05
+			else
+				tax_rate = 0.1
+			end
+			transaction.share_rate - (transaction.cgt / ( transaction.quantity * tax_rate))
+		end
 	end
 end

@@ -223,15 +223,16 @@ class ShareTransactionsController < ApplicationController
   # PATCH/PUT /share_transactions/1
   # PATCH/PUT /share_transactions/1.json
   def update
-    respond_to do |format|
-      if @share_transaction.update(share_transaction_params)
-        format.html { redirect_to @share_transaction, notice: 'Share transaction was successfully updated.' }
-        format.json { render :show, status: :ok, location: @share_transaction }
-      else
-        format.html { render :edit }
-        format.json { render json: @share_transaction.errors, status: :unprocessable_entity }
-      end
-    end
+    # respond_to do |format|
+    #   if @share_transaction.update(share_transaction_params)
+    #     format.html { redirect_to @share_transaction, notice: 'Share transaction was successfully updated.' }
+    #     format.json { render :index, status: :ok }
+    #   else
+    #     format.html { render :edit }
+    #     format.json { render json: @share_transaction.errors, status: :unprocessable_entity }
+    #   end
+    # end
+    @share_transaction.update(share_transaction_params)
   end
 
   # DELETE /share_transactions/1
@@ -251,6 +252,6 @@ class ShareTransactionsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def share_transaction_params
-      params.fetch(:share_transaction, {})
+      params.require(:share_transaction).permit(:base_price)
     end
 end

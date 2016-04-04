@@ -1,12 +1,14 @@
-%td{colspan: 6}
-  = form_for object, url: object.new_record? ? users_path : user_path(object),
-                     remote: true, html: {class: "form-horizontal"} do |f|
-    %p
-      Quantity:
-      = f.text_field :quantity
-    %p
-      Share Rate
-      = f.text_field :share_rate
+%td{colspan: 7}
+  = simple_form_for object, url: object.new_record? ? share_transactions_path : share_transaction_path(object),
+                     remote: true do |f|
+    .row
+      .col-xs-6
+        %p= "Company:  #{object.isin_info.company}"
+        %p= "Client:   #{object.client_account.name}"
+        %p= "Quantity: #{object.quantity}"
+        %p= "Rate:     #{object.share_rate}"
+        %p
+          = f.input :base_price
 
-    = f.submit "Save", class: "btn btn-primary"
-    %button.btn.btn-link.cancel Cancel
+        = f.submit "Save", class: "btn btn-primary"
+        %button.btn.btn-link.cancel Cancel

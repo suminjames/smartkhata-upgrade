@@ -3,10 +3,12 @@
 - unless smart_listing.empty?
   %table.table.table-striped
     %thead
-      %th.col-md-4= "Company Name"
-      %th.col-md-3= "Client"
-      %th.col-md-2= "Quantity"
-      %th.col-md-2= "Rate"
+      %th.col-xs-4= "Company Name"
+      %th.col-xs-3= "Client"
+      %th.col-xs-2= "Quantity"
+      %th.col-xs-1= "Rate"
+      %th.col-xs-1= "Base Price"
+      %th.col-xs-1= "CGT"
     %tbody
       - smart_listing.collection.each do |o|
         %tr.editable{data: {id: o.id}}

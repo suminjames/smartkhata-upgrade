@@ -69,6 +69,11 @@
       %h3 Official Information
       .row
         .col-xs-6
+          .form-group
+            %label Client type
+            = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type)
+      .row
+        .col-xs-6
           = f.input :boid, label: 'BoId'
         .col-xs-6
           = f.input :nepse_code, label: 'Nepse Code'
