@@ -5,7 +5,6 @@ class Files::SalesController < Files::FilesController
   end
 
 	def import
-
 		# authorize self
 		@file = params[:file];
 
@@ -14,7 +13,6 @@ class Files::SalesController < Files::FilesController
 
     payout_upload = ImportPayout.new(@file)
     payout_upload.process
-
 
     if payout_upload.error_message
       @processed_data = payout_upload.processed_data
@@ -30,8 +28,4 @@ class Files::SalesController < Files::FilesController
   def get_base_price
     share_amount
   end
-  # return true if the floor sheet data is invalid
-	# def is_invalid_file_data(xlsx)
-	# 	xlsx.sheet(0).row(11)[1].to_s.tr(' ','') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
-	# end
 end
