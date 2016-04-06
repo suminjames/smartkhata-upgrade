@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160325095133) do
+ActiveRecord::Schema.define(version: 20160405154747) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,7 +89,7 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   create_table "client_accounts", force: :cascade do |t|
     t.string   "boid"
     t.string   "nepse_code"
-    t.integer  "client_type"
+    t.integer  "client_type",               default: 0
     t.date     "date"
     t.string   "name"
     t.string   "address1",                  default: " "
@@ -230,6 +230,32 @@ ActiveRecord::Schema.define(version: 20160325095133) do
   add_index "settlements", ["fy_code"], name: "index_settlements_on_fy_code", using: :btree
   add_index "settlements", ["settlement_number"], name: "index_settlements_on_settlement_number", using: :btree
   add_index "settlements", ["voucher_id"], name: "index_settlements_on_voucher_id", using: :btree
+
+  create_table "share_inventories", force: :cascade do |t|
+    t.string   "isin_desc"
+    t.decimal  "current_blnc",      precision: 10, scale: 3, default: 0.0
+    t.decimal  "free_blnc",         precision: 10, scale: 3, default: 0.0
+    t.decimal  "freeze_blnc",       precision: 10, scale: 3, default: 0.0
+    t.decimal  "dmt_pending_veri",  precision: 10, scale: 3, default: 0.0
+    t.decimal  "dmt_pending_conf",  precision: 10, scale: 3, default: 0.0
+    t.decimal  "rmt_pending_conf",  precision: 10, scale: 3, default: 0.0
+    t.decimal  "safe_keep_blnc",    precision: 10, scale: 3, default: 0.0
+    t.decimal  "lock_blnc",         precision: 10, scale: 3, default: 0.0
+    t.decimal  "earmark_blnc",      precision: 10, scale: 3, default: 0.0
+    t.decimal  "elimination_blnc",  precision: 10, scale: 3, default: 0.0
+    t.decimal  "avl_lend_blnc",     precision: 10, scale: 3, default: 0.0
+    t.decimal  "lend_blnc",         precision: 10, scale: 3, default: 0.0
+    t.decimal  "borrow_blnc",       precision: 10, scale: 3, default: 0.0
+    t.decimal  "pledge_blnc",       precision: 10, scale: 3, default: 0.0
+    t.decimal  "total_in",          precision: 10,           default: 0
+    t.decimal  "total_out",         precision: 10,           default: 0
+    t.decimal  "floorsheet_blnc",   precision: 10,           default: 0
+    t.date     "report_date"
+    t.integer  "client_account_id"
+    t.integer  "isin_info_id"
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+  end
 
   create_table "share_transactions", force: :cascade do |t|
     t.decimal  "contract_no",       precision: 18

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :share_inventories
   resources :banks
   resources :settlements
   resources :settlements

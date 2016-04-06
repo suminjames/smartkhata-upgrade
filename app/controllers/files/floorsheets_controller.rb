@@ -147,13 +147,13 @@ class Files::FloorsheetsController < Files::FilesController
 	# ]
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
 	def process_records(arr ,hash_dp, fy_code)
-		contract_no = arr[0]
+		contract_no = arr[0].to_i
 		company_symbol = arr[1]
 		buyer_broking_firm_code = arr[2]
 		seller_broking_firm_code = arr[3]
 		client_name = arr[4]
 		client_nepse_code = arr[5]
-		share_quantity =  arr[6]
+		share_quantity =  arr[6].to_i
 		share_rate = arr[7]
 		share_net_amount = arr[8]
 		#TODO look into the usage of arr[9] (Stock Commission)
@@ -219,7 +219,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# TODO: Include base price
 
 		transaction = ShareTransaction.create(
-			contract_no: contract_no.to_i,
+			contract_no: contract_no,
 			isin_info_id: company_info.id,
 			buyer: buyer_broking_firm_code,
 			seller: seller_broking_firm_code,
@@ -237,6 +237,22 @@ class Files::FloorsheetsController < Files::FilesController
 			date: @date,
 			client_account_id: client.id
 		)
+
+		share_inventory = ShareInventory.find_or_create_by(
+			client_account_id: client.id,
+			isin_info_id: company_info.id
+			)
+		share_inventory.lock!
+
+		if transaction.buy?
+			share_inventory.total_in += transaction.quantity
+			share_inventory.floorsheet_blnc += transaction.quantity
+		else
+			share_inventory.total_out += transaction.quantity
+			share_inventory.floorsheet_blnc -= transaction.quantity
+		end
+		
+		share_inventory.save!
 
 		if type_of_transaction == ShareTransaction.transaction_types['buy']
 			bill.share_transactions << transaction

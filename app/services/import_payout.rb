@@ -1,19 +1,5 @@
-class ImportPayout
-	attr_reader :status_code,:sales_settlement_id,:error_message,:processed_data
-
-	def initialize(file)
-		@file = file
-		@status_code = "FL0000"
-		@error_message = nil
-		@processed_data = []
-		@sales_settlement_id = nil
-	end
-
-	def get_status
-		return @status_code
-	end
-
-
+class ImportPayout < ImportFile
+	# process the file
 	def process
 		# initial constants
 		tds_rate = 0.15
@@ -22,7 +8,7 @@ class ImportPayout
 		# so we need to deduct  the tds while charging the client
 		chargeable_on_sale_rate = broker_commission_rate * (1 - tds_rate)
 
-		open_spreadsheet(@file)
+		open_file(@file)
 
 		# inorder to icorporate both row to hash in csv and the hash from roo xls
 		# used the "SETT_ID" instead of [:SETT_ID]
@@ -93,13 +79,6 @@ class ImportPayout
 
 	end
 
-
-	def extract_csv(file)
-		CSV.foreach(file.path, :headers => true) do |row|
-		  @processed_data << row.to_hash
-		end
-	end
-
 	def extract_xls(file)
 		xlsx = Roo::Spreadsheet.open(file)
 		begin
@@ -128,19 +107,6 @@ class ImportPayout
 			@error_message = "Please Upload a valid file. Header dont match" and return
 		end
 		@processed_data = @processed_data.drop(1) if @processed_data[0][:SETT_ID]=='Settlement ID'
-	end
-
-	def open_spreadsheet(file)
-	  case File.extname(file.original_filename)
-	  when ".csv" then extract_csv(file)
-		when ".xls" then extract_xls(file)
-	  # else raise "Unknown file type: #{file.original_filename}"
-		else @error_message = "Unknown file type: #{file.original_filename}"
-	  end
-	end
-
-	def import_error(message)
-		@error_message = message
 	end
 
 	def get_base_price(transaction)
