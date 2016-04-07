@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :share_inventories
   resources :employee_client_associations
   resources :employee_accounts
   resources :banks
