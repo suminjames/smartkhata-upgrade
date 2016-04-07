@@ -34,4 +34,8 @@ class ShareTransaction < ActiveRecord::Base
       self.net_amount = self.net_amount - old_cgt + self.cgt
     end
   end
+
+  def deal_cancelled
+    self.deleted_at.present?
+  end
 end

@@ -1,13 +1,31 @@
 
 #. Implement 'Employee <-> Client' Access Relationships
     - Client model should introduce a new enum field
-        -enum has_access_to  [:all, :some, :all_except]
+        -enum has_access_to  [:all, :some, :all_except_some]
     - A new table ClientEmployeeAssociation should be created
         -only has_access_to relation is recorded in the table
             -Eg: EmployeeId <-> ClientId
     - As per the has_access_to_field,
         -if :all, directly get all clients  (no joins whatsoever)
         -if :some, Employee <-> ClientEmployeeAssociation <-> Client (INNER JOIN)
-        -if :all_except, Employee <-> ClientEmployeeAssociation <-> Client (OUTER JOIN)
-            -Note: The table ClientEmployeeAssociation doesn't hold any all_except relationship. Therefore, the OUTER JOIN.
+        -if :all_except_some, Employee <-> ClientEmployeeAssociation <-> Client (OUTER JOIN)
+            -Note: The table ClientEmployeeAssociation doesn't hold any all_except_some relationship. Therefore, the OUTER JOIN.
     - When a conflicting association is introduced, hard-delete the previous association from the table, and record the new association.
+
+
+#. The index view should
+    -list all the employees
+#. The show view should
+    -list a particular employee and has associations to Clients
+    -allow editing of associations
+        -:all
+        -:some
+            -list existing associations
+            -allow adding of new association
+                -drop down with user name (and id)
+            -revoke existing associations
+                -confirmation pop-up?
+
+#. Note:
+    -Internal Ledgers are ledgers with 'nil' client_code
+    -Client Ledgers are ledgers with NOT 'nil' client_code
