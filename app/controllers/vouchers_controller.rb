@@ -15,7 +15,7 @@ class VouchersController < ApplicationController
     @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
       @particular_with_bank = @particulars.has_bank.first
-      @bank = @particular_with_bank.ledger.bank_account
+      @bank_account = @particular_with_bank.ledger.bank_account
       @cheque = @particular_with_bank.cheque_number
       @particulars =  @particulars.general
     end
@@ -218,7 +218,7 @@ class VouchersController < ApplicationController
               # else
               #   particular.description = "Being Received for #{@voucher.desc}"
               # end
-              particular.description = "as being settled for #{description_bills_short}"
+              particular.description = "being settled for #{description_bills_short}"
             end
             ledger = Ledger.find(particular.ledger_id)
             # particular.bill_id = bill_id

@@ -1,9 +1,6 @@
 class CreateShareInventories < ActiveRecord::Migration
   def change
     create_table :share_inventories do |t|
-      # this hack needs to worked around
-      # t.string :boid
-      # t.string :isin
       t.string :isin_desc 
       t.decimal :current_blnc , precision: 10, scale: 3, default: 0
       t.decimal :free_blnc , precision: 10, scale: 3, default: 0
@@ -25,8 +22,8 @@ class CreateShareInventories < ActiveRecord::Migration
       t.decimal :floorsheet_blnc , precision: 10, scale: 0, default: 0
 
       t.date :report_date
-      t.references :client_account
-      t.references :isin_info
+      t.references :client_account, index: true
+      t.references :isin_info, index: true
       t.timestamps null: false
     end
   end

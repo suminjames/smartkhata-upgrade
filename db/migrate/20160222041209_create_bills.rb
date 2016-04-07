@@ -7,6 +7,7 @@ class CreateBills < ActiveRecord::Migration
       t.decimal :balance_to_pay, precision: 15, scale: 4, default: 0
     	t.integer :bill_type
     	t.integer :status , default: 0
+      t.boolean :has_deal_cancelled , default: false
       t.timestamps null: false
       t.integer :fy_code
       t.references :client_account,  index: true

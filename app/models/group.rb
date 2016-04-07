@@ -16,6 +16,9 @@ class Group < ActiveRecord::Base
   scope :pnl, -> {
     where(:report => reports['PNL'])
   }
+
+  # TODO add some uniqueness other than name
+  validates :name, uniqueness: true
 	# not so good approach
 	# kept for performance test later on
   def descendents_bad

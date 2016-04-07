@@ -1,6 +1,7 @@
 class ClientAccount < ActiveRecord::Base
 	belongs_to :user
 	has_one :ledger
+  has_many :share_inventories
 	has_many :bills do
     def requiring_processing
       where(status: ["pending","partial"])
@@ -19,4 +20,8 @@ class ClientAccount < ActiveRecord::Base
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
 
 	enum client_type: [:individual, :corporate ]
+
+  def get_current_valuation
+    self.share_inventories.includes(:isin_info).sum('floorsheet_blnc * isin_infos.last_price')
+  end
 end

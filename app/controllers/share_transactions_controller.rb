@@ -150,10 +150,13 @@ class ShareTransactionsController < ApplicationController
       @bill = @share_transaction.bill
 
       ActiveRecord::Base.transaction do
+        # now the bill will have atleast on deal cancelled transaction
+        @bill.has_deal_cancelled = true
         if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
           @bill.balance_to_pay = 0
           @bill.net_amount = 0
-          @bill.cancelled!
+          @bill.settled!
+          
         else
           @bill.balance_to_pay -= @share_transaction.net_amount
           @bill.net_amount -= @share_transaction.net_amount
@@ -161,8 +164,11 @@ class ShareTransactionsController < ApplicationController
         end
         @bill.save!
 
+        # create a new voucher and add the bill reference to it
         @new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
-        description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate})"
+        @new_voucher.bills << bill
+
+        description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
         @voucher.particulars.each do |particular|
           reverse_accounts(particular,@new_voucher,description)
         end
