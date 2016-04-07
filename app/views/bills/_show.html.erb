@@ -1,3 +1,4 @@
+<!--This is kept in a partial with underscore appended filename because this is not only rendered in regular #show action but also using js(as a pulldown modal) -->
 <%
 # Client associated with the bill
 @client = @bill.get_client
@@ -140,7 +141,7 @@
         # </tr>
         # <!-- Test Data ENDS -->
         %>
-        <tr>
+        <tr class="<%= 'deal_cancelled_transaction' if share_transaction.deal_cancelled == true %>">
           <!-- <th>Transaction No</th> -->
           <td><%= share_transaction.contract_no %></td>
           <!-- <th>No of Shares</th> -->

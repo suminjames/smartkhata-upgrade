@@ -4,7 +4,16 @@
   # GET /client_accounts
   # GET /client_accounts.json
   def index
-    if params[:search_by].blank?
+    #default landing action for '/ledgers'
+    # OPTIMIZE - Refactor
+    if params[:search_by].blank? && params[:show].blank?
+      respond_to do |format|
+        format.html { redirect_to client_accounts_path(search_by: "name") }
+      end
+      return
+    end
+
+    if params[:show] == 'all'
       @client_accounts = ClientAccount.all
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]

@@ -141,6 +141,60 @@ ActiveRecord::Schema.define(version: 20160405154747) do
 
   add_index "client_accounts", ["user_id"], name: "index_client_accounts_on_user_id", using: :btree
 
+  create_table "employee_accounts", force: :cascade do |t|
+    t.integer  "client_type",               default: 0
+    t.date     "date"
+    t.string   "name"
+    t.string   "address1",                  default: " "
+    t.string   "address1_perm"
+    t.string   "address2",                  default: " "
+    t.string   "address2_perm"
+    t.string   "address3"
+    t.string   "address3_perm"
+    t.string   "city",                      default: " "
+    t.string   "city_perm"
+    t.string   "state"
+    t.string   "state_perm"
+    t.string   "country",                   default: " "
+    t.string   "country_perm"
+    t.string   "phone"
+    t.string   "phone_perm"
+    t.string   "dob"
+    t.string   "sex"
+    t.string   "nationality"
+    t.string   "email"
+    t.string   "father_mother"
+    t.string   "citizen_passport"
+    t.string   "granfather_father_inlaw"
+    t.string   "husband_spouse"
+    t.string   "citizen_passport_date"
+    t.string   "citizen_passport_district"
+    t.string   "pan_no"
+    t.string   "dob_ad"
+    t.string   "bank_name"
+    t.string   "bank_account"
+    t.string   "bank_address"
+    t.string   "company_name"
+    t.string   "company_id"
+    t.boolean  "invited",                   default: false
+    t.integer  "user_id"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.integer  "has_access_to"
+  end
+
+  add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
+
+  create_table "employee_client_associations", force: :cascade do |t|
+    t.integer  "employee_account_id"
+    t.integer  "client_account_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  add_index "employee_client_associations", ["client_account_id"], name: "index_employee_client_associations_on_client_account_id", using: :btree
+  add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
+
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"
     t.date     "report_date"

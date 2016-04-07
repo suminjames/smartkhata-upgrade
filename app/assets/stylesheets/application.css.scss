@@ -202,3 +202,20 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 .z-small-view {
 	font-size: 12px;
 }
+
+// Changes made by Danphe Devs
+
+$link_color: #2f8a93;
+$bill_background_color: rgba(236, 240, 245, 0.42);
+
+// Enforce same link color(s) in the overall app
+a {
+  color: $link_color;
+  &:visited {
+    color: $link_color;
+  }
+  &:hover {
+    color: #fff;
+    background-color: $link_color;
+  }
+}
