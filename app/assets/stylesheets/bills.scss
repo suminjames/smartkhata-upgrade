@@ -67,6 +67,9 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 }
 
 .transactions-section{
+  .deal_cancelled_transaction{
+    text-decoration: line-through;
+  }
   table{
     // The width of this table is ought to be 900px.
     // TODO: test the 900px width against small screens, and the fixed dimensions of the page.

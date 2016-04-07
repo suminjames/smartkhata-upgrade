@@ -1,4 +1,6 @@
 class ClientAccount < ActiveRecord::Base
+	has_many :employee_client_associations
+	has_many :employee_accounts, through: :employee_client_associations
 	belongs_to :user
 	has_one :ledger
   has_many :share_inventories

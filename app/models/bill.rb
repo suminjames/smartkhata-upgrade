@@ -1,5 +1,7 @@
 class Bill < ActiveRecord::Base
-  has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
+  #TODO Now that a bill
+  # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
+  has_many :share_transactions
   belongs_to :client_account
   has_many :isin_infos , through: :share_transactions
 
@@ -34,17 +36,17 @@ class Bill < ActiveRecord::Base
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
-			return self.share_transactions.sum(:share_amount);
+			return self.share_transactions.not_cancelled.sum(:share_amount);
   end
 
   # Returns total sebo commission from all child share_transactions
   def get_net_sebo_commission
-			return self.share_transactions.sum(:sebo);
+			return self.share_transactions.not_cancelled.sum(:sebo);
   end
 
   # Returns total net commission from all child share_transactions
   def get_net_commission
-			return self.share_transactions.sum(:commission_amount);
+			return self.share_transactions.not_cancelled.sum(:commission_amount);
   end
 
   # TODO: Implement the method.
@@ -54,12 +56,12 @@ class Bill < ActiveRecord::Base
 
   # Returns total net dp fee
   def get_net_dp_fee
-			return self.share_transactions.sum(:dp_fee);
+			return self.share_transactions.not_cancelled.sum(:dp_fee);
   end
 
   # Returns total net cgt
   def get_net_cgt
-			return self.share_transactions.sum(:cgt);
+			return self.share_transactions.not_cancelled.sum(:cgt);
   end
 
   # TODO

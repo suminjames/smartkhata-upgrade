@@ -65,7 +65,7 @@ class ShareTransactionsController < ApplicationController
         date_bs = params[:date]
         if parsable_date? date_bs
           date_ad = bs_to_ad(date_bs)
-          @share_transactions = ShareTransaction.find_by_date(date_ad)
+          @share_transactions = @share_transactions.find_by_date(date_ad)
         else
           @share_transactions = ''
           respond_to do |format|
@@ -82,7 +82,7 @@ class ShareTransactionsController < ApplicationController
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
           date_to_ad = bs_to_ad(date_to_bs)
-          @share_transactions = ShareTransaction.find_by_date_range(date_from_ad, date_to_ad)
+          @share_transactions = @share_transactions.find_by_date_range(date_from_ad, date_to_ad)
         else
           @share_transactions = ''
           respond_to do |format|
