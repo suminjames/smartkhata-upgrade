@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :employee_client_associations
+  resources :employee_accounts
   resources :banks
   resources :settlements
   resources :settlements
