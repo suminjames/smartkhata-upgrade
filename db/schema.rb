@@ -40,12 +40,13 @@ ActiveRecord::Schema.define(version: 20160405154747) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",         precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",     precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                     default: 0
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.integer  "status",                                      default: 0
+    t.boolean  "has_deal_cancelled",                          default: false
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
     t.integer  "fy_code"
     t.integer  "client_account_id"
   end
@@ -310,6 +311,9 @@ ActiveRecord::Schema.define(version: 20160405154747) do
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
   end
+
+  add_index "share_inventories", ["client_account_id"], name: "index_share_inventories_on_client_account_id", using: :btree
+  add_index "share_inventories", ["isin_info_id"], name: "index_share_inventories_on_isin_info_id", using: :btree
 
   create_table "share_transactions", force: :cascade do |t|
     t.decimal  "contract_no",       precision: 18

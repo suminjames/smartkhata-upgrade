@@ -276,12 +276,14 @@ class Files::FloorsheetsController < Files::FilesController
 			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
 			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
-			description = "as being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+
+			# update description
+			description = "being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
 			voucher.bills << bill
 			voucher.share_transactions << transaction
-			voucher.desc = "as being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+			voucher.desc = description
 			voucher.complete!
 			voucher.save!
 			#
