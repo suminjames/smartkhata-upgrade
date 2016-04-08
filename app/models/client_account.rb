@@ -1,5 +1,6 @@
 class ClientAccount < ActiveRecord::Base
 	has_many :employee_client_associations
+	# TODO: See the following associations efficient implementation
 	has_many :employee_accounts, through: :employee_client_associations
 	belongs_to :user
 	has_one :ledger
