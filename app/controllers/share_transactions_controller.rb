@@ -166,7 +166,7 @@ class ShareTransactionsController < ApplicationController
 
         # create a new voucher and add the bill reference to it
         @new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
-        @new_voucher.bills << bill
+        @new_voucher.bills << @bill
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
         @voucher.particulars.each do |particular|

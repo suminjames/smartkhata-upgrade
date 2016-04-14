@@ -1,5 +1,6 @@
 class ImportPayout < ImportFile
 	# process the file
+  include ShareInventoryModule
 	def process
 		# initial constants
 		tds_rate = 0.15
@@ -16,7 +17,7 @@ class ImportPayout < ImportFile
 		@settlement_id = @processed_data[0]['SETT_ID'] ?  @processed_data[0]['SETT_ID'].to_i :  @processed_data[0][:SETT_ID].to_i
 		# do not reprocess file if it is already uploaded
 		settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
-		@error_message = "The file is already uploaded" unless settlement_cm_file.nil?
+		# @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
 		unless @error_message
 			ActiveRecord::Base.transaction do
@@ -49,16 +50,31 @@ class ImportPayout < ImportFile
 
 
 					if transaction.nil?
-						import_error("Please upload corresponding Floorsheet First")
-						raise ActiveRecord::Rollback
-						break
+						# import_error("Please upload corresponding Floorsheet First")
+						# raise ActiveRecord::Rollback
+						# break
+						next
 					end
+
+
 
 					amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f
 					transaction.settlement_id = hash['SETT_ID']
+          transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
 					transaction.cgt = hash['CGT'].delete(',').to_f
 					transaction.base_price = get_base_price(transaction)
-					# TODO remove hard code calculations
+
+
+          # get the shortage quantity
+          shortage_quantity = ((transaction.closeout_amount / transaction.share_rate) * 10/12).to_i
+          if transaction.closeout_amount.present? && transaction.closeout_amount > 0
+            transaction.quantity = transaction.raw_quantity - shortage_quantity
+					end
+					if shortage_quantity > 0
+						update_share_inventory(transaction.client_account_id,transaction.isin_info_id, shortage_quantity, true)
+					end
+
+              # TODO remove hard code calculations
 					# net amount is the amount that is payble to the client after charges
 					# amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
 					# amount payble to client =
@@ -67,7 +83,14 @@ class ImportPayout < ImportFile
 					#   + tds of broker (it was charged by nepse , so should be reimbursed to client )
 					#   - dp fee
 					# client pays the commission_amount
-					transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+
+          if transaction.closeout_amount > 0
+            transaction.net_amount = (transaction.closeout_amount + amount_receivable) -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          else
+            transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          end
+
+					# transaction.net_amount = (transaction.raw_quantity * transaction.share_rate) -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
 					transaction.amount_receivable = amount_receivable
 					transaction.save!
 				end

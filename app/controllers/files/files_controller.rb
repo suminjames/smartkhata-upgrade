@@ -8,11 +8,8 @@ class Files::FilesController < ApplicationController
 
 
   # return true if the floor sheet file itself is invalid
-  def is_invalid_file(file, file_name_contains)
-    puts file == nil
-    puts file.original_filename
-    puts (!file.original_filename.upcase.include? file_name_contains)
-    puts file.original_filename.include? ".gz"
+  def is_invalid_file(file, file_name_contains = '')
+
     file == nil || ((!file.original_filename.upcase.include? file_name_contains ) || (file.original_filename.include? ".gz"))
   end
 
