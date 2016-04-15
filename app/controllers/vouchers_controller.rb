@@ -14,6 +14,9 @@ class VouchersController < ApplicationController
     full_view = params[:full] || false
     @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
+
+      @from_path = vouchers_path if @from_path.match(/new/)
+      # TODO remove this hack
       @particular_with_bank = @particulars.has_bank.first
       @bank_account = @particular_with_bank.ledger.bank_account
       @cheque = @particular_with_bank.cheque_number

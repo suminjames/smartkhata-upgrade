@@ -36,17 +36,17 @@ class Bill < ActiveRecord::Base
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
-			return self.share_transactions.not_cancelled.sum(:share_amount);
+			return self.share_transactions.not_cancelled_for_bill.sum(:share_amount);
   end
 
   # Returns total sebo commission from all child share_transactions
   def get_net_sebo_commission
-			return self.share_transactions.not_cancelled.sum(:sebo);
+			return self.share_transactions.not_cancelled_for_bill.sum(:sebo);
   end
 
   # Returns total net commission from all child share_transactions
   def get_net_commission
-			return self.share_transactions.not_cancelled.sum(:commission_amount);
+			return self.share_transactions.not_cancelled_for_bill.sum(:commission_amount);
   end
 
   # TODO: Implement the method.
@@ -56,12 +56,12 @@ class Bill < ActiveRecord::Base
 
   # Returns total net dp fee
   def get_net_dp_fee
-			return self.share_transactions.not_cancelled.sum(:dp_fee);
+			return self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
   end
 
   # Returns total net cgt
   def get_net_cgt
-			return self.share_transactions.not_cancelled.sum(:cgt);
+			return self.share_transactions.not_cancelled_for_bill.sum(:cgt);
   end
 
   # TODO
