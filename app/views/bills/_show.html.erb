@@ -100,21 +100,22 @@
         <th>Commission Amount</th>
         <th>Capital Gain</th>
       </tr>
+
+      <colgroup>
+        <col class="col-1">
+        <col class="col-2">
+        <col class="col-3">
+        <col class="col-4">
+        <col class="col-5">
+        <col class="col-6">
+        <col class="col-7">
+        <col class="col-8">
+        <col class="col-9">
+      </colgroup>
       <%
       @bill.share_transactions.each do | share_transaction |
         %>
 
-        <colgroup>
-          <col class="col-1">
-          <col class="col-2">
-          <col class="col-3">
-          <col class="col-4">
-          <col class="col-5">
-          <col class="col-6">
-          <col class="col-7">
-          <col class="col-8">
-          <col class="col-9">
-        </colgroup>
 
         <%
         # <!-- The following block needs to be (ruby) uncommented, and the enclosing ruby tags should be deleted to test the table off the potential widest content in relevant td's. -->
