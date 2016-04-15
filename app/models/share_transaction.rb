@@ -10,7 +10,7 @@ class ShareTransaction < ActiveRecord::Base
     :date=> date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
       :date=> date_from.beginning_of_day..date_to.end_of_day) }
-  scope :not_cancelled, -> { where(deleted_at: nil) }
+  scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
   scope :cancelled, -> { where.not(deleted_at: nil) }
 
  def do_as_per_params (params)

@@ -59,7 +59,7 @@ tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisad
       group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']})
       groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}, {name: "Clearing Account"}])
       group.children << groups
-      ledgers = Ledger.create([{name: "TDS"},{name: "Cash"}])
+      ledgers = Ledger.create([{name: "TDS"},{name: "Cash"},{name: 'Close Out'}])
       group.ledgers << ledgers
       group.save!
 
@@ -104,12 +104,12 @@ puts 'CREATED ADMIN USER: ' << new_user.email
 Apartment::Tenant.switch!('public')
 
 
-if Rails.env == 'development'
-  Apartment::Tenant.switch!('trishakti')
-  employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
-  employees.each  do |employee|
-    EmployeeAccount.find_or_create_by!(employee)
-    puts 'Created EmployeeAccount: ' << employee[:name]
-  end
-  Apartment::Tenant.switch!('public')
-end
+# if Rails.env == 'development'
+#   Apartment::Tenant.switch!('trishakti')
+#   employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
+#   employees.each  do |employee|
+#     EmployeeAccount.find_or_create_by!(employee)
+#     puts 'Created EmployeeAccount: ' << employee[:name]
+#   end
+#   Apartment::Tenant.switch!('public')
+# end

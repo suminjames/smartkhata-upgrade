@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :closeouts
   resources :share_inventories
   resources :banks
   resources :settlements
@@ -34,6 +35,7 @@ Rails.application.routes.draw do
   devise_for :users
   resources :users
   resources :client_accounts
+
   namespace 'files' do
     resources :orders do
       collection {post :import}
@@ -48,6 +50,9 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :calendars do
+      collection {post :import}
+    end
+    resources :closeouts do
       collection {post :import}
     end
   end

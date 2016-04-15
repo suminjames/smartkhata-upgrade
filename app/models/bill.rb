@@ -22,7 +22,7 @@ class Bill < ActiveRecord::Base
   # # Bill cancel Status
   # #  - none : Default
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
-  # enum deal_cancel_status: [:no_deal_cancelled, :has_deal_cancelled]
+  enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
