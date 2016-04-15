@@ -10,7 +10,13 @@ class ShareTransaction < ActiveRecord::Base
     :date=> date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
       :date=> date_from.beginning_of_day..date_to.end_of_day) }
+
+  # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
+
+  # used for bill ( it eradicates only with deal cancelled)
+  scope :not_cancelled_for_bill, -> { where(deleted_at: nil) }
+
   scope :cancelled, -> { where.not(deleted_at: nil) }
 
  def do_as_per_params (params)

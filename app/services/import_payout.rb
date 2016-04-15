@@ -17,7 +17,7 @@ class ImportPayout < ImportFile
 		@settlement_id = @processed_data[0]['SETT_ID'] ?  @processed_data[0]['SETT_ID'].to_i :  @processed_data[0][:SETT_ID].to_i
 		# do not reprocess file if it is already uploaded
 		settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
-		# @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
+		@error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
 		unless @error_message
 			ActiveRecord::Base.transaction do
@@ -50,10 +50,9 @@ class ImportPayout < ImportFile
 
 
 					if transaction.nil?
-						# import_error("Please upload corresponding Floorsheet First")
-						# raise ActiveRecord::Rollback
-						# break
-						next
+						import_error("Please upload corresponding Floorsheet First")
+						raise ActiveRecord::Rollback
+						break
 					end
 
 

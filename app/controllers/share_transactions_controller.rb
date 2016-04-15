@@ -151,7 +151,7 @@ class ShareTransactionsController < ApplicationController
 
       ActiveRecord::Base.transaction do
         # now the bill will have atleast on deal cancelled transaction
-        @bill.has_deal_cancelled = true
+        @bill.has_deal_cancelled!
         if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
           @bill.balance_to_pay = 0
           @bill.net_amount = 0
