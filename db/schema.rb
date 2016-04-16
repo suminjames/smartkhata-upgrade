@@ -48,11 +48,15 @@ ActiveRecord::Schema.define(version: 20160411064357) do
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "fy_code"
+    t.date     "date"
+    t.string   "date_bs"
     t.integer  "client_account_id"
   end
 
   add_index "bills", ["client_account_id"], name: "index_bills_on_client_account_id", using: :btree
+  add_index "bills", ["date"], name: "index_bills_on_date", using: :btree
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
+  add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
 
   create_table "bills_vouchers", id: false, force: :cascade do |t|
     t.integer "bill_id"
@@ -160,60 +164,6 @@ ActiveRecord::Schema.define(version: 20160411064357) do
     t.datetime "updated_at",                                               null: false
   end
 
-  create_table "employee_accounts", force: :cascade do |t|
-    t.integer  "client_type",               default: 0
-    t.date     "date"
-    t.string   "name"
-    t.string   "address1",                  default: " "
-    t.string   "address1_perm"
-    t.string   "address2",                  default: " "
-    t.string   "address2_perm"
-    t.string   "address3"
-    t.string   "address3_perm"
-    t.string   "city",                      default: " "
-    t.string   "city_perm"
-    t.string   "state"
-    t.string   "state_perm"
-    t.string   "country",                   default: " "
-    t.string   "country_perm"
-    t.string   "phone"
-    t.string   "phone_perm"
-    t.string   "dob"
-    t.string   "sex"
-    t.string   "nationality"
-    t.string   "email"
-    t.string   "father_mother"
-    t.string   "citizen_passport"
-    t.string   "granfather_father_inlaw"
-    t.string   "husband_spouse"
-    t.string   "citizen_passport_date"
-    t.string   "citizen_passport_district"
-    t.string   "pan_no"
-    t.string   "dob_ad"
-    t.string   "bank_name"
-    t.string   "bank_account"
-    t.string   "bank_address"
-    t.string   "company_name"
-    t.string   "company_id"
-    t.boolean  "invited",                   default: false
-    t.integer  "has_access_to"
-    t.integer  "user_id"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
-  end
-
-  add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
-
-  create_table "employee_client_associations", force: :cascade do |t|
-    t.integer  "employee_account_id"
-    t.integer  "client_account_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-  end
-
-  add_index "employee_client_associations", ["client_account_id"], name: "index_employee_client_associations_on_client_account_id", using: :btree
-  add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
-
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"
     t.date     "report_date"
@@ -270,6 +220,7 @@ ActiveRecord::Schema.define(version: 20160411064357) do
     t.integer  "additional_bank_id"
     t.integer  "particular_status",                           default: 1
     t.string   "date_bs"
+    t.date     "transaction_date"
     t.datetime "created_at",                                                null: false
     t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"

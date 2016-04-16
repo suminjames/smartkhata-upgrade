@@ -171,17 +171,22 @@ class Files::FloorsheetsController < Files::FilesController
 
 		# check for the bank deposit value which is available only for buy
     # used 25.0 instead of 25 to get number with decimal
+    # hash_dp_count is used for the dp charges
+    # hash_dp is used to group transactions into bill 
+    # bill contains all the transactions done for a user for each type( purchase / sales)
 		if bank_deposit.nil?
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'sell']
 			type_of_transaction = ShareTransaction.transaction_types['sell']
 		else
 			# create or find a bill by the number
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buy']
-			if hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'buy')
-				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+company_symbol.to_s+'buy'], fy_code: fy_code)
+
+      # group all the share transactions for a client for the day
+			if hash_dp.has_key?(client_name.to_s+'buy')
+				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buy'], fy_code: fy_code, date: @date)
 			else
-				hash_dp[client_name.to_s+company_symbol.to_s+'buy'] = @bill_number
-				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
+				hash_dp[client_name.to_s+'buy'] = @bill_number
+				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
 					b.bill_type = Bill.bill_types['purchase']
 					b.client_name = client_name
 				end
@@ -279,7 +284,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 
 			# update description
-			description = "being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+			description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
 			voucher.bills << bill
@@ -292,11 +297,11 @@ class Files::FloorsheetsController < Files::FilesController
 			# transaction.save!
 
 			#TODO replace bill from particulars with bill from voucher
-			process_accounts(client_ledger,voucher,true,@client_dr,description)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
-			process_accounts(tds_ledger,voucher,true,tds,description)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
-			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
+			process_accounts(client_ledger,voucher,true,@client_dr,description,@date)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,@date)
+			process_accounts(tds_ledger,voucher,true,tds,description,@date)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,@date)
+			process_accounts(dp_ledger,voucher,false,dp,description,@date) if dp > 0
 
 		end
 
