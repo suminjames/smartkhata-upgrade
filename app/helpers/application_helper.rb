@@ -44,20 +44,34 @@ module ApplicationHelper
 		ledger.save!
 	end
 
-	def reverse_accounts(particular,voucher, descr)
-		transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-		ledger = particular.ledger
+	def reverse_accounts(particular,voucher, descr, adjustment = 0.0)
 		amount = particular.amnt
-		ledger.lock!
-		closing_blnc = ledger.closing_blnc
-		if particular.cr?
-			ledger.closing_blnc += amount
-		else
-			ledger.closing_blnc -= amount
+
+		# this accounts for the case where whole transaction is cancelled
+		# in such case adjustment value is 0
+		if ( amount - adjustment).abs > 0.01
+			transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
+			ledger = particular.ledger
+			amount = particular.amnt
+			ledger.lock!
+			closing_blnc = ledger.closing_blnc
+
+			# in case of client account charge the dp fee.
+			if ledger.client_account_id.present?
+				amount = amount - adjustment
+			end
+
+			if particular.cr?
+				ledger.closing_blnc += amount
+			else
+				ledger.closing_blnc -= amount
+			end
+
+			Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+			ledger.save!
 		end
 
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
-		ledger.save!
+		
 
 	end
 

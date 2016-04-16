@@ -149,8 +149,27 @@ class ShareTransactionsController < ApplicationController
       @voucher = @share_transaction.voucher
       @bill = @share_transaction.bill
 
+      relevant_share_transactions = @bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
+      @dp_fee_adjustment = 0.0
+      total_transaction_count = relevant_share_transactions.length
+
+
+
+
+
       ActiveRecord::Base.transaction do
-        # now the bill will have atleast on deal cancelled transaction
+        if total_transaction_count > 1
+          @dp_fee_adjustment = @share_transaction.dp_fee
+          @dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
+          relevant_share_transactions.each do |transaction|
+            unless transaction == @share_transaction
+              transaction.dp_fee += dp_fee_adjustment_per_transaction
+              transaction.save!
+            end
+          end
+        end
+
+        # now the bill will have atleast one deal cancelled transaction
         @bill.has_deal_cancelled!
         if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
           @bill.balance_to_pay = 0
@@ -158,8 +177,8 @@ class ShareTransactionsController < ApplicationController
           @bill.settled!
           
         else
-          @bill.balance_to_pay -= @share_transaction.net_amount
-          @bill.net_amount -= @share_transaction.net_amount
+          @bill.balance_to_pay -= (@share_transaction.net_amount - dp_fee_adjustment)
+          @bill.net_amount -= (@share_transaction.net_amount - dp_fee_adjustment)
           @bill.partial!
         end
         @bill.save!
@@ -170,7 +189,7 @@ class ShareTransactionsController < ApplicationController
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
         @voucher.particulars.each do |particular|
-          reverse_accounts(particular,@new_voucher,description)
+          reverse_accounts(particular,@new_voucher,description, dp_fee_adjustment)
         end
         @share_transaction.soft_delete
         @share_transaction.save!
