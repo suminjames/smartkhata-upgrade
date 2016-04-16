@@ -11,8 +11,8 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_bill_dates
-      bs_date = h.ad_to_bs(object.created_at).to_s + ' BS'
-      ad_date = object.created_at.to_s.slice(0..10) + ' AD'
+      bs_date = object.date_bs + ' BS'
+      ad_date = object.date.to_s + ' AD'
       {"ad" => ad_date , "bs" => bs_date}
   end
 

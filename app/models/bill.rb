@@ -1,4 +1,5 @@
 class Bill < ActiveRecord::Base
+  include CustomDateModule
   #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions
@@ -33,6 +34,8 @@ class Bill < ActiveRecord::Base
     :updated_at => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
     :updated_at => date_from.beginning_of_day..date_to.end_of_day) }
+
+  before_save :process_bill
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
@@ -74,6 +77,12 @@ class Bill < ActiveRecord::Base
   # Returns client associated to this bill
   def get_client
     return ClientAccount.find(self.client_account_id)
+  end
+
+
+  private
+  def process_bill
+    self.date_bs ||= ad_to_bs(self.date)
   end
 
 end

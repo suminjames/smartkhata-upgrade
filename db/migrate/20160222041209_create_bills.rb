@@ -11,7 +11,9 @@ class CreateBills < ActiveRecord::Migration
       # t.boolean :has_deal_cancelled , default: false
       # t.boolean :has_closeout, default: false
       t.timestamps null: false
-      t.integer :fy_code
+      t.integer :fy_code, index: true
+      t.date :date, index: true
+      t.string :date_bs
       t.references :client_account,  index: true
       # t.index :bill_number
     end

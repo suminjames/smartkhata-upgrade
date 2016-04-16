@@ -26,6 +26,7 @@ class Particular < ActiveRecord::Base
 
 	private
 	def process_particular
-		self.date_bs ||= ad_to_bs(Time.now)
+		self.transaction_date ||= Time.now
+		self.date_bs ||= ad_to_bs(self.transaction_date)
 	end
 end
