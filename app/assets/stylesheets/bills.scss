@@ -17,6 +17,17 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 .bill-full {
   background: $bill_background_color;
   padding: 10px;
+
+  .settlement-holder {
+    position: absolute;
+    width: 300px;
+    height: auto;
+    top: 50%;
+    left: 50%;
+    margin-left: -150px;
+    margin-top: -150px;
+    opacity: .15;
+  }
 }
 
 .bill-card {

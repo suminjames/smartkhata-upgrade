@@ -38,6 +38,8 @@ class VouchersController < ApplicationController
 
     # create new voucher
     @voucher = Voucher.new
+    # get client account, bill , bills and amount
+    @client_account,@bill,@bills,@amount = set_bill_client(@client_account_id, @bill_id, @voucher_type)
 
     # load additional data for voucher types like default payment and receive ledgers
     # client purchase is voucher type sales
@@ -55,11 +57,10 @@ class VouchersController < ApplicationController
       else
         @default_ledger_id = @default_bank_purchase ? @default_bank_purchase.id : @cash_ledger.id
       end
-
+      @voucher.desc = "Being settled for Bill No: #{@bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if @bills.length > 0
     end
 
-    # get client account, bill , bills and amount
-    @client_account,@bill,@bills,@amount = set_bill_client(@client_account_id, @bill_id, @voucher_type)
+    
 
     # if client account is present create a particular with available information and assign it
     # else create a general particular.
@@ -130,6 +131,7 @@ class VouchersController < ApplicationController
     if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
       @voucher.particulars.each do |particular|
+        particular.description = @voucher.desc
         particular.amnt = particular.amnt || 0
         if particular.amnt <= 0
           has_error = true
@@ -160,17 +162,17 @@ class VouchersController < ApplicationController
       # add the particular to the voucher for sales or purchase
       @processed_bills = []
 
-      # add the ledger name in case of 2 particulars
-      if @voucher.particulars.length == 2 && !has_error
-        @voucher.particulars[0].name = Ledger.find(@voucher.particulars[1].ledger_id).name
-        @voucher.particulars[1].name = Ledger.find(@voucher.particulars[0].ledger_id).name
-      end
+      # # add the ledger name in case of 2 particulars
+      # if @voucher.particulars.length == 2 && !has_error
+      #   @voucher.particulars[0].name = Ledger.find(@voucher.particulars[1].ledger_id).name
+      #   @voucher.particulars[1].name = Ledger.find(@voucher.particulars[0].ledger_id).name
+      # end
 
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         # capture  the bill number and amount billed to description billed
         description_bills = ""
-        description_bills_short = ""
+       
 
         if @is_purchase_sales && @client_account
           # transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]
@@ -192,7 +194,7 @@ class VouchersController < ApplicationController
               @processed_bills << bill
               break
             end
-            description_bills_short += "Bill No.:#{bill.fy_code}-#{bill.bill_number}"
+
           end
         end
 
@@ -215,14 +217,6 @@ class VouchersController < ApplicationController
           @voucher.particulars.each do |particular|
             particular.pending!
 
-            if @is_purchase_sales
-              # if particular.cr?
-              #   particular.description = "Being paid for #{@voucher.desc}"
-              # else
-              #   particular.description = "Being Received for #{@voucher.desc}"
-              # end
-              particular.description = "being settled for #{description_bills_short}"
-            end
             ledger = Ledger.find(particular.ledger_id)
             # particular.bill_id = bill_id
             if (particular.cheque_number.present?)
@@ -267,8 +261,8 @@ class VouchersController < ApplicationController
     respond_to do |format|
       if success
         format.html {
-          # redirect_to settlement_path(@settlement) if @settlement.present?
-          redirect_to @voucher, notice: 'Voucher was successfully created.'
+          redirect_to settlement_path(@settlement) if @settlement.present?
+          redirect_to @voucher, notice: 'Voucher was successfully created.' if @settlement.blank?
         }
         format.json { render :show, status: :created, location: @voucher }
       else

@@ -58,9 +58,13 @@
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>
-        <td><%= link_to 'Show', ledger %>
-        <!-- <td><%= link_to 'Show', ledger %> | <%= link_to 'Edit', edit_ledger_path(ledger) %> |
-          <%= link_to 'Destroy', ledger, method: :delete, data: { confirm: 'Are you sure?' } %> -->
+        <td>
+        <%= link_to 'Show', ledger %>
+        <% if ledger.client_account_id.present? %>
+        | <%= link_to 'Process Sales Bills', new_voucher_path(voucher_type: 'sales', client_account_id: ledger.client_account_id) %> 
+        | <%= link_to 'Process Purchase Bills', new_voucher_path(voucher_type: 'purchase', client_account_id: ledger.client_account_id) %> 
+        <% end %>
+        
         </td>
       </tr>
       <% end %>
