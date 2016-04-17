@@ -5,7 +5,11 @@
 %>
 
 <div class="clearfix bill-full">
-
+  <div class="settlement-holder">
+    <% if  @bill.settled? %>
+    <%= image_tag("settled.png") %>
+    <% end %>
+  </div>
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
     <strong>
