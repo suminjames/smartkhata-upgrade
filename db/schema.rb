@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160411064357) do
+ActiveRecord::Schema.define(version: 20160418033015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -192,6 +192,20 @@ ActiveRecord::Schema.define(version: 20160411064357) do
     t.datetime "updated_at",                                        null: false
   end
 
+  create_table "ledger_dailies", force: :cascade do |t|
+    t.date     "date"
+    t.decimal  "dr_amount",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.string   "date_bs"
+    t.integer  "ledger_id"
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+  end
+
+  add_index "ledger_dailies", ["ledger_id"], name: "index_ledger_dailies_on_ledger_id", using: :btree
+
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
@@ -202,6 +216,8 @@ ActiveRecord::Schema.define(version: 20160411064357) do
     t.integer  "group_id"
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
+    t.decimal  "dr_amount",         precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "cr_amount",         precision: 15, scale: 4, default: 0.0, null: false
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree

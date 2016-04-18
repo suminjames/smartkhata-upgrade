@@ -5,6 +5,7 @@ class Ledger < ActiveRecord::Base
 	belongs_to :bank_account
 	belongs_to :client_account
 	attr_accessor :opening_blnc_type
+	has_many :ledger_dailies
 
 	validates_presence_of :name
 	# validates_presence_of :group_id

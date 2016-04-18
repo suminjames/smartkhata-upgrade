@@ -60,6 +60,7 @@ Rails.application.routes.draw do
   namespace 'report' do
     resources :balancesheet
     resources :profitandloss
+    resources :trial_balance
   end
 
 

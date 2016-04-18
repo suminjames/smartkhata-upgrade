@@ -34,11 +34,27 @@ module ApplicationHelper
 		ledger.lock!
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
+		dr_amnt = 0
+		cr_amnt = 0
+    daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: transaction_date.to_date )
+
 		if debit
 			ledger.closing_blnc += amount
+      ledger.dr_amount += amount
+			dr_amnt = amount
+      daily_report.closing_blnc += amount
 		else
 			ledger.closing_blnc -= amount
+      ledger.cr_amount += amount
+      daily_report.closing_blnc -= amount
+			cr_amnt = amount
 		end
+
+
+    daily_report.opening_blnc ||= ledger.opening_blnc
+    daily_report.dr_amount += dr_amnt
+    daily_report.cr_amount += cr_amnt
+    daily_report.save!
 
 		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
 		ledger.save!
