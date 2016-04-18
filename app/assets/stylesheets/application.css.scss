@@ -219,3 +219,11 @@ a {
     background-color: $link_color;
   }
 }
+
+
+.trial .table > tbody + tbody {
+  border-top: none;
+}
+.trial .total-trial {
+  background: lightgrey;
+}

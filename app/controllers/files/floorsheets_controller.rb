@@ -8,8 +8,18 @@ class Files::FloorsheetsController < Files::FilesController
 	@@file_name_contains = "FLOORSHEET"
 
 	def new
+		@file_list = FileUpload.where(file: @@file).order("report_date desc").limit(10);
+		# if (@file_list.count > 1)
+		# 	if((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
+		# 		flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
+		# 	end
+		# end
 	end
 
+  def index
+    @file_list = FileUpload.where(file: @@file).page(params[:page]).per(20)
+                     .order("report_date DESC")
+  end
 	def import
 
 		# get file from import

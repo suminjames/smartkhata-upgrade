@@ -31,9 +31,9 @@ class Bill < ActiveRecord::Base
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(
-    :updated_at => date.beginning_of_day..date.end_of_day) }
+    :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
-    :updated_at => date_from.beginning_of_day..date_to.end_of_day) }
+    :date => date_from.beginning_of_day..date_to.end_of_day) }
 
   before_save :process_bill
 
