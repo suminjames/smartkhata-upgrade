@@ -63,6 +63,9 @@ class ImportCloseOut < ImportFile
             break
           end
 
+          # quantity adjusted already means the file is uploaded already
+          # no need to process
+          
           unless transaction.nil? && transaction.raw_quantity == transaction.quantity
             transaction.quantity = transaction.raw_quantity - closeout.shortage_quantity
             # debit is for sales

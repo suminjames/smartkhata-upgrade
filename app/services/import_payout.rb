@@ -20,6 +20,7 @@ class ImportPayout < ImportFile
 		@error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
 		unless @error_message
+      @date = Time.now.to_date
 			ActiveRecord::Base.transaction do
 				@processed_data.each do |hash|
 					# to incorporate the symbol to string
@@ -41,7 +42,7 @@ class ImportPayout < ImportFile
 						break
 					end
 
-
+          @date = hash['TRADESTARTDATE'].to_date
 
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
@@ -93,7 +94,10 @@ class ImportPayout < ImportFile
 					transaction.amount_receivable = amount_receivable
 					transaction.save!
 				end
-				@sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: @settlement_id).id
+
+				# convert a string to date
+
+				@sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: @settlement_id, settlement_date: @date ).id
 			end
 
 		end
