@@ -13,18 +13,18 @@ class LedgersController < ApplicationController
       return
     end
     if params[:show] == "all"
-      @ledgers = Ledger.all
+      @ledgers = Ledger.all.includes(:client_account)
     elsif params[:show] == "all_client"
-      @ledgers = Ledger.find_all_client_ledgers
+      @ledgers = Ledger.includes(:client_account).find_all_client_ledgers
     elsif params[:show] == "all_internal"
-      @ledgers = Ledger.find_all_internal_ledgers
+      @ledgers = Ledger.includes(:client_account).find_all_internal_ledgers
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
       when 'ledger_name'
         ledger_name = search_term
-        @ledgers = Ledger.find_by_ledger_name(ledger_name)
+        @ledgers = Ledger.includes(:client_account).find_by_ledger_name(ledger_name)
       else
         # If no matches for case  'search_by', return empty @ledgers
         @ledgers = ''

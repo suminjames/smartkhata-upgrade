@@ -7,7 +7,12 @@ class SalesSettlementsController < ApplicationController
   # GET /sales_settlements
   # GET /sales_settlements.json
   def index
-    @sales_settlements = SalesSettlement.all
+    if params[:pending]
+      @sales_settlements = SalesSettlement.pending
+    else
+      @sales_settlements = SalesSettlement.all
+    end
+
   end
 
   # GET /sales_settlements/1
