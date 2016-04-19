@@ -33,6 +33,7 @@ class Report::TrialBalanceController < ApplicationController
             date_ad = bs_to_ad(date_bs)
 
             @balance.each do |balance|
+              modified_ledger_list = []
               b = balance.descendent_ledgers
               b.each do |ledger|
                 day_ledger = ledger.ledger_dailies.where(date: date_ad)
@@ -41,11 +42,10 @@ class Report::TrialBalanceController < ApplicationController
                   ledger.closing_blnc = day_ledger.last.closing_blnc
                     ledger.cr_amount = day_ledger.sum(:cr_amount)
                   ledger.dr_amount = day_ledger.sum(:dr_amount)
-                else
-                  b.delete(ledger)
+                  modified_ledger_list << ledger
                 end
               end
-              @balance_report[balance.name] = b
+              @balance_report[balance.name] = modified_ledger_list
             end
           else
             respond_to do |format|
