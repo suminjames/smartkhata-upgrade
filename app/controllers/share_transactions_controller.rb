@@ -159,8 +159,8 @@ class ShareTransactionsController < ApplicationController
 
       ActiveRecord::Base.transaction do
         if total_transaction_count > 1
-          @dp_fee_adjustment = @share_transaction.dp_fee
-          @dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
+          dp_fee_adjustment = @share_transaction.dp_fee
+          dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
           relevant_share_transactions.each do |transaction|
             unless transaction == @share_transaction
               transaction.dp_fee += dp_fee_adjustment_per_transaction
