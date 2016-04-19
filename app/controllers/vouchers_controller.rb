@@ -261,8 +261,8 @@ class VouchersController < ApplicationController
     respond_to do |format|
       if success
         format.html {
-          redirect_to settlement_path(@settlement) if @settlement.present?
-          redirect_to @voucher, notice: 'Voucher was successfully created.' if @settlement.blank?
+          redirect_to settlement_path(@settlement) if @settlement.present? && !@voucher.is_payment_bank?
+          redirect_to @voucher, notice: 'Voucher was successfully created.'
         }
         format.json { render :show, status: :created, location: @voucher }
       else
