@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160405154747) do
+ActiveRecord::Schema.define(version: 20160418033015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,19 +40,23 @@ ActiveRecord::Schema.define(version: 20160405154747) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",         precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",     precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",    precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                      default: 0
-    t.boolean  "has_deal_cancelled",                          default: false
-    t.datetime "created_at",                                                  null: false
-    t.datetime "updated_at",                                                  null: false
+    t.integer  "status",                                     default: 0
+    t.integer  "special_case",                               default: 0
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
     t.integer  "fy_code"
+    t.date     "date"
+    t.string   "date_bs"
     t.integer  "client_account_id"
   end
 
   add_index "bills", ["client_account_id"], name: "index_bills_on_client_account_id", using: :btree
+  add_index "bills", ["date"], name: "index_bills_on_date", using: :btree
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
+  add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
 
   create_table "bills_vouchers", id: false, force: :cascade do |t|
     t.integer "bill_id"
@@ -142,59 +146,23 @@ ActiveRecord::Schema.define(version: 20160405154747) do
 
   add_index "client_accounts", ["user_id"], name: "index_client_accounts_on_user_id", using: :btree
 
-  create_table "employee_accounts", force: :cascade do |t|
-    t.integer  "client_type",               default: 0
-    t.date     "date"
-    t.string   "name"
-    t.string   "address1",                  default: " "
-    t.string   "address1_perm"
-    t.string   "address2",                  default: " "
-    t.string   "address2_perm"
-    t.string   "address3"
-    t.string   "address3_perm"
-    t.string   "city",                      default: " "
-    t.string   "city_perm"
-    t.string   "state"
-    t.string   "state_perm"
-    t.string   "country",                   default: " "
-    t.string   "country_perm"
-    t.string   "phone"
-    t.string   "phone_perm"
-    t.string   "dob"
-    t.string   "sex"
-    t.string   "nationality"
-    t.string   "email"
-    t.string   "father_mother"
-    t.string   "citizen_passport"
-    t.string   "granfather_father_inlaw"
-    t.string   "husband_spouse"
-    t.string   "citizen_passport_date"
-    t.string   "citizen_passport_district"
-    t.string   "pan_no"
-    t.string   "dob_ad"
-    t.string   "bank_name"
-    t.string   "bank_account"
-    t.string   "bank_address"
-    t.string   "company_name"
-    t.string   "company_id"
-    t.boolean  "invited",                   default: false
-    t.integer  "user_id"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
-    t.integer  "has_access_to"
+  create_table "closeouts", force: :cascade do |t|
+    t.decimal  "settlement_id",     precision: 18
+    t.decimal  "contract_number",   precision: 18
+    t.integer  "seller_cm"
+    t.string   "seller_client"
+    t.integer  "buyer_cm"
+    t.string   "buyer_client"
+    t.string   "isin"
+    t.string   "scrip_name"
+    t.integer  "quantity"
+    t.integer  "shortage_quantity"
+    t.decimal  "rate",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
+    t.integer  "closeout_type"
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
   end
-
-  add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
-
-  create_table "employee_client_associations", force: :cascade do |t|
-    t.integer  "employee_account_id"
-    t.integer  "client_account_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-  end
-
-  add_index "employee_client_associations", ["client_account_id"], name: "index_employee_client_associations_on_client_account_id", using: :btree
-  add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file"
@@ -224,6 +192,20 @@ ActiveRecord::Schema.define(version: 20160405154747) do
     t.datetime "updated_at",                                        null: false
   end
 
+  create_table "ledger_dailies", force: :cascade do |t|
+    t.date     "date"
+    t.decimal  "dr_amount",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.string   "date_bs"
+    t.integer  "ledger_id"
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+  end
+
+  add_index "ledger_dailies", ["ledger_id"], name: "index_ledger_dailies_on_ledger_id", using: :btree
+
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
@@ -234,6 +216,8 @@ ActiveRecord::Schema.define(version: 20160405154747) do
     t.integer  "group_id"
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
+    t.decimal  "dr_amount",         precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "cr_amount",         precision: 15, scale: 4, default: 0.0, null: false
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
@@ -252,6 +236,7 @@ ActiveRecord::Schema.define(version: 20160405154747) do
     t.integer  "additional_bank_id"
     t.integer  "particular_status",                           default: 1
     t.string   "date_bs"
+    t.date     "transaction_date"
     t.datetime "created_at",                                                null: false
     t.datetime "updated_at",                                                null: false
     t.integer  "ledger_id"
@@ -319,6 +304,7 @@ ActiveRecord::Schema.define(version: 20160405154747) do
     t.decimal  "contract_no",       precision: 18
     t.integer  "buyer"
     t.integer  "seller"
+    t.integer  "raw_quantity"
     t.integer  "quantity"
     t.decimal  "share_rate",        precision: 10, scale: 4, default: 0.0
     t.decimal  "share_amount",      precision: 15, scale: 4, default: 0.0

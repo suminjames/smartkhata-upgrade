@@ -1,7 +1,11 @@
 class Files::SalesController < Files::FilesController
   @@file_name_contains = "CM05"
+  def index
+
+  end
   def new
     # new
+    @file_list = SalesSettlement.order("settlement_date desc").limit(10);
   end
 
 	def import

@@ -1,6 +1,5 @@
 class UploadDpa5
 	attr_reader :status_code
-	@date
 
 
 	def initialize(file)
@@ -45,12 +44,17 @@ class UploadDpa5
 
 		# verify file
 		# verify_file(content[0])
-
-		single_record.each { |y| extract(y) }
+		date_records = Set.new
+		single_record.each do |y| 
+			extract(y) 
+			date_records.add(@report_date)
+		end
 		# extract(single_record[9])
 
-		# create a entry in the database
-		FileUpload.find_or_create_by!(file: FileUpload::FILES[:dpa5], report_date: @report_date.to_date)
+		date_records.each do |date|
+			# create a entry in the database
+			FileUpload.find_or_create_by!(file: FileUpload::FILES[:dpa5], report_date: date.to_date)
+		end
 	end
 
 	def extract(data)

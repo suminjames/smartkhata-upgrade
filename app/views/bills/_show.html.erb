@@ -5,7 +5,11 @@
 %>
 
 <div class="clearfix bill-full">
-
+  <div class="settlement-holder">
+    <% if  @bill.settled? %>
+    <%= image_tag("settled.png") %>
+    <% end %>
+  </div>
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
     <strong>
@@ -100,21 +104,22 @@
         <th>Commission Amount</th>
         <th>Capital Gain</th>
       </tr>
+
+      <colgroup>
+        <col class="col-1">
+        <col class="col-2">
+        <col class="col-3">
+        <col class="col-4">
+        <col class="col-5">
+        <col class="col-6">
+        <col class="col-7">
+        <col class="col-8">
+        <col class="col-9">
+      </colgroup>
       <%
       @bill.share_transactions.each do | share_transaction |
         %>
 
-        <colgroup>
-          <col class="col-1">
-          <col class="col-2">
-          <col class="col-3">
-          <col class="col-4">
-          <col class="col-5">
-          <col class="col-6">
-          <col class="col-7">
-          <col class="col-8">
-          <col class="col-9">
-        </colgroup>
 
         <%
         # <!-- The following block needs to be (ruby) uncommented, and the enclosing ruby tags should be deleted to test the table off the potential widest content in relevant td's. -->
@@ -145,7 +150,7 @@
           <!-- <th>Transaction No</th> -->
           <td><%= share_transaction.contract_no %></td>
           <!-- <th>No of Shares</th> -->
-          <td><%= share_transaction.quantity %></td>
+          <td><%= share_transaction.raw_quantity %></td>
           <!-- <th>Company Name</th> -->
           <td><%= share_transaction.formatted_company_name %></td>
           <!-- <th>Share Rate</th> -->

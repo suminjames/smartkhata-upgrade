@@ -1,4 +1,5 @@
 class Bill < ActiveRecord::Base
+  include CustomDateModule
   #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions
@@ -22,7 +23,7 @@ class Bill < ActiveRecord::Base
   # # Bill cancel Status
   # #  - none : Default
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
-  # enum deal_cancel_status: [:no_deal_cancelled, :has_deal_cancelled]
+  enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
@@ -30,23 +31,25 @@ class Bill < ActiveRecord::Base
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(
-    :updated_at => date.beginning_of_day..date.end_of_day) }
+    :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
-    :updated_at => date_from.beginning_of_day..date_to.end_of_day) }
+    :date => date_from.beginning_of_day..date_to.end_of_day) }
+
+  before_save :process_bill
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
-			return self.share_transactions.not_cancelled.sum(:share_amount);
+			return self.share_transactions.not_cancelled_for_bill.sum(:share_amount);
   end
 
   # Returns total sebo commission from all child share_transactions
   def get_net_sebo_commission
-			return self.share_transactions.not_cancelled.sum(:sebo);
+			return self.share_transactions.not_cancelled_for_bill.sum(:sebo);
   end
 
   # Returns total net commission from all child share_transactions
   def get_net_commission
-			return self.share_transactions.not_cancelled.sum(:commission_amount);
+			return self.share_transactions.not_cancelled_for_bill.sum(:commission_amount);
   end
 
   # TODO: Implement the method.
@@ -56,12 +59,12 @@ class Bill < ActiveRecord::Base
 
   # Returns total net dp fee
   def get_net_dp_fee
-			return self.share_transactions.not_cancelled.sum(:dp_fee);
+			return self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
   end
 
   # Returns total net cgt
   def get_net_cgt
-			return self.share_transactions.not_cancelled.sum(:cgt);
+			return self.share_transactions.not_cancelled_for_bill.sum(:cgt);
   end
 
   # TODO
@@ -74,6 +77,12 @@ class Bill < ActiveRecord::Base
   # Returns client associated to this bill
   def get_client
     return ClientAccount.find(self.client_account_id)
+  end
+
+
+  private
+  def process_bill
+    self.date_bs ||= ad_to_bs(self.date)
   end
 
 end

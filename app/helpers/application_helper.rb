@@ -30,34 +30,64 @@ module ApplicationHelper
 	end
 
 	# process accounts to make changes on ledgers
-	def process_accounts(ledger,voucher, debit, amount, descr)
+	def process_accounts(ledger,voucher, debit, amount, descr, transaction_date = Time.now)
 		ledger.lock!
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
+		dr_amnt = 0
+		cr_amnt = 0
+    daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: transaction_date.to_date )
+
 		if debit
 			ledger.closing_blnc += amount
+      ledger.dr_amount += amount
+			dr_amnt = amount
+      daily_report.closing_blnc += amount
 		else
 			ledger.closing_blnc -= amount
+      ledger.cr_amount += amount
+      daily_report.closing_blnc -= amount
+			cr_amnt = amount
 		end
 
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+
+    daily_report.opening_blnc ||= ledger.opening_blnc
+    daily_report.dr_amount += dr_amnt
+    daily_report.cr_amount += cr_amnt
+    daily_report.save!
+
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
 		ledger.save!
 	end
 
-	def reverse_accounts(particular,voucher, descr)
-		transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-		ledger = particular.ledger
+	def reverse_accounts(particular,voucher, descr, adjustment = 0.0)
 		amount = particular.amnt
-		ledger.lock!
-		closing_blnc = ledger.closing_blnc
-		if particular.cr?
-			ledger.closing_blnc += amount
-		else
-			ledger.closing_blnc -= amount
+
+		# this accounts for the case where whole transaction is cancelled
+		# in such case adjustment value is 0
+		if ( amount - adjustment).abs > 0.01
+			transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
+			ledger = particular.ledger
+			amount = particular.amnt
+			ledger.lock!
+			closing_blnc = ledger.closing_blnc
+
+			# in case of client account charge the dp fee.
+			if ledger.client_account_id.present?
+				amount = amount - adjustment
+			end
+
+			if particular.cr?
+				ledger.closing_blnc += amount
+			else
+				ledger.closing_blnc -= amount
+			end
+
+			Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+			ledger.save!
 		end
 
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
-		ledger.save!
+		
 
 	end
 

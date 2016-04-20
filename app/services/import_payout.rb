@@ -1,5 +1,6 @@
 class ImportPayout < ImportFile
 	# process the file
+  include ShareInventoryModule
 	def process
 		# initial constants
 		tds_rate = 0.15
@@ -19,6 +20,7 @@ class ImportPayout < ImportFile
 		@error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
 		unless @error_message
+      @date = Time.now.to_date
 			ActiveRecord::Base.transaction do
 				@processed_data.each do |hash|
 					# to incorporate the symbol to string
@@ -40,7 +42,7 @@ class ImportPayout < ImportFile
 						break
 					end
 
-
+          @date = hash['TRADESTARTDATE'].to_date
 
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
@@ -54,11 +56,25 @@ class ImportPayout < ImportFile
 						break
 					end
 
+
+
 					amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f
 					transaction.settlement_id = hash['SETT_ID']
+          transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
 					transaction.cgt = hash['CGT'].delete(',').to_f
 					transaction.base_price = get_base_price(transaction)
-					# TODO remove hard code calculations
+
+
+          # get the shortage quantity
+          shortage_quantity = ((transaction.closeout_amount / transaction.share_rate) * 10/12).to_i
+          if transaction.closeout_amount.present? && transaction.closeout_amount > 0
+            transaction.quantity = transaction.raw_quantity - shortage_quantity
+					end
+					if shortage_quantity > 0
+						update_share_inventory(transaction.client_account_id,transaction.isin_info_id, shortage_quantity, true)
+					end
+
+              # TODO remove hard code calculations
 					# net amount is the amount that is payble to the client after charges
 					# amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
 					# amount payble to client =
@@ -67,11 +83,21 @@ class ImportPayout < ImportFile
 					#   + tds of broker (it was charged by nepse , so should be reimbursed to client )
 					#   - dp fee
 					# client pays the commission_amount
-					transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+
+          if transaction.closeout_amount > 0
+            transaction.net_amount = (transaction.closeout_amount + amount_receivable) -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          else
+            transaction.net_amount = amount_receivable -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
+          end
+
+					# transaction.net_amount = (transaction.raw_quantity * transaction.share_rate) -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
 					transaction.amount_receivable = amount_receivable
 					transaction.save!
 				end
-				@sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: @settlement_id).id
+
+				# convert a string to date
+
+				@sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: @settlement_id, settlement_date: @date ).id
 			end
 
 		end

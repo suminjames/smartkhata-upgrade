@@ -1,11 +1,25 @@
 #TODO: Bill status should be (be default) in pending
 class Files::FloorsheetsController < Files::FilesController
+
+	include CommissionModule
+	include ShareInventoryModule
+
 	@@file = FileUpload::FILES[:floorsheet];
 	@@file_name_contains = "FLOORSHEET"
 
 	def new
+		@file_list = FileUpload.where(file: @@file).order("report_date desc").limit(10);
+		# if (@file_list.count > 1)
+		# 	if((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
+		# 		flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
+		# 	end
+		# end
 	end
 
+  def index
+    @file_list = FileUpload.where(file: @@file).page(params[:page]).per(20)
+                     .order("report_date DESC")
+  end
 	def import
 
 		# get file from import
@@ -19,7 +33,8 @@ class Files::FloorsheetsController < Files::FilesController
 		xlsx = Roo::Spreadsheet.open(@file)
 
 		# hash to store unique combination of isin, transaction type (buy/sell), client
-		hash_dp = Hash.new
+		hash_dp_count = Hash.new 0
+    hash_dp = Hash.new
 
 		# array to store processed data
 		@processed_data = []
@@ -88,11 +103,29 @@ class Files::FloorsheetsController < Files::FilesController
 			if @older_detected
 				@raw_data << [@row_data[0],@row_data[1],@row_data[2],@row_data[3],@row_data[4],@row_data[5],@row_data[6],@row_data[7],@row_data[8],@row_data[9],@row_data[10]]
 				@total_amount_file = 0
+        company_symbol = @row_data[1]
+        client_name = @row_data[4]
+        bank_deposit = @row_data[10]
+
 			else
 				@raw_data << [@row_data[3],@row_data[7],@row_data[8],@row_data[10],@row_data[12],@row_data[15],@row_data[17],@row_data[19],@row_data[20],@row_data[23],@row_data[26]]
 				# sum of the amount section should be equal to the calculated sum
 				@total_amount_file = @raw_data.map {|d| d[8].to_f}.reduce(0, :+)
+        company_symbol = @row_data[7]
+        client_name = @row_data[12]
+        bank_deposit = @row_data[26]
 			end
+
+      # check for the bank deposit value which is available only for buy
+      # store the count of transaction for unique client,company, and type of transaction
+
+
+      if bank_deposit.nil?
+        hash_dp_count[client_name.to_s+company_symbol.to_s+'sell'] += 1
+      else
+        hash_dp_count[client_name.to_s+company_symbol.to_s+'buy'] += 1
+      end
+
 		end
 
 
@@ -101,35 +134,12 @@ class Files::FloorsheetsController < Files::FilesController
 
 		ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
-        @processed_data  << process_records(arr, hash_dp, fy_code)
+        @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count)
       end
       FileUpload.find_or_create_by!(file: @@file, report_date: @date)
 		end
 	end
 
-	def get_commission_rate(amount)
-		case amount
-			when 0..2500
-				"flat_25"
-			when 2501..50000
-				"1"
-			when 50001..500000
-				"0.9"
-			when 500001..1000000
-				"0.8"
-			else
-				"0.7"
-		end
-	end
-
-	def get_commission(amount)
-		commission_rate = get_commission_rate(amount)
-		if (commission_rate == "flat_25")
-			return 25
-		else
-			return amount * commission_rate.to_f * 0.01
-		end
-	end
 
 	# TODO: Change arr to hash (maybe)
 	# arr =[
@@ -146,7 +156,7 @@ class Files::FloorsheetsController < Files::FilesController
 	# 	Bank Deposit,
 	# ]
 	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
-	def process_records(arr ,hash_dp, fy_code)
+	def process_records(arr ,hash_dp, fy_code, hash_dp_count)
 		contract_no = arr[0].to_i
 		company_symbol = arr[1]
 		buyer_broking_firm_code = arr[2]
@@ -170,21 +180,23 @@ class Files::FloorsheetsController < Files::FilesController
 
 
 		# check for the bank deposit value which is available only for buy
+    # used 25.0 instead of 25 to get number with decimal
+    # hash_dp_count is used for the dp charges
+    # hash_dp is used to group transactions into bill 
+    # bill contains all the transactions done for a user for each type( purchase / sales)
 		if bank_deposit.nil?
-			# if client is charged already with dp fee  for selling particular isin in that day, do not charge again
-			unless hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'sell')
-				dp = 25
-				hash_dp[client_name.to_s+company_symbol.to_s+'sell'] = true
-			end
+      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'sell']
 			type_of_transaction = ShareTransaction.transaction_types['sell']
 		else
 			# create or find a bill by the number
-			if hash_dp.has_key?(client_name.to_s+company_symbol.to_s+'buy')
-				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+company_symbol.to_s+'buy'], fy_code: fy_code)
+      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buy']
+
+      # group all the share transactions for a client for the day
+			if hash_dp.has_key?(client_name.to_s+'buy')
+				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buy'], fy_code: fy_code, date: @date)
 			else
-				dp = 25
-				hash_dp[client_name.to_s+company_symbol.to_s+'buy'] = @bill_number
-				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id) do |b|
+				hash_dp[client_name.to_s+'buy'] = @bill_number
+				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
 					b.bill_type = Bill.bill_types['purchase']
 					b.client_name = client_name
 				end
@@ -223,6 +235,7 @@ class Files::FloorsheetsController < Files::FilesController
 			isin_info_id: company_info.id,
 			buyer: buyer_broking_firm_code,
 			seller: seller_broking_firm_code,
+			raw_quantity: share_quantity,
 			quantity: share_quantity,
 			share_rate: share_rate,
 			share_amount: share_net_amount,
@@ -238,21 +251,24 @@ class Files::FloorsheetsController < Files::FilesController
 			client_account_id: client.id
 		)
 
-		share_inventory = ShareInventory.find_or_create_by(
-			client_account_id: client.id,
-			isin_info_id: company_info.id
-			)
-		share_inventory.lock!
+		# share_inventory = ShareInventory.find_or_create_by(
+		# 	client_account_id: client.id,
+		# 	isin_info_id: company_info.id
+		# 	)
+		# share_inventory.lock!
+    #
+		# if transaction.buy?
+		# 	share_inventory.total_in += transaction.quantity
+		# 	share_inventory.floorsheet_blnc += transaction.quantity
+		# else
+		# 	share_inventory.total_out += transaction.quantity
+		# 	share_inventory.floorsheet_blnc -= transaction.quantity
+		# end
+		#
+		# share_inventory.save!
+		# TODO remove the commented part
+		update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buy?)
 
-		if transaction.buy?
-			share_inventory.total_in += transaction.quantity
-			share_inventory.floorsheet_blnc += transaction.quantity
-		else
-			share_inventory.total_out += transaction.quantity
-			share_inventory.floorsheet_blnc -= transaction.quantity
-		end
-		
-		share_inventory.save!
 
 		if type_of_transaction == ShareTransaction.transaction_types['buy']
 			bill.share_transactions << transaction
@@ -278,7 +294,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 
 			# update description
-			description = "being purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+			description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
 			voucher.bills << bill
@@ -291,11 +307,11 @@ class Files::FloorsheetsController < Files::FilesController
 			# transaction.save!
 
 			#TODO replace bill from particulars with bill from voucher
-			process_accounts(client_ledger,voucher,true,@client_dr,description)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description)
-			process_accounts(tds_ledger,voucher,true,tds,description)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description)
-			process_accounts(dp_ledger,voucher,false,dp,description) if dp > 0
+			process_accounts(client_ledger,voucher,true,@client_dr,description,@date)
+			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,@date)
+			process_accounts(tds_ledger,voucher,true,tds,description,@date)
+			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,@date)
+			process_accounts(dp_ledger,voucher,false,dp,description,@date) if dp > 0
 
 		end
 
@@ -308,3 +324,4 @@ class Files::FloorsheetsController < Files::FilesController
 		xlsx.sheet(0).row(11)[1].to_s.tr(' ','') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
 	end
 end
+

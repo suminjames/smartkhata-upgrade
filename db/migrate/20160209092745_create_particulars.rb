@@ -1,3 +1,4 @@
+
 class CreateParticulars < ActiveRecord::Migration
   def change
     create_table :particulars do |t|
@@ -12,6 +13,7 @@ class CreateParticulars < ActiveRecord::Migration
       t.integer :additional_bank_id
       t.integer :particular_status, default: 1
       t.string :date_bs
+      t.date :transaction_date
       t.timestamps null: false
       t.references :ledger,  index: true
       t.references :voucher,  index: true
