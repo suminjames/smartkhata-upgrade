@@ -62,7 +62,7 @@ class ImportPayout < ImportFile
 					transaction.settlement_id = hash['SETT_ID']
           transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
 					transaction.cgt = hash['CGT'].delete(',').to_f
-					transaction.base_price = get_base_price(transaction)
+					transaction.base_price = get_base_price(transaction).to_i
 
 
           # get the shortage quantity

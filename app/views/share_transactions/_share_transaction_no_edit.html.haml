@@ -2,5 +2,5 @@
 %td= object.client_account.name
 %td= object.quantity
 %td= object.share_rate
-%td= object.base_price
-%td= object.cgt
+%td= object.base_price.to_i.round(1)
+%td= object.cgt.round(2)
