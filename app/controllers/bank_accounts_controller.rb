@@ -27,6 +27,7 @@ class BankAccountsController < ApplicationController
   def create
 
     @bank_account = BankAccount.new(bank_account_params)
+
     @bank = Bank.find_by(id: @bank_account.bank_id)
     if @bank.present?
       @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
