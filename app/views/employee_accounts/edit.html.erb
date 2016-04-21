@@ -1,0 +1,15 @@
+<% provide(:section_title, "Edit Employee") %>
+
+<%
+  if params[:type] == 'client_access'
+%>
+    <%= render 'form_employee_client_association' %>
+<%
+  else
+%>
+    <%= render 'form' %>
+<%
+  end
+%>
+
+<%= link_to 'Back', employee_accounts_path %>

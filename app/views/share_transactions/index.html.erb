@@ -14,13 +14,25 @@
 <div class="clearfix submenu" >
   <%
     def is_active_sub_menu_option(option)
+      # Special case BEGINS
+
+      if params[:show] == 'all'
+        if params[:type] == 'last_working_day' && option == 'last_working_day'
+          return true
+        else
+          return option == 'all' && params[:type] != 'last_working_day'
+        end
+      end
+      # Special case ENDS
+
       return params[:search_by] == option || params[:show] == option
     end
   %>
   <h5>
     <%= link_to "Search by Client",  share_transactions_path(search_by: "client"), {:class => (is_active_sub_menu_option("client")? "active-link" : "")} %> |
     <%= link_to "Search by Company",  share_transactions_path(search_by: "company"), {:class => (is_active_sub_menu_option("company")? "active-link" : "")} %> |
-    <%= link_to "All Share Transactions",  share_transactions_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>
+    <%= link_to "All Share Transactions",  share_transactions_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %> |
+    <%= link_to "Last Day Transactions",  share_transactions_path(search_by: 'last_working_day'), {:class => (is_active_sub_menu_option('last_working_day')? "active-link" : "")} %>
   </h5>
 </div>
 

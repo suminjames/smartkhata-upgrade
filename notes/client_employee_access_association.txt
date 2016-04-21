@@ -1,7 +1,7 @@
 
 #. Implement 'Employee <-> Client' Access Relationships
     - Client model should introduce a new enum field
-        -enum has_access_to  [:all, :some, :all_except_some]
+        -enum has_access_to  [:all, :some, :all_except_some, :none]
     - A new table ClientEmployeeAssociation should be created
         -only has_access_to relation is recorded in the table
             -Eg: EmployeeId <-> ClientId
@@ -11,6 +11,7 @@
         -if :all_except_some, Employee <-> ClientEmployeeAssociation <-> Client (OUTER JOIN)
             -Note: The table ClientEmployeeAssociation doesn't hold any all_except_some relationship. Therefore, the OUTER JOIN.
     - When a conflicting association is introduced, hard-delete the previous association from the table, and record the new association.
+    -:none can be handy when a user's access permissions needs to be revoked
 
 
 #. The index view should
