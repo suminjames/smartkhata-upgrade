@@ -52,7 +52,6 @@
   def create
 
     @client_account = ClientAccount.new(client_account_params)
-
     respond_to do |format|
       if @client_account.save
         format.html { redirect_to @client_account, notice: 'Client account was successfully created.' }

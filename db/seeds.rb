@@ -104,12 +104,12 @@ puts 'CREATED ADMIN USER: ' << new_user.email
 Apartment::Tenant.switch!('public')
 
 
-# if Rails.env == 'development'
-#   Apartment::Tenant.switch!('trishakti')
-#   employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
-#   employees.each  do |employee|
-#     EmployeeAccount.find_or_create_by!(employee)
-#     puts 'Created EmployeeAccount: ' << employee[:name]
-#   end
-#   Apartment::Tenant.switch!('public')
-# end
+if Rails.env == 'development'
+  Apartment::Tenant.switch!('trishakti')
+  employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
+  employees.each  do |employee|
+    EmployeeAccount.find_or_create_by!(employee)
+    puts 'Created EmployeeAccount: ' << employee[:name]
+  end
+  Apartment::Tenant.switch!('public')
+end

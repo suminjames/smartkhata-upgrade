@@ -1,85 +1,10 @@
 <%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
     <%= f.error_notification %>
 
+    <%= hidden_field_tag 'edit_type', 'client_association'%>
 
-    <!--Form BEGINS-->
-    <div id="employee_info" class="row">
-      <div class="col-xs-12">
-        <h3>Employee Information</h3>
-        <!--Incorporate 'from path' in controller-->
-        <%= hidden_field_tag 'from_path', @from_path %>
-        <%= f.input :name, placeholder: 'Name' %>
-        <%= f.input :citizen_passport, label: "Citizen/Birth Certificate",placeholder: "Citizenship/Birth Certificate" %>
-        <div class="row">
-          <div class="col-xs-6">
-            <%= f.input :citizen_passport_date, label: "Citizen/Birth Certificate Issued Date" %>
-          </div>
-          <div class="col-xs-6">
-            <%= f.input :citizen_passport_district, label: "Citizen/Birth Certificate Issued District" %>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xs-6">
-            <%= f.input :pan_no, label: "PAN" %>
-          </div>
-          <div class="col-xs-6">
-            <%= f.input :dob, placeholder: "Date of Birth" %>
-          </div>
-        </div>
-        <%= f.input :father_mother , label: "Father/Mother's Name", placeholder: "Father/Mother's Name" %>
-        <%= f.input :granfather_father_inlaw , label: "GrandFather's Name", placeholder: "GrandFather/Father In Law's Name" %>
-        <% # need place for spouse %>
-        <h3>Permanent Address</h3>
-           <%= f.input :address1_perm , label: 'Address line 1' %>
-           <%= f.input :address1_perm , label: 'Address line 2' %>
-           <%= f.input :address1_perm , label: 'Address line 3' %>
-        <div class="row">
-          <div class="col-xs-4">
-            <%= f.input :city_perm, label: 'City' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :state_perm, label: 'State' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :country_perm, label: 'Country' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :phone_perm, label: 'Phone' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :email, label: 'Email' %>
-          </div>
-        </div>
+    <%= f.input :name, placeholder: 'Name', disabled: true %>
 
-        <h3>Current address</h3>
-        <%= f.input :address1 , label: 'Address line 1' %>
-        <%= f.input :address1 , label: 'Address line 2' %>
-        <%= f.input :address1 , label: 'Address line 3' %>
-        <div class="row">
-          <div class="col-xs-4">
-            <%= f.input :city, label: 'City' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :state, label: 'State' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :country, label: 'Country' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :phone, label: 'Phone' %>
-          </div>
-        </div>
-          <h3>
-            Bank / Financial Institution Information
-          </h3>
-          <%= f.input :bank_name, label: 'Name' %>
-          <%= f.input :bank_address, label: 'Address' %>
-          <%= f.input :bank_account, label: 'Account No.' %>
-      </div>
-    </div>
-    <!--Form ENDS-->
-
-    <div id="employee_association">
     <strong>Has Access To:</strong>
     <%= f.radio_button :has_access_to, 'everyone'%> Everyone &nbsp;&nbsp;&nbsp;
     <%= f.radio_button :has_access_to, 'some'%> Some &nbsp;&nbsp;&nbsp;
@@ -153,6 +78,5 @@
       <%= f.button :submit , :disabled => true%>
       <%= link_to "Cancel", employee_accounts_path %>
     </div>
-  </div>
 
 <% end %>
