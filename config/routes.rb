@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   resources :employee_accounts
   resources :banks
   resources :settlements
-  resources :settlements
   resources :cheque_entries do
     collection {get :get_cheque_number}
   end
