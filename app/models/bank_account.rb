@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: bank_accounts
+#
+#  id                   :integer          not null, primary key
+#  account_number       :integer
+#  bank_name            :string
+#  default_for_purchase :boolean
+#  default_for_sales    :boolean
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  bank_id              :integer
+#
+
 class BankAccount < ActiveRecord::Base
   has_many :cheque_entries
   has_one :ledger

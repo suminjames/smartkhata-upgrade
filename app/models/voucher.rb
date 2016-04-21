@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: vouchers
+#
+#  id              :integer          not null, primary key
+#  fy_code         :integer
+#  voucher_number  :integer
+#  date            :date
+#  date_bs         :string
+#  desc            :string
+#  voucher_type    :integer          default("0")
+#  voucher_status  :integer          default("0")
+#  is_payment_bank :boolean
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+
 class Voucher < ActiveRecord::Base
 	include FiscalYearModule
 

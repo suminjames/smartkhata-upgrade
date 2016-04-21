@@ -6,8 +6,7 @@ class Files::OrdersController < ApplicationController
 
 	def import
 		# authorize self
-		@file = params[:file];
-
+		@file = params[:file]
 
 		if @file == nil
 			flash.now[:error] = "Please Upload a valid file"
