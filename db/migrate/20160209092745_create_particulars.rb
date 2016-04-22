@@ -13,6 +13,8 @@ class CreateParticulars < ActiveRecord::Migration
       t.integer :additional_bank_id
       t.integer :particular_status, default: 1
       t.string :date_bs
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.date :transaction_date
       t.timestamps null: false
       t.references :ledger,  index: true

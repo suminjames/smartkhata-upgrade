@@ -1,5 +1,6 @@
 class Voucher < ActiveRecord::Base
 	include FiscalYearModule
+	include ::Models::Updater
 
 	has_many :particulars
 	has_many :share_transactions
@@ -8,6 +9,10 @@ class Voucher < ActiveRecord::Base
 	has_and_belongs_to_many :bills
 	accepts_nested_attributes_for :particulars
 	has_one :settlement
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
 
 	# purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive

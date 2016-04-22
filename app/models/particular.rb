@@ -1,9 +1,15 @@
 class Particular < ActiveRecord::Base
 	include CustomDateModule
+	include ::Models::Updater
 
 	belongs_to :ledger
 	belongs_to :voucher
 	delegate :bills, :to => :voucher, :allow_nil => true
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
+
 	# belongs_to :receipt
 	has_many :cheque_entries
 	validates_presence_of :ledger_id

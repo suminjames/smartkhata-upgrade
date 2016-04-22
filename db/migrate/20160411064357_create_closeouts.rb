@@ -14,6 +14,8 @@ class CreateCloseouts < ActiveRecord::Migration
       t.decimal :rate, precision: 15, scale: 4, default:0
       t.decimal :net_amount, precision: 15, scale: 4, default: 0
       t.integer :closeout_type
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.timestamps null: false
     end
   end

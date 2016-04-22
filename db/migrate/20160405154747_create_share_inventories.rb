@@ -21,6 +21,9 @@ class CreateShareInventories < ActiveRecord::Migration
       t.decimal :total_out, precision: 10, scale: 0, default: 0
       t.decimal :floorsheet_blnc , precision: 10, scale: 0, default: 0
 
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
+
       t.date :report_date
       t.references :client_account, index: true
       t.references :isin_info, index: true

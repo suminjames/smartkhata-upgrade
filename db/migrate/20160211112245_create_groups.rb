@@ -5,6 +5,8 @@ class CreateGroups < ActiveRecord::Migration
     	t.integer :parent_id
     	t.integer :report
     	t.integer :sub_report
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.timestamps null: false
     end
   end

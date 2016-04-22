@@ -1,5 +1,8 @@
 class Bill < ActiveRecord::Base
   include CustomDateModule
+  # added the updater and creater user tracking
+  include ::Models::Updater
+
   #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions

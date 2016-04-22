@@ -53,6 +53,8 @@ class CreateClientAccounts < ActiveRecord::Migration
 
     	t.boolean :invited , default: false
 
+			t.integer :creator_id, index: true
+			t.integer :updater_id, index: true
     	t.references :user,  index: true
     	t.timestamps null: false
     end

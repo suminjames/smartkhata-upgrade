@@ -1,8 +1,15 @@
 class ShareTransaction < ActiveRecord::Base
+  include ::Models::Updater
+
   belongs_to :bill
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
+
   enum transaction_type: [ :buy, :sell ]
   before_update :calculate_cgt
   validates :base_price, numericality: true

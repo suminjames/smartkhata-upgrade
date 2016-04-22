@@ -4,6 +4,8 @@ class CreateFileUploads < ActiveRecord::Migration
     	t.integer :file
     	t.date	:report_date
     	t.boolean :ignore, default: false
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.timestamps null: false
     end
   end

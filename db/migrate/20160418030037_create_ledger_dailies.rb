@@ -7,6 +7,8 @@ class CreateLedgerDailies < ActiveRecord::Migration
       t.decimal :opening_blnc, precision: 15, scale: 4, default: 0.00
       t.decimal :closing_blnc, precision: 15, scale: 4, default: 0.00
       t.string :date_bs
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.references :ledger, index: true
       t.timestamps null: false
     end

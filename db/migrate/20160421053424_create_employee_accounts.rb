@@ -40,7 +40,8 @@ class CreateEmployeeAccounts < ActiveRecord::Migration
       t.boolean :invited , default: false
 
       t.integer :has_access_to, default: 2 # By default employee account has access to nobody
-
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.references :user,  index: true
       t.timestamps null: false
     end
