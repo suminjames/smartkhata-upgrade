@@ -90,41 +90,45 @@ class BillsController < ApplicationController
   # POST /bills
   # POST /bills.json
   def create
-    @bill = Bill.new(bill_params)
+    # @bill = Bill.new(bill_params)
+    #
+    # respond_to do |format|
+    #   if @bill.save
+    #     format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
+    #     format.json { render :show, status: :created, location: @bill }
+    #   else
+    #     format.html { render :new }
+    #     format.json { render json: @bill.errors, status: :unprocessable_entity }
+    #   end
+    # end
 
-    respond_to do |format|
-      if @bill.save
-        format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
-        format.json { render :show, status: :created, location: @bill }
-      else
-        format.html { render :new }
-        format.json { render json: @bill.errors, status: :unprocessable_entity }
-      end
-    end
+    raise NotImplementedError
   end
 
   # PATCH/PUT /bills/1
   # PATCH/PUT /bills/1.json
   def update
-    respond_to do |format|
-      if @bill.update(bill_params)
-        format.html { redirect_to @bill, notice: 'Bill was successfully updated.' }
-        format.json { render :show, status: :ok, location: @bill }
-      else
-        format.html { render :edit }
-        format.json { render json: @bill.errors, status: :unprocessable_entity }
-      end
-    end
+    # respond_to do |format|
+    #   if @bill.update(bill_params)
+    #     format.html { redirect_to @bill, notice: 'Bill was successfully updated.' }
+    #     format.json { render :show, status: :ok, location: @bill }
+    #   else
+    #     format.html { render :edit }
+    #     format.json { render json: @bill.errors, status: :unprocessable_entity }
+    #   end
+    # end
+    raise NotImplementedError
   end
 
   # DELETE /bills/1
   # DELETE /bills/1.json
   def destroy
-    @bill.destroy
-    respond_to do |format|
-      format.html { redirect_to bills_url, notice: 'Bill was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    # @bill.destroy
+    # respond_to do |format|
+    #   format.html { redirect_to bills_url, notice: 'Bill was successfully destroyed.' }
+    #   format.json { head :no_content }
+    # end
+    raise NotImplementedError
   end
 
   def show_by_number

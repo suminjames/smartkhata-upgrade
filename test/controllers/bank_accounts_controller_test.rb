@@ -60,11 +60,6 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "unauthenticated users should not update bank_account" do
-    sign_in users(:user)
-    patch :update, id: @bank_account, bank_account: { default_for_sales: false }
-    assert_redirected_to bank_account_path(assigns(:bank_account))
-  end
 
   test "allowed users should update bank_account" do
     sign_in users(:user)
