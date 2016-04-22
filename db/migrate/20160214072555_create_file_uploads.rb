@@ -6,6 +6,7 @@ class CreateFileUploads < ActiveRecord::Migration
     	t.boolean :ignore, default: false
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
+      t.integer :branch_id, index: true
       t.timestamps null: false
     end
   end

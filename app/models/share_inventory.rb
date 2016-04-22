@@ -1,5 +1,5 @@
 class ShareInventory < ActiveRecord::Base
-  include ::Models::Updater
+  include ::Models::UpdaterWithBranch
 
 
   belongs_to :client_account

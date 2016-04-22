@@ -55,6 +55,7 @@ class CreateClientAccounts < ActiveRecord::Migration
 
 			t.integer :creator_id, index: true
 			t.integer :updater_id, index: true
+			t.integer :branch_id, index: true
     	t.references :user,  index: true
     	t.timestamps null: false
     end

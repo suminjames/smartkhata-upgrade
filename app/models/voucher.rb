@@ -1,6 +1,6 @@
 class Voucher < ActiveRecord::Base
 	include FiscalYearModule
-	include ::Models::Updater
+	include ::Models::UpdaterWithBranchFycode
 
 	has_many :particulars
 	has_many :share_transactions
@@ -19,6 +19,7 @@ class Voucher < ActiveRecord::Base
 	enum voucher_type: [ :journal, :purchase, :sales, :contra ]
 	enum voucher_status: [:pending, :complete, :rejected]
 
+	before_create :add_branch_fycode
 	before_save :process_voucher
 
 	def voucher_code
@@ -43,7 +44,7 @@ class Voucher < ActiveRecord::Base
 		# rails enum and query not working properly
 		last_voucher = Voucher.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).last
 		self.voucher_number ||= last_voucher.present? ? last_voucher.voucher_number+1 : 1
-		self.fy_code = fy_code
+		# self.fy_code = fy_code
 		self.date = Time.now
 	end
 

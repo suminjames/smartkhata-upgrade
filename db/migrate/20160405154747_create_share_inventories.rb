@@ -23,7 +23,7 @@ class CreateShareInventories < ActiveRecord::Migration
 
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
-
+      t.integer :branch_id, index: true
       t.date :report_date
       t.references :client_account, index: true
       t.references :isin_info, index: true

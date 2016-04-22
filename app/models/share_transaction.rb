@@ -1,6 +1,6 @@
 class ShareTransaction < ActiveRecord::Base
-  include ::Models::Updater
 
+  include ::Models::UpdaterWithBranch
   belongs_to :bill
   belongs_to :voucher
   belongs_to :isin_info

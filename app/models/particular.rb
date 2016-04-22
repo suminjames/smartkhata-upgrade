@@ -1,6 +1,6 @@
 class Particular < ActiveRecord::Base
 	include CustomDateModule
-	include ::Models::Updater
+	include ::Models::UpdaterWithBranchFycode
 
 	belongs_to :ledger
 	belongs_to :voucher
@@ -19,7 +19,6 @@ class Particular < ActiveRecord::Base
 
 	before_save :process_particular
 
-
 	def get_description
 		if self.description.present?
 			self.description
@@ -35,4 +34,5 @@ class Particular < ActiveRecord::Base
 		self.transaction_date ||= Time.now
 		self.date_bs ||= ad_to_bs(self.transaction_date)
 	end
+
 end

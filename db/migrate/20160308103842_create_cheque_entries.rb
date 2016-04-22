@@ -8,6 +8,7 @@ class CreateChequeEntries < ActiveRecord::Migration
       t.references :settlement, index: true
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
+      t.integer :branch_id, index: true
       t.timestamps null: false
     end
   end

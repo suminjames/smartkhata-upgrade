@@ -1,5 +1,5 @@
 class ClientAccount < ActiveRecord::Base
-	include ::Models::Updater
+	include ::Models::UpdaterWithBranch
 	has_many :employee_client_associations
 	# to keep track of the user who created and last updated the ledger
 	belongs_to :creator,  class_name: 'User'

@@ -16,6 +16,7 @@ class CreateCloseouts < ActiveRecord::Migration
       t.integer :closeout_type
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
+      t.integer :branch_id, index: true
       t.timestamps null: false
     end
   end

@@ -1,5 +1,5 @@
 class EmployeeAccount < ActiveRecord::Base
-  include ::Models::Updater
+  include ::Models::UpdaterWithBranch
   has_many :employee_client_associations
   has_many :client_accounts, through: :employee_client_associations
 

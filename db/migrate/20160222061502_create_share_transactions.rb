@@ -25,6 +25,7 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.timestamps null: false
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
+      t.integer :branch_id, index: true
       t.references :voucher, index: true
       t.references :bill , index: true
       t.references :client_account , index: true
