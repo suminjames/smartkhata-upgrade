@@ -8,8 +8,8 @@ class BillsControllerTest < ActionController::TestCase
   test "should get index" do
     sign_in users(:user)
     get :index
-    assert_response :success
-    assert_not_nil assigns(:bills)
+    assert_redirected_to  bills_path(search_by: "client_name") 
+    # assert_not_nil assigns(:bills)
   end
 
   test "should get new" do
@@ -21,8 +21,8 @@ class BillsControllerTest < ActionController::TestCase
   # feature not implemented
   test "should not create bill" do
     sign_in users(:user)
-    post :create, bill: {  }
-    assert NotImplementedError
+    exception = assert_raises(Exception) { post :create, bill: {  }}
+    assert_equal( "NotImplementedError", exception.message )
   end
 
 
@@ -43,17 +43,21 @@ class BillsControllerTest < ActionController::TestCase
   # feature not implemented
   test "should not update bill" do
     sign_in users(:user)
-    patch :update, id: @bill, bill: {  }
-    assert NotImplementedError
+    
+    exception = assert_raises(Exception) { patch :update, id: @bill, bill: {  }}
+    assert_equal( "NotImplementedError", exception.message )
 
   end
 
   test "should not destroy bill" do
     sign_in users(:user)
-    assert_difference('Bill.count', -1) do
-      delete :destroy, id: @bill
-    end
+    # assert_difference('Bill.count', -1) do
+    #   delete :destroy, id: @bill
+    # end
 
-    assert_redirected_to bills_path
+    exception = assert_raises(Exception) { delete :destroy, id: @bill}
+    assert_equal( "NotImplementedError", exception.message )
+
+    # assert_redirected_to bills_path
   end
 end
