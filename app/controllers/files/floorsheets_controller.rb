@@ -192,7 +192,7 @@ class Files::FloorsheetsController < Files::FilesController
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buy']
 
       # group all the share transactions for a client for the day
-			if hash_dp.has_key?(client_name.to_s+'buy')
+			if hash_dp.key?(client_name.to_s+'buy')
 				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buy'], fy_code: fy_code, date: @date)
 			else
 				hash_dp[client_name.to_s+'buy'] = @bill_number
