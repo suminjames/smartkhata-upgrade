@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160422145310) do
+ActiveRecord::Schema.define(version: 20160423050524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,17 @@ ActiveRecord::Schema.define(version: 20160422145310) do
 
   add_index "banks", ["creator_id"], name: "index_banks_on_creator_id", using: :btree
   add_index "banks", ["updater_id"], name: "index_banks_on_updater_id", using: :btree
+
+  create_table "bill_voucher_relations", force: :cascade do |t|
+    t.integer  "relation_type"
+    t.integer  "bill_id"
+    t.integer  "voucher_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "bill_voucher_relations", ["bill_id"], name: "index_bill_voucher_relations_on_bill_id", using: :btree
+  add_index "bill_voucher_relations", ["voucher_id"], name: "index_bill_voucher_relations_on_voucher_id", using: :btree
 
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
@@ -571,5 +582,7 @@ ActiveRecord::Schema.define(version: 20160422145310) do
   add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
+  add_foreign_key "bill_voucher_relations", "bills"
+  add_foreign_key "bill_voucher_relations", "vouchers"
   add_foreign_key "settlements", "vouchers"
 end

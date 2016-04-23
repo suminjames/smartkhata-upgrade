@@ -9,8 +9,17 @@ class Bill < ActiveRecord::Base
   belongs_to :client_account
   has_many :isin_infos , through: :share_transactions
 
+  
+
   has_and_belongs_to_many :vouchers
-  has_many :particulars, through: :voucher
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
+  has_many :bill_voucher_relations
+
+  has_many :vouchers_on_creation, through: :on_creation, source: :voucher
+  has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
+  has_many :vouchers , through: :bill_voucher_relations
+  # has_many :particulars, through: :voucher
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
@@ -89,6 +98,7 @@ class Bill < ActiveRecord::Base
 
   private
   def process_bill
+    self.date ||= Time.now
     self.date_bs ||= ad_to_bs(self.date)
   end
 

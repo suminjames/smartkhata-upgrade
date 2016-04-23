@@ -201,7 +201,7 @@ class VouchersController < ApplicationController
         Voucher.transaction do
           @receipt = nil
           @processed_bills.each(&:save)
-          @voucher.bills << @processed_bills
+          @voucher.bills_on_settlement << @processed_bills
           @voucher.desc = description_bills
           # TODO add the cheque tracking to receipt
           # TODO add bill tracking to receipt

@@ -6,9 +6,19 @@ class Voucher < ActiveRecord::Base
 	has_many :share_transactions
 	has_many :ledgers, :through => :particulars
 	has_many :cheque_entries, :through => :particulars
-	has_and_belongs_to_many :bills
+	
 	accepts_nested_attributes_for :particulars
 	has_one :settlement
+
+
+	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
+	has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
+	has_many :bill_voucher_relations
+
+	has_many :bills_on_creation, through: :on_creation, source: :bill
+	has_many :bills_on_settlement, through: :on_settlement, source: :bill
+	has_many :bills , through: :bill_voucher_relations
+
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
