@@ -23,6 +23,7 @@ class Voucher < ActiveRecord::Base
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
+  belongs_to :reviewer, class_name: 'User'
 
 	# purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive

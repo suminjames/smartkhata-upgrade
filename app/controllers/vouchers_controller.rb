@@ -320,12 +320,14 @@ class VouchersController < ApplicationController
             particular.complete!
             ledger.save!
           end
-          @voucher.rejected!
+          @voucer.reviewer_id = UserSession.user_id
+          @voucher.complete!
           @voucher.save!
           success = true
           message = "Payment Voucher was successfully approved"
         end
       elsif  params[:reject]
+        @voucer.reviewer_id = UserSession.user_id
         @voucher.rejected!
         success = true if @voucher.save!
         message = 'Payment Voucher was successfully rejected'
