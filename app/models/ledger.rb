@@ -1,4 +1,7 @@
 class Ledger < ActiveRecord::Base
+
+	include ::Models::UpdaterWithBranchFycode
+
 	has_many :particulars
 	has_many :vouchers, :through => :particulars
 	belongs_to :group
@@ -6,6 +9,10 @@ class Ledger < ActiveRecord::Base
 	belongs_to :client_account
 	attr_accessor :opening_blnc_type
 	has_many :ledger_dailies
+
+  # to keep track of the user who created and last updated the ledger
+	belongs_to :creator,  class_name: 'User'
+	belongs_to :updater,  class_name: 'User'
 
 	validates_presence_of :name
 	# validates_presence_of :group_id

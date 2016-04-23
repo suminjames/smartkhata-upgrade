@@ -1,13 +1,29 @@
 class Bill < ActiveRecord::Base
   include CustomDateModule
+  # added the updater and creater user tracking
+  include ::Models::UpdaterWithBranchFycode
+
   #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions
   belongs_to :client_account
   has_many :isin_infos , through: :share_transactions
 
+  
+
   has_and_belongs_to_many :vouchers
-  has_many :particulars, through: :voucher
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
+  has_many :bill_voucher_relations
+
+  has_many :vouchers_on_creation, through: :on_creation, source: :voucher
+  has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
+  has_many :vouchers , through: :bill_voucher_relations
+  # has_many :particulars, through: :voucher
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
 
   # verify this with views everytime before changing
   # bill index
@@ -82,6 +98,7 @@ class Bill < ActiveRecord::Base
 
   private
   def process_bill
+    self.date ||= Time.now
     self.date_bs ||= ad_to_bs(self.date)
   end
 

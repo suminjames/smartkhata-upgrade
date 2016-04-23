@@ -14,11 +14,33 @@ tenant = Tenant.find_or_create_by!(name: "trishakti", dp_id: '11400')
 tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: 977-1-4232132, fax_number: 977-1-4232133, pan_number: 302930905, broker_code: 48)
 
 @tenants = Tenant.all
+
+
+@admin_users = [
+    {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
+    {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
+]
+
+count = 0
 @tenants.each do |t|
 	begin
 	    puts "Creating Tenant"
+      count += 1
 	    Apartment::Tenant.create(t.name)
       Apartment::Tenant.switch!(t.name)
+
+      branch = Branch.create(code: "KTM", address: "Kathmandu")
+      admin_user_data = @admin_users[count - 1]
+      new_user = User.find_or_create_by!(email: admin_user_data[:email]) do |user|
+        user.password = admin_user_data[:password]
+        user.password_confirmation = admin_user_data[:password]
+        user.branch_id = branch.id
+        user.confirm!
+        user.admin!
+      end
+      puts 'CREATED ADMIN USER: ' << new_user.email
+      UserSession.user = new_user
+
       Group.create([
         { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']},
         {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']}])
@@ -65,51 +87,21 @@ tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisad
 
 
       Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
-  rescue
+
+      if Rails.env == 'development'
+        employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
+        employees.each  do |employee|
+          EmployeeAccount.find_or_create_by!(employee)
+          puts 'Created EmployeeAccount: ' << employee[:name]
+        end
+      end
+
+
+  rescue => error
+    puts error.message
 	    puts "Tenant #{t.name} exists"
 	end
-
-	Apartment::Tenant.switch!(t.name)
-
-	user = CreateAdminService.new.call
-	puts 'CREATED ADMIN USER: ' << user.email
-
 
 	Apartment::Tenant.switch!('public')
 end
 
-
-# create admins for both
-Apartment::Tenant.switch!('trishakti')
-puts "Seeding trishakti broker data"
-
-new_user = User.find_or_create_by!(email: 'trishakti@danfeinfotech.com') do |user|
-        user.password = 'trispa8934'
-        user.password_confirmation = 'trispa8934'
-        user.confirm!
-        user.admin!
-      end
-puts 'CREATED ADMIN USER: ' << new_user.email
-
-Apartment::Tenant.switch!('dipshikha')
-puts "Seeding trishakti broker data"
-
-new_user = User.find_or_create_by!(email: 'dipshikha@danfeinfotech.com') do |user|
-        user.password = 'dipshikha5645'
-        user.password_confirmation = 'dipshikha5645'
-        user.confirm!
-        user.admin!
-      end
-puts 'CREATED ADMIN USER: ' << new_user.email
-Apartment::Tenant.switch!('public')
-
-
-if Rails.env == 'development'
-  Apartment::Tenant.switch!('trishakti')
-  employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
-  employees.each  do |employee|
-    EmployeeAccount.find_or_create_by!(employee)
-    puts 'Created EmployeeAccount: ' << employee[:name]
-  end
-  Apartment::Tenant.switch!('public')
-end

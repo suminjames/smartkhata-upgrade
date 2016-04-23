@@ -201,7 +201,7 @@ class VouchersController < ApplicationController
         Voucher.transaction do
           @receipt = nil
           @processed_bills.each(&:save)
-          @voucher.bills << @processed_bills
+          @voucher.bills_on_settlement << @processed_bills
           @voucher.desc = description_bills
           # TODO add the cheque tracking to receipt
           # TODO add bill tracking to receipt
@@ -261,8 +261,11 @@ class VouchersController < ApplicationController
     respond_to do |format|
       if success
         format.html {
-          redirect_to settlement_path(@settlement) if @settlement.present? && !@voucher.is_payment_bank?
-          redirect_to @voucher, notice: 'Voucher was successfully created.'
+          if @settlement.present? && !@voucher.is_payment_bank?
+            redirect_to settlement_path(@settlement)
+          else
+            redirect_to @voucher, notice: 'Voucher was successfully created.'
+          end
         }
         format.json { render :show, status: :created, location: @voucher }
       else
@@ -317,12 +320,14 @@ class VouchersController < ApplicationController
             particular.complete!
             ledger.save!
           end
-          @voucher.rejected!
+          @voucer.reviewer_id = UserSession.user_id
+          @voucher.complete!
           @voucher.save!
           success = true
           message = "Payment Voucher was successfully approved"
         end
       elsif  params[:reject]
+        @voucer.reviewer_id = UserSession.user_id
         @voucher.rejected!
         success = true if @voucher.save!
         message = 'Payment Voucher was successfully rejected'

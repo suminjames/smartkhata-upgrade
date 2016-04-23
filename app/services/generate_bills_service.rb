@@ -81,7 +81,7 @@ class GenerateBillsService
 
   			# update ledgers value
   			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
-        voucher.bills << bill
+        voucher.bills_on_creation << bill
         voucher.share_transactions << transaction
         voucher.desc = description
         voucher.complete!
