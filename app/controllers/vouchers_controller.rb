@@ -60,8 +60,6 @@ class VouchersController < ApplicationController
       @voucher.desc = "Being settled for Bill No: #{@bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if @bills.length > 0
     end
 
-    
-
     # if client account is present create a particular with available information and assign it
     # else create a general particular.
     @voucher.particulars = []
@@ -172,7 +170,6 @@ class VouchersController < ApplicationController
       if net_blnc == 0 && has_error == false
         # capture  the bill number and amount billed to description billed
         description_bills = ""
-       
 
         if @is_purchase_sales && @client_account
           # transaction_type = net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr]

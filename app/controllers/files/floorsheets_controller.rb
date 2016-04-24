@@ -182,7 +182,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# check for the bank deposit value which is available only for buy
     # used 25.0 instead of 25 to get number with decimal
     # hash_dp_count is used for the dp charges
-    # hash_dp is used to group transactions into bill 
+    # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
 		if bank_deposit.nil?
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'sell']
@@ -324,4 +324,3 @@ class Files::FloorsheetsController < Files::FilesController
 		xlsx.sheet(0).row(11)[1].to_s.tr(' ','') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
 	end
 end
-

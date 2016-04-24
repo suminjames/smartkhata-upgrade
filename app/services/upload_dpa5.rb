@@ -45,8 +45,8 @@ class UploadDpa5
 		# verify file
 		# verify_file(content[0])
 		date_records = Set.new
-		single_record.each do |y| 
-			extract(y) 
+		single_record.each do |y|
+			extract(y)
 			date_records.add(@report_date)
 		end
 		# extract(single_record[9])

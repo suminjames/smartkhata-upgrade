@@ -189,7 +189,6 @@ class ShareTransactionsController < ApplicationController
           @bill.balance_to_pay = 0
           @bill.net_amount = 0
           @bill.settled!
-          
         else
           @bill.balance_to_pay -= (@share_transaction.net_amount - dp_fee_adjustment)
           @bill.net_amount -= (@share_transaction.net_amount - dp_fee_adjustment)
