@@ -40,7 +40,7 @@ Rails.application.routes.draw do
   resources :client_accounts
 
   namespace 'files' do
-    resources :orders do
+    resources :orders, only: [:new] do
       collection {post :import}
     end
     resources :floorsheets, only: [:new, :index] do
