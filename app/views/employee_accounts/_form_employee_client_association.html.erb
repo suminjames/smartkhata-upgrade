@@ -1,4 +1,4 @@
-<%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
+<%= simple_form_for(employee_account, :method => 'patch') do |f| %>
     <%= f.error_notification %>
 
     <%= hidden_field_tag 'edit_type', 'client_association'%>
@@ -14,22 +14,22 @@
     <br>
 
     <%
-      @associated_clients = @employee_account.client_accounts
+      associated_clients = employee_account.client_accounts
 
       def isDisabled()
-        if @employee_account.has_access_to == 'nobody' || @employee_account.has_access_to == 'everyone'
+        if employee_account.has_access_to == 'nobody' || employee_account.has_access_to == 'everyone'
         return true
         end
         return false
       end
 
       def employeeHasAssociationWith (ledger_id)
-        if @employee_account.has_access_to == 'nobody'
+        if employee_account.has_access_to == 'nobody'
         return false
-        elsif @employee_account.has_access_to == 'everyone'
+        elsif employee_account.has_access_to == 'everyone'
         return true
-        elsif @employee_account.has_access_to == 'some'
-       @associated_clients.each do |client|
+        elsif employee_account.has_access_to == 'some'
+       associated_clients.each do |client|
         # ledger belongs to a client_account. Therefore, ledger_id belongs to a client_id.
          if client.id == ledger_id
          return true
@@ -60,7 +60,7 @@
         </tr>
         </thead>
         <tbody>
-        <% @ledgers.each do |ledger| %>
+        <% ledgers.each do |ledger| %>
             <tr>
               <td>
                 <%= check_box_tag 'client_associations[]', ledger.id, employeeHasAssociationWith(ledger.id), :disabled => isDisabled() %>

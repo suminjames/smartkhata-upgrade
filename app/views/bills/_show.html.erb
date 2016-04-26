@@ -3,8 +3,8 @@
 # Client associated with the bill
 @client = bill.get_client
 %>
-
-<div class="clearfix bill-full">
+<button id="btnPrint">Print</button>
+<div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
     <% if  bill.settled? %>
     <%= image_tag("settled.png") %>
