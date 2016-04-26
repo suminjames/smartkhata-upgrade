@@ -37,7 +37,7 @@ class GenerateBillsService
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
-        if hash_dp.has_key?(custom_key)
+        if hash_dp.key?(custom_key)
           # find bill by the bill number
           bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date)
         else

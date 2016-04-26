@@ -1,0 +1,96 @@
+@media screen {
+  #printSection {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    size: auto;   /* auto is the initial value */
+    margin: 0;  /* this affects the margin in the printer settings */
+  }
+
+  html * {
+    font-size: 10px !important;
+    font-family: arial;
+  }
+
+  .custom-anchor {
+    display: none;
+  }
+
+  body * {
+    visibility:hidden;
+  }
+  #printSection, #printSection * {
+    visibility:visible;
+  }
+  #printSection {
+    position:absolute;
+    left:0;
+    top:20px;
+    width: 700px;
+    paddig-top: 20px;
+    padding-left: 20px;
+    margin-left: 20px;
+
+    .transactions-section{
+      table{
+        // The width of this table is ought to be approx 1170px in print media
+        width: 100%;
+        font-size: 10px;
+        font-family: arial;
+        table-layout: fixed;
+
+
+        td{
+          word-wrap: break-word;
+        }
+        th{
+          word-wrap: break-word;
+        }
+        // These widths have been calibrated for arial font of 10px. These widths of print media are mathemtically proportional to their respecitve widths of screen media.
+        // The sum of all these widths must be the width of the table in print media.
+        colgroup {
+          // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
+          // Transaction No
+          .col-1 {
+            width: 15%;
+          }
+          // No of Shares
+          .col-2 {
+            width: 7.22%;
+          }
+          // Company Name
+          .col-3 {
+            width: 18.33%;
+          }
+          // Share Rate
+          .col-4 {
+            width: 7.78%;
+          }
+          // Base Price
+          .col-5 {
+            width: 7.78%;
+          }
+          // Amount
+          .col-6 {
+            width: 11.11%;
+          }
+          // Commission
+          .col-7 {
+            width: 10.56%;
+          }
+          // Commission Amount
+          .col-8 {
+            width: 11.11%;
+          }
+          // Capital Gain
+          .col-9 {
+            width: 11.11%;
+          }
+        }
+      }
+    }
+  }
+}

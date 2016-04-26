@@ -22,4 +22,24 @@
 //= require_tree .
 $(document).on('click', '.yamm .dropdown-menu', function(e) {
   e.stopPropagation()
-})
+});
+
+
+function printElement(elem) {
+    var domClone = elem.cloneNode(true);
+
+    var $printSection = document.getElementById('printSection');
+    if (!$printSection) {
+        $printSection = document.createElement("div");
+        $printSection.id = "printSection";
+        document.body.appendChild($printSection);
+    }
+    $printSection.innerHTML = "";
+    $printSection.appendChild(domClone);
+}
+
+$(document).on("click", "#btnPrint", function(event) {
+    // printElement(document.getElementById("printThis"));
+    printElement($('.printThis')[0]);
+    window.print();
+});

@@ -1,7 +1,7 @@
 class CreateShareInventories < ActiveRecord::Migration
   def change
     create_table :share_inventories do |t|
-      t.string :isin_desc 
+      t.string :isin_desc
       t.decimal :current_blnc , precision: 10, scale: 3, default: 0
       t.decimal :free_blnc , precision: 10, scale: 3, default: 0
       t.decimal :freeze_blnc , precision: 10, scale: 3, default: 0

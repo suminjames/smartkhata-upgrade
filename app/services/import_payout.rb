@@ -1,6 +1,12 @@
 class ImportPayout < ImportFile
 	# process the file
   include ShareInventoryModule
+
+	def initialize(file)
+		super(file)
+		@sales_settlement_id = nil
+	end
+
 	def process
 		# initial constants
 		tds_rate = 0.15

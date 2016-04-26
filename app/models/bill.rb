@@ -9,8 +9,6 @@ class Bill < ActiveRecord::Base
   belongs_to :client_account
   has_many :isin_infos , through: :share_transactions
 
-  
-
   has_and_belongs_to_many :vouchers
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"

@@ -1,4 +1,4 @@
-desc "Update Prices"
+  desc "Update Prices"
 task :update_isin_prices => :environment do
   # TODO: Scrape individual pages and find the last traded price of each isin. Currently, scraping of the last traded price of companies that had trading in the last day is only done.
 
@@ -73,5 +73,4 @@ task :update_isin_prices => :environment do
     #   )
   end
   puts "#{Time.now.to_s} : Successfully updated prices"
-  
 end

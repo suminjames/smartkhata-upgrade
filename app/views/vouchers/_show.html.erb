@@ -1,9 +1,11 @@
+<!--<button id="btnPrint">Print</button>-->
+<div class="printThis">
 <div class="row">
 	<div class="col-xs-5">
-		<p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+		<p>Voucher Number: <%= "#{voucher.voucher_code} #{voucher.fy_code}-#{voucher.voucher_number}" %></p>
 	</div>
 	<div class="col-xs-7 text-right">
-		<p>Voucher Date: <%= @voucher.date_bs %></p>
+		<p>Voucher Date: <%= voucher.date_bs %></p>
 	</div>
 </div>
 
@@ -17,7 +19,7 @@
 		</div>
 	</div>
 	<div class="box-body">
-		<% @particulars.each do |particular| %>
+		<% particulars.each do |particular| %>
 			<div class="row">
 				<div class="col-xs-6">
 					<%= particular.ledger.name 	 %>
@@ -33,4 +35,5 @@
 	</div>
 </div>
 
-<%= @voucher.desc %>
+<%= voucher.desc %>
+</div>
