@@ -1,5 +1,7 @@
 class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
+  before_filter :set_voucher_general_params, only: [:new, :create]
+  before_filter :set_voucher_creation_params, only: [:create]
 
   # GET /vouchers
   # GET /vouchers.json
@@ -26,53 +28,9 @@ class VouchersController < ApplicationController
 
   # GET /vouchers/new
   def new
-
-    # get parameters for voucher types and assign it as journal if not available
-    @voucher_type = Voucher.voucher_types[params[:voucher_type]] || Voucher.voucher_types[:journal]
-    # client account id ensures the vouchers are on the behalf of the client
-    @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
-    # get bill id if present
-    @bill_id = params[:bill_id].to_i if params[:bill_id].present?
-    # special cases are when voucher type is sales or purchase
-    @is_purchase_sales = false
-
-    # create new voucher
-    @voucher = Voucher.new
-    # get client account, bill , bills and amount
-    @client_account,@bill,@bills,@amount = set_bill_client(@client_account_id, @bill_id, @voucher_type)
-
-    # load additional data for voucher types like default payment and receive ledgers
-    # client purchase is voucher type sales
-    # client sales is voucher type purchase
-    if @voucher_type == Voucher.voucher_types[:sales] || @voucher_type == Voucher.voucher_types[:purchase]
-      @is_purchase_sales = true
-      @ledger_list = BankAccount.all.uniq.collect(&:ledger)
-      @default_bank_purchase = BankAccount.where(:default_for_purchase => true).first
-      @default_bank_sales = BankAccount.where(:default_for_sales   => true).first
-      @cash_ledger = Ledger.find_by(name: "Cash")
-      @ledger_list << @cash_ledger
-
-      if @voucher_type == Voucher.voucher_types[:sales]
-        @default_ledger_id = @default_bank_sales ? @default_bank_sales.id : @cash_ledger.id
-      else
-        @default_ledger_id = @default_bank_purchase ? @default_bank_purchase.id : @cash_ledger.id
-      end
-      @voucher.desc = "Being settled for Bill No: #{@bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if @bills.length > 0
-    end
-
-    # if client account is present create a particular with available information and assign it
-    # else create a general particular.
-    @voucher.particulars = []
-    if @is_purchase_sales
-      transaction_type = @voucher_type == Voucher.voucher_types[:sales] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
-      @voucher.particulars << Particular.new(ledger_id: @default_ledger_id,amnt: @amount, transaction_type: transaction_type)
-    end
-
-    # for sales and purchase we need two particular one for debit and one for credit
-    @voucher.particulars <<  Particular.new(ledger_id: @client_account.ledger.id,amnt: @amount) if @client_account.present?
-    # a general particular for the voucher
-    @voucher.particulars << Particular.new if @client_account.nil?
-
+    # @voucher_type, @client_account_id, @bill_id defined on filter
+    @voucher, @is_purchase_sales, @ledger_list, @default_ledger_id =
+        Vouchers::Setup.new.voucher_setup(@client_account_id,@bill_id,@voucher_type)
   end
 
   # GET /vouchers/1/edit
@@ -82,16 +40,6 @@ class VouchersController < ApplicationController
   # POST /vouchers
   # POST /vouchers.json
   def create
-    # get parameters for voucher types
-    @voucher_type =  params[:voucher_type].present? ? params[:voucher_type].to_i : 0
-    # client account id ensures the vouchers are on the behalf of the client
-    @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
-    @bill_id = params[:bill_id].to_i if params[:bill_id].present?
-
-    # fixed ledger is the ledger for sales and purchase
-    @fixed_ledger_id = params[:fixed_ledger_id].to_i if params[:fixed_ledger_id].present?
-    @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
-
     # ignore some validations when the voucher type is sales or purchase
     @is_purchase_sales = false
 
@@ -411,4 +359,20 @@ class VouchersController < ApplicationController
     def voucher_params
       params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type, :cheque_number, :additional_bank_id])
     end
+
+  def set_voucher_general_params
+    # get parameters for voucher types and assign it as journal if not available
+    @voucher_type = Voucher.voucher_types[params[:voucher_type]] || Voucher.voucher_types[:journal]
+    # client account id ensures the vouchers are on the behalf of the client
+    @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
+    # get bill id if present
+    @bill_id = params[:bill_id].to_i if params[:bill_id].present?
+  end
+
+  def set_voucher_creation_params
+    # fixed ledger is the ledger for sales and purchase
+    @fixed_ledger_id = params[:fixed_ledger_id].to_i if params[:fixed_ledger_id].present?
+    @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
+  end
+
 end
