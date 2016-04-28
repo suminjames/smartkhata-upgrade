@@ -41,7 +41,9 @@
 				<td>
           <!--TODO incorporate all bills -->
 					<% if particular.bills.count > 0 %>
-					<%= link_to "#{particular.bills.first.fy_code}-#{particular.bills.first.bill_number}", bill_path(particular.bills.first) , remote: true %>
+              <% particular.bills.each do |bill| %>
+                  <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill) , remote: true  %> <br>
+					    <% end %>
 					<% end %>
 				</td>
 				<td><%= link_to "#{particular.voucher.settlement.id }", settlement_path(particular.voucher.settlement.id) , remote: true if particular.voucher.settlement.present? %></td>
