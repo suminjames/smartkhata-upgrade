@@ -14,6 +14,7 @@ class Group < ActiveRecord::Base
   scope :top_level, -> {
   	where(:parent_id => nil)
 	}
+  scope :trial_balance, -> { where(:for_trial_balance => true)}
 
 	scope :balance_sheet, -> {
 		where(:parent_id => nil, :report => reports['Balance'])

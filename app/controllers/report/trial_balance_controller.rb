@@ -2,7 +2,7 @@ class Report::TrialBalanceController < ApplicationController
   def index
 
     if params[:search_by] == 'all'
-      @balance = Group.balance_sheet
+      @balance = Group.trial_balance
       @balance_report = Hash.new
 
       @balance.each do |balance|

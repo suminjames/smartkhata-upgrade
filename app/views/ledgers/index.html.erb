@@ -61,6 +61,9 @@
         <td>
         <%= link_to 'Show', ledger %>
         <% if ledger.client_account_id.present? %>
+              <% if (ledger.closing_blnc.abs) > 0.01 %>
+                  | <%= link_to 'Clear Ledger', new_voucher_path(client_account_id: ledger.client_account_id, clear_ledger: true) %>
+              <% end %>
               <% if ledger.client_account.bills.requiring_receive.present? %>
                 | <%= link_to 'Process Purchase Bills', new_voucher_path(voucher_type: 'sales', client_account_id: ledger.client_account_id) %>
                   <% end %>

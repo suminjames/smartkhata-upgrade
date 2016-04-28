@@ -303,10 +303,11 @@ ActiveRecord::Schema.define(version: 20160423050524) do
     t.integer  "parent_id"
     t.integer  "report"
     t.integer  "sub_report"
+    t.boolean  "for_trial_balance", default: false
     t.integer  "creator_id"
     t.integer  "updater_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
   end
 
   add_index "groups", ["creator_id"], name: "index_groups_on_creator_id", using: :btree
@@ -424,6 +425,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
     t.integer  "settlement_number"
     t.integer  "creator_id"
     t.integer  "updater_id"
+    t.string   "receiver_name"
     t.integer  "voucher_id"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
@@ -570,6 +572,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
     t.integer  "voucher_status",  default: 0
     t.integer  "creator_id"
     t.integer  "updater_id"
+    t.integer  "reviewer_id"
     t.integer  "branch_id"
     t.boolean  "is_payment_bank"
     t.datetime "created_at",                  null: false
@@ -580,6 +583,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
   add_index "vouchers", ["creator_id"], name: "index_vouchers_on_creator_id", using: :btree
   add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree
   add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
+  add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
   add_foreign_key "bill_voucher_relations", "bills"
