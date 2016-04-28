@@ -162,7 +162,7 @@ class Files::FloorsheetsController < Files::FilesController
 		buyer_broking_firm_code = arr[2]
 		seller_broking_firm_code = arr[3]
 		client_name = arr[4]
-		client_nepse_code = arr[5]
+		client_nepse_code = arr[5].upcase
 		share_quantity =  arr[6].to_i
 		share_rate = arr[7]
 		share_net_amount = arr[8]
@@ -176,7 +176,10 @@ class Files::FloorsheetsController < Files::FilesController
 		bill = nil
 
 		type_of_transaction = ShareTransaction.transaction_types['buy']
-		client = ClientAccount.find_or_create_by!(name: client_name.titleize, nepse_code: client_nepse_code.upcase)
+
+		client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code.upcase) do |client|
+			client.name = client_name.titleize
+		end
 
 
 		# check for the bank deposit value which is available only for buy
