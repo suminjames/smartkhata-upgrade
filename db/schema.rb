@@ -303,10 +303,11 @@ ActiveRecord::Schema.define(version: 20160423050524) do
     t.integer  "parent_id"
     t.integer  "report"
     t.integer  "sub_report"
+    t.boolean  "for_trial_balance", default: false
     t.integer  "creator_id"
     t.integer  "updater_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
   end
 
   add_index "groups", ["creator_id"], name: "index_groups_on_creator_id", using: :btree

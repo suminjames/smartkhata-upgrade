@@ -1,8 +1,8 @@
-<% inverse = false; ledger_list = extra_info[:ledger_list]; voucher_type = extra_info[:voucher_type] %>
+<% inverse = false; ledger_list = extra_info[:ledger_list]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
 	<% if inverse == true %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list, :id, :name,{:selected => default_ledger_id },{:class=>'form-control combobox select-ledger'}) %></div>
 	<% else %>
 		<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
 	<% end %>

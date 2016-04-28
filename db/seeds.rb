@@ -42,20 +42,20 @@ count = 0
       UserSession.user = new_user
 
       Group.create([
-        { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']},
-        {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']}])
+        { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
+        {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}])
 
       group = Group.create({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
       groups = Group.create([
-        { name: "Profit & Loss Account"},
+        { name: "Profit & Loss Account", for_trial_balance: true},
         {name: "General Reserve"},
         {name: "Capital Reserve"},
-        {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-        {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-        {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']}
+        # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
+        # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
+        {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+        {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+        { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
+        {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
       ])
 
       group.children << groups
@@ -66,19 +66,19 @@ count = 0
       group.ledgers << ledgers
       group.save!
 
-      group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
+      group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
       groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
       group.children << groups
       group.save!
 
-      group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
+      group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
       groups = Group.create([{ name: "Duties & Taxes"},{name: "Sundry Creditors"},{name: "Account Payables"}])
       ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}, {name: "Nepse Sales"}])
       group.children << groups
       group.ledgers << ledgers
       group.save!
 
-      group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']})
+      group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
       groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}, {name: "Clearing Account"}])
       group.children << groups
       ledgers = Ledger.create([{name: "TDS"},{name: "Cash"},{name: 'Close Out'}])
