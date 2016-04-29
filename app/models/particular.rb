@@ -17,6 +17,9 @@ class Particular < ActiveRecord::Base
 	enum particular_status: [:pending, :complete]
 	enum ledger_type: [:general, :has_bank]
 
+	scope :find_by_date_range, -> (date_from, date_to) { where(
+			:transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
+
 	before_save :process_particular
 
 	def get_description

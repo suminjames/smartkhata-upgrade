@@ -270,7 +270,7 @@ class ShareTransactionsController < ApplicationController
     #     format.json { render json: @share_transaction.errors, status: :unprocessable_entity }
     #   end
     # end
-    @share_transaction.update(share_transaction_params)
+    @share_transaction.update_with_base_price(share_transaction_params)
   end
 
   # DELETE /share_transactions/1

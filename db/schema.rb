@@ -120,6 +120,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
     t.integer  "additional_bank_id"
     t.integer  "bank_account_id"
     t.integer  "particular_id"
+    t.integer  "client_account_id"
     t.integer  "settlement_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
@@ -130,6 +131,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
   add_index "cheque_entries", ["branch_id"], name: "index_cheque_entries_on_branch_id", using: :btree
+  add_index "cheque_entries", ["client_account_id"], name: "index_cheque_entries_on_client_account_id", using: :btree
   add_index "cheque_entries", ["creator_id"], name: "index_cheque_entries_on_creator_id", using: :btree
   add_index "cheque_entries", ["particular_id"], name: "index_cheque_entries_on_particular_id", using: :btree
   add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree

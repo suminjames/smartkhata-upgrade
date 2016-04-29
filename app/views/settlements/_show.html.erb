@@ -2,19 +2,23 @@
 
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
-    <strong>
+      <strong>
       <%= current_tenant.full_name %><br>
       <%= current_tenant.address %><br>
+      </strong>
+
       <div class="row">
         <div class="col-xs-3">
+          <strong>
           Phone: <%= current_tenant.phone_number %>
           <br>
           Fax: <%= current_tenant.fax_number %>
           <br>
           PAN: <%= current_tenant.pan_number %>
           <br>
+          </strong>
         </div>
-      </strong>
+
       <div class="col-xs-6 text-center">
         <% if settlement.receipt? %>
         <h4><u>RECEIPT</u></h4>

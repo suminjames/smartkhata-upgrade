@@ -32,6 +32,7 @@ class Voucher < ActiveRecord::Base
 
 	before_create :add_branch_fycode
 	before_save :process_voucher
+  after_save :assign_cheque
 
 	def voucher_code
 		case self.voucher_type
@@ -57,6 +58,18 @@ class Voucher < ActiveRecord::Base
 		self.voucher_number ||= last_voucher.present? ? last_voucher.voucher_number+1 : 1
 		# self.fy_code = fy_code
 		self.date = Time.now
+
 	end
 
+  def assign_cheque
+    # TODO(subas) make sure no more than one cheque entry per voucher
+    cheque_entry = self.cheque_entries.first
+    if cheque_entry.present?
+      general_particular = self.particulars.general.first
+      if general_particular.present?
+        cheque_entry.client_account_id = general_particular.ledger.client_account_id
+        cheque_entry.save!
+      end
+    end
+  end
 end
