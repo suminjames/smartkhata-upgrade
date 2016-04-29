@@ -41,6 +41,9 @@ class Vouchers::Create < Vouchers::Base
     if @voucher.particulars.length > 1
       # check if debit equal credit or amount is not zero
       @voucher.particulars.each do |particular|
+
+
+
         particular.description = @voucher.desc
         particular.amnt = particular.amnt || 0
         if particular.amnt <= 0
@@ -65,6 +68,12 @@ class Vouchers::Create < Vouchers::Base
           if particular.cr?
             particular.additional_bank_id = nil
             @voucher.is_payment_bank = true
+            # Company can create payment by cheque for only one at a time
+            if @voucher.particulars.length > 2
+              has_error = true
+              error_message ="Single Cheque Entry possible for payment by cheque"
+              break
+            end
           end
         end
       end
@@ -147,8 +156,15 @@ class Vouchers::Create < Vouchers::Base
             if (particular.cheque_number.present?)
               # make the additional_bank_id nil for payment
               bank_account = ledger.bank_account
+
+              client_account_id = nil
+
+              if !@voucher.is_payment_bank?
+                client_account_id = ledger.client_account_id
+              end
+
               # TODO track the cheque entries whether it is from client or the broker
-              cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
+              cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
               particular.cheque_entries << cheque_entry
 
             end

@@ -40,7 +40,53 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
-    @particulars = @ledger.particulars.complete.order("id ASC")
+    if params[:show] == "all"
+      @particulars = @ledger.particulars.complete.order("id ASC")
+    elsif params[:search_by] && params[:search_term]
+      search_by = params[:search_by]
+      search_term = params[:search_term]
+      case search_by
+        when 'date_range'
+          # The dates being entered are assumed to be BS dates, not AD dates
+          date_from_bs = search_term['date_from']
+          date_to_bs   = search_term['date_to']
+          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+            date_from_ad = bs_to_ad(date_from_bs)
+            date_to_ad = bs_to_ad(date_to_bs)
+            @particulars = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order("id ASC")
+
+            first = @particulars.first
+            last = @particulars.last
+
+            @closing_blnc_sorted = last.running_blnc
+
+            if first.dr?
+              @opening_blnc_sorted = first.running_blnc - first.amnt
+            else
+              @opening_blnc_sorted = first.running_blnc + first.amnt
+            end
+
+
+          else
+            @particulars = ''
+            respond_to do |format|
+              flash.now[:error] = 'Invalid date(s)'
+              format.html { render :show }
+              format.json { render json: flash.now[:error], status: :unprocessable_entity }
+            end
+          end
+        else
+          @particulars = ''
+      end
+
+    elsif params[:search_by]
+      @particulars = ''
+    else
+      @particulars = @ledger.particulars.complete.order("id ASC")
+    end
+
+    @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
   end
 
   # GET /ledgers/new

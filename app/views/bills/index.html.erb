@@ -81,7 +81,7 @@ if params[:search_by] == 'date_range'
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@bills.present? %>
 <% if params[:search_by] == 'date_range'  %>
 <p>There are no bills matching the date range '<%= params[:search_term]['date_from'] %>' to '<%= params[:search_term]['date_to'] %>'.</p>
-<% elsif %>
+<% else %>
 <p>There are no bills matching the term '<%= params[:search_term] %>'.</p>
 <% end %>
 <% end %>

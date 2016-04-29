@@ -1,6 +1,7 @@
 class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
+  belongs_to :client_account
   belongs_to :bank_account
   belongs_to :particular
   belongs_to :voucher

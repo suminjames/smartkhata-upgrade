@@ -137,11 +137,29 @@ class GenerateBillsService
 
 
         else
+
+
           process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
           process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description)
           process_accounts(tds_ledger,voucher,true,tds,description)
           process_accounts(sales_commission_ledger,voucher,false,sales_commission,description)
           process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description) if transaction.dp_fee  > 0
+
+          if transaction.share_amount > 5000000
+            description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
+            voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+            voucher.share_transactions << transaction
+            voucher.desc = description
+
+            clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
+            # credit nepse
+            net_adjustment_amount = transaction.share_amount
+            process_accounts(nepse_ledger,voucher,false,net_adjustment_amount,description)
+            process_accounts(clearing_ledger,voucher,true,net_adjustment_amount,description)
+            voucher.complete!
+            voucher.save!
+          end
+
         end
 
       end

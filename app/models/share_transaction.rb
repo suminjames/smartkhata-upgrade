@@ -11,7 +11,7 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :updater,  class_name: 'User'
 
   enum transaction_type: [ :buy, :sell ]
-  before_update :calculate_cgt
+  # before_update :calculate_cgt
   validates :base_price, numericality: true
   scope :find_by_date, -> (date) { where(
     :date=> date.beginning_of_day..date.end_of_day) }
@@ -38,6 +38,11 @@ class ShareTransaction < ActiveRecord::Base
    update_attribute(:deleted_at, nil)
  end
 
+  def update_with_base_price(params)
+    self.update(params)
+    self.calculate_cgt
+    self
+  end
   def calculate_cgt
     old_cgt = self.cgt
     if self.base_price?

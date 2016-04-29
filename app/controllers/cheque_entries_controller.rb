@@ -4,7 +4,13 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
-    @cheque_entries = ChequeEntry.where(particular_id: nil)
+    if params[:type] == 'client'
+      @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
+    elsif params[:type] == 'company'
+      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(particular_id: nil)
+    else
+      @cheque_entries = ChequeEntry.where(particular_id: nil)
+    end
   end
 
   # GET /cheque_entries/1

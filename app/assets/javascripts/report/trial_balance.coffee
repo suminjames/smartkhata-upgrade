@@ -36,7 +36,22 @@ $ ->
     opening_blnc_cr = format_number(opening_blnc_cr)
     dr_amount = format_number(dr_amount)
     cr_amount = format_number(cr_amount)
+    if (opening_blnc_dr >= opening_blnc_cr)
+      opening_blnc_dr = opening_blnc_dr - opening_blnc_cr
+      opening_blnc_cr = 0
+    else
+      opening_blnc_cr = opening_blnc_cr - opening_blnc_dr
+      opening_blnc_dr = 0
+
+    if (closing_blnc_dr >= closing_blnc_cr)
+      closing_blnc_dr = closing_blnc_dr - closing_blnc_cr
+      closing_blnc_cr = 0
+    else
+      closing_blnc_cr = closing_blnc_cr - closing_blnc_dr
+      closing_blnc_dr = 0
+
     closing_blnc_dr = format_number(closing_blnc_dr)
     closing_blnc_cr = format_number(closing_blnc_cr)
+
 
     $this.append('<tr class="total-trial"><td>Total</td><td>'+opening_blnc_dr+'</td><td>'+opening_blnc_cr+'</td><td>'+dr_amount+'</td><td>'+cr_amount+'</td><td>'+closing_blnc_dr+'</td><td>'+closing_blnc_cr+'</td></tr>')
