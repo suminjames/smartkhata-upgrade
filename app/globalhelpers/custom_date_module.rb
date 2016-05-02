@@ -36,4 +36,10 @@ module CustomDateModule
 		return true
 	end
 
+	def bs_to_ad_from_string(bs_date)
+		@cal = NepaliCalendar::Calendar.new
+		bs_string_arr =  bs_date.to_s.split(/-/)
+		new_date = cal.bs_to_ad(bs_string_arr[0],bs_string_arr[1], bs_string_arr[2])
+	end
+
 end

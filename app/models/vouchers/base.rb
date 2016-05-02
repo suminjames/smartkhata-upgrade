@@ -21,21 +21,11 @@ class Vouchers::Base
 
   def set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger = false)
     # set default values to nil
-    client_account = nil
-    bill = nil
     bills = []
     amount = 0.0
 
-    # find the bills for the client
-    if client_account_id.present?
-      client_account = ClientAccount.find(client_account_id)
-    elsif bill_id.present?
-      bill = Bill.find(bill_id)
-      client_account = bill.client_account
-    else
-      client_account = nil
-      bill = nil
-    end
+    # get client account and bill if present
+    client_account, bill = client_account_and_bill(client_account_id, bill_id)
 
     # clear ledger functionality requires client account
     # check the bills requiring receive and payment
@@ -97,4 +87,17 @@ class Vouchers::Base
     return client_account, bill, bills, amount, voucher_type
   end
 
+  def client_account_and_bill(client_account_id, bill_id)
+    # find the bills for the client
+    # or client for the bill
+    bill = nil
+    client_account = nil
+    if client_account_id.present?
+      client_account = ClientAccount.find(client_account_id)
+    elsif bill_id.present?
+      bill = Bill.find(bill_id)
+      client_account = bill.client_account
+    end
+    return client_account, bill
+  end
 end
