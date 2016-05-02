@@ -44,13 +44,18 @@
 						<%= particular.ledger.name 	 %>
 					</div>
 					<div class="col-xs-4">
-						Being paid to <%= particular.ledger.name %> for
+						Being paid to <%= particular.ledger.name %>
+            <% if @voucher.formatted_description.size > 0 %>
+                for
 						<% @voucher.formatted_description.each do |b| %>
 							<br>
 							Bill : <%= link_to "#{b[0]}", show_by_number_bills_path(number: b[0]), remote: true %>
 							Amount : <%= b[1] %>
 						<% end %>
-
+            <% else %>
+                <br>
+            <%= @voucher.desc.present? ? "Details: #{@voucher.desc}" : "" %>
+            <% end %>
 					</div>
 					<div class="col-xs-3">
 						<%= @cheque %>

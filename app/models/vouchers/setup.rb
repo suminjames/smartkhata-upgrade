@@ -9,7 +9,7 @@ class Vouchers::Setup < Vouchers::Base
     default_ledger_id = nil
 
 
-    client_account,bill,bills,amount,voucher_type = set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger)
+    client_account, bill, bills, amount, voucher_type = set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger)
     voucher = get_new_voucher(voucher_type)
 
     if voucher_type == Voucher.voucher_types[:sales] || voucher_type == Voucher.voucher_types[:purchase]

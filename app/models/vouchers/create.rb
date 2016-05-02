@@ -13,10 +13,14 @@ class Vouchers::Create < Vouchers::Base
 
     # TODO(subas) refactor this to date module
     # convert the bs date to english date for storage
-    cal = NepaliCalendar::Calendar.new
-    bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
-    @voucher.date = cal.bs_to_ad(bs_string_arr[0],bs_string_arr[1], bs_string_arr[2])
-
+    # cal = NepaliCalendar::Calendar.new
+    # bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
+    date_ad =bs_to_ad_from_string(@voucher.date_bs)
+    if !date_ad
+      @error_message = "Invalid Date"
+      return
+    end
+    @voucher.date = date_ad
 
     # get a calculated values, these are returned nil if not applicable
     @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type =
@@ -145,7 +149,7 @@ class Vouchers::Create < Vouchers::Base
       # @receipt = nil
       processed_bills.each(&:save)
       voucher.bills_on_settlement << processed_bills
-      voucher.desc = description_bills
+      voucher.desc = voucher.desc || description_bills
 
       if is_purchase_sales && !processed_bills.blank?
         settlement_type = Settlement.settlement_types[:payment]
