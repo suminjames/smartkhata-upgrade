@@ -27,7 +27,7 @@ class VouchersController < ApplicationController
 
   # GET /vouchers/new
   def new
-    @voucher, @is_purchase_sales, @ledger_list, @default_ledger_id, @voucher_type =
+    @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_no_banks, @default_ledger_id, @voucher_type =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
@@ -69,6 +69,14 @@ class VouchersController < ApplicationController
         format.json { render :show, status: :created, location: @voucher }
       else
         @voucher = voucher_creation.voucher
+
+        # ledger list and is purchase sales is required for the extra section to show up for payment and receive case
+        # ledger list financial contains only bank ledgers and cash ledger
+        # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
+        @ledger_list_financial = voucher_creation.ledger_list_financial
+        @ledger_list_no_banks = voucher_creation.ledger_list_no_banks
+        @is_purchase_sales = voucher_creation.is_purchase_sales?(@voucher_type)
+
         if voucher_creation.error_message
           flash.now[:error] = voucher_creation.error_message
         end
@@ -173,7 +181,7 @@ class VouchersController < ApplicationController
 
 
     case voucher_type
-    when Voucher.voucher_types[:sales]
+    when Voucher.voucher_types[:receive]
       # check if the client account is present
       # and grab all the bills from which we can receive amount if bill is not present
       # else grab the amount to be paid from the bill
@@ -192,7 +200,7 @@ class VouchersController < ApplicationController
         amount = amount.abs
       end
 
-    when Voucher.voucher_types[:purchase]
+    when Voucher.voucher_types[:payment]
       if client_account.present?
         unless bill.present?
           bills = client_account.bills.requiring_payment

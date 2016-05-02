@@ -23,7 +23,7 @@
   <div class="form-inputs voucher">
     <div class="box box-primary z-light-bg">
       <div class="box-header">
-        <% if voucher_type == Voucher.voucher_types[:purchase] %>
+        <% if voucher_type == Voucher.voucher_types[:payment] %>
           <h3 class="box-title">Ledger to be Credited</h3>
         <% else %>
           <h3 class="box-title">Ledger to be Debited</h3>
@@ -38,12 +38,12 @@
           <div class="col-xs-2"><h4>Bank</h4></div>
         </div>
         <%= f.fields_for :particulars do |p| %>
-          <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:ledger_list => ledger_list, :voucher_type => voucher_type, :inverse => true, :default_ledger_id => default_ledger_id } }  if ((
-            voucher_type == Voucher.voucher_types[:purchase] && p.object.transaction_type == 'cr'
-          ) ||(voucher_type == Voucher.voucher_types[:sales] && p.object.transaction_type == 'dr') )%>
+          <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:ledger_list_financial => ledger_list_financial, :ledger_list_no_banks => ledger_list_no_banks, :voucher_type => voucher_type, :inverse => true, :default_ledger_id => default_ledger_id } }  if ((
+            voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr'
+          ) ||(voucher_type == Voucher.voucher_types[:receive] && p.object.transaction_type == 'dr') )%>
         <% end %>
 
-        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true , :ledger_list => ledger_list, :voucher_type => voucher_type,  :default_ledger_id => default_ledger_id} if voucher_type == Voucher.voucher_types[:sales] %>
+        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true , :ledger_list_financial => ledger_list_financial, :ledger_list_no_banks => ledger_list_no_banks, :voucher_type => voucher_type,  :default_ledger_id => default_ledger_id} if voucher_type == Voucher.voucher_types[:receive] %>
       </div>
     </div>
   </div>
@@ -63,11 +63,11 @@
           <div class="col-xs-2"><h4>Bank</h4></div>
         </div>
         <%= f.fields_for :particulars do |p| %>
-          <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => false, :ledger_list => ledger_list, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} }  unless (p.object.transaction_type.present? && (
-            voucher_type == Voucher.voucher_types[:purchase] && p.object.transaction_type == 'cr'
-          ) ||(voucher_type == Voucher.voucher_types[:sales] && p.object.transaction_type == 'dr')  )%>
+          <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => false, :ledger_list_financial => ledger_list_financial, :ledger_list_no_banks => ledger_list_no_banks, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} }  unless (p.object.transaction_type.present? && (
+            voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr'
+          ) ||(voucher_type == Voucher.voucher_types[:receive] && p.object.transaction_type == 'dr')  )%>
         <% end %>
-        <%= link_to_add_fields "Add Particular", f, :particulars, {:ledger_list => ledger_list, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} %>
+        <%= link_to_add_fields "Add Particular", f, :particulars, {:ledger_list_financial => ledger_list_financial, :ledger_list_no_banks => ledger_list_no_banks, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} %>
       </div>
     </div>
 

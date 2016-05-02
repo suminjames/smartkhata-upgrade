@@ -27,7 +27,7 @@ class Voucher < ActiveRecord::Base
 
 	# purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-	enum voucher_type: [ :journal, :purchase, :sales, :contra ]
+	enum voucher_type: [ :journal, :payment, :receive, :contra ]
 	enum voucher_status: [:pending, :complete, :rejected]
 
 	before_create :add_branch_fycode
@@ -35,14 +35,14 @@ class Voucher < ActiveRecord::Base
   after_save :assign_cheque
 
 	def voucher_code
-		case self.voucher_type
-		when 'journal'
+		case self.voucher_type.to_sym
+		when :journal
 			"JVR"
-		when 'purchase'
+		when :payment
 			"PMT"
-		when 'sales'
+		when :receive
 			"RCV"
-		when Voucher.voucher_types[:contra]
+		when :contra
 			"CVR"
 		else
 			"NA"

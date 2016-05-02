@@ -30,8 +30,8 @@
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Vouchers</strong></p></li>
           <li><%= link_to 'Journal', new_voucher_path	 %></li>
-          <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:purchase]) %></li>
-          <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:sales]) %></li>
+          <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:receive]) %></li>
+          <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
           <li><%= link_to 'Pending Payment', vouchers_path %></li>
         </ul>
         <ul class="col-xs-2 list-unstyled">

@@ -23,8 +23,8 @@ class Files::FloorsheetsController < Files::FilesController
 	def import
 
 		# get file from import
-		@file = params[:file];
-
+		@file = params[:file]
+    @error_message = nil
 
 		# grab date from the first record
 		file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
@@ -76,16 +76,18 @@ class Files::FloorsheetsController < Files::FilesController
 		# loop through 13th row to last row
 		# parse the data
 		@total_amount = 0
-		(12..(xlsx.sheet(0).last_row)).each do |i|
 
-			@row_data = xlsx.sheet(0).row(i)
+    data_sheet = xlsx.sheet(0)
+		(12..(data_sheet.last_row)).each do |i|
 
-			if (@row_data[0].to_s.tr(' ','') == 'Total')
-				@total_amount = @row_data[21].to_f
+			row_data = data_sheet.row(i)
+
+			if (row_data[0].to_s.tr(' ','') == 'Total')
+				@total_amount = row_data[21].to_f
 				break
 			end
 
-			break if @row_data[0] == nil
+			break if row_data[0] == nil
 			# rawdata =[
 			# 	Contract No.,
 			# 	Symbol,
@@ -101,19 +103,19 @@ class Files::FloorsheetsController < Files::FilesController
 			# ]
 			# TODO remove this hack
 			if @older_detected
-				@raw_data << [@row_data[0],@row_data[1],@row_data[2],@row_data[3],@row_data[4],@row_data[5],@row_data[6],@row_data[7],@row_data[8],@row_data[9],@row_data[10]]
+				@raw_data << [row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5], row_data[6], row_data[7], row_data[8], row_data[9], row_data[10]]
 				@total_amount_file = 0
-        company_symbol = @row_data[1]
-        client_name = @row_data[4]
-        bank_deposit = @row_data[10]
+        company_symbol = row_data[1]
+        client_name = row_data[4]
+        bank_deposit = row_data[10]
 
 			else
-				@raw_data << [@row_data[3],@row_data[7],@row_data[8],@row_data[10],@row_data[12],@row_data[15],@row_data[17],@row_data[19],@row_data[20],@row_data[23],@row_data[26]]
+				@raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
 				# sum of the amount section should be equal to the calculated sum
 				@total_amount_file = @raw_data.map {|d| d[8].to_f}.reduce(0, :+)
-        company_symbol = @row_data[7]
-        client_name = @row_data[12]
-        bank_deposit = @row_data[26]
+        company_symbol = row_data[7]
+        client_name = row_data[12]
+        bank_deposit = row_data[26]
 			end
 
       # check for the bank deposit value which is available only for buy
@@ -137,7 +139,8 @@ class Files::FloorsheetsController < Files::FilesController
         @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count)
       end
       FileUpload.find_or_create_by!(file: @@file, report_date: @date)
-		end
+    end
+    # file_error(@error_message) if @error_message.present?
 	end
 
 
@@ -177,9 +180,21 @@ class Files::FloorsheetsController < Files::FilesController
 
 		type_of_transaction = ShareTransaction.transaction_types['buy']
 
+
+    # TODO(Subas) remove this code block to take only the mapped user list
 		client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code.upcase) do |client|
 			client.name = client_name.titleize
 		end
+
+    # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase) do |client|
+    #   client.name = client_name.titleize
+    # end
+    #
+    # if client.nil?
+    #   @error_message = "At least one of the data contains clients whose nepse code is not mapped to system"
+    #   raise ActiveRecord::Rollback
+    #   return
+    # end
 
 
 		# check for the bank deposit value which is available only for buy
