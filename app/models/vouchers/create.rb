@@ -4,7 +4,6 @@ class Vouchers::Create < Vouchers::Base
     super(attrs)
     @voucher = attrs[:voucher]
     @ledger_list_financial = []
-    @settlement = nil
     @ledger_list_no_banks = nil
   end
 
@@ -47,8 +46,8 @@ class Vouchers::Create < Vouchers::Base
       @processed_bills = []
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
-        @processed_bills, description_bills = process_bills(is_purchase_sales, @client_account, net_usable_blnc, @clear_ledger, @voucher_type, @bills )
-        @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_purchase_sales,@client_account)
+        @processed_bills, description_bills, receipt_amount = process_bills(is_purchase_sales, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills )
+        @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_purchase_sales,@client_account, receipt_amount)
       else
         if has_error
           @error_message = error_message
@@ -84,9 +83,9 @@ class Vouchers::Create < Vouchers::Base
       (particular.dr?) ? net_blnc += particular.amnt : net_blnc -= particular.amnt
 
       # get a net usable balance to charge the client for billing purpose
-      if  voucher.voucher_type == Voucher.voucher_types[:receive]
+      if  voucher.receive?
         net_usable_blnc += (particular.dr?) ? particular.amnt : 0
-      elsif voucher.voucher_type == Voucher.voucher_types[:payment]
+      elsif voucher.payment?
         net_usable_blnc += (particular.cr?) ? particular.amnt : 0
       end
       if (particular.cheque_number.present?)
@@ -114,10 +113,13 @@ class Vouchers::Create < Vouchers::Base
     end
     is_purchase_sales
   end
-  def process_bills(is_purchase_sales, client_account, net_usable_blnc, clear_ledger, voucher_type, bills )
+  def process_bills(is_purchase_sales, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills )
     processed_bills = []
     description_bills = ""
+    receipt_amount = 0.0
+
     if is_purchase_sales && client_account
+      receipt_amount = net_usable_blnc.abs
       net_usable_blnc = net_usable_blnc.abs
       bills.each do |bill|
 
@@ -154,17 +156,19 @@ class Vouchers::Create < Vouchers::Base
 
       end
     end
-    return processed_bills, description_bills
+    return processed_bills, description_bills, receipt_amount
   end
-  def voucher_save(processed_bills,voucher,description_bills,is_purchase_sales,client_account)
+  def voucher_save(processed_bills,voucher,description_bills,is_purchase_sales,client_account, receipt_amount)
     error_message = nil
     res = false
+    settlement = nil
 
     Voucher.transaction do
       # @receipt = nil
       processed_bills.each(&:save)
       voucher.bills_on_settlement << processed_bills
-      voucher.desc = voucher.desc || description_bills
+      # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
+      voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
       if is_purchase_sales && !processed_bills.blank?
         settlement_type = Settlement.settlement_types[:payment]
