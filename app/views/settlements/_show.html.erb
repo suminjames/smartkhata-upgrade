@@ -56,7 +56,7 @@
   <% end %>
 
   <p>the sum of   <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
-  <p>(in words)<strong><u>  Rs.   <%= arabic_word(settlement.amount) %> Only</u></strong></p>
+  <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
   <% if settlement.voucher.cheque_entries.present? %>
   <p>By Cheque:

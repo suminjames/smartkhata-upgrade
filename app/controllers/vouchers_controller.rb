@@ -57,7 +57,7 @@ class VouchersController < ApplicationController
       if voucher_creation.process
 
         @voucher = voucher_creation.voucher
-        settlement = voucher_creation.settlement
+        settlement = @voucher.settlement
 
         format.html {
           if settlement.present? && !@voucher.is_payment_bank?
@@ -235,12 +235,20 @@ class VouchersController < ApplicationController
     # get bill id if present
     @bill_id = params[:bill_id].to_i if params[:bill_id].present?
     # check if clear ledger balance is present
-    @clear_ledger = params[:clear_ledger].present? ? params[:clear_ledger] : false
+    @clear_ledger = set_clear_ledger
   end
 
   def set_voucher_creation_params
     @fixed_ledger_id = params[:fixed_ledger_id].to_i if params[:fixed_ledger_id].present?
     @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
+  end
+
+  def set_clear_ledger
+    clear_ledger = false
+    if params[:clear_ledger].present?
+      return true if ( params[:clear_ledger] == true || params[:clear_ledger] == 'true')
+    end
+    clear_ledger
   end
 
 end
