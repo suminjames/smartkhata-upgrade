@@ -21,21 +21,11 @@ class Vouchers::Base
 
   def set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger = false)
     # set default values to nil
-    client_account = nil
-    bill = nil
     bills = []
     amount = 0.0
 
-    # find the bills for the client
-    if client_account_id.present?
-      client_account = ClientAccount.find(client_account_id)
-    elsif bill_id.present?
-      bill = Bill.find(bill_id)
-      client_account = bill.client_account
-    else
-      client_account = nil
-      bill = nil
-    end
+    # get client account and bill if present
+    client_account, bill = client_account_and_bill(client_account_id, bill_id)
 
     # clear ledger functionality requires client account
     # check the bills requiring receive and payment
@@ -50,18 +40,18 @@ class Vouchers::Base
       # check whether its a payment or receive
       # note the order of bills depend on the condition above
       if amount_to_pay > amount_to_receive
-        voucher_type = Voucher.voucher_types[:purchase]
+        voucher_type = Voucher.voucher_types[:payment]
         bills = [*bills_receive, *bills_payment]
         amount = amount_to_pay - amount_to_receive
       else
-        voucher_type = Voucher.voucher_types[:sales]
+        voucher_type = Voucher.voucher_types[:receive]
         bills = [*bills_payment,*bills_receive]
         amount = amount_to_receive - amount_to_pay
       end
 
     else
       case voucher_type
-        when Voucher.voucher_types[:sales]
+        when Voucher.voucher_types[:receive]
           # check if the client account is present
           # and grab all the bills from which we can receive amount if bill is not present
           # else grab the amount to be paid from the bill
@@ -77,7 +67,7 @@ class Vouchers::Base
             amount = amount.abs
           end
 
-        when Voucher.voucher_types[:purchase]
+        when Voucher.voucher_types[:payment]
           if client_account.present?
             unless bill.present?
               bills = client_account.bills.requiring_payment
@@ -97,4 +87,17 @@ class Vouchers::Base
     return client_account, bill, bills, amount, voucher_type
   end
 
+  def client_account_and_bill(client_account_id, bill_id)
+    # find the bills for the client
+    # or client for the bill
+    bill = nil
+    client_account = nil
+    if client_account_id.present?
+      client_account = ClientAccount.find(client_account_id)
+    elsif bill_id.present?
+      bill = Bill.find(bill_id)
+      client_account = bill.client_account
+    end
+    return client_account, bill
+  end
 end

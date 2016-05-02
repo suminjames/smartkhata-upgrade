@@ -23,6 +23,7 @@ class Ledger < ActiveRecord::Base
 	scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
   scope :find_all_client_ledgers, -> { where.not(client_account_id: nil) }
   scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
+	scope :non_bank_ledgers, -> {where(bank_account_id: nil)}
 
 	def update_closing_balance
 		unless self.opening_blnc.nil?

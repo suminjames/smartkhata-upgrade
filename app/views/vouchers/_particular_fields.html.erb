@@ -1,18 +1,18 @@
-<% inverse = false; ledger_list = extra_info[:ledger_list]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
+<% inverse = false; ledger_list_financial = extra_info[:ledger_list_financial]; ledger_list_no_banks = extra_info[:ledger_list_no_banks]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
 	<% if inverse == true %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list, :id, :name,{:selected => default_ledger_id },{:class=>'form-control combobox select-ledger'}) %></div>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name,{:selected => default_ledger_id },{:class=>'form-control combobox select-ledger'}) %></div>
 	<% else %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, Ledger.all, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_no_banks, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
 	<% end %>
 	<div class="col-xs-2"><%= f.input :amnt ,label: false %></div>
 	<div class="col-xs-1 type-selector">
-		<% if ( voucher_type == Voucher.voucher_types[:sales] && inverse == false  ) || ( voucher_type == Voucher.voucher_types[:purchase] && inverse == true ) %>
+		<% if ( voucher_type == Voucher.voucher_types[:receive] && inverse == false  ) || ( voucher_type == Voucher.voucher_types[:payment] && inverse == true ) %>
 			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
-		<% elsif voucher_type == Voucher.voucher_types[:purchase] || (voucher_type == Voucher.voucher_types[:sales] )%>
+		<% elsif voucher_type == Voucher.voucher_types[:payment] || (voucher_type == Voucher.voucher_types[:receive] )%>
 			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "dr" }%>
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"dr"),{},{:disabled => true} %>
 		<% else %>

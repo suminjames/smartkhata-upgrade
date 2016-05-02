@@ -9,18 +9,20 @@ class Vouchers::Setup < Vouchers::Base
     default_ledger_id = nil
 
 
-    client_account,bill,bills,amount,voucher_type = set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger)
+    client_account, bill, bills, amount, voucher_type = set_bill_client(client_account_id, bill_id, voucher_type, clear_ledger)
     voucher = get_new_voucher(voucher_type)
 
-    if voucher_type == Voucher.voucher_types[:sales] || voucher_type == Voucher.voucher_types[:purchase]
+    if voucher_type == Voucher.voucher_types[:receive] || voucher_type == Voucher.voucher_types[:payment]
       is_purchase_sales = true
-      ledger_list = BankAccount.all.uniq.collect(&:ledger)
+      ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_purchase = BankAccount.where(:default_for_purchase => true).first
       default_bank_sales = BankAccount.where(:default_for_sales   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
-      ledger_list << cash_ledger
 
-      if voucher_type == Voucher.voucher_types[:sales]
+      ledger_list_no_banks = Ledger.non_bank_ledgers
+      ledger_list_financial << cash_ledger
+
+      if voucher_type == Voucher.voucher_types[:receive]
         default_ledger_id = default_bank_sales ? default_bank_sales.ledger.id : cash_ledger.id
         puts "this is one#{default_ledger_id}"
       else
@@ -33,7 +35,7 @@ class Vouchers::Setup < Vouchers::Base
 
     voucher.particulars = []
     if is_purchase_sales
-      transaction_type = voucher_type == Voucher.voucher_types[:sales] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
+      transaction_type = voucher_type == Voucher.voucher_types[:receive] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       voucher.particulars << Particular.new(ledger_id: default_ledger_id,amnt: amount, transaction_type: transaction_type)
     end
 
@@ -42,6 +44,6 @@ class Vouchers::Setup < Vouchers::Base
     # a general particular for the voucher
     voucher.particulars << Particular.new if client_account.nil?
 
-    return voucher, is_purchase_sales, ledger_list, default_ledger_id, voucher_type
+    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_no_banks, default_ledger_id, voucher_type
   end
 end
