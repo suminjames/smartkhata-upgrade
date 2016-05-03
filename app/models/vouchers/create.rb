@@ -66,7 +66,8 @@ class Vouchers::Create < Vouchers::Base
     error_message = ""
     net_blnc = 0
     net_usable_blnc = 0
-
+    debit_ledgers = Hash.new 0
+    credit_ledgers = Hash.new 0
     # check if debit equal credit or amount is not zero
     voucher.particulars.each do |particular|
       particular.description = voucher.desc
@@ -80,6 +81,7 @@ class Vouchers::Create < Vouchers::Base
         error_message ="Particulars cant be empty"
         break
       end
+
       (particular.dr?) ? net_blnc += particular.amnt : net_blnc -= particular.amnt
 
       # get a net usable balance to charge the client for billing purpose
@@ -88,6 +90,7 @@ class Vouchers::Create < Vouchers::Base
       elsif voucher.payment?
         net_usable_blnc += (particular.cr?) ? particular.amnt : 0
       end
+
       if (particular.cheque_number.present?)
         particular.ledger_type = Particular.ledger_types[:has_bank]
         if particular.cr?
@@ -102,7 +105,7 @@ class Vouchers::Create < Vouchers::Base
         end
       end
     end
-    return voucher, has_error, error_message, net_blnc, net_usable_blnc
+    return voucher, has_error, error_message, net_blnc, net_usable_blnc, debit_ledgers, credit_ledgers
   end
   def is_purchase_sales?(voucher_type)
     is_purchase_sales = false
@@ -170,11 +173,12 @@ class Vouchers::Create < Vouchers::Base
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
       voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
-      if is_purchase_sales && !processed_bills.blank?
-        settlement_type = Settlement.settlement_types[:payment]
-        settlement_type = Settlement.settlement_types[:receipt] if voucher.voucher_type == Voucher.voucher_types[:receive]
-        settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
-      end
+      # # create settlement in case of payment and receive
+      # if is_purchase_sales && !processed_bills.blank?
+      #   settlement_type = Settlement.settlement_types[:payment]
+      #   settlement_type = Settlement.settlement_types[:receipt] if voucher.voucher_type == Voucher.voucher_types[:receive]
+      #   settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      # end
 
       voucher.particulars.each do |particular|
         particular.pending!
@@ -196,9 +200,16 @@ class Vouchers::Create < Vouchers::Base
           cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
           particular.cheque_entries << cheque_entry
           rescue ActiveRecord::RecordInvalid
+            # TODO(subas) not sure if this is required
+            voucher.settlements = []
             error_message = "Cheque Number is invalid"
             raise ActiveRecord::Rollback
           end
+        end
+
+        if is_purchase_sales
+          settlement = purchase_sales_settlement(voucher, ledger, particular, client_account)
+          voucher.settlements << settlement if settlement.present?
         end
 
         unless voucher.is_payment_bank
@@ -212,11 +223,40 @@ class Vouchers::Create < Vouchers::Base
         end
 
       end
-      voucher.settlement = settlement
+
       # mark the voucher as settled if it is not payment bank
       voucher.complete! unless voucher.is_payment_bank
       res = true if voucher.save
     end
     return voucher, res, error_message
   end
+
+  def purchase_sales_settlement(voucher, ledger, particular, client_account)
+    receipt_amount = 0
+    settler_name = ""
+    settlement = nil
+
+    if  voucher.receive?
+      receipt_amount += (particular.cr?) ? particular.amnt : 0
+    elsif voucher.payment?
+      receipt_amount += (particular.dr?) ? particular.amnt : 0
+    end
+
+    if client_account.present?
+      settler_name = client_account.name
+    else
+      settler_name = ledger.name
+    end
+
+
+    if voucher.receive? && particular.cr? || voucher.payment? && particular.dr?
+      settlement_type = Settlement.settlement_types[:payment]
+      settlement_type = Settlement.settlement_types[:receipt] if voucher.receive?
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: voucher.desc, date_bs: voucher.date_bs, settlement_type: settlement_type)
+    end
+
+    settlement
+  end
+
+
 end

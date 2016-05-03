@@ -57,11 +57,12 @@ class VouchersController < ApplicationController
       if voucher_creation.process
 
         @voucher = voucher_creation.voucher
-        settlement = @voucher.settlement
+        settlements = @voucher.settlements
 
         format.html {
-          if settlement.present? && !@voucher.is_payment_bank?
-            redirect_to settlement_path(settlement)
+          if settlements.size > 0 && !@voucher.is_payment_bank?
+            # TODO (Remove this hack to show all the settlements)
+            redirect_to settlement_path(settlements[0].id)
           else
             redirect_to @voucher, notice: 'Voucher was successfully created.'
           end

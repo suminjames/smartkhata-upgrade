@@ -8,7 +8,7 @@ class Voucher < ActiveRecord::Base
 	has_many :cheque_entries, :through => :particulars
 	
 	accepts_nested_attributes_for :particulars
-	has_one :settlement
+	has_many :settlements
 
 
 	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"

@@ -92,7 +92,13 @@
 					    <% end %>
 					<% end %>
 				</td>
-				<td><%= link_to "#{particular.voucher.settlement.id }", settlement_path(particular.voucher.settlement.id) , remote: true if particular.voucher.settlement.present? %></td>
+				<td>
+          <% if particular.voucher.settlements.size > 0 %>
+                <% particular.voucher.settlements.each do |settlement| %>
+                    <%= link_to "#{settlement.id }", settlement_path(settlement.id) , remote: true  %><br>
+                <% end %>
+          <% end %>
+
 				<td class='text-right'><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></td>
 				<td class='text-right'><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></td>
 				<td class='text-right'><%= number_to_currency(particular.running_blnc >= 0 ? particular.running_blnc : "" ) %></td>

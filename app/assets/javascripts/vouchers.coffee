@@ -70,6 +70,7 @@ manage_cheque = ($this) ->
 
 
   else
+    $cheque.val("")
     $this.parent().parent().find('.cheque-container').hide()
 
 
