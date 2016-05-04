@@ -10,8 +10,8 @@ class Report::TrialBalanceController < ApplicationController
       end
     elsif params[:search_by] == 'lwd'
       date  = Time.now.to_date
-      file = FileUpload::FILES[:floorsheet]
-      fileupload = FileUpload.where(file: file).order("report_date desc").limit(1).first;
+      file = FileUpload::file_types[:floorsheet]
+      fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
       if ( fileupload.present? )
         date = fileupload.report_date
       end

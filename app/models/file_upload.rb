@@ -11,5 +11,6 @@
 #
 
 class FileUpload < ActiveRecord::Base
-	FILES = { :unknown => 0, :floorsheet => 1 , :dpa5 => 2 }
+  # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword 
+  enum file_type: [:unknown, :floorsheet, :dpa5, :orders]
 end

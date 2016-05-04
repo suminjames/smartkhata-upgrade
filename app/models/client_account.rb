@@ -55,6 +55,10 @@
 #  updated_at                :datetime         not null
 #
 
+# Note: 
+# - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
+# - From floorsheet, only client name and NEPSE-code of a client can be fetched.
+# The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
 	has_many :employee_client_associations
 	# TODO: See the following associations efficient implementation
@@ -62,7 +66,7 @@ class ClientAccount < ActiveRecord::Base
 	belongs_to :user
 	has_one :ledger
   has_many :share_inventories
-	has_many :bills do
+  has_many :bills do
     def requiring_processing
       where(status: ["pending","partial"])
     end

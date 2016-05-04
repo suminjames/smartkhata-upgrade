@@ -36,6 +36,9 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    annotate (2.6.5)
+      activerecord (>= 2.3.0)
+      rake (>= 0.8.7)
     ansi (1.5.0)
     apartment (1.0.2)
       activerecord (>= 3.1.2, < 5.0)
@@ -304,6 +307,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  annotate
   apartment
   awesome_print
   better_errors

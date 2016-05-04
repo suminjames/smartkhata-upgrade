@@ -27,8 +27,8 @@ class ShareTransactionsController < ApplicationController
     elsif params[:search_by] == 'last_working_day'
       #TODO(sarojk): Implement a better way to find the last working day. Maybe something in application helper?
       date  = Time.now.to_date
-      file = FileUpload::FILES[:floorsheet]
-      fileupload = FileUpload.where(file: file).order("report_date desc").limit(1).first;
+      file_type = FileUpload::file_types[:floorsheet]
+      fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
       if ( fileupload.present? )
         date = fileupload.report_date
       end

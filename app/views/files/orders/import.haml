@@ -1,0 +1,39 @@
+- provide(:section_title, "Order Details")
+= link_to "Go Back", new_files_order_path
+- unless @error
+  %table.table.table-striped
+    %thead
+      %th.col-xs-1= "#"
+      %th.col-xs-1= "Order Id"
+      %th.col-xs-1= "Symbol"
+      %th.col-xs-1= "Client Name"
+      %th.col-xs-1= "Client Code"
+      %th.col-xs-1= "Price"
+      %th.col-xs-1= "Quantity"
+      %th.col-xs-1= "Amount"
+      %th.col-xs-1= "Pending Quantity"
+      %th.col-xs-1= "Order Time"
+      %th.col-xs-1= "Order Type"
+      %th.col-xs-1= "Order Segment"
+      %th.col-xs-1= "Order Condition"
+      %th.col-xs-1= "Order State"
+    %tbody
+      - @processed_data.each_with_index do |item_hash , i|
+        %tr
+          %td= i+1
+          %td= item_hash['ORDER_ID']
+          %td= item_hash['SYMBOL']
+          %td= item_hash['CLIENT_NAME'].titleize
+          %td= item_hash['CLIENT_CODE']
+          %td= item_hash['PRICE']
+          %td= item_hash['QUANTITY']
+          %td= item_hash['AMOUNT']
+          %td= item_hash['PENDING_QUANTITY']
+          %td= item_hash['ORDER_TIME']
+          %td= item_hash['ORDER_TYPE']
+          %td= item_hash['ORDER_SEGMENT']
+          %td= item_hash['ORDER_CONDITION']
+          %td= item_hash['ORDER_STATE']
+  = link_to "Go Back", new_files_order_path
+- else
+  = link_to "Upload Order", new_files_order_path

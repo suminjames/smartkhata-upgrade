@@ -1,3 +1,5 @@
+#TODO (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
+
 class ImportPayout < ImportFile
 	# process the file
   include ShareInventoryModule

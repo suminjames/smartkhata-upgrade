@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160421053424) do
+ActiveRecord::Schema.define(version: 20160422043257) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -217,7 +217,7 @@ ActiveRecord::Schema.define(version: 20160421053424) do
   add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
-    t.integer  "file"
+    t.integer  "file_type"
     t.date     "report_date"
     t.boolean  "ignore",      default: false
     t.datetime "created_at",                  null: false
@@ -275,6 +275,26 @@ ActiveRecord::Schema.define(version: 20160421053424) do
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
   add_index "ledgers", ["client_account_id"], name: "index_ledgers_on_client_account_id", using: :btree
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
+
+  create_table "orders", force: :cascade do |t|
+    t.string   "order_id"
+    t.integer  "isin_info_id"
+    t.integer  "client_account_id"
+    t.decimal  "price"
+    t.integer  "quantity"
+    t.decimal  "amount"
+    t.integer  "pending_quantity"
+    t.datetime "order_date_time"
+    t.integer  "order_type"
+    t.integer  "order_segment"
+    t.integer  "order_condition"
+    t.integer  "order_state"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
+  add_index "orders", ["isin_info_id"], name: "index_orders_on_isin_info_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0

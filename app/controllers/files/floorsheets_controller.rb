@@ -4,11 +4,11 @@ class Files::FloorsheetsController < Files::FilesController
 	include CommissionModule
 	include ShareInventoryModule
 
-	@@file = FileUpload::FILES[:floorsheet];
+	@@file_type = FileUpload::file_types[:floorsheet]
 	@@file_name_contains = "FLOORSHEET"
 
 	def new
-		@file_list = FileUpload.where(file: @@file).order("report_date desc").limit(10);
+		@file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10);
 		# if (@file_list.count > 1)
 		# 	if((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
 		# 		flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
@@ -17,8 +17,7 @@ class Files::FloorsheetsController < Files::FilesController
 	end
 
   def index
-    @file_list = FileUpload.where(file: @@file).page(params[:page]).per(20)
-                     .order("report_date DESC")
+    @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date DESC")
   end
 	def import
 
@@ -67,7 +66,7 @@ class Files::FloorsheetsController < Files::FilesController
 		file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
 
 		# do not reprocess file if it is already uploaded
-		floorsheet_file = FileUpload.find_by(file: @@file, report_date: @date)
+		floorsheet_file = FileUpload.find_by(file_type: @@file_type, report_date: @date)
 		# raise soft error and return if the file is already uploaded
 		file_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
@@ -136,7 +135,7 @@ class Files::FloorsheetsController < Files::FilesController
       @raw_data.each do |arr|
         @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count)
       end
-      FileUpload.find_or_create_by!(file: @@file, report_date: @date)
+      FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
 		end
 	end
 

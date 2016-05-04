@@ -6,7 +6,6 @@ class ImportFile
     @status_code = "FL0000"
     @error_message = nil
     @processed_data = []
-    @sales_settlement_id = nil
   end
 
   def process

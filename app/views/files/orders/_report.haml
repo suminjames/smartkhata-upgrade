@@ -1,0 +1,82 @@
+/ Sub-menu BEGINS
+%div.clearfix.submenu
+  %h5
+    =link_to "Search by Client Name",  files_orders_path(show: 'report', search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} 
+    |
+    =link_to "Search by Order Number",  files_orders_path(show: 'report', search_by: "order_number"), {:class => (is_active_sub_menu_option("order_number")? "active-link" : "")} 
+    |
+    =link_to "All Orders",  files_orders_path(show: 'report', search_by: "all_orders"), {:class => (is_active_sub_menu_option("all_orders")? "active-link" : "")} 
+    |
+    =link_to "Search by Order Type",  files_orders_path(show: 'report', search_by: "order_type"), {:class => (is_active_sub_menu_option("order_type")? "active-link" : "")} 
+    |
+    =link_to "Search by Date",  files_orders_path(show: 'report', search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} 
+    |
+    =link_to "Search by Date Range",  files_orders_path(show: 'report', search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} 
+/Sub-menu ENDS
+
+/Search form BEGINS
+%div.clearfix.search-form
+
+  -if params[:search_by] == 'client_name'
+    = form_tag(files_orders_path, :method => "get", id: "search-form") do 
+      = hidden_field_tag :show, "report" 
+      = hidden_field_tag :search_by, "client_name" 
+      = text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name", :autofocus => true 
+      = submit_tag "Search"
+
+  -if params[:search_by] == 'order_number'
+    = form_tag(files_orders_path, :method => "get", id: "search-form") do 
+      = hidden_field_tag :show, "report" 
+      = hidden_field_tag :search_by, "order_number" 
+      = text_field_tag :search_term, params[:search_term], placeholder: "Search by Order Number", :autofocus => true  
+      = submit_tag "Search" 
+
+
+/Search form ENDS
+
+- if !orders.blank?
+  %div.text-center
+    = paginate orders, :theme => 'twitter-bootstrap-3'
+    %div.text-center
+      =page_entries_info orders
+
+- if !orders.blank?
+  %table.table.table-striped
+    %thead
+      %th.col-xs-1= "#"
+      %th.col-xs-1= "Order Id"
+      %th.col-xs-1= "Symbol"
+      %th.col-xs-1= "Client Name"
+      %th.col-xs-1= "Client Code"
+      %th.col-xs-1= "Price"
+      %th.col-xs-1= "Quantity"
+      %th.col-xs-1= "Amount"
+      %th.col-xs-1= "Pending Quantity"
+      %th.col-xs-1= "Order Time"
+      %th.col-xs-1= "Order Type"
+      %th.col-xs-1= "Order Segment"
+      %th.col-xs-1= "Order Condition"
+      %th.col-xs-1= "Order State"
+    %tbody
+      - orders.each_with_index do |order , i|
+        %tr
+          %td= i+1
+          %td= order.order_id
+          %td= order.isin_info_id
+          %td= order.client_account_id
+          %td= order.client_account_id
+          %td= order.price
+          %td= order.quantity
+          %td= order.amount
+          %td= order.pending_quantity
+          %td= order.order_date_time
+          %td= order.order_type
+          %td= order.order_segment
+          %td= order.order_condition
+          %td= order.order_state
+
+- if !orders.blank?
+  %div.text-center
+    = paginate orders, :theme => 'twitter-bootstrap-3'
+    %div.text-center
+      =page_entries_info orders

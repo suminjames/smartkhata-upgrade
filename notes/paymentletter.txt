@@ -1,0 +1,12 @@
+After CM payour report processing, 
+  -send an email(pdf) to bank on behalf of brokerage firm telling the bank to pay people certain amount
+    -batch processing
+
+#. Multiple reciepts for a single cheque transaction
+
+#. Order 
+  -for a single day, every order made by a person is grouped as a single order
+    -approach: create an order table which 'has_many' order_details
+    
+
+

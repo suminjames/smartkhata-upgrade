@@ -53,7 +53,7 @@ class UploadDpa5
 
 		date_records.each do |date|
 			# create a entry in the database
-			FileUpload.find_or_create_by!(file: FileUpload::FILES[:dpa5], report_date: date.to_date)
+			FileUpload.find_or_create_by!(file_type: FileUpload::file_types[:dpa5], report_date: date.to_date)
 		end
 	end
 

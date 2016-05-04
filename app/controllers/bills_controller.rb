@@ -12,7 +12,7 @@ class BillsController < ApplicationController
       end
       return
     end
-
+    
     # Populate (and route when needed) as per the params
     if params[:search_by] == 'all_bills'
       @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])

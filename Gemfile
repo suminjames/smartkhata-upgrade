@@ -29,6 +29,7 @@ gem 'simple_form'
 gem "smart_listing"
 group :development do
   gem 'better_errors'
+  gem 'annotate'
   gem 'hirb'
   gem 'capistrano', '~> 3.1'
   gem 'capistrano-bundler'
