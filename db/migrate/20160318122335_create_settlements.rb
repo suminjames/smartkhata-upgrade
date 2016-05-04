@@ -8,8 +8,10 @@ class CreateSettlements < ActiveRecord::Migration
       t.integer :settlement_type
       t.integer :fy_code, index: true
       t.integer :settlement_number, index: true
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
+      t.string :receiver_name
       t.references :voucher, index: true, foreign_key: true
-
       t.timestamps null: false
     end
   end

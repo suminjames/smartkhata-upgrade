@@ -14,26 +14,48 @@ tenant = Tenant.find_or_create_by!(name: "trishakti", dp_id: '11400')
 tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: 977-1-4232132, fax_number: 977-1-4232133, pan_number: 302930905, broker_code: 48)
 
 @tenants = Tenant.all
+
+
+@admin_users = [
+    {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
+    {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
+]
+
+count = 0
 @tenants.each do |t|
 	begin
 	    puts "Creating Tenant"
+      count += 1
 	    Apartment::Tenant.create(t.name)
       Apartment::Tenant.switch!(t.name)
+
+      branch = Branch.create(code: "KTM", address: "Kathmandu")
+      admin_user_data = @admin_users[count - 1]
+      new_user = User.find_or_create_by!(email: admin_user_data[:email]) do |user|
+        user.password = admin_user_data[:password]
+        user.password_confirmation = admin_user_data[:password]
+        user.branch_id = branch.id
+        user.confirm!
+        user.admin!
+      end
+      puts 'CREATED ADMIN USER: ' << new_user.email
+      UserSession.user = new_user
+
       Group.create([
-        { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']},
-        {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']}])
+        { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
+        {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}])
 
       group = Group.create({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
       groups = Group.create([
-        { name: "Profit & Loss Account"},
+        { name: "Profit & Loss Account", for_trial_balance: true},
         {name: "General Reserve"},
         {name: "Capital Reserve"},
-        {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-        {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-        { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-        {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']}
+        # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
+        # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
+        {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+        {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+        { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
+        {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
       ])
 
       group.children << groups
@@ -44,19 +66,19 @@ tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisad
       group.ledgers << ledgers
       group.save!
 
-      group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
+      group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
       groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
       group.children << groups
       group.save!
 
-      group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
+      group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
       groups = Group.create([{ name: "Duties & Taxes"},{name: "Sundry Creditors"},{name: "Account Payables"}])
-      ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}, {name: "Nepse Sales"}])
+      ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}, {name: "Nepse Sales"}, {name: "Clearing Account"}])
       group.children << groups
       group.ledgers << ledgers
       group.save!
 
-      group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets']})
+      group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
       groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}, {name: "Clearing Account"}])
       group.children << groups
       ledgers = Ledger.create([{name: "TDS"},{name: "Cash"},{name: 'Close Out'}])
@@ -65,51 +87,21 @@ tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisad
 
 
       Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
-  rescue
+
+      if Rails.env == 'development'
+        employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
+        employees.each  do |employee|
+          EmployeeAccount.find_or_create_by!(employee)
+          puts 'Created EmployeeAccount: ' << employee[:name]
+        end
+      end
+
+
+  rescue => error
+    puts error.message
 	    puts "Tenant #{t.name} exists"
 	end
-
-	Apartment::Tenant.switch!(t.name)
-
-	user = CreateAdminService.new.call
-	puts 'CREATED ADMIN USER: ' << user.email
-
 
 	Apartment::Tenant.switch!('public')
 end
 
-
-# create admins for both
-Apartment::Tenant.switch!('trishakti')
-puts "Seeding trishakti broker data"
-
-new_user = User.find_or_create_by!(email: 'trishakti@danfeinfotech.com') do |user|
-        user.password = 'trispa8934'
-        user.password_confirmation = 'trispa8934'
-        user.confirm!
-        user.admin!
-      end
-puts 'CREATED ADMIN USER: ' << new_user.email
-
-Apartment::Tenant.switch!('dipshikha')
-puts "Seeding trishakti broker data"
-
-new_user = User.find_or_create_by!(email: 'dipshikha@danfeinfotech.com') do |user|
-        user.password = 'dipshikha5645'
-        user.password_confirmation = 'dipshikha5645'
-        user.confirm!
-        user.admin!
-      end
-puts 'CREATED ADMIN USER: ' << new_user.email
-Apartment::Tenant.switch!('public')
-
-
-if Rails.env == 'development'
-  Apartment::Tenant.switch!('trishakti')
-  employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
-  employees.each  do |employee|
-    EmployeeAccount.find_or_create_by!(employee)
-    puts 'Created EmployeeAccount: ' << employee[:name]
-  end
-  Apartment::Tenant.switch!('public')
-end

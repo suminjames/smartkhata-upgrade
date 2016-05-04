@@ -81,7 +81,7 @@ if params[:search_by] == 'date_range'
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@bills.present? %>
 <% if params[:search_by] == 'date_range'  %>
 <p>There are no bills matching the date range '<%= params[:search_term]['date_from'] %>' to '<%= params[:search_term]['date_to'] %>'.</p>
-<% elsif %>
+<% else %>
 <p>There are no bills matching the term '<%= params[:search_term] %>'.</p>
 <% end %>
 <% end %>
@@ -129,7 +129,7 @@ if params[:search_by] == 'date_range'
     <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
     <td>
       <!--  TODO: Optimize -->
-      <% voucher_type = (bill.purchase?) ? "sales": "purchase" %>
+      <% voucher_type = (bill.purchase?) ? Voucher.voucher_types[:receive]: Voucher.voucher_types[:payment] %>
       <% unless bill.settled? %>
       <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
       <% end %>

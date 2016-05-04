@@ -15,6 +15,10 @@ class CreateBills < ActiveRecord::Migration
       t.date :date, index: true
       t.string :date_bs
       t.references :client_account,  index: true
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
+      t.integer :fy_code, index: true
+      t.integer :branch_id, index: true
       # t.index :bill_number
     end
 

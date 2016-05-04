@@ -2,7 +2,8 @@ module ApplicationHelper
 	# moved the fiscal year module so that it is accesible in modal too
 	include FiscalYearModule
 	include CustomDateModule
-	
+	include NumberFormatterModule
+
 	def link_to_add_fields(name, f, association, extra_info = nil	)
 		new_object = 	f.object.send(association).klass.new
 		id = new_object.object_id
@@ -102,19 +103,7 @@ module ApplicationHelper
 	end
 
 
-	# Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
-	def arabic_word(decimal)
-		word = decimal.to_f.to_words
-		if word.kind_of?(Array)
-			word = "#{word[0]} And #{word[1]} Paisa"
-		end
-		word.titleize
-	end
 
-	# Similar to number_to_currency but with arabic way of comma separation.
-	def arabic_number(decimal)
-		decimal.to_f.round(2).to_amount
-	end
 
 	# Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
 	# In the returned hash, 'isin' is the key and 'price' is the value.

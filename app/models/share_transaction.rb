@@ -33,12 +33,19 @@
 #
 
 class ShareTransaction < ActiveRecord::Base
+
+  include ::Models::UpdaterWithBranch
   belongs_to :bill
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
+
   enum transaction_type: [ :buy, :sell ]
-  before_update :calculate_cgt
+  # before_update :calculate_cgt
   validates :base_price, numericality: true
   scope :find_by_date, -> (date) { where(
     :date=> date.beginning_of_day..date.end_of_day) }
@@ -65,6 +72,11 @@ class ShareTransaction < ActiveRecord::Base
    update_attribute(:deleted_at, nil)
  end
 
+  def update_with_base_price(params)
+    self.update(params)
+    self.calculate_cgt
+    self
+  end
   def calculate_cgt
     old_cgt = self.cgt
     if self.base_price?

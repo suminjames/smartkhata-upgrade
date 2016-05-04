@@ -1,11 +1,15 @@
 <% provide(:section_title, "Cheque Entries") %>
-<%= link_to 'New Cheque entry', new_cheque_entry_path %>
+<%= link_to 'New Cheque entry', new_cheque_entry_path %> |
+<%= link_to 'Cheques Issued', cheque_entries_path(type: 'company') %> |
+<%= link_to 'Cheques Received', cheque_entries_path(type: 'client') %> |
+<%= link_to 'Available Cheques', cheque_entries_path %>
 <table class="table">
   <thead>
     <tr>
       <th>Cheque Number</th>
       <th>Bank Name</th>
       <th>Account Number</th>
+      <th>Cheque issued by</th>
     </tr>
   </thead>
 
@@ -15,6 +19,8 @@
         <td><%= cheque_entry.cheque_number %></td>
         <td><%= cheque_entry.bank_account.bank.name %></td>
         <td><%= cheque_entry.bank_account.account_number %></td>
+        <td><%= cheque_entry.additional_bank_id.present? ? "Client" : current_tenant.name %></td>
+        <td><%= link_to 'Show', cheque_entry if cheque_entry.particular_id.present? %></td>
       </tr>
     <% end %>
   </tbody>

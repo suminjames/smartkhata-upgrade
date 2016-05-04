@@ -23,10 +23,16 @@
 
 class Particular < ActiveRecord::Base
 	include CustomDateModule
+	include ::Models::UpdaterWithBranchFycode
 
 	belongs_to :ledger
 	belongs_to :voucher
 	delegate :bills, :to => :voucher, :allow_nil => true
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
+
 	# belongs_to :receipt
 	has_many :cheque_entries
 	validates_presence_of :ledger_id
@@ -34,8 +40,10 @@ class Particular < ActiveRecord::Base
 	enum particular_status: [:pending, :complete]
 	enum ledger_type: [:general, :has_bank]
 
-	before_save :process_particular
+	scope :find_by_date_range, -> (date_from, date_to) { where(
+			:transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
 
+	before_save :process_particular
 
 	def get_description
 		if self.description.present?
@@ -52,4 +60,5 @@ class Particular < ActiveRecord::Base
 		self.transaction_date ||= Time.now
 		self.date_bs ||= ad_to_bs(self.transaction_date)
 	end
+
 end

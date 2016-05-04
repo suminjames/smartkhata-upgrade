@@ -18,6 +18,7 @@ group :development do
   gem 'web-console', '~> 2.0'
   gem 'spring'
 end
+
 gem 'bootstrap-sass'
 gem 'devise'
 gem 'devise_invitable'
@@ -42,6 +43,7 @@ group :development do
   gem "uniform_notifier"
   gem "awesome_print"
   gem 'capistrano3-puma'
+  gem 'rails_best_practices'
 end
 group :production do
   gem 'puma'
@@ -60,3 +62,4 @@ group :test do
   gem 'guard'
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
 end
+gem 'virtus'

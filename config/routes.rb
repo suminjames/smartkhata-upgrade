@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :branches
   resources :closeouts
   resources :share_inventories
   resources :employee_client_associations
@@ -34,26 +35,26 @@ Rails.application.routes.draw do
   resources :particulars
   root to: 'visitors#index'
   devise_for :users
-  resources :users
+  resources :users, except: [:new, :create, :edit]
   resources :client_accounts
 
   namespace 'files' do
-    resources :orders do
+    resources :orders, only: [:new] do
       collection {post :import}
     end
-    resources :floorsheets do
+    resources :floorsheets, only: [:new, :index] do
       collection {post :import}
     end
-    resources :sales do
+    resources :sales, only: [:new, :index] do
       collection {post :import}
     end
     resources :dpa5 do
       collection {post :import}
     end
-    resources :calendars do
+    resources :calendars, only: [:new] do
       collection {post :import}
     end
-    resources :closeouts do
+    resources :closeouts, only: [:new] do
       collection {post :import}
     end
   end

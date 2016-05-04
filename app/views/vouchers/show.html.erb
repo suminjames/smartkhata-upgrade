@@ -1,6 +1,9 @@
 <% provide(:section_title, "Voucher Details") %>
 <p id="notice"><%= notice %></p>
 <% total = 0 %>
+<!--<button id="btnPrint">Print</button>-->
+<!--<span class="glyphicon glyphicon-print"></span>-->
+<div class="row printThis">
 <% if @voucher.is_payment_bank %>
 <div class="box box-primary z-light-bg">
 
@@ -41,13 +44,18 @@
 						<%= particular.ledger.name 	 %>
 					</div>
 					<div class="col-xs-4">
-						Being paid to <%= particular.ledger.name %> for
+
+            <% if @voucher.formatted_description.size > 0 %>
+                Being paid to <%= particular.ledger.name %>
+                for
 						<% @voucher.formatted_description.each do |b| %>
 							<br>
 							Bill : <%= link_to "#{b[0]}", show_by_number_bills_path(number: b[0]), remote: true %>
 							Amount : <%= b[1] %>
 						<% end %>
-
+            <% else %>
+            <%= @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{particular.ledger.name}" %>
+            <% end %>
 					</div>
 					<div class="col-xs-3">
 						<%= @cheque %>
@@ -112,6 +120,7 @@
 		</div>
 	</div>
 	<div class="box-body">
+
 		<% @particulars.each do |particular| %>
 			<div class="row">
 				<div class="col-xs-6">
@@ -130,3 +139,4 @@
 </div>
 <% end %>
 <a href="<%= @from_path %>">Go Back</a>
+</div>

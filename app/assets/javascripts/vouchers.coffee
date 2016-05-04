@@ -21,6 +21,10 @@ manage_cheque_all_select = () ->
     $this = $(this)
     manage_cheque($this)
 
+fix_autocomplete = () ->
+  $('.combobox-container input:text').each ->
+    $(this).attr('autocomplete','off')
+
 ready = ->
   jQuery ->
     $(document).on 'click','.asdd_fields', (event) ->
@@ -30,9 +34,11 @@ ready = ->
       event.preventDefault()
       debugger;
       $('select.combobox').combobox()
+      fix_autocomplete()
       manage_cheque_all_select()
   jQuery ->
     $('select.combobox').combobox()
+    fix_autocomplete()
 $(document).ready(ready)
 
 $(document).on 'click','.add_fields', (event) ->
@@ -42,6 +48,7 @@ $(document).on 'click','.add_fields', (event) ->
   event.preventDefault()
   debugger;
   $('select.combobox').combobox()
+  fix_autocomplete()
   manage_cheque_all_select()
 
 manage_cheque = ($this) ->
@@ -63,6 +70,7 @@ manage_cheque = ($this) ->
 
 
   else
+    $cheque.val("")
     $this.parent().parent().find('.cheque-container').hide()
 
 

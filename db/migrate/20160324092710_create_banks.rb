@@ -5,7 +5,8 @@ class CreateBanks < ActiveRecord::Migration
       t.string :bank_code
       t.string :address
       t.string :contact_no
-
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
       t.timestamps null: false
     end
   end

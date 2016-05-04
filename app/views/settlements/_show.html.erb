@@ -2,21 +2,25 @@
 
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
-    <strong>
+      <strong>
       <%= current_tenant.full_name %><br>
       <%= current_tenant.address %><br>
+      </strong>
+
       <div class="row">
         <div class="col-xs-3">
+          <strong>
           Phone: <%= current_tenant.phone_number %>
           <br>
           Fax: <%= current_tenant.fax_number %>
           <br>
           PAN: <%= current_tenant.pan_number %>
           <br>
+          </strong>
         </div>
-      </strong>
+
       <div class="col-xs-6 text-center">
-        <% if @settlement.receipt? %>
+        <% if settlement.receipt? %>
         <h4><u>RECEIPT</u></h4>
         <% else %>
         <h4><u>PAYMENT</u></h4>
@@ -31,32 +35,32 @@
   <!-- Receipt No. and Receipt Date BEGINS -->
   <div class="row">
     <div class="col-xs-4">
-      <% if @settlement.receipt? %>
-      <p>Receipt No: <%= @settlement.id %></p>
+      <% if settlement.receipt? %>
+      <p>Receipt No: <%= settlement.id %></p>
       <% else %>
-      <p>Payment No: <%= @settlement.id %></p>
+      <p>Payment No: <%= settlement.id %></p>
       <% end %>
 
     </div>
     <div class="col-xs-3 col-xs-offset-5 text-right">
-      <p>Date: <%= @settlement.date_bs%></p>
+      <p>Date: <%= settlement.date_bs%></p>
     </div>
   </div>
   <!-- Receipt No. and Receipt Date ENDS -->
 
   <!-- Receipt details START -->
-  <% if @settlement.receipt? %>
-    <p>Received with thanks from: <strong><u><%= @settlement.name %></u></strong></p>
+  <% if settlement.receipt? %>
+    <p>Received with thanks from: <strong><u><%= settlement.name %></u></strong></p>
   <% else %>
-    <p>Paid To: <strong><u><%= @settlement.name %></u></strong></p>
+    <p>Paid To: <strong><u><%= settlement.name %></u></strong></p>
   <% end %>
 
-  <p>the sum of   <strong>Rs.   <%= arabic_number(@settlement.amount) %></strong></p>
-  <p>(in words)<strong><u>  Rs.   <%= arabic_word(@settlement.amount) %> Only</u></strong></p>
+  <p>the sum of   <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
+  <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
-  <% if @settlement.voucher.cheque_entries.present? %>
+  <% if settlement.voucher.cheque_entries.present? %>
   <p>By Cheque:
-    <% @settlement.voucher.cheque_entries.each do |cheque| %>
+    <% settlement.voucher.cheque_entries.each do |cheque| %>
       <br>
       Cheque Number: <%= cheque.cheque_number %>  Bank: <%= cheque.bank_account.bank_name %>,
     <% end %>
@@ -82,8 +86,8 @@
   <div class="clearfix">
     <!-- Footnote BEGINS -->
     <em>
-      <p><%= @settlement.description %></p>
-      <% if @settlement.receipt? %>
+      <p><%= settlement.description %></p>
+      <% if settlement.receipt? %>
       <u>
         Note: Please bring this receipt compulsarily when collecting the certificate.
       </u>

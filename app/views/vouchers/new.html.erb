@@ -1,5 +1,17 @@
-<% provide(:section_title, "New Voucher") %>
-<%= @list %>
-<%= render 'form' %>
 
+<% provide(:section_title, "New #{Voucher.voucher_types.key(@voucher_type).titleize} Voucher") %>
+<%= @list %>
+
+<%= render 'form',
+           voucher: @voucher,
+           voucher_type: @voucher_type,
+           client_account_id: @client_account_id,
+           bill_id: @bill_id,
+           is_purchase_sales: @is_purchase_sales,
+           ledger_list_financial: @ledger_list_financial,
+           ledger_list_no_banks: @ledger_list_no_banks,
+           default_ledger_id: @default_ledger_id,
+           clear_ledger: @clear_ledger
+
+%>
 <%= link_to 'Back', vouchers_path %>

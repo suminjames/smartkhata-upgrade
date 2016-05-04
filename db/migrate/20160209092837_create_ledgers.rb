@@ -5,6 +5,10 @@ class CreateLedgers < ActiveRecord::Migration
     	t.string :client_code
     	t.decimal :opening_blnc , precision: 15, scale: 4, default: 0.00
     	t.decimal :closing_blnc , precision: 15, scale: 4, default: 0.00
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
+      t.integer :fy_code, index: true
+      t.integer :branch_id, index: true
       t.timestamps null: false
       t.references :group,  index: true
       t.references :bank_account,  index: true

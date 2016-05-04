@@ -22,27 +22,28 @@ setSubmitButtonActiveness = ->
     `$('input[type="submit"]').prop('disabled', true)`
 
 $(document).ready ->
-  console.log("doc loaded!")
-  # Capture (from dom) and store all associated ledgers' ids after the dom is fully loaded
-  existingAssociationsLedgerIds = `$("input:checkbox:checked").not('#select_all').map(function(){return this.value}).get();`
+  if $('#edit_employee_client_association').length > 0
+    console.log("doc loaded!")
+    # Capture (from dom) and store all associated ledgers' ids after the dom is fully loaded
+    existingAssociationsLedgerIds = `$("input:checkbox:checked").not('#select_all').map(function(){return this.value}).get();`
 
-  $(document).on 'change', 'input:radio, input:checkbox', (event)->
-    setSubmitButtonActiveness()
-    
-  $(document). on 'click', '#employee_account_has_access_to_everyone', (event) ->
-    $("input:checkbox").not('#select_all').prop('checked', "checked")
-    $("input:checkbox").attr('disabled', true);
+    $(document).on 'change', 'input:radio, input:checkbox', (event)->
+      setSubmitButtonActiveness()
+      
+    $(document). on 'click', '#employee_account_has_access_to_everyone', (event) ->
+      $("input:checkbox").not('#select_all').prop('checked', "checked")
+      $("input:checkbox").attr('disabled', true);
 
-  $(document). on 'click', '#employee_account_has_access_to_some', (event) ->
-    $("input:checkbox").prop('checked', "");
-    $('input:checkbox[value=' + ledgerId + ']').not('#select_all').prop 'checked', 'checked' for ledgerId in existingAssociationsLedgerIds 
-    $("input:checkbox").attr('disabled', false);
+    $(document). on 'click', '#employee_account_has_access_to_some', (event) ->
+      $("input:checkbox").prop('checked', "");
+      $('input:checkbox[value=' + ledgerId + ']').not('#select_all').prop 'checked', 'checked' for ledgerId in existingAssociationsLedgerIds 
+      $("input:checkbox").attr('disabled', false);
 
-  $(document). on 'click', '#employee_account_has_access_to_nobody', (event) ->
-    $("input:checkbox").prop('checked', "");
-    $("input:checkbox").attr('disabled', true);
+    $(document). on 'click', '#employee_account_has_access_to_nobody', (event) ->
+      $("input:checkbox").prop('checked', "");
+      $("input:checkbox").attr('disabled', true);
 
-  $(document). on 'click', '#select_all', (event) ->
-    $("input:checkbox").prop('checked', $(this).prop("checked"))
-    $("input:checkbox").attr('disabled', false);
+    $(document). on 'click', '#select_all', (event) ->
+      $("input:checkbox").prop('checked', $(this).prop("checked"))
+      $("input:checkbox").attr('disabled', false);
 

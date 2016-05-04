@@ -5,7 +5,11 @@ class CreateChequeEntries < ActiveRecord::Migration
       t.integer :additional_bank_id
       t.references :bank_account, index: true
       t.references :particular, index: true
+      t.references :client_account, index:true
       t.references :settlement, index: true
+      t.integer :creator_id, index: true
+      t.integer :updater_id, index: true
+      t.integer :branch_id, index: true
       t.timestamps null: false
     end
   end

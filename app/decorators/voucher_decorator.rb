@@ -9,8 +9,10 @@ class VoucherDecorator < ApplicationDecorator
 
     arr.each do |bill_des|
       new_arr = bill_des.split(' Amount:')
-      bill_num = new_arr[0].split('Bill No.:')[1].tr(' ','')
-      final_array << [bill_num, new_arr[1]]
+
+      bill_num = new_arr[0].split('Bill No.:')[1]
+      bill_num = bill_num.tr(' ','') if bill_num.present?
+      final_array << [bill_num, new_arr[1]] if bill_num.present?
     end
     final_array
   end

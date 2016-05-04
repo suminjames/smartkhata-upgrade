@@ -27,7 +27,7 @@ Rails.application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   # IMPORTANT! The following is set to true by default. Setting it to false makes page loading faster but has its own (apparently trivial to this project) complexities. See for more: http://stackoverflow.com/questions/16357785/what-exactly-config-assets-debug-setting-does Also see: http://artandlogic.com/2012/12/faster-rails-dev/
-  config.assets.debug = true
+  config.assets.debug = false
 
   config.action_mailer.smtp_settings = {
     address: "smtp.sendgrid.net",
@@ -53,8 +53,7 @@ Rails.application.configure do
   # Adds additional error checking when serving assets at runtime.
   # Checks for improperly declared sprockets dependencies.
   # Raises helpful error messages.
-  # TODO(sarojk): Set back to true, which is the default value.
-  config.assets.raise_runtime_errors = false
+  config.assets.raise_runtime_errors = true
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true

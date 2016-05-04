@@ -23,7 +23,7 @@ class Files::OrdersController < Files::FilesController
           #p "YO"
           #p @orders
           #@orders
-        end 
+        end
       end
 
       if params[:search_by] == 'order_number'
@@ -63,7 +63,7 @@ class Files::OrdersController < Files::FilesController
     order_upload = ImportOrder.new(@file)
     @processed_data = order_upload.process
 
-    if order_upload.error_message 
+    if order_upload.error_message
       respond_to do |format|
         file_error(order_upload.error_message)
         format.html { redirect_to action: 'new' and return }

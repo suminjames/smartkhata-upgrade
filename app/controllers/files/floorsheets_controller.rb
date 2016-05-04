@@ -22,8 +22,8 @@ class Files::FloorsheetsController < Files::FilesController
 	def import
 
 		# get file from import
-		@file = params[:file];
-
+		@file = params[:file]
+    @error_message = nil
 
 		# grab date from the first record
 		file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
@@ -75,16 +75,18 @@ class Files::FloorsheetsController < Files::FilesController
 		# loop through 13th row to last row
 		# parse the data
 		@total_amount = 0
-		(12..(xlsx.sheet(0).last_row)).each do |i|
 
-			@row_data = xlsx.sheet(0).row(i)
+    data_sheet = xlsx.sheet(0)
+		(12..(data_sheet.last_row)).each do |i|
 
-			if (@row_data[0].to_s.tr(' ','') == 'Total')
-				@total_amount = @row_data[21].to_f
+			row_data = data_sheet.row(i)
+
+			if (row_data[0].to_s.tr(' ','') == 'Total')
+				@total_amount = row_data[21].to_f
 				break
 			end
 
-			break if @row_data[0] == nil
+			break if row_data[0] == nil
 			# rawdata =[
 			# 	Contract No.,
 			# 	Symbol,
@@ -100,19 +102,19 @@ class Files::FloorsheetsController < Files::FilesController
 			# ]
 			# TODO remove this hack
 			if @older_detected
-				@raw_data << [@row_data[0],@row_data[1],@row_data[2],@row_data[3],@row_data[4],@row_data[5],@row_data[6],@row_data[7],@row_data[8],@row_data[9],@row_data[10]]
+				@raw_data << [row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5], row_data[6], row_data[7], row_data[8], row_data[9], row_data[10]]
 				@total_amount_file = 0
-        company_symbol = @row_data[1]
-        client_name = @row_data[4]
-        bank_deposit = @row_data[10]
+        company_symbol = row_data[1]
+        client_name = row_data[4]
+        bank_deposit = row_data[10]
 
 			else
-				@raw_data << [@row_data[3],@row_data[7],@row_data[8],@row_data[10],@row_data[12],@row_data[15],@row_data[17],@row_data[19],@row_data[20],@row_data[23],@row_data[26]]
+				@raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
 				# sum of the amount section should be equal to the calculated sum
 				@total_amount_file = @raw_data.map {|d| d[8].to_f}.reduce(0, :+)
-        company_symbol = @row_data[7]
-        client_name = @row_data[12]
-        bank_deposit = @row_data[26]
+        company_symbol = row_data[7]
+        client_name = row_data[12]
+        bank_deposit = row_data[26]
 			end
 
       # check for the bank deposit value which is available only for buy
@@ -137,6 +139,7 @@ class Files::FloorsheetsController < Files::FilesController
       end
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
 		end
+    # file_error(@error_message) if @error_message.present?
 	end
 
 
@@ -161,7 +164,7 @@ class Files::FloorsheetsController < Files::FilesController
 		buyer_broking_firm_code = arr[2]
 		seller_broking_firm_code = arr[3]
 		client_name = arr[4]
-		client_nepse_code = arr[5]
+		client_nepse_code = arr[5].upcase
 		share_quantity =  arr[6].to_i
 		share_rate = arr[7]
 		share_net_amount = arr[8]
@@ -175,13 +178,28 @@ class Files::FloorsheetsController < Files::FilesController
 		bill = nil
 
 		type_of_transaction = ShareTransaction.transaction_types['buy']
-		client = ClientAccount.find_or_create_by!(name: client_name.titleize, nepse_code: client_nepse_code.upcase)
+
+
+    # TODO(Subas) remove this code block to take only the mapped user list
+		client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code.upcase) do |client|
+			client.name = client_name.titleize
+		end
+
+    # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase) do |client|
+    #   client.name = client_name.titleize
+    # end
+    #
+    # if client.nil?
+    #   @error_message = "At least one of the data contains clients whose nepse code is not mapped to system"
+    #   raise ActiveRecord::Rollback
+    #   return
+    # end
 
 
 		# check for the bank deposit value which is available only for buy
     # used 25.0 instead of 25 to get number with decimal
     # hash_dp_count is used for the dp charges
-    # hash_dp is used to group transactions into bill 
+    # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
 		if bank_deposit.nil?
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'sell']
@@ -191,7 +209,7 @@ class Files::FloorsheetsController < Files::FilesController
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buy']
 
       # group all the share transactions for a client for the day
-			if hash_dp.has_key?(client_name.to_s+'buy')
+			if hash_dp.key?(client_name.to_s+'buy')
 				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buy'], fy_code: fy_code, date: @date)
 			else
 				hash_dp[client_name.to_s+'buy'] = @bill_number
@@ -296,7 +314,7 @@ class Files::FloorsheetsController < Files::FilesController
 			description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
 			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
-			voucher.bills << bill
+			voucher.bills_on_settlement << bill
 			voucher.share_transactions << transaction
 			voucher.desc = description
 			voucher.complete!
@@ -323,4 +341,3 @@ class Files::FloorsheetsController < Files::FilesController
 		xlsx.sheet(0).row(11)[1].to_s.tr(' ','') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
 	end
 end
-

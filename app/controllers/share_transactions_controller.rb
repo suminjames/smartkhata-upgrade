@@ -189,7 +189,6 @@ class ShareTransactionsController < ApplicationController
           @bill.balance_to_pay = 0
           @bill.net_amount = 0
           @bill.settled!
-          
         else
           @bill.balance_to_pay -= (@share_transaction.net_amount - dp_fee_adjustment)
           @bill.net_amount -= (@share_transaction.net_amount - dp_fee_adjustment)
@@ -199,7 +198,7 @@ class ShareTransactionsController < ApplicationController
 
         # create a new voucher and add the bill reference to it
         @new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
-        @new_voucher.bills << @bill
+        @new_voucher.bills_on_settlement << @bill
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
         @voucher.particulars.each do |particular|
@@ -271,7 +270,7 @@ class ShareTransactionsController < ApplicationController
     #     format.json { render json: @share_transaction.errors, status: :unprocessable_entity }
     #   end
     # end
-    @share_transaction.update(share_transaction_params)
+    @share_transaction.update_with_base_price(share_transaction_params)
   end
 
   # DELETE /share_transactions/1

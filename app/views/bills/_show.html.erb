@@ -1,12 +1,12 @@
 <!--This is kept in a partial with underscore appended filename because this is not only rendered in regular #show action but also using js(as a pulldown modal) -->
 <%
 # Client associated with the bill
-@client = @bill.get_client
+@client = bill.get_client
 %>
-
-<div class="clearfix bill-full">
+<!--<button id="btnPrint">Print</button>-->
+<div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
-    <% if  @bill.settled? %>
+    <% if  bill.settled? %>
     <%= image_tag("settled.png") %>
     <% end %>
   </div>
@@ -43,16 +43,16 @@
   <div class="row">
     <div class="col-xs-4">
       Bill No:
-      <%= @bill.formatted_bill_number %>
+      <%= bill.formatted_bill_number %>
     </div>
     <div class="col-xs-5">
       Bill Date:
-      <%= @bill.formatted_bill_dates["ad"]%>
-      (<%= @bill.formatted_bill_dates["bs"]%>)
+      <%= bill.formatted_bill_dates["ad"]%>
+      (<%= bill.formatted_bill_dates["bs"]%>)
     </div>
     <div class="col-xs-3 text-right">
       Fiscal Year:
-      <%= @bill.fy_code%>
+      <%= bill.fy_code%>
     </div>
   </div>
   <!-- Bill No. and Bill Date ENDS -->
@@ -63,7 +63,7 @@
       <table class="table table-no-border">
         <tr>
           <td>Customer:</td>
-          <td><%= @bill.formatted_client_name%>
+          <td><%= bill.formatted_client_name%>
           </td>
         </tr>
         <tr>
@@ -76,11 +76,11 @@
       <table class="table table-no-border">
         <tr>
           <td>Contact No.:</td>
-          <td><%= @bill.formatted_client_phones['primary'] %></td>
+          <td><%= bill.formatted_client_phones['primary'] %></td>
         </tr>
         <tr>
           <td></td>
-          <td><%= @bill.formatted_client_phones['secondary'] %></td>
+          <td><%= bill.formatted_client_phones['secondary'] %></td>
         </tr>
       </table>
     </div>
@@ -90,7 +90,7 @@
   <!-- Transaction Details BEGINS -->
   <div class="clearfix transactions-section">
     <div class="clearfix bill-message">
-    <%= @bill.formatted_bill_message %>
+    <%= bill.formatted_bill_message %>
     </div>
     <table class="table table-bordered table-condensed text-center table-no-border">
       <tr>
@@ -117,7 +117,7 @@
         <col class="col-9">
       </colgroup>
       <%
-      @bill.share_transactions.each do | share_transaction |
+      bill.share_transactions.each do | share_transaction |
         %>
 
 
@@ -179,31 +179,31 @@
       <table class="table table-no-border table-condensed text-right">
         <tr>
           <td>Share Amount:</td>
-          <td><%= @bill.formatted_net_share_amount %></td>
+          <td><%= bill.formatted_net_share_amount %></td>
         </tr>
         <tr>
           <td>SEBO Commission:</td>
-          <td><%= @bill.formatted_net_sebo_commission %></td>
+          <td><%= bill.formatted_net_sebo_commission %></td>
         </tr>
         <tr>
           <td>Net Commission Amount:</td>
-          <td><%= @bill.formatted_net_commission %></td>
+          <td><%= bill.formatted_net_commission %></td>
         </tr>
         <tr>
           <td>DP Fee:</td>
-          <td><%= @bill.formatted_net_dp_fee %></td>
+          <td><%= bill.formatted_net_dp_fee %></td>
         </tr>
         <tr>
           <td>Capital Gain:</td>
-          <td><%= @bill.formatted_net_cgt %></td>
+          <td><%= bill.formatted_net_cgt %></td>
         </tr>
         <tr>
           <td>Net Receivable Amount:</td>
-          <td><%= @bill.formatted_net_receivable_amount %></td>
+          <td><%= bill.formatted_net_receivable_amount %></td>
         </tr>
         <tr>
           <td>Net Payable Amount:</td>
-          <td><%= @bill.formatted_net_payable_amount %></td>
+          <td><%= bill.formatted_net_payable_amount %></td>
 
         </tr>
       </table>
@@ -215,15 +215,15 @@
           <tr>
             <td>Date of clearance:</td>
             <td>
-              <%= @bill.formatted_clearance_dates['ad'] %>
-              (<%= @bill.formatted_clearance_dates['bs'] %>)
+              <%= bill.formatted_clearance_dates['ad'] %>
+              (<%= bill.formatted_clearance_dates['bs'] %>)
             </td>
           </tr>
           <tr>
             <td>Transaction Date:</td>
             <td>
-              <%= @bill.formatted_transaction_dates['ad'] %>
-              (<%= @bill.formatted_transaction_dates['bs'] %>)
+              <%= bill.formatted_transaction_dates['ad'] %>
+              (<%= bill.formatted_transaction_dates['bs'] %>)
             </td>
           </tr>
         </table>

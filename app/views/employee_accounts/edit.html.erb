@@ -3,7 +3,9 @@
 <%
   if params[:type] == 'client_access'
 %>
-    <%= render 'form_employee_client_association' %>
+<div id="edit_employee_client_association">
+    <%= render 'form_employee_client_association', employee_account: @employee_account, ledgers: @ledgers %>
+</div>
 <%
   else
 %>

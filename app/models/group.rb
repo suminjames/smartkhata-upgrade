@@ -12,9 +12,14 @@
 #
 
 class Group < ActiveRecord::Base
+  include ::Models::Updater
 	belongs_to :parent, :class_name => 'Group'
   has_many :children, :class_name => 'Group', :foreign_key => 'parent_id'
   has_many :ledgers
+
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator,  class_name: 'User'
+  belongs_to :updater,  class_name: 'User'
 
   enum reports: [ "PNL", "Balance"]
   enum sub_reports: [ "Income", "Expense", "Assets", "Liabilities"]
@@ -22,6 +27,7 @@ class Group < ActiveRecord::Base
   scope :top_level, -> {
   	where(:parent_id => nil)
 	}
+  scope :trial_balance, -> { where(:for_trial_balance => true)}
 
 	scope :balance_sheet, -> {
 		where(:parent_id => nil, :report => reports['Balance'])
