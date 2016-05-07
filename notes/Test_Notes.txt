@@ -1,0 +1,29 @@
+-DO NOT REBASE! EVER. Instead, MERGE!
+
+-After each merge, test the following (in the order listed below):
+    1. Add Bank Account
+    2. Add Cheque Entries
+    3. Upload Floorsheet of date X
+    4. Upload CM05 of date X
+       4.1 Process Settlement
+    5. Go to Bill List, and Process
+         5.1 Sales Bill
+            -Payment Voucher should be shown
+            -default credit ledger should default to bank for sales
+            -On Create
+                -incase of payment by bank, payment voucher is created
+                -incase of payment by cash, normal voucher is created
+         5.2 Purchase Bill
+            -Receive Voucher should be shown with narration and amount
+            -default debit ledger should default to bank for sales
+            -On Create
+                -receipt should be created with relevant information
+         5.3 Verify in Ledgers, click the links given
+    6. Client Ledgers
+        -steps similar to Bill Process from bills
+            -processs purchase bills
+                -similar to 5.2
+            -processs sales bills
+                -similar to 5.1
+
+
