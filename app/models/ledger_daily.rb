@@ -9,7 +9,11 @@
 #  opening_blnc :decimal(15, 4)   default("0.0")
 #  closing_blnc :decimal(15, 4)   default("0.0")
 #  date_bs      :string
+#  fy_code      :integer
+#  creator_id   :integer
+#  updater_id   :integer
 #  ledger_id    :integer
+#  branch_id    :integer
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #

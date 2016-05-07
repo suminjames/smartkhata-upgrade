@@ -16,6 +16,9 @@
 #  date              :date
 #  date_bs           :string
 #  client_account_id :integer
+#  creator_id        :integer
+#  updater_id        :integer
+#  branch_id         :integer
 #
 
 class Bill < ActiveRecord::Base

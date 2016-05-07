@@ -29,6 +29,7 @@
 #  invited_by_id          :integer
 #  invited_by_type        :string
 #  invitations_count      :integer          default("0")
+#  branch_id              :integer
 #
 
 class User < ActiveRecord::Base

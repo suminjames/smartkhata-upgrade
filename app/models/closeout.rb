@@ -16,6 +16,9 @@
 #  rate              :decimal(15, 4)   default("0")
 #  net_amount        :decimal(15, 4)   default("0")
 #  closeout_type     :integer
+#  creator_id        :integer
+#  updater_id        :integer
+#  branch_id         :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #

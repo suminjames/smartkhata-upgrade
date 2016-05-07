@@ -14,6 +14,10 @@
 #  additional_bank_id :integer
 #  particular_status  :integer          default("1")
 #  date_bs            :string
+#  creator_id         :integer
+#  updater_id         :integer
+#  fy_code            :integer
+#  branch_id          :integer
 #  transaction_date   :date
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null

@@ -26,6 +26,9 @@
 #  deleted_at        :date
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  creator_id        :integer
+#  updater_id        :integer
+#  branch_id         :integer
 #  voucher_id        :integer
 #  bill_id           :integer
 #  client_account_id :integer

@@ -7,7 +7,11 @@
 #  additional_bank_id :integer
 #  bank_account_id    :integer
 #  particular_id      :integer
+#  client_account_id  :integer
 #  settlement_id      :integer
+#  creator_id         :integer
+#  updater_id         :integer
+#  branch_id          :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #

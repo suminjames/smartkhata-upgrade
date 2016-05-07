@@ -7,6 +7,8 @@
 #  bank_name            :string
 #  default_for_purchase :boolean
 #  default_for_sales    :boolean
+#  creator_id           :integer
+#  updater_id           :integer
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  bank_id              :integer

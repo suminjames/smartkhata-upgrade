@@ -3,21 +3,21 @@
 # Table name: orders
 #
 #  id                :integer          not null, primary key
-#  order_id          :integer
+#  order_id          :string
 #  isin_info_id      :integer
 #  client_account_id :integer
 #  price             :decimal(, )
 #  quantity          :integer
 #  amount            :decimal(, )
 #  pending_quantity  :integer
-#  order_time        :time
-#  order_date        :date
+#  order_date_time   :datetime
 #  order_type        :integer
 #  order_segment     :integer
 #  order_condition   :integer
 #  order_state       :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#
 
 class Order < ActiveRecord::Base
 belongs_to :client_account 

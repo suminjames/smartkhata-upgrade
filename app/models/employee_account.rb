@@ -35,8 +35,11 @@
 #  bank_address              :string
 #  company_name              :string
 #  company_id                :string
+#  branch_id                 :integer
 #  invited                   :boolean          default("false")
 #  has_access_to             :integer          default("2")
+#  creator_id                :integer
+#  updater_id                :integer
 #  user_id                   :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null

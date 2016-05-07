@@ -5,7 +5,7 @@ class Files::OrdersController < Files::FilesController
   @@file_name_contains = "order"
 
   def index
-    #default landing action for '/files/orders'
+    # default landing action for '/files/orders'
     if params[:search_by].blank?
       respond_to do |format|
         format.html { redirect_to files_orders_path(show:'report', search_by: "client_name") }
@@ -14,15 +14,13 @@ class Files::OrdersController < Files::FilesController
     end
 
     if params[:show] == 'report'
+
       if params[:search_by] == 'client_name'
         @orders = []
-        #TODO
+        #TODO(sarojk): Implement it
         if params[:commit] == 'Search'
           #@orders = Order.find_by_client_name(params[:search_term])
-          @orders = Order.includes(:client_account).where(client_account:{id:1}).references(:client_accounts)
-          #p "YO"
-          #p @orders
-          #@orders
+          # @orders = Order.includes(:client_account).where(client_account:{id:1}).references(:client_accounts)
         end
       end
 
@@ -36,11 +34,12 @@ class Files::OrdersController < Files::FilesController
       if params[:search_by] == 'all_orders'
       @orders = Order.all.page(params[:page]).per(20).order("order_date_time desc")
       end
-
     end
+
     if params[:show] != 'report'
       @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date desc")
     end
+
   end
 
 	def new
@@ -73,6 +72,7 @@ class Files::OrdersController < Files::FilesController
     flash[:notice] = 'Successfully uploaded and processed the file.'
 	end
 
+  # This method is used by view to figure out which one of the sub-menus is active as per the params
   def is_active_sub_menu_option(option)
     return params[:search_by] == option
   end

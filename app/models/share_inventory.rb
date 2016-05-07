@@ -21,6 +21,9 @@
 #  total_in          :decimal(10, )    default("0")
 #  total_out         :decimal(10, )    default("0")
 #  floorsheet_blnc   :decimal(10, )    default("0")
+#  creator_id        :integer
+#  updater_id        :integer
+#  branch_id         :integer
 #  report_date       :date
 #  client_account_id :integer
 #  isin_info_id      :integer
