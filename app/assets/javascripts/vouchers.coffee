@@ -102,3 +102,9 @@ $ ->
         else
           $input.parent().removeClass('has-error')
           $input.parent().find('p.error').hide()
+
+
+$ ->
+  $('form').on 'click', '.removeThisParticular', (event) ->
+    $(this).closest('div.row.particular').hide()
+    event.preventDefault()

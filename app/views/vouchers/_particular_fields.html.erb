@@ -19,9 +19,12 @@
 			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
 		<% end %>
 	</div>
-	<div class="col-xs-3 cheque-container"><%= f.number_field :cheque_number,		placeholder: 'Enter cheque number', class: 'form-control cheque' %></div>
-	<div class="col-xs-2 cheque-container bank">
-		<%= f.collection_select(:additional_bank_id, Bank.all, :id, :bank_code,{},{:class=>'form-control combobox '}) %>
-	</div>
+  <div class="col-xs-4 padding-zero">
+    <div class="col-xs-6 cheque-container"><%= f.number_field :cheque_number,		placeholder: 'Cheque number', class: 'form-control cheque' %></div>
+    <div class="col-xs-6 cheque-container bank">
+      <%= f.collection_select(:additional_bank_id, Bank.all, :id, :bank_code,{},{:class=>'form-control combobox '}) %>
+    </div>
+  </div>
 
+  <div class="col-xs-1 padding-zero">          <%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' %></div>
 </div>
