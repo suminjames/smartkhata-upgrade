@@ -116,7 +116,9 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 	}
 }
 
-
+.padding-zero {
+  padding: 0;
+}
 
 .modal {
   text-align: center;
