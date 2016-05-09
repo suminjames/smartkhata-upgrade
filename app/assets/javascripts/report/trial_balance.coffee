@@ -8,6 +8,7 @@ parse_number = (data) ->
   return get_num_val(Number($(data).text().replace(/,/g,'')))
 
 format_number = (data) ->
+  debugger
   return data.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,")
 $ ->
 
@@ -32,8 +33,7 @@ $ ->
       closing_blnc_dr += parse_number(data[5])
       closing_blnc_cr += parse_number(data[6])
 
-    opening_blnc_dr = format_number(opening_blnc_dr)
-    opening_blnc_cr = format_number(opening_blnc_cr)
+
     dr_amount = format_number(dr_amount)
     cr_amount = format_number(cr_amount)
     if (opening_blnc_dr >= opening_blnc_cr)
@@ -50,6 +50,8 @@ $ ->
       closing_blnc_cr = closing_blnc_cr - closing_blnc_dr
       closing_blnc_dr = 0
 
+    opening_blnc_dr = format_number(opening_blnc_dr)
+    opening_blnc_cr = format_number(opening_blnc_cr)
     closing_blnc_dr = format_number(closing_blnc_dr)
     closing_blnc_cr = format_number(closing_blnc_cr)
 
