@@ -19,7 +19,7 @@ class Vouchers::Setup < Vouchers::Base
       default_bank_sales = BankAccount.where(:default_for_sales   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
 
-      ledger_list_no_banks = Ledger.non_bank_ledgers
+
       ledger_list_financial << cash_ledger
 
       if voucher_type == Voucher.voucher_types[:receive]
@@ -31,6 +31,8 @@ class Vouchers::Setup < Vouchers::Base
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
+    # exclude bank ledgers in general vouchers
+    ledger_list_all = Ledger.all
 
     voucher.particulars = []
     if is_purchase_sales
@@ -43,6 +45,6 @@ class Vouchers::Setup < Vouchers::Base
     # a general particular for the voucher
     voucher.particulars << Particular.new if client_account.nil?
 
-    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_no_banks, default_ledger_id, voucher_type
+    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_all, default_ledger_id, voucher_type
   end
 end

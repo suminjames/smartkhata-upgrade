@@ -1,10 +1,10 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_no_banks
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_all
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
     @ledger_list_financial = []
-    @ledger_list_no_banks = nil
+    @ledger_list_all = nil
   end
 
   def process
@@ -34,9 +34,10 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      @ledger_list_no_banks = Ledger.non_bank_ledgers
+
     end
 
+    @ledger_list_all = Ledger.all
 
     is_purchase_sales = is_purchase_sales?(@voucher_type)
 
