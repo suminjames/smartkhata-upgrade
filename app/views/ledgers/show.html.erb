@@ -85,7 +85,7 @@
 		<% @particulars.each do |particular| %>
 			<tr>
 				<td><%= particular.date_bs %></td>
-				<td><% name = particular.get_description 	 %><%= link_to name, voucher_path(particular.voucher, full: true) , remote: true %></td>
+				<td><% name = particular.get_description 	 %><%= link_to name, voucher_path(particular.voucher) , remote: true %></td>
 				<td>
           <!--TODO incorporate all bills -->
 					<% if particular.bills.count > 0 %>

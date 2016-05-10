@@ -4,7 +4,8 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
-  # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
+    # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
+    @process_selected_bills = false
     #default landing action for '/bills'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
@@ -15,55 +16,60 @@ class BillsController < ApplicationController
 
     # Populate (and route when needed) as per the params
     if params[:search_by] == 'all_bills'
+
       @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
+
       case search_by
-      when 'client_name'
-        @bills = Bill.find_by_client_name(search_term)
-      when 'bill_number'
-        @bills = Bill.find_by_bill_number(search_term)
-      when 'bill_status'
-        @bills = Bill.find_not_settled
-      when 'bill_type'
-        type = search_term
-        @bills = Bill.find_by_bill_type(type)
-      when 'date'
-        # The date being entered are assumed to be BS date, not AD date
-        date_bs = search_term
-        if parsable_date? date_bs
-          date_ad = bs_to_ad(date_bs)
-          @bills = Bill.find_by_date(date_ad)
-        else
-          @bills = ''
-          respond_to do |format|
-            format.html { render :index }
-            flash.now[:error] = 'Invalid date'
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+        when 'client_id'
+          @process_selected_bills = true
+          @bills = Bill.find_by_client_account_id(search_term)
+        when 'client_name'
+          @bills = Bill.find_by_client_name(search_term)
+        when 'bill_number'
+          @bills = Bill.find_by_bill_number(search_term)
+        when 'bill_status'
+          @bills = Bill.find_not_settled
+        when 'bill_type'
+          type = search_term
+          @bills = Bill.find_by_bill_type(type)
+        when 'date'
+          # The date being entered are assumed to be BS date, not AD date
+          date_bs = search_term
+          if parsable_date? date_bs
+            date_ad = bs_to_ad(date_bs)
+            @bills = Bill.find_by_date(date_ad)
+          else
+            @bills = ''
+            respond_to do |format|
+              format.html { render :index }
+              flash.now[:error] = 'Invalid date'
+              format.json { render json: flash.now[:error], status: :unprocessable_entity }
+            end
           end
-        end
-      when 'date_range'
-        # The dates being entered are assumed to be BS dates, not AD dates
-        date_from_bs = search_term['date_from']
-        date_to_bs   = search_term['date_to']
-        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-          date_from_ad = bs_to_ad(date_from_bs)
-          date_to_ad = bs_to_ad(date_to_bs)
-          @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
-        else
-          @bills = ''
-          respond_to do |format|
-            flash.now[:error] = 'Invalid date(s)'
-            format.html { render :index }
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+        when 'date_range'
+          # The dates being entered are assumed to be BS dates, not AD dates
+          date_from_bs = search_term['date_from']
+          date_to_bs   = search_term['date_to']
+          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+            date_from_ad = bs_to_ad(date_from_bs)
+            date_to_ad = bs_to_ad(date_to_bs)
+            @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
+          else
+            @bills = ''
+            respond_to do |format|
+              flash.now[:error] = 'Invalid date(s)'
+              format.html { render :index }
+              format.json { render json: flash.now[:error], status: :unprocessable_entity }
+            end
           end
+        else
+          # If no matches for case 'search_by', return empty @bills
+          @bills = ''
         end
-      else
-        # If no matches for case 'search_by', return empty @bills
-        @bills = ''
-      end
     else
       @bills = ''
     end

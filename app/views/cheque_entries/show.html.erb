@@ -1,4 +1,5 @@
-<p><%= @cheque_entry.additional_bank_id.present? ? current_tenant.full_name : @cheque_entry.client_account.name  %></p>
+<!--TODO(Subas) internal ledger name instead of client account name -->
+<p><%= @cheque_entry.additional_bank_id.present? ? current_tenant.full_name : (@cheque_entry.client_account.present? ? @cheque_entry.client_account.name : "Internal Ledger" ) %></p>
 <p>Amount: <%= arabic_number(@cheque_entry.particular.amnt) %></p>
 <p> <%= arabic_word(@cheque_entry.particular.amnt) %></p>
 

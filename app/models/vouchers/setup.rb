@@ -24,12 +24,11 @@ class Vouchers::Setup < Vouchers::Base
 
       if voucher_type == Voucher.voucher_types[:receive]
         default_ledger_id = default_bank_sales ? default_bank_sales.ledger.id : cash_ledger.id
-        puts "this is one#{default_ledger_id}"
       else
         default_ledger_id = default_bank_purchase ? default_bank_purchase.ledger.id : cash_ledger.id
-        puts "this is another#{default_ledger_id}"
       end
-      voucher.desc = "Being settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.length > 0
+      voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.length > 0
+      voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
 
