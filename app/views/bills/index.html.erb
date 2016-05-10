@@ -95,8 +95,8 @@ if params[:search_by] == 'date_range'
   <% end %>
 </div>
 
-<% if !@bills.empty?
-  %>
+<% if !@bills.empty? %>
+    <%= form_tag new_voucher_path do %>
   <table class="table table-no-border table-striped table-condensed text-left">
   <tr>
     <th>S.N.</th>
@@ -133,13 +133,17 @@ if params[:search_by] == 'date_range'
       <% unless bill.settled? %>
       <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
       <% end %>
-      <%= link_to 'View', bill %></td>
+      <%= link_to 'View', bill %>
+    </td>
+    <td><%= check_box_tag "bills[]", bill.id %></td>
   </tr>
   <!-- Bill (row) ENDS -->
 
 
   <% end %>
 </table>
+        <%= submit_tag "Process Checked" %>
+        <% end %>
 <% end %>
 
 <div class="text-center">

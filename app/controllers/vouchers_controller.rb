@@ -244,6 +244,7 @@ class VouchersController < ApplicationController
     @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
   end
 
+  # special case for which the ledger balance can be cleared all at once
   def set_clear_ledger
     clear_ledger = false
     if params[:clear_ledger].present?

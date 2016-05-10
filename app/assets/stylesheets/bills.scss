@@ -139,6 +139,42 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
         width: 11.11%;
       }
     }
+
+    .col-1 {
+      width: 15%;
+    }
+    // No of Shares
+    .col-2 {
+      width: 7%;
+    }
+    // Company Name
+    .col-3 {
+      width: 18.33%;
+    }
+    // Share Rate
+    .col-4 {
+      width: 7.78%;
+    }
+    // Base Price
+    .col-5 {
+      width: 7.78%;
+    }
+    // Amount
+    .col-6 {
+      width: 11.11%;
+    }
+    // Commission
+    .col-7 {
+      width: 11%;
+    }
+    // Commission Amount
+    .col-8 {
+      width: 11%;
+    }
+    // Capital Gain
+    .col-9 {
+      width: 11%;
+    }
   }
 }
 .table-no-border>thead>tr>th, .table-no-border>tbody>tr>th, .table-no-border>tfoot>tr>th, .table-no-border>thead>tr>td, .table-no-border>tbody>tr>td, .table-no-border>tfoot>tr>td {

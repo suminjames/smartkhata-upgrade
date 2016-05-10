@@ -8,11 +8,19 @@
   @page {
     size: auto;   /* auto is the initial value */
     margin: 0;  /* this affects the margin in the printer settings */
+
+  }
+  @page {
+    margin-top: 0.75in;
+    margin-bottom: 0.75in;
+    margin-left: 0.75in;
+    margin-right: 0.75in;
   }
 
   html * {
     font-size: 10px !important;
-    font-family: arial;
+    font-family: arial!important;
+    line-height: 14px!important;
   }
 
   .custom-anchor {
@@ -39,7 +47,7 @@
     left:0;
     top:20px;
     width: 700px;
-    paddig-top: 20px;
+    padding-top: 20px;
     padding-left: 20px;
     margin-left: 20px;
 
