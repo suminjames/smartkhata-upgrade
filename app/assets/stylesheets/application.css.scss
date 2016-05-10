@@ -112,7 +112,8 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 	background: #ECF0F5;
 
 	.box-header {
-		background: #D2D6DE;
+    // !important override for print
+		background: #D2D6DE!important;
 	}
 }
 
@@ -228,4 +229,17 @@ a {
 }
 .trial .total-trial {
   background: lightgrey;
+}
+
+
+.grey-hr{
+  border-color: grey;
+}
+.print-icon{
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+#btnPrint{
+  display: inline-block;
+  cursor: pointer;
 }
