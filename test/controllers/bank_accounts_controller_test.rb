@@ -20,7 +20,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   test "unauthenticated users should not get new" do
     get :new
-    assert_response :redirect
+    assert_redirected_to new_user_session_path
   end
 
   test "allowed user should get new" do
@@ -29,14 +29,35 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  # TODO This test is failing and i dont know why
-  test "should create bank_account" do
+  # test "foo" do
+  test "should create a bank_account when input valid and user signed in, but should not create a duplicate account " do
     sign_in users(:user)
-    assert_difference('BankAccount.count') do
+    assert_difference('BankAccount.count', 1) do
       post :create, bank_account: {bank_id: @bank.id, account_number: 123,"default_for_sales"=>"1", "default_for_purchase"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
       puts response
     end
+    assert_redirected_to bank_account_path(assigns(:bank_account))
 
+    assert_no_difference('BankAccount.count') do
+      post :create, bank_account: {bank_id: @bank.id, account_number: 123,"default_for_sales"=>"1", "default_for_purchase"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
+      puts response
+    end
+    assert_redirected_to bank_account_path(assigns(:bank_account))
+  end
+
+  test "should not create a bank_account when input valid but user not signed in" do
+    assert_no_difference('BankAccount.count') do
+      post :create, bank_account: {bank_id: @bank.id, account_number: 123,"default_for_sales"=>"1", "default_for_purchase"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
+      puts response
+    end
+    assert_redirected_to new_user_session_path
+  end
+
+  test "should not create a bank_account with invalid input" do
+    sign_in users(:user)
+    assert_no_difference('BankAccount.count') do
+      post :create, bank_account: {bank_id: @bank.id, account_number: -123,"default_for_sales"=>"1", "default_for_purchase"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
+    end
     assert_redirected_to bank_account_path(assigns(:bank_account))
   end
 
