@@ -34,10 +34,11 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-
+      @ledger_list_available = Ledger.non_bank_ledgers
     end
 
-    @ledger_list_available = Ledger.all
+    # assign all ledgers if ledger_list_available is not present
+    @ledger_list_available ||= Ledger.all
 
     is_purchase_sales = is_purchase_sales?(@voucher_type)
 
