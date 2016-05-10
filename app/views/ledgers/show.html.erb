@@ -95,7 +95,7 @@
 					<% end %>
 				</td>
         <td>
-          <%= link_to particular.voucher.cheque_entries.first.cheque_number, cheque_entry_path(particular.voucher.cheque_entries.first.id) if particular.voucher.cheque_entries.size >0 %>
+          <%= link_to particular.voucher.cheque_entries.first.cheque_number, cheque_entry_path(particular.voucher.cheque_entries.first.id), remote: true if particular.voucher.cheque_entries.size >0 %>
         </td>
 				<td>
           <% if particular.voucher.settlements.size > 0 %>

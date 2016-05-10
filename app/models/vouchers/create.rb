@@ -1,10 +1,10 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_no_banks
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
     @ledger_list_financial = []
-    @ledger_list_no_banks = nil
+    @ledger_list_available = nil
   end
 
   def process
@@ -34,9 +34,11 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      @ledger_list_no_banks = Ledger.non_bank_ledgers
+      @ledger_list_available = Ledger.non_bank_ledgers
     end
 
+    # assign all ledgers if ledger_list_available is not present
+    @ledger_list_available ||= Ledger.all
 
     is_purchase_sales = is_purchase_sales?(@voucher_type)
 
@@ -145,19 +147,21 @@ class Vouchers::Create < Vouchers::Base
 
         if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= 0.01
           net_usable_blnc = net_usable_blnc - bill.balance_to_pay
-          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(bill.balance_to_pay)} Date: #{ad_to_bs(bill.created_at)} | "
+          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(bill.balance_to_pay)}   Date: #{ad_to_bs(bill.created_at)} | "
           bill.balance_to_pay = 0
           bill.status = Bill.statuses[:settled]
           processed_bills << bill
         else
           bill.status = Bill.statuses[:partial]
-          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(net_blnc)} Date: #{ad_to_bs(bill.created_at)} | "
+          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(net_blnc)}   Date: #{ad_to_bs(bill.created_at)} | "
           bill.balance_to_pay = bill.balance_to_pay - net_usable_blnc
           processed_bills << bill
           break
         end
-
       end
+
+      # remove the last | sign
+      description_bills = description_bills.slice(0, description_bills.length-2)
     end
     return processed_bills, description_bills, receipt_amount
   end
