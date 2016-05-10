@@ -1,0 +1,10 @@
+<div id="btnPrint">
+  <!-- <button id="btnPrint">Print</button> -->
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+</div>
+<div class="printThis cheque-single">
+  <p><%= @cheque_entry.additional_bank_id.present? ? current_tenant.full_name : (@cheque_entry.client_account.present? ? @cheque_entry.client_account.name : "Internal Ledger" ) %></p>
+  <p>Amount: <%= arabic_number(@cheque_entry.particular.amnt) %></p>
+  <p> <%= arabic_word(@cheque_entry.particular.amnt) %></p>
+</div>

@@ -1,8 +1,21 @@
-<div class="row printThis">
+<div id="btnPrint">
+  <!-- <button id="btnPrint">Print</button> -->
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+</div>
+<div class="printThis">
   <% if @voucher.is_payment_bank %>
-      <div class="box box-primary z-light-bg">
+      <div class="box box-primary box-printable z-light-bg">
 
         <div class="box-body">
+          <strong>
+            <%= current_tenant.full_name %><br>
+            <%= current_tenant.address %><br>
+            Phone: <%= current_tenant.phone_number %><br>
+            Fax: <%= current_tenant.fax_number %><br>
+            PAN: <%= current_tenant.pan_number %><br>
+          </strong>
+          <hr class="grey-hr">
           <h3>Payment voucher Bank</h3>
           <div class="row">
 
@@ -32,7 +45,7 @@
           </div>
         </div>
         <div class="box-body">
-          <div style='min-height: 200px'>
+          <div style='min-height: 100px'>
             <% @particulars.each do |particular| %>
                 <div class="row">
                   <div class="col-xs-3">
@@ -91,20 +104,36 @@
           <%= form_tag(finalize_payment_vouchers_path) do %>
               <%= hidden_field_tag 'from_path', @from_path %>
               <%= hidden_field_tag 'id', @voucher.id %>
-              <%= submit_tag 'Reject' , :name => 'reject'%>
-              <%= submit_tag 'Approve', :name => 'approve' %>
+              <%= submit_tag 'Reject' , :name => 'reject', class: 'hide-on-print' %>
+              <%= submit_tag 'Approve', :name => 'approve', class: 'hide-on-print' %>
           <% end %>
 
       <% end %>
 
   <% else %>
+      <div>
+        <strong>
+          <%= current_tenant.full_name %><br>
+          <%= current_tenant.address %><br>
+          Phone: <%= current_tenant.phone_number %><br>
+          Fax: <%= current_tenant.fax_number %><br>
+          PAN: <%= current_tenant.pan_number %><br>
+        </strong>
+      </div>
+      <hr class="grey-hr">
       <div class="row">
+
+
         <div class="col-xs-5">
           <p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
         </div>
         <div class="col-xs-7 text-right">
           <p>Voucher Date: <%= @voucher.date_bs %></p>
         </div>
+      </div>
+      <div>
+        <p><%= "Description: #{@voucher.desc}" if !@voucher.desc.blank? %></p>
+        <br>
       </div>
       <div class="box box-primary z-light-bg">
         <div class="box-header">
@@ -128,10 +157,8 @@
                 </div>
               </div>
               <br>
-              <% total = (particular.dr?) ? total + particular.amnt : total - particular.amnt %>
           <% end %>
         </div>
       </div>
   <% end %>
-  <a href="<%= @from_path %>">Go Back</a>
 </div>
