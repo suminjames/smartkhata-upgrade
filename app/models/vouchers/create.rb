@@ -1,10 +1,10 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_all
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
     @ledger_list_financial = []
-    @ledger_list_all = nil
+    @ledger_list_available = nil
   end
 
   def process
@@ -37,7 +37,7 @@ class Vouchers::Create < Vouchers::Base
 
     end
 
-    @ledger_list_all = Ledger.all
+    @ledger_list_available = Ledger.all
 
     is_purchase_sales = is_purchase_sales?(@voucher_type)
 
