@@ -30,8 +30,17 @@
   body * {
     visibility:hidden;
   }
+  
+  .hide-on-print{
+    display: none;
+  }
+  .box-printable{
+    border-top: 0;
+  }
+
   #printSection, #printSection * {
     visibility:visible;
+     -webkit-print-color-adjust: exact;
   }
   #printSection {
     position:absolute;
