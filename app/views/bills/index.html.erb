@@ -1,82 +1,7 @@
 <% provide(:section_title, "Bills") %>
 
-<div class="clearfix submenu" >
-  <%
-  def is_active_sub_menu_option(option)
-    return params[:search_by] == option
-  end
-  %>
-  <h5>
-    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} %>  |
-    <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills"), {:class => (is_active_sub_menu_option("bill_status")? "active-link" : "")}   %>  |
-    <%= link_to "All Bills",  bills_path(search_by: "all_bills"), {:class => (is_active_sub_menu_option("all_bills")? "active-link" : "")} %>  |
-    <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type"), {:class => (is_active_sub_menu_option("bill_type")? "active-link" : "")} %>  |
-    <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number"), {:class => (is_active_sub_menu_option("bill_number")? "active-link" : "")} %>  |
-    <%= link_to "Search by Date",  bills_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %>  |
-    <%= link_to "Search by Date Range",  bills_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} %>
-  </h5>
-</div>
-
-<div class="clearfix search-form">
-  <%
-    if params[:search_by] == 'client_name'
-  %>
-      <div class="col-sm-3">
-        <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-            <%= hidden_field_tag :search_by, "client_name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
-        <% end %>
-      </div>
-      <%= submit_tag "Search", class: 'btn btn-sm' %>
-  <% end %>
-
-<%
-if params[:search_by] == 'bill_type'
-  %>
-  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "bill_type" %>
-  <div class="col-xs-3">
-    <%= select_tag :search_term, options_for_select([['Sales','sales'], ['Purchase','purchase']], params[:search_term] ) %>
-  </div>
-  <%= submit_tag "Search" %>
-  <% end %>
-<% end %>
-
-<%
-if params[:search_by] == 'bill_number'
-  %>
-  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "bill_number" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
-  <%= submit_tag "Search" %>
-  <% end %>
-<% end %>
-
-<%
-if params[:search_by] == 'date'
-  %>
-  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "date" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD" %>
-  <%= submit_tag "Search" %>
-  <% end %>
-<% end %>
-
-<%
-if params[:search_by] == 'date_range'
-  %>
-  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "date_range" %>
-  <%
-  text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
-  text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
-  %>
-  <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
-  <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
-  <%= submit_tag "Search" %>
-  <% end %>
-<% end %>
-</div>
+<%= render 'index_sub_menu' %>
+<%= render 'index_search_form' %>
 
 
 <% # OPTIMIZE Incorporate search term specific message %>
@@ -88,14 +13,8 @@ if params[:search_by] == 'date_range'
 <% end %>
 <% end %>
 
-<div class="text-center">
-  <% unless @bills.blank? %>
-      <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @bills %>
-      </div>
-  <% end %>
-</div>
+
+<%= render 'shared/pagination', collection_to_paginate: @bills %>
 
 <% if !@bills.empty? %>
     <%= form_tag new_voucher_path do %>
@@ -148,11 +67,4 @@ if params[:search_by] == 'date_range'
         <% end %>
 <% end %>
 
-<div class="text-center">
-  <% unless @bills.blank? %>
-      <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @bills %>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @bills %>

@@ -1,11 +1,7 @@
 <% if !@file_list.blank? %>
-    <div class="text-center">
-      <%= paginate @file_list, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @file_list %>
-      </div>
-    </div>
 
+    <%= render 'shared/pagination', collection_to_paginate: @file_list%>
+    <br>
     <div class="panel panel-danger">
       <div class="panel-heading">
         List of Floor Sheet file uploaded
@@ -33,5 +29,7 @@
         </div>
       </div>
     </div>
+
+    <%= render 'shared/pagination', collection_to_paginate: @file_list%>
 
 <% end %>

@@ -199,14 +199,7 @@
 
 
 <!--Pagination BEGINS-->
-<div class="text-center">
-  <% unless @share_transactions.blank? %>
-      <%= paginate @share_transactions, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @share_transactions%>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @share_transactions%>
 <!--Pagination ENDS-->
 
 <!--Listing (and grouping) of share transaction inventory BEGINS-->
@@ -463,12 +456,5 @@
 <!--Listing (and grouping) of share transaction inventory ENDS-->
 
 <!--Pagination BEGINS-->
-<div class="text-center">
-  <% unless @share_transactions.blank? %>
-      <%= paginate @share_transactions, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @share_transactions%>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @share_transactions%>
 <!--Pagination ENDS-->

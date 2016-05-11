@@ -56,11 +56,7 @@
 
 /Search term specific message ENDS
 
-- if !orders.blank?
-  %div.text-center
-    = paginate orders, :theme => 'twitter-bootstrap-3'
-    %div.text-center
-      =page_entries_info orders
+= render 'shared/pagination', collection_to_paginate: orders
 
 - if !orders.blank?
   %table.table.table-striped
@@ -82,8 +78,4 @@
           %td.col-sm-4= order.decorate_order_details_to_string
           %td.col-sm-1= link_to 'view', order_path(order.id)
 
-- if !orders.blank?
-  %div.text-center
-    = paginate orders, :theme => 'twitter-bootstrap-3'
-    %div.text-center
-      =page_entries_info orders
+= render 'shared/pagination', collection_to_paginate: orders

@@ -40,12 +40,7 @@
 </div>
 
 <% if !@client_accounts.blank? %>
-    <div class="text-center">
-      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @client_accounts %>
-      </div>
-    </div>
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
 
     <div class="table-responsive">
 
@@ -76,11 +71,7 @@
       </tbody>
       </table>
     </div>
-    <div class="text-center">
-      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @client_accounts %>
-      </div>
-    </div>
+
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
 
 <% end %>

@@ -37,14 +37,8 @@
     <% end %>
 <% end %>
 
-<div class="text-center">
-  <% unless @particulars.blank? %>
-      <%= paginate @particulars, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @particulars %>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @particulars%>
+<br>
 
 
 <% if @particulars.present? %>
@@ -115,6 +109,7 @@
 </div>
 <% end %>
 
+<%= render 'shared/pagination', collection_to_paginate: @particulars%>
 
 
 <%= link_to 'Edit', edit_ledger_path(@ledger) %> |

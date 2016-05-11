@@ -31,14 +31,7 @@
   <% end %>
 </div>
 
-<div class="text-center">
-  <% unless @ledgers.blank? %>
-      <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @ledgers%>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
 
 <% # OPTIMIZE Incorporate search term specific message %>
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@ledgers.present? %>
@@ -80,12 +73,6 @@
 
 <br>
 
+<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
 
-<div class="text-center">
-  <% unless @ledgers.blank? %>
-  <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
-  <div class="text-center">
-    <%= page_entries_info @ledgers%>
-  </div>
-  <% end %>
 </div>
