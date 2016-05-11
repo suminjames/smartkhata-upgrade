@@ -27,7 +27,7 @@ class VouchersController < ApplicationController
 
   # GET /vouchers/new
   def new
-    @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_no_banks, @default_ledger_id, @voucher_type =
+    @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
@@ -75,7 +75,7 @@ class VouchersController < ApplicationController
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
         @ledger_list_financial = voucher_creation.ledger_list_financial
-        @ledger_list_no_banks = voucher_creation.ledger_list_no_banks
+        @ledger_list_available = voucher_creation.ledger_list_available
         @is_purchase_sales = voucher_creation.is_purchase_sales?(@voucher_type)
 
         if voucher_creation.error_message
@@ -244,6 +244,7 @@ class VouchersController < ApplicationController
     @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
   end
 
+  # special case for which the ledger balance can be cleared all at once
   def set_clear_ledger
     clear_ledger = false
     if params[:clear_ledger].present?

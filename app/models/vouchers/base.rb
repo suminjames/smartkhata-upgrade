@@ -27,28 +27,47 @@ class Vouchers::Base
     # get client account and bill if present
     client_account, bill = client_account_and_bill(client_account_id, bill_id)
 
-    # clear ledger functionality requires client account
-    # check the bills requiring receive and payment
-    # and set the voucher type accordingly
+    # different conditions that are available are
+    #   1. clear ledger (clear ledger balance)
+    #         clear_ledger to be true, client_account_id should be present
+    #   2. bills present (settlement by selected bills)
+    #   3. client account is present and voucher type is present
+    #         process the bill types depending on voucher type
+    #           voucher type receive -> all purchase bills
+    #           voucher type payment -> all sales bills
+    #   4. specific bill
+    #         process a specific bill
+
     if clear_ledger && client_account.present?
+      client_ledger = client_account.ledger
+      ledger_balance = client_ledger.closing_blnc
       bills_receive = client_account.bills.requiring_receive
       amount_to_receive = bills_receive.sum(:balance_to_pay)
-
       bills_payment = client_account.bills.requiring_payment
       amount_to_pay = bills_payment.sum(:balance_to_pay)
 
-      # check whether its a payment or receive
-      # note the order of bills depend on the condition above
-      if amount_to_pay > amount_to_receive
-        voucher_type = Voucher.voucher_types[:payment]
-        bills = [*bills_receive, *bills_payment]
-        amount = amount_to_pay - amount_to_receive
-      else
+      # ledger balance positive means client has to pay
+      # ledger balance negative means we need to pay
+      if ledger_balance > 0
         voucher_type = Voucher.voucher_types[:receive]
         bills = [*bills_payment,*bills_receive]
-        amount = amount_to_receive - amount_to_pay
+        # amount = amount_to_receive - amount_to_pay
+        amount = ledger_balance.abs
+      else
+        voucher_type = Voucher.voucher_types[:payment]
+        bills = [*bills_receive, *bills_payment]
+        # amount = amount_to_pay - amount_to_receive
+        amount = ledger_balance.abs
       end
-
+      # if amount_to_pay > amount_to_receive
+      #   voucher_type = Voucher.voucher_types[:payment]
+      #   bills = [*bills_receive, *bills_payment]
+      #   amount = amount_to_pay - amount_to_receive
+      # else
+      #   voucher_type = Voucher.voucher_types[:receive]
+      #   bills = [*bills_payment,*bills_receive]
+      #   amount = amount_to_receive - amount_to_pay
+      # end
     else
       case voucher_type
         when Voucher.voucher_types[:receive]

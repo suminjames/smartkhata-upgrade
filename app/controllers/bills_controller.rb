@@ -4,7 +4,8 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
-  # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
+    # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
+    @process_selected_bills = false
     #default landing action for '/bills'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
@@ -25,8 +26,11 @@ class BillsController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
+      when 'client_id'
+        @process_selected_bills = true
+        @bills = Bill.find_by_client_account_id(search_term)
       when 'client_name'
-        @bills = Bill.find_by_client_id(search_term)
+        @bills = Bill.find_by_client_account_id(search_term)
       when 'bill_number'
         @bills = Bill.find_by_bill_number(search_term)
       when 'bill_status'

@@ -72,6 +72,7 @@ class Bill < ActiveRecord::Base
     :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
     :date => date_from.beginning_of_day..date_to.end_of_day) }
+  scope :find_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
 
   before_save :process_bill
 

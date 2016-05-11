@@ -18,20 +18,21 @@ class Vouchers::Setup < Vouchers::Base
       default_bank_purchase = BankAccount.where(:default_for_purchase => true).first
       default_bank_sales = BankAccount.where(:default_for_sales   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
+      ledger_list_available = Ledger.non_bank_ledgers
 
-      ledger_list_no_banks = Ledger.non_bank_ledgers
       ledger_list_financial << cash_ledger
 
       if voucher_type == Voucher.voucher_types[:receive]
         default_ledger_id = default_bank_sales ? default_bank_sales.ledger.id : cash_ledger.id
-        puts "this is one#{default_ledger_id}"
       else
         default_ledger_id = default_bank_purchase ? default_bank_purchase.ledger.id : cash_ledger.id
-        puts "this is another#{default_ledger_id}"
       end
-      voucher.desc = "Being settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.length > 0
+      voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.length > 0
+      voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
+    # if ledger list is not defined assign all the ledger
+    ledger_list_available ||= Ledger.all
 
     voucher.particulars = []
     if is_purchase_sales
@@ -44,6 +45,6 @@ class Vouchers::Setup < Vouchers::Base
     # a general particular for the voucher
     voucher.particulars << Particular.new if client_account.nil?
 
-    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_no_banks, default_ledger_id, voucher_type
+    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type
   end
 end
