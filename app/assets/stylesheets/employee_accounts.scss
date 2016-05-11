@@ -1,3 +1,10 @@
 // Place all the styles related to the EmployeeAccounts controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+// suppress style of .alert and .alert-info
+.everyone-selected-warning{
+  color: #635D5D !important;
+  background-color: #BEC5CC !important;
+  border-color: white !important;
+}
