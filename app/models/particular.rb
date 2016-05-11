@@ -1,3 +1,30 @@
+# == Schema Information
+#
+# Table name: particulars
+#
+#  id                 :integer          not null, primary key
+#  opening_blnc       :decimal(15, 4)   default("0")
+#  transaction_type   :integer
+#  ledger_type        :integer          default("0")
+#  cheque_number      :integer
+#  name               :string
+#  description        :string
+#  amnt               :decimal(15, 4)   default("0")
+#  running_blnc       :decimal(15, 4)   default("0")
+#  additional_bank_id :integer
+#  particular_status  :integer          default("1")
+#  date_bs            :string
+#  creator_id         :integer
+#  updater_id         :integer
+#  fy_code            :integer
+#  branch_id          :integer
+#  transaction_date   :date
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  ledger_id          :integer
+#  voucher_id         :integer
+#
+
 class Particular < ActiveRecord::Base
 	include CustomDateModule
 	include ::Models::UpdaterWithBranchFycode

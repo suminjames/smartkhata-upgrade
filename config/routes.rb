@@ -6,7 +6,6 @@ Rails.application.routes.draw do
   resources :employee_accounts
   resources :banks
   resources :settlements
-  resources :settlements
   resources :cheque_entries do
     collection do
       get :get_cheque_number
@@ -32,6 +31,7 @@ Rails.application.routes.draw do
   end
   resources :groups
   resources :ledgers
+  resources :orders
   resources :vouchers do
     collection do
       get 'pending_vouchers'
@@ -46,7 +46,7 @@ Rails.application.routes.draw do
   resources :client_accounts
 
   namespace 'files' do
-    resources :orders, only: [:new] do
+    resources :orders, only: [:new, :index] do
       collection {post :import}
     end
     resources :floorsheets, only: [:new, :index] do

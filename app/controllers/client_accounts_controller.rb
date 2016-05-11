@@ -13,6 +13,11 @@
       return
     end
 
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'name'
+      @clients_for_combobox = ClientAccount.all.order(:name)
+    end
+
     if params[:show] == 'all'
       @client_accounts = ClientAccount.all
     elsif params[:search_by] && params[:search_term]
@@ -20,7 +25,7 @@
       search_term = params[:search_term]
       case search_by
       when 'name'
-        @client_accounts = ClientAccount.find_by_client_name(search_term)
+        @client_accounts = ClientAccount.find_by_client_id(search_term)
       when 'boid'
         @client_accounts = ClientAccount.find_by_boid(search_term)
       else

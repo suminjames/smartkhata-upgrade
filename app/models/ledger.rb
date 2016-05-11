@@ -1,3 +1,25 @@
+# == Schema Information
+#
+# Table name: ledgers
+#
+#  id                :integer          not null, primary key
+#  name              :string
+#  client_code       :string
+#  opening_blnc      :decimal(15, 4)   default("0.0")
+#  closing_blnc      :decimal(15, 4)   default("0.0")
+#  creator_id        :integer
+#  updater_id        :integer
+#  fy_code           :integer
+#  branch_id         :integer
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  group_id          :integer
+#  bank_account_id   :integer
+#  client_account_id :integer
+#  dr_amount         :decimal(15, 4)   default("0.0"), not null
+#  cr_amount         :decimal(15, 4)   default("0.0"), not null
+#
+
 class Ledger < ActiveRecord::Base
 
 	include ::Models::UpdaterWithBranchFycode
@@ -23,6 +45,7 @@ class Ledger < ActiveRecord::Base
 	scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
   scope :find_all_client_ledgers, -> { where.not(client_account_id: nil) }
   scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
+	scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
 	scope :non_bank_ledgers, -> {where(bank_account_id: nil)}
 
 	def update_closing_balance

@@ -2,7 +2,7 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.association :bank ,:input_html => { :class => 'combobox', :autocomplete => 'off'} %>
+    <%= f.association :bank, collection: Bank.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'} %>
     <%= f.input :account_number %>
     <%= f.input :default_for_sales %>
     <%= f.input :default_for_purchase %>

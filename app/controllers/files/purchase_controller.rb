@@ -19,9 +19,7 @@ class Files::PurchaseController < ApplicationController
 			# @x = Date.parse(xlsx.sheet(0).row(5)[9].tr('()',""))
 			@x= []
 			(5..(xlsx.sheet(0).last_row)).each do |i|
-				
 				break if xlsx.sheet(0).row(i)[0] == nil
-				@x << xlsx.sheet(0).row(i).inspect
 			end		
 		end
 	end

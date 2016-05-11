@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: bank_accounts
+#
+#  id                   :integer          not null, primary key
+#  account_number       :integer
+#  bank_name            :string
+#  default_for_purchase :boolean
+#  default_for_sales    :boolean
+#  creator_id           :integer
+#  updater_id           :integer
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  bank_id              :integer
+#
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 

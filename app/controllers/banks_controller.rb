@@ -1,5 +1,5 @@
 class BanksController < ApplicationController
-  before_action :set_bank, only: [:show, :edit, :update, :destroy]
+  before_action :set_bank, only: [:show, :edit, :update]
 
   # GET /banks
   # GET /banks.json
@@ -54,11 +54,11 @@ class BanksController < ApplicationController
   # DELETE /banks/1
   # DELETE /banks/1.json
   def destroy
-    @bank.destroy
-    respond_to do |format|
-      format.html { redirect_to banks_url, notice: 'Bank was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    # @bank.destroy
+    # respond_to do |format|
+    #   format.html { redirect_to banks_url, notice: 'Bank was successfully destroyed.' }
+    #   format.json { head :no_content }
+    # end
   end
 
   private

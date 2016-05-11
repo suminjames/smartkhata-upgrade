@@ -15,6 +15,18 @@ module ApplicationHelper
 	end
 
 
+	# Get a unique order number based on fiscal year
+	# The returned order number is an increment (by 1) of the previously stored order number.
+	def get_new_order_number
+		order = Order.where(fy_code: get_fy_code).last
+		# initialize the orer with 1 if no order is present
+		if order.nil?
+			1
+		else
+			# increment the order number
+			order.order_number + 1
+		end
+	end
 
 
 	# Get a unique bill number based on fiscal year
