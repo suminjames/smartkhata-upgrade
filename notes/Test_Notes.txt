@@ -1,7 +1,10 @@
 -DO NOT REBASE! EVER. Instead, MERGE!
 
 -After each merge, test the following (in the order listed below):
-    1. Add Bank Account
+    1. Add Bank
+        1.1. Add Bank Account
+            -of existing bank
+            -of created bank
     2. Add Cheque Entries
     3. Upload Floorsheet of date X
     4. Upload CM05 of date X
@@ -25,5 +28,10 @@
                 -similar to 5.2
             -processs sales bills
                 -similar to 5.1
+    7. Voucher creation
+        -Create all types of vouchers
+            7.1 Journal with out Bank
+            7.2 Journal with Bank Account credit
+            7.3 Journal with Bank Account debit
 
 

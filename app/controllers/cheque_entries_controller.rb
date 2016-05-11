@@ -22,7 +22,7 @@ class ChequeEntriesController < ApplicationController
   def new
     # @cheque_entry = ChequeEntry.new
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    @bank_accounts = BankAccount.all
+    @bank_accounts = BankAccount.all.order(:bank_name)
   end
 
   # GET /cheque_entries/1/edit
