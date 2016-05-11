@@ -1,8 +1,10 @@
 class Files::SalesController < Files::FilesController
 
+  @@file_type = FileUpload::file_types[:orders]
   @@file_name_contains = "CM05"
 
   def index
+    @file_list = SalesSettlement.order("settlement_date desc").page(params[:page]).per(20)
   end
 
   def new

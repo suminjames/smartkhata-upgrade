@@ -1,0 +1,8 @@
+<div class="text-center">
+  <% unless @bills.blank? %>
+      <%= paginate @bills, :theme => 'twitter-bootstrap-3'%>
+      <div class="text-center">
+        <%= page_entries_info @bills %>
+      </div>
+  <% end %>
+</div>
