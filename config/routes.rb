@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   resources :ledgers
   resources :vouchers do
     collection do
+      get 'pending_vouchers'
       post 'new'
       post 'finalize_payment'
     end

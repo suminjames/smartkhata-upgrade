@@ -9,10 +9,15 @@ class VouchersController < ApplicationController
     @vouchers = Voucher.pending.order("id ASC")
   end
 
+  def pending_vouchers
+    @vouchers = Voucher.pending.order("id ASC")
+    render :index
+  end
+
   # GET /vouchers/1
   # GET /vouchers/1.json
   def show
-    @from_path =  request.referer || vouchers_path
+    @from_path =  request.referer || pending_vouchers_vouchers_path
     full_view = params[:full] || false
     @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
@@ -120,7 +125,7 @@ class VouchersController < ApplicationController
   def finalize_payment
     success = false
     @voucher = Voucher.find_by(id: params[:id].to_i)
-    from_path = params[:from_path] || vouchers_path
+    from_path = params[:from_path] || '/vouchers/index'
     message = ""
     if @voucher
       if params[:approve]
@@ -233,6 +238,7 @@ class VouchersController < ApplicationController
 
   def set_voucher_general_params
     # get parameters for voucher types and assign it as journal if not available
+    @bill_ids = []
     @voucher_type = params[:voucher_type].to_i if params[:voucher_type].present? || Voucher.voucher_types[:journal]
     # client account id ensures the vouchers are on the behalf of the client
     @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
