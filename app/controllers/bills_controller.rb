@@ -28,9 +28,9 @@ class BillsController < ApplicationController
       case search_by
       when 'client_id'
         @process_selected_bills = true
-        @bills = Bill.find_by_client_account_id(search_term)
+        @bills = Bill.find_not_settled_by_client_account_id(search_term)
       when 'client_name'
-        @bills = Bill.find_by_client_account_id(search_term)
+        @bills = Bill.find_by_client_id(search_term)
       when 'bill_number'
         @bills = Bill.find_by_bill_number(search_term)
       when 'bill_status'
