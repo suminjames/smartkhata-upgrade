@@ -86,8 +86,8 @@ $ ->
   $('#new_voucher').on 'submit', (event) ->
     $(".particular").each ->
       $this = $(this)
-      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
-        $this.remove()
+#      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
+#        $this.remove()
 
 
     $("select.select-ledger").each ->
