@@ -88,6 +88,7 @@ class ClientAccount < ActiveRecord::Base
   end
 
 	scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
+	scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
 
 	enum client_type: [:individual, :corporate ]

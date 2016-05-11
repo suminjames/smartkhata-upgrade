@@ -1,0 +1,89 @@
+/ Sub-menu BEGINS
+%div.clearfix.submenu
+  %h5
+    =link_to "Search by Client Name",  orders_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")}
+    |
+    =link_to "Search by Order Number",  orders_path(search_by: "order_number"), {:class => (is_active_sub_menu_option("order_number")? "active-link" : "")}
+    |
+    =link_to "All Orders",  orders_path(search_by: "all_orders"), {:class => (is_active_sub_menu_option("all_orders")? "active-link" : "")}
+    |
+    =link_to "Search by Date",  orders_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")}
+    |
+    =link_to "Search by Date Range",  orders_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")}
+/Sub-menu ENDS
+
+/Search form BEGINS
+%div.clearfix.search-form
+
+  -if params[:search_by] == 'client_name'
+    %div.col-sm-3
+      = form_tag(orders_path, :method => "get", id: "search-form") do
+        = hidden_field_tag :search_by, "client_name"
+        = select_tag "search_term", options_from_collection_for_select(clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox'
+    = submit_tag "Search", class: 'btn btn-sm'
+
+  -if params[:search_by] == 'order_number'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "order_number"
+      = text_field_tag :search_term, params[:search_term], placeholder: "Search by Order Number", :autofocus => true
+      = submit_tag "Search"
+
+  -if params[:search_by] == 'date'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "date"
+      = text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD"
+      = submit_tag "Search"
+
+  -if params[:search_by] == 'date_range'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "date_range"
+      - text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+      -text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+      = text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD"
+      = text_field_tag "search_term[date_to]", text_field_value_2, placeholder:  "YYYY-MM-DD"
+      = submit_tag "Search"
+
+/Search form ENDS
+
+/Search term specific message BEGINS
+- if params[:commit].present? && orders.blank?
+  -if params[:search_by] == 'client_name' || params[:search_by] == 'order_number'
+    %p There are no orders matching the term '#{params[:search_term]}'.
+  -if params[:search_by] == 'date'
+    %p There are no orders matching the date '#{params[:search_term]}'.
+  -if params[:search_by] == 'date_range'
+    %p There are no orders matching the date range '#{params[:search_term][:date_from]}' to '#{params[:search_term][:date_to]}'.
+
+/Search term specific message ENDS
+
+- if !orders.blank?
+  %div.text-center
+    = paginate orders, :theme => 'twitter-bootstrap-3'
+    %div.text-center
+      =page_entries_info orders
+
+- if !orders.blank?
+  %table.table.table-striped
+    %thead
+      %th #
+      %th Order Number
+      %th Client Name
+      %th Client Code
+      %th Date
+      %th Description
+    %tbody
+      - orders.each_with_index do |order , i|
+        %tr
+          %td.col-sm-1= i+1
+          %td.col-sm-1= order.order_number
+          %td.col-sm-2= order.client_account.name.titleize
+          %td.col-sm-1= order.client_account.nepse_code
+          %td.col-sm-2= ad_to_bs(order.date)
+          %td.col-sm-4= order.decorate_order_details_to_string
+          %td.col-sm-1= link_to 'view', order_path(order.id)
+
+- if !orders.blank?
+  %div.text-center
+    = paginate orders, :theme => 'twitter-bootstrap-3'
+    %div.text-center
+      =page_entries_info orders

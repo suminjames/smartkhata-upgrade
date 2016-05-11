@@ -9,16 +9,21 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
-    # Instance variables to populate client and companies in the view
-    @clients = ClientAccount.all
-    @companies = IsinInfo.all
-
     # default landing action for '/share_transactions'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
         format.html { redirect_to share_transactions_path(search_by: "client") }
       end
       return
+    end
+
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'client'
+      @clients = ClientAccount.all.order(:name)
+    end
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'company'
+      @companies = IsinInfo.all.order(:isin)
     end
 
     # Populate (and route when needed) as per the params

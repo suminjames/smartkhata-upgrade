@@ -18,15 +18,17 @@
 </div>
 
 <div class="clearfix search-form">
-<%
-if params[:search_by] == 'client_name'
+  <%
+    if params[:search_by] == 'client_name'
   %>
-  <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "client_name" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name", :autofocus => true %>
-  <%= submit_tag "Search" %>
+      <div class="col-sm-3">
+        <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+            <%= hidden_field_tag :search_by, "client_name" %>
+            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
+        <% end %>
+      </div>
+      <%= submit_tag "Search", class: 'btn btn-sm' %>
   <% end %>
-<% end %>
 
 <%
 if params[:search_by] == 'bill_type'
@@ -55,7 +57,7 @@ if params[:search_by] == 'date'
   %>
   <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "date" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Date" %>
+  <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD" %>
   <%= submit_tag "Search" %>
   <% end %>
 <% end %>
@@ -69,8 +71,8 @@ if params[:search_by] == 'date_range'
   text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
   text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
   %>
-  <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "Date from" %>
-  <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "Date to" %>
+  <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+  <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
   <%= submit_tag "Search" %>
   <% end %>
 <% end %>

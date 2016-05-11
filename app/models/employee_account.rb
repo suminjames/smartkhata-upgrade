@@ -59,4 +59,5 @@ class EmployeeAccount < ActiveRecord::Base
   accepts_nested_attributes_for :employee_client_associations
 
   scope :find_by_employee_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
+  scope :find_by_employee_id, -> (id) { where(id: id) }
 end

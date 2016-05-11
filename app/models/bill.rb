@@ -66,6 +66,7 @@ class Bill < ActiveRecord::Base
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
   #  TODO: Implement multi-name search
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
+  scope :find_by_client_id, -> (id) { where(client_account_id: id).order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :find_by_date, -> (date) { where(
     :date => date.beginning_of_day..date.end_of_day) }

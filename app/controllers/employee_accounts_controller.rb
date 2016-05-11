@@ -13,6 +13,11 @@ class EmployeeAccountsController < ApplicationController
       return
     end
 
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'name'
+      @employees_for_combobox = EmployeeAccount.all.order(:name)
+    end
+
     if params[:show] == 'all'
       @employee_accounts = EmployeeAccount.all
     elsif params[:search_by] && params[:search_term]
@@ -20,7 +25,7 @@ class EmployeeAccountsController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'name'
-        @employee_accounts = EmployeeAccount.find_by_employee_name(search_term)
+        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
       else
         @employee_accounts = []
       end

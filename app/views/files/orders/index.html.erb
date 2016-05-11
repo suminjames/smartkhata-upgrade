@@ -1,15 +1,9 @@
 
 <% provide(:section_title, "Orders") %>
 
-<!-- The following is executed when redirected from "Report's Order"-->
-<% if params[:show] == 'report'%>
-  <%= render "report", :orders => @orders %>
-<% end %>
-
 <!-- The following is executed when redirected from "File Upload's Order's Views/Actions"-->
-<% if params[:show] != 'report'%>
-  <%= link_to "Go Back", new_files_order_path %>
-  <% if !@file_list.blank? %>
+<%= link_to "Go Back", new_files_order_path %>
+<% if !@file_list.blank? %>
     <div class="text-center">
       <%= paginate @file_list, :theme => 'twitter-bootstrap-3'%>
       <div class="text-center">
@@ -25,20 +19,20 @@
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
-              <tr>
-                <th>Date of Report</th>
-                <th>Date of Report(BS)</th>
-                <th>Last Updated</th>
-              </tr>
+            <tr>
+              <th>Date of Report</th>
+              <th>Date of Report(BS)</th>
+              <th>Last Updated</th>
+            </tr>
             </thead>
             <tbody>
-              <% @file_list.each do |file| %>
+            <% @file_list.each do |file| %>
                 <tr>
                   <td><%= file.report_date %> </td>
                   <td><%= ad_to_bs(file.report_date) %> </td>
                   <td><%= file.updated_at.to_date %></td>
                 </tr>
-              <% end %>
+            <% end %>
             </tbody>
           </table>
         </div>
@@ -51,5 +45,4 @@
       </div>
     </div>
     <%= link_to "Go Back", new_files_order_path %>
-  <% end %>
 <% end %>

@@ -12,6 +12,12 @@ class LedgersController < ApplicationController
       end
       return
     end
+
+    # Instance variable used by combobox in view to populate name
+    if params['search_by'] == 'ledger_name'
+      @ledgers_for_combobox= Ledger.all.order(:name)
+    end
+
     if params[:show] == "all"
       @ledgers = Ledger.all.includes(:client_account)
     elsif params[:show] == "all_client"
@@ -23,8 +29,8 @@ class LedgersController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'ledger_name'
-        ledger_name = search_term
-        @ledgers = Ledger.includes(:client_account).find_by_ledger_name(ledger_name)
+        ledger_id= search_term
+        @ledgers = Ledger.includes(:client_account).find_by_ledger_id(ledger_id)
       else
         # If no matches for case  'search_by', return empty @ledgers
         @ledgers = ''

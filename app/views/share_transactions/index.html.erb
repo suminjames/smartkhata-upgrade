@@ -73,8 +73,8 @@
           text_field_value_1 = params[:date][:from] unless params[:date].blank?
           text_field_value_2 = params[:date][:to] unless params[:date].blank?
           %>
-          <%= text_field_tag "date[from]", text_field_value_1, placeholder: "Date from" %>
-          <%= text_field_tag "date[to]", text_field_value_2, placeholder: "Date to" %>
+          <%= text_field_tag "date[from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+          <%= text_field_tag "date[to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
           <%= submit_tag "Search" %>
           <% end %>
           <% end %>
@@ -86,7 +86,7 @@
             <%= hidden_field_tag :show, 'all' %>
             <%= hidden_field_tag :filter_by, "date" %>
             <%= hidden_field_tag :group_by, params[:group_by]%>
-            <%= text_field_tag :date, params[:date], placeholder: "Search by Date" %>
+            <%= text_field_tag :date, params[:date], placeholder: "YYYY-MM-DD" %>
             <%= submit_tag "Search" %>
             <% end %>
             <% end %>
@@ -170,8 +170,8 @@
               text_field_value_1 = params[:date]['from'] unless params[:date].blank?
               text_field_value_2 = params[:date]['to'] unless params[:date].blank?
               %>
-              <%= text_field_tag "date[from]", text_field_value_1, placeholder: "Date from" %>
-              <%= text_field_tag "date[to]", text_field_value_2, placeholder: "Date to" %>
+              <%= text_field_tag "date[from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+              <%= text_field_tag "date[to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
               <%= submit_tag "Search" %>
             <% end %>
             <%
@@ -186,7 +186,7 @@
               <%= hidden_field_tag :search_by, params[:search_by] %>
               <%= hidden_field_tag :search_term, params[:search_term] %>
               <%= hidden_field_tag :group_by, params[:group_by]%>
-              <%= text_field_tag :date, params[:date], placeholder: "Search by Date" %>
+              <%= text_field_tag :date, params[:date], placeholder: "YYYY-MM-DD"  %>
               <%= submit_tag "Search" %>
             <% end %>
       <% end %>
@@ -228,7 +228,7 @@
       if params[:search_by] == "company"
         %>
         <div>
-          <h4><%= @share_transactions[0].isin_info.company %></h4>
+          <h4><%= @share_transactions[0].isin_info.company.titleize %></h4>
         </div>
         <%
       end
@@ -297,7 +297,7 @@
           total_out += share_transaction.quantity if share_transaction.sell?
         %>
         <tr>
-          <td><%= ad_to_bs(share_transaction.date) %></<td></td>
+          <td><%= ad_to_bs(share_transaction.date) %></td>
           <td><%= share_transaction.contract_no %></td>
           <td><%= share_transaction.isin_info.isin%></td>
           <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
@@ -327,7 +327,7 @@
     if params[:search_by] == "client"
 %>
         <div>
-          <h4><%= @clients[params[:search_term].to_i - 1 ].name %></h4>
+          <h4><%= @share_transactions[0].client_account.name.titleize %></h4>
         </div>
     <%
       end

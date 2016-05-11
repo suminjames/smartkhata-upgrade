@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   end
   resources :groups
   resources :ledgers
+  resources :orders
   resources :vouchers do
     collection do
       post 'finalize_payment'

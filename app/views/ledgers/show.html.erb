@@ -24,8 +24,8 @@
         text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
         text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
       %>
-      <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "Date from" %>
-      <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "Date to" %>
+      <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+      <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
       <%= submit_tag "Search" %>
   <% end %>
   <% end %>

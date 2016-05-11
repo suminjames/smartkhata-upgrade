@@ -4,9 +4,7 @@ After CM payour report processing,
 
 #. Multiple reciepts for a single cheque transaction
 
-#. Order 
-  -for a single day, every order made by a person is grouped as a single order
-    -approach: create an order table which 'has_many' order_details
+
     
 
 

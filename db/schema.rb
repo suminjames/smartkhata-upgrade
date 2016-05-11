@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160423050524) do
+ActiveRecord::Schema.define(version: 20160507102304) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -374,25 +374,36 @@ ActiveRecord::Schema.define(version: 20160423050524) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
 
-  create_table "orders", force: :cascade do |t|
-    t.string   "order_id"
+  create_table "order_details", force: :cascade do |t|
+    t.integer  "order_id"
+    t.string   "order_nepse_id"
     t.integer  "isin_info_id"
-    t.integer  "client_account_id"
     t.decimal  "price"
     t.integer  "quantity"
     t.decimal  "amount"
     t.integer  "pending_quantity"
-    t.datetime "order_date_time"
-    t.integer  "order_type"
-    t.integer  "order_segment"
-    t.integer  "order_condition"
-    t.integer  "order_state"
+    t.integer  "typee"
+    t.integer  "segment"
+    t.integer  "condition"
+    t.integer  "state"
+    t.datetime "date_time"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "order_details", ["isin_info_id"], name: "index_order_details_on_isin_info_id", using: :btree
+  add_index "order_details", ["order_id"], name: "index_order_details_on_order_id", using: :btree
+
+  create_table "orders", force: :cascade do |t|
+    t.integer  "order_number"
+    t.integer  "client_account_id"
+    t.integer  "fy_code"
+    t.date     "date"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
   end
 
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
-  add_index "orders", ["isin_info_id"], name: "index_orders_on_isin_info_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0

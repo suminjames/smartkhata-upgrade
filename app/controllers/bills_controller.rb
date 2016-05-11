@@ -12,7 +12,12 @@ class BillsController < ApplicationController
       end
       return
     end
-    
+
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'client_name'
+      @clients_for_combobox = ClientAccount.all.order(:name)
+    end
+
     # Populate (and route when needed) as per the params
     if params[:search_by] == 'all_bills'
       @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])
@@ -21,7 +26,7 @@ class BillsController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'client_name'
-        @bills = Bill.find_by_client_name(search_term)
+        @bills = Bill.find_by_client_id(search_term)
       when 'bill_number'
         @bills = Bill.find_by_bill_number(search_term)
       when 'bill_status'
@@ -144,7 +149,6 @@ class BillsController < ApplicationController
     else
       render text: 'No bill found'
     end
-
   end
 
   private
