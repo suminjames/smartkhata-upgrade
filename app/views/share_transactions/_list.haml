@@ -1,6 +1,7 @@
 -# be sure to make changes on list_complete too
 
 - unless smart_listing.empty?
+  = link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement.id), class: "btn btn-primary"
   %table.table.table-striped
     %thead
       %th.col-xs-4= "Company Name"

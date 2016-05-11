@@ -24,7 +24,7 @@
   %>
       <%= form_tag(report_trial_balance_index_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "date" %>
-          <%= text_field_tag :search_term, params[:search_term], placeholder: "yyyy-mm-dd" %>
+          <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD" %>
           <%= submit_tag "Search" %>
       <% end %>
   <% end %>

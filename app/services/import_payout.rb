@@ -1,3 +1,5 @@
+#TODO (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
+
 class ImportPayout < ImportFile
 	# process the file
   include ShareInventoryModule
@@ -51,7 +53,6 @@ class ImportPayout < ImportFile
 					end
 
           @date = hash['TRADESTARTDATE'].to_date
-
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
 						transaction_type: ShareTransaction.transaction_types[:sell]
@@ -59,6 +60,7 @@ class ImportPayout < ImportFile
 
 
 					if transaction.nil?
+						# abort(hash['CONTRACTNO'])
 						import_error("Please upload corresponding Floorsheet First")
 						raise ActiveRecord::Rollback
 						break

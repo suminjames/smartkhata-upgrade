@@ -1,57 +1,41 @@
-class Files::OrdersController < ApplicationController
-	# 	@@file = FileUpload::FILES[:order];
+class Files::OrdersController < Files::FilesController
+  helper_method :is_active_sub_menu_option
 
-	@@file = FileUpload::FILES[:floorsheet];
-	@@file_name_contains = "ORDER"
+  @@file_type = FileUpload::file_types[:orders]
+  @@file_name_contains = "order"
+
+  def index
+    @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date desc")
+  end
 
 	def new
+    @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10)
+    flash.discard
 	end
 
 	def import
-    # get file from import
-    @file = params[:file];
+		# TODO(subas): authorize self
+		@file = params[:file]
 
-    # read the xls file
-    xlsx = Roo::Spreadsheet.open(@file)
-
-    # array to store processed data
-    @processed_data = []
-    @raw_data = []
-
-    # loop through 13th row to last row
-    # parse the data
-    @total_amount = 0
-    count = 0
-    # header = xlsx.sheet(0).row(11)
-    # (14..(xlsx.sheet(0).last_row)).each do |i|
-    #   row = Hash[[header, xlsx.sheet(0).row(i)].transpose]
-    #   count += 1
-    #   @row_data = row.to_hash
-    #   puts @row_data
-    #   break if count > 5
-    # end
-
-    xlsx.sheet(0).each(
-        id: 'Order ID',
-        symbol: 'Symbol',
-        client_name: 'Client Name',
-        client_code: 'Client Code',
-        price: 'Price',
-        quantity: 'Quantity',
-        amount: 'Amount',
-        pending_qty: 'Pending Quantity',
-        order_time: 'Order Time',
-        order_type: 'Order Type',
-        order_segment: 'Order Segment',
-        order_condition: 'Order Condition',
-        # order_condition: 'Order Condition',
-        order_state: 'Order State'
-    ) do |hash|
-      count += 1
-      puts hash.inspect
-      break if count > 5
-      # => { id: 1, name: 'John Smith' }
+    # Redirect to request origination page /new rather than redirecting to import
+    if is_invalid_file(@file, @@file_name_contains)
+      respond_to do |format|
+        format.html { redirect_to action: 'new' and return }
+        file_error('Please Upload a valid file')
+      end
     end
 
-  end
+    order_upload = ImportOrder.new(@file)
+    @processed_data = order_upload.process
+
+    if order_upload.error_message
+      respond_to do |format|
+        file_error(order_upload.error_message)
+        format.html { redirect_to action: 'new' and return }
+      end
+    end
+
+    flash[:notice] = 'Successfully uploaded and processed the file.'
+	end
+
 end

@@ -1,20 +1,33 @@
 <%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
-  <%= f.error_notification %>
+    <%= f.error_notification %>
 
-  <%= hidden_field_tag 'edit_type', 'client_association'%>
+    <%= hidden_field_tag 'edit_type', 'client_association'%>
 
-  <%= f.input :name, placeholder: 'Name', disabled: true %>
+    <%= f.input :name, placeholder: 'Name', disabled: true %>
 
-  <strong>Has Access To:</strong>
-  <%= f.radio_button :has_access_to, 'everyone'%> Everyone &nbsp;&nbsp;&nbsp;
-  <%= f.radio_button :has_access_to, 'some'%> Some &nbsp;&nbsp;&nbsp;
-  <%= f.radio_button :has_access_to, 'nobody' %> Nobody
+    <strong>Has Access To:</strong>
+    <%= f.radio_button :has_access_to, 'everyone'%> Everyone &nbsp;&nbsp;&nbsp;
+    <%= f.radio_button :has_access_to, 'some'%> Some &nbsp;&nbsp;&nbsp;
+    <%= f.radio_button :has_access_to, 'nobody' %> Nobody
 
-  <br>
-  <br>
+    <br>
+    <br>
+
+    <%
+      if @employee_account.has_access_to == 'everyone'
+    %>
+        <span class="alert alert-info everyone-selected-warning">
+          <strong>Warning!</strong> Setting access to Everyone results in automatic granting of access to any ledgers or clients created in the future.
+        </span>
+    <%
+      end
+    %>
+
+    <br>
+    <br>
 
   <%
-      associated_clients = employee_account.client_accounts
+      $associated_clients = employee_account.client_accounts
 
   def isDisabled()
     if @employee_account.has_access_to == 'nobody' || @employee_account.has_access_to == 'everyone'
@@ -29,7 +42,7 @@
     elsif @employee_account.has_access_to == 'everyone'
       return true
     elsif @employee_account.has_access_to == 'some'
-      associated_clients.each do |client|
+      $associated_clients.each do |client|
         # ledger belongs to a client_account. Therefore, ledger_id belongs to a client_id.
         if client.id == ledger_id
           return true

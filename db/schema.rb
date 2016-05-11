@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160423050524) do
+ActiveRecord::Schema.define(version: 20160507102304) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -286,7 +286,7 @@ ActiveRecord::Schema.define(version: 20160423050524) do
   add_index "employee_client_associations", ["updater_id"], name: "index_employee_client_associations_on_updater_id", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
-    t.integer  "file"
+    t.integer  "file_type"
     t.date     "report_date"
     t.boolean  "ignore",      default: false
     t.integer  "creator_id"
@@ -373,6 +373,37 @@ ActiveRecord::Schema.define(version: 20160423050524) do
   add_index "ledgers", ["fy_code"], name: "index_ledgers_on_fy_code", using: :btree
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
+
+  create_table "order_details", force: :cascade do |t|
+    t.integer  "order_id"
+    t.string   "order_nepse_id"
+    t.integer  "isin_info_id"
+    t.decimal  "price"
+    t.integer  "quantity"
+    t.decimal  "amount"
+    t.integer  "pending_quantity"
+    t.integer  "typee"
+    t.integer  "segment"
+    t.integer  "condition"
+    t.integer  "state"
+    t.datetime "date_time"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "order_details", ["isin_info_id"], name: "index_order_details_on_isin_info_id", using: :btree
+  add_index "order_details", ["order_id"], name: "index_order_details_on_order_id", using: :btree
+
+  create_table "orders", force: :cascade do |t|
+    t.integer  "order_number"
+    t.integer  "client_account_id"
+    t.integer  "fy_code"
+    t.date     "date"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0
