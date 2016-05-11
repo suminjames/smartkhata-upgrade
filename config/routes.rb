@@ -8,7 +8,11 @@ Rails.application.routes.draw do
   resources :settlements
   resources :settlements
   resources :cheque_entries do
-    collection {get :get_cheque_number}
+    collection do
+      get :get_cheque_number
+      get :update_print
+    end
+
   end
   resources :bank_accounts
   resources :sales_settlements do
@@ -30,6 +34,7 @@ Rails.application.routes.draw do
   resources :ledgers
   resources :vouchers do
     collection do
+      post 'new'
       post 'finalize_payment'
     end
   end

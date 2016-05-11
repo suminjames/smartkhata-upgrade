@@ -24,8 +24,12 @@ class BillsController < ApplicationController
 
       case search_by
         when 'client_id'
+          # render a new page for bills selection
           @process_selected_bills = true
-          @bills = Bill.find_by_client_account_id(search_term)
+          @client_account_id = search_term.to_i
+          @bills = Bill.find_by_client_account_id(search_term).decorate
+          render :select_bills_for_settlement and return
+
         when 'client_name'
           @bills = Bill.find_by_client_name(search_term)
         when 'bill_number'

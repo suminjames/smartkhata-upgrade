@@ -50,6 +50,12 @@ class Bill < ActiveRecord::Base
     :date => date_from.beginning_of_day..date_to.end_of_day) }
   scope :find_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
 
+
+  scope :requiring_processing, -> { where(status: ["pending","partial"]) }
+  scope :requiring_receive, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]) }
+  scope :requiring_payment, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
+
+
   before_save :process_bill
 
   # Returns total share amount from all child share_transactions
@@ -93,6 +99,7 @@ class Bill < ActiveRecord::Base
   def get_client
     return ClientAccount.find(self.client_account_id)
   end
+
 
 
   private

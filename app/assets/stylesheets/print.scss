@@ -30,9 +30,9 @@
   body * {
     visibility:hidden;
   }
-  
+
   .hide-on-print{
-    display: none;
+    visibility:hidden!important;
   }
   .box-printable{
     border-top: 0;

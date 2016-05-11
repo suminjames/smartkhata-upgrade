@@ -135,13 +135,14 @@ if params[:search_by] == 'date_range'
       <% end %>
       <%= link_to 'View', bill %>
     </td>
-    <td><%= check_box_tag "bills[]", bill.id %></td>
+    <td><%= check_box_tag "bill_ids[]", bill.id %></td>
   </tr>
   <!-- Bill (row) ENDS -->
 
 
   <% end %>
 </table>
+        <%= hidden_field_tag 'client_account_id', @client_account_id %>
         <%= submit_tag "Process Checked" %>
         <% end %>
 <% end %>

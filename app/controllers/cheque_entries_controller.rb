@@ -16,6 +16,14 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
+    if @cheque_entry.additional_bank_id.present?
+      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
+      @name = current_tenant.full_name
+    else
+      @bank = @cheque_entry.bank_account.bank
+      @name = @cheque_entry.client_account.present? ? @cheque_entry.client_account.name : "Internal Ledger"
+    end
+    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
   end
 
   # GET /cheque_entries/new
@@ -44,6 +52,25 @@ class ChequeEntriesController < ApplicationController
     respond_to do |format|
         format.html { render plain: cheque_number.to_s  }
         format.json { render json: cheque_number, status: :ok }
+    end
+  end
+
+  # GET
+  def update_print
+    status = false
+    message = ""
+
+    cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
+    if cheque.status == "to_be_printed"
+      cheque.printed!
+      status = true
+    else
+      message = "Cheque is already Printed" if cheque.printed?
+      message = "Cheque is Void" if cheque.void?
+    end
+
+    respond_to do |format|
+      format.json { render json: {status: status, message: message}, status: :ok }
     end
   end
 

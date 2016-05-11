@@ -26,12 +26,14 @@ class VouchersController < ApplicationController
   end
 
   # GET /vouchers/new
+  # POST /vouchers/new
   def new
     @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
-                            clear_ledger: @clear_ledger).voucher_and_relevant
+                            clear_ledger: @clear_ledger,
+                            bill_ids: @bill_ids).voucher_and_relevant
     puts @voucher_type
   end
 
@@ -50,7 +52,8 @@ class VouchersController < ApplicationController
                                             client_account_id: @client_account_id,
                                             bill_id: @bill_id,
                                             clear_ledger: @clear_ledger,
-                                            voucher: @voucher)
+                                            voucher: @voucher,
+                                            bill_ids: @bill_ids)
 
     # abort("Message goes here")
     respond_to do |format|
@@ -235,6 +238,7 @@ class VouchersController < ApplicationController
     @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
     # get bill id if present
     @bill_id = params[:bill_id].to_i if params[:bill_id].present?
+    @bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
     # check if clear ledger balance is present
     @clear_ledger = set_clear_ledger
   end

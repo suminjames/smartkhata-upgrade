@@ -25,7 +25,7 @@ class Vouchers::Create < Vouchers::Base
 
     # get a calculated values, these are returned nil if not applicable
     @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type =
-        set_bill_client(@client_account_id, @bill_id, @voucher_type, @clear_ledger)
+        set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
     # set the voucher type
     @voucher.voucher_type = @voucher_type
 
@@ -175,7 +175,7 @@ class Vouchers::Create < Vouchers::Base
       processed_bills.each(&:save)
       voucher.bills_on_settlement << processed_bills
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
-      voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
+      # voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
       # # create settlement in case of payment and receive
       # if is_purchase_sales && !processed_bills.blank?
@@ -202,6 +202,10 @@ class Vouchers::Create < Vouchers::Base
           begin
           # TODO track the cheque entries whether it is from client or the broker
           cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
+          cheque_entry.cheque_date = DateTime.now
+          cheque_entry.status = ChequeEntry.statuses[:pending_clearance] if particular.additional_bank_id.present?
+          cheque_entry.save!
+
           particular.cheque_entries << cheque_entry
           rescue ActiveRecord::RecordInvalid
             # TODO(subas) not sure if this is required
@@ -212,7 +216,7 @@ class Vouchers::Create < Vouchers::Base
         end
 
         if is_purchase_sales
-          settlement = purchase_sales_settlement(voucher, ledger, particular, client_account)
+          settlement = purchase_sales_settlement(voucher, ledger, particular, client_account, description_bills)
           voucher.settlements << settlement if settlement.present?
         end
 
@@ -235,10 +239,11 @@ class Vouchers::Create < Vouchers::Base
     return voucher, res, error_message
   end
 
-  def purchase_sales_settlement(voucher, ledger, particular, client_account)
+  def purchase_sales_settlement(voucher, ledger, particular, client_account, settlement_description = nil)
     receipt_amount = 0
     settler_name = ""
     settlement = nil
+    settlement_description ||= voucher.desc
 
     if  voucher.receive?
       receipt_amount += (particular.cr?) ? particular.amnt : 0
@@ -256,7 +261,7 @@ class Vouchers::Create < Vouchers::Base
     if voucher.receive? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receive?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: voucher.desc, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
     end
 
     settlement
