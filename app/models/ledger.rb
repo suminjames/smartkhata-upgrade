@@ -32,6 +32,9 @@ class Ledger < ActiveRecord::Base
 	attr_accessor :opening_blnc_type
 	has_many :ledger_dailies
 
+  has_many :employee_ledger_associations
+	has_many :employee_accounts, through: :employee_ledger_associations
+
   # to keep track of the user who created and last updated the ledger
 	belongs_to :creator,  class_name: 'User'
 	belongs_to :updater,  class_name: 'User'

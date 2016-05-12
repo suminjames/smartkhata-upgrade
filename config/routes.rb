@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :employee_ledger_associations
   resources :branches
   resources :closeouts
   resources :share_inventories

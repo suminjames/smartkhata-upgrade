@@ -64,12 +64,9 @@
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
 	include ::Models::UpdaterWithBranch
-	has_many :employee_client_associations
 	# to keep track of the user who created and last updated the ledger
 	belongs_to :creator,  class_name: 'User'
 	belongs_to :updater,  class_name: 'User'
-	# TODO: See the following associations efficient implementation
-	has_many :employee_accounts, through: :employee_client_associations
 	belongs_to :user
 	has_one :ledger
   has_many :share_inventories

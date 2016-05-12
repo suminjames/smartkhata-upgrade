@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160507102304) do
+ActiveRecord::Schema.define(version: 20160512070315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -271,19 +271,19 @@ ActiveRecord::Schema.define(version: 20160507102304) do
   add_index "employee_accounts", ["updater_id"], name: "index_employee_accounts_on_updater_id", using: :btree
   add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
 
-  create_table "employee_client_associations", force: :cascade do |t|
+  create_table "employee_ledger_associations", force: :cascade do |t|
     t.integer  "employee_account_id"
-    t.integer  "client_account_id"
+    t.integer  "ledger_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
 
-  add_index "employee_client_associations", ["client_account_id"], name: "index_employee_client_associations_on_client_account_id", using: :btree
-  add_index "employee_client_associations", ["creator_id"], name: "index_employee_client_associations_on_creator_id", using: :btree
-  add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
-  add_index "employee_client_associations", ["updater_id"], name: "index_employee_client_associations_on_updater_id", using: :btree
+  add_index "employee_ledger_associations", ["creator_id"], name: "index_employee_ledger_associations_on_creator_id", using: :btree
+  add_index "employee_ledger_associations", ["employee_account_id"], name: "index_employee_ledger_associations_on_employee_account_id", using: :btree
+  add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
+  add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file_type"
