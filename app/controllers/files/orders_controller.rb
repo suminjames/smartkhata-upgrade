@@ -10,7 +10,6 @@ class Files::OrdersController < Files::FilesController
 
 	def new
     @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10)
-    flash.discard
 	end
 
 	def import
@@ -30,12 +29,12 @@ class Files::OrdersController < Files::FilesController
 
     if order_upload.error_message
       respond_to do |format|
-        file_error(order_upload.error_message)
+        flash[:error] = order_upload.error_message
         format.html { redirect_to action: 'new' and return }
       end
     end
 
-    flash[:notice] = 'Successfully uploaded and processed the file.'
+    flash.now[:notice] = 'Successfully uploaded and processed the file.'
 	end
 
 end

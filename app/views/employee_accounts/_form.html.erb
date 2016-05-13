@@ -9,6 +9,7 @@
         <!--Incorporate 'from path' in controller-->
         <%= hidden_field_tag 'from_path', @from_path %>
         <%= f.input :name, placeholder: 'Name' %>
+        <%= f.input :email, label: 'Email' %>
         <%= f.input :citizen_passport, label: "Citizen/Birth Certificate",placeholder: "Citizenship/Birth Certificate" %>
         <div class="row">
           <div class="col-xs-6">
@@ -45,9 +46,6 @@
           </div>
           <div class="col-xs-4">
             <%= f.input :phone_perm, label: 'Phone' %>
-          </div>
-          <div class="col-xs-4">
-            <%= f.input :email, label: 'Email' %>
           </div>
         </div>
 

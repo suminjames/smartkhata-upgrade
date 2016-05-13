@@ -47,7 +47,7 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts/1/edit
   def edit
-    @ledgers = Ledger.all.order(name: :desc)
+    @ledgers = Ledger.all.order(:name)
   end
 
   # POST /employee_accounts
@@ -57,6 +57,10 @@ class EmployeeAccountsController < ApplicationController
 
     respond_to do |format|
       if @employee_account.save
+
+        # Assign to Employee group
+        @employee_account.assign_group("Employees")
+
         format.html { redirect_to @employee_account, notice: 'Employee account was successfully created.' }
         format.json { render :show, status: :created, location: @employee_account }
       else
@@ -69,7 +73,7 @@ class EmployeeAccountsController < ApplicationController
   # PATCH/PUT /employee_accounts/1
   # PATCH/PUT /employee_accounts/1.json
   def update
-    # Separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
+    # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
     if params[:edit_type] == 'ledger_association'
       # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
       ActiveRecord::Base.transaction do

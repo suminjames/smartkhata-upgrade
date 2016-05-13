@@ -29,7 +29,7 @@ setSubmitButtonActiveness = ->
     `$('input[type="submit"]').prop('disabled', true)`
 
 $(document).ready ->
-  if $('#edit_employee_client_association').length > 0
+  if $('#edit_employee_ledger_association').length > 0
     console.log("doc loaded!")
     # Capture (from dom) and store all associated ledgers' ids after the dom is fully loaded
     existingAssociationsLedgerIds = `$("input:checkbox:checked").not('#select_all').map(function(){return this.value}).get();`

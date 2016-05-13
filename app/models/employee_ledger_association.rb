@@ -15,7 +15,7 @@ class EmployeeLedgerAssociation < ActiveRecord::Base
   include ::Models::Updater
 
   belongs_to :employee_account
-  belongs_to :client_account
+  belongs_to :ledger
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'

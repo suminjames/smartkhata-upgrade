@@ -56,6 +56,8 @@
 #  user_id                   :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
+#  referrer_name             :string
+#  group_leader_id           :integer
 #
 
 # Note: 
@@ -64,15 +66,22 @@
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
 	include ::Models::UpdaterWithBranch
-	# to keep track of the user who created and last updated the ledger
+
+  after_create :create_ledger
+
+  # to keep track of the user who created and last updated the ledger
 	belongs_to :creator,  class_name: 'User'
 	belongs_to :updater,  class_name: 'User'
+
+  belongs_to :group_leader,  class_name: 'User'
+
 	belongs_to :user
+
 	has_one :ledger
   has_many :share_inventories
   has_many :bills do
     def requiring_processing
-      where(status: ["pending","partial"])
+      where(status: ["pending", "partial"])
     end
 
 		def requiring_receive
@@ -82,13 +91,31 @@ class ClientAccount < ActiveRecord::Base
 		def requiring_payment
 			where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales])
 		end
-  end
+	end
+
 
 	scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
 	scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
+  scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct}
 
 	enum client_type: [:individual, :corporate ]
+
+  # create client ledger
+  def create_ledger
+    client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
+      ledger.name = self.name
+      ledger.client_account_id = self.id
+    end
+  end
+
+  # assign the client ledger to 'Clients' group
+  def assign_group
+		client_group = Group.find_or_create_by!(name: "Clients")
+    # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
+    client_ledger = Ledger.find(client_account_id: self.id)
+		client_group.ledgers <<  client_ledger
+  end
 
   def get_current_valuation
     self.share_inventories.includes(:isin_info).sum('floorsheet_blnc * isin_infos.last_price')
