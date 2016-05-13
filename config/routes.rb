@@ -27,15 +27,18 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
+      post 'process_selected'
     end
   end
   resources :groups
   resources :ledgers
   resources :orders
+
+  match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
     collection do
       get 'pending_vouchers'
-      post 'new'
+      # post 'new'
       post 'finalize_payment'
     end
   end

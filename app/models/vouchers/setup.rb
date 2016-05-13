@@ -9,23 +9,23 @@ class Vouchers::Setup < Vouchers::Base
     default_ledger_id = nil
 
 
-    client_account, bill, bills, amount, voucher_type, settlement_by_clearance = set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger)
+    client_account, bill, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger)
     voucher = get_new_voucher(voucher_type)
 
     if voucher_type == Voucher.voucher_types[:receive] || voucher_type == Voucher.voucher_types[:payment]
       is_purchase_sales = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
-      default_bank_purchase = BankAccount.where(:default_for_purchase => true).first
-      default_bank_sales = BankAccount.where(:default_for_sales   => true).first
+      default_bank_payment = BankAccount.where(:default_for_payment => true).first
+      default_bank_receive = BankAccount.where(:default_for_receive   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
       ledger_list_available = Ledger.non_bank_ledgers
 
       ledger_list_financial << cash_ledger
 
       if voucher_type == Voucher.voucher_types[:receive]
-        default_ledger_id = default_bank_sales ? default_bank_sales.ledger.id : cash_ledger.id
+        default_ledger_id = default_bank_receive ? default_bank_receive.ledger.id : cash_ledger.id
       else
-        default_ledger_id = default_bank_purchase ? default_bank_purchase.ledger.id : cash_ledger.id
+        default_ledger_id = default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
       end
       voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.size > 0
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger

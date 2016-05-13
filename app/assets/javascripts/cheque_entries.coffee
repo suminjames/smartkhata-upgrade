@@ -15,8 +15,8 @@ $ ->
         $this.find('cheque-print-error').html('There was some Errror')
       success: (data, textStatus, jqXHR) ->
 
-        if data.message.trim() != ""
-          $this.find('.cheque-print-error').html(data['message'])
-        else
+#        if data.message.trim() != ""
+#          $this.find('.cheque-print-error').html(data['message'])
+#        else
           printElement($('.printThis')[0])
           window.print()

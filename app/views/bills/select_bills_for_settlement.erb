@@ -1,7 +1,7 @@
 <% provide(:section_title, "Bills") %>
 
 <% if !@bills.empty? %>
-    <%= form_tag new_voucher_path do %>
+    <%= form_tag process_selected_bills_path do %>
   <table class="table table-no-border table-striped table-condensed text-left">
   <tr>
     <th>S.N.</th>
@@ -50,4 +50,6 @@
         <%= hidden_field_tag 'client_account_id', @client_account_id %>
         <%= submit_tag "Process Checked" %>
         <% end %>
+<% else %>
+    No Bills to Settle !!
 <% end %>

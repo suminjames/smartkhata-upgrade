@@ -124,35 +124,41 @@ class VouchersController < ApplicationController
 
   def finalize_payment
     success = false
+    error_message = "There was some Error"
     @voucher = Voucher.find_by(id: params[:id].to_i)
     from_path = params[:from_path] || '/vouchers/index'
     message = ""
     if @voucher
-      if params[:approve]
-        Voucher.transaction do
-          @voucher.particulars.each do |particular|
-            ledger = Ledger.find(particular.ledger_id)
-            ledger.lock!
+      if !@voucher.rejected? && !@voucher.complete?
+        if params[:approve]
+          Voucher.transaction do
+            @voucher.particulars.each do |particular|
+              ledger = Ledger.find(particular.ledger_id)
+              ledger.lock!
 
-            closing_blnc = ledger.closing_blnc
-            ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
-            particular.opening_blnc = closing_blnc
-            particular.running_blnc = ledger.closing_blnc
-            particular.complete!
-            ledger.save!
+              closing_blnc = ledger.closing_blnc
+              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+              particular.opening_blnc = closing_blnc
+              particular.running_blnc = ledger.closing_blnc
+              particular.complete!
+              ledger.save!
+            end
+            @voucher.reviewer_id = UserSession.user_id
+            @voucher.complete!
+            @voucher.save!
+            success = true
+            message = "Payment Voucher was successfully approved"
           end
+        elsif  params[:reject]
           @voucher.reviewer_id = UserSession.user_id
-          @voucher.complete!
-          @voucher.save!
-          success = true
-          message = "Payment Voucher was successfully approved"
+          @voucher.rejected!
+          success = true if @voucher.save!
+          message = 'Payment Voucher was successfully rejected'
         end
-      elsif  params[:reject]
-        @voucher.reviewer_id = UserSession.user_id
-        @voucher.rejected!
-        success = true if @voucher.save!
-        message = 'Payment Voucher was successfully rejected'
+      else
+        error_message = 'Voucher is already processed.'
       end
+
     end
 
 
@@ -161,7 +167,7 @@ class VouchersController < ApplicationController
     respond_to do |format|
       format.html {
         redirect_to from_path, notice: message  if success
-        redirect_to from_path, alert: 'There was some error' unless success
+        redirect_to from_path, alert: error_message unless success
       }
       format.json { head :no_content }
     end

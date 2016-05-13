@@ -24,7 +24,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher.date = date_ad
 
     # get a calculated values, these are returned nil if not applicable
-    @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type =
+    @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
         set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
     # set the voucher type
     @voucher.voucher_type = @voucher_type
@@ -48,7 +48,7 @@ class Vouchers::Create < Vouchers::Base
       @processed_bills = []
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
-        @processed_bills, description_bills, receipt_amount = process_bills(is_purchase_sales, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills )
+        @processed_bills, description_bills, receipt_amount = process_bills(is_purchase_sales, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
         @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_purchase_sales,@client_account, receipt_amount)
       else
         if has_error
@@ -118,14 +118,18 @@ class Vouchers::Create < Vouchers::Base
     end
     is_purchase_sales
   end
-  def process_bills(is_purchase_sales, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills )
+  def process_bills(is_purchase_sales, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment )
     processed_bills = []
     description_bills = ""
     receipt_amount = 0.0
 
+
     if is_purchase_sales && client_account
+
       receipt_amount = net_usable_blnc.abs
-      net_usable_blnc = net_usable_blnc.abs
+
+      net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
+
       bills.each do |bill|
 
         # modify the net usable balance in case of the ledger clearout
@@ -145,7 +149,7 @@ class Vouchers::Create < Vouchers::Base
         # since the data is stored to 4 digits and payment is only applicable in 2 digits
         # round the balance_to_pay to 2 digits
 
-        if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= 0.01
+        if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= @amount_margin_error
           net_usable_blnc = net_usable_blnc - bill.balance_to_pay
           description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(bill.balance_to_pay)}   Date: #{ad_to_bs(bill.created_at)} | "
           bill.balance_to_pay = 0
