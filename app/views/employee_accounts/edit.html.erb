@@ -1,10 +1,10 @@
 <% provide(:section_title, "Edit Employee") %>
 
 <%
-  if params[:type] == 'client_access'
+  if params[:type] == 'ledger_access'
 %>
-<div id="edit_employee_client_association">
-    <%= render 'form_employee_client_association', employee_account: @employee_account, ledgers: @ledgers %>
+<div id="edit_employee_ledger_association">
+    <%= render 'form_employee_ledger_association', employee_account: @employee_account, ledgers: @ledgers %>
 </div>
 <%
   else

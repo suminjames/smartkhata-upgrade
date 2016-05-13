@@ -1,4 +1,4 @@
-class EmployeeClientAssociationDecorator < ApplicationDecorator
+class EmployeeLedgerAssociationDecorator < ApplicationDecorator
   delegate_all
 
   # Define presentation-specific methods here. Helpers are accessed through

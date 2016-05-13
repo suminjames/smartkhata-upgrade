@@ -47,17 +47,42 @@
 
 class EmployeeAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
-  has_many :employee_client_associations
-  has_many :client_accounts, through: :employee_client_associations
+
+  # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
+  # TODO(sarojk) Find a better way to implement unique identification
+  validates :name, presence: true, uniqueness: true
+  validates :email, presence: true, uniqueness: true
+
+  after_create :create_ledger
+
+  has_many :employee_ledger_associations
+  has_many :ledgers, through: :employee_ledger_associations
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  # defines employee association with clients
+  # defines employee association with ledgers
   enum has_access_to: [:everyone, :some, :nobody]
-  accepts_nested_attributes_for :employee_client_associations
+  accepts_nested_attributes_for :employee_ledger_associations
 
   scope :find_by_employee_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :find_by_employee_id, -> (id) { where(id: id) }
+
+  # create employee ledger
+  def create_ledger
+    employee_ledger = Ledger.find_or_create_by!(name: self.name) do |ledger|
+      ledger.name = self.name
+      ledger.employee_account_id = self.id
+    end
+  end
+
+  # assign the employee ledger to  'Employees' group
+  def assign_group(group_name)
+    client_group = Group.find_or_create_by!(name: group_name)
+    # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
+    employee_ledger = Ledger.find_by(employee_account_id: self.id)
+    client_group.ledgers << employee_ledger
+  end
+
 end

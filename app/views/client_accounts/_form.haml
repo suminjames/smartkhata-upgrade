@@ -78,5 +78,12 @@
         .col-xs-6
           = f.input :nepse_code, label: 'Nepse Code'
 
+      .row
+        .col-xs-6
+          = f.input :group_leader_id, :collection => clients_for_combobox,:label_method => :name, :value_method => :id, :label => "Group Leader" ,:include_blank => false, input_html: { class: 'form-control combobox'}
+        .col-xs-6
+          -#= f.input :referrer_name, :collection => referrers_names_for_combobox,:label_method => :name, :value_method => :name, :label => "Referrer" ,:include_blank => false, input_html: { class: 'form-control combobox'}
+          = f.input :referrer_name, label: 'Referrer'
+
       .form-actions
         = f.button :submit
