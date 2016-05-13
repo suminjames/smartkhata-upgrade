@@ -33,7 +33,7 @@ class BankAccountsControllerTest < ActionController::TestCase
   test "should create bank_account" do
     sign_in users(:user)
     assert_difference('BankAccount.count') do
-      post :create, bank_account: {bank_id: @bank.id, account_number: 123,"default_for_sales"=>"1", "default_for_purchase"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
+      post :create, bank_account: {bank_id: @bank.id, account_number: 123,"default_for_receive"=>"1", "default_for_payment"=>"1","ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
       puts response
     end
 
@@ -63,7 +63,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   test "allowed users should update bank_account" do
     sign_in users(:user)
-    patch :update, id: @bank_account, bank_account: { default_for_sales: false }
+    patch :update, id: @bank_account, bank_account: { default_for_receive: false }
     assert_redirected_to bank_account_path(assigns(:bank_account))
   end
 

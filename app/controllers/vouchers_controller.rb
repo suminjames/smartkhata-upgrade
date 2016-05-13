@@ -9,10 +9,15 @@ class VouchersController < ApplicationController
     @vouchers = Voucher.pending.order("id ASC")
   end
 
+  def pending_vouchers
+    @vouchers = Voucher.pending.order("id ASC")
+    render :index
+  end
+
   # GET /vouchers/1
   # GET /vouchers/1.json
   def show
-    @from_path =  request.referer || vouchers_path
+    @from_path =  request.referer || pending_vouchers_vouchers_path
     full_view = params[:full] || false
     @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
@@ -26,12 +31,14 @@ class VouchersController < ApplicationController
   end
 
   # GET /vouchers/new
+  # POST /vouchers/new
   def new
     @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
-                            clear_ledger: @clear_ledger).voucher_and_relevant
+                            clear_ledger: @clear_ledger,
+                            bill_ids: @bill_ids).voucher_and_relevant
     puts @voucher_type
   end
 
@@ -50,7 +57,8 @@ class VouchersController < ApplicationController
                                             client_account_id: @client_account_id,
                                             bill_id: @bill_id,
                                             clear_ledger: @clear_ledger,
-                                            voucher: @voucher)
+                                            voucher: @voucher,
+                                            bill_ids: @bill_ids)
 
     # abort("Message goes here")
     respond_to do |format|
@@ -116,35 +124,41 @@ class VouchersController < ApplicationController
 
   def finalize_payment
     success = false
+    error_message = "There was some Error"
     @voucher = Voucher.find_by(id: params[:id].to_i)
-    from_path = params[:from_path] || vouchers_path
+    from_path = params[:from_path] || '/vouchers/index'
     message = ""
     if @voucher
-      if params[:approve]
-        Voucher.transaction do
-          @voucher.particulars.each do |particular|
-            ledger = Ledger.find(particular.ledger_id)
-            ledger.lock!
+      if !@voucher.rejected? && !@voucher.complete?
+        if params[:approve]
+          Voucher.transaction do
+            @voucher.particulars.each do |particular|
+              ledger = Ledger.find(particular.ledger_id)
+              ledger.lock!
 
-            closing_blnc = ledger.closing_blnc
-            ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
-            particular.opening_blnc = closing_blnc
-            particular.running_blnc = ledger.closing_blnc
-            particular.complete!
-            ledger.save!
+              closing_blnc = ledger.closing_blnc
+              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+              particular.opening_blnc = closing_blnc
+              particular.running_blnc = ledger.closing_blnc
+              particular.complete!
+              ledger.save!
+            end
+            @voucher.reviewer_id = UserSession.user_id
+            @voucher.complete!
+            @voucher.save!
+            success = true
+            message = "Payment Voucher was successfully approved"
           end
+        elsif  params[:reject]
           @voucher.reviewer_id = UserSession.user_id
-          @voucher.complete!
-          @voucher.save!
-          success = true
-          message = "Payment Voucher was successfully approved"
+          @voucher.rejected!
+          success = true if @voucher.save!
+          message = 'Payment Voucher was successfully rejected'
         end
-      elsif  params[:reject]
-        @voucher.reviewer_id = UserSession.user_id
-        @voucher.rejected!
-        success = true if @voucher.save!
-        message = 'Payment Voucher was successfully rejected'
+      else
+        error_message = 'Voucher is already processed.'
       end
+
     end
 
 
@@ -153,7 +167,7 @@ class VouchersController < ApplicationController
     respond_to do |format|
       format.html {
         redirect_to from_path, notice: message  if success
-        redirect_to from_path, alert: 'There was some error' unless success
+        redirect_to from_path, alert: error_message unless success
       }
       format.json { head :no_content }
     end
@@ -230,11 +244,13 @@ class VouchersController < ApplicationController
 
   def set_voucher_general_params
     # get parameters for voucher types and assign it as journal if not available
+    @bill_ids = []
     @voucher_type = params[:voucher_type].to_i if params[:voucher_type].present? || Voucher.voucher_types[:journal]
     # client account id ensures the vouchers are on the behalf of the client
     @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
     # get bill id if present
     @bill_id = params[:bill_id].to_i if params[:bill_id].present?
+    @bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
     # check if clear ledger balance is present
     @clear_ledger = set_clear_ledger
   end

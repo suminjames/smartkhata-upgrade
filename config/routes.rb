@@ -8,7 +8,11 @@ Rails.application.routes.draw do
   resources :banks
   resources :settlements
   resources :cheque_entries do
-    collection {get :get_cheque_number}
+    collection do
+      get :get_cheque_number
+      get :update_print
+    end
+
   end
   resources :bank_accounts
   resources :sales_settlements do
@@ -24,13 +28,18 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
+      post 'process_selected'
     end
   end
   resources :groups
   resources :ledgers
   resources :orders
+
+  match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
     collection do
+      get 'pending_vouchers'
+      # post 'new'
       post 'finalize_payment'
     end
   end

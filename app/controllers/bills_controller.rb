@@ -1,5 +1,8 @@
 class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
+  before_action :set_selected_bills_settlement_params, only: [:process_selected]
+
+  include BillModule
 
   # GET /bills
   # GET /bills.json
@@ -27,8 +30,12 @@ class BillsController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'client_id'
+        # render a new page for bills selection
         @process_selected_bills = true
-        @bills = Bill.find_not_settled_by_client_account_id(search_term)
+        @client_account_id = search_term.to_i
+        @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+        render :select_bills_for_settlement and return
+
       when 'client_name'
         @bills = Bill.find_by_client_id(search_term)
       when 'bill_number'
@@ -140,6 +147,43 @@ class BillsController < ApplicationController
     raise NotImplementedError
   end
 
+  def process_selected
+    amount_margin_error = 0.01
+
+    if @bill_ids.size > 0
+      client_account = ClientAccount.find(@client_account_id)
+      client_ledger = client_account.ledger
+
+      ledger_balance = client_ledger.closing_blnc
+      bill_list = get_bills_from_ids(@bill_ids)
+      bills_receive = bill_list.requiring_receive
+      bills_payment = bill_list.requiring_payment
+
+      amount_to_receive = bills_receive.sum(:balance_to_pay)
+      amount_to_pay = bills_payment.sum(:balance_to_pay)
+
+      # negative if the company has to pay
+      # positive if the client needs to pay
+      amount_to_receive_or_pay = amount_to_receive - amount_to_pay
+
+      @processed_bills = []
+      if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error  < 0 && ledger_balance + amount_margin_error >= 0
+
+        Bill.transaction do
+          bill_list.each do |bill|
+            bill.balance_to_pay = 0
+            bill.status = Bill.statuses[:settled]
+            bill.save!
+            @processed_bills << bill
+          end
+        end
+
+      else
+        redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
+      end
+    end
+  end
+
   def show_by_number
     @bill_number = params[:number]
     @bill = nil
@@ -167,6 +211,15 @@ class BillsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
     params.fetch(:bill, {})
+  end
+
+
+  def set_selected_bills_settlement_params
+    # get parameters for voucher types and assign it as journal if not available
+    @bill_ids = []
+    # client account id ensures the vouchers are on the behalf of the client
+    @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
+    @bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
   end
 
 end

@@ -4,12 +4,15 @@
     date = cal.ad_to_bs(Date.today.strftime("%Y").to_s, Date.today.strftime("%m").to_s, Date.today.strftime("%d").to_s)
 %>
 
-<%= simple_form_for(voucher) do |f| %>
+<%= simple_form_for(voucher, :url => url_for(:action => 'create', :controller => 'vouchers')) do |f| %>
   <!-- add hidden field to track the type -->
   <%= hidden_field_tag 'voucher_type', voucher_type %>
   <%= hidden_field_tag 'client_account_id', client_account_id %>
   <%= hidden_field_tag 'bill_id', bill_id %>
     <%= hidden_field_tag 'clear_ledger', clear_ledger %>
+    <% bill_ids.each do |bill_id| %>
+        <%= hidden_field_tag 'bill_ids[]', bill_id %>
+    <% end %>
 
   <%= f.error_notification %>
   <div class="form-inputs row">
