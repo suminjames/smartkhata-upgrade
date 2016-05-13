@@ -4,40 +4,161 @@
   <span>Print</span>
 </div>
 <div class="printThis">
-<div class="row">
-	<div class="col-xs-5">
-		<p>Voucher Number: <%= "#{voucher.voucher_code} #{voucher.fy_code}-#{voucher.voucher_number}" %></p>
-	</div>
-	<div class="col-xs-7 text-right">
-		<p>Voucher Date: <%= voucher.date_bs %></p>
-	</div>
-</div>
+  <% if @voucher.is_payment_bank %>
+      <div class="box box-primary box-printable z-light-bg">
 
-<div class="box box-primary z-light-bg">
+        <div class="box-body">
+          <strong>
+            <%= current_tenant.full_name %><br>
+            <%= current_tenant.address %><br>
+            Phone: <%= current_tenant.phone_number %><br>
+            Fax: <%= current_tenant.fax_number %><br>
+            PAN: <%= current_tenant.pan_number %><br>
+          </strong>
+          <hr class="grey-hr">
+          <h3>Payment voucher Bank</h3>
+          <div class="row">
 
-	<div class="box-header">
-		<div class="row">
-			<h3 class="box-title col-xs-6">Ledger Details</h3>
-			<h3 class="box-title col-xs-3">Dr</h3>
-			<h3 class="box-title col-xs-3">Cr</h3>
-		</div>
-	</div>
-	<div class="box-body">
-		<% particulars.each do |particular| %>
-			<div class="row">
-				<div class="col-xs-6">
-					<%= particular.ledger.name 	 %>
-				</div>
-				<div class="col-xs-6 row">
-					<div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>
-					<div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></div>
+            <div class="col-xs-5">
+              <p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+            </div>
+            <div class="col-xs-7 text-right">
+              <p>Voucher Date: <%= @voucher.date_bs %></p>
+            </div>
+          </div>
 
-				</div>
-			</div>
-			<br>
-		<% end %>
-	</div>
-</div>
+          <div class="row">
+            <div class="col-xs-6">
+            </div>
+            <div class="col-xs-6 text-right">
+              <p>Cr Account Name: <%= "#{@bank_account.account_number} #{@bank_account.bank_name}" %></p>
+            </div>
+          </div>
+        </div>
 
-<%= voucher.desc %>
+        <div class="box-header">
+          <div class="row">
+            <h3 class="box-title col-xs-3">Account Head</h3>
+            <h3 class="box-title col-xs-4">Particular</h3>
+            <h3 class="box-title col-xs-3">Cheque Number</h3>
+            <h3 class="box-title col-xs-2">Amount</h3>
+          </div>
+        </div>
+        <div class="box-body">
+          <div style='min-height: 100px'>
+            <% @particulars.each do |particular| %>
+                <div class="row">
+                  <div class="col-xs-3">
+                    <%= particular.ledger.name 	 %>
+                  </div>
+                  <div class="col-xs-4">
+
+                    <% if @voucher.formatted_description.size > 0 %>
+                        Being paid to <%= particular.ledger.name %>
+                        for
+                        <% @voucher.formatted_description.each do |b| %>
+                            <br>
+                            Bill : <%= link_to "#{b[0]}", show_by_number_bills_path(number: b[0]), remote: true %>
+                            Amount : <%= b[1] %>
+                        <% end %>
+                    <% else %>
+                        <%= @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{particular.ledger.name}" %>
+                    <% end %>
+                  </div>
+                  <div class="col-xs-3">
+                    <%= @cheque %>
+                  </div>
+                  <div class="col-xs-2">
+                    <%= arabic_number(particular.amnt) %>
+                  </div>
+                </div>
+                <br>
+            <% end %>
+          </div>
+
+          <br>
+          <br>
+          <div class="row">
+            <div class="col-xs-3">
+              <br>
+              <hr class="clearfix horizontal-line">
+              <p class="text-center">Prepared By</p>
+            </div>
+            <div class="col-xs-3 col-xs-offset-1">
+              <br>
+              <hr class="clearfix horizontal-line">
+              <p class="text-center">Approved By</p>
+            </div>
+            <div class="col-xs-3 col-xs-offset-1">
+              <br>
+              <hr class="clearfix horizontal-line">
+              <p class="text-center">Received By</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <% if @voucher.pending? %>
+          <%= form_tag(finalize_payment_vouchers_path) do %>
+              <%= hidden_field_tag 'from_path', @from_path %>
+              <%= hidden_field_tag 'id', @voucher.id %>
+              <%= submit_tag 'Reject' , :name => 'reject', class: 'hide-on-print' %>
+              <%= submit_tag 'Approve', :name => 'approve', class: 'hide-on-print' %>
+          <% end %>
+
+      <% end %>
+
+  <% else %>
+      <div>
+        <strong>
+          <%= current_tenant.full_name %><br>
+          <%= current_tenant.address %><br>
+          Phone: <%= current_tenant.phone_number %><br>
+          Fax: <%= current_tenant.fax_number %><br>
+          PAN: <%= current_tenant.pan_number %><br>
+        </strong>
+      </div>
+      <hr class="grey-hr">
+      <div class="row">
+
+
+        <div class="col-xs-5">
+          <p>Voucher Number: <%= "#{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}" %></p>
+        </div>
+        <div class="col-xs-7 text-right">
+          <p>Voucher Date: <%= @voucher.date_bs %></p>
+        </div>
+      </div>
+      <div>
+        <p><%= "Description: #{@voucher.desc}" if !@voucher.desc.blank? %></p>
+        <br>
+      </div>
+      <div class="box box-primary z-light-bg">
+        <div class="box-header">
+          <div class="row">
+            <h3 class="box-title col-xs-6">Ledger Details</h3>
+            <h3 class="box-title col-xs-3">Dr</h3>
+            <h3 class="box-title col-xs-3">Cr</h3>
+          </div>
+        </div>
+        <div class="box-body">
+
+          <% @particulars.each do |particular| %>
+              <div class="row">
+                <div class="col-xs-6">
+                  <%= particular.ledger.name 	 %>
+                </div>
+                <div class="col-xs-6 row">
+                  <div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>
+                  <div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></div>
+
+                </div>
+              </div>
+              <br>
+          <% end %>
+        </div>
+      </div>
+  <% end %>
 </div>

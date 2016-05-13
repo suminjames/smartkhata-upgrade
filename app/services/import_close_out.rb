@@ -81,7 +81,7 @@ class ImportCloseOut < ImportFile
 
               closeout_amount = commission_amount + dp_fee + closeout.net_amount
               closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
-              default_bank_purchase = BankAccount.where(:default_for_purchase   => true).first
+              default_bank_purchase = BankAccount.where(:default_for_payment   => true).first
 
 
               if default_bank_purchase.present?

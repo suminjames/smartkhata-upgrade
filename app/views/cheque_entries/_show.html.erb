@@ -1,10 +1,157 @@
-<div id="btnPrint">
-  <!-- <button id="btnPrint">Print</button> -->
+<div id="btnPrintCheque" data-cheque-id="<%= @cheque_entry.id %>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
 </div>
 <div class="printThis cheque-single">
-  <p><%= @cheque_entry.additional_bank_id.present? ? current_tenant.full_name : (@cheque_entry.client_account.present? ? @cheque_entry.client_account.name : "Internal Ledger" ) %></p>
-  <p>Amount: <%= arabic_number(@cheque_entry.particular.amnt) %></p>
-  <p> <%= arabic_word(@cheque_entry.particular.amnt) %></p>
+  <div class="receipt-section">
+    <div class="clearfix">
+      <div class="bank-detail-container">
+        <div class="bank-details ">
+          <h3 class="hide-on-print">
+            <%= @bank.name %>
+          </h3>
+        </div>
+      </div>
+      <div class="date-container">
+        <% d = @cheque_date.strftime("%d%m%Y") %>
+        <span class="date-head hide-on-print">Date</span>
+        <span class="date"><%= d[0] %></span>
+        <span class="date"><%= d[1] %></span>
+        <span class="date"><%= d[2] %></span>
+        <span class="date"><%= d[3] %></span>
+        <span class="date"><%= d[4] %></span>
+        <span class="date"><%= d[5] %></span>
+        <span class="date"><%= d[6] %></span>
+        <span class="date"><%= d[7] %></span>
+      </div>
+    </div>
+    <div class="clearfix">
+      <span class="pay-this typo hide-on-print"><span  class="hide-on-print" >Pay against this cheque to </span></span><span><%= @name %></span>
+    </div>
+    <div class="clearfix">
+      <div class="word">
+        <span class="pay-word typo"><span  class="hide-on-print">the sum of </span></span><span><%= arabic_word(@cheque_entry.particular.amnt) %></span>
+      </div>
+      <div class="amount">
+        <span class="amount-number"><%= arabic_number(@cheque_entry.particular.amnt) %></span>
+      </div>
+    </div>
+    <br>
+    <br>
+    <p class="hide-on-print">" <%= @cheque_entry.cheque_number %> "</p>
+  </div>
+
+  <div class="cheque-section">
+    <div class="clearfix">
+      <div class="bank-detail-container">
+        <div class="bank-details ">
+          <h3 class="hide-on-print">
+            <%= @bank.name %>
+          </h3>
+        </div>
+      </div>
+      <div class="date-container">
+        <% d = @cheque_date.strftime("%d%m%Y") %>
+        <span class="date-head hide-on-print">Date</span>
+        <span class="date"><%= d[0] %></span>
+        <span class="date"><%= d[1] %></span>
+        <span class="date"><%= d[2] %></span>
+        <span class="date"><%= d[3] %></span>
+        <span class="date"><%= d[4] %></span>
+        <span class="date"><%= d[5] %></span>
+        <span class="date"><%= d[6] %></span>
+        <span class="date"><%= d[7] %></span>
+      </div>
+    </div>
+    <div class="clearfix">
+      <span class="pay-this typo hide-on-print"><span  class="hide-on-print" >Pay against this cheque to </span></span><span><%= @name %></span>
+    </div>
+    <div class="clearfix">
+      <div class="word">
+        <span class="pay-word typo"><span  class="hide-on-print">the sum of </span></span><span><%= arabic_word(@cheque_entry.particular.amnt) %></span>
+      </div>
+      <div class="amount">
+        <span class="amount-number"><%= arabic_number(@cheque_entry.particular.amnt) %></span>
+      </div>
+    </div>
+    <br>
+    <br>
+    <p class="hide-on-print">" <%= @cheque_entry.cheque_number %> "</p>
+  </div>
 </div>
+
+<style>
+  @media print {
+    .cheque-single {
+      max-width: 680px;
+      margin: -20px;
+      padding: 0;
+      margin: -20px;
+      margin-top: -40px;
+    }
+  }
+
+  .receit-section
+  .cheque-single {
+    max-width:730px;
+    /*left: -20px;*/
+    /*margin: auto;*/
+  }
+  .bank-detail-container {
+    display: inline-block;
+    width: 440px;
+    min-height: 80px;
+    float: left;
+  }
+  span.date-head {
+    float:left;
+    width: 40px;
+    padding-top:5px;
+  }
+
+  .date-container {
+    float: left;
+    padding-top: 20px;
+  }
+
+  .pay-this {
+    width: 200px;
+    display: inline-block;
+  }
+  .pay-word {
+    width: 100px;
+    display: inline-block;
+  }
+  .word {
+    display: inline-block;
+    width: 440px;
+    float:left;
+  }
+  .typo span {
+    line-height: 24px!important;
+  }
+  .amount {
+    display: inline-block;
+    width: 200px;
+    height: 25px;
+    border: 1px solid black;
+    padding-left: 10px;
+    margin-left: 40px;
+  }
+  span.date {
+    width: 25px;
+    text-align: center;
+    display: inline-block;
+    height: 30px;
+    vertical-align: middle;
+    border: 1px solid black;
+    float: left;
+    padding-top: 5px;
+  }
+
+  @media print {
+    span.date, .amount { border-color: transparent}
+  }
+
+</style>

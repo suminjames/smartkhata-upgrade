@@ -14,6 +14,8 @@
 #  branch_id          :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  status             :integer          default("0")
+#  cheque_date        :date
 #
 
 class ChequeEntry < ActiveRecord::Base
@@ -26,5 +28,8 @@ class ChequeEntry < ActiveRecord::Base
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  validates :cheque_number, uniqueness: { scope: :additional_bank_id, message: "should be unique" }
+  enum status: [:to_be_printed, :printed, :pending_clearance, :void]
+
+
+  validates :cheque_number, uniqueness: { scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" }
 end

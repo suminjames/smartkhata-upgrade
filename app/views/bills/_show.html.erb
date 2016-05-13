@@ -3,7 +3,10 @@
 # Client associated with the bill
 @client = bill.get_client
 %>
-<button id="btnPrint">Print</button>
+<div id="btnPrint">
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+</div>
 <div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
     <% if  bill.settled? %>

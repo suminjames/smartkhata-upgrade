@@ -1,22 +1,7 @@
 <% provide(:section_title, "Bills") %>
 
-<%= render 'index_sub_menu' %>
-<%= render 'index_search_form' %>
-
-
-<% # OPTIMIZE Incorporate search term specific message %>
-<% if !params[:search_by].blank? && !params[:commit].blank? && !@bills.present? %>
-<% if params[:search_by] == 'date_range'  %>
-<p>There are no bills matching the date range '<%= params[:search_term]['date_from'] %>' to '<%= params[:search_term]['date_to'] %>'.</p>
-<% else %>
-<p>There are no bills matching the term '<%= params[:search_term] %>'.</p>
-<% end %>
-<% end %>
-
-
-<%= render 'shared/pagination', collection_to_paginate: @bills %>
-
 <% if !@bills.empty? %>
+    <%= form_tag process_selected_bills_path do %>
   <table class="table table-no-border table-striped table-condensed text-left">
   <tr>
     <th>S.N.</th>
@@ -55,12 +40,16 @@
       <% end %>
       <%= link_to 'View', bill %>
     </td>
+    <td><%= check_box_tag "bill_ids[]", bill.id %></td>
   </tr>
   <!-- Bill (row) ENDS -->
 
 
   <% end %>
 </table>
+        <%= hidden_field_tag 'client_account_id', @client_account_id %>
+        <%= submit_tag "Process Checked" %>
+        <% end %>
+<% else %>
+    No Bills to Settle !!
 <% end %>
-
-<%= render 'shared/pagination', collection_to_paginate: @bills %>
