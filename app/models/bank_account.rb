@@ -12,10 +12,9 @@ class BankAccount < ActiveRecord::Base
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-
-  validates_presence_of :bank_id, :account_number
+  validates :account_number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true #, length: { in: 3..13 }
+  validates_presence_of :bank, :account_number
   accepts_nested_attributes_for :ledger
-
 
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted

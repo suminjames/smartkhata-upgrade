@@ -41,10 +41,21 @@ class BankAccountTest < ActiveSupport::TestCase
   	assert_not @bank_account.valid?
   end
 
-  # Account number
+
+  test "account number should not be duplicate" do
+    @bank_account.account_number = 1234
+    assert_not @bank_account.valid?
+  end
+
+  # Account number: to be converted to String
   test "account number should not be string" do
   	@bank_account.account_number = 'quux'
   	assert_not @bank_account.valid?
+  end
+
+  test "account number should not be alphanumeric" do
+    @bank_account.account_number = 'S0M3VALU3'
+    assert_not @bank_account.valid?
   end
 
 	test "account number should not be zero" do
@@ -53,6 +64,9 @@ class BankAccountTest < ActiveSupport::TestCase
   end
 
   # << account number boundary tests >>
+
+=begin
+  # default for sales and purchase-
 
   # default_for_purchase
   test "default for sales should not be string" do
@@ -95,26 +109,31 @@ class BankAccountTest < ActiveSupport::TestCase
   	@bank_account.default_for_purchase = '-1'
   	assert_not @bank_account.valid?
   end
+=end
+
 
   # ledger_attributes: opening_balance
   test "opening balance should not be negative" do
-  	@bank_account[:ledger_attributes][:opening_blnc] = -500
-  	assert_not @bank_account.valid?
+  	@bank_account.ledger.opening_blnc = -500
+    assert_not @bank_account.valid?
   end
 
   test "opening balance should not be a very large number" do
-  	@bank_account[:ledger_attributes][:opening_blnc] = 1234567890234567890
-  	assert_not @bank_account.valid?
+    @bank_account.ledger.opening_blnc = 1234567890234567890
+  	assert_not @bank_account.valid?, "No upper boundary check!"
   end
 
-  test "opening balance should not be string" do
-  	@bank_account[:ledger_attributes][:opening_blnc] = 'quux'
-  	assert_not @bank_account.valid?
-  end
+  # Numeric field in db--
+  # test "opening balance should not be string" do
+  #   @bank_account.ledger.opening_blnc = 'quux'
+  # 	assert_not @bank_account.valid?
+  # end
 
   # << opening balance boundary tests >>
-  
-  # ledger_attributes: opening_balance_type
+
+=begin
+
+  # ledger_attributes: opening_balance_type: boolean field
   test "opening balance type should not be negative" do
   	@bank_account[:ledger_attributes][:opening_blnc_type] = -1
   	assert_not @bank_account.valid?
@@ -134,5 +153,6 @@ class BankAccountTest < ActiveSupport::TestCase
   	@bank_account[:ledger_attributes][:opening_blnc_type] = 'quux'
   	assert_not @bank_account.valid?
   end
+=end
 
 end

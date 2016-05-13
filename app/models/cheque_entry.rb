@@ -8,5 +8,8 @@ class ChequeEntry < ActiveRecord::Base
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  validates :cheque_number, uniqueness: { scope: :additional_bank_id, message: "should be unique" }
+  # validate foreign key: ensures that the bank account exists
+  validates :bank_account, presence: true
+  validates :cheque_number, presence: true, uniqueness:   { scope: :additional_bank_id, message: "should be unique" },
+                                            numericality: { only_integer: true, greater_than: 0 }
 end

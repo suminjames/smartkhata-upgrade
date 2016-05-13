@@ -6,3 +6,7 @@
 #
 one:
   cheque_number: 123
+  bank_account: one
+  particular: one
+  # Client account?
+  # Additional bank id?
