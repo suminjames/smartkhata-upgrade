@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160511171709) do
+ActiveRecord::Schema.define(version: 20160513053708) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,6 +193,8 @@ ActiveRecord::Schema.define(version: 20160511171709) do
     t.integer  "user_id"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
+    t.string   "referrer_name"
+    t.integer  "group_leader_id"
   end
 
   add_index "client_accounts", ["branch_id"], name: "index_client_accounts_on_branch_id", using: :btree
@@ -273,19 +275,19 @@ ActiveRecord::Schema.define(version: 20160511171709) do
   add_index "employee_accounts", ["updater_id"], name: "index_employee_accounts_on_updater_id", using: :btree
   add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
 
-  create_table "employee_client_associations", force: :cascade do |t|
+  create_table "employee_ledger_associations", force: :cascade do |t|
     t.integer  "employee_account_id"
-    t.integer  "client_account_id"
+    t.integer  "ledger_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
 
-  add_index "employee_client_associations", ["client_account_id"], name: "index_employee_client_associations_on_client_account_id", using: :btree
-  add_index "employee_client_associations", ["creator_id"], name: "index_employee_client_associations_on_creator_id", using: :btree
-  add_index "employee_client_associations", ["employee_account_id"], name: "index_employee_client_associations_on_employee_account_id", using: :btree
-  add_index "employee_client_associations", ["updater_id"], name: "index_employee_client_associations_on_updater_id", using: :btree
+  add_index "employee_ledger_associations", ["creator_id"], name: "index_employee_ledger_associations_on_creator_id", using: :btree
+  add_index "employee_ledger_associations", ["employee_account_id"], name: "index_employee_ledger_associations_on_employee_account_id", using: :btree
+  add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
+  add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file_type"
@@ -353,25 +355,27 @@ ActiveRecord::Schema.define(version: 20160511171709) do
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
-    t.decimal  "opening_blnc",      precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_blnc",        precision: 15, scale: 4, default: 0.0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "fy_code"
     t.integer  "branch_id"
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "group_id"
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
-    t.decimal  "dr_amount",         precision: 15, scale: 4, default: 0.0, null: false
-    t.decimal  "cr_amount",         precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0, null: false
+    t.integer  "employee_account_id"
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
   add_index "ledgers", ["branch_id"], name: "index_ledgers_on_branch_id", using: :btree
   add_index "ledgers", ["client_account_id"], name: "index_ledgers_on_client_account_id", using: :btree
   add_index "ledgers", ["creator_id"], name: "index_ledgers_on_creator_id", using: :btree
+  add_index "ledgers", ["employee_account_id"], name: "index_ledgers_on_employee_account_id", using: :btree
   add_index "ledgers", ["fy_code"], name: "index_ledgers_on_fy_code", using: :btree
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
@@ -623,5 +627,6 @@ ActiveRecord::Schema.define(version: 20160511171709) do
 
   add_foreign_key "bill_voucher_relations", "bills"
   add_foreign_key "bill_voucher_relations", "vouchers"
+  add_foreign_key "ledgers", "employee_accounts"
   add_foreign_key "settlements", "vouchers"
 end

@@ -31,6 +31,10 @@
     visibility:hidden;
   }
 
+  .show-on-print {
+    visibility: visible;
+  }
+
   .hide-on-print{
     visibility:hidden!important;
   }
