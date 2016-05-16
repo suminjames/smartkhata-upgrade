@@ -25,7 +25,8 @@ class Files::SalesController < Files::FilesController
     end
 
     # else redirect to settlement path
-    redirect_to sales_settlement_path(payout_upload.sales_settlement_id) and return
+    @sales_settlement_id = payout_upload.sales_settlement_id
+    redirect_to sales_settlement_path(@sales_settlement_id) and return
 	end
 
   # method to calculate the base price

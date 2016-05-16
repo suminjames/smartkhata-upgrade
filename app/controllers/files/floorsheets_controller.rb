@@ -30,7 +30,7 @@ class Files::FloorsheetsController < Files::FilesController
 		file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
 		# read the xls file
-		xlsx = Roo::Spreadsheet.open(@file)
+		xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
 
 		# hash to store unique combination of isin, transaction type (buy/sell), client
 		hash_dp_count = Hash.new 0

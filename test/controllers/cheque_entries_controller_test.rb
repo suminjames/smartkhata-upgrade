@@ -4,6 +4,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   setup do
     @cheque_entry = cheque_entries(:one)
     @bank_account = bank_accounts(:one)
+    @user = users(:user)
     @post_action = lambda { | acc_id, start_cheque_num, end_cheque_num |
       post :create, { bank_account_id: acc_id, start_cheque_number: start_cheque_num, end_cheque_number: end_cheque_num }
     }
@@ -12,7 +13,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # index
   test "authenticated users should get index" do
-    sign_in users(:user)
+    sign_in @user
     get :index
     assert_response :success
     assert_template 'cheque_entries/index'
@@ -25,7 +26,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # new
   test "authenticated users should get new" do
-    sign_in users(:user)
+    sign_in @user
     get :new
     assert_response :success
     assert_template 'cheque_entries/new'
@@ -37,7 +38,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # create
   test "authenticated users should create cheque_entry" do
-    sign_in users(:user)
+    sign_in @user
     assert_difference 'ChequeEntry.count', 10 do
       @post_action.call(@bank_account.id, 1, 10)
     end
@@ -54,7 +55,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   # briefly testing invalid inputs- more in model test
   # imaginary bank account
   test "should not create cheque_entry with imaginary bank account" do
-    sign_in users(:user)
+    sign_in @user
     assert_no_difference 'ChequeEntry.count' do
       @post_action.call(92649, 10, 15)
     end
@@ -63,7 +64,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   end
   # at the time of creation, THIS TEST GENERATES uncaught ValidationError.
   test "should not create cheque_entry with negative cheque number" do
-    sign_in users(:user)
+    sign_in @user
     assert_no_difference 'ChequeEntry.count' do
       @post_action.call(@bank_account.id, -245, -245)
     end
@@ -72,7 +73,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   end
   # at the time of creation, THIS TEST GENERATES uncaught RangeError.
   test "should not create cheque_entry with very large cheque number" do
-    sign_in users(:user)
+    sign_in @user
     assert_no_difference 'ChequeEntry.count' do
       @post_action.call(@bank_account.id, 10**15, 10**15)
     end
@@ -82,7 +83,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # show
   test "should show cheque_entry to authenticated users" do
-    sign_in users(:user)
+    sign_in @user
     get :show, id: @cheque_entry
     assert_response :success
     assert_template 'cheque_entries/show'
@@ -97,7 +98,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # edit
   test "authenticated users should get edit" do
-    sign_in users(:user)
+    sign_in @user
     get :edit, id: @cheque_entry
     assert_response :success
   end
@@ -108,7 +109,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # update
   test "authenticated users should update cheque_entry" do
-    sign_in users(:user)
+    sign_in @user
     assert_equal @cheque_entry.bank_account.account_number, @bank_account.account_number
     patch :update, id: @cheque_entry, cheque_entry: { bank_account_id: @another_bank_account.id }
     assert_redirected_to cheque_entry_path(assigns(:cheque_entry))
@@ -128,7 +129,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # delete
   test "authenticated users should delete cheque_entry" do
-    sign_in users(:user)
+    sign_in @user
     assert_difference 'ChequeEntry.count', -1 do
       delete :destroy, id: @cheque_entry
     end
