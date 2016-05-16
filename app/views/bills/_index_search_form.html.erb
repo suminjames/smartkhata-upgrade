@@ -2,13 +2,13 @@
   <%
     if params[:search_by] == 'client_name'
   %>
-      <div class="col-sm-3">
-        <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
+          <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "client_name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
-        <% end %>
-      </div>
-      <%= submit_tag "Search", class: 'btn btn-sm' %>
+            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: true%>
+          </div>
+          <%= submit_tag "Search", class: 'btn btn-sm' %>
+      <% end %>
   <% end %>
 
   <%
@@ -17,7 +17,7 @@
       <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "bill_type" %>
           <div class="col-xs-3">
-            <%= select_tag :search_term, options_for_select([['Sales','sales'], ['Purchase','purchase']], params[:search_term] ) %>
+            <%= select_tag :search_term, options_for_select([['Sales','sales'], ['Purchase','purchase']], params[:search_term] )%>
           </div>
           <%= submit_tag "Search" %>
       <% end %>

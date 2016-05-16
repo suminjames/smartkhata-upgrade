@@ -105,14 +105,15 @@
             if params[:search_by] == 'client'
               %>
             <div class="form-group">
-              <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
+              <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: true %>
             </div>
             <% end %>
             <%
             if params[:search_by] == 'company'
             %>
+
               <div class="form-group">
-                <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'isin', params[:search_term]), class: 'form-control combobox' %>
+                <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'identifier_for_combobox', params[:search_term]), class: 'form-control combobox', include_blank: true %>
               </div>
               <% end %>
           </div>

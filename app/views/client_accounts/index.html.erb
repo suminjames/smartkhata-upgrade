@@ -18,14 +18,13 @@
   <%
     if params[:search_by] == 'name'
   %>
-      <!-- TODO: Incorporate javascipt (pre-populated hint-based) search text field-->
-      <div class="col-sm-3">
-        <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
+          <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
-            </div>
-            <%= submit_tag "Search", class: 'btn btn-sm' %>
-        <% end %>
+            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: true %>
+          </div>
+          <%= submit_tag "Search", class: 'btn btn-sm' %>
+      <% end %>
   <% end %>
 
   <%
