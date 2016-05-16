@@ -177,6 +177,9 @@ class ShareTransactionsController < ApplicationController
 
 
       ActiveRecord::Base.transaction do
+        # remove the transacted amount from the share inventory
+        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buy?, true)
+
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
           dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
