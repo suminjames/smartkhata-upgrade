@@ -3,7 +3,11 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .credit-amount { color: red}
-
+.ledger-single , .ledger-list {
+  tr:hover {
+    background: #EEEEEE;
+  }
+}
 .ledger {
 
   table{
