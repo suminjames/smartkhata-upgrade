@@ -45,6 +45,7 @@
   #printSection, #printSection * {
     visibility:visible;
      -webkit-print-color-adjust: exact;
+     -webkit-text-size-adjust: none;
   }
   #printSection {
     position:absolute;

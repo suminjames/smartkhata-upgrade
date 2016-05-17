@@ -7,5 +7,8 @@ task :churn_db => :environment do
   # Invokes another rake task
   Rake::Task["fetch_companies"].invoke
   Rake::Task["update_isin_prices"].invoke
-  sh 'bundle exec annotate --exclude tests,fixtures,factories,serializers'
+  #
+  unless Rails.env.development?
+    sh 'bundle exec annotate --exclude tests,fixtures,factories,serializers'
+  end
 end
