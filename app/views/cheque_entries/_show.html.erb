@@ -11,7 +11,7 @@
       <p><%= @name %></p>
     </div>
     <div class="receipt-cheque amount-on-left">
-      <%= arabic_number(@cheque_entry.particular.amnt) %>
+      <%= arabic_number(@cheque_entry.amount) %>
     </div>
   </div>
   <div class="cheque-section">
@@ -28,10 +28,10 @@
     </div>
     <div class="clearfix">
       <div class="word">
-        <span class="pay-word typo"><span  class="hide-on-print">the sum of </span></span><span><%= arabic_word(@cheque_entry.particular.amnt) %></span>
+        <span class="pay-word typo"><span  class="hide-on-print">the sum of </span></span><span><%= arabic_word(@cheque_entry.amount) %></span>
       </div>
       <div class="amount text-right">
-        <span class="amount-number"><%= arabic_number(@cheque_entry.particular.amnt) %></span>
+        <span class="amount-number"><%= arabic_number(@cheque_entry.amount) %></span>
       </div>
     </div>
     <br>

@@ -12,6 +12,10 @@ class SettlementsController < ApplicationController
   def show
   end
 
+  def show_multiple
+    @settlement_ids = params[:settlement_ids].map(&:to_i) if params[:settlement_ids].present?
+    @settlements = Settlement.where(id: @settlement_ids)
+  end
   # GET /settlements/new
   def new
     @settlement = Settlement.new

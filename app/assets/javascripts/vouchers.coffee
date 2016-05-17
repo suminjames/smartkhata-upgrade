@@ -35,7 +35,7 @@ $(document).on 'click','.add_fields', (event) ->
   time = new Date().getTime()
   regexp = new RegExp($(this).data('id'),'g')
   $(this).before($(this).data('fields').replace(regexp,time))
-  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
+#  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
   debugger;
   $('select.combobox').combobox()
@@ -97,5 +97,5 @@ $ ->
 
 $ ->
   $('form').on 'click', '.removeThisParticular', (event) ->
-    $(this).closest('div.row.particular').hide()
+    $(this).closest('div.row.particular').remove()
     event.preventDefault()

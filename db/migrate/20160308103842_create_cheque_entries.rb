@@ -4,6 +4,7 @@ class CreateChequeEntries < ActiveRecord::Migration
       t.integer :cheque_number
       t.integer :additional_bank_id
       t.integer :status, :default => 0
+      t.integer :cheque_issued_type, default: 0
       t.date :cheque_date
       t.decimal :amount , precision: 15, scale: 4, default: 0.00
 

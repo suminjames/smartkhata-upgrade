@@ -83,14 +83,26 @@ class Voucher < ActiveRecord::Base
 	end
 
   def assign_cheque
-    # TODO(subas) make sure no more than one cheque entry per voucher
-    cheque_entry = self.cheque_entries.first
-    if cheque_entry.present?
-      general_particular = self.particulars.general.first
-      if general_particular.present?
-        cheque_entry.client_account_id = general_particular.ledger.client_account_id
-        cheque_entry.save!
-      end
-    end
+
+		if self.payment?
+			cheque_entries = self.cheque_entries.payment
+			particulars = self.particulars.dr
+
+			particulars.each do |particular|
+				if particular.cheque_entries_on_payment.size <= 0
+					particular.cheque_entries_on_payment << cheque_entries
+					particular.save!
+				end
+			end
+		elsif self.receive?
+			cheque_entries = self.cheque_entries.receipt
+			particulars = self.particulars.cr
+			particulars.each do |particular|
+				if particular.cheque_entries_on_receipt.size <= 0
+					particular.cheque_entries_on_receipt << cheque_entries
+					particular.save!
+				end
+			end
+		end
   end
 end

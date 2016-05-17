@@ -47,41 +47,41 @@ module ApplicationHelper
 		ledger.lock!
 		transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 		closing_blnc = ledger.closing_blnc
-		dr_amnt = 0
-		cr_amnt = 0
+		dr_amount = 0
+		cr_amount = 0
     daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: transaction_date.to_date )
 
 		if debit
 			ledger.closing_blnc += amount
       ledger.dr_amount += amount
-			dr_amnt = amount
+			dr_amount = amount
       daily_report.closing_blnc += amount
 		else
 			ledger.closing_blnc -= amount
       ledger.cr_amount += amount
       daily_report.closing_blnc -= amount
-			cr_amnt = amount
+			cr_amount = amount
 		end
 
 
     daily_report.opening_blnc ||= ledger.opening_blnc
-    daily_report.dr_amount += dr_amnt
-    daily_report.cr_amount += cr_amnt
+    daily_report.dr_amount += dr_amount
+    daily_report.cr_amount += cr_amount
     daily_report.save!
 
-		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
+		Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
 		ledger.save!
 	end
 
 	def reverse_accounts(particular,voucher, descr, adjustment = 0.0)
-		amount = particular.amnt
+		amount = particular.amount
 
 		# this accounts for the case where whole transaction is cancelled
 		# in such case adjustment value is 0
 		if ( amount - adjustment).abs > 0.01
 			transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 			ledger = particular.ledger
-			amount = particular.amnt
+			amount = particular.amount
 			ledger.lock!
 			closing_blnc = ledger.closing_blnc
 
@@ -96,7 +96,7 @@ module ApplicationHelper
 				ledger.closing_blnc -= amount
 			end
 
-			Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amnt: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+			Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
 			ledger.save!
 		end
 

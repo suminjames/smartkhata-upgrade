@@ -6,7 +6,7 @@
 #  account_number      :integer
 #  bank_name           :string
 #  default_for_payment :boolean
-#  default_for_receive :boolean
+#  default_for_receipt :boolean
 #  creator_id          :integer
 #  updater_id          :integer
 #  created_at          :datetime         not null
@@ -42,7 +42,7 @@ class BankAccount < ActiveRecord::Base
       bank_accounts.update_all(:default_for_payment => false)
     end
 
-    if self.default_for_receive
+    if self.default_for_receipt
       bank_accounts = BankAccount.where( :default_for_receipt => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
       bank_accounts.update_all(:default_for_receipt => false)

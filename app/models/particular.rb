@@ -9,7 +9,7 @@
 #  cheque_number      :integer
 #  name               :string
 #  description        :string
-#  amnt               :decimal(15, 4)   default("0")
+#  amount               :decimal(15, 4)   default("0")
 #  running_blnc       :decimal(15, 4)   default("0")
 #  additional_bank_id :integer
 #  particular_status  :integer          default("1")
@@ -42,13 +42,13 @@ class Particular < ActiveRecord::Base
 
   # for many to many relation between cheque and the particulars.
   # a cheque can pay/recieve for multiple particulars.
-  has_many :payments, -> { payment }, class_name: "ChequeParticularRelation"
-  has_many :receipts, -> { receipt }, class_name: "ChequeParticularRelation"
-  has_many :cheque_particular_relations
+  has_many :payments, -> { payment }, class_name: "ChequeEntryParticularAssociation"
+  has_many :receipts, -> { receipt }, class_name: "ChequeEntryParticularAssociation"
+  has_many :cheque_entry_particular_associations
 
   has_many :cheque_entries_on_payment, through: :payments, source: :cheque_entry
   has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
-  has_many :cheque_entries , through: :cheque_particular_relations
+  has_many :cheque_entries , through: :cheque_entry_particular_associations
 
 
 

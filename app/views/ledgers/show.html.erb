@@ -93,8 +93,8 @@
 					<% end %>
 				</td>
         <td>
-          <% if particular.voucher.cheque_entries.count > 0 %>
-              <% particular.voucher.cheque_entries.each do |cheque| %>
+          <% if particular.cheque_entries.count > 0 %>
+              <% particular.cheque_entries.each do |cheque| %>
                   <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true  %> <br>
               <% end %>
           <% end %>
@@ -109,11 +109,11 @@
 				<td class='text-right'>
           <% if particular.cr?  %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.amnt)} cr" %>
+                <%= "#{number_to_currency(particular.amount)} cr" %>
               </span>
           <% else %>
             <span class="debit-amount">
-                <%= "#{number_to_currency(particular.amnt)} dr" %>
+                <%= "#{number_to_currency(particular.amount)} dr" %>
               </span>
           <% end %>
         </td>
