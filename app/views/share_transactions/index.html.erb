@@ -105,7 +105,7 @@
             if params[:search_by] == 'client'
               %>
             <div class="form-group">
-              <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: true %>
+              <%= select_tag "search_term", options_from_collection_for_select(@clients, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...' %>
             </div>
             <% end %>
             <%
@@ -113,7 +113,7 @@
             %>
 
               <div class="form-group">
-                <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'identifier_for_combobox', params[:search_term]), class: 'form-control combobox', include_blank: true %>
+                <%= select_tag "search_term", options_from_collection_for_select(@companies, 'id', 'identifier_for_combobox', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a company...'%>
               </div>
               <% end %>
           </div>
