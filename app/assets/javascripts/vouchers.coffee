@@ -27,16 +27,6 @@ fix_autocomplete = () ->
 
 ready = ->
   jQuery ->
-    $(document).on 'click','.asdd_fields', (event) ->
-      time = new Date().getTime()
-      regexp = new RegExp($(this).data('id'),'g')
-      $(this).before($(this).data('fields').replace(regexp,time))
-      event.preventDefault()
-      debugger;
-      $('select.combobox').combobox()
-      fix_autocomplete()
-      manage_cheque_all_select()
-  jQuery ->
     $('select.combobox').combobox()
     fix_autocomplete()
 $(document).ready(ready)
@@ -45,6 +35,7 @@ $(document).on 'click','.add_fields', (event) ->
   time = new Date().getTime()
   regexp = new RegExp($(this).data('id'),'g')
   $(this).before($(this).data('fields').replace(regexp,time))
+  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
   debugger;
   $('select.combobox').combobox()

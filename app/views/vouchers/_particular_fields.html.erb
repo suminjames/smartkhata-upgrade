@@ -26,5 +26,5 @@
     </div>
   </div>
 
-  <div class="col-xs-1 padding-zero"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receive] && inverse || inverse == false %></div>
+  <div class="col-xs-1 padding-zero remove-particular"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receive] && inverse || inverse == false %></div>
 </div>
