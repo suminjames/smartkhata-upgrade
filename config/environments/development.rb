@@ -26,6 +26,7 @@ Rails.application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
+  # IMPORTANT! The following is set to true by default. Setting it to false makes page loading faster but has its own (apparently trivial to this project) complexities. See for more: http://stackoverflow.com/questions/16357785/what-exactly-config-assets-debug-setting-does Also see: http://artandlogic.com/2012/12/faster-rails-dev/
   config.assets.debug = false
 
   config.action_mailer.smtp_settings = {

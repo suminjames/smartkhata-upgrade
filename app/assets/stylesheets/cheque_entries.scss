@@ -1,3 +1,137 @@
 // Place all the styles related to the ChequeEntries controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+.cheque-print-error {
+  color: red;
+}
+
+
+@media print {
+  #printSection .cheque-single * {
+    font-size: 12px!important;
+  }
+  .cheque-single {
+    width: 740px;
+    margin: -20px;
+    padding: 0;
+    margin: -20px;
+    margin-top: -40px;
+  }
+
+  #printSection {
+    .client-name, h4.acc-payee {
+      font-size: 14px!important;
+    }
+
+
+
+    .cheque-single {
+      .receipt-cheque {
+        padding-left: 20px;
+      }
+      .amount-on-left {
+        margin-top: 40px;
+      }
+      .desc-on-left {
+        min-height: 90px;
+
+        p {
+          margin-bottom: 5px;
+        }
+      }
+      .receipt-section {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+.receipt-section {
+  display: inline-block;
+  width:110px;
+  min-height: 100px;
+  float:left;
+  padding-right: 5px;
+  display: none;
+}
+.cheque-section {
+  width: 590px;
+  display: inline-block;
+  float:left;
+}
+.cheque-single {
+  max-width:740px;
+  /*left: -20px;*/
+  /*margin: auto;*/
+}
+.cheque-header {
+  display: inline-block;
+  width: 450px;
+  min-height: 40px;
+  float:left;
+}
+.cheque-header h4{
+  font-style: italic;
+  font-weight: bold;
+  display: inline-block;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin:0;
+  margin-left:270px;
+}
+.bank-detail-container {
+  display: inline-block;
+  width: 440px;
+  min-height: 80px;
+  float: left;
+}
+span.date-head {
+  float:left;
+  width: 40px;
+  padding-top:5px;
+}
+
+.date-container {
+  float: left;
+  width: 140px;
+  /*padding-top: 20px;*/
+}
+
+.pay-this {
+  width: 200px;
+  display: inline-block;
+}
+.pay-word {
+  width: 100px;
+  display: inline-block;
+}
+.word {
+  display: inline-block;
+  width: 450px;
+  float:left;
+}
+.typo span {
+  line-height: 24px!important;
+}
+.amount {
+  display: inline-block;
+  width: 140px;
+  height: 25px;
+  border: 1px solid black;
+  padding-left: 10px;
+  margin-top: 10px;
+}
+span.date {
+  width: 25px;
+  text-align: center;
+  display: inline-block;
+  height: 30px;
+  vertical-align: middle;
+  border: 1px solid black;
+  float: left;
+  padding-top: 5px;
+}
+
+@media print {
+  span.date, .amount { border-color: transparent}
+}

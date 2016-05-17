@@ -88,13 +88,15 @@ count = 0
 
       Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
 
-      if Rails.env == 'development'
-        employees = [ {name: 'Employee X'},{name: 'Employee Y'},{name: 'Employee Z'}]
-        employees.each  do |employee|
-          EmployeeAccount.find_or_create_by!(employee)
-          puts 'Created EmployeeAccount: ' << employee[:name]
-        end
-      end
+      # if Rails.env == 'development'
+      #   employees = [{name: 'Employee X', email:'employee.x@danpheit.com'},
+      #                 {name: 'Employee Y', email:'employee.y@danpheit.com'},
+      #                 {name: 'Employee Z', email:'employee.z@danpheit.com'}]
+      #   employees.each  do |employee|
+      #     EmployeeAccount.find_or_create_by!(employee)
+      #     puts 'Created EmployeeAccount: ' << employee[:name]
+      #   end
+      # end
 
 
   rescue => error

@@ -15,19 +15,21 @@
 
 
 <div class="clearfix search-form">
-<%
-if params[:search_by] == 'name'
+  <%
+    if params[:search_by] == 'name'
   %>
       <!-- TODO: Incorporate javascipt (pre-populated hint-based) search text field-->
-  <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "name" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Client Name", :autofocus => true %>
-  <%= submit_tag "Search" %>
+      <div class="col-sm-3">
+        <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
+            <%= hidden_field_tag :search_by, "name" %>
+            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
+            </div>
+            <%= submit_tag "Search", class: 'btn btn-sm' %>
+        <% end %>
   <% end %>
-<% end %>
 
-<%
-if params[:search_by] == 'boid'
+  <%
+    if params[:search_by] == 'boid'
   %>
   <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
   <%= hidden_field_tag :search_by, "boid" %>
@@ -38,12 +40,7 @@ if params[:search_by] == 'boid'
 </div>
 
 <% if !@client_accounts.blank? %>
-    <div class="text-center">
-      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @client_accounts %>
-      </div>
-    </div>
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
 
     <div class="table-responsive">
 
@@ -74,11 +71,7 @@ if params[:search_by] == 'boid'
       </tbody>
       </table>
     </div>
-    <div class="text-center">
-      <%= paginate @client_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @client_accounts %>
-      </div>
-    </div>
+
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
 
 <% end %>

@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: bank_accounts
+#
+#  id                  :integer          not null, primary key
+#  account_number      :integer
+#  bank_name           :string
+#  default_for_payment :boolean
+#  default_for_receive :boolean
+#  creator_id          :integer
+#  updater_id          :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  bank_id             :integer
+#
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 
@@ -19,16 +35,16 @@ class BankAccount < ActiveRecord::Base
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted
   def change_default
-    if self.default_for_purchase
-      bank_accounts = BankAccount.where( :default_for_purchase => true)
+    if self.default_for_payment
+      bank_accounts = BankAccount.where( :default_for_payment => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
-      bank_accounts.update_all(:default_for_purchase => false)
+      bank_accounts.update_all(:default_for_payment => false)
     end
 
-    if self.default_for_sales
-      bank_accounts = BankAccount.where( :default_for_sales => true)
+    if self.default_for_receive
+      bank_accounts = BankAccount.where( :default_for_receive => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
-      bank_accounts.update_all(:default_for_sales => false)
+      bank_accounts.update_all(:default_for_receive => false)
     end
 
   end

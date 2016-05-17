@@ -1,10 +1,10 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_no_banks
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
     @ledger_list_financial = []
-    @ledger_list_no_banks = nil
+    @ledger_list_available = nil
   end
 
   def process
@@ -24,8 +24,8 @@ class Vouchers::Create < Vouchers::Base
     @voucher.date = date_ad
 
     # get a calculated values, these are returned nil if not applicable
-    @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type =
-        set_bill_client(@client_account_id, @bill_id, @voucher_type, @clear_ledger)
+    @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
+        set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
     # set the voucher type
     @voucher.voucher_type = @voucher_type
 
@@ -34,9 +34,11 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      @ledger_list_no_banks = Ledger.non_bank_ledgers
+      @ledger_list_available = Ledger.non_bank_ledgers
     end
 
+    # assign all ledgers if ledger_list_available is not present
+    @ledger_list_available ||= Ledger.all
 
     is_purchase_sales = is_purchase_sales?(@voucher_type)
 
@@ -46,7 +48,7 @@ class Vouchers::Create < Vouchers::Base
       @processed_bills = []
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
-        @processed_bills, description_bills, receipt_amount = process_bills(is_purchase_sales, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills )
+        @processed_bills, description_bills, receipt_amount = process_bills(is_purchase_sales, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
         @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_purchase_sales,@client_account, receipt_amount)
       else
         if has_error
@@ -116,14 +118,18 @@ class Vouchers::Create < Vouchers::Base
     end
     is_purchase_sales
   end
-  def process_bills(is_purchase_sales, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills )
+  def process_bills(is_purchase_sales, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment )
     processed_bills = []
     description_bills = ""
     receipt_amount = 0.0
 
+
     if is_purchase_sales && client_account
+
       receipt_amount = net_usable_blnc.abs
-      net_usable_blnc = net_usable_blnc.abs
+
+      net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
+
       bills.each do |bill|
 
         # modify the net usable balance in case of the ledger clearout
@@ -143,21 +149,23 @@ class Vouchers::Create < Vouchers::Base
         # since the data is stored to 4 digits and payment is only applicable in 2 digits
         # round the balance_to_pay to 2 digits
 
-        if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= 0.01
+        if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= @amount_margin_error
           net_usable_blnc = net_usable_blnc - bill.balance_to_pay
-          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(bill.balance_to_pay)} Date: #{ad_to_bs(bill.created_at)} | "
+          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(bill.balance_to_pay)}   Date: #{ad_to_bs(bill.created_at)} | "
           bill.balance_to_pay = 0
           bill.status = Bill.statuses[:settled]
           processed_bills << bill
         else
           bill.status = Bill.statuses[:partial]
-          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(net_blnc)} Date: #{ad_to_bs(bill.created_at)} | "
+          description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(net_blnc)}   Date: #{ad_to_bs(bill.created_at)} | "
           bill.balance_to_pay = bill.balance_to_pay - net_usable_blnc
           processed_bills << bill
           break
         end
-
       end
+
+      # remove the last | sign
+      description_bills = description_bills.slice(0, description_bills.length-2)
     end
     return processed_bills, description_bills, receipt_amount
   end
@@ -171,7 +179,7 @@ class Vouchers::Create < Vouchers::Base
       processed_bills.each(&:save)
       voucher.bills_on_settlement << processed_bills
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
-      voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
+      # voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
       # # create settlement in case of payment and receive
       # if is_purchase_sales && !processed_bills.blank?
@@ -198,6 +206,10 @@ class Vouchers::Create < Vouchers::Base
           begin
           # TODO track the cheque entries whether it is from client or the broker
           cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
+          cheque_entry.cheque_date = DateTime.now
+          cheque_entry.status = ChequeEntry.statuses[:pending_clearance] if particular.additional_bank_id.present?
+          cheque_entry.save!
+
           particular.cheque_entries << cheque_entry
           rescue ActiveRecord::RecordInvalid
             # TODO(subas) not sure if this is required
@@ -208,7 +220,7 @@ class Vouchers::Create < Vouchers::Base
         end
 
         if is_purchase_sales
-          settlement = purchase_sales_settlement(voucher, ledger, particular, client_account)
+          settlement = purchase_sales_settlement(voucher, ledger, particular, client_account, description_bills)
           voucher.settlements << settlement if settlement.present?
         end
 
@@ -231,10 +243,11 @@ class Vouchers::Create < Vouchers::Base
     return voucher, res, error_message
   end
 
-  def purchase_sales_settlement(voucher, ledger, particular, client_account)
+  def purchase_sales_settlement(voucher, ledger, particular, client_account, settlement_description = nil)
     receipt_amount = 0
     settler_name = ""
     settlement = nil
+    settlement_description ||= voucher.desc
 
     if  voucher.receive?
       receipt_amount += (particular.cr?) ? particular.amnt : 0
@@ -252,7 +265,7 @@ class Vouchers::Create < Vouchers::Base
     if voucher.receive? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receive?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: voucher.desc, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
     end
 
     settlement

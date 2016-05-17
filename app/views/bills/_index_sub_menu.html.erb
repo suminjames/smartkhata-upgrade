@@ -1,0 +1,18 @@
+<div class="clearfix submenu" >
+  <%
+    def is_active_sub_menu_option(option)
+      return params[:search_by] == option
+    end
+  %>
+  <h5>
+    <%= link_to "Search by Client Name",  bills_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")} %>  |
+    <%= link_to "Pending Bills",  bills_path(search_by: "bill_status", search_term: "unsettled_bills"), {:class => (is_active_sub_menu_option("bill_status")? "active-link" : "")}   %>  |
+    <%= link_to "All Bills",  bills_path(search_by: "all_bills"), {:class => (is_active_sub_menu_option("all_bills")? "active-link" : "")} %>  |
+    <%= link_to "Search by Bill Type",  bills_path(search_by: "bill_type"), {:class => (is_active_sub_menu_option("bill_type")? "active-link" : "")} %>  |
+    <%= link_to "Search by Bill Number",  bills_path(search_by: "bill_number"), {:class => (is_active_sub_menu_option("bill_number")? "active-link" : "")} %>  |
+    <%= link_to "Search by Date",  bills_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %>  |
+    <%= link_to "Search by Date Range",  bills_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} %>
+  </h5>
+</div>
+
+

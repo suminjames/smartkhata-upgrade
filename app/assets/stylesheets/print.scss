@@ -10,12 +10,12 @@
     margin: 0;  /* this affects the margin in the printer settings */
 
   }
-  @page {
-    margin-top: 0.75in;
-    margin-bottom: 0.75in;
-    margin-left: 0.75in;
-    margin-right: 0.75in;
-  }
+  //@page {
+  //  margin-top: 0.75in;
+  //  margin-bottom: 0.75in;
+  //  margin-left: 0.75in;
+  //  margin-right: 0.75in;
+  //}
 
   html * {
     font-size: 10px !important;
@@ -30,9 +30,13 @@
   body * {
     visibility:hidden;
   }
-  
+
+  .show-on-print {
+    visibility: visible;
+  }
+
   .hide-on-print{
-    display: none;
+    visibility:hidden!important;
   }
   .box-printable{
     border-top: 0;

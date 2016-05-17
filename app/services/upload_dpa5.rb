@@ -53,7 +53,7 @@ class UploadDpa5
 
 		date_records.each do |date|
 			# create a entry in the database
-			FileUpload.find_or_create_by!(file: FileUpload::FILES[:dpa5], report_date: date.to_date)
+			FileUpload.find_or_create_by!(file_type: FileUpload::file_types[:dpa5], report_date: date.to_date)
 		end
 	end
 
@@ -61,6 +61,8 @@ class UploadDpa5
 		ActiveRecord::Base.transaction do
 			record = ClientAccount.where(boid: data[0], dp_id: data[59])
 							.first_or_create
+
+      client_type = get_client_type(data[2])
 
 			record.update( boid: data[0],
 				date: data[8].to_date,
@@ -95,8 +97,8 @@ class UploadDpa5
 			  citizen_passport: data[100],
 			  granfather_father_inlaw: data[105],
 			  purpose_code_add: data[108],
-			  add_holder: data[109]
-
+			  add_holder: data[109],
+        client_type: client_type
 			)
 			@report_date = data[110]
 			@processed_data << record
@@ -107,5 +109,15 @@ class UploadDpa5
 
 	def verify_file(data)
 
-	end
+  end
+
+  def get_client_type(type)
+    case type.upcase
+      when "CORPORATE"
+        client_type = ClientAccount.client_types[:corporate]
+      else
+        client_type = ClientAccount.client_types[:individual]
+    end
+    return client_type
+  end
 end

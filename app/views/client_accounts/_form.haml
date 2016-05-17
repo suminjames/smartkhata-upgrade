@@ -17,7 +17,7 @@
         .col-xs-6
           = f.input :pan_no, label: "PAN"
         .col-xs-6
-          = f.input :dob, placeholder: "Date of Birth"
+          = f.input :dob, placeholder: "YYYY-MM-DD"
 
       = f.input :father_mother , label: "Father/Mother's Name",placeholder: "Father/Mother's Name"
       = f.input :granfather_father_inlaw , label: "GrandFather's Name",placeholder: "GrandFather/Father In Law's Name"
@@ -77,6 +77,13 @@
           = f.input :boid, label: 'BoId'
         .col-xs-6
           = f.input :nepse_code, label: 'Nepse Code'
+
+      .row
+        .col-xs-6
+          = f.input :group_leader_id, :collection => clients_for_combobox,:label_method => :name, :value_method => :id, :label => "Group Leader" ,:include_blank => false, input_html: { class: 'form-control combobox'}
+        .col-xs-6
+          -#= f.input :referrer_name, :collection => referrers_names_for_combobox,:label_method => :name, :value_method => :name, :label => "Referrer" ,:include_blank => false, input_html: { class: 'form-control combobox'}
+          = f.input :referrer_name, label: 'Referrer'
 
       .form-actions
         = f.button :submit

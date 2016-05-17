@@ -13,14 +13,19 @@
       return
     end
 
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'name'
+      @clients_for_combobox = ClientAccount.all.order('LOWER(name)')
+    end
+
     if params[:show] == 'all'
-      @client_accounts = ClientAccount.all
+      @client_accounts =ClientAccount.all.order('LOWER(name)')
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
       when 'name'
-        @client_accounts = ClientAccount.find_by_client_name(search_term)
+        @client_accounts = ClientAccount.find_by_client_id(search_term)
       when 'boid'
         @client_accounts = ClientAccount.find_by_boid(search_term)
       else
@@ -39,18 +44,24 @@
 
   # GET /client_accounts/new
   def new
+    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
+    @clients_for_combobox = ClientAccount.all.order(:name)
+    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
     @client_account = ClientAccount.new
   end
 
   # GET /client_accounts/1/edit
   def edit
+    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
+    @clients_for_combobox = ClientAccount.all.order(:name)
+    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
+
     @from_path =  request.referer
   end
 
   # POST /client_accounts
   # POST /client_accounts.json
   def create
-
     @client_account = ClientAccount.new(client_account_params)
     respond_to do |format|
       if @client_account.save
@@ -67,7 +78,6 @@
   # PATCH/PUT /client_accounts/1.json
   def update
     from_path = params[:from_path]
-    # abort(from_path.to_s)
 
     respond_to do |format|
       if @client_account.update(client_account_params)
@@ -138,7 +148,9 @@
         :bank_address,
         :company_name,
         :company_id,
-        :client_type
-        )
+        :client_type,
+        :referrer_name,
+        :group_leader_id
+      )
     end
-end
+  end

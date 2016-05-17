@@ -19,24 +19,19 @@
 
 <div class="clearfix search-form">
   <%
-  if params[:search_by] == 'ledger_name'
-    %>
-    <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
-    <%= hidden_field_tag :search_by, "ledger_name" %>
-    <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Ledger Name", :autofocus => true  %>
-    <%= submit_tag "Search" %>
-    <% end %>
+    if params[:search_by] == 'ledger_name'
+  %>
+      <div class="col-sm-3">
+        <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
+            <%= hidden_field_tag :search_by, "ledger_name" %>
+            <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox'%>
+            </div>
+            <%= submit_tag "Search", class: 'btn btn-sm' %>
+        <% end %>
   <% end %>
 </div>
 
-<div class="text-center">
-  <% unless @ledgers.blank? %>
-      <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @ledgers%>
-      </div>
-  <% end %>
-</div>
+<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
 
 <% # OPTIMIZE Incorporate search term specific message %>
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@ledgers.present? %>
@@ -78,12 +73,6 @@
 
 <br>
 
+<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
 
-<div class="text-center">
-  <% unless @ledgers.blank? %>
-  <%= paginate @ledgers, :theme => 'twitter-bootstrap-3'%>
-  <div class="text-center">
-    <%= page_entries_info @ledgers%>
-  </div>
-  <% end %>
 </div>

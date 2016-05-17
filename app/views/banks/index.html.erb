@@ -1,4 +1,5 @@
 <% provide(:section_title, "Listing Banks") %>
+<%= link_to 'New Bank', new_bank_path %>
 <table class="table">
   <thead>
     <tr>
@@ -19,7 +20,6 @@
         <td><%= bank.contact_no %></td>
         <td><%= link_to 'Show', bank %></td>
         <td><%= link_to 'Edit', edit_bank_path(bank) %></td>
-        <td><%= link_to 'Destroy', bank, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -27,4 +27,3 @@
 
 <br>
 
-<%= link_to 'New Bank', new_bank_path %>

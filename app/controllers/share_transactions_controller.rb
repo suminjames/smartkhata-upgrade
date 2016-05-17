@@ -9,10 +9,6 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
-    # Instance variables to populate client and companies in the view
-    @clients = ClientAccount.all
-    @companies = IsinInfo.all
-
     # default landing action for '/share_transactions'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
@@ -21,14 +17,23 @@ class ShareTransactionsController < ApplicationController
       return
     end
 
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'client'
+      @clients = ClientAccount.all.order(:name)
+    end
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'company'
+      @companies = IsinInfo.all.order(:isin)
+    end
+
     # Populate (and route when needed) as per the params
     if params[:search_by] == "cancelled"
       @share_transactions = ShareTransaction.cancelled.order(:isin_info_id)
     elsif params[:search_by] == 'last_working_day'
       #TODO(sarojk): Implement a better way to find the last working day. Maybe something in application helper?
       date  = Time.now.to_date
-      file = FileUpload::FILES[:floorsheet]
-      fileupload = FileUpload.where(file: file).order("report_date desc").limit(1).first;
+      file_type = FileUpload::file_types[:floorsheet]
+      fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
       if ( fileupload.present? )
         date = fileupload.report_date
       end
@@ -172,6 +177,9 @@ class ShareTransactionsController < ApplicationController
 
 
       ActiveRecord::Base.transaction do
+        # remove the transacted amount from the share inventory
+        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buy?, true)
+
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
           dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)

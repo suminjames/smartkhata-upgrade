@@ -1,3 +1,26 @@
+# == Schema Information
+#
+# Table name: bills
+#
+#  id                :integer          not null, primary key
+#  bill_number       :integer
+#  client_name       :string
+#  net_amount        :decimal(15, 4)   default("0")
+#  balance_to_pay    :decimal(15, 4)   default("0")
+#  bill_type         :integer
+#  status            :integer          default("0")
+#  special_case      :integer          default("0")
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  fy_code           :integer
+#  date              :date
+#  date_bs           :string
+#  client_account_id :integer
+#  creator_id        :integer
+#  updater_id        :integer
+#  branch_id         :integer
+#
+
 class Bill < ActiveRecord::Base
   include CustomDateModule
   # added the updater and creater user tracking
@@ -48,7 +71,14 @@ class Bill < ActiveRecord::Base
     :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
     :date => date_from.beginning_of_day..date_to.end_of_day) }
-  scope :find_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
+  scope :find_by_client_id, -> (id) { where(client_account_id: id).order(:status) }
+  scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
+
+
+  scope :requiring_processing, -> { where(status: ["pending","partial"]) }
+  scope :requiring_receive, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]) }
+  scope :requiring_payment, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
+
 
   before_save :process_bill
 
@@ -93,6 +123,7 @@ class Bill < ActiveRecord::Base
   def get_client
     return ClientAccount.find(self.client_account_id)
   end
+
 
 
   private

@@ -10,6 +10,7 @@
           <li><%= link_to 'FloorSheet', new_files_floorsheet_path %></li>
           <li><%= link_to 'Sales CM', new_files_sale_path	 %></li>
           <li><%= link_to 'DpA5', new_files_dpa5_path %></li>
+          <li><%= link_to 'Order', new_files_order_path %></li>
           <li><%= link_to 'CloseOut Debit', new_files_closeout_path(type: 'debit') %></li>
           <li><%= link_to 'CloseOut Credit', new_files_closeout_path(type: 'credit') %></li>
         </ul>
@@ -32,7 +33,7 @@
           <li><%= link_to 'Journal', new_voucher_path	 %></li>
           <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:receive]) %></li>
           <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
-          <li><%= link_to 'Pending Payment', vouchers_path %></li>
+          <li><%= link_to 'Pending Payment', pending_vouchers_vouchers_path %></li>
         </ul>
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Ledgers</strong></p></li>
@@ -45,11 +46,9 @@
         </ul>
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Bank</strong></p></li>
-          <li><%= link_to 'All Banks', banks_path %></li>
+          <li><%= link_to 'Banks', banks_path %></li>
           <li><%= link_to 'Bank Accounts', bank_accounts_path %></li>
-          <li><%= link_to 'New Bank Account', new_bank_account_path %></li>
           <li><%= link_to 'Cheque Entries', cheque_entries_path %></li>
-          <li><%= link_to 'Cheque Entry', new_cheque_entry_path %></li>
         </ul>
       </div>
     </div>
@@ -66,6 +65,7 @@
     <li><%= link_to 'Profit & Loss', report_profitandloss_index_path %></li>
     <li><%= link_to 'Trial Balance', report_trial_balance_index_path %></li>
     <li><%= link_to 'Share Inventory', share_transactions_path %></li>
+    <li><%= link_to 'Orders', orders_path(show: 'report')%></li>
     <li><%= link_to 'Cancelled Transactions', share_transactions_path(search_by: 'cancelled') %></li>
   </ul>
 </li>

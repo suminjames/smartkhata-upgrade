@@ -1,10 +1,10 @@
-<% inverse = false; ledger_list_financial = extra_info[:ledger_list_financial]; ledger_list_no_banks = extra_info[:ledger_list_no_banks]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
+<% inverse = false; ledger_list_financial = extra_info[:ledger_list_financial]; ledger_list_available = extra_info[:ledger_list_available]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
 	<% if inverse == true %>
 		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name,{:selected => default_ledger_id },{:class=>'form-control combobox select-ledger'}) %></div>
 	<% else %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_no_banks, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
+		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
 	<% end %>
 	<div class="col-xs-2"><%= f.input :amnt ,label: false %></div>
 	<div class="col-xs-1 type-selector">
@@ -26,5 +26,5 @@
     </div>
   </div>
 
-  <div class="col-xs-1 padding-zero">          <%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' %></div>
+  <div class="col-xs-1 padding-zero"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receive] && inverse || inverse == false %></div>
 </div>

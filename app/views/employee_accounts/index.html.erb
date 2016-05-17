@@ -19,22 +19,20 @@
     if params[:search_by] == 'name'
   %>
       <!-- TODO: Incorporate javascipt (pre-populated hint-based) search text field-->
-      <%= form_tag(employee_accounts_path, :method => "get", id: "search-form") do %>
-          <%= hidden_field_tag :search_by, "name" %>
-          <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Employee Name", :autofocus => true %>
-          <%= submit_tag "Search" %>
-      <% end %>
+      <div class="col-sm-3">
+        <%= form_tag(employee_accounts_path, :method => "get", id: "search-form") do %>
+            <%= hidden_field_tag :search_by, "name" %>
+            <%= select_tag "search_term", options_from_collection_for_select(@employees_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox' %>
+            </div>
+            <%= submit_tag "Search", class: 'btn btn-sm' %>
+        <% end %>
   <% end %>
 
 </div>
 
 <% if !@employee_accounts.blank? %>
-    <div class="text-center">
-      <%= paginate @employee_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @employee_accounts %>
-      </div>
-    </div>
+
+    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts%>
 
     <div class="table-responsive">
 
@@ -63,19 +61,15 @@
               <td>
                 <%= link_to 'view', employee_account_path(x) %> |
                 <%= link_to 'edit information', edit_employee_account_path(x) %> |
-                <%= link_to 'edit access', edit_employee_account_path(x, type: 'client_access') %>
+                <%= link_to 'edit access', edit_employee_account_path(x, type: 'ledger_access') %>
               </td>
             </tr>
         <% end %>
         </tbody>
       </table>
     </div>
-    <div class="text-center">
-      <%= paginate @employee_accounts, :theme => 'twitter-bootstrap-3'%>
-      <div class="text-center">
-        <%= page_entries_info @employee_accounts %>
-      </div>
-    </div>
+
+    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts%>
 
 <% end %>
 

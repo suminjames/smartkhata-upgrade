@@ -5,6 +5,12 @@
 existingAssociationsLedgerIds  = []
 currentlySelectedAssociationLedgerIds = []
 
+hideUnhideWarning= ->
+  if `$('#employee_account_has_access_to_everyone').is(':checked') === true`
+    $('.everyone-selected-warning').show()
+  else
+    $('.everyone-selected-warning').hide()
+  
 updateSelection = ->
   currentlySelectedAssociationLedgerIds = `$("input:checkbox:checked").not('#select_all').map(function(){return this.value}).get();`
   
@@ -13,6 +19,7 @@ isCurrentSelectionSameAsInitial = ->
   return (`$(currentlySelectedAssociationLedgerIds).not(existingAssociationsLedgerIds).length === 0 && $(existingAssociationsLedgerIds).not(currentlySelectedAssociationLedgerIds).length === 0`)
 
 setSubmitButtonActiveness = ->
+  hideUnhideWarning()
   updateSelection()
   if isCurrentSelectionSameAsInitial() is false and currentlySelectedAssociationLedgerIds.length isnt 0 
     `$('input[type="submit"]').prop('disabled', false)`
@@ -22,7 +29,7 @@ setSubmitButtonActiveness = ->
     `$('input[type="submit"]').prop('disabled', true)`
 
 $(document).ready ->
-  if $('#edit_employee_client_association').length > 0
+  if $('#edit_employee_ledger_association').length > 0
     console.log("doc loaded!")
     # Capture (from dom) and store all associated ledgers' ids after the dom is fully loaded
     existingAssociationsLedgerIds = `$("input:checkbox:checked").not('#select_all').map(function(){return this.value}).get();`

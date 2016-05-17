@@ -13,6 +13,11 @@ class EmployeeAccountsController < ApplicationController
       return
     end
 
+    # Instance variable used by combobox in view to populate name
+    if params[:search_by] == 'name'
+      @employees_for_combobox = EmployeeAccount.all.order(:name)
+    end
+
     if params[:show] == 'all'
       @employee_accounts = EmployeeAccount.all
     elsif params[:search_by] && params[:search_term]
@@ -20,7 +25,7 @@ class EmployeeAccountsController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'name'
-        @employee_accounts = EmployeeAccount.find_by_employee_name(search_term)
+        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
       else
         @employee_accounts = []
       end
@@ -42,7 +47,7 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts/1/edit
   def edit
-    @ledgers = Ledger.all.order(client_code: :desc)
+    @ledgers = Ledger.all.order(:name)
   end
 
   # POST /employee_accounts
@@ -52,6 +57,10 @@ class EmployeeAccountsController < ApplicationController
 
     respond_to do |format|
       if @employee_account.save
+
+        # Assign to Employee group
+        @employee_account.assign_group("Employees")
+
         format.html { redirect_to @employee_account, notice: 'Employee account was successfully created.' }
         format.json { render :show, status: :created, location: @employee_account }
       else
@@ -64,17 +73,21 @@ class EmployeeAccountsController < ApplicationController
   # PATCH/PUT /employee_accounts/1
   # PATCH/PUT /employee_accounts/1.json
   def update
-    # Separate logic for basic employee account info update & employee account client_association update in place based on a hidden 'edit_type' field in the forms
-    if params[:edit_type] == 'client_association'
-      # TODO: Throw error if no ledgers selected i.e., no client_association when has_access_to 'some'
-      EmployeeClientAssociation.delete_previous_associations_for(params[:id])
-      respond_to do |format|
-        if @employee_account.update(employee_account_client_association_params)
-          format.html { redirect_to edit_employee_account_path(id: params[:id], type: 'client_access'), notice: 'Employee account client association was successfully updated.' }
-          format.json { render :show, status: :ok, location: @employee_account }
-        else
-          format.html { render :edit }
-          format.json { render json: @employee_account.errors, status: :unprocessable_entity }
+    # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
+    if params[:edit_type] == 'ledger_association'
+      # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
+      ActiveRecord::Base.transaction do
+
+        EmployeeLedgerAssociation.delete_previous_associations_for(params[:id])
+
+        respond_to do |format|
+          if @employee_account.update(employee_account_ledger_association_params)
+            format.html { redirect_to edit_employee_account_path(id: params[:id], type: 'ledger_access'), notice: 'Employee account ledger association was successfully updated.' }
+            format.json { render :show, status: :ok, location: @employee_account }
+          else
+            format.html { render :edit }
+            format.json { render json: @employee_account.errors, status: :unprocessable_entity }
+          end
         end
       end
     elsif params[:edit_type] == 'create_or_update'
@@ -107,15 +120,16 @@ class EmployeeAccountsController < ApplicationController
       @employee_account = EmployeeAccount.find(params[:id])
     end
 
-    def employee_account_client_association_params
-      # TODO : Make more robust?
-      if params[:employee_account][:has_access_to] == ('some')
-        employee_client_associations_attributes = []
-        params[:client_associations].each do |client_association|
-          employee_client_associations_attributes <<  {:client_account_id => client_association}
+    def employee_account_ledger_association_params
+      # TODO : Make more robust!
+      if params[:employee_account][:has_access_to] == 'some'
+        employee_ledger_associations_attributes = []
+        params[:ledger_associations].each do |ledger_association|
+          employee_ledger_associations_attributes <<  {:ledger_id => ledger_association}
         end
-        params[:employee_account][:employee_client_associations_attributes]= employee_client_associations_attributes
-        params.require(:employee_account).permit(:has_access_to, :employee_client_associations_attributes => [:client_account_id])
+        # Update of 'has_many: employee_ledger_associations' taking place via employee_ledger_associations_attributes
+        params[:employee_account][:employee_ledger_associations_attributes]= employee_ledger_associations_attributes
+        params.require(:employee_account).permit(:has_access_to, :employee_ledger_associations_attributes => [:ledger_id])
       else
         params.require(:employee_account).permit(:has_access_to)
       end

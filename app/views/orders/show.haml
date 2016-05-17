@@ -1,0 +1,46 @@
+- provide(:section_title, "Order")
+- if @order.present?
+  %div
+    = link_to 'Go Back', @from_path
+
+  %br
+  %table.table.table-striped
+    %tr
+      %th Order Number
+      %th Client Name
+      %th Client Code
+      %th Date
+    %tr
+      %td= @order.order_number
+      %td= @order.client_account.name.titleize
+      %td= @order.client_account.nepse_code
+      %td= ad_to_bs(@order.date)
+
+  %table.table.table-striped
+    %tr
+      %th #
+      %th Order Nepse Id
+      %th Isin Info Id
+      %th Price
+      %th Quantity
+      %th Amount
+      %th Pending Quantity
+      %th Type
+      %th Segment
+      %th Condition
+      %th State
+    - @order.order_details.each_with_index do |order_detail, i |
+      %tr
+        %td= i+1
+        %td= order_detail.order_nepse_id
+        %td= order_detail.isin_info.isin
+        %td= order_detail.price
+        %td= order_detail.quantity
+        %td= order_detail.amount
+        %td= order_detail.pending_quantity
+        %td= order_detail.typee
+        %td= order_detail.segment
+        %td= order_detail.condition == 'nonee' ? 'none' : order_detail.condition
+        %td= order_detail.state
+  %div
+    = link_to 'Go Back', @from_path

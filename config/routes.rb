@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :employee_ledger_associations
   resources :branches
   resources :closeouts
   resources :share_inventories
@@ -6,9 +7,12 @@ Rails.application.routes.draw do
   resources :employee_accounts
   resources :banks
   resources :settlements
-  resources :settlements
   resources :cheque_entries do
-    collection {get :get_cheque_number}
+    collection do
+      get :get_cheque_number
+      get :update_print
+    end
+
   end
   resources :bank_accounts
   resources :sales_settlements do
@@ -24,12 +28,18 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
+      post 'process_selected'
     end
   end
   resources :groups
   resources :ledgers
+  resources :orders
+
+  match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
     collection do
+      get 'pending_vouchers'
+      # post 'new'
       post 'finalize_payment'
     end
   end
@@ -40,7 +50,7 @@ Rails.application.routes.draw do
   resources :client_accounts
 
   namespace 'files' do
-    resources :orders, only: [:new] do
+    resources :orders, only: [:new, :index] do
       collection {post :import}
     end
     resources :floorsheets, only: [:new, :index] do
