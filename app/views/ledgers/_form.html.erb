@@ -1,23 +1,28 @@
 <%= simple_form_for(@ledger) do |f| %>
   <%= f.error_notification %>
+    <div class="form-inputs row">
+      <div class="col-xs-6">
+        <%= f.input :name %>
+      </div>
 
-    <div class="form-inputs">
-      <%= f.input :name %>
     </div>
-    <div class="form-inputs">
-      <%= f.input :group_id do %>
-        <%= f.collection_select(:group_id, Group.all, :id, :name,{},{:class=>'form-control combobox'}) %>
-      <% end %>
+    <div class="form-inputs row">
+      <div class="col-xs-3">
+        <%= f.input :group_id do %>
+            <%= f.collection_select(:group_id, Group.all, :id, :name,{},{:class=>'form-control combobox'}) %>
+        <% end %>
+      </div>
+
     </div>
 
     <% if is_new_ledger %>
     <div class="form-inputs row">
-      <br><br>
+      <br>
       <div class="col-xs-3"><%= f.input :opening_blnc %></div>
-      <div class="col-xs-3"><p><strong>Type </strong></p><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
+      <div class="col-xs-3"><label><strong>Type </strong></label><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
     </div>
     <% end %>
-
+    <br><br>
     <div class="form-actions">
       <%= f.button :submit %>
     </div>
