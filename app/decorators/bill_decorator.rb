@@ -94,6 +94,19 @@ class BillDecorator < ApplicationDecorator
     company_count_str
   end
 
+  def formatted_isin_abbreviation_index
+    unique_isins = Set.new()
+    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+      unique_isins.add(share_transaction.isin_info)
+    end
+    isin_abbreviation_index_str = ''
+    unique_isins.each do |isin|
+      isin_abbreviation_index_str += isin.isin + ': ' + isin.company + ' | '
+    end
+    # strip the trailing '| ' and return
+    isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length-2)
+  end
+
   def formatted_net_share_amount
     h.arabic_number(object.get_net_share_amount)
   end
@@ -114,4 +127,9 @@ class BillDecorator < ApplicationDecorator
     h.arabic_number(object.get_net_cgt)
   end
 
+  def formatted_fy_code
+    # object.fy_code has a signature like '7273'
+    # will return '72-73'
+    object.fy_code.to_s.insert(2, '-')
+  end
 end
