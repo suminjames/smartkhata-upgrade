@@ -129,4 +129,9 @@ module ApplicationHelper
 
 		price_hash
 	end
+
+# 	get the margin of error amount
+	def margin_of_error_amount
+		return 0.01
+	end
 end

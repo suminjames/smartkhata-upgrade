@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc >= 0 ? 'dr': 'cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc + margin_of_error_amount >= 0 ? 'dr': 'cr'}" %></h4>
 
 <% if @ledger.closing_blnc.abs >= 0.01 %>
     <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
@@ -50,7 +50,7 @@
 
 <% if @particulars.present? %>
     <% if @opening_blnc_sorted.present? %>
-    <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted >= 0 ? 'dr': 'cr'}" %></p>
+    <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted + margin_of_error_amount >= 0 ? 'dr': 'cr'}" %></p>
     <% end %>
 <div class= "box box-warning">
 	<div class="box-body ledger">
@@ -116,17 +116,18 @@
           <% end %>
         </td>
 				<td class='text-right'>
-          <% if particular.running_blnc < 0 %>
+          <!-- -0.01 + 0.01 is equal to zero -->
+          <% if particular.running_blnc + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.running_blnc)} cr" %>
+                <%= "#{number_to_currency(particular.running_blnc.abs)} cr" %>
               </span>
           <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(particular.running_blnc)} dr" %>
+                <%= "#{number_to_currency(particular.running_blnc.abs)} dr" %>
               </span>
           <% end %>
 
-          </td>
+        </td>
 			</tr>
 		<% end %>
 	</table>

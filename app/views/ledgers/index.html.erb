@@ -43,7 +43,7 @@
 <table class="table">
   <thead>
     <tr>
-      <th colspan="3"></th>
+
     </tr>
   </thead>
 
@@ -53,6 +53,17 @@
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>
+        <td class="text-right" style="padding-right: 40px;">
+          <% if ledger.closing_blnc + margin_of_error_amount < 0 %>
+              <span class="credit-amount">
+                <%= "#{number_to_currency(ledger.closing_blnc.abs)} cr" %>
+              </span>
+          <% else %>
+              <span class="debit-amount">
+                <%= "#{number_to_currency(ledger.closing_blnc.abs)} dr" %>
+              </span>
+          <% end %>
+        </td>
         <td>
         <%= link_to 'Show', ledger %>
         <% if ledger.client_account_id.present? %>

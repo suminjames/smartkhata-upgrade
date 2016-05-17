@@ -3,6 +3,7 @@ class ShareTransactionsController < ApplicationController
 
   include SmartListing::Helper::ControllerExtensions
   helper  SmartListing::Helper
+  include ShareInventoryModule
 
   # TODO: http://stackoverflow.com/questions/22799631/postgresql-and-activerecord-where-regex-matching
 

@@ -2,8 +2,10 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+.credit-amount { color: red}
+
 .ledger {
-  .credit-amount { color: red}
+
   table{
     // The width of this table is ought to be 900px.
     // TODO: test the 900px width against small screens, and the fixed dimensions of the page.
