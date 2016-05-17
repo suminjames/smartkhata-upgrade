@@ -1,4 +1,14 @@
 <!--This is kept in a partial with underscore appended filename because this is not only rendered in regular #show action but also using js(as a pulldown modal) -->
+
+<!--
+Note:
+- Following entities to be displayed in sales bills but not in purchase bills
+  - base price
+  - capital gain
+  - net payable amount
+- Following entities to be displayed in purchase bills but not in sales bills
+  - net receivable amount
+-->
 <%
 # Client associated with the bill
 @client = bill.get_client
@@ -103,11 +113,11 @@
         <th class="col-2">No of Shares</th>
         <th class="col-3">Company Name</th>
         <th class="col-4">Share Rate</th>
-        <th class="col-5">Base Price</th>
+        <th class="col-5 <%= bill.formatted_visibility_class('base_price') %>">Base Price</th>
         <th class="col-6">Amount</th>
         <th class="col-7">Commission</th>
-        <th class="col-8">Commission Amount</th>
-        <th class="col-9">Capital Gain</th>
+        <th class="col-8 ">Commission Amount</th>
+        <th class="col-9 <%= bill.formatted_visibility_class('capital_gain') %>">Capital Gain</th>
       </tr>
 
       <colgroup>
@@ -155,7 +165,7 @@
           <!-- <th>Share Rate</th> -->
           <td><%= share_transaction.formatted_share_rate %></td>
           <!-- <th>Base Price</th> -->
-          <td><%= share_transaction.formatted_base_price %></td>
+          <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= share_transaction.formatted_base_price %></td>
           <!-- <th>Amount</th> -->
           <td><%= share_transaction.formatted_amount %></td>
           <!-- <th>Commission Rate</th> -->
@@ -163,7 +173,7 @@
           <!-- <th>Commission Amount</th> -->
           <td><%= share_transaction.formatted_commission_amount%></td>
           <!-- <th>Capital Gain</th> -->
-          <td><%= share_transaction.formatted_capital_gain %></td>
+          <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= share_transaction.formatted_capital_gain %></td>
         </tr>
         <%
           end
@@ -193,15 +203,15 @@
           <td>DP Fee:</td>
           <td><%= bill.formatted_net_dp_fee %></td>
         </tr>
-        <tr>
+        <tr class="<%= bill.formatted_visibility_class('capital_gain') %>">
           <td>Capital Gain:</td>
           <td><%= bill.formatted_net_cgt %></td>
         </tr>
-        <tr>
+        <tr class="<%= bill.formatted_visibility_class('net_receivable_amount') %>">
           <td>Net Receivable Amount:</td>
           <td><%= bill.formatted_net_receivable_amount %></td>
         </tr>
-        <tr>
+        <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
           <td>Net Payable Amount:</td>
           <td><%= bill.formatted_net_payable_amount %></td>
         </tr>

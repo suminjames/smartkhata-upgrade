@@ -51,9 +51,9 @@ class BillDecorator < ApplicationDecorator
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
   def formatted_bill_message
     case type
-    when 'pay'
+    when 'sales'
       bill_type_verb = "Sold"
-    when 'receive'
+    when 'purchase'
       bill_type_verb = "Purchashed"
     else
       bill_type_verb = ""
@@ -132,4 +132,31 @@ class BillDecorator < ApplicationDecorator
     # will return '72-73'
     object.fy_code.to_s.insert(2, '-')
   end
+
+  # Determines whether or not an entity is to be hidden or not in the view.
+  # returns - a css class identifier
+  # Note:
+  # - Following entities to be displayed in sales bills but not in purchase bills
+  # -- base price
+  # -- capital gain
+  # -- net payable amount
+  # - Following entities to be displayed in purchase bills but not in sales bills
+  # -- net receivable amount
+  def formatted_visibility_class(entity)
+    sales_entities = ['base_price', 'capital_gain', 'net_payable_amount']
+    purchase_entities = ['net_receivable_amount']
+
+    is_relevant = true
+
+    if object.sales?
+      is_relevant = sales_entities.include? entity
+    end
+    if object.purchase?
+      is_relevant = purchase_entities.include? entity
+    end
+
+    is_relevant == false ? 'no-display': ''
+
+  end
+
 end
