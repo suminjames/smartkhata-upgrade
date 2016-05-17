@@ -4,7 +4,7 @@
   <div class="form-inputs">
     <%= f.association :bank, collection: Bank.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'} %>
     <%= f.input :account_number %>
-    <%= f.input :default_for_receive %>
+    <%= f.input :default_for_receipt %>
     <%= f.input :default_for_payment %>
 
     <h3>Ledger Details</h3>

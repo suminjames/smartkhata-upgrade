@@ -10,8 +10,8 @@
 #  updated_at    :datetime         not null
 #
 
-class BillVoucherRelation < ActiveRecord::Base
+class BillVoucherAssociation < ActiveRecord::Base
   belongs_to :bill
   belongs_to :voucher
-  enum relation_type: [ :on_creation, :on_settlement ]
+  enum association_type: [:on_creation, :on_settlement ]
 end

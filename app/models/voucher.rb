@@ -32,13 +32,13 @@ class Voucher < ActiveRecord::Base
 	has_many :settlements
 
 
-	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
-	has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
-	has_many :bill_voucher_relations
+	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+	has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
+	has_many :bill_voucher_associations
 
 	has_many :bills_on_creation, through: :on_creation, source: :bill
 	has_many :bills_on_settlement, through: :on_settlement, source: :bill
-	has_many :bills , through: :bill_voucher_relations
+	has_many :bills , through: :bill_voucher_associations
 
 
   # to keep track of the user who created and last updated the ledger

@@ -39,6 +39,19 @@ class Particular < ActiveRecord::Base
 
 	# belongs_to :receipt
 	has_many :cheque_entries
+
+  # for many to many relation between cheque and the particulars.
+  # a cheque can pay/recieve for multiple particulars.
+  has_many :payments, -> { payment }, class_name: "ChequeParticularRelation"
+  has_many :receipts, -> { receipt }, class_name: "ChequeParticularRelation"
+  has_many :cheque_particular_relations
+
+  has_many :cheque_entries_on_payment, through: :payments, source: :cheque_entry
+  has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
+  has_many :cheque_entries , through: :cheque_particular_relations
+
+
+
 	validates_presence_of :ledger_id
 	enum transaction_type: [ :dr, :cr ]
 	enum particular_status: [:pending, :complete]

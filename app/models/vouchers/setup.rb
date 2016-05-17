@@ -16,7 +16,7 @@ class Vouchers::Setup < Vouchers::Base
       is_purchase_sales = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.where(:default_for_payment => true).first
-      default_bank_receive = BankAccount.where(:default_for_receive   => true).first
+      default_bank_receive = BankAccount.where(:default_for_receipt   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
       ledger_list_available = Ledger.non_bank_ledgers
 

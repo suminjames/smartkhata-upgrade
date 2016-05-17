@@ -63,7 +63,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   test "allowed users should update bank_account" do
     sign_in users(:user)
-    patch :update, id: @bank_account, bank_account: { default_for_receive: false }
+    patch :update, id: @bank_account, bank_account: {default_for_receipt: false }
     assert_redirected_to bank_account_path(assigns(:bank_account))
   end
 

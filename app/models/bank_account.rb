@@ -43,9 +43,9 @@ class BankAccount < ActiveRecord::Base
     end
 
     if self.default_for_receive
-      bank_accounts = BankAccount.where( :default_for_receive => true)
+      bank_accounts = BankAccount.where( :default_for_receipt => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
-      bank_accounts.update_all(:default_for_receive => false)
+      bank_accounts.update_all(:default_for_receipt => false)
     end
 
   end
