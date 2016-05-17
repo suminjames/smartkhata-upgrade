@@ -16,7 +16,6 @@ class BillDecorator < ApplicationDecorator
       {"ad" => ad_date , "bs" => bs_date}
   end
 
-  # TODO Check for correctness of implementation
   def formatted_transaction_dates
       bs_date = h.ad_to_bs(object.share_transactions[0].date).to_s + ' BS'
       ad_date =object.share_transactions[0].date.to_s + ' AD'
@@ -82,16 +81,10 @@ class BillDecorator < ApplicationDecorator
     status.titleize
   end
 
-  # TODO  Look into its implementation
   def formatted_companies_list
     # The `companies` hash maps an ISIN to its number of occurences
     companies = Hash.new(0);
-    # for i in  0..object.share_transactions.count
-    #   companies[object.share_transactions[i].isin_info.isin.to_s] +=1
-    #   # companies[share_transaction.isin_info.isin.to_s] +=1
-    # end
-    object.share_transactions.each_with_index do | share_transaction, i |
-      # companies[share_transaction.isin_name.to_s] +=1
+    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
       companies[share_transaction.isin_info.isin.to_s] +=1
     end
     company_count_str = ''

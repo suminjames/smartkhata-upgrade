@@ -115,6 +115,8 @@
       </colgroup>
       <%
       bill.share_transactions.each do | share_transaction |
+        # Only show those share transactions that haven't been 'deal cancelled'
+        if share_transaction.deleted_at.nil?
         %>
 
 
@@ -143,7 +145,7 @@
         # </tr>
         # <!-- Test Data ENDS -->
         %>
-        <tr class="<%= 'deal_cancelled_transaction' if share_transaction.deal_cancelled == true %>">
+        <tr>
           <!-- <th>Transaction No</th> -->
           <td><%= share_transaction.contract_no %></td>
           <!-- <th>No of Shares</th> -->
@@ -164,6 +166,7 @@
           <td><%= share_transaction.formatted_capital_gain %></td>
         </tr>
         <%
+          end
       end
       %>
     </table>
