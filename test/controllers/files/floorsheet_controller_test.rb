@@ -55,13 +55,13 @@ class Files::FloorsheetsControllerTest < ActionController::TestCase
 
     # dulpicate import
     @post_action.call('valid')
-    assert_not flash.empty?
+    assert_contains 'the file is already uploaded', flash[:error]
   end
   test "should not import invalid file" do
     sign_in @user
     @post_action.call('invalid')
     assert_response :success
-    assert_not flash.empty?
+    assert_contains 'please upload a valid file', flash[:error]
     assert_template 'files/floorsheets/import'
 
     # VERIFY THAT THE FILE WAS NOT IMPORTED
