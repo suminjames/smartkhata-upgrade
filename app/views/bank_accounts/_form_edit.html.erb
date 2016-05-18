@@ -1,16 +1,19 @@
-<%= simple_form_for(@bank_account) do |f| %>
-    <%= f.error_notification %>
+<div class="row">
+  <div class="col-xs-6">
+    <%= simple_form_for(@bank_account) do |f| %>
+        <%= f.error_notification %>
 
-    <div class="form-inputs">
-      <%= f.association :bank ,:input_html => { :class => 'combobox'}, disabled: true %>
+        <div class="form-inputs">
+          <%= f.association :bank ,:input_html => { :class => 'combobox'}, disabled: true %>
 
-      <%= f.input :account_number, disabled: true %>
-      <%= f.input :default_for_receipt %>
-      <%= f.input :default_for_payment %>
+          <%= f.input :account_number, disabled: true %>
+          <%= f.input :default_for_receipt %>
+          <%= f.input :default_for_payment %>
+        </div>
 
-    </div>
-
-    <div class="form-actions">
-      <%= f.button :submit %>
-    </div>
-<% end %>
+        <div class="form-actions">
+          <%= f.button :submit %>
+        </div>
+    <% end %>
+  </div>
+</div>

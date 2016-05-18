@@ -16,11 +16,11 @@
 %div.clearfix.search-form
 
   -if params[:search_by] == 'client_name'
-    %div.col-sm-3
-      = form_tag(orders_path, :method => "get", id: "search-form") do
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      %div.col-sm-3
         = hidden_field_tag :search_by, "client_name"
-        = select_tag "search_term", options_from_collection_for_select(clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox'
-    = submit_tag "Search", class: 'btn btn-sm'
+        = select_tag "search_term", options_from_collection_for_select(clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select an order...'
+      = submit_tag "Search", class: 'btn btn-sm'
 
   -if params[:search_by] == 'order_number'
     = form_tag(orders_path, :method => "get", id: "search-form") do

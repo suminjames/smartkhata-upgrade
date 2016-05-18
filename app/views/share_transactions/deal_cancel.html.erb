@@ -1,15 +1,17 @@
 <div class="clearfix">
   <h4>Search the Transaction for Cancelling</h4>
   <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
-    <!--  TODO: Implement selected -->
-    <div class="row">
-      <div class="form-group col-xs-4">
-        <%= text_field_tag :contract_no, nil, placeholder: "Search by Contract Number", :autofocus => true, class: 'form-control' %>
+      <div class="row">
+        <div class="form-group col-xs-4">
+          <%= text_field_tag :contract_no, nil, placeholder: "Search by Contract Number", :autofocus => true, class: 'form-control' %>
+        </div>
+        <div class="form-group col-xs-6">
+          <div class="col-xs-2 text-right">
+            <h5>Bill Type</h5>
+          </div>
+          <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buy'], ['Sales','sell']] ) , class: 'form-control' %></div>
+        </div>
       </div>
-      <div class="form-group col-xs-6">
-        <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buy'], ['Sales','sell']] ) , class: 'form-control'%></div>
-      </div>
-    </div>
 
     <%= submit_tag "Search", class: 'btn btn-sm' %>
   <% end %>
@@ -43,7 +45,7 @@
         </tbody>
       </table>
       <%= hidden_field_tag 'id', @share_transaction.id %>
-      <%= submit_tag "Cancel", class: 'btn btn-sm' %>
+      <%= submit_tag "Process Deal Cancel", class: 'btn btn-sm' %>
     <% end %>
   <% end %>
 </div>

@@ -166,15 +166,13 @@ class ShareTransactionsController < ApplicationController
   def deal_cancel
     if params[:id].present?
       @share_transaction = ShareTransaction.not_cancelled.find_by(id: params[:id].to_i)
+      # TODO(Subas) Check if @share_transaction(above) is nil and proceed accordingly; don't proceed if nil but return (with error maybe)!
       @voucher = @share_transaction.voucher
       @bill = @share_transaction.bill
 
       relevant_share_transactions = @bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
-      @dp_fee_adjustment = 0.0
+      dp_fee_adjustment = 0.0
       total_transaction_count = relevant_share_transactions.length
-
-
-
 
 
       ActiveRecord::Base.transaction do
