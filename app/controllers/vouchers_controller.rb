@@ -6,11 +6,11 @@ class VouchersController < ApplicationController
   # GET /vouchers
   # GET /vouchers.json
   def index
-    @vouchers = Voucher.pending.order("id ASC")
+    @vouchers = Voucher.pending.order("id ASC").decorate
   end
 
   def pending_vouchers
-    @vouchers = Voucher.pending.order("id ASC")
+    @vouchers = Voucher.pending.order("id ASC").decorate
     render :index
   end
 
