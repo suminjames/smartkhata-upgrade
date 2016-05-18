@@ -6,7 +6,11 @@ Rails.application.routes.draw do
   resources :employee_client_associations
   resources :employee_accounts
   resources :banks
-  resources :settlements
+  resources :settlements do
+    collection do
+      get :show_multiple
+    end
+  end
   resources :cheque_entries do
     collection do
       get :get_cheque_number

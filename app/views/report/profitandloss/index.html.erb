@@ -26,9 +26,9 @@
         <div class="col-xs-6"><%= assets[0] %></div>
         <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>
       <% end %>
-      <% if @amnt < 0 %>
+      <% if @amount < 0 %>
         <div class="col-xs-6">Profit</div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(@amnt.abs) %></div>
+        <div class="col-xs-6 text-right"><%= number_to_currency(@amount.abs) %></div>
       <% end %>
     </td>
 
@@ -37,9 +37,9 @@
         <div class="col-xs-6"><%= assets[0] %></div>
         <div class="col-xs-6 text-right"><%= number_to_currency(assets[1] > 0 ? assets[1] * -1 : assets[1].abs) %></div>
       <% end %>
-      <% if @amnt > 0 %>
+      <% if @amount > 0 %>
         <div class="col-xs-6">Loss</div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(@amnt) %></div>
+        <div class="col-xs-6 text-right"><%= number_to_currency(@amount) %></div>
       <% end %>
     </td>
   </tr>

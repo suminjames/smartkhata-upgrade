@@ -69,7 +69,7 @@
                     <%= @cheque %>
                   </div>
                   <div class="col-xs-2">
-                    <%= arabic_number(particular.amnt) %>
+                    <%= arabic_number(particular.amount) %>
                   </div>
                 </div>
                 <br>
@@ -151,8 +151,8 @@
                   <%= particular.ledger.name 	 %>
                 </div>
                 <div class="col-xs-6 row">
-                  <div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amnt : "" ) %></div>
-                  <div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amnt : "" ) %></div>
+                  <div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amount : "" ) %></div>
+                  <div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amount : "" ) %></div>
 
                 </div>
               </div>

@@ -6,7 +6,7 @@
 	<% else %>
 		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
 	<% end %>
-	<div class="col-xs-2"><%= f.input :amnt ,label: false %></div>
+	<div class="col-xs-2"><%= f.input :amount ,label: false %></div>
 	<div class="col-xs-1 type-selector">
 		<% if ( voucher_type == Voucher.voucher_types[:receive] && inverse == false  ) || ( voucher_type == Voucher.voucher_types[:payment] && inverse == true ) %>
 			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
@@ -26,5 +26,5 @@
     </div>
   </div>
 
-  <div class="col-xs-1 padding-zero"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receive] && inverse || inverse == false %></div>
+  <div class="col-xs-1 padding-zero remove-particular"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receive] && inverse || inverse == false %></div>
 </div>

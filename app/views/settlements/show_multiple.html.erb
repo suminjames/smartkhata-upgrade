@@ -1,0 +1,109 @@
+<div id="btnPrint">
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+</div>
+<div class="clearfix billfull printThis">
+  <% @settlements.each do |settlement| %>
+      <!-- Static Company Header BEGINS -->
+      <div class="clearfix">
+        <strong>
+          <%= current_tenant.full_name %><br>
+          <%= current_tenant.address %><br>
+        </strong>
+
+        <div class="row">
+          <div class="col-xs-3">
+            <strong>
+              Phone: <%= current_tenant.phone_number %>
+              <br>
+              Fax: <%= current_tenant.fax_number %>
+              <br>
+              PAN: <%= current_tenant.pan_number %>
+              <br>
+            </strong>
+          </div>
+
+          <div class="col-xs-6 text-center">
+            <% if settlement.receipt? %>
+                <h4><u>RECEIPT</u></h4>
+            <% else %>
+                <h4><u>PAYMENT</u></h4>
+            <% end %>
+          </div>
+        </div>
+        <div class="clearfix horizontal-line">
+        </div>
+      </div>
+      <!-- Static Company Header ENDS-->
+      <br><br>
+      <!-- Receipt No. and Receipt Date BEGINS -->
+      <div class="row">
+        <div class="col-xs-4">
+          <% if settlement.receipt? %>
+              <p>Receipt No: <%= settlement.id %></p>
+          <% else %>
+              <p>Payment No: <%= settlement.id %></p>
+          <% end %>
+
+        </div>
+        <div class="col-xs-3 col-xs-offset-5 text-right">
+          <p>Date: <%= settlement.date_bs%></p>
+        </div>
+      </div>
+      <!-- Receipt No. and Receipt Date ENDS -->
+
+      <!-- Receipt details START -->
+      <% if settlement.receipt? %>
+          <p>Received with thanks from: <strong><u><%= settlement.name %></u></strong></p>
+      <% else %>
+          <p>Paid To: <strong><u><%= settlement.name %></u></strong></p>
+      <% end %>
+
+      <p>the sum of   <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
+      <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
+      <!-- Receipt details END -->
+      <% if settlement.voucher.cheque_entries.present? %>
+          <p>By Cheque:
+            <% settlement.voucher.cheque_entries.uniq.each do |cheque| %>
+                <% if cheque.receipt? %>
+                    <br>
+                    <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.additional_bank.name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+                <% else %>
+                    <br>
+                    <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.bank_account.bank_name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+                <% end %>
+            <% end %>
+          </p>
+      <% end %>
+
+      <br><br>
+      <div class="row">
+        <div class="col-xs-3 col-xs-offset-4">
+          <br>
+          <hr class="clearfix horizontal-line">
+          <p class="text-center">Paid By</p>
+        </div>
+        <div class="col-xs-3 col-xs-offset-2">
+          <br>
+          <hr class="clearfix horizontal-line">
+          <p class="text-center">Received By</p>
+        </div>
+
+      </div>
+      <hr class="clearfix horizontal-line">
+      <br>
+      <div class="clearfix">
+        <!-- Footnote BEGINS -->
+        <em>
+          <p><%= settlement.description %></p>
+          <% if settlement.receipt? %>
+              <u>
+                Note: Please bring this receipt compulsarily while claiming unpurchase share. </u>
+          <% end %>
+        </em>
+        <!-- Footnote ENDS -->
+      </div>
+      <br><br><br><br>
+  <% end %>
+
+</div>

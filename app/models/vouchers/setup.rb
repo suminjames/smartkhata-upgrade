@@ -16,7 +16,7 @@ class Vouchers::Setup < Vouchers::Base
       is_purchase_sales = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.where(:default_for_payment => true).first
-      default_bank_receive = BankAccount.where(:default_for_receive   => true).first
+      default_bank_receive = BankAccount.where(:default_for_receipt   => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
       ledger_list_available = Ledger.non_bank_ledgers
 
@@ -37,19 +37,19 @@ class Vouchers::Setup < Vouchers::Base
     voucher.particulars = []
     if is_purchase_sales
       transaction_type = voucher_type == Voucher.voucher_types[:receive] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
-      voucher.particulars << Particular.new(ledger_id: default_ledger_id,amnt: amount, transaction_type: transaction_type)
+      voucher.particulars << Particular.new(ledger_id: default_ledger_id,amount: amount, transaction_type: transaction_type)
     end
 
 
     # settlement by clearance only in case of payment to client
     if settlement_by_clearance
       voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.size > 0
-      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id,amnt: amount, transaction_type: Particular.transaction_types[:cr])
+      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id,amount: amount, transaction_type: Particular.transaction_types[:cr])
       clearance_ledger = Ledger.find_by!(name: "Clearing Account")
-      voucher.particulars << Particular.new(ledger_id: clearance_ledger,amnt: amount, transaction_type: Particular.transaction_types[:dr])
+      voucher.particulars << Particular.new(ledger_id: clearance_ledger,amount: amount, transaction_type: Particular.transaction_types[:dr])
     else
       # for sales and purchase we need two particular one for debit and one for credit
-      voucher.particulars <<  Particular.new(ledger_id: client_account.ledger.id,amnt: amount) if client_account.present?
+      voucher.particulars <<  Particular.new(ledger_id: client_account.ledger.id,amount: amount) if client_account.present?
       # a general particular for the voucher
       voucher.particulars << Particular.new if client_account.nil?
     end

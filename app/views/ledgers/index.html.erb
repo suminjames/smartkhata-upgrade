@@ -21,13 +21,13 @@
   <%
     if params[:search_by] == 'ledger_name'
   %>
-      <div class="col-sm-3">
-        <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
+          <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "ledger_name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox'%>
-            </div>
-            <%= submit_tag "Search", class: 'btn btn-sm' %>
-        <% end %>
+            <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a ledger...'%>
+          </div>
+          <%= submit_tag "Search", class: 'btn btn-sm' %>
+      <% end %>
   <% end %>
 </div>
 
@@ -40,10 +40,10 @@
 <% end %>
 <% end %>
 
-<table class="table">
+<table class="table ledger-list">
   <thead>
     <tr>
-      <th colspan="3"></th>
+
     </tr>
   </thead>
 
@@ -53,6 +53,17 @@
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>
+        <td class="text-right" style="padding-right: 40px;">
+          <% if ledger.closing_blnc + margin_of_error_amount < 0 %>
+              <span class="credit-amount">
+                <%= "#{number_to_currency(ledger.closing_blnc.abs)} cr" %>
+              </span>
+          <% else %>
+              <span class="debit-amount">
+                <%= "#{number_to_currency(ledger.closing_blnc.abs)} dr" %>
+              </span>
+          <% end %>
+        </td>
         <td>
         <%= link_to 'Show', ledger %>
         <% if ledger.client_account_id.present? %>

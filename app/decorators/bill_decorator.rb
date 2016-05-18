@@ -16,7 +16,6 @@ class BillDecorator < ApplicationDecorator
       {"ad" => ad_date , "bs" => bs_date}
   end
 
-  # TODO Check for correctness of implementation
   def formatted_transaction_dates
       bs_date = h.ad_to_bs(object.share_transactions[0].date).to_s + ' BS'
       ad_date =object.share_transactions[0].date.to_s + ' AD'
@@ -52,9 +51,9 @@ class BillDecorator < ApplicationDecorator
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
   def formatted_bill_message
     case type
-    when 'pay'
+    when 'sales'
       bill_type_verb = "Sold"
-    when 'receive'
+    when 'purchase'
       bill_type_verb = "Purchashed"
     else
       bill_type_verb = ""
@@ -82,16 +81,10 @@ class BillDecorator < ApplicationDecorator
     status.titleize
   end
 
-  # TODO  Look into its implementation
   def formatted_companies_list
     # The `companies` hash maps an ISIN to its number of occurences
     companies = Hash.new(0);
-    # for i in  0..object.share_transactions.count
-    #   companies[object.share_transactions[i].isin_info.isin.to_s] +=1
-    #   # companies[share_transaction.isin_info.isin.to_s] +=1
-    # end
-    object.share_transactions.each_with_index do | share_transaction, i |
-      # companies[share_transaction.isin_name.to_s] +=1
+    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
       companies[share_transaction.isin_info.isin.to_s] +=1
     end
     company_count_str = ''
@@ -99,6 +92,19 @@ class BillDecorator < ApplicationDecorator
       company_count_str += key + "(" + value.to_s + ")" + " "
     end
     company_count_str
+  end
+
+  def formatted_isin_abbreviation_index
+    unique_isins = Set.new()
+    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+      unique_isins.add(share_transaction.isin_info)
+    end
+    isin_abbreviation_index_str = ''
+    unique_isins.each do |isin|
+      isin_abbreviation_index_str += isin.isin + ': ' + isin.company + ' | '
+    end
+    # strip the trailing '| ' and return
+    isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length-2)
   end
 
   def formatted_net_share_amount
@@ -119,6 +125,38 @@ class BillDecorator < ApplicationDecorator
 
   def formatted_net_cgt
     h.arabic_number(object.get_net_cgt)
+  end
+
+  def formatted_fy_code
+    # object.fy_code has a signature like '7273'
+    # will return '72-73'
+    object.fy_code.to_s.insert(2, '-')
+  end
+
+  # Determines whether or not an entity is to be hidden or not in the view.
+  # returns - a css class identifier
+  # Note:
+  # - Following entities to be displayed in sales bills but not in purchase bills
+  # -- base price
+  # -- capital gain
+  # -- net payable amount
+  # - Following entities to be displayed in purchase bills but not in sales bills
+  # -- net receivable amount
+  def formatted_visibility_class(entity)
+    sales_entities = ['base_price', 'capital_gain', 'net_payable_amount']
+    purchase_entities = ['net_receivable_amount']
+
+    is_relevant = true
+
+    if object.sales?
+      is_relevant = sales_entities.include? entity
+    end
+    if object.purchase?
+      is_relevant = purchase_entities.include? entity
+    end
+
+    is_relevant == false ? 'no-display': ''
+
   end
 
 end

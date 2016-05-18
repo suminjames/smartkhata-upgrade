@@ -8,7 +8,7 @@ class CreateParticulars < ActiveRecord::Migration
       t.integer :cheque_number
       t.string :name
       t.string :description
-    	t.decimal :amnt , precision: 15, scale: 4, default: 0
+    	t.decimal :amount , precision: 15, scale: 4, default: 0
     	t.decimal :running_blnc , precision: 15, scale: 4, default: 0
       t.integer :additional_bank_id
       t.integer :particular_status, default: 1

@@ -24,7 +24,7 @@
         <td><%= cheque_entry.client_account.name if cheque_entry.client_account.present? %></td>
         <td><%= cheque_entry.cheque_date if cheque_entry.cheque_date.present? %></td>
         <td><%= cheque_entry.status.titleize %></td>
-        <td><%= link_to 'Show', cheque_entry if cheque_entry.particular_id.present? %></td>
+        <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %></td>
       </tr>
     <% end %>
   </tbody>

@@ -106,12 +106,20 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_template 'bank_accounts/edit'
   end
 
+<<<<<<< HEAD
   # update
   test "authenticated users should update bank_account" do
     @block_assert_via_login_and_patch.call('authenticated')
   end
   test "unauthenticated users should not update bank_account" do
     @block_assert_via_login_and_patch.call('unauthenticated')
+=======
+
+  test "allowed users should update bank_account" do
+    sign_in users(:user)
+    patch :update, id: @bank_account, bank_account: {default_for_receipt: false }
+    assert_redirected_to bank_account_path(assigns(:bank_account))
+>>>>>>> master
   end
 
   # delete

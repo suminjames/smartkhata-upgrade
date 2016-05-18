@@ -32,13 +32,13 @@ class Voucher < ActiveRecord::Base
 	has_many :settlements
 
 
-	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
-	has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
-	has_many :bill_voucher_relations
+	has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+	has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
+	has_many :bill_voucher_associations
 
 	has_many :bills_on_creation, through: :on_creation, source: :bill
 	has_many :bills_on_settlement, through: :on_settlement, source: :bill
-	has_many :bills , through: :bill_voucher_relations
+	has_many :bills , through: :bill_voucher_associations
 
 
   # to keep track of the user who created and last updated the ledger
@@ -83,14 +83,26 @@ class Voucher < ActiveRecord::Base
 	end
 
   def assign_cheque
-    # TODO(subas) make sure no more than one cheque entry per voucher
-    cheque_entry = self.cheque_entries.first
-    if cheque_entry.present?
-      general_particular = self.particulars.general.first
-      if general_particular.present?
-        cheque_entry.client_account_id = general_particular.ledger.client_account_id
-        cheque_entry.save!
-      end
-    end
+
+		if self.payment?
+			cheque_entries = self.cheque_entries.payment
+			particulars = self.particulars.dr
+
+			particulars.each do |particular|
+				if particular.cheque_entries_on_payment.size <= 0
+					particular.cheque_entries_on_payment << cheque_entries
+					particular.save!
+				end
+			end
+		elsif self.receive?
+			cheque_entries = self.cheque_entries.receipt
+			particulars = self.particulars.cr
+			particulars.each do |particular|
+				if particular.cheque_entries_on_receipt.size <= 0
+					particular.cheque_entries_on_receipt << cheque_entries
+					particular.save!
+				end
+			end
+		end
   end
 end

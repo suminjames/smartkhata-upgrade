@@ -73,8 +73,8 @@ class Vouchers::Create < Vouchers::Base
     # check if debit equal credit or amount is not zero
     voucher.particulars.each do |particular|
       particular.description = voucher.desc
-      particular.amnt = particular.amnt || 0
-      if particular.amnt <= 0
+      particular.amount = particular.amount || 0
+      if particular.amount <= 0
         has_error = true
         error_message ="Amount can not be negative or zero."
         break
@@ -84,13 +84,13 @@ class Vouchers::Create < Vouchers::Base
         break
       end
 
-      (particular.dr?) ? net_blnc += particular.amnt : net_blnc -= particular.amnt
+      (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
 
       # get a net usable balance to charge the client for billing purpose
       if  voucher.receive?
-        net_usable_blnc += (particular.dr?) ? particular.amnt : 0
+        net_usable_blnc += (particular.dr?) ? particular.amount : 0
       elsif voucher.payment?
-        net_usable_blnc += (particular.cr?) ? particular.amnt : 0
+        net_usable_blnc += (particular.cr?) ? particular.amount : 0
       end
 
       if (particular.cheque_number.present?)
@@ -204,10 +204,14 @@ class Vouchers::Create < Vouchers::Base
           end
 
           begin
-          # TODO track the cheque entries whether it is from client or the broker
+          # cheque entry recording
+          #   cheque is payment if issued from the company
+          #   cheque is receipt type if issued from the client
           cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
           cheque_entry.cheque_date = DateTime.now
           cheque_entry.status = ChequeEntry.statuses[:pending_clearance] if particular.additional_bank_id.present?
+          cheque_entry.amount = particular.amount
+          cheque_entry.cheque_issued_type = ChequeEntry.cheque_issued_types[:receipt] if particular.dr?
           cheque_entry.save!
 
           particular.cheque_entries << cheque_entry
@@ -227,7 +231,7 @@ class Vouchers::Create < Vouchers::Base
         unless voucher.is_payment_bank
           ledger.lock!
           closing_blnc = ledger.closing_blnc
-          ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+          ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
           particular.opening_blnc = closing_blnc
           particular.running_blnc = ledger.closing_blnc
           particular.complete!
@@ -250,9 +254,9 @@ class Vouchers::Create < Vouchers::Base
     settlement_description ||= voucher.desc
 
     if  voucher.receive?
-      receipt_amount += (particular.cr?) ? particular.amnt : 0
+      receipt_amount += (particular.cr?) ? particular.amount : 0
     elsif voucher.payment?
-      receipt_amount += (particular.dr?) ? particular.amnt : 0
+      receipt_amount += (particular.dr?) ? particular.amount : 0
     end
 
     if client_account.present?

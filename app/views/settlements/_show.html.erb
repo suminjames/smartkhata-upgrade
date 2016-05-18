@@ -64,9 +64,14 @@
   <!-- Receipt details END -->
   <% if settlement.voucher.cheque_entries.present? %>
   <p>By Cheque:
-    <% settlement.voucher.cheque_entries.each do |cheque| %>
-      <br>
-      Cheque Number: <%= cheque.cheque_number %>  Bank: <%= cheque.bank_account.bank_name %>,
+    <% settlement.voucher.cheque_entries.uniq.each do |cheque| %>
+            <% if cheque.receipt? %>
+            <br>
+            <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.additional_bank.name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+            <% else %>
+            <br>
+            <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.bank_account.bank_name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+        <% end %>
     <% end %>
   </p>
   <% end %>

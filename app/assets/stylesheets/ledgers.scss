@@ -2,7 +2,14 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+.credit-amount { color: red}
+.ledger-single , .ledger-list {
+  tr:hover {
+    background: #EEEEEE;
+  }
+}
 .ledger {
+
   table{
     // The width of this table is ought to be 900px.
     // TODO: test the 900px width against small screens, and the fixed dimensions of the page.
@@ -30,27 +37,27 @@
       // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
       // Transaction No
       .col-1 {
-        width: 11%;
+        width: 10%;
       }
       // No of Shares
       .col-2 {
-        width: 22.5%;
+        width: 23%;
       }
       // Company Name
       .col-3 {
-        width: 9%;
+        width: 12%;
       }
       // Share Rate
       .col-4 {
-        width: 7.5%;
+        width: 9%;
       }
       // Base Price
       .col-5 {
-        width: 12.5%;
+        width: 10%;
       }
       // Amount
       .col-6 {
-        width: 12.5%;
+        width: 10%;
       }
       // Commission
       .col-7 {
@@ -59,10 +66,6 @@
       // Commission Amount
       .col-8 {
         width: 12.5%;
-      }
-      // Capital Gain
-      .col-9 {
-        width: 100px;
       }
     }
   }

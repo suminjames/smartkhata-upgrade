@@ -1,4 +1,4 @@
 <% provide(:section_title, "New Ledger") %>
-<%= render 'form' %>
+<%= render 'form', is_new_ledger: true %>
 
-<%= link_to 'Back', ledgers_path %>
+<%= link_to 'All Ledgers', ledgers_path %>

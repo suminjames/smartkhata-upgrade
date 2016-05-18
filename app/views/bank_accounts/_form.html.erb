@@ -1,23 +1,26 @@
-<%= simple_form_for(@bank_account) do |f| %>
-  <%= f.error_notification %>
+<div class="row">
+  <div class="col-xs-6">
+    <%= simple_form_for(@bank_account) do |f| %>
+        <%= f.error_notification %>
 
-  <div class="form-inputs">
-    <%= f.association :bank, collection: Bank.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'} %>
-    <%= f.input :account_number %>
-    <%= f.input :default_for_receive %>
-    <%= f.input :default_for_payment %>
+        <div class="form-inputs">
+          <%= f.association :bank, collection: Bank.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank...' %>
+          <%= f.input :account_number %>
+          <%= f.input :default_for_receipt %>
+          <%= f.input :default_for_payment %>
 
-    <h3>Ledger Details</h3>
-    <div class="row">
-      <%= f.fields_for :ledger do |p| %>
-        <div class="col-xs-3"><%= p.input :opening_blnc %></div>
-        <div class="col-xs-3"><label>Type</label><%= p.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
-      <% end %>
-    </div>
+          <h3>Ledger Details</h3>
+          <div class="row">
+            <%= f.fields_for :ledger do |p| %>
+                <div class="col-xs-6"><%= p.input :opening_blnc %></div>
+                <div class="col-xs-6"><label>Type</label><%= p.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
+            <% end %>
+          </div>
+        </div>
 
+        <div class="form-actions">
+          <%= f.button :submit %>
+        </div>
+    <% end %>
   </div>
-
-  <div class="form-actions">
-    <%= f.button :submit %>
-  </div>
-<% end %>
+</div>

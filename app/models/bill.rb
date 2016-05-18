@@ -33,9 +33,9 @@ class Bill < ActiveRecord::Base
   has_many :isin_infos , through: :share_transactions
 
   has_and_belongs_to_many :vouchers
-  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherRelation"
-  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherRelation"
-  has_many :bill_voucher_relations
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
+  has_many :bill_voucher_associations
 
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
