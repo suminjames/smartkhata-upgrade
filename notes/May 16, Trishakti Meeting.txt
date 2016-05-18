@@ -1,0 +1,91 @@
+-Issues
+    -Floorsheet import
+        -show total amount in the bottom row to reflect(cross check) that in Floorsheet file.
+    -Deal cancel
+        -Change 'cancel' button to 'Submit' or 'Execute Cancellation'
+     -Bill
+        -Remove Cancelled Transactino in bill#show
+        -N/A fields(columns) should not be shown at all.
+            -even in the billing(down) section
+        -Remove 'clearance: TODO in bill#show
+            -T+2 working days for clearance date
+            -Calendar upload??
+        -only show isin not company name
+         -however, put the company name in bottom (or try top right vacant spot) as index
+        -Group same price transaction in same row.
+             -display comma'ed (or from txA to txB with hyphenated) transaction no.
+        -In show view, use hyphenated separator in fiscal year . Repalce '7273' with '72-73'
+        -In 'clear bill' feature, show total summation of sorted/filtered/listed bills in the bottom
+            -eradicates confusion while directed to voucher during clear selected bills which auto-sums the bills
+
+     -Populate all banks
+        -this is different from current bank implementation in that it goes beyond banks tied with the company but also that of clients
+
+
+    -In ledger,
+        -add new column for voucher number
+    -Replace Dr/Cr column with a single column by signifying which by using +, - sign or Dr/Cr in bracket.
+        -However, leave trial balance column as is
+    -In particular ledger's show view
+        -should have
+            -sort by date
+            -sort by bill number
+        -after viewing the ledger details, a back button should take back to previous listing(with proper params)
+
+    -Incorporate Payment List with filters and sorts
+    -Incorporate Receipt List with filters and sorts
+        -also filter by bank of client
+
+    -Remove 'remove' while only single debit entry in voucher
+
+    -During new receive voucher submission, during double (bank) debit entry, error (however, no error page shown)
+        -settlements/show
+            -Cheque number mistake
+            -Date should be bill date not process date
+            -Serious mismatch in various sections
+
+    -In ledger, if multiple banks used, multiple listing in ledger
+        -In corresponding bank ledger show listing, second cheque listing is not shown
+
+    -In cheque received,
+        -add bounce option
+        -add re-present option
+            -when re-present, new voucher for re-present date should be created
+
+    -Add 'Send Email' option in Receipt/Bill
+        -This is computer generated document, and therefore doesn't require a signature.
+            -Highlight this instruction
+
+    -Upon un-matching Dr/Cr sum while creating voucher, the error redirect doesn't show previously selected ledger, but resorts to default for sales/purchase bank ledger.
+
+
+    -In order
+        -Group same isin'ed orders, and show minified in as E(200), C(300), Q(23)
+
+     -In ledger#new, -make combobox col-xs small so that the cross/arrow icon has short-mouse-travel span for user -no opening/closing balance
+
+     -Add Charts of Ledgers
+        -includes non-client ledgers grouped by parent section
+
+     -Particulars should have tagged bill number inputable by the user and shown to the user
+     -Vendor specific? -Add Vendor Name, Vendor Bill, Vendor Note?? for the payment/receipt??
+
+
+      -In Balancesheet, expand a particular section to go a level deeper (to whichever level of depth preferred)
+
+      -Bank Transfer Ledger? -Reference No to be recorded as shown in Bank Statement
+
+
+     -NEPSE journal voucher
+      -Filter datewise or Transaction-Number range wise
+        -Allow selection (all selected by default) of transactions
+        -Allow bill creation for those that have been selected
+            -Reflect total row at the bottom  as per the selected transaction
+       -Upon chalan,
+        -voucher is created
+        -no cheque number but settlement id
+       Note: This is like bank-transfer sort of ledger(??)
+
+      -Book closure
+        -CDS rule dictates that all transactions that happens four days after the book closure date will go through 5th day.
+
