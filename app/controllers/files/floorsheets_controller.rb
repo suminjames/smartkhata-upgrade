@@ -222,24 +222,24 @@ class Files::FloorsheetsController < Files::FilesController
 
 		end
 
-		# amnt: amount of the transaction
+		# amount: amount of the transaction
 		# commission: Broker commission
 		# nepse: nepse commission
 		# tds: tds amount deducted from the broker commission
 		# sebon: sebon fee
 		# bank_deposit: deposit to nepse
 		cgt = 0
-		amnt = share_net_amount
-		commission = get_commission(amnt)
-		commission_rate = get_commission_rate(amnt)
+		amount = share_net_amount
+		commission = get_commission(amount)
+		commission_rate = get_commission_rate(amount)
 		purchase_commission = commission * (0.75)
 		nepse = commission * 0.25
 		tds = purchase_commission * 0.15
-		sebon = amnt * 0.00015
-		bank_deposit = nepse + tds + sebon + amnt
+		sebon = amount * 0.00015
+		bank_deposit = nepse + tds + sebon + amount
 
 		# amount to be debited to client account
-		# @client_dr = nepse + sebon + amnt + purchase_commission + dp
+		# @client_dr = nepse + sebon + amount + purchase_commission + dp
 		@client_dr = (bank_deposit + purchase_commission - tds + dp) if bank_deposit.present?
 
 		# get company information to store in the share transaction
@@ -261,7 +261,7 @@ class Files::FloorsheetsController < Files::FilesController
 			commission_amount: commission,
 			dp_fee: dp,
 			cgt: cgt,
-			net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amnt + purchase_commission + dp. Not to be confused with share_amount
+			net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
 			bank_deposit: bank_deposit,
 			transaction_type: type_of_transaction,
 			date: @date,

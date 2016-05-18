@@ -78,11 +78,11 @@ class BankAccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def bank_account_params
-      params.require(:bank_account).permit(:bank_id, :account_number,:default_for_receive,:default_for_payment,
-        ledger_attributes: [:opening_blnc, :opening_blnc_type])
+      params.require(:bank_account).permit(:bank_id, :account_number, :default_for_receipt, :default_for_payment,
+                                           ledger_attributes: [:opening_blnc, :opening_blnc_type])
     end
 
     def bank_account_update_params
-      params.require(:bank_account).permit(:default_for_receive,:default_for_payment)
+      params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
     end
 end

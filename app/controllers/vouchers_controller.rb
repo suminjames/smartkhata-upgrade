@@ -69,8 +69,9 @@ class VouchersController < ApplicationController
 
         format.html {
           if settlements.size > 0 && !@voucher.is_payment_bank?
+            settlement_ids = settlements.pluck(:id)
             # TODO (Remove this hack to show all the settlements)
-            redirect_to settlement_path(settlements[0].id)
+            redirect_to show_multiple_settlements_path(settlement_ids: settlement_ids)
           else
             redirect_to @voucher, notice: 'Voucher was successfully created.'
           end
@@ -137,7 +138,7 @@ class VouchersController < ApplicationController
               ledger.lock!
 
               closing_blnc = ledger.closing_blnc
-              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amnt : closing_blnc - particular.amnt
+              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
               particular.opening_blnc = closing_blnc
               particular.running_blnc = ledger.closing_blnc
               particular.complete!
@@ -239,7 +240,7 @@ class VouchersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def voucher_params
-      params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type, :cheque_number, :additional_bank_id])
+      params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amount,:transaction_type, :cheque_number, :additional_bank_id])
     end
 
   def set_voucher_general_params

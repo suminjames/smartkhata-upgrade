@@ -7,9 +7,9 @@ class ChequeEntriesController < ApplicationController
     if params[:type] == 'client'
       @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
     elsif params[:type] == 'company'
-      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(particular_id: nil)
+      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: :unassigned)
     else
-      @cheque_entries = ChequeEntry.where(particular_id: nil)
+      @cheque_entries = ChequeEntry.unassigned
     end
   end
 
@@ -155,6 +155,6 @@ class ChequeEntriesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def cheque_entry_params
-      params.require(:cheque_entry).permit(:date_bs, :desc, particulars_attributes: [:ledger_id,:description, :amnt,:transaction_type])
+      params.require(:cheque_entry).permit(:date_bs, :desc, particulars_attributes: [:ledger_id,:description, :amount,:transaction_type])
     end
 end

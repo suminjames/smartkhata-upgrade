@@ -8,8 +8,6 @@ class CreateBills < ActiveRecord::Migration
     	t.integer :bill_type
     	t.integer :status , default: 0
       t.integer :special_case, default: 0
-      # t.boolean :has_deal_cancelled , default: false
-      # t.boolean :has_closeout, default: false
       t.timestamps null: false
       t.integer :fy_code, index: true
       t.date :date, index: true
@@ -19,14 +17,9 @@ class CreateBills < ActiveRecord::Migration
       t.integer :updater_id, index: true
       t.integer :fy_code, index: true
       t.integer :branch_id, index: true
-      # t.index :bill_number
+
     end
 
     add_index :bills, [:fy_code, :bill_number], unique: true
-
-    create_table :bills_vouchers, id: false do |t|
-      t.references :bill, index: true
-      t.references :voucher, index: true
-    end
   end
 end

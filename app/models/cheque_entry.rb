@@ -23,13 +23,29 @@ class ChequeEntry < ActiveRecord::Base
 
   belongs_to :client_account
   belongs_to :bank_account
+  belongs_to :additional_bank, class_name: "Bank"
   belongs_to :particular
+
+  # for many to many relation between cheque and the particulars.
+  # a cheque can pay/recieve for multiple particulars.
+  has_many :payments, -> { payment }, class_name: "ChequeEntryParticularAssociation"
+  has_many :receipts, -> { receipt }, class_name: "ChequeEntryParticularAssociation"
+  has_many :cheque_entry_particular_relations
+
+  has_many :particulars_on_payment, through: :payments, source: :particular
+  has_many :particulars_on_receipt, through: :receipts, source: :particular
+  has_many :particulars , through: :cheque_entry_particular_relations
+
+
   belongs_to :voucher
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  enum status: [:to_be_printed, :printed, :pending_clearance, :void]
-
+  # TODO (subas) make sure to do the necessary settings
+  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void]
+  enum cheque_issued_type: [:payment, :receipt]
 
   validates :cheque_number, uniqueness: { scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" }
+  # scope :unassigned, -> { unassigned }
+
 end

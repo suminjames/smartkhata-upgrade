@@ -46,6 +46,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
+    @back_path =  request.referer || ledgers_path
     if params[:show] == "all"
       @particulars = @ledger.particulars.complete.order("id ASC")
     elsif params[:search_by] && params[:search_term]
@@ -68,9 +69,9 @@ class LedgersController < ApplicationController
             @closing_blnc_sorted = last.running_blnc
 
             if first.dr?
-              @opening_blnc_sorted = first.running_blnc - first.amnt
+              @opening_blnc_sorted = first.running_blnc - first.amount
             else
-              @opening_blnc_sorted = first.running_blnc + first.amnt
+              @opening_blnc_sorted = first.running_blnc + first.amount
             end
 
 

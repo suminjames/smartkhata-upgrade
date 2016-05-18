@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160516102639) do
+ActiveRecord::Schema.define(version: 20160517121219) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 20160516102639) do
     t.string   "account_number"
     t.string   "bank_name"
     t.boolean  "default_for_payment"
-    t.boolean  "default_for_receive"
+    t.boolean  "default_for_receipt"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.datetime "created_at",          null: false
@@ -46,16 +46,16 @@ ActiveRecord::Schema.define(version: 20160516102639) do
   add_index "banks", ["creator_id"], name: "index_banks_on_creator_id", using: :btree
   add_index "banks", ["updater_id"], name: "index_banks_on_updater_id", using: :btree
 
-  create_table "bill_voucher_relations", force: :cascade do |t|
-    t.integer  "relation_type"
+  create_table "bill_voucher_associations", force: :cascade do |t|
+    t.integer  "association_type"
     t.integer  "bill_id"
     t.integer  "voucher_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
   end
 
-  add_index "bill_voucher_relations", ["bill_id"], name: "index_bill_voucher_relations_on_bill_id", using: :btree
-  add_index "bill_voucher_relations", ["voucher_id"], name: "index_bill_voucher_relations_on_voucher_id", using: :btree
+  add_index "bill_voucher_associations", ["bill_id"], name: "index_bill_voucher_associations_on_bill_id", using: :btree
+  add_index "bill_voucher_associations", ["voucher_id"], name: "index_bill_voucher_associations_on_voucher_id", using: :btree
 
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
@@ -84,14 +84,6 @@ ActiveRecord::Schema.define(version: 20160516102639) do
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
 
-  create_table "bills_vouchers", id: false, force: :cascade do |t|
-    t.integer "bill_id"
-    t.integer "voucher_id"
-  end
-
-  add_index "bills_vouchers", ["bill_id"], name: "index_bills_vouchers_on_bill_id", using: :btree
-  add_index "bills_vouchers", ["voucher_id"], name: "index_bills_vouchers_on_voucher_id", using: :btree
-
   create_table "branches", force: :cascade do |t|
     t.string   "code"
     t.string   "address"
@@ -118,26 +110,37 @@ ActiveRecord::Schema.define(version: 20160516102639) do
   create_table "cheque_entries", force: :cascade do |t|
     t.integer  "cheque_number"
     t.integer  "additional_bank_id"
+    t.integer  "status",                                      default: 0
+    t.integer  "cheque_issued_type",                          default: 0
+    t.date     "cheque_date"
+    t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
     t.integer  "bank_account_id"
-    t.integer  "particular_id"
     t.integer  "client_account_id"
     t.integer  "settlement_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.integer  "status",             default: 0
-    t.date     "cheque_date"
+    t.datetime "created_at",                                                null: false
+    t.datetime "updated_at",                                                null: false
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
   add_index "cheque_entries", ["branch_id"], name: "index_cheque_entries_on_branch_id", using: :btree
   add_index "cheque_entries", ["client_account_id"], name: "index_cheque_entries_on_client_account_id", using: :btree
   add_index "cheque_entries", ["creator_id"], name: "index_cheque_entries_on_creator_id", using: :btree
-  add_index "cheque_entries", ["particular_id"], name: "index_cheque_entries_on_particular_id", using: :btree
   add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree
   add_index "cheque_entries", ["updater_id"], name: "index_cheque_entries_on_updater_id", using: :btree
+
+  create_table "cheque_entry_particular_associations", force: :cascade do |t|
+    t.integer  "association_type"
+    t.integer  "cheque_entry_id"
+    t.integer  "particular_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "cheque_entry_particular_associations", ["cheque_entry_id"], name: "index_cheque_entry_particular_associations_on_cheque_entry_id", using: :btree
+  add_index "cheque_entry_particular_associations", ["particular_id"], name: "index_cheque_entry_particular_associations_on_particular_id", using: :btree
 
   create_table "client_accounts", force: :cascade do |t|
     t.string   "boid"
@@ -187,18 +190,19 @@ ActiveRecord::Schema.define(version: 20160516102639) do
     t.string   "company_name"
     t.string   "company_id"
     t.boolean  "invited",                   default: false
+    t.string   "referrer_name"
+    t.integer  "group_leader_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
     t.integer  "user_id"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
-    t.string   "referrer_name"
-    t.integer  "group_leader_id"
   end
 
   add_index "client_accounts", ["branch_id"], name: "index_client_accounts_on_branch_id", using: :btree
   add_index "client_accounts", ["creator_id"], name: "index_client_accounts_on_creator_id", using: :btree
+  add_index "client_accounts", ["group_leader_id"], name: "index_client_accounts_on_group_leader_id", using: :btree
   add_index "client_accounts", ["updater_id"], name: "index_client_accounts_on_updater_id", using: :btree
   add_index "client_accounts", ["user_id"], name: "index_client_accounts_on_user_id", using: :btree
 
@@ -361,13 +365,13 @@ ActiveRecord::Schema.define(version: 20160516102639) do
     t.integer  "updater_id"
     t.integer  "fy_code"
     t.integer  "branch_id"
+    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0, null: false
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
     t.integer  "group_id"
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
-    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0, null: false
-    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0, null: false
     t.integer  "employee_account_id"
   end
 
@@ -418,7 +422,7 @@ ActiveRecord::Schema.define(version: 20160516102639) do
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
-    t.decimal  "amnt",               precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
     t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
     t.integer  "additional_bank_id"
     t.integer  "particular_status",                           default: 1
@@ -625,8 +629,9 @@ ActiveRecord::Schema.define(version: 20160516102639) do
   add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
-  add_foreign_key "bill_voucher_relations", "bills"
-  add_foreign_key "bill_voucher_relations", "vouchers"
-  add_foreign_key "ledgers", "employee_accounts"
+  add_foreign_key "bill_voucher_associations", "bills"
+  add_foreign_key "bill_voucher_associations", "vouchers"
+  add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
+  add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "settlements", "vouchers"
 end
