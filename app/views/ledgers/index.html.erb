@@ -8,7 +8,7 @@
     end
   %>
   <h5>
-    <%= link_to 'Searcy by Ledger Name',  ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name")? "active-link" : "")} %> |
+    <%= link_to 'Search by Ledger Name',  ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name")? "active-link" : "")} %> |
     <%= link_to "All Ledgers",  ledgers_path(show: "all"), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
     <%= link_to "All Internal Ledgers",  ledgers_path(show: "all_internal"), {:class => (is_active_sub_menu_option("all_internal")? "active-link" : "")} %> |
     <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client"), {:class => (is_active_sub_menu_option("all_client")? "active-link" : "")} %> |
