@@ -20,6 +20,12 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.decimal :base_price, precision: 15, scale: 4, default: 0
       t.decimal :amount_receivable, precision:15, scale: 4, default: 0 # amount receivable accounts the closeout adjustment (without additional charges)
       t.decimal :closeout_amount, precision:15, scale: 4, default:0
+      # new filed addition in new cm report
+      t.string :remarks
+      t.decimal :purchase_price, precision:15, scale: 4, default: 0
+      t.decimal :capital_gain, precision:15, scale: 4, default: 0
+      t.decimal :adjusted_sell_price, precision:15, scale: 4, default: 0
+
       t.date :date
       t.date :deleted_at
       t.timestamps null: false
