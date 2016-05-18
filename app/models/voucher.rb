@@ -19,6 +19,7 @@
 #  updated_at      :datetime         not null
 #
 
+
 class Voucher < ActiveRecord::Base
 	include FiscalYearModule
 	include ::Models::UpdaterWithBranchFycode

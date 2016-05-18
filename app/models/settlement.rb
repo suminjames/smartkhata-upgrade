@@ -18,6 +18,7 @@
 #  updated_at        :datetime         not null
 #
 
+
 class Settlement < ActiveRecord::Base
   belongs_to :voucher
   include ::Models::Updater

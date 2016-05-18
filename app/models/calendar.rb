@@ -15,6 +15,7 @@
 #  updated_at :datetime         not null
 #
 
+
 class Calendar < ActiveRecord::Base
   include ::Models::Updater
   # to keep track of the user who created and last updated the ledger

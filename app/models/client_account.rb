@@ -50,15 +50,16 @@
 #  company_name              :string
 #  company_id                :string
 #  invited                   :boolean          default("false")
+#  referrer_name             :string
+#  group_leader_id           :integer
 #  creator_id                :integer
 #  updater_id                :integer
 #  branch_id                 :integer
 #  user_id                   :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
-#  referrer_name             :string
-#  group_leader_id           :integer
 #
+
 
 # Note: 
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched

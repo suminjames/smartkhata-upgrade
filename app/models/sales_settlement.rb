@@ -12,6 +12,7 @@
 #  updated_at      :datetime         not null
 #
 
+
 class SalesSettlement < ActiveRecord::Base
   enum status: [:pending, :complete]
   include ::Models::Updater

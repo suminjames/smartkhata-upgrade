@@ -15,5 +15,6 @@
 #  updated_at   :datetime         not null
 #
 
+
 class Tenant < ActiveRecord::Base
 end

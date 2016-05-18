@@ -1,11 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  relation_type: 1
-  bill_id: 
-  voucher_id: 
+# Commented out to prevent error:
+  # column "relation_type" of relation "bill_voucher_associations" does not exist
+# one:
+#   relation_type: 1
+#   bill_id:
+#   voucher_id:
 
-two:
-  relation_type: 1
-  bill_id: 
-  voucher_id: 
+# two:
+#   relation_type: 1
+#   bill_id:
+#   voucher_id:

@@ -21,6 +21,7 @@
 #  branch_id         :integer
 #
 
+
 class Bill < ActiveRecord::Base
   include CustomDateModule
   # added the updater and creater user tracking

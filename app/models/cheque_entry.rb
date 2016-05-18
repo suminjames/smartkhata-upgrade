@@ -5,8 +5,11 @@
 #  id                 :integer          not null, primary key
 #  cheque_number      :integer
 #  additional_bank_id :integer
+#  status             :integer          default("0")
+#  cheque_issued_type :integer          default("0")
+#  cheque_date        :date
+#  amount             :decimal(15, 4)   default("0.0")
 #  bank_account_id    :integer
-#  particular_id      :integer
 #  client_account_id  :integer
 #  settlement_id      :integer
 #  creator_id         :integer
@@ -14,9 +17,8 @@
 #  branch_id          :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
-#  status             :integer          default("0")
-#  cheque_date        :date
 #
+
 
 class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch

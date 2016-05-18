@@ -13,6 +13,7 @@
 #  updated_at  :datetime         not null
 #
 
+
 class FileUpload < ActiveRecord::Base
 	include ::Models::UpdaterWithBranch
 

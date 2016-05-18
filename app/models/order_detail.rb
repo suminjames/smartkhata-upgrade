@@ -20,6 +20,7 @@
 #  updated_at       :datetime         not null
 #
 
+
 class OrderDetail < ActiveRecord::Base
   belongs_to :isin_info
 

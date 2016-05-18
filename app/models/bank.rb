@@ -13,6 +13,7 @@
 #  updated_at :datetime         not null
 #
 
+
 class Bank < ActiveRecord::Base
   include ::Models::Updater
   has_many :bank_accounts

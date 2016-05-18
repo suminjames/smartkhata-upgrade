@@ -23,6 +23,7 @@
 #  updated_at        :datetime         not null
 #
 
+
 class Closeout < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
   # to keep track of the user who created and last updated the ledger

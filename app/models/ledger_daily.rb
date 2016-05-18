@@ -18,6 +18,7 @@
 #  updated_at   :datetime         not null
 #
 
+
 class LedgerDaily < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithBranchFycode

@@ -14,6 +14,7 @@
 #  updated_at        :datetime         not null
 #
 
+
 class Group < ActiveRecord::Base
   include ::Models::Updater
 	belongs_to :parent, :class_name => 'Group'
