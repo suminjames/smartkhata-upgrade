@@ -516,29 +516,33 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "share_inventories", ["updater_id"], name: "index_share_inventories_on_updater_id", using: :btree
 
   create_table "share_transactions", force: :cascade do |t|
-    t.decimal  "contract_no",       precision: 18
+    t.decimal  "contract_no",         precision: 18
     t.integer  "buyer"
     t.integer  "seller"
     t.integer  "raw_quantity"
     t.integer  "quantity"
-    t.decimal  "share_rate",        precision: 10, scale: 4, default: 0.0
-    t.decimal  "share_amount",      precision: 15, scale: 4, default: 0.0
-    t.decimal  "sebo",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "share_rate",          precision: 10, scale: 4, default: 0.0
+    t.decimal  "share_amount",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "sebo",                precision: 15, scale: 4, default: 0.0
     t.string   "commission_rate"
-    t.decimal  "commission_amount", precision: 15, scale: 4, default: 0.0
-    t.decimal  "dp_fee",            precision: 15, scale: 4, default: 0.0
-    t.decimal  "cgt",               precision: 15, scale: 4, default: 0.0
-    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "bank_deposit",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "commission_amount",   precision: 15, scale: 4, default: 0.0
+    t.decimal  "dp_fee",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "cgt",                 precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",          precision: 15, scale: 4, default: 0.0
+    t.decimal  "bank_deposit",        precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
-    t.decimal  "settlement_id",     precision: 18
-    t.decimal  "base_price",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "amount_receivable", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closeout_amount",   precision: 15, scale: 4, default: 0.0
+    t.decimal  "settlement_id",       precision: 18
+    t.decimal  "base_price",          precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount_receivable",   precision: 15, scale: 4, default: 0.0
+    t.decimal  "closeout_amount",     precision: 15, scale: 4, default: 0.0
+    t.string   "remarks"
+    t.decimal  "purchase_price",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "capital_gain",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "adjusted_sell_price", precision: 15, scale: 4, default: 0.0
     t.date     "date"
     t.date     "deleted_at"
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"

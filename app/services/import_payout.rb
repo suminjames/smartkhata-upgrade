@@ -52,7 +52,15 @@ class ImportPayout < ImportFile
 						break
 					end
 
-          @date = hash['TRADESTARTDATE'].to_date
+
+          unless hash['TRADE_DATE'].present?
+            import_error("Please upload a correct file. Trade date is missing")
+            raise ActiveRecord::Rollback
+            break
+          end
+
+          @date = hash['TRADE_DATE'].to_date
+
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
 						transaction_type: ShareTransaction.transaction_types[:sell]
@@ -73,6 +81,10 @@ class ImportPayout < ImportFile
           transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
 					transaction.cgt = hash['CGT'].delete(',').to_f
 					transaction.base_price = get_base_price(transaction).to_i
+          transaction.remarks = hash['REMARKS']
+          transaction.purchase_price = hash['PURCHASE_PRICE']
+          transaction.capital_gain = hash['CG']
+          transaction.adjusted_sell_price = hash['ADJ_SELL_PRICE']
 
 
           # get the shortage quantity
@@ -121,33 +133,34 @@ class ImportPayout < ImportFile
 	end
 
 	def extract_xls(file)
-		xlsx = Roo::Spreadsheet.open(file)
-		begin
-			xlsx.sheet(0).each(
-				SETT_ID: 'Settlement ID',
-				TRADESTARTDATE: 'Trade Start Date',
-				CMID: 'SELL CM ID',
-				BUY_CM_ID: 'Buy CM ID',
-				SCRIPTSHORTNAME: 'Script Name',
-				SCRIPTNUMBER: 'Script Number',
-				CONTRACTNO: 'Contract No',
-				CLIENTCODE: 'Client Code',
-				QUANTITY: 'Quantity',
-				RATE: 'Rate',
-				CONTRACTAMT: 'Contract Amount (CA)',
-				NEPSE_COMMISSION: 'NEPSE COMMISSION',
-				SEBON_COMMISSION: 'SEBON COMMISSION',
-				TDS: 'TDS',
-				CGT: 'CGT',
-				CLOSEOUT_AMOUNT: 'CLOSEOUT AMOUNT',
-				AMOUNTRECEIVABLE: 'Amount Receivable'
-				) do |hash|
-				@processed_data  << hash
-			end
-		rescue
-			@error_message = "Please Upload a valid file. Header dont match" and return
-		end
-		@processed_data = @processed_data.drop(1) if @processed_data[0][:SETT_ID]=='Settlement ID'
+		# xlsx = Roo::Spreadsheet.open(file)
+		# begin
+		# 	xlsx.sheet(0).each(
+		# 		SETT_ID: 'Settlement ID',
+		# 		TRADESTARTDATE: 'Trade Start Date',
+		# 		CMID: 'SELL CM ID',
+		# 		BUY_CM_ID: 'Buy CM ID',
+		# 		SCRIPTSHORTNAME: 'Script Name',
+		# 		SCRIPTNUMBER: 'Script Number',
+		# 		CONTRACTNO: 'Contract No',
+		# 		CLIENTCODE: 'Client Code',
+		# 		QUANTITY: 'Quantity',
+		# 		RATE: 'Rate',
+		# 		CONTRACTAMT: 'Contract Amount (CA)',
+		# 		NEPSE_COMMISSION: 'NEPSE COMMISSION',
+		# 		SEBON_COMMISSION: 'SEBON COMMISSION',
+		# 		TDS: 'TDS',
+		# 		CGT: 'CGT',
+		# 		CLOSEOUT_AMOUNT: 'CLOSEOUT AMOUNT',
+		# 		AMOUNTRECEIVABLE: 'Amount Receivable'
+		# 		) do |hash|
+		# 		@processed_data  << hash
+		# 	end
+		# rescue
+		# 	@error_message = "Please Upload a valid file. Header dont match" and return
+		# end
+		# @processed_data = @processed_data.drop(1) if @processed_data[0][:SETT_ID]=='Settlement ID'
+		@error_message = "Please Upload a CSV file." and return
 	end
 
 	def get_base_price(transaction)
