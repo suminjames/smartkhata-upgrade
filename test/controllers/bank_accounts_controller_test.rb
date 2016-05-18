@@ -9,15 +9,33 @@ class BankAccountsControllerTest < ActionController::TestCase
       post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_sales"=>"1", "default_for_purchase"=>"1",
                                    "ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
     }
+    @block_assert_via_login_and_get = lambda { |action|
+      sign_in @user
+      get action
+      assert_response :success
+      assert_template "bank_accounts/#{action}"
+      instance_var_name = action == :new ? 'bank_account' : 'bank_accounts'
+      assert_not_nil assigns(instance_var_name)
+    }
+    @block_assert_via_login_and_patch = lambda { |user_type|
+      sign_in @user
+      assert_not @bank_account.default_for_sales
+      patch :update, id: @bank_account, bank_account: { default_for_sales: "1" }
+      @bank_account.reload
+      if user_type == 'authenticated'
+        assert @bank_account.default_for_sales
+        redirect_path = bank_account_path(assigns(:bank_account))
+      else
+        assert_not @bank_account.default_for_sales
+        redirect_path = new_user_session_path
+      end
+        assert_redirected_to redirect_path
+    }
   end
 
   # index
   test "authenticated user should get index" do
-    sign_in @user
-    get :index
-    assert_response :success
-    assert_template 'bank_accounts/index'
-    assert_not_nil assigns(:bank_accounts)
+    @block_assert_via_login_and_get.call(:index)
   end
   test "unauthenticated users should get not get index" do
     get :index
@@ -26,11 +44,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # new
   test "authenticated users should get new" do
-    sign_in @user
-    get :new
-    assert_response :success
-    assert_template 'bank_accounts/new'
-    assert_not_nil assigns(:bank_account)
+    @block_assert_via_login_and_get.call(:new)
   end
   test "unauthenticated users should not get new" do
     get :new
@@ -94,19 +108,10 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # update
   test "authenticated users should update bank_account" do
-    sign_in @user
-    assert !@bank_account.default_for_sales
-    patch :update, id: @bank_account, bank_account: { default_for_sales: "1" }
-    assert_redirected_to bank_account_path(assigns(:bank_account))
-    @bank_account.reload
-    assert @bank_account.default_for_sales
+    @block_assert_via_login_and_patch.call('authenticated')
   end
   test "unauthenticated users should not update bank_account" do
-    assert !@bank_account.default_for_sales
-    patch :update, id: @bank_account, bank_account: { default_for_sales: "1" }
-    assert_redirected_to new_user_session_path
-    @bank_account.reload
-    assert !@bank_account.default_for_sales
+    @block_assert_via_login_and_patch.call('unauthenticated')
   end
 
   # delete

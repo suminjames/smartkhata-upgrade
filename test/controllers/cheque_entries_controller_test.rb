@@ -9,15 +9,18 @@ class ChequeEntriesControllerTest < ActionController::TestCase
       post :create, { bank_account_id: acc_id, start_cheque_number: start_cheque_num, end_cheque_number: end_cheque_num }
     }
     # @another_bank_account = bank_accounts(:two)
+    @block_assert_via_login_and_get = lambda { |action|
+      sign_in @user
+      get action
+      assert_response :success
+      assert_template "cheque_entries/#{action}"
+      assert_not_nil assigns(:cheque_entries) if action == :index
+    }
   end
 
   # index
   test "authenticated users should get index" do
-    sign_in @user
-    get :index
-    assert_response :success
-    assert_template 'cheque_entries/index'
-    assert_not_nil assigns(:cheque_entries)
+    @block_assert_via_login_and_get.call(:index)
   end
   test "unauthenticated users should get index" do
     get :index
@@ -27,9 +30,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   # new
   test "authenticated users should get new" do
     sign_in @user
-    get :new
-    assert_response :success
-    assert_template 'cheque_entries/new'
+    @block_assert_via_login_and_get.call(:new)
   end
   test "unauthenticated users should not get new" do
     get :new
