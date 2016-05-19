@@ -6,7 +6,9 @@
   <thead>
     <tr>
       <th>Date</th>
-      <th>Voucher number</th>
+      <th>Voucher Number</th>
+      <th>Voucher Description</th>
+      <th>Linked Ledgers</th>
     </tr>
   </thead>
 
@@ -16,6 +18,7 @@
         <td><%= voucher.date_bs %></td>
         <td><%= "#{voucher.voucher_code}-#{voucher.voucher_number}" %></td>
         <td><%= voucher.desc %></td>
+        <td><%= voucher.formatted_linked_ledgers%></td>
         <td><%= link_to 'Show', voucher %></td>
       </tr>
     <% end %>
