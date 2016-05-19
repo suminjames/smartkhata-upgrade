@@ -1,25 +1,26 @@
 - provide(:section_title, "FloorSheet Details")
 - unless @error
-	%table.table.table-striped
-		%thead
-			%th.col-xs-1= "#"
-			%th.col-xs-3= "Contract No."
-			%th.col-xs-1= "Symbol"
-			%th.col-xs-3= "Client Name"
-			%th.col-xs-1= "Client Code"
-			%th.col-xs-1= "Quantity"
-			%th.col-xs-1= "Rate"
-			%th.col-xs-1= "Amount"
-		%tbody
-			- @processed_data.each_with_index do |item,i|
-				%tr
-					%td= i+1
-					%td= item[0].to_i
-					%td= item[1]
-					%td= item[4].titleize
-					%td= item[5]
-					%td= item[6]
-					%td= item[7]
-					%td= item[8]
+  %table.table.table-striped
+    %thead
+      %th.col-xs-1= "#"
+      %th.col-xs-3= "Contract No."
+      %th.col-xs-1= "Symbol"
+      %th.col-xs-3= "Client Name"
+      %th.col-xs-1= "Client Code"
+      %th.col-xs-1= "Quantity"
+      %th.col-xs-1= "Rate"
+      %th.col-xs-1= "Amount"
+    %tbody
+      - @processed_data.each_with_index do |item,i|
+        %tr
+          %td= i+1
+          %td= item[0].to_i
+          %td= item[1]
+          %td= item[4].titleize
+          %td= item[5]
+          %td= item[6]
+          %td= item[7]
+          %td= item[8]
+  %h4= "Total Amount: #{arabic_number(@total_amount)}"
 - else
-	= link_to "Upload FloorSheet" ,new_files_floorsheet_path
+  = link_to "Upload FloorSheet" ,new_files_floorsheet_path
