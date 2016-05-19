@@ -23,7 +23,7 @@
 
   %>
   <!-- Bill (row) BEGINS -->
-  <tr>
+  <tr class="<%= bill.purchase? ? 'dr' : 'cr' %>">
     <td><%= serial_number_count + index %></td>
     <td><%= bill.formatted_bill_number%></td>
     <td><%= bill.formatted_bill_dates["bs"]%></td>
