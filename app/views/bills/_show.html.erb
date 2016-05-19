@@ -111,7 +111,7 @@ Note:
       <tr>
         <th class="col-1">Transaction No</th>
         <th class="col-2">No of Shares</th>
-        <th class="col-3">Company Name</th>
+        <th class="col-3">Company Code</th>
         <th class="col-4">Share Rate</th>
         <th class="col-5 <%= bill.formatted_visibility_class('base_price') %>">Base Price</th>
         <th class="col-6">Amount</th>
@@ -124,59 +124,31 @@ Note:
 
       </colgroup>
       <%
-      bill.share_transactions.each do | share_transaction |
+      # bill.share_transactions.each do | share_transaction |
+      bill.formatted_group_same_isin_same_rate_transactions.each do | formatted_share_transaction |
         # Only show those share transactions that haven't been 'deal cancelled'
-        if share_transaction.deleted_at.nil?
-        %>
-
-
-        <%
-        # <!-- The following block needs to be (ruby) uncommented, and the enclosing ruby tags should be deleted to test the table off the potential widest content in relevant td's. -->
-        # <!-- Test Data BEGINS -->
-        # <!-- <th>Transaction No</th> -->
-        # <tr>
-        # <td>888888888888888</td>
-        # <!-- <th>No of Shares</th> -->
-        # <td>99,999</td>
-        # <!-- <th>Company Name</th> -->
-        # <td>XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX</td>
-        # <!-- <th>Share Rate</th> -->
-        # <td>99,999</td>
-        # <!-- <th>Base Price</th> -->
-        # <td>99,999</td>
-        # <!-- <th>Amount</th> -->
-        # <td>99,99,999.00</td>
-        # <!-- <th>Commission Rate</th> -->
-        # <td>Flat 25</td>
-        # <!-- <th>Commission Amount</th> -->
-        # <td>99,99,999.00</td>
-        # <!--<th>Capital Gain</th> -->
-        # <td>99,99,999.00</td>
-        # </tr>
-        # <!-- Test Data ENDS -->
         %>
         <tr>
           <!-- <th>Transaction No</th> -->
-          <td><%= share_transaction.contract_no %></td>
+          <td><%= formatted_share_transaction[:contract_no] %></td>
           <!-- <th>No of Shares</th> -->
-          <td><%= share_transaction.raw_quantity %></td>
+          <td><%= formatted_share_transaction[:raw_quantity] %>(<%= formatted_share_transaction[:raw_quantity_description] %>)</td>
           <!-- <th>Company Name</th> -->
-          <td><%= share_transaction.isin_info.isin%></td>
+          <td><%= formatted_share_transaction[:isin]%></td>
           <!-- <th>Share Rate</th> -->
-          <td><%= share_transaction.formatted_share_rate %></td>
+          <td><%= formatted_share_transaction[:share_rate] %></td>
           <!-- <th>Base Price</th> -->
-          <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= share_transaction.formatted_base_price %></td>
+          <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= formatted_share_transaction[:base_price] %></td>
           <!-- <th>Amount</th> -->
-          <td><%= share_transaction.formatted_amount %></td>
+          <td><%= formatted_share_transaction[:share_amount] %></td>
           <!-- <th>Commission Rate</th> -->
-          <td><%= share_transaction.formatted_commission_rate %></td>
+          <td><%= formatted_share_transaction[:commission_rate] %></td>
           <!-- <th>Commission Amount</th> -->
-          <td><%= share_transaction.formatted_commission_amount%></td>
+          <td><%= formatted_share_transaction[:commission_amount] %></td>
           <!-- <th>Capital Gain</th> -->
-          <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= share_transaction.formatted_capital_gain %></td>
+          <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= formatted_share_transaction[:capital_gain] %></td>
         </tr>
         <%
-          end
       end
       %>
     </table>

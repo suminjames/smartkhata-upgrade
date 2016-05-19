@@ -2,6 +2,57 @@ class BillDecorator < ApplicationDecorator
   delegate_all
   decorates_association :share_transactions
 
+  # Group same isin (not deal cancelled) transaction with same share rate AND same commision rate to be shown in single row in transaction listing
+  def formatted_group_same_isin_same_rate_transactions
+
+    # hash signature excerpted from http://stackoverflow.com/questions/5009295/pushing-elements-onto-an-array-in-a-ruby-hash
+    share_transactions_hash = Hash.new {|h,k| h[k]=[]}
+    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+      share_transactions_hash[[share_transaction.isin_info.isin, share_transaction.share_rate, share_transaction.commission_rate]] << share_transaction
+    end
+    formatted_share_transactions = []
+    share_transactions_hash.each do |st_array|
+
+      transaction_row = Hash.new
+      # Initialization of values which undergo mutation in the loop below
+      transaction_row[:contract_no]  = ''
+      transaction_row[:raw_quantity] = 0
+      transaction_row[:raw_quantity_description] = ''
+      transaction_row[:share_amount]  = 0
+      transaction_row[:commission_amount] = 0
+      transaction_row[:capital_gain]  = 0
+
+      st_array[1].each do |st|
+        transaction_row[:contract_no] += st.contract_no.to_s + ', '
+        transaction_row[:raw_quantity] += st.raw_quantity
+        transaction_row[:raw_quantity_description] += st.raw_quantity.to_s + ', '
+        transaction_row[:isin] = st.isin_info.isin
+        transaction_row[:share_rate] = st.share_rate
+        transaction_row[:base_price] = st.base_price
+        transaction_row[:share_amount] += st.share_amount
+        transaction_row[:commission_rate] = st.commission_rate
+        transaction_row[:commission_amount] += st.commission_amount
+        transaction_row[:capital_gain] += st.capital_gain
+        transaction_row[:type] = st.transaction_type
+      end
+
+      # Relevant formatting of the values
+      # Note: arabic_number() method returns a string with a decimal with 2 digits compulsorily. So strip where required. For example: share_rate and raw_quantity are never in decimal values.
+      transaction_row[:contract_no] = transaction_row[:contract_no][0...-2] # strip the trailing ', '
+      transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
+      transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2]# strip the trailing ', '
+      transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
+      transaction_row[:base_price] = transaction_row[:type] =='sell' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
+      transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
+      transaction_row[:commission_rate] = transaction_row[:commission_rate] == "flat_25" ? "Flat NRs 25" : transaction_row[:commission_rate].to_f.to_s + "%"
+      transaction_row[:commission_amount] = h.arabic_number(transaction_row[:commission_amount])
+      transaction_row[:capital_gain] = h.arabic_number(transaction_row[:capital_gain])
+
+      formatted_share_transactions << transaction_row
+    end
+    formatted_share_transactions
+  end
+
   def formatted_bill_number
     object.fy_code.to_s + "-" + object.bill_number.to_s
   end
