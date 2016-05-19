@@ -5,6 +5,7 @@ class BillDecorator < ApplicationDecorator
   # Group same isin (not deal cancelled) transaction with same share rate AND same commision rate to be shown in single row in transaction listing
   def formatted_group_same_isin_same_rate_transactions
 
+    # Here, share_transactions_hash has both key and value pair as arrays.
     # hash signature excerpted from http://stackoverflow.com/questions/5009295/pushing-elements-onto-an-array-in-a-ruby-hash
     share_transactions_hash = Hash.new {|h,k| h[k]=[]}
     object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
@@ -22,6 +23,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:commission_amount] = 0
       transaction_row[:capital_gain]  = 0
 
+      # st_array[0] holds key; loop over st_array[1].
       st_array[1].each do |st|
         transaction_row[:contract_no] += st.contract_no.to_s + ', '
         transaction_row[:raw_quantity] += st.raw_quantity
@@ -32,7 +34,7 @@ class BillDecorator < ApplicationDecorator
         transaction_row[:share_amount] += st.share_amount
         transaction_row[:commission_rate] = st.commission_rate
         transaction_row[:commission_amount] += st.commission_amount
-        transaction_row[:capital_gain] += st.capital_gain
+        transaction_row[:capital_gain] += st.cgt
         transaction_row[:type] = st.transaction_type
       end
 
