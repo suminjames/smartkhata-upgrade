@@ -7,7 +7,7 @@ class ChequeEntriesController < ApplicationController
     if params[:type] == 'client'
       @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
     elsif params[:type] == 'company'
-      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: :unassigned)
+      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
     else
       @cheque_entries = ChequeEntry.unassigned
     end
@@ -43,7 +43,7 @@ class ChequeEntriesController < ApplicationController
 
     if @bank_account_id.present?
       ledger = Ledger.find_by(id: @bank_account_id)
-      cheque_entry = ChequeEntry.where(bank_account_id: ledger.bank_account_id).where(particular_id: nil).first
+      cheque_entry = ChequeEntry.unassigned.where(bank_account_id: ledger.bank_account_id).first
     end
 
 
@@ -62,7 +62,13 @@ class ChequeEntriesController < ApplicationController
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
     if cheque.status == "to_be_printed"
-      cheque.printed!
+      if cheque.voucher.complete?
+        cheque.printed!
+      elsif cheque.voucher.rejected?
+        cheque.void!
+      else
+        cheque.pending_approval!
+      end
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?

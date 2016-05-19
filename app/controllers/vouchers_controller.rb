@@ -33,7 +33,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-    @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
+    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
@@ -50,7 +50,7 @@ class VouchersController < ApplicationController
   # POST /vouchers.json
   def create
     # ignore some validations when the voucher type is sales or purchase
-    @is_purchase_sales = false
+    @is_payment_receipt = false
     # create voucher with the posted parameters
     @voucher = Voucher.new(voucher_params)
     voucher_creation = Vouchers::Create.new(voucher_type: @voucher_type,
@@ -85,7 +85,7 @@ class VouchersController < ApplicationController
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
         @ledger_list_financial = voucher_creation.ledger_list_financial
         @ledger_list_available = voucher_creation.ledger_list_available
-        @is_purchase_sales = voucher_creation.is_purchase_sales?(@voucher_type)
+        @is_payment_receipt = voucher_creation.is_payment_receipt?(@voucher_type)
 
         if voucher_creation.error_message
           flash.now[:error] = voucher_creation.error_message
@@ -144,6 +144,11 @@ class VouchersController < ApplicationController
               particular.complete!
               ledger.save!
             end
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.approved!
+            end
+
             @voucher.reviewer_id = UserSession.user_id
             @voucher.complete!
             @voucher.save!
@@ -152,6 +157,11 @@ class VouchersController < ApplicationController
           end
         elsif  params[:reject]
           @voucher.reviewer_id = UserSession.user_id
+
+          @voucher.cheque_entries.uniq.each do |cheque_entry|
+            cheque_entry.void!
+          end
+
           @voucher.rejected!
           success = true if @voucher.save!
           message = 'Payment Voucher was successfully rejected'

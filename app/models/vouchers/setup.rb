@@ -5,7 +5,7 @@ class Vouchers::Setup < Vouchers::Base
   end
 
   def voucher_setup(voucher_type,client_account_id, bill_ids, bill_id, clear_ledger )
-    is_purchase_sales = false
+    is_payment_receipt = false
     default_ledger_id = nil
 
 
@@ -13,7 +13,7 @@ class Vouchers::Setup < Vouchers::Base
     voucher = get_new_voucher(voucher_type)
 
     if voucher_type == Voucher.voucher_types[:receive] || voucher_type == Voucher.voucher_types[:payment]
-      is_purchase_sales = true
+      is_payment_receipt = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.where(:default_for_payment => true).first
       default_bank_receive = BankAccount.where(:default_for_receipt   => true).first
@@ -35,7 +35,7 @@ class Vouchers::Setup < Vouchers::Base
     ledger_list_available ||= Ledger.all
 
     voucher.particulars = []
-    if is_purchase_sales
+    if is_payment_receipt
       transaction_type = voucher_type == Voucher.voucher_types[:receive] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       voucher.particulars << Particular.new(ledger_id: default_ledger_id,amount: amount, transaction_type: transaction_type)
     end
@@ -53,6 +53,6 @@ class Vouchers::Setup < Vouchers::Base
       # a general particular for the voucher
       voucher.particulars << Particular.new if client_account.nil?
     end
-    return voucher, is_purchase_sales, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, settlement_by_clearance
+    return voucher, is_payment_receipt, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, settlement_by_clearance
   end
 end

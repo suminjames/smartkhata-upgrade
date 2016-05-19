@@ -22,14 +22,14 @@
     </div>
   </div>
   <br>
-  <% if is_purchase_sales %>
+  <% if is_payment_receipt %>
   <div class="form-inputs voucher">
     <div class="box box-primary z-light-bg">
       <div class="box-header">
         <% if voucher_type == Voucher.voucher_types[:payment] %>
-          <h3 class="box-title">Ledger to be Credited</h3>
+          <h3 class="box-title">Credit Particulars</h3>
         <% else %>
-          <h3 class="box-title">Ledger to be Debited</h3>
+          <h3 class="box-title">Debit Particulars</h3>
         <% end %>
       </div>
       <div class="box-body">
@@ -37,8 +37,8 @@
           <div class="col-xs-4"><h4>Ledger</h4></div>
           <div class="col-xs-2"><h4>Amount</h4></div>
           <div class="col-xs-1"><h4>Dr/Cr</h4></div>
-          <div class="col-xs-3"><h4>Cheque</h4></div>
-          <div class="col-xs-2"><h4>Bank</h4></div>
+          <div class="col-xs-2"><h4>Cheque</h4></div>
+          <div class="col-xs-3"><h4>Cheque Issuing Bank</h4></div>
         </div>
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :inverse => true, :default_ledger_id => default_ledger_id } }  if ((
@@ -50,6 +50,35 @@
       </div>
     </div>
   </div>
+
+        <div class="group-ledger">
+          <%= radio_button_tag 'voucher_settlement_type', 'default', :checked => true%>
+          <%= label :voucher_settlement_type_default, 'Default' %>
+          <%= radio_button_tag 'voucher_settlement_type', 'client_group' %>
+          <%= label :voucher_settlement_type_client_group, 'Client Group' %>
+          <%= radio_button_tag 'voucher_settlement_type', 'vendor' %>
+          <%= label :voucher_settlement_type_vendor, 'Vendor' %>
+        </div>
+
+        <div class="box box-primary z-light-bg many-to-single-settlement">
+          <div class="box-header">
+            <h3 class="box-title">Select the Account that needs to be assigned for receipt / payment </h3>
+          </div>
+          <div class="box-body">
+            <div class="row client-group">
+              <div class="col-xs-4">
+                  <%= select_tag "group_ledger_id", options_from_collection_for_select(ledger_list_available, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
+              </div>
+            </div>
+            <div class="row vendor-group">
+              <div class="col-xs-4">
+                <%= select_tag "vendor_id", options_from_collection_for_select(ledger_list_available, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
   <% end %>
   <br>
   <div class="form-inputs voucher">

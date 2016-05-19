@@ -117,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160517121219) do
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
     t.integer  "settlement_id"
+    t.integer  "voucher_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
@@ -130,6 +131,7 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "cheque_entries", ["creator_id"], name: "index_cheque_entries_on_creator_id", using: :btree
   add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree
   add_index "cheque_entries", ["updater_id"], name: "index_cheque_entries_on_updater_id", using: :btree
+  add_index "cheque_entries", ["voucher_id"], name: "index_cheque_entries_on_voucher_id", using: :btree
 
   create_table "cheque_entry_particular_associations", force: :cascade do |t|
     t.integer  "association_type"
