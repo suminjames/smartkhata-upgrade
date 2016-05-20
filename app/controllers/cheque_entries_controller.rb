@@ -21,7 +21,7 @@ class ChequeEntriesController < ApplicationController
       @name = current_tenant.full_name
     else
       @bank = @cheque_entry.bank_account.bank
-      @name = @cheque_entry.client_account.present? ? @cheque_entry.client_account.name : "Internal Ledger"
+      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
   end

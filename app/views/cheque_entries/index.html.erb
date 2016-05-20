@@ -21,7 +21,7 @@
         <td><%= cheque_entry.cheque_number %></td>
         <td><%= cheque_entry.bank_account.bank.name %></td>
         <td><%= cheque_entry.bank_account.account_number %></td>
-        <td><%= cheque_entry.client_account.name if cheque_entry.client_account.present? %></td>
+        <td><%= cheque_entry.beneficiary_name if cheque_entry.beneficiary_name.present? %></td>
         <td><%= cheque_entry.cheque_date if cheque_entry.cheque_date.present? %></td>
         <td><%= cheque_entry.status.titleize %></td>
         <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %></td>
