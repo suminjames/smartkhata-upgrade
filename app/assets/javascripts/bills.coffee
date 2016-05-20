@@ -27,6 +27,8 @@ $ ->
       $total_amount = $('.total-bill-amount .display-amount')
       $total_type = $('.total-bill-amount .display-type')
       total_bill_amount = parse_number($total_amount)
+      if ( $total_type.text() == 'cr' )
+        total_bill_amount *= -1
       $newTotal = sum_bill_balance(bill_amount,total_bill_amount, true)
       $total_amount.text(format_number(Math.abs($newTotal)))
       $total_type.text(if $newTotal >= 0 then 'dr' else 'cr')
@@ -35,6 +37,8 @@ $ ->
       $total_amount = $('.total-bill-amount .display-amount')
       $total_type = $('.total-bill-amount .display-type')
       total_bill_amount = parse_number($total_amount)
+      if ( $total_type.text() == 'cr' )
+        total_bill_amount *= -1
       $newTotal = sum_bill_balance(bill_amount,total_bill_amount)
       $total_amount.text(format_number(Math.abs($newTotal)))
       $total_type.text(if $newTotal >= 0 then 'dr' else 'cr')
