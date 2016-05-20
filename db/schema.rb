@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_index "calendars", ["updater_id"], name: "index_calendars_on_updater_id", using: :btree
 
   create_table "cheque_entries", force: :cascade do |t|
+    t.string   "beneficiary_name"
     t.integer  "cheque_number"
     t.integer  "additional_bank_id"
     t.integer  "status",                                      default: 0
@@ -116,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
+    t.integer  "vendor_account_id"
     t.integer  "settlement_id"
     t.integer  "voucher_id"
     t.integer  "creator_id"
@@ -131,6 +133,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_index "cheque_entries", ["creator_id"], name: "index_cheque_entries_on_creator_id", using: :btree
   add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree
   add_index "cheque_entries", ["updater_id"], name: "index_cheque_entries_on_updater_id", using: :btree
+  add_index "cheque_entries", ["vendor_account_id"], name: "index_cheque_entries_on_vendor_account_id", using: :btree
   add_index "cheque_entries", ["voucher_id"], name: "index_cheque_entries_on_voucher_id", using: :btree
 
   create_table "cheque_entry_particular_associations", force: :cascade do |t|
@@ -375,6 +378,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
     t.integer  "employee_account_id"
+    t.integer  "vendor_account_id"
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
@@ -385,6 +389,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_index "ledgers", ["fy_code"], name: "index_ledgers_on_fy_code", using: :btree
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
+  add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
 
   create_table "order_details", force: :cascade do |t|
     t.integer  "order_id"

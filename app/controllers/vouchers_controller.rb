@@ -33,7 +33,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type, @vendor_account_list =
+    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type, @vendor_account_list, @client_ledger_list =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
@@ -60,7 +60,7 @@ class VouchersController < ApplicationController
                                             voucher: @voucher,
                                             bill_ids: @bill_ids,
                                             voucher_settlement_type: @voucher_settlement_type,
-                                            group_ledger_id: @group_leader_ledger_id,
+                                            group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id)
 
     # abort("Message goes here")
@@ -89,6 +89,7 @@ class VouchersController < ApplicationController
         @ledger_list_financial = voucher_creation.ledger_list_financial
         @ledger_list_available = voucher_creation.ledger_list_available
         @vendor_account_list = voucher_creation.vendor_account_list
+        @client_ledger_list = voucher_creation.client_ledger_list
         @is_payment_receipt = voucher_creation.is_payment_receipt?(@voucher_type)
 
         if voucher_creation.error_message
@@ -274,7 +275,7 @@ class VouchersController < ApplicationController
     @fixed_ledger_id = params[:fixed_ledger_id].to_i if params[:fixed_ledger_id].present?
     @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
     @voucher_settlement_type = params[:voucher_settlement_type] if params[:voucher_settlement_type].present?
-    @group_leader_ledger_id = params[:group_ledger_id].to_i if params[:group_ledger_id].present?
+    @group_leader_ledger_id = params[:group_leader_ledger_id].to_i if params[:group_leader_ledger_id].present?
     @vendor_account_id = params[:vendor_account_id].to_i if params[:vendor_account_id].present?
   end
 

@@ -105,7 +105,7 @@ $(document).on 'click','.add_fields', (event) ->
 
 
 $ ->
-  $('.many-to-single-settlement-group').hide()
+  $('.many-to-single-settlement-client').hide()
   $('.many-to-single-settlement-vendor').hide()
 
 
@@ -116,11 +116,11 @@ $ ->
     if ($(this).val() == 'default')
       $('.many-to-single-settlement').hide()
     else if ($(this).val() == 'vendor')
-      $('.many-to-single-settlement-group').hide()
+      $('.many-to-single-settlement-client').hide()
       $('.many-to-single-settlement-vendor').show()
     else
       $('.many-to-single-settlement-vendor').hide()
-      $('.many-to-single-settlement-group').show()
+      $('.many-to-single-settlement-client').show()
 
 #      $(".dynamic-ledgers   select.combobox").html("<option value=''></option>")
 #

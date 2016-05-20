@@ -1,5 +1,5 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
@@ -7,7 +7,7 @@ class Vouchers::Create < Vouchers::Base
     @ledger_list_available = nil
     @vendor_account_list = []
     @voucher_settlement_type = attrs[:voucher_settlement_type]
-    @group_ledger_id = attrs[:group_leader_ledger_id]
+    @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
   end
 
@@ -44,6 +44,7 @@ class Vouchers::Create < Vouchers::Base
     # assign all ledgers if ledger_list_available is not present
     @ledger_list_available ||= Ledger.all
     @vendor_account_list = VendorAccount.all
+    @client_ledger_list = Ledger.find_all_client_ledgers
 
     is_payment_receipt = is_payment_receipt?(@voucher_type)
 
@@ -51,9 +52,9 @@ class Vouchers::Create < Vouchers::Base
     vendor_account = nil
     if @voucher_settlement_type == 'vendor'
       vendor_account = VendorAccount.find(id: @vendor_account_id )
-    elsif @voucher_settlement_type == 'group'
-      group_ledger = Ledger.find_by(id: @group_ledger_id)
-      group_account = group_ledger.client_account if group_ledger.present?
+    elsif @voucher_settlement_type == 'client'
+      client_head_ledger = Ledger.find_by(id: @group_leader_ledger_id)
+      client_head_account = client_head_ledger.client_account if client_head_ledger.present?
     end
 
 
@@ -61,8 +62,8 @@ class Vouchers::Create < Vouchers::Base
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?
       @error_message = "Please Select a vendor"
       return
-    elsif @voucher_settlement_type == 'group' && group_account.nil?
-      @error_message = "Please Select a Ledger as Ledger Group Head"
+    elsif @voucher_settlement_type == 'client' && client_head_account.nil?
+      @error_message = "Please Select a Client Ledger as a Group Head"
       return
     end
 
@@ -73,7 +74,7 @@ class Vouchers::Create < Vouchers::Base
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         @processed_bills, description_bills, receipt_amount = process_bills(is_payment_receipt, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
-        @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_payment_receipt,@client_account, receipt_amount, @voucher_settlement_type, vendor_account, group_account)
+        @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_payment_receipt,@client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_head_account)
       else
         if has_error
           @error_message = error_message
@@ -193,7 +194,7 @@ class Vouchers::Create < Vouchers::Base
     end
     return processed_bills, description_bills, receipt_amount
   end
-  def voucher_save(processed_bills,voucher,description_bills,is_payment_receipt,client_account, receipt_amount, voucher_settlement_type, vendor_account, group_account)
+  def voucher_save(processed_bills,voucher,description_bills,is_payment_receipt,client_account, receipt_amount, voucher_settlement_type, vendor_account, client_head_account)
     error_message = nil
     res = false
     settlement = nil
@@ -223,16 +224,21 @@ class Vouchers::Create < Vouchers::Base
           bank_account = ledger.bank_account
 
           client_account_id = nil
-
-          if !voucher.is_payment_bank?
-            client_account_id = ledger.client_account_id
+          vendor_account_id = nil
+          cheque_name = nil
+          if voucher_settlement_type == 'client'
+            client_account_id = client_head_account.id
+            cheque_name = client_head_account.name
+          elsif voucher_settlement_type == 'vendor'
+            vendor_account_id = vendor_account.id
+            cheque_name = vendor_account.name
           end
 
           begin
           # cheque entry recording
           #   cheque is payment if issued from the company
           #   cheque is receipt type if issued from the client
-            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, client_account_id: client_account_id)
+            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
             cheque_entry.cheque_date = DateTime.now
 
             if particular.additional_bank_id.present?
@@ -240,7 +246,9 @@ class Vouchers::Create < Vouchers::Base
             else
               cheque_entry.status = ChequeEntry.statuses[:to_be_printed]
             end
-
+            cheque_entry.beneficiary_name = cheque_name
+            cheque_entry.client_account_id = client_account_id
+            cheque_entry.vendor_account_id = vendor_account_id
             cheque_entry.amount = particular.amount
             cheque_entry.cheque_issued_type = ChequeEntry.cheque_issued_types[:receipt] if particular.dr?
 
