@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
+      get 'print'
       post 'process_selected'
     end
   end
