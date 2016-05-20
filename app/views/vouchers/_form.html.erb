@@ -54,25 +54,32 @@
         <div class="group-ledger">
           <%= radio_button_tag 'voucher_settlement_type', 'default', :checked => true%>
           <%= label :voucher_settlement_type_default, 'Default' %>
-          <%= radio_button_tag 'voucher_settlement_type', 'client_group' %>
-          <%= label :voucher_settlement_type_client_group, 'Client Group' %>
+          <%= radio_button_tag 'voucher_settlement_type', 'group' %>
+          <%= label :voucher_settlement_type_group, 'Group' %>
           <%= radio_button_tag 'voucher_settlement_type', 'vendor' %>
           <%= label :voucher_settlement_type_vendor, 'Vendor' %>
         </div>
 
-        <div class="box box-primary z-light-bg many-to-single-settlement">
+        <div class="box box-primary z-light-bg many-to-single-settlement-group">
           <div class="box-header">
-            <h3 class="box-title">Select the Account that needs to be assigned for receipt / payment </h3>
+            <h3 class="box-title">Select the Ledger that needs to be assigned for receipt / payment </h3>
           </div>
           <div class="box-body">
             <div class="row client-group">
               <div class="col-xs-4">
-                  <%= select_tag "group_ledger_id", options_from_collection_for_select(ledger_list_available, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
+                  <%= select_tag "group_leader_ledger_id", options_from_collection_for_select(ledger_list_available, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="box box-primary z-light-bg many-to-single-settlement-vendor">
+          <div class="box-header">
+            <h3 class="box-title">Select the Vendor that needs to be assigned for receipt / payment </h3>
+          </div>
+          <div class="box-body">
             <div class="row vendor-group">
               <div class="col-xs-4">
-                <%= select_tag "vendor_id", options_from_collection_for_select(ledger_list_available, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
+                <%= select_tag "vendor_account_id", options_from_collection_for_select(vendor_account_list, "id", "name"), {:class=>'form-control combobox select-ledger'} %>
               </div>
             </div>
           </div>
@@ -86,7 +93,7 @@
       <div class="box-header">
         <h3 class="box-title">Particulars</h3>
       </div>
-      <div class="box-body">
+      <div class="box-body dynamic-ledgers">
         <div class="row">
           <div class="col-xs-4"><h4>Ledger</h4></div>
           <div class="col-xs-2"><h4>Amount</h4></div>

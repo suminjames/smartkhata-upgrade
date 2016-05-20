@@ -98,15 +98,35 @@ $(document).on 'click','.add_fields', (event) ->
   $(this).before($(this).data('fields').replace(regexp,time))
   #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
-  debugger;
   $('select.combobox').combobox()
   fix_autocomplete()
   manage_cheque_all_select()
 
 
+
 $ ->
+  $('.many-to-single-settlement-group').hide()
+  $('.many-to-single-settlement-vendor').hide()
+
+
+
   $('input:radio[name="voucher_settlement_type"]').on 'change', (event) ->
+    callback = (response) ->
+
     if ($(this).val() == 'default')
       $('.many-to-single-settlement').hide()
+    else if ($(this).val() == 'vendor')
+      $('.many-to-single-settlement-group').hide()
+      $('.many-to-single-settlement-vendor').show()
     else
-      $('.many-to-single-settlement').show()
+      $('.many-to-single-settlement-vendor').hide()
+      $('.many-to-single-settlement-group').show()
+
+#      $(".dynamic-ledgers   select.combobox").html("<option value=''></option>")
+#
+#      $.get '/ledgers/get_ledgers/', {group_leader_id: $val}, callback, 'json'
+#
+#      $('.dynamic-ledgers  select.combobox').combobox('refresh')
+#      $('.dynamic-ledgers input.select-ledger').val('')
+#      $('.dynamic-ledgers .input-group-addon').click()
+

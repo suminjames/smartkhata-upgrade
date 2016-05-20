@@ -40,6 +40,8 @@ class Vouchers::Setup < Vouchers::Base
       voucher.particulars << Particular.new(ledger_id: default_ledger_id,amount: amount, transaction_type: transaction_type)
     end
 
+    vendor_account_list = VendorAccount.all
+
 
     # settlement by clearance only in case of payment to client
     if settlement_by_clearance
@@ -53,6 +55,6 @@ class Vouchers::Setup < Vouchers::Base
       # a general particular for the voucher
       voucher.particulars << Particular.new if client_account.nil?
     end
-    return voucher, is_payment_receipt, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, settlement_by_clearance
+    return voucher, is_payment_receipt, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, vendor_account_list, settlement_by_clearance
   end
 end
