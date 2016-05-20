@@ -7,7 +7,11 @@ Minitest::Reporters.use!
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-  fixtures :all
+  # fixtures :all
+  fixtures :banks, :bank_accounts, :users, :ledgers, :vouchers, :particulars
+
+  # THIS FILE (atleast) CAUSES BRAN-FARTING ERRORS
+  # fixtures :cheque_entries
 
   # Add more helper methods to be used by all tests here...
 

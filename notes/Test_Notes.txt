@@ -21,7 +21,8 @@
             -default debit ledger should default to bank for sales
             -On Create
                 -receipt should be created with relevant information
-         5.3 Verify in Ledgers, click the links given
+         5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2
+            -click the links given
     6. Client Ledgers
         -steps similar to Bill Process from bills
             -processs purchase bills

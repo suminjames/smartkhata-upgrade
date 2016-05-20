@@ -5,7 +5,7 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
-  amnt: 5000
-  
+  amount: 5000
+
 two: {}
 #  column: value

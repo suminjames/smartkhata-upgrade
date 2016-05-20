@@ -6,34 +6,31 @@ class Files::SalesControllerTest < ActionController::TestCase
     @post_floorsheet_action = Proc.new{ | different_floorsheet |
       sales_controller = @controller
       @controller = Files::FloorsheetsController.new
-      inner_file_path = different_floorsheet ? 'May12/BrokerwiseFloorSheetReport 12 May.xls' : 'May10/BrokerwiseFloorSheetReport 10 May.xls'
+      inner_file_path = different_floorsheet ? 'May10/BrokerwiseFloorSheetReport 10 May.xls' : 'May4/BrokerwiseFloorSheetReport 4 May.xls'
       file = fixture_file_upload("files/#{inner_file_path}", 'text/xls')
       post :import, file: file
-      get :index
-      assert_not assigns(:file_list).empty?
       @controller = sales_controller
-      # debugger
     }
     @test_proc = Proc.new { |param| }
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/csv'
       inner_file_path = case test_type
-        when 'valid' || 'invalid'
-          'May10/CM0518052016141937.csv'
+        when 'valid'
+          'May4/CM0518052016141832.csv'
         when 'valid again'
-          'May12/CM0518052016142014.csv'
+          'May10/CM0518052016141937.csv'
         when 'invalid'
           if sample_file
             file_name_suffix = case sample_file
               when 1 then 'missing_settlement_id'
-              when 2 then 'multiple_settlements'
+              when 1 then 'multiple_settlements'
               when 3 then 'missing_trade_date'
               when 4 then 'missing_contract_number'
-              when 5 then 'missing_header_row'
+              when 5 then 'missing_header_rows'
               when 6 then 'missing_data_rows'
               when 7 then 'blank'
             end
-            "invalid_files/May10/CM0518052016141937__#{file_name_suffix}.csv"
+            "invalid_files/May4/CM0518052016141832__#{file_name_suffix}.csv"
           else
             file_type = 'text/xls'
             'MAy10/BrokerwiseFloorSheetReport 10 May.xls'
@@ -41,7 +38,7 @@ class Files::SalesControllerTest < ActionController::TestCase
       end
       file = fixture_file_upload("files/#{inner_file_path}", file_type)
       post :import, file: file
-      # debugger
+      debugger
     }
     @block_assert_via_login_and_get = lambda { | action |
       sign_in @user
@@ -56,25 +53,17 @@ class Files::SalesControllerTest < ActionController::TestCase
         different_floorsheet = (test_type == "invalid" && !file_num && !avoid_floorsheet) || (test_type == "valid again")
         @post_floorsheet_action.call(different_floorsheet)
       end
-      # sales_post_type = case
-      # when test_type == 'valid again'
-      #   test_type
-      # when flash_msg
-      #   'invalid'
-      # else
-      #   'valid'
-      # end
-
-      if test_type == "invalid" && flash_msg == @missing_floorsheet_msg && !file_num
-        post_action_type = 'valid'
+      sales_post_type = case
+      when test_type == 'valid again'
+        test_type
+      when flash_msg == 'please upload a valid file'
+        'invalid'
       else
-        post_action_type = test_type
+        'valid'
       end
-      @post_action.call(post_action_type, file_num)
+      @post_action.call(sales_post_type, file_num)
       if test_type == 'valid'
         assert_redirected_to sales_settlement_path(assigns(:sales_settlement_id))
-      # elsif test_type == 'invalid' && file_num
-      #   assert_redirected_to import_files_sales_path
       else
         assert_response :success
         assert_template 'files/sales/import'
@@ -94,9 +83,6 @@ class Files::SalesControllerTest < ActionController::TestCase
         assert assigns(:file_list).empty?
       end
     }
-    # Error messages
-    @missing_contract_number_msg = 'the file you have uploaded has missing contract number'
-    @missing_floorsheet_msg = 'please upload corresponding floorsheet first'
   end
 
   # index
@@ -119,13 +105,13 @@ class Files::SalesControllerTest < ActionController::TestCase
 
 
   # import
-  test "authenticated users should be able to import a file once" do
+  test "bar" do
+  # test "authenticated users should be able to import a file once" do
     @assert_block_via_login_and_post.call('valid', false)
     # duplicate import
     @post_action.call('valid')
     assert_contains 'the file is already uploaded', flash[:error]
   end
-
   test "authenticated users should be able to import several files if distinct ones" do
     @assert_block_via_login_and_post.call('valid', false)
     # another import
@@ -136,45 +122,38 @@ class Files::SalesControllerTest < ActionController::TestCase
   test "should not import invalid file" do
     @assert_block_via_login_and_post.call('invalid', 'please upload a valid file')
   end
-  test "bar" do
-  # test "should not import sales cm without a floorsheet" do
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, nil, true)
+  test "should not import sales cm without a floorsheet" do
+    @assert_block_via_login_and_post.call('invalid', 'please upload corresponding floorsheet first', nil, true)
   end
   test "should not import sales cm without the corresponding floorsheet" do
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, nil)
+    @assert_block_via_login_and_post.call('invalid', 'please upload corresponding floorsheet first', nil)
   end
-
 
   # explicit invalid files
-  test "should not import invalid sales cm: missing settlement id" do
-    # The missing floorsheet error message because settlement id column is not explicitly checked
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, 1)
+  test "should not import invalid sales cm: missing settlement" do
+    @assert_block_via_login_and_post.call('invalid', 'please upload a valid file', 1)
   end
   test "should not import invalid sales cm: multiple settlements" do
-    @assert_block_via_login_and_post.call('invalid', 'The file you have uploaded has multiple settlement ids', 2) # error
+    @assert_block_via_login_and_post.call('invalid', 'The file you have uploaded has multiple settlement ids', 2)
   end
   test "should not import invalid sales cm: trade date missing" do
     @assert_block_via_login_and_post.call('invalid', 'please upload a correct file. trade date is missing', 3)
   end
-  test "should not import invalid sales cm: missing contract number" do
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 4)
+  test "should not import invalid sales cm: missing contact number" do
+    @assert_block_via_login_and_post.call('invalid', 'the file you have uploaded has missing contract number', 4)
   end
   test "should not import invalid sales cm: missing header rows" do
-    # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 5)
+    @assert_block_via_login_and_post.call('invalid', 'please upload a valid file', 5)
   end
   test "should not import invalid sales cm: missing data rows" do
-    # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 6)
+    @assert_block_via_login_and_post.call('invalid', 'please upload a valid file', 6)
   end
   test "should not import invalid sales cm: blank" do
-    # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 7)
+    @assert_block_via_login_and_post.call('invalid', 'please upload a valid file', 7)
   end
 
   test "unauthenticated users should not be able to import" do
     @post_action.call('valid')
     assert_redirected_to new_user_session_path
   end
-
 end
