@@ -94,6 +94,10 @@ class Voucher < ActiveRecord::Base
 					particular.save!
 				end
 			end
+			cheque_entries.each do |cheque|
+				cheque.beneficiary_name ||= particulars.first.ledger.name
+				cheque.save!
+			end
 		elsif self.receive?
 			cheque_entries = self.cheque_entries.receipt
 			particulars = self.particulars.cr
@@ -103,6 +107,12 @@ class Voucher < ActiveRecord::Base
 					particular.save!
 				end
 			end
+
+			cheque_entries.each do |cheque|
+				cheque.beneficiary_name ||= particulars.first.ledger.name
+				cheque.save!
+			end
+
 		end
   end
 end
