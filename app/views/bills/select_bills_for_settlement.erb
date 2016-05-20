@@ -2,7 +2,7 @@
 
 <% if !@bills.empty? %>
     <%= form_tag process_selected_bills_path do %>
-  <table class="table table-no-border table-striped table-condensed text-left">
+  <table class="table table-no-border table-striped table-condensed text-left ">
   <tr>
     <th>S.N.</th>
     <th>Bill No.</th>
@@ -23,7 +23,7 @@
 
   %>
   <!-- Bill (row) BEGINS -->
-  <tr>
+  <tr class="<%= bill.purchase? ? 'dr' : 'cr' %>">
     <td><%= serial_number_count + index %></td>
     <td><%= bill.formatted_bill_number%></td>
     <td><%= bill.formatted_bill_dates["bs"]%></td>
@@ -31,7 +31,7 @@
     <td><%= bill.formatted_type %></td>
     <td><%= bill.formatted_status%></td>
     <td><%= bill.formatted_companies_list%></td>
-    <td class="text-right"><%= bill.formatted_net_bill_amount%></td>
+    <td class="text-right bill-amount"><%= bill.formatted_net_bill_amount%></td>
     <td>
       <!--  TODO: Optimize -->
       <% voucher_type = (bill.purchase?) ? Voucher.voucher_types[:receive]: Voucher.voucher_types[:payment] %>
@@ -40,13 +40,16 @@
       <% end %>
       <%= link_to 'View', bill %>
     </td>
-    <td><%= check_box_tag "bill_ids[]", bill.id %></td>
+    <td><%= check_box_tag "bill_ids[]", bill.id, false, class: "check-bill"  %></td>
   </tr>
   <!-- Bill (row) ENDS -->
 
 
   <% end %>
 </table>
+        <div class="total-bill-amount">
+          <h4>Total:<span class="display-amount">0.00</span><span class="display-type">dr</span></h4>
+        </div>
         <%= hidden_field_tag 'client_account_id', @client_account_id %>
         <%= submit_tag "Process Checked" %>
         <% end %>

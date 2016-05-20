@@ -150,6 +150,11 @@ class BillsController < ApplicationController
   def process_selected
     amount_margin_error = 0.01
 
+    if @bill_ids.size <= 0
+      @back_path =  request.referer || bills_path
+      redirect_to @back_path, :flash => { :error => 'No Bills were Selected' } and return
+    end
+
     if @bill_ids.size > 0
       client_account = ClientAccount.find(@client_account_id)
       client_ledger = client_account.ledger
