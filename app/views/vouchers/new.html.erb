@@ -7,12 +7,14 @@
            voucher_type: @voucher_type,
            client_account_id: @client_account_id,
            bill_id: @bill_id,
-           is_purchase_sales: @is_purchase_sales,
+           is_payment_receipt: @is_payment_receipt,
            ledger_list_financial: @ledger_list_financial,
            ledger_list_available: @ledger_list_available,
            default_ledger_id: @default_ledger_id,
            clear_ledger: @clear_ledger,
-           bill_ids: @bill_ids
+           bill_ids: @bill_ids,
+           vendor_account_list: @vendor_account_list,
+           client_ledger_list: @client_ledger_list
 
 %>
 <%= link_to 'Back', vouchers_path %>

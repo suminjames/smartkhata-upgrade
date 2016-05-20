@@ -274,13 +274,13 @@
 [32m+[m[32m    @cheque_number = params[:cheque_number].to_i[m
 [32m+[m
 [32m+[m[32m    # ignore some validations when the voucher type is sales or purchase[m
-[32m+[m[32m    @is_purchase_sales = false[m
+[32m+[m[32m    @is_payment_receipt = false[m
 [32m+[m
 [32m+[m[32m    case @voucher_type[m
 [32m+[m[32m    when Voucher.voucher_types[:sales],Voucher.voucher_types[:purchase][m
 [32m+[m[32m      @ledger_list = BankAccount.all.uniq.collect(&:ledger)[m
 [32m+[m[32m      @ledger_list << Ledger.find_by(name: "Cash")[m
-[32m+[m[32m      @is_purchase_sales = true[m
+[32m+[m[32m      @is_payment_receipt = true[m
 [32m+[m[32m    end[m
 [32m+[m
      @voucher = Voucher.new(voucher_params)[m
@@ -297,7 +297,7 @@
  [m
 [31m-    if @voucher.particulars.length > 1[m
 [32m+[m[32m    # for voucher type sales and purchase the partiulars can one[m
-[32m+[m[32m    if @voucher.particulars.length > 1 || @is_purchase_sales[m
+[32m+[m[32m    if @voucher.particulars.length > 1 || @is_payment_receipt[m
        # check if debit equal credit or amount is not zero[m
 [31m-[m
        @voucher.particulars.each do |particular|[m
@@ -315,7 +315,7 @@
 [32m+[m
 [32m+[m
 [32m+[m[32m      # add the particular to the voucher for sales or purchase[m
-[32m+[m[32m      if (@is_purchase_sales)[m
+[32m+[m[32m      if (@is_payment_receipt)[m
 [32m+[m[32m        transaction_type = @net_blnc >= 0 ? Particular.transaction_types[:cr] : Particular.transaction_types[:dr][m
 [32m+[m[32m        particular_single = Particular.new(ledger_id: @fixed_ledger_id, transaction_type: transaction_type, cheque_number: @cheque_number, amnt: @net_blnc)[m
 [32m+[m[32m        @voucher.particulars << particular_single[m

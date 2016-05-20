@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
 	has_many :particulars
 	has_many :share_transactions
 	has_many :ledgers, :through => :particulars
-	has_many :cheque_entries, :through => :particulars
+	has_many :cheque_entries
 	
 	accepts_nested_attributes_for :particulars
 	has_many :settlements

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :vendor_accounts
   resources :employee_ledger_associations
   resources :branches
   resources :closeouts

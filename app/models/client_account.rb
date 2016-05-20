@@ -73,7 +73,7 @@ class ClientAccount < ActiveRecord::Base
 	belongs_to :creator,  class_name: 'User'
 	belongs_to :updater,  class_name: 'User'
 
-  belongs_to :group_leader,  class_name: 'User'
+  belongs_to :group_leader,  class_name: 'ClientAccount'
 
 	belongs_to :user
 

@@ -2,20 +2,6 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-
-# ready = ->
-#   jQuery ->
-# 		$('form').on 'click', '.add_fields', (event) ->
-# 			time = new Date().getTime()
-# 			regexp = new RegExp($(this).data('id'),'g')
-# 			$(this).before($(this).data('fields').replace(regexp,time))
-# 			event.preventDefault()
-#       $('.combobox').combobox()
-#
-#   jQuery ->
-#     $('.combobox').combobox();
-# $(document).ready(ready)
-
 manage_cheque_all_select = () ->
   $("select.select-ledger").each ->
     $this = $(this)
@@ -31,18 +17,10 @@ ready = ->
     fix_autocomplete()
 $(document).ready(ready)
 
-$(document).on 'click','.add_fields', (event) ->
-  time = new Date().getTime()
-  regexp = new RegExp($(this).data('id'),'g')
-  $(this).before($(this).data('fields').replace(regexp,time))
-#  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
-  event.preventDefault()
-  debugger;
-  $('select.combobox').combobox()
-  fix_autocomplete()
-  manage_cheque_all_select()
 
-manage_cheque = ($this) ->
+
+manage_cheque = ($this, clear_cheque) ->
+  clear_cheque ||= false
   $val = $this.val()
   $parent_row = $this.parent().parent()
   $cheque = $parent_row.find('.cheque')
@@ -53,20 +31,43 @@ manage_cheque = ($this) ->
         $cheque.val(response)
       else
         $cheque.val("")
-
     $this.parent().parent().find('.cheque-container').show()
     if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
       $this.parent().parent().find('.cheque-container.bank').hide()
       $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
-
+    else
+      if clear_cheque
+        $cheque.val("")
 
   else
     $cheque.val("")
     $this.parent().parent().find('.cheque-container').hide()
 
+error_populate_cheque_number = ($this) ->
+  $val = $val = $this.val()
+  if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
+    $input = $this.parent().parent().find('input.cheque')
+    if($input.val().trim().length == 0)
+      if !$input.parent().hasClass('has-error')
+        $input.parent().addClass('has-error')
+        $input.parent().append('<p class="error">Cheque cant be empty</p>')
+      event.preventDefault()
+    else
+      $input.parent().removeClass('has-error')
+      $input.parent().find('p.error').hide()
+
+$ ->
+  $(document).on 'change','.type-selector select', (event) ->
+    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
+    manage_cheque($ledgerSelect, true)
 
 $ ->
   manage_cheque_all_select()
+
+$ ->
+  $(document).on 'change','.cheque', (event) ->
+    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
+    error_populate_cheque_number($ledgerSelect)
 
 $ ->
   $(document).on 'change','select.select-ledger', (event) ->
@@ -83,19 +84,49 @@ $ ->
 
     $("select.select-ledger").each ->
       $this = $(this)
-      $val = $val = $this.val()
-      if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0)
-        $input = $this.parent().parent().find('input.cheque')
-        if($input.val().trim().length == 0)
-          $input.parent().addClass('has-error')
-          $input.parent().append('<p class="error">Cheque cant be empty</p>')
-          event.preventDefault()
-        else
-          $input.parent().removeClass('has-error')
-          $input.parent().find('p.error').hide()
+      error_populate_cheque_number($this)
 
 
 $ ->
   $('form').on 'click', '.removeThisParticular', (event) ->
     $(this).closest('div.row.particular').remove()
     event.preventDefault()
+
+$(document).on 'click','.add_fields', (event) ->
+  time = new Date().getTime()
+  regexp = new RegExp($(this).data('id'),'g')
+  $(this).before($(this).data('fields').replace(regexp,time))
+  #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
+  event.preventDefault()
+  $('select.combobox').combobox()
+  fix_autocomplete()
+  manage_cheque_all_select()
+
+
+
+$ ->
+  $('.many-to-single-settlement-client').hide()
+  $('.many-to-single-settlement-vendor').hide()
+
+
+
+  $('input:radio[name="voucher_settlement_type"]').on 'change', (event) ->
+    callback = (response) ->
+
+    if ($(this).val() == 'default')
+      $('.many-to-single-settlement').hide()
+    else if ($(this).val() == 'vendor')
+      $('.many-to-single-settlement-client').hide()
+      $('.many-to-single-settlement-vendor').show()
+    else
+      $('.many-to-single-settlement-vendor').hide()
+      $('.many-to-single-settlement-client').show()
+
+#      $(".dynamic-ledgers   select.combobox").html("<option value=''></option>")
+#
+#      $.get '/ledgers/get_ledgers/', {group_leader_id: $val}, callback, 'json'
+#
+#      $('.dynamic-ledgers  select.combobox').combobox('refresh')
+#      $('.dynamic-ledgers input.select-ledger').val('')
+#      $('.dynamic-ledgers .input-group-addon').click()
+
