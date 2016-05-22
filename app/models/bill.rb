@@ -26,7 +26,6 @@ class Bill < ActiveRecord::Base
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
-  #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions
   belongs_to :client_account

@@ -95,7 +95,7 @@ class BillsController < ApplicationController
     respond_to do |format|
       format.html
       format.pdf do
-        pdf = PrintBill.new
+        pdf = PrintBill.new(@bill, current_tenant)
         send_data pdf.render, filename: "Bill_#{@bill.fy_code}_#{@bill.bill_number}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
