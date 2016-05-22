@@ -7,14 +7,13 @@
     // The following check makes sure the code executes only if the DOM has an element with id 'bill-full'.
     if ($('.bill-full').length > 0) {
 
-        $("#printPDF").click(function(){
-            console.log('clicked');
-            print(window.location.href+".pdf");
+        $(".btnPrintPDF").click(function(){
+            console.log("clicked")
+            bill_id = this.id.split("-")[1]
+            print( bill_id + '.pdf');
         });
 
-        function print(url)
-        {
-            console.log('print');
+        function print(url) {
             var _this = this,
                 iframeId = 'iframe-for-print',
                 $iframe = $('iframe#iframe-for-print');
@@ -28,7 +27,6 @@
 
         //initiates print once content has been loaded into iframe
         function callPrint(iframeId) {
-          console.log('callPrint');
           var PDF = document.getElementById(iframeId);
           PDF.focus();
           PDF.contentWindow.print();

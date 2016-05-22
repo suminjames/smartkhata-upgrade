@@ -13,8 +13,10 @@ Note:
 # Client associated with the bill
 @client = bill.get_client
 %>
+
 <%= link_to "View(pdf)", bill_path(format: "pdf") %>
-<div id="btnPrint">
+
+<div class="btnPrintPDF" id="bill-<%=bill.bill_number%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
   <iframe id ='iframe-for-print'>

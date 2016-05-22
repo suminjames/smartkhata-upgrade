@@ -38,6 +38,11 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   visibility: hidden;
 }
 
+.btnPrintPDF {
+  display: inline-block;
+  cursor: pointer;
+}
+
 .bill-card {
 
   background: $bill_background_color;
