@@ -33,6 +33,11 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   }
 }
 
+#iframe-for-print {
+  display:none;
+  visibility: hidden;
+}
+
 .bill-card {
 
   background: $bill_background_color;
