@@ -9,18 +9,18 @@ class BankAccountsControllerTest < ActionController::TestCase
       post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_receipt"=>"1", "default_for_payment"=>"1",
                                    "ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
     }
-    @assert_block_via_login_and_get = Proc.new { |action, provide_bank_account|
+    @assert_block_via_login_and_get = Proc.new { |action, get_with_id|
       sign_in @user
-      if provide_bank_account
+      if get_with_id
         get action, id: @bank_account
       else
         get action
       end
       assert_response :success
       assert_template "bank_accounts/#{action}"
-      unless provide_bank_account
-        instance_var_name = action == :new ? 'bank_account' : 'bank_accounts'
-        assert_not_nil assigns(instance_var_name)
+      unless get_with_id
+        instance_var = action == :new ? 'bank_account' : 'bank_accounts'
+        assert_not_nil assigns(instance_var)
       end
     }
     @assert_block_via_login_and_patch = lambda { |user_type|

@@ -20,5 +20,7 @@ class Bank < ActiveRecord::Base
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
-  validates :bank_code, uniqueness: true
+  # Validate only two fields for now
+  validates :name, uniqueness: true, presence: true
+  validates :bank_code, uniqueness: true, presence: true
 end
