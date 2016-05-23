@@ -1,5 +1,5 @@
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
@@ -69,7 +69,7 @@ class Vouchers::Create < Vouchers::Base
 
 
     if @voucher.particulars.length > 1
-      @voucher, has_error, error_message, net_blnc, net_usable_blnc = process_particulars(@voucher)
+      @voucher, has_error, error_message, net_blnc, net_usable_blnc = process_particulars(@voucher, @voucher_settlement_type)
       @processed_bills = []
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
@@ -88,7 +88,7 @@ class Vouchers::Create < Vouchers::Base
     res
   end
 
-  def process_particulars(voucher)
+  def process_particulars(voucher, voucher_settlement_type)
     has_error = false
     error_message = ""
     net_blnc = 0
@@ -124,7 +124,8 @@ class Vouchers::Create < Vouchers::Base
           particular.additional_bank_id = nil
           voucher.is_payment_bank = true
           # Company can create payment by cheque for only one at a time
-          if voucher.particulars.length > 2
+          # unless they are paying to a group or vendor
+          if voucher.particulars.length > 2 && voucher_settlement_type == 'default'
             has_error = true
             error_message ="Single Cheque Entry only possible for payment by cheque"
             break
@@ -146,15 +147,11 @@ class Vouchers::Create < Vouchers::Base
   def process_bills(is_payment_receipt, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment )
     processed_bills = []
     description_bills = ""
-    receipt_amount = 0.0
+    receipt_amount = net_usable_blnc.abs || 0.0
 
 
     if is_payment_receipt && client_account
-
-      receipt_amount = net_usable_blnc.abs
-
       net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
-
       bills.each do |bill|
 
         # modify the net usable balance in case of the ledger clearout
@@ -283,7 +280,19 @@ class Vouchers::Create < Vouchers::Base
 
       # if voucher settlement type is other than default create only a single settlement.
       if voucher_settlement_type != 'default'
-        settlement = purchase_sales_settlement(voucher, description_bills: description_bills, is_single_settlement: true, client_group_leader_account: client_group_leader_account, vendor_account: vendor_account)
+        if voucher_settlement_type == 'client'
+          voucher.beneficiary_name = client_group_leader_account.name
+        else
+          voucher.beneficiary_name = vendor_account.name
+        end
+        settlement = purchase_sales_settlement(
+            voucher,
+            description_bills: description_bills,
+            is_single_settlement: true,
+            client_group_leader_account: client_group_leader_account,
+            vendor_account: vendor_account,
+            receipt_amount: receipt_amount
+        )
         voucher.settlements << settlement if settlement.present?
       end
 
@@ -300,7 +309,7 @@ class Vouchers::Create < Vouchers::Base
     settlement_description = attrs[:settlement_description]
     particular = attrs[:particular]
     is_single_settlement = attrs[:is_single_settlement] || false
-    receipt_amount = attrs[:receipt] || 0
+    receipt_amount = attrs[:receipt_amount] || 0
     client_group_leader_account = attrs[:client_group_leader_account]
     vendor_account = attrs[:vendor_account]
 
@@ -335,10 +344,13 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      settlement.client_account = client_group_leader_account
+      settlement.vendor_account = vendor_account
     elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      settlement.client_account = client_account
     end
 
     settlement

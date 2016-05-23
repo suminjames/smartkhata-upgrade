@@ -91,6 +91,9 @@ class VouchersController < ApplicationController
         @vendor_account_list = voucher_creation.vendor_account_list
         @client_ledger_list = voucher_creation.client_ledger_list
         @is_payment_receipt = voucher_creation.is_payment_receipt?(@voucher_type)
+        @voucher_settlement_type  = voucher_creation.voucher_settlement_type
+        @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
+        @vendor_account_id = voucher_creation.vendor_account_id
 
         if voucher_creation.error_message
           flash.now[:error] = voucher_creation.error_message
