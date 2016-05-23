@@ -98,7 +98,7 @@ class Voucher < ActiveRecord::Base
 				cheque.beneficiary_name ||= particulars.first.ledger.name
 				cheque.save!
 			end
-		elsif self.receive?
+		elsif self.receipt?
 			cheque_entries = self.cheque_entries.receipt
 			particulars = self.particulars.cr
 			particulars.each do |particular|
