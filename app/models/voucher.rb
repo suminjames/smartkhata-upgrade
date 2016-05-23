@@ -47,7 +47,7 @@ class Voucher < ActiveRecord::Base
   belongs_to :reviewer, class_name: 'User'
 
 	# purchase and sales kept as per the accounting norm
-  # however voucher types will be represented as payment and receive
+  # however voucher types will be represented as payment and receipt
 	enum voucher_type: [:journal, :payment, :receipt, :contra ]
 	enum voucher_status: [:pending, :complete, :rejected]
 
@@ -98,7 +98,7 @@ class Voucher < ActiveRecord::Base
 				cheque.beneficiary_name ||= particulars.first.ledger.name
 				cheque.save!
 			end
-		elsif self.receive?
+		elsif self.receipt?
 			cheque_entries = self.cheque_entries.receipt
 			particulars = self.particulars.cr
 			particulars.each do |particular|

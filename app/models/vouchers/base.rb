@@ -40,7 +40,7 @@ class Vouchers::Base
     #   2. bills present (settlement by selected bills)
     #   3. client account is present and voucher type is present
     #         process the bill types depending on voucher type
-    #           voucher type receive -> all purchase bills
+    #           voucher type receipt -> all purchase bills
     #           voucher type payment -> all sales bills
     #   4. specific bill
     #         process a specific bill
@@ -67,15 +67,15 @@ class Vouchers::Base
       amount_to_receive_or_pay = amount_to_receive - amount_to_pay
       #  if clear ledger is true clear the ledger balance
       #     payment voucher if the ledger balance is negative
-      #     receive voucher if the ledger balance is positive
+      #     receipt voucher if the ledger balance is positive
       #     clear all bills
 
       # if bills are selected
       #   when purchase amount is greater than sales cases
       #     need to receive from bills and ledger has no advances
-      #       receive voucher
+      #       receipt voucher
       #     need to receive from bills and ledger has some advances
-      #       receive voucher for remaining amount from client
+      #       receipt voucher for remaining amount from client
       #     need to receive from bills and ledger has advances to cover up the bill amount
       #       use the balance and create general voucher, settle all bills
 

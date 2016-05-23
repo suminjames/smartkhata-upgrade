@@ -83,7 +83,7 @@ class VouchersController < ApplicationController
       else
         @voucher = voucher_creation.voucher
 
-        # ledger list and is purchase sales is required for the extra section to show up for payment and receive case
+        # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
         @ledger_list_financial = voucher_creation.ledger_list_financial

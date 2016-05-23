@@ -34,7 +34,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher.voucher_type = @voucher_type
 
     # needed for error case
-    if @voucher.receive? || @voucher.payment?
+    if @voucher.receipt? || @voucher.payment?
       @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
@@ -112,7 +112,7 @@ class Vouchers::Create < Vouchers::Base
       (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
 
       # get a net usable balance to charge the client for billing purpose
-      if  voucher.receive?
+      if  voucher.receipt?
         net_usable_blnc += (particular.dr?) ? particular.amount : 0
       elsif voucher.payment?
         net_usable_blnc += (particular.cr?) ? particular.amount : 0
@@ -206,10 +206,10 @@ class Vouchers::Create < Vouchers::Base
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
       # voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
-      # # create settlement in case of payment and receive
+      # # create settlement in case of payment and receipt
       # if is_payment_receipt && !processed_bills.blank?
       #   settlement_type = Settlement.settlement_types[:payment]
-      #   settlement_type = Settlement.settlement_types[:receipt] if voucher.voucher_type == Voucher.voucher_types[:receive]
+      #   settlement_type = Settlement.settlement_types[:receipt] if voucher.voucher_type == Voucher.voucher_types[:receipt]
       #   settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
       # end
 
@@ -310,7 +310,7 @@ class Vouchers::Create < Vouchers::Base
 
     # incase of multiple settlement or default take the amount from particular
     if !is_single_settlement
-      if  voucher.receive?
+      if  voucher.receipt?
         receipt_amount += (particular.cr?) ? particular.amount : 0
       elsif voucher.payment?
         receipt_amount += (particular.dr?) ? particular.amount : 0
@@ -333,11 +333,11 @@ class Vouchers::Create < Vouchers::Base
 
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receive?
+      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
-    elsif voucher.receive? && particular.cr? || voucher.payment? && particular.dr?
+    elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receive?
+      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
     end
 
