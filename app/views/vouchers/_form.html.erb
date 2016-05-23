@@ -43,10 +43,10 @@
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :inverse => true, :default_ledger_id => default_ledger_id } }  if ((
             voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr'
-          ) ||(voucher_type == Voucher.voucher_types[:receive] && p.object.transaction_type == 'dr') )%>
+          ) ||(voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr') )%>
         <% end %>
 
-        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true , :ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} if voucher_type == Voucher.voucher_types[:receive] %>
+        <%= link_to_add_fields "Add Particular", f, :particulars, {:inverse => true , :ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} if voucher_type == Voucher.voucher_types[:receipt] %>
       </div>
     </div>
   </div>
@@ -104,7 +104,7 @@
         <%= f.fields_for :particulars do |p| %>
           <%= render :partial => 'particular_fields', :locals => { :f => p, :extra_info => {:inverse => false, :ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} }  unless (p.object.transaction_type.present? && (
             voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr'
-          ) ||(voucher_type == Voucher.voucher_types[:receive] && p.object.transaction_type == 'dr')  )%>
+          ) ||(voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr')  )%>
         <% end %>
         <%= link_to_add_fields "Add Particular", f, :particulars, {:ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id} %>
       </div>

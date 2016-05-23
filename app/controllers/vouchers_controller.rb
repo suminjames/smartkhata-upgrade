@@ -212,7 +212,7 @@ class VouchersController < ApplicationController
 
 
     case voucher_type
-    when Voucher.voucher_types[:receive]
+    when Voucher.voucher_types[:receipt]
       # check if the client account is present
       # and grab all the bills from which we can receive amount if bill is not present
       # else grab the amount to be paid from the bill

@@ -83,7 +83,7 @@ class Vouchers::Base
 
       if clear_ledger
         if ledger_balance > 0
-          voucher_type = Voucher.voucher_types[:receive]
+          voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment,*bills_receive]
         else
           voucher_type = Voucher.voucher_types[:payment]
@@ -96,7 +96,7 @@ class Vouchers::Base
           # ledger balance is positive implies client has something to pay
 
           if ledger_balance + @amount_margin_error >= 0
-            voucher_type = Voucher.voucher_types[:receive]
+            voucher_type = Voucher.voucher_types[:receipt]
             bills = [*bills_payment,*bills_receive]
             
             # if ledger balance is equal to bills amount or greater than bills amount
@@ -144,7 +144,7 @@ class Vouchers::Base
     else
       # in case payment or receive is done
       case voucher_type
-        when Voucher.voucher_types[:receive]
+        when Voucher.voucher_types[:receipt]
           # check if the client account is present
           # and grab all the bills from which we can receive amount if bill is not present
           # else grab the amount to be paid from the bill
