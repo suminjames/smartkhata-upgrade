@@ -16,13 +16,14 @@ Note:
 
 <%= link_to "View(pdf)", bill_path(format: "pdf") %>
 
-<div class="btnPrintPDF" id="bill-<%=bill.bill_number%>">
+<div class="btnPrintBillPDF" id="bill-<%=bill.bill_number%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
-  <iframe id ='iframe-for-print'>
+  <iframe id = 'iframe-for-bill-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
 </div>
+
 <div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
     <% if  bill.settled? %>

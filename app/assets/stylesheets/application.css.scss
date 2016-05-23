@@ -243,3 +243,13 @@ a {
   display: inline-block;
   cursor: pointer;
 }
+
+#iframe-for-bill-pdf-print {
+  display:none;
+  visibility: hidden;
+}
+
+.btnPrintBillPDF {
+  display: inline-block;
+  cursor: pointer;
+}
