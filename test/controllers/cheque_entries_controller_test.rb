@@ -5,22 +5,30 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     @cheque_entry = cheque_entries(:one)
     @bank_account = bank_accounts(:one)
     @user = users(:user)
-    @post_action = lambda { | acc_id, start_cheque_num, end_cheque_num |
-      post :create, { bank_account_id: acc_id, start_cheque_number: start_cheque_num, end_cheque_number: end_cheque_num }
+    @post_action = lambda { | bank_account_id, start_cheque_num, end_cheque_num |
+      post :create, { bank_account_id: bank_account_id, start_cheque_number: start_cheque_num, end_cheque_number: end_cheque_num }
     }
     # @another_bank_account = bank_accounts(:two)
-    @block_assert_via_login_and_get = lambda { |action|
+    @assert_block_via_login_and_get = lambda { |action|
       sign_in @user
       get action
       assert_response :success
       assert_template "cheque_entries/#{action}"
       assert_not_nil assigns(:cheque_entries) if action == :index
     }
+    @assert_block_via_login_and_invalid_post = lambda { |bank_account_id, start_cheque_num, end_cheque_num|
+      sign_in @user
+      assert_no_difference 'ChequeEntry.count' do
+        @post_action.call(bank_account_id, start_cheque_num, end_cheque_num)
+      end
+      assert_not flash.empty?
+      assert_template 'cheque_entries/new'
+    }
   end
 
   # index
   test "authenticated users should get index" do
-    @block_assert_via_login_and_get.call(:index)
+    @assert_block_via_login_and_get.call(:index)
   end
   test "unauthenticated users should get index" do
     get :index
@@ -30,7 +38,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   # new
   test "authenticated users should get new" do
     sign_in @user
-    @block_assert_via_login_and_get.call(:new)
+    @assert_block_via_login_and_get.call(:new)
   end
   test "unauthenticated users should not get new" do
     get :new
@@ -53,33 +61,18 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_redirected_to new_user_session_path
   end
 
-  # briefly testing invalid inputs- more in model test
+  # briefly testing invalid inputs- more in unit test
   # imaginary bank account
   test "should not create cheque_entry with imaginary bank account" do
-    sign_in @user
-    assert_no_difference 'ChequeEntry.count' do
-      @post_action.call(92649, 10, 15)
-    end
-    assert_not flash.empty?
-    assert_template 'cheque_entries/new'
+    @assert_block_via_login_and_invalid_post.call(92649, 10, 15)
   end
   # at the time of creation, THIS TEST GENERATES uncaught ValidationError.
   test "should not create cheque_entry with negative cheque number" do
-    sign_in @user
-    assert_no_difference 'ChequeEntry.count' do
-      @post_action.call(@bank_account.id, -245, -245)
-    end
-    assert_not flash.empty?
-    assert_template 'cheque_entries/new'
+    @assert_block_via_login_and_invalid_post.call(@bank_account.id, -245, -245)
   end
   # at the time of creation, THIS TEST GENERATES uncaught RangeError.
   test "should not create cheque_entry with very large cheque number" do
-    sign_in @user
-    assert_no_difference 'ChequeEntry.count' do
-      @post_action.call(@bank_account.id, 10**15, 10**15)
-    end
-    assert_not flash.empty?
-    assert_template 'cheque_entries/new'
+    @assert_block_via_login_and_invalid_post.call(@bank_account.id, 10**15, 10**15)
   end
 
   # show
@@ -95,7 +88,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   end
 
 =begin
-  # Cheque editing not configured although action/view exists
+  # Cheque editing & delete to be removed from controller: not configured although action/view exists
 
   # edit
   test "authenticated users should get edit" do
@@ -125,8 +118,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_equal @cheque_entry.bank_account.account_number, @bank_account.account_number
   end
   # INSERT UPDATE WITH INVALID INPUT
-=end
-
+  #
 
   # delete
   test "authenticated users should delete cheque_entry" do
@@ -143,3 +135,5 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_redirected_to new_user_session_path
   end
 end
+
+=end

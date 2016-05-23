@@ -3,7 +3,7 @@ require 'test_helper'
 class BankAccountTest < ActiveSupport::TestCase
   def setup
     @bank = banks(:one)
-    @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_sales: "1", default_for_purchase: "1", ledger_attributes: { opening_blnc: 500, opening_blnc_type: 0})
+    @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1", ledger_attributes: { opening_blnc: 500, opening_blnc_type: 0})
     @bank_account.ledger = Ledger.new
 
     # from the controller- following two variables not tested because they will be overrided if bank exists
@@ -68,45 +68,45 @@ class BankAccountTest < ActiveSupport::TestCase
 =begin
   # default for sales and purchase-
 
-  # default_for_purchase
+  # default_for_payment
   test "default for sales should not be string" do
-  	@bank_account.default_for_sales = 'some string'
+  	@bank_account.default_for_receipt = 'some string'
   	assert_not @bank_account.valid?
   end
 
   test "default for sales should not be empty" do
-  	@bank_account.default_for_sales = ''
+  	@bank_account.default_for_receipt = ''
   	assert_not @bank_account.valid?
   end
 
   test "default for sales should not be float" do
-  	@bank_account.default_for_sales = '1.5'
+  	@bank_account.default_for_receipt = '1.5'
   	assert_not @bank_account.valid?
   end
 
   test "default for sales should not be negative" do
-  	@bank_account.default_for_sales = '-1'
+  	@bank_account.default_for_receipt = '-1'
   	assert_not @bank_account.valid?
   end
 
   test "default for sales should not be any integer greater than 1" do
-  	@bank_account.default_for_sales = '2'
+  	@bank_account.default_for_receipt = '2'
   	assert_not @bank_account.valid?
   end
 
-  # default_for_purchase
+  # default_for_payment
   test "default for purchase should not be string" do
-  	@bank_account.default_for_purchase = 'quux'
+  	@bank_account.default_for_payment = 'quux'
   	assert_not @bank_account.valid?
   end
 
   test "default for purchase should not be empty" do
-  	@bank_account.default_for_purchase = ''
+  	@bank_account.default_for_payment = ''
   	assert_not @bank_account.valid?
   end
 
   test "default for purchase should not be negative" do
-  	@bank_account.default_for_purchase = '-1'
+  	@bank_account.default_for_payment = '-1'
   	assert_not @bank_account.valid?
   end
 =end

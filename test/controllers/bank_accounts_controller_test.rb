@@ -6,27 +6,33 @@ class BankAccountsControllerTest < ActionController::TestCase
     @bank = banks(:one)
     @user = users(:user)
     @post_action = lambda { |acc_no|
-      post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_sales"=>"1", "default_for_purchase"=>"1",
+      post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_receipt"=>"1", "default_for_payment"=>"1",
                                    "ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
     }
-    @block_assert_via_login_and_get = lambda { |action|
+    @assert_block_via_login_and_get = Proc.new { |action, provide_bank_account|
       sign_in @user
-      get action
+      if provide_bank_account
+        get action, id: @bank_account
+      else
+        get action
+      end
       assert_response :success
       assert_template "bank_accounts/#{action}"
-      instance_var_name = action == :new ? 'bank_account' : 'bank_accounts'
-      assert_not_nil assigns(instance_var_name)
+      unless provide_bank_account
+        instance_var_name = action == :new ? 'bank_account' : 'bank_accounts'
+        assert_not_nil assigns(instance_var_name)
+      end
     }
-    @block_assert_via_login_and_patch = lambda { |user_type|
-      sign_in @user
-      assert_not @bank_account.default_for_sales
-      patch :update, id: @bank_account, bank_account: { default_for_sales: "1" }
+    @assert_block_via_login_and_patch = lambda { |user_type|
+      sign_in @user if user_type == 'authenticated'
+      assert_not @bank_account.default_for_receipt
+      patch :update, id: @bank_account, bank_account: { default_for_receipt: "1" }
       @bank_account.reload
       if user_type == 'authenticated'
-        assert @bank_account.default_for_sales
+        assert @bank_account.default_for_receipt
         redirect_path = bank_account_path(assigns(:bank_account))
       else
-        assert_not @bank_account.default_for_sales
+        assert_not @bank_account.default_for_receipt
         redirect_path = new_user_session_path
       end
         assert_redirected_to redirect_path
@@ -35,7 +41,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # index
   test "authenticated user should get index" do
-    @block_assert_via_login_and_get.call(:index)
+    @assert_block_via_login_and_get.call(:index)
   end
   test "unauthenticated users should get not get index" do
     get :index
@@ -44,7 +50,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # new
   test "authenticated users should get new" do
-    @block_assert_via_login_and_get.call(:new)
+    @assert_block_via_login_and_get.call(:new)
   end
   test "unauthenticated users should not get new" do
     get :new
@@ -67,7 +73,7 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_redirected_to new_user_session_path
   end
 
-  # briefly testing an invalid input- more in model test
+  # briefly testing an invalid input- more in unit test
   # negative account number
   test "should not create a bank_account with invalid input" do
     sign_in @user
@@ -84,10 +90,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # show
   test "should show bank_account to authenticated user" do
-    sign_in @user
-    get :show, id: @bank_account
-    assert_response :success
-    assert_template 'bank_accounts/show'
+    @assert_block_via_login_and_get.call(:show, true)
   end
   test "should not show bank_account to unauthenticated users " do
     get :show, id: @bank_account
@@ -100,18 +103,15 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_redirected_to new_user_session_path
   end
   test "authenticated users should get edit" do
-    sign_in @user
-    get :edit, id: @bank_account
-    assert_response :success
-    assert_template 'bank_accounts/edit'
+    @assert_block_via_login_and_get.call(:edit, true)
   end
 
   # update
   test "authenticated users should update bank_account" do
-    @block_assert_via_login_and_patch.call('authenticated')
+    @assert_block_via_login_and_patch.call('authenticated')
   end
   test "unauthenticated users should not update bank_account" do
-    @block_assert_via_login_and_patch.call('unauthenticated')
+    @assert_block_via_login_and_patch.call('unauthenticated')
   end
 
   # delete

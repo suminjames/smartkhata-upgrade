@@ -2,6 +2,9 @@ require 'test_helper'
 
 class Files::SalesControllerTest < ActionController::TestCase
   def setup
+    # No idea why two settlements appear out of nowhere in the very beginning, causing date errors;
+    # Found out: Fixtures, of course!
+    # SalesSettlement.all.each.map(&:destroy!)
     @user = users(:user)
     @post_floorsheet_action = Proc.new{ | different_floorsheet |
       sales_controller = @controller
@@ -14,7 +17,6 @@ class Files::SalesControllerTest < ActionController::TestCase
       @controller = sales_controller
       # debugger
     }
-    @test_proc = Proc.new { |param| }
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/csv'
       inner_file_path = case test_type
@@ -119,7 +121,8 @@ class Files::SalesControllerTest < ActionController::TestCase
 
 
   # import
-  test "authenticated users should be able to import a file once" do
+  test "bar" do
+  # test "authenticated users should be able to import a file once" do
     @assert_block_via_login_and_post.call('valid', false)
     # duplicate import
     @post_action.call('valid')
@@ -136,8 +139,7 @@ class Files::SalesControllerTest < ActionController::TestCase
   test "should not import invalid file" do
     @assert_block_via_login_and_post.call('invalid', 'please upload a valid file')
   end
-  test "bar" do
-  # test "should not import sales cm without a floorsheet" do
+  test "should not import sales cm without a floorsheet" do
     @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, nil, true)
   end
   test "should not import sales cm without the corresponding floorsheet" do
