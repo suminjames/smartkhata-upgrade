@@ -43,7 +43,7 @@ class ChequeEntry < ActiveRecord::Base
   belongs_to :updater,  class_name: 'User'
 
   # TODO (subas) make sure to do the necessary settings
-  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved]
+  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved, :bounced]
   enum cheque_issued_type: [:payment, :receipt]
 
   validates :cheque_number, uniqueness: { scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" }
