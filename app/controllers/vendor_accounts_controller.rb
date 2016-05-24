@@ -10,6 +10,8 @@ class VendorAccountsController < ApplicationController
   # GET /vendor_accounts/1
   # GET /vendor_accounts/1.json
   def show
+    @ledgers = @vendor_account.ledgers
+    @ledgers = @ledgers.order(:name).page(params[:page]).per(20) unless @ledgers.blank?
   end
 
   # GET /vendor_accounts/new

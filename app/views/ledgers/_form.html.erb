@@ -11,6 +11,8 @@
         <%= f.input :group_id do %>
             <%= f.collection_select(:group_id, Group.all, :id, :name,{prompt: 'Select a group...'},{:class=>'form-control combobox'}) %>
         <% end %>
+
+        <%= f.association :vendor_account, collection: VendorAccount.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a Vendor...' %>
       </div>
 
     </div>
