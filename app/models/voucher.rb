@@ -48,7 +48,7 @@ class Voucher < ActiveRecord::Base
 
 	# purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-	enum voucher_type: [ :journal, :payment, :receive, :contra ]
+	enum voucher_type: [:journal, :payment, :receipt, :contra ]
 	enum voucher_status: [:pending, :complete, :rejected]
 
 	before_create :add_branch_fycode
@@ -61,7 +61,7 @@ class Voucher < ActiveRecord::Base
 			"JVR"
 		when :payment
 			"PMT"
-		when :receive
+		when :receipt
 			"RCV"
 		when :contra
 			"CVR"
@@ -98,7 +98,7 @@ class Voucher < ActiveRecord::Base
 				cheque.beneficiary_name ||= particulars.first.ledger.name
 				cheque.save!
 			end
-		elsif self.receive?
+		elsif self.receipt?
 			cheque_entries = self.cheque_entries.receipt
 			particulars = self.particulars.cr
 			particulars.each do |particular|

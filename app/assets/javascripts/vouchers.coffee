@@ -103,30 +103,22 @@ $(document).on 'click','.add_fields', (event) ->
   manage_cheque_all_select()
 
 
+#  show hide sections based on selection
+manage_group_vendor_entry = ($this) ->
+  if ($this.val() == 'default')
+    $('.many-to-single-settlement-client').hide()
+    $('.many-to-single-settlement-vendor').hide()
+  else if ($this.val() == 'vendor')
+    $('.many-to-single-settlement-client').hide()
+    $('.many-to-single-settlement-vendor').show()
+  else
+    $('.many-to-single-settlement-vendor').hide()
+    $('.many-to-single-settlement-client').show()
 
 $ ->
-  $('.many-to-single-settlement-client').hide()
-  $('.many-to-single-settlement-vendor').hide()
-
+  $settlement_type = $('input:radio[name="voucher_settlement_type"]:checked')
+  manage_group_vendor_entry($settlement_type)
 
 
   $('input:radio[name="voucher_settlement_type"]').on 'change', (event) ->
-    callback = (response) ->
-
-    if ($(this).val() == 'default')
-      $('.many-to-single-settlement').hide()
-    else if ($(this).val() == 'vendor')
-      $('.many-to-single-settlement-client').hide()
-      $('.many-to-single-settlement-vendor').show()
-    else
-      $('.many-to-single-settlement-vendor').hide()
-      $('.many-to-single-settlement-client').show()
-
-#      $(".dynamic-ledgers   select.combobox").html("<option value=''></option>")
-#
-#      $.get '/ledgers/get_ledgers/', {group_leader_id: $val}, callback, 'json'
-#
-#      $('.dynamic-ledgers  select.combobox').combobox('refresh')
-#      $('.dynamic-ledgers input.select-ledger').val('')
-#      $('.dynamic-ledgers .input-group-addon').click()
-
+    manage_group_vendor_entry($(this))

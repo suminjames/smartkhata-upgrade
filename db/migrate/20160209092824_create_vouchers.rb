@@ -6,6 +6,7 @@ class CreateVouchers < ActiveRecord::Migration
     	t.date :date
     	t.string :date_bs
     	t.string :desc
+      t.string :beneficiary_name
       t.integer :voucher_type, default: 0
       t.integer :voucher_status, default: 0
       t.integer :creator_id, index: true

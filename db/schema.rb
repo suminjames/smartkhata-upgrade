@@ -473,6 +473,8 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.integer  "settlement_type"
     t.integer  "fy_code"
     t.integer  "settlement_number"
+    t.integer  "client_account_id"
+    t.integer  "vendor_account_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.string   "receiver_name"
@@ -481,10 +483,12 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.datetime "updated_at",        null: false
   end
 
+  add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
   add_index "settlements", ["creator_id"], name: "index_settlements_on_creator_id", using: :btree
   add_index "settlements", ["fy_code"], name: "index_settlements_on_fy_code", using: :btree
   add_index "settlements", ["settlement_number"], name: "index_settlements_on_settlement_number", using: :btree
   add_index "settlements", ["updater_id"], name: "index_settlements_on_updater_id", using: :btree
+  add_index "settlements", ["vendor_account_id"], name: "index_settlements_on_vendor_account_id", using: :btree
   add_index "settlements", ["voucher_id"], name: "index_settlements_on_voucher_id", using: :btree
 
   create_table "share_inventories", force: :cascade do |t|
@@ -637,15 +641,16 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.integer  "voucher_type",    default: 0
-    t.integer  "voucher_status",  default: 0
+    t.string   "beneficiary_name"
+    t.integer  "voucher_type",     default: 0
+    t.integer  "voucher_status",   default: 0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "reviewer_id"
     t.integer  "branch_id"
     t.boolean  "is_payment_bank"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree

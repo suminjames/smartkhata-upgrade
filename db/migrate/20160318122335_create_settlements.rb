@@ -8,6 +8,8 @@ class CreateSettlements < ActiveRecord::Migration
       t.integer :settlement_type
       t.integer :fy_code, index: true
       t.integer :settlement_number, index: true
+      t.integer :client_account_id, index: true
+      t.integer :vendor_account_id, index: true
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
       t.string :receiver_name

@@ -12,7 +12,7 @@ class Vouchers::Setup < Vouchers::Base
     client_account, bill, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger)
     voucher = get_new_voucher(voucher_type)
 
-    if voucher_type == Voucher.voucher_types[:receive] || voucher_type == Voucher.voucher_types[:payment]
+    if voucher_type == Voucher.voucher_types[:receipt] || voucher_type == Voucher.voucher_types[:payment]
       is_payment_receipt = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.where(:default_for_payment => true).first
@@ -22,7 +22,7 @@ class Vouchers::Setup < Vouchers::Base
 
       ledger_list_financial << cash_ledger
 
-      if voucher_type == Voucher.voucher_types[:receive]
+      if voucher_type == Voucher.voucher_types[:receipt]
         default_ledger_id = default_bank_receive ? default_bank_receive.ledger.id : cash_ledger.id
       else
         default_ledger_id = default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
@@ -36,7 +36,7 @@ class Vouchers::Setup < Vouchers::Base
 
     voucher.particulars = []
     if is_payment_receipt
-      transaction_type = voucher_type == Voucher.voucher_types[:receive] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
+      transaction_type = voucher_type == Voucher.voucher_types[:receipt] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       voucher.particulars << Particular.new(ledger_id: default_ledger_id,amount: amount, transaction_type: transaction_type)
     end
 
