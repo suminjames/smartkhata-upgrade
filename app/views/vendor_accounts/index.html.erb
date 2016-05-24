@@ -1,14 +1,13 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Vendor Accounts</h1>
-
-<table>
+<%= link_to 'New Vendor account', new_vendor_account_path %>
+<table class="table">
   <thead>
     <tr>
       <th>Name</th>
       <th>Address</th>
       <th>Phone number</th>
-      <th colspan="3"></th>
     </tr>
   </thead>
 
@@ -20,7 +19,6 @@
         <td><%= vendor_account.phone_number %></td>
         <td><%= link_to 'Show', vendor_account %></td>
         <td><%= link_to 'Edit', edit_vendor_account_path(vendor_account) %></td>
-        <td><%= link_to 'Destroy', vendor_account, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

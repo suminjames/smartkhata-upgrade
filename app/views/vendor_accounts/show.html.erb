@@ -1,5 +1,5 @@
 <p id="notice"><%= notice %></p>
-
+<% provide(:section_title, "Vendor") %>
 <p>
   <strong>Name:</strong>
   <%= @vendor_account.name %>
@@ -14,6 +14,63 @@
   <strong>Phone number:</strong>
   <%= @vendor_account.phone_number %>
 </p>
+
+<br>
+<br>
+<% if !@ledgers.empty? %>
+<div class= "box box-warning">
+  <div class="box-header">
+    <h4 class="box-title">List of Ledgers</h4>
+  </div>
+  <div class="box-body">
+    <table class="table">
+
+      <thead>
+      <tr>
+
+      </tr>
+      </thead>
+
+      <tbody>
+
+
+           <% @ledgers.each do |ledger| %>
+              <tr>
+                <td><%= ledger.name.titleize %></td>
+                <td class="text-right" style="padding-right: 40px;">
+                  <% if ledger.closing_blnc + margin_of_error_amount < 0 %>
+                  <span class="credit-amount">
+                    <%= "#{number_to_currency(ledger.closing_blnc.abs)} cr" %>
+                  </span>
+                  <% else %>
+                  <span class="debit-amount">
+                    <%= "#{number_to_currency(ledger.closing_blnc.abs)} dr" %>
+                  </span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to 'Show', ledger %>
+                  <% if ledger.client_account_id.present? %>
+                      <!-- if ledgers closing balance is non zero (0.01 is taken to consider the decimal places) we can clear the ledger at once -->
+                      <% if ledger.closing_blnc.abs >= 0.01 %>
+                          | <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id) %>
+                      <% end %>
+                      <% if ledger.client_account.bills.find_not_settled.present? %>
+                          | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: ledger.client_account_id) %>
+                      <% end %>
+                  <% end %>
+                </td>
+              </tr>
+          <% end %>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+<% end %>
+<br>
+
+<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
 
 <%= link_to 'Edit', edit_vendor_account_path(@vendor_account) %> |
 <%= link_to 'Back', vendor_accounts_path %>
