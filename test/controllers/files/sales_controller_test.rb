@@ -58,15 +58,6 @@ class Files::SalesControllerTest < ActionController::TestCase
         different_floorsheet = (test_type == "invalid" && !file_num && !avoid_floorsheet) || (test_type == "valid again")
         @post_floorsheet_action.call(different_floorsheet)
       end
-      # sales_post_type = case
-      # when test_type == 'valid again'
-      #   test_type
-      # when flash_msg
-      #   'invalid'
-      # else
-      #   'valid'
-      # end
-
       if test_type == "invalid" && flash_msg == @missing_floorsheet_msg && !file_num
         post_action_type = 'valid'
       else

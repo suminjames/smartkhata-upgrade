@@ -7,9 +7,9 @@ class Files::FloorsheetsControllerTest < ActionController::TestCase
       file_type = 'text/xls'
       file_path = case test_type
         when 'valid'
-          'files/Floorsheet_apr_04.xls'
+          'files/May10/BrokerwiseFloorSheetReport 10 May.xls'
         when 'valid again'
-          'files/Floorsheet_apr_10.xls'
+          'files/May12/BrokerwiseFloorSheetReport 12 May.xls'
         when 'invalid'
           if sample_file
             file_name_suffix = case sample_file
@@ -22,7 +22,7 @@ class Files::FloorsheetsControllerTest < ActionController::TestCase
             "files/invalid_files/May10/BrokerwiseFloorSheetReport 10 May__#{file_name_suffix}.xls"
           else
             file_type = 'text/csv'
-            'files/CM054april_test.csv'
+            'files/May10/CM0518052016141937.csv'
           end
       end
       file = fixture_file_upload(file_path, file_type)

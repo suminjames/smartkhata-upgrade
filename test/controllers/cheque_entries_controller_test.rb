@@ -51,7 +51,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_difference 'ChequeEntry.count', 10 do
       @post_action.call(@bank_account.id, 1, 10)
     end
-    assert_redirected_to cheque_entries_path(assigns(:cheque_entry))
+    assert_redirected_to cheque_entries_path
   end
 
   test "unauthenticated users should not create cheque_entry" do
@@ -134,6 +134,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     end
     assert_redirected_to new_user_session_path
   end
-end
 
 =end
+
+end
