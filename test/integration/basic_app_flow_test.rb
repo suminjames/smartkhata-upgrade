@@ -10,9 +10,10 @@
 
 # TODO maybe: calculate the bills count dynamically.. making the test work with different test files
 require 'test_helper'
-# require 'app/globalhelpers/custom_date_module.rb'
+require "#{Rails.root}/app/globalhelpers/custom_date_module.rb"
 
 class BasicAppFlowTest < ActionDispatch::IntegrationTest
+  include CustomDateModule
   def setup
     # login as existing user
     lalchan = users(:user)
@@ -106,15 +107,16 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     end
 
     # Payment voucher
-=begin
-    debugger
+
+    # debugger
     # NIL ERROR HERE:
-    get new_voucher_full_path(sales_bills_starting_count)
+    # get new_voucher_full_path(sales_bills_starting_count)
+    get new_voucher_path(bill_id: sales_bills_starting_count, voucher_type: 1)
     assert_select 'h2.section-title', text: 'New Payment Voucher'
     form_objects = css_select 'form.simple_form.new_voucher'
     form_text = form_objects[0].text
     assert_contains ad_to_bs(Date.today).to_s, form_text
-=end
+
   end
 
   private
