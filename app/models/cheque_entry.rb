@@ -24,6 +24,7 @@ class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
   belongs_to :client_account
+  belongs_to :vendor_account
   belongs_to :bank_account
   belongs_to :additional_bank, class_name: "Bank"
   # belongs_to :particular
@@ -49,7 +50,7 @@ class ChequeEntry < ActiveRecord::Base
                                             numericality: { only_integer: true, greater_than: 0 }
 
   # TODO (subas) make sure to do the necessary settings
-  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void]
+  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved, :bounced]
   enum cheque_issued_type: [:payment, :receipt]
 
   # scope :unassigned, -> { unassigned }

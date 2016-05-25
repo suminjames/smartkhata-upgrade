@@ -101,85 +101,59 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
       border: 1px solid black !important;
       word-wrap: break-word;
     }
-    // These widths have been calibrated for arial font of 14px.
-    // The sum of all these widths must be the width of the table.
-    colgroup {
-      // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
-      // Transaction No
-      .col-1 {
-        width: 15%;
-      }
-      // No of Shares
-      .col-2 {
-        width: 7.22%;
-      }
-      // Company Name
-      .col-3 {
-        width: 18.33%;
-      }
-      // Share Rate
-      .col-4 {
-        width: 7.78%;
-      }
-      // Base Price
-      .col-5 {
-        width: 7.78%;
-      }
-      // Amount
-      .col-6 {
-        width: 11.11%;
-      }
-      // Commission
-      .col-7 {
-        width: 10.56%;
-      }
-      // Commission Amount
-      .col-8 {
-        width: 11.11%;
-      }
-      // Capital Gain
-      .col-9 {
-        width: 11.11%;
-      }
-    }
 
+    // Transaction No
     .col-1 {
-      width: 15%;
+      width: 25%;
     }
     // No of Shares
     .col-2 {
-      width: 7%;
+      width: 17%;
     }
-    // Company Name
+    // Company Code
     .col-3 {
-      width: 18.33%;
+      width: 7%;
     }
     // Share Rate
     .col-4 {
-      width: 7.78%;
+      width: 7%;
     }
     // Base Price
     .col-5 {
-      width: 7.78%;
+      width: 7%;
     }
     // Amount
     .col-6 {
-      width: 11.11%;
+      width: 10%;
     }
     // Commission
     .col-7 {
-      width: 11%;
+      width: 9%;
     }
     // Commission Amount
     .col-8 {
-      width: 11%;
+      width: 9%;
     }
     // Capital Gain
     .col-9 {
-      width: 11%;
+      width: 9%;
     }
   }
 }
 .table-no-border>thead>tr>th, .table-no-border>tbody>tr>th, .table-no-border>tfoot>tr>th, .table-no-border>thead>tr>td, .table-no-border>tbody>tr>td, .table-no-border>tfoot>tr>td {
   border-top: 0px;
+}
+
+.total-bill-amount {
+  margin-bottom: 20px;
+  .display-amount {
+    margin-left: 10px;
+  }
+  .display-type {
+    margin-left: 5px;
+  }
+}
+
+.name-section {
+  min-height: 18px;
 }

@@ -38,7 +38,7 @@
 
     -Remove 'remove' while only single debit entry in voucher
 
-    -During new receive voucher submission, during double (bank) debit entry, error (however, no error page shown)
+    -During new receipt voucher submission, during double (bank) debit entry, error (however, no error page shown)
         -settlements/show
             -Cheque number mistake
             -Date should be bill date not process date

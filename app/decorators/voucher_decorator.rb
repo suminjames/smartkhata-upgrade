@@ -16,4 +16,14 @@ class VoucherDecorator < ApplicationDecorator
     end
     final_array
   end
+
+  def formatted_linked_ledgers
+    linked_ledgers_str = ''
+    object.ledgers.each do |ledger|
+      linked_ledgers_str += ledger.name + ' | '
+    end
+    # strip the trailing '| ' and return
+    linked_ledgers_str.slice(0, linked_ledgers_str.length-2)
+  end
+
 end

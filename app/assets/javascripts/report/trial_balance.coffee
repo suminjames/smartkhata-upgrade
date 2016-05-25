@@ -1,14 +1,15 @@
-get_num_val = (val) ->
+@get_num_val = (val) ->
   if isNaN(val)
     return 0.00
   return val
 
-parse_number = (data) ->
+@parse_number = (data) ->
   console.log($(data).text().replace(',',''))
   return get_num_val(Number($(data).text().replace(/,/g,'')))
 
-format_number = (data) ->
+@format_number = (data) ->
   return data.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,")
+
 $ ->
   $(".ledger-group").each ->
     opening_blnc_dr = 0

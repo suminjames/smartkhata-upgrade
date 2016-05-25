@@ -35,4 +35,5 @@
             7.2 Journal with Bank Account credit
             7.3 Journal with Bank Account debit
 
-
+    8. Upload Order
+        -re-upload the same order file
