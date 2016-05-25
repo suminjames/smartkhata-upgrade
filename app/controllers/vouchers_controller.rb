@@ -164,6 +164,7 @@ class VouchersController < ApplicationController
             message = "Payment Voucher was successfully approved"
           end
         elsif  params[:reject]
+          # TODO(Subas) what happens to bill
           @voucher.reviewer_id = UserSession.user_id
 
           @voucher.cheque_entries.uniq.each do |cheque_entry|
