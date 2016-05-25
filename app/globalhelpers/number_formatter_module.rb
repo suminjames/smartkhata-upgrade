@@ -17,6 +17,7 @@ module NumberFormatterModule
 	end
 
 	# Similar to number_to_currency but with arabic way of comma separation.
+	# Caution: Returns 0.00 for empty decimal passed in
 	def arabic_number(decimal)
 		decimal.to_f.round(2).to_amount
 	end
