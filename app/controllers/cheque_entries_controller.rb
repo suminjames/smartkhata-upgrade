@@ -147,7 +147,7 @@ class ChequeEntriesController < ApplicationController
     message = ""
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
-    if cheque.status == "to_be_printed"
+    if cheque.to_be_printed?
       if cheque.voucher.complete?
         cheque.printed!
       elsif cheque.voucher.rejected?
@@ -158,7 +158,6 @@ class ChequeEntriesController < ApplicationController
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?
-      message = "Cheque is Void" if cheque.void?
     end
 
     respond_to do |format|

@@ -166,13 +166,43 @@ class VouchersController < ApplicationController
         elsif  params[:reject]
           # TODO(Subas) what happens to bill
           @voucher.reviewer_id = UserSession.user_id
+          voucher_amount = 0.0
 
-          @voucher.cheque_entries.uniq.each do |cheque_entry|
-            cheque_entry.void!
+          ActiveRecord::Base.transaction do
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.void!
+              voucher_amount += cheque_entry.amount
+            end
+
+            @bills = @voucher.bills.sales.order(id: :desc)
+            processed_bills = []
+
+            @bills.each do |bill|
+              if voucher_amount + margin_of_error_amount < bill.net_amount
+                bill.balance_to_pay = voucher_amount
+                bill.status = Bill.statuses[:partial]
+                processed_bills << bill
+                break
+              else
+                bill.balance_to_pay = bill.net_amount
+                bill.status = Bill.statuses[:pending]
+                voucher_amount -= bill.net_amount
+                processed_bills << bill
+              end
+            end
+
+            processed_bills.each(&:save)
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.void!
+            end
+
+            @voucher.rejected!
+            success = true if @voucher.save!
+
           end
 
-          @voucher.rejected!
-          success = true if @voucher.save!
           message = 'Payment Voucher was successfully rejected'
         end
       else
