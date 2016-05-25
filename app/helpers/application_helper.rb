@@ -96,7 +96,17 @@ module ApplicationHelper
 				ledger.closing_blnc -= amount
 			end
 
-			Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+			cheque_entries_on_receipt = particular.cheque_entries_on_receipt
+			cheque_entries_on_payment = particular.cheque_entries_on_payment
+
+			new_particular = Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc ,running_blnc: ledger.closing_blnc)
+
+			if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
+				new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
+				new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
+				new_particular.save!
+			end
+
 			ledger.save!
 		end
 

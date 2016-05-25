@@ -38,12 +38,12 @@ class ChequeEntry < ActiveRecord::Base
   has_many :particulars , through: :cheque_entry_particular_associations
 
 
-  belongs_to :voucher
+  has_many :vouchers, through: :particulars
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
   # TODO (subas) make sure to do the necessary settings
-  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved, :bounced]
+  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
   enum cheque_issued_type: [:payment, :receipt]
 
   validates :cheque_number, uniqueness: { scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" }

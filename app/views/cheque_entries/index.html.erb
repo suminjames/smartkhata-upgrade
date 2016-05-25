@@ -27,7 +27,7 @@
         <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %>
           <% if cheque_entry.additional_bank_id.present? %>
           | <%= link_to 'Bounce', bounce_cheque_entries_path(id: cheque_entry.id) if !cheque_entry.bounced? %>
-              <%= link_to 'Represent', bounce_cheque_entries_path(id: cheque_entry.id) if cheque_entry.bounced? %>
+              <%= link_to 'Represent', represent_cheque_entries_path(id: cheque_entry.id) if cheque_entry.bounced? %>
         <% end %>
         </td>
       </tr>

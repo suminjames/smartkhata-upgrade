@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
 	has_many :particulars
 	has_many :share_transactions
 	has_many :ledgers, :through => :particulars
-	has_many :cheque_entries
+	has_many :cheque_entries, :through => :particulars
 	
 	accepts_nested_attributes_for :particulars
 	has_many :settlements
@@ -85,7 +85,7 @@ class Voucher < ActiveRecord::Base
   def assign_cheque
 
 		if self.payment?
-			cheque_entries = self.cheque_entries.payment
+			cheque_entries = self.cheque_entries.payment.uniq
 			particulars = self.particulars.dr
 
 			particulars.each do |particular|
@@ -99,7 +99,7 @@ class Voucher < ActiveRecord::Base
 				cheque.save!
 			end
 		elsif self.receipt?
-			cheque_entries = self.cheque_entries.receipt
+			cheque_entries = self.cheque_entries.receipt.uniq
 			particulars = self.particulars.cr
 			particulars.each do |particular|
 				if particular.cheque_entries_on_receipt.size <= 0
