@@ -1,8 +1,14 @@
 <div id="btnPrintCheque" data-cheque-id="<%= @cheque_entry.id %>">
-  <span class="glyphicon glyphicon-print print-icon"></span>
-  <span>Print</span>
-  <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+  <% if @cheque_entry.bounced? %>
+      <span class="cheque-print-error"><%= "Cheque is bounced" if @cheque_entry.bounced? %></span>
+  <% else %>
+      <span class="glyphicon glyphicon-print print-icon"></span>
+      <span>Print</span>
+      <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+  <% end %>
 </div>
+
+
 <div class="printThis cheque-single clearfix">
   <div class="receipt-section show-on-print">
     <div class="receipt-cheque desc-on-left">

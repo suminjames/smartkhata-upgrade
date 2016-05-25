@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.integer  "cheque_number"
     t.integer  "additional_bank_id"
     t.integer  "status",                                      default: 0
+    t.integer  "print_status",                                default: 0
     t.integer  "cheque_issued_type",                          default: 0
     t.date     "cheque_date"
     t.decimal  "amount",             precision: 15, scale: 4, default: 0.0

@@ -1,5 +1,5 @@
 class ChequeEntriesController < ApplicationController
-  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy]
+  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent]
 
   # GET /cheque_entries
   # GET /cheque_entries.json
@@ -55,13 +55,99 @@ class ChequeEntriesController < ApplicationController
     end
   end
 
+  # GET /cheque_entries/bounce
+  def bounce
+    @back_path =  request.referer || cheque_entries_path
+    if @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced?
+      redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
+    end
+
+
+    voucher = @cheque_entry.vouchers.uniq.first
+    @bills = voucher.bills.purchase.order(id: :desc)
+    cheque_amount = @cheque_entry.amount
+    processed_bills = []
+
+    @bills.each do |bill|
+      if cheque_amount + margin_of_error_amount < bill.net_amount
+        bill.balance_to_pay = cheque_amount
+        bill.status = Bill.statuses[:partial]
+        processed_bills << bill
+        break
+      else
+        bill.balance_to_pay = bill.net_amount
+        bill.status = Bill.statuses[:pending]
+        cheque_amount -= bill.net_amount
+        processed_bills << bill
+      end
+    end
+
+    ActiveRecord::Base.transaction do
+      processed_bills.each(&:save)
+
+      # create a new voucher and add the bill reference to it
+      new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+      new_voucher.bills_on_settlement = processed_bills
+
+      description = "Cheque number #{@cheque_entry.cheque_number} bounced"
+      voucher.particulars.each do |particular|
+        reverse_accounts(particular,new_voucher,description)
+      end
+
+      @cheque_entry.bounced!
+    end
+
+    if @cheque_entry.additional_bank_id.present?
+      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
+      @name = current_tenant.full_name
+    else
+      @bank = @cheque_entry.bank_account.bank
+      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
+    end
+    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+    flash.now[:notice] = 'Cheque bounce recorded succesfully.'
+    render :show
+  end
+
+  # GET /cheque_entries/represent
+  def represent
+    @back_path =  request.referer || cheque_entries_path
+    if @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced?
+      redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
+    end
+
+    voucher = @cheque_entry.vouchers.uniq.last
+
+    ActiveRecord::Base.transaction do
+      # create a new voucher and add the bill reference to it
+      new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+      description = "Cheque number #{@cheque_entry.cheque_number} represented"
+      voucher.particulars.each do |particular|
+        reverse_accounts(particular,new_voucher,description)
+      end
+
+      @cheque_entry.represented!
+    end
+
+    if @cheque_entry.additional_bank_id.present?
+      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
+      @name = current_tenant.full_name
+    else
+      @bank = @cheque_entry.bank_account.bank
+      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
+    end
+    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+    flash.now[:notice] = 'Cheque Represent recorded succesfully.'
+    render :show
+  end
+
   # GET
   def update_print
     status = false
     message = ""
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
-    if cheque.status == "to_be_printed"
+    if cheque.to_be_printed?
       if cheque.voucher.complete?
         cheque.printed!
       elsif cheque.voucher.rejected?
@@ -72,7 +158,6 @@ class ChequeEntriesController < ApplicationController
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?
-      message = "Cheque is Void" if cheque.void?
     end
 
     respond_to do |format|
