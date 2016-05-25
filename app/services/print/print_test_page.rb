@@ -1,4 +1,4 @@
-class Print::PrintTestPage< Prawn::Document
+class Print::PrintTestPage < Prawn::Document
   require 'prawn/table'
   require 'prawn/measurement_extensions'
 

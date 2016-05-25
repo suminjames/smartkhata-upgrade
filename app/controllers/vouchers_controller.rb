@@ -28,6 +28,14 @@ class VouchersController < ApplicationController
       @cheque = @particular_with_bank.cheque_number
       @particulars =  @particulars.general
     end
+      respond_to do |format|
+        format.html
+        format.js
+        format.pdf do
+          pdf = Print::PrintVoucher.new(@voucher, @particulars, @bank_account, @cheque, current_tenant)
+          send_data pdf.render, filename: "Voucher_#{@voucher.voucher_number}.pdf", type: 'application/pdf', disposition: "inline"
+        end
+      end
   end
 
   # GET /vouchers/new

@@ -244,12 +244,12 @@ a {
   cursor: pointer;
 }
 
-#iframe-for-bill-pdf-print {
+.hidden-iframe {
   display:none;
   visibility: hidden;
 }
 
-.btnPrintBillPDF {
+.btnPrintPDF {
   display: inline-block;
   cursor: pointer;
 }

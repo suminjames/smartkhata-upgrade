@@ -46,17 +46,22 @@ $(document).on("click", "#btnPrint", function(event) {
 
 
 $(document).on("click", ".btnPrintBillPDF", function(event) {
-    console.log("clicked");
     bill_id = this.id.split("-")[1];
-    print( "/bills/"+ bill_id + '.pdf');
+    loadAndPrint( "/bills/"+ bill_id + '.pdf', 'iframe-for-bill-pdf-print');
+});
+
+$(document).on("click", ".btnPrintVoucherPDF", function(event) {
+    console.log("print voucher");
+    // debugger
+    voucher_id = this.id.split("-")[1];
+    loadAndPrint( "/vouchers/"+ voucher_id+ '.pdf', 'iframe-for-voucher-pdf-print');
 });
 
 // The following methods print and callPrint has been excerpted from https://www.sitepoint.com/load-pdf-iframe-call-print/
-function print(url) {
-    console.log("print");
+function loadAndPrint(url, iframeId) {
+    console.log("load and print");
     var _this = this,
-        iframeId = 'iframe-for-bill-pdf-print',
-        $iframe = $('iframe#iframe-for-bill-pdf-print')
+        $iframe = $('iframe#'+iframeId)
 
     $iframe.attr('src', url);
 
@@ -67,7 +72,7 @@ function print(url) {
 
 //initiates print once content has been loaded into iframe
 function callPrint(iframeId) {
-    console.log("callPrint");
+    console.log("call print");
     var PDF = document.getElementById(iframeId);
     PDF.focus();
     PDF.contentWindow.print();
