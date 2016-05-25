@@ -16,10 +16,10 @@ Note:
 
 <%= link_to "View(pdf)", bill_path(format: "pdf") %>
 
-<div class="btnPrintBillPDF" id="bill-<%=bill.bill_number%>">
+<div class="btnPrintPDF btnPrintBillPDF" id="bill-<%=bill.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
-  <iframe id = 'iframe-for-bill-pdf-print'>
+  <iframe class="hidden-iframe" id='iframe-for-bill-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
 </div>
