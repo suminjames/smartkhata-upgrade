@@ -52,9 +52,14 @@ $(document).on("click", ".btnPrintBillPDF", function(event) {
 
 $(document).on("click", ".btnPrintVoucherPDF", function(event) {
     console.log("print voucher");
-    // debugger
     voucher_id = this.id.split("-")[1];
     loadAndPrint( "/vouchers/"+ voucher_id+ '.pdf', 'iframe-for-voucher-pdf-print');
+});
+
+$(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
+    console.log("print voucher");
+    cheque_entry_id = this.id.split("-")[1];
+    loadAndPrint( "/cheque_entries/"+ cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print');
 });
 
 // The following methods print and callPrint has been excerpted from https://www.sitepoint.com/load-pdf-iframe-call-print/

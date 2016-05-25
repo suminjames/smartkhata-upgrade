@@ -1,6 +1,11 @@
-<div id="btnPrintCheque" data-cheque-id="<%= @cheque_entry.id %>">
+<%= link_to "View(pdf)", cheque_entry_path(format: "pdf") %>
+
+<div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%=@cheque_entry.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <iframe class= 'hidden-iframe' id = 'iframe-for-cheque-entry-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
   <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
 </div>
 <div class="printThis cheque-single clearfix">
