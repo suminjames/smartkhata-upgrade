@@ -250,8 +250,13 @@ class Vouchers::Create < Vouchers::Base
             cheque_entry.cheque_issued_type = ChequeEntry.cheque_issued_types[:receipt] if particular.dr?
 
             cheque_entry.save!
-            voucher.cheque_entries << cheque_entry
-            particular.cheque_entries << cheque_entry
+            # voucher.cheque_entries << cheque_entry
+            if particular.additional_bank_id.nil?
+              particular.cheque_entries_on_payment << cheque_entry
+            else
+              particular.cheque_entries_on_payment << cheque_entry
+            end
+
           rescue ActiveRecord::RecordInvalid
             # TODO(subas) not sure if this is required
             voucher.settlements = []

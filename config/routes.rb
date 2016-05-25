@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       get :get_cheque_number
       get :update_print
       get :bounce
+      get :represent
     end
 
   end
