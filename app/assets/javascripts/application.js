@@ -57,9 +57,21 @@ $(document).on("click", ".btnPrintVoucherPDF", function(event) {
 });
 
 $(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
-    console.log("print voucher");
+    $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
-    loadAndPrint( "/cheque_entries/"+ cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print');
+    $.ajax({
+        url: "/cheque_entries/update_print",
+        data: {
+            cheque_id: cheque_entry_id
+        },
+        dataType: "json",
+        error: function(jqXHR, textStatus, errorThrown) {
+            return $this.find('cheque-print-error').html('There was some Errror');
+        },
+        success: function(data, textStatus, jqXHR) {
+            loadAndPrint( "/cheque_entries/"+ cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print');
+        }
+    });
 });
 
 // The following methods print and callPrint has been excerpted from https://www.sitepoint.com/load-pdf-iframe-call-print/
