@@ -43,3 +43,42 @@ $(document).on("click", "#btnPrint", function(event) {
     printElement($('.printThis')[0]);
     window.print();
 });
+
+
+$(document).on("click", ".btnPrintBillPDF", function(event) {
+    bill_id = this.id.split("-")[1];
+    loadAndPrint( "/bills/"+ bill_id + '.pdf', 'iframe-for-bill-pdf-print');
+});
+
+$(document).on("click", ".btnPrintVoucherPDF", function(event) {
+    console.log("print voucher");
+    voucher_id = this.id.split("-")[1];
+    loadAndPrint( "/vouchers/"+ voucher_id+ '.pdf', 'iframe-for-voucher-pdf-print');
+});
+
+$(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
+    console.log("print voucher");
+    cheque_entry_id = this.id.split("-")[1];
+    loadAndPrint( "/cheque_entries/"+ cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print');
+});
+
+// The following methods print and callPrint has been excerpted from https://www.sitepoint.com/load-pdf-iframe-call-print/
+function loadAndPrint(url, iframeId) {
+    console.log("load and print");
+    var _this = this,
+        $iframe = $('iframe#'+iframeId)
+
+    $iframe.attr('src', url);
+
+    $iframe.load(function() {
+        callPrint(iframeId);
+    });
+}
+
+//initiates print once content has been loaded into iframe
+function callPrint(iframeId) {
+    console.log("call print");
+    var PDF = document.getElementById(iframeId);
+    PDF.focus();
+    PDF.contentWindow.print();
+}

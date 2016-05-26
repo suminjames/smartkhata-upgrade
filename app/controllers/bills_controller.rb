@@ -92,6 +92,14 @@ class BillsController < ApplicationController
   def show
     @from_path =  request.referer
     @bill = Bill.find(params[:id]).decorate
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintBill.new(@bill, current_tenant)
+        send_data pdf.render, filename: "Bill_#{@bill.fy_code}_#{@bill.bill_number}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   # GET /bills/new
@@ -189,6 +197,10 @@ class BillsController < ApplicationController
     end
   end
 
+  def print
+  end
+
+  # Entertains ajax requests.
   def show_by_number
     @bill_number = params[:number]
     @bill = nil
