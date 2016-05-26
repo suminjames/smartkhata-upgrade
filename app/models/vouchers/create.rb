@@ -284,7 +284,7 @@ class Vouchers::Create < Vouchers::Base
       end
 
       # if voucher settlement type is other than default create only a single settlement.
-      if voucher_settlement_type != 'default'
+      if  is_payment_receipt && voucher_settlement_type != 'default'
         if voucher_settlement_type == 'client'
           voucher.beneficiary_name = client_group_leader_account.name
         else
