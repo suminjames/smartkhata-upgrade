@@ -5,7 +5,7 @@ class Files::CalendarsController < ApplicationController
 
   def import
     # authorize self
-    @file = params[:file];
+    @file = params[:file]
 
     if @file == nil
       flash.now[:error] = "Please Upload a valid file"
@@ -31,7 +31,6 @@ class Files::CalendarsController < ApplicationController
 		@cal = NepaliCalendar::Calendar.new
     ad_date = "2015-06-12"
 		ad_date = Date.parse(ad_date.to_s)
-    puts "FUCK IT"
 		# puts @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
 
     abort(@cal.ad_to_bs("2015", "06", "14").to_s)
