@@ -157,13 +157,7 @@ class ChequeEntriesController < ApplicationController
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
     if cheque.to_be_printed?
-      if cheque.voucher.complete?
         cheque.printed!
-      elsif cheque.voucher.rejected?
-        cheque.void!
-      else
-        cheque.pending_approval!
-      end
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?
