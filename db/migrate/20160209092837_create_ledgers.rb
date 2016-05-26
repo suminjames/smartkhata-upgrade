@@ -17,6 +17,7 @@ class CreateLedgers < ActiveRecord::Migration
       t.references :bank_account,  index: true
       t.references :client_account,  index: true
       t.references :employee_account, index: true
+      t.references :vendor_account, index: true
     end
   end
 end

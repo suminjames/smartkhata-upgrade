@@ -39,7 +39,7 @@ class Print::PrintChequeEntry < Prawn::Document
 
     font_size(9) do
       # Left (to the perforation) side of the cheque
-      text_box '2519', :at => [cheque_left + 0.9.cm, cheque_top - 1.cm], :width => 2.6.cm # TODO(sarojk) unknown placeholder. apparently has '2519'
+      # text_box '2519', :at => [cheque_left + 0.9.cm, cheque_top - 1.cm], :width => 2.6.cm # TODO(sarojk) unknown placeholder. apparently has '2519'
       text_box date.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 1.4.cm], :width => 2.6.cm
       text_box beneficiary_name, :at => [cheque_left + 0.9.cm, cheque_top - 1.9.cm], :width => 2.6.cm
       text_box amount_in_number.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 4.5.cm], :width => 2.6.cm

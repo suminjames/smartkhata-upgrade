@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160517121219) do
+ActiveRecord::Schema.define(version: 20160520050945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,15 +108,19 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "calendars", ["updater_id"], name: "index_calendars_on_updater_id", using: :btree
 
   create_table "cheque_entries", force: :cascade do |t|
+    t.string   "beneficiary_name"
     t.integer  "cheque_number"
     t.integer  "additional_bank_id"
     t.integer  "status",                                      default: 0
+    t.integer  "print_status",                                default: 0
     t.integer  "cheque_issued_type",                          default: 0
     t.date     "cheque_date"
     t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
+    t.integer  "vendor_account_id"
     t.integer  "settlement_id"
+    t.integer  "voucher_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
@@ -130,6 +134,8 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "cheque_entries", ["creator_id"], name: "index_cheque_entries_on_creator_id", using: :btree
   add_index "cheque_entries", ["settlement_id"], name: "index_cheque_entries_on_settlement_id", using: :btree
   add_index "cheque_entries", ["updater_id"], name: "index_cheque_entries_on_updater_id", using: :btree
+  add_index "cheque_entries", ["vendor_account_id"], name: "index_cheque_entries_on_vendor_account_id", using: :btree
+  add_index "cheque_entries", ["voucher_id"], name: "index_cheque_entries_on_voucher_id", using: :btree
 
   create_table "cheque_entry_particular_associations", force: :cascade do |t|
     t.integer  "association_type"
@@ -373,6 +379,7 @@ ActiveRecord::Schema.define(version: 20160517121219) do
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
     t.integer  "employee_account_id"
+    t.integer  "vendor_account_id"
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
@@ -383,6 +390,7 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "ledgers", ["fy_code"], name: "index_ledgers_on_fy_code", using: :btree
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
+  add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
 
   create_table "order_details", force: :cascade do |t|
     t.integer  "order_id"
@@ -466,6 +474,8 @@ ActiveRecord::Schema.define(version: 20160517121219) do
     t.integer  "settlement_type"
     t.integer  "fy_code"
     t.integer  "settlement_number"
+    t.integer  "client_account_id"
+    t.integer  "vendor_account_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.string   "receiver_name"
@@ -474,10 +484,12 @@ ActiveRecord::Schema.define(version: 20160517121219) do
     t.datetime "updated_at",        null: false
   end
 
+  add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
   add_index "settlements", ["creator_id"], name: "index_settlements_on_creator_id", using: :btree
   add_index "settlements", ["fy_code"], name: "index_settlements_on_fy_code", using: :btree
   add_index "settlements", ["settlement_number"], name: "index_settlements_on_settlement_number", using: :btree
   add_index "settlements", ["updater_id"], name: "index_settlements_on_updater_id", using: :btree
+  add_index "settlements", ["vendor_account_id"], name: "index_settlements_on_vendor_account_id", using: :btree
   add_index "settlements", ["voucher_id"], name: "index_settlements_on_voucher_id", using: :btree
 
   create_table "share_inventories", force: :cascade do |t|
@@ -609,21 +621,37 @@ ActiveRecord::Schema.define(version: 20160517121219) do
   add_index "users", ["invited_by_id"], name: "index_users_on_invited_by_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
+  create_table "vendor_accounts", force: :cascade do |t|
+    t.string   "name"
+    t.string   "address"
+    t.string   "phone_number"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "branch_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "vendor_accounts", ["branch_id"], name: "index_vendor_accounts_on_branch_id", using: :btree
+  add_index "vendor_accounts", ["creator_id"], name: "index_vendor_accounts_on_creator_id", using: :btree
+  add_index "vendor_accounts", ["updater_id"], name: "index_vendor_accounts_on_updater_id", using: :btree
+
   create_table "vouchers", force: :cascade do |t|
     t.integer  "fy_code"
     t.integer  "voucher_number"
     t.date     "date"
     t.string   "date_bs"
     t.string   "desc"
-    t.integer  "voucher_type",    default: 0
-    t.integer  "voucher_status",  default: 0
+    t.string   "beneficiary_name"
+    t.integer  "voucher_type",     default: 0
+    t.integer  "voucher_status",   default: 0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "reviewer_id"
     t.integer  "branch_id"
     t.boolean  "is_payment_bank"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree

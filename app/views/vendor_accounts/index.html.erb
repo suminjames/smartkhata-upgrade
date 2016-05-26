@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Vendor Accounts</h1>
+<%= link_to 'New Vendor account', new_vendor_account_path %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Phone number</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @vendor_accounts.each do |vendor_account| %>
+      <tr>
+        <td><%= vendor_account.name %></td>
+        <td><%= vendor_account.address %></td>
+        <td><%= vendor_account.phone_number %></td>
+        <td><%= link_to 'Show', vendor_account %></td>
+        <td><%= link_to 'Edit', edit_vendor_account_path(vendor_account) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Vendor account', new_vendor_account_path %>

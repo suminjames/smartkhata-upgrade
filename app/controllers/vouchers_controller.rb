@@ -41,7 +41,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-    @voucher, @is_purchase_sales, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type =
+    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type, @vendor_account_list, @client_ledger_list =
         Vouchers::Setup.new(voucher_type: @voucher_type,
                             client_account_id: @client_account_id,
                             bill_id: @bill_id,
@@ -58,7 +58,7 @@ class VouchersController < ApplicationController
   # POST /vouchers.json
   def create
     # ignore some validations when the voucher type is sales or purchase
-    @is_purchase_sales = false
+    @is_payment_receipt = false
     # create voucher with the posted parameters
     @voucher = Voucher.new(voucher_params)
     voucher_creation = Vouchers::Create.new(voucher_type: @voucher_type,
@@ -66,7 +66,10 @@ class VouchersController < ApplicationController
                                             bill_id: @bill_id,
                                             clear_ledger: @clear_ledger,
                                             voucher: @voucher,
-                                            bill_ids: @bill_ids)
+                                            bill_ids: @bill_ids,
+                                            voucher_settlement_type: @voucher_settlement_type,
+                                            group_leader_ledger_id: @group_leader_ledger_id,
+                                            vendor_account_id: @vendor_account_id)
 
     # abort("Message goes here")
     respond_to do |format|
@@ -88,12 +91,17 @@ class VouchersController < ApplicationController
       else
         @voucher = voucher_creation.voucher
 
-        # ledger list and is purchase sales is required for the extra section to show up for payment and receive case
+        # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
         @ledger_list_financial = voucher_creation.ledger_list_financial
         @ledger_list_available = voucher_creation.ledger_list_available
-        @is_purchase_sales = voucher_creation.is_purchase_sales?(@voucher_type)
+        @vendor_account_list = voucher_creation.vendor_account_list
+        @client_ledger_list = voucher_creation.client_ledger_list
+        @is_payment_receipt = voucher_creation.is_payment_receipt?(@voucher_type)
+        @voucher_settlement_type  = voucher_creation.voucher_settlement_type
+        @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
+        @vendor_account_id = voucher_creation.vendor_account_id
 
         if voucher_creation.error_message
           flash.now[:error] = voucher_creation.error_message
@@ -152,6 +160,11 @@ class VouchersController < ApplicationController
               particular.complete!
               ledger.save!
             end
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.approved!
+            end
+
             @voucher.reviewer_id = UserSession.user_id
             @voucher.complete!
             @voucher.save!
@@ -159,9 +172,45 @@ class VouchersController < ApplicationController
             message = "Payment Voucher was successfully approved"
           end
         elsif  params[:reject]
+          # TODO(Subas) what happens to bill
           @voucher.reviewer_id = UserSession.user_id
-          @voucher.rejected!
-          success = true if @voucher.save!
+          voucher_amount = 0.0
+
+          ActiveRecord::Base.transaction do
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.void!
+              voucher_amount += cheque_entry.amount
+            end
+
+            @bills = @voucher.bills.sales.order(id: :desc)
+            processed_bills = []
+
+            @bills.each do |bill|
+              if voucher_amount + margin_of_error_amount < bill.net_amount
+                bill.balance_to_pay = voucher_amount
+                bill.status = Bill.statuses[:partial]
+                processed_bills << bill
+                break
+              else
+                bill.balance_to_pay = bill.net_amount
+                bill.status = Bill.statuses[:pending]
+                voucher_amount -= bill.net_amount
+                processed_bills << bill
+              end
+            end
+
+            processed_bills.each(&:save)
+
+            @voucher.cheque_entries.uniq.each do |cheque_entry|
+              cheque_entry.void!
+            end
+
+            @voucher.rejected!
+            success = true if @voucher.save!
+
+          end
+
           message = 'Payment Voucher was successfully rejected'
         end
       else
@@ -205,7 +254,7 @@ class VouchersController < ApplicationController
 
 
     case voucher_type
-    when Voucher.voucher_types[:receive]
+    when Voucher.voucher_types[:receipt]
       # check if the client account is present
       # and grab all the bills from which we can receive amount if bill is not present
       # else grab the amount to be paid from the bill
@@ -267,6 +316,9 @@ class VouchersController < ApplicationController
   def set_voucher_creation_params
     @fixed_ledger_id = params[:fixed_ledger_id].to_i if params[:fixed_ledger_id].present?
     @cheque_number = params[:cheque_number].to_i if params[:cheque_number].present?
+    @voucher_settlement_type = params[:voucher_settlement_type] if params[:voucher_settlement_type].present?
+    @group_leader_ledger_id = params[:group_leader_ledger_id].to_i if params[:group_leader_ledger_id].present?
+    @vendor_account_id = params[:vendor_account_id].to_i if params[:vendor_account_id].present?
   end
 
   # special case for which the ledger balance can be cleared all at once

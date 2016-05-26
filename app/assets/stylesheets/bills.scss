@@ -144,3 +144,17 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 .table-no-border>thead>tr>th, .table-no-border>tbody>tr>th, .table-no-border>tfoot>tr>th, .table-no-border>thead>tr>td, .table-no-border>tbody>tr>td, .table-no-border>tfoot>tr>td {
   border-top: 0px;
 }
+
+.total-bill-amount {
+  margin-bottom: 20px;
+  .display-amount {
+    margin-left: 10px;
+  }
+  .display-type {
+    margin-left: 5px;
+  }
+}
+
+.name-section {
+  min-height: 18px;
+}

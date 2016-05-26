@@ -11,6 +11,7 @@
       <th>Account Number</th>
       <th>Client Name</th>
       <th>Cheque Date</th>
+      <th>Printed</th>
       <th>Status</th>
     </tr>
   </thead>
@@ -21,10 +22,16 @@
         <td><%= cheque_entry.cheque_number %></td>
         <td><%= cheque_entry.bank_account.bank.name %></td>
         <td><%= cheque_entry.bank_account.account_number %></td>
-        <td><%= cheque_entry.client_account.name if cheque_entry.client_account.present? %></td>
+        <td><%= cheque_entry.beneficiary_name if cheque_entry.beneficiary_name.present? %></td>
         <td><%= cheque_entry.cheque_date if cheque_entry.cheque_date.present? %></td>
+        <td><%= cheque_entry.printed? ? "Y" : "N" %></td>
         <td><%= cheque_entry.status.titleize %></td>
-        <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %></td>
+        <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %>
+          <% if cheque_entry.additional_bank_id.present? %>
+          | <%= link_to 'Bounce', bounce_cheque_entries_path(id: cheque_entry.id) if !cheque_entry.bounced? %>
+              <%= link_to 'Represent', represent_cheque_entries_path(id: cheque_entry.id) if cheque_entry.bounced? %>
+        <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>

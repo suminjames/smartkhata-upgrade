@@ -30,6 +30,7 @@ class Ledger < ActiveRecord::Base
 	belongs_to :group
 	belongs_to :bank_account
 	belongs_to :client_account
+	belongs_to :vendor_account
 	attr_accessor :opening_blnc_type
 	has_many :ledger_dailies
 

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :vendor_accounts
   resources :employee_ledger_associations
   resources :branches
   resources :closeouts
@@ -15,6 +16,8 @@ Rails.application.routes.draw do
     collection do
       get :get_cheque_number
       get :update_print
+      get :bounce
+      get :represent
     end
 
   end

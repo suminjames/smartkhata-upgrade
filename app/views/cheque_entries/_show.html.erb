@@ -1,13 +1,19 @@
 <%= link_to "View(pdf)", cheque_entry_path(format: "pdf") %>
 
 <div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%=@cheque_entry.id%>">
-  <span class="glyphicon glyphicon-print print-icon"></span>
-  <span>Print</span>
-  <iframe class= 'hidden-iframe' id = 'iframe-for-cheque-entry-pdf-print'>
-    <!--hidden iframe for printing-->
-  </iframe>
-  <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+  <% if @cheque_entry.bounced? %>
+      <span class="cheque-print-error"><%= "Cheque is bounced" if @cheque_entry.bounced? %></span>
+  <% else %>
+      <span class="glyphicon glyphicon-print print-icon"></span>
+      <span>Print</span>
+      <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+      <iframe class= 'hidden-iframe' id = 'iframe-for-cheque-entry-pdf-print'>
+        <!--hidden iframe for printing-->
+      </iframe>
+  <% end %>
 </div>
+
+
 <div class="printThis cheque-single clearfix">
   <div class="receipt-section show-on-print">
     <div class="receipt-cheque desc-on-left">

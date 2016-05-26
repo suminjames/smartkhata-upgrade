@@ -31,7 +31,7 @@
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Vouchers</strong></p></li>
           <li><%= link_to 'Journal', new_voucher_path	 %></li>
-          <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:receive]) %></li>
+          <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %></li>
           <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
           <li><%= link_to 'Pending Payment', pending_vouchers_vouchers_path %></li>
         </ul>
@@ -54,8 +54,11 @@
     </div>
   </ul>
 </li>
-<li><%= link_to 'Client Accounts', client_accounts_path %></li>
-<li><%= link_to 'Employee Accounts', employee_accounts_path %></li>
+<li><%= link_to 'Client Register', client_accounts_path %></li>
+<li><%= link_to 'Employee Register', employee_accounts_path %></li>
+<li><%= link_to 'Vendor Register', vendor_accounts_path %></li>
+
+
 
 <!-- <li><%= link_to 'Groups', groups_path %></li> -->
 <li class="dropdown">
