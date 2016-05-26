@@ -1,0 +1,55 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Deposited Date (BS):</strong>
+  <%= @nepse_chalan.deposited_date_bs %>
+</p>
+
+<p>
+  <strong>Deposited date (AD):</strong>
+  <%= @nepse_chalan.deposited_date %>
+</p>
+
+<p>
+  <strong>Voucher:</strong>
+  <%= link_to "#{@nepse_chalan.voucher.voucher_code} #{@nepse_chalan.voucher.fy_code}-#{@nepse_chalan.voucher.voucher_number}", voucher_path(@nepse_chalan.voucher) , remote: true %>
+</p>
+<%= link_to 'Nepse Chalans', nepse_chalans_path %>
+<br><br>
+<%  if @share_transactions.size > 0 %>
+<h4>Share Transactions</h4>
+    <table class="table table-condensed table-striped">
+      <thead>
+      <tr>
+        <th>Transaction No.</th>
+        <th>Transaction<br>Type</th>
+        <th>Company</th>
+        <th>Buyer<br>Broker<br>No.</th>
+        <th>Seller<br> Broker<br>No.</th>
+        <th>Quantity</th>
+        <th>Rate</th>
+        <th>Amount</th>
+        <th>Commission Amount</th>
+        <th>Sebo</th>
+        <th>Net Amount</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @share_transactions.each do |share_transaction| %>
+          <tr>
+            <td class="trans-number"><%= share_transaction.contract_no %></td>
+            <td><%= share_transaction.transaction_type.titleize %></td>
+            <td><%= share_transaction.isin_info.company %></td>
+            <td><%= share_transaction.buyer %></td>
+            <td><%= share_transaction.seller %></td>
+            <td><%= share_transaction.quantity %></td>
+            <td><%= share_transaction.share_rate %></td>
+            <td><%= share_transaction.share_amount %></td>
+            <td><%= share_transaction.commission_amount %></td>
+            <td><%= share_transaction.sebo %></td>
+            <td class='bank-deposit'><%= share_transaction.bank_deposit %></td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+<% end %>

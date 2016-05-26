@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  deposited_date_bs: MyString
+  deposited_date: 2016-05-26
+  voucher_id: 
+
+two:
+  deposited_date_bs: MyString
+  deposited_date: 2016-05-26
+  voucher_id: 

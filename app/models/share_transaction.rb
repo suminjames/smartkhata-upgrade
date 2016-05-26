@@ -42,7 +42,7 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
-
+  belongs_to :nepse_chalan
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
@@ -62,7 +62,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :not_cancelled_for_bill, -> { where(deleted_at: nil) }
 
   scope :cancelled, -> { where.not(deleted_at: nil) }
-
+  scope :without_chalan, -> {where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil)}
  def do_as_per_params (params)
   # TODO
  end
