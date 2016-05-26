@@ -1,8 +1,13 @@
-<div id="btnPrint">
-  <!-- <button id="btnPrint">Print</button> -->
+<%= link_to "View(pdf)", voucher_path(format: "pdf") %>
+
+<div class="btnPrintPDF btnPrintVoucherPDF" id="voucher-<%=@voucher.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <iframe class= 'hidden-iframe' id = 'iframe-for-voucher-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
 </div>
+
 <div class="printThis">
   <% if @voucher.is_payment_bank %>
       <div class="box box-primary box-printable z-light-bg">
@@ -110,7 +115,7 @@
 
       <% end %>
 
-  <% else %>
+  <% else #if !@voucher.is_payment_bank %>
       <div>
         <strong>
           <%= current_tenant.full_name %><br>
@@ -151,8 +156,8 @@
                   <%= particular.ledger.name 	 %>
                 </div>
                 <div class="col-xs-6 row">
-                  <div class="col-xs-6"><%= number_to_currency((particular.dr?) ? particular.amount : "" ) %></div>
-                  <div class="col-xs-6"><%= number_to_currency((particular.cr?)? particular.amount : "" ) %></div>
+                  <div class="col-xs-6"><%= (particular.dr?) ?arabic_number(particular.amount) : ""  %></div>
+                  <div class="col-xs-6"><%= (particular.cr?)? arabic_number(particular.amount) : ""  %></div>
 
                 </div>
               </div>

@@ -13,10 +13,17 @@ Note:
 # Client associated with the bill
 @client = bill.get_client
 %>
-<div id="btnPrint">
+
+<%= link_to "View(pdf)", bill_path(format: "pdf") %>
+
+<div class="btnPrintPDF btnPrintBillPDF" id="bill-<%=bill.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <iframe class="hidden-iframe" id='iframe-for-bill-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
 </div>
+
 <div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
     <% if  bill.settled? %>
@@ -78,8 +85,7 @@ Note:
       <table class="table table-no-border">
         <tr>
           <td>Customer:</td>
-          <td><%= bill.formatted_client_name%>
-          </td>
+          <td><%= bill.formatted_client_name%></td>
         </tr>
         <tr>
           <td>NEPSE Code:</td>
@@ -242,7 +248,7 @@ Note:
     <!--Company Abbreviation Index BEGINS-->
     <div class="clearfix text-left">
       <div>
-        **Company ISIN Index =>
+        **Company Code Index =>
           <i><%= bill.formatted_isin_abbreviation_index %></i>
       </div>
     </div>

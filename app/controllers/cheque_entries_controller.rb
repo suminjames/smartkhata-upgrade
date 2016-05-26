@@ -24,6 +24,15 @@ class ChequeEntriesController < ApplicationController
       @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
+        send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   # GET /cheque_entries/new
