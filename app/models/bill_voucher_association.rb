@@ -1,13 +1,13 @@
 # == Schema Information
 #
-# Table name: bill_voucher_relations
+# Table name: bill_voucher_associations
 #
-#  id            :integer          not null, primary key
-#  relation_type :integer
-#  bill_id       :integer
-#  voucher_id    :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+#  id               :integer          not null, primary key
+#  association_type :integer
+#  bill_id          :integer
+#  voucher_id       :integer
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 
 class BillVoucherAssociation < ActiveRecord::Base

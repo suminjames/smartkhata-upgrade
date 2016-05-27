@@ -23,38 +23,28 @@ class Files::CalendarsController < ApplicationController
     # - Grab the last modified timestamp of the file uploaded
     # - Check the file upload date (different from modified timestamp of the file)
 
-    from_date_bs = "2072-01-01"
-    to_date_bs = "2072-12-30"
-    from_date_ad = bs_to_ad(from_date_bs)
-    to_date_ad = bs_to_ad(to_date_bs)
+    # cal_1 = NepaliCalendar::Calendar.new
+    # cal_1 = NepaliCalendarPlus::CalendarPlus.new
+    cal_1 = NepaliCalendarPlus::CalendarPlus.new
+    abort
 
-		@cal = NepaliCalendar::Calendar.new
-    ad_date = "2015-06-12"
-		ad_date = Date.parse(ad_date.to_s)
-		# puts @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
-
-    abort(@cal.ad_to_bs("2015", "06", "14").to_s)
+    from_date_ad = @cal.bs_to_ad(2073, 1, 1)
+    to_date_ad = @cal.bs_to_ad(2074, 12, 31)
 
     from_date_ad.upto(to_date_ad) do |ad_date|
-      p ad_date
-      bs_date = ad_to_bs(ad_date)
-      p bs_date
-      hash = { }
-      unless date_already_in_db (bs_date)
-        p bs_date
-        p bs_date.year
-        p bs_date.month
-        p bs_date.day
-        hash[:year] = bs_date.year
-        hash[:month] =  bs_date.month
-        hash[:day] = bs_date.day
-        hash[:date_type] = 'x'
+      bs_date = @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
+      date_hash = { }
+      unless bs_date_already_in_db? (bs_date)
+        date_hash[:year] = bs_date[:year]
+        date_hash[:month] =  bs_date[:month]
+        date_hash[:day] = bs_date[:day]
+        date_hash[:date_type] = 'x'
         if ad_date.saturday?
-          hash[:date_type] = 'Saturday'
+          date_hash[:date_type] = 'Saturday'
           # hash[:remarks]: 'Remarks',
-          hash[:is_holiday] = true
+          date_hash[:is_holiday] = true
         end
-        Calendar.create(hash)
+        Calendar.create(date_hash)
       end
     end
 
@@ -80,7 +70,7 @@ class Files::CalendarsController < ApplicationController
   end
 
   # Checks the passed date against the 'Calendars' table in the database
-  def date_already_in_db (date)
+  def bs_date_already_in_db? (date)
     Calendar.where(year: date.year, month: date.month, day: date.day).count != 0
   end
 end

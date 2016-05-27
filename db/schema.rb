@@ -98,6 +98,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.boolean  "is_holiday", default: false
     t.integer  "date_type",                  null: false
     t.text     "remarks"
+    t.text     "ad_date"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.datetime "created_at",                 null: false

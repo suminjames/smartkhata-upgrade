@@ -9,6 +9,7 @@
 #  is_holiday :boolean          default("false")
 #  date_type  :integer          not null
 #  remarks    :text
+#  ad_date    :text
 #  creator_id :integer
 #  updater_id :integer
 #  created_at :datetime         not null

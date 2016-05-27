@@ -3,7 +3,7 @@
 # Table name: bank_accounts
 #
 #  id                  :integer          not null, primary key
-#  account_number      :integer
+#  account_number      :string
 #  bank_name           :string
 #  default_for_payment :boolean
 #  default_for_receipt :boolean
