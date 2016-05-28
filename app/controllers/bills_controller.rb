@@ -92,6 +92,16 @@ class BillsController < ApplicationController
   def show
     @from_path =  request.referer
     @bill = Bill.find(params[:id]).decorate
+    @has_voucher_pending_approval = false
+
+    @bill.vouchers_on_settlement.each do |voucher|
+      if voucher.pending?
+        @has_voucher_pending_approval = true
+        break
+      end
+    end
+
+
     respond_to do |format|
       format.html
       format.js

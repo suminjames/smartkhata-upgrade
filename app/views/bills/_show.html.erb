@@ -26,7 +26,7 @@ Note:
 
 <div id = "printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
-    <% if  bill.settled? %>
+    <% if  bill.settled? && !has_voucher_pending_approval %>
     <%= image_tag("settled.png") %>
     <% end %>
   </div>
