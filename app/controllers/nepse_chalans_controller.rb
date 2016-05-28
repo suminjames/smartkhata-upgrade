@@ -31,7 +31,7 @@ class NepseChalansController < ApplicationController
       if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
         date_from_ad = bs_to_ad(date_from_bs)
         date_to_ad = bs_to_ad(date_to_bs)
-        @share_transactions = ShareTransaction.buy.without_chalan.find_by_date_range(date_from_ad, date_to_ad)
+        @share_transactions = ShareTransaction.buying.without_chalan.find_by_date_range(date_from_ad, date_to_ad)
       else
         @share_transactions = []
         respond_to do |format|
@@ -69,7 +69,7 @@ class NepseChalansController < ApplicationController
     end
 
 
-    share_transactions = ShareTransaction.buy.where(id: selected_transaction_ids)
+    share_transactions = ShareTransaction.buying.where(id: selected_transaction_ids)
     if share_transactions.size < 1
       redirect_to new_nepse_chalan_path, flash: {error: 'No transactions selected'}
     end

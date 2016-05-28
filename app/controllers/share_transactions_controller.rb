@@ -177,7 +177,7 @@ class ShareTransactionsController < ApplicationController
 
       ActiveRecord::Base.transaction do
         # remove the transacted amount from the share inventory
-        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buy?, true)
+        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
 
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
@@ -221,10 +221,10 @@ class ShareTransactionsController < ApplicationController
     if params[:contract_no].present? && params[:transaction_type].present?
       # TODO make it work for enum
       case params[:transaction_type]
-      when "sell"
-        transaction_type = ShareTransaction.transaction_types[:sell]
-      when "buy"
-        transaction_type = ShareTransaction.transaction_types[:buy]
+      when "selling"
+        transaction_type = ShareTransaction.transaction_types[:selling]
+      when "buying"
+        transaction_type = ShareTransaction.transaction_types[:buying]
       else
         return
       end

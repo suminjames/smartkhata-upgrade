@@ -9,7 +9,7 @@
           <div class="col-xs-2 text-right">
             <h5>Bill Type</h5>
           </div>
-          <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buy'], ['Sales','sell']] ) , class: 'form-control' %></div>
+          <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buying'], ['Sales','selling']] ) , class: 'form-control' %></div>
         </div>
       </div>
 
@@ -38,8 +38,8 @@
               <td><%= @share_transaction.contract_no %></td>
               <td><%= @share_transaction.client_account.name %></td>
               <td><%= @share_transaction.isin_info.company %></td>
-              <td class='quantity-in'><%= @share_transaction.quantity  if @share_transaction.buy? %></td>
-              <td class='quantity-out'><%= @share_transaction.quantity if @share_transaction.sell? %></td>
+              <td class='quantity-in'><%= @share_transaction.quantity  if @share_transaction.buying? %></td>
+              <td class='quantity-out'><%= @share_transaction.quantity if @share_transaction.selling? %></td>
             </tr>
 
         </tbody>

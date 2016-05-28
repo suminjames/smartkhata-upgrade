@@ -31,7 +31,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# read the xls file
 		xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
 
-		# hash to store unique combination of isin, transaction type (buy/sell), client
+		# hash to store unique combination of isin, transaction type (buying/selling), client
 		hash_dp_count = Hash.new 0
     hash_dp = Hash.new
 
@@ -117,14 +117,14 @@ class Files::FloorsheetsController < Files::FilesController
         bank_deposit = row_data[26]
 			end
 
-      # check for the bank deposit value which is available only for buy
+      # check for the bank deposit value which is available only for buying
       # store the count of transaction for unique client,company, and type of transaction
 
 
       if bank_deposit.nil?
-        hash_dp_count[client_name.to_s+company_symbol.to_s+'sell'] += 1
+        hash_dp_count[client_name.to_s+company_symbol.to_s+'selling'] += 1
       else
-        hash_dp_count[client_name.to_s+company_symbol.to_s+'buy'] += 1
+        hash_dp_count[client_name.to_s+company_symbol.to_s+'buying'] += 1
       end
 
 		end
@@ -157,7 +157,7 @@ class Files::FloorsheetsController < Files::FilesController
 	# 	Stock Comm.,
 	# 	Bank Deposit,
 	# ]
-	# hash_dp => custom hash to store unique isin , buy/sell, customer per day
+	# hash_dp => custom hash to store unique isin , buying/selling, customer per day
 	def process_records(arr ,hash_dp, fy_code, hash_dp_count)
 		contract_no = arr[0].to_i
 		company_symbol = arr[1]
@@ -177,7 +177,7 @@ class Files::FloorsheetsController < Files::FilesController
 		dp = 0
 		bill = nil
 
-		type_of_transaction = ShareTransaction.transaction_types['buy']
+		type_of_transaction = ShareTransaction.transaction_types['buying']
 
 
     # TODO(Subas) remove this code block to take only the mapped user list
@@ -196,23 +196,23 @@ class Files::FloorsheetsController < Files::FilesController
     # end
 
 
-		# check for the bank deposit value which is available only for buy
+		# check for the bank deposit value which is available only for buying
     # used 25.0 instead of 25 to get number with decimal
     # hash_dp_count is used for the dp charges
     # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
 		if bank_deposit.nil?
-      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'sell']
-			type_of_transaction = ShareTransaction.transaction_types['sell']
+      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'selling']
+			type_of_transaction = ShareTransaction.transaction_types['selling']
 		else
 			# create or find a bill by the number
-      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buy']
+      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buying']
 
       # group all the share transactions for a client for the day
-			if hash_dp.key?(client_name.to_s+'buy')
-				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buy'], fy_code: fy_code, date: @date)
+			if hash_dp.key?(client_name.to_s+'buying')
+				bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buying'], fy_code: fy_code, date: @date)
 			else
-				hash_dp[client_name.to_s+'buy'] = @bill_number
+				hash_dp[client_name.to_s+'buying'] = @bill_number
 				bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
 					b.bill_type = Bill.bill_types['purchase']
 					b.client_name = client_name
@@ -274,7 +274,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# 	)
 		# share_inventory.lock!
     #
-		# if transaction.buy?
+		# if transaction.buying?
 		# 	share_inventory.total_in += transaction.quantity
 		# 	share_inventory.floorsheet_blnc += transaction.quantity
 		# else
@@ -284,10 +284,10 @@ class Files::FloorsheetsController < Files::FilesController
 		#
 		# share_inventory.save!
 		# TODO remove the commented part
-		update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buy?)
+		update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buying?)
 
 
-		if type_of_transaction == ShareTransaction.transaction_types['buy']
+		if type_of_transaction == ShareTransaction.transaction_types['buying']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.balance_to_pay = bill.net_amount

@@ -44,7 +44,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
       transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2]# strip the trailing ', '
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
-      transaction_row[:base_price] = transaction_row[:type] =='sell' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
+      transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
       transaction_row[:commission_rate] = transaction_row[:commission_rate] == "flat_25" ? "Flat NRs 25" : transaction_row[:commission_rate].to_f.to_s + "%"
       transaction_row[:commission_amount] = h.arabic_number(transaction_row[:commission_amount])
