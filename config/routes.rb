@@ -83,6 +83,7 @@ Rails.application.routes.draw do
     resources :balancesheet
     resources :profitandloss
     resources :trial_balance
+    resources :threshold_transactions
   end
 
 

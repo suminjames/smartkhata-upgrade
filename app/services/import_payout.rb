@@ -63,7 +63,7 @@ class ImportPayout < ImportFile
 
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
-						transaction_type: ShareTransaction.transaction_types[:sell]
+						transaction_type: ShareTransaction.transaction_types[:selling]
 					)
 
 

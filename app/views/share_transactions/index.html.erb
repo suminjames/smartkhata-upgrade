@@ -287,15 +287,15 @@
           new_isin = false
           end
           counter += 1
-          total_in += share_transaction.quantity if share_transaction.buy?
-          total_out += share_transaction.quantity if share_transaction.sell?
+          total_in += share_transaction.quantity if share_transaction.buying?
+          total_out += share_transaction.quantity if share_transaction.selling?
         %>
         <tr>
           <td><%= ad_to_bs(share_transaction.date) %></td>
           <td><%= share_transaction.contract_no %></td>
           <td><%= share_transaction.isin_info.isin%></td>
-          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
-          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
+          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
+          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.selling? %></td>
           <td><%= share_transaction.share_rate %></td>
           <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
           <td><%= share_transaction.share_amount %></td>
@@ -385,15 +385,15 @@
             new_isin = false
           end
           counter += 1
-          total_in += share_transaction.quantity if share_transaction.buy?
-          total_out += share_transaction.quantity if share_transaction.sell?
+          total_in += share_transaction.quantity if share_transaction.buying?
+          total_out += share_transaction.quantity if share_transaction.selling?
         %>
         <tr>
           <td><%= ad_to_bs(share_transaction.date) %></td>
           <td><%= share_transaction.contract_no %></td>
           <td><%= share_transaction.isin_info.isin%></td>
-          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
-          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
+          <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
+          <td class='quantity-out'><%= share_transaction.quantity if share_transaction.selling? %></td>
           <td><%= share_transaction.share_rate %></td>
           <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
           <td><%= share_transaction.share_amount %></td>
@@ -440,8 +440,8 @@
                 <td><%= ad_to_bs(share_transaction.date) %></td>
                 <td><%= share_transaction.contract_no %></td>
                 <td><%= share_transaction.isin_info.isin%></td>
-                <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buy? %></td>
-                <td class='quantity-out'><%= share_transaction.quantity if share_transaction.sell? %></td>
+                <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
+                <td class='quantity-out'><%= share_transaction.quantity if share_transaction.selling? %></td>
                 <td><%= share_transaction.share_rate %></td>
                 <td><%= isin_prices[share_transaction.isin_info.isin]%></td>
                 <td><%= share_transaction.share_amount %></td>

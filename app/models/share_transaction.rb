@@ -47,7 +47,7 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  enum transaction_type: [ :buy, :sell ]
+  enum transaction_type: [ :buying, :selling ]
   # before_update :calculate_cgt
   validates :base_price, numericality: true
   scope :find_by_date, -> (date) { where(
