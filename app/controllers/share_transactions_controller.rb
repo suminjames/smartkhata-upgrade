@@ -170,6 +170,10 @@ class ShareTransactionsController < ApplicationController
       @voucher = @share_transaction.voucher
       @bill = @share_transaction.bill
 
+      if !@bill.pending?
+        redirect_to deal_cancel_share_transactions_path, flash: {error: "Bill associated with the share transaction is already under process or settled"} and return
+      end
+
       relevant_share_transactions = @bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
       dp_fee_adjustment = 0.0
       total_transaction_count = relevant_share_transactions.length
