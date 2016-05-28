@@ -202,6 +202,7 @@ Note:
       <!-- Dates section BEGINS -->
       <div>
         <table class="table table-no-border table-condensed text-right">
+          <% if bill.purchase? %>
           <tr>
             <td>Date of clearance:</td>
             <td>
@@ -209,6 +210,7 @@ Note:
               (<%= bill.formatted_clearance_dates['bs'] %>)
             </td>
           </tr>
+          <% end %>
           <tr>
             <td>Transaction Date:</td>
             <td>

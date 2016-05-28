@@ -44,7 +44,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
       transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2]# strip the trailing ', '
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
-      transaction_row[:base_price] = transaction_row[:type] =='sell' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
+      transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
       transaction_row[:commission_rate] = transaction_row[:commission_rate] == "flat_25" ? "Flat NRs 25" : transaction_row[:commission_rate].to_f.to_s + "%"
       transaction_row[:commission_amount] = h.arabic_number(transaction_row[:commission_amount])
@@ -77,8 +77,8 @@ class BillDecorator < ApplicationDecorator
 
   #TODO Find a way to implement clearance_date. As of now, the viable option is to add 3 WORKING DAYS to transaction date. Verify if it is the most efficient way.
   def formatted_clearance_dates
-    bs_date = 'TODO'
-    ad_date = 'TODO'
+    bs_date = h.ad_to_bs(object.settlement_date).to_s + ' BS'
+    ad_date = object.settlement_date.to_s + ' AD'
       {"ad" => ad_date , "bs" => bs_date}
   end
 

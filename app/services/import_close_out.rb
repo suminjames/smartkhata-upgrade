@@ -51,7 +51,7 @@ class ImportCloseOut < ImportFile
           # calculation based on debit or credit
           transaction = ShareTransaction.includes(:bill).find_by(
               contract_no: closeout.contract_number,
-              transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buy] : ShareTransaction.transaction_types[:sell]
+              transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buying] : ShareTransaction.transaction_types[:selling]
 
           )
 

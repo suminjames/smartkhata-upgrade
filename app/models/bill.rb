@@ -15,6 +15,7 @@
 #  fy_code           :integer
 #  date              :date
 #  date_bs           :string
+#  settlement_date   :date
 #  client_account_id :integer
 #  creator_id        :integer
 #  updater_id        :integer
@@ -38,7 +39,7 @@ class Bill < ActiveRecord::Base
 
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
-  has_many :vouchers , through: :bill_voucher_relations
+  has_many :vouchers , through: :bill_voucher_associations
   # has_many :particulars, through: :voucher
 
   # to keep track of the user who created and last updated the ledger

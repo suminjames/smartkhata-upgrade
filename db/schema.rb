@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160520050945) do
+ActiveRecord::Schema.define(version: 20160526072518) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.integer  "fy_code"
     t.date     "date"
     t.string   "date_bs"
+    t.date     "settlement_date"
     t.integer  "client_account_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
@@ -392,6 +393,27 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
 
+  create_table "nepse_chalans", force: :cascade do |t|
+    t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0
+    t.integer  "transaction_type"
+    t.string   "deposited_date_bs"
+    t.date     "deposited_date"
+    t.string   "nepse_settlement_id"
+    t.integer  "voucher_id"
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "fy_code"
+    t.integer  "branch_id"
+  end
+
+  add_index "nepse_chalans", ["branch_id"], name: "index_nepse_chalans_on_branch_id", using: :btree
+  add_index "nepse_chalans", ["creator_id"], name: "index_nepse_chalans_on_creator_id", using: :btree
+  add_index "nepse_chalans", ["fy_code"], name: "index_nepse_chalans_on_fy_code", using: :btree
+  add_index "nepse_chalans", ["updater_id"], name: "index_nepse_chalans_on_updater_id", using: :btree
+  add_index "nepse_chalans", ["voucher_id"], name: "index_nepse_chalans_on_voucher_id", using: :btree
+
   create_table "order_details", force: :cascade do |t|
     t.integer  "order_id"
     t.string   "order_nepse_id"
@@ -555,6 +577,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
     t.date     "deleted_at"
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
+    t.integer  "nepse_chalan_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
@@ -569,6 +592,7 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_index "share_transactions", ["client_account_id"], name: "index_share_transactions_on_client_account_id", using: :btree
   add_index "share_transactions", ["creator_id"], name: "index_share_transactions_on_creator_id", using: :btree
   add_index "share_transactions", ["isin_info_id"], name: "index_share_transactions_on_isin_info_id", using: :btree
+  add_index "share_transactions", ["nepse_chalan_id"], name: "index_share_transactions_on_nepse_chalan_id", using: :btree
   add_index "share_transactions", ["updater_id"], name: "index_share_transactions_on_updater_id", using: :btree
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
@@ -665,5 +689,6 @@ ActiveRecord::Schema.define(version: 20160520050945) do
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
+  add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "settlements", "vouchers"
 end

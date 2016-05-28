@@ -19,6 +19,15 @@
     	<%= f.text_field :date_bs, :value => date, class: 'form-control', placeholder: 'YYYY-MM-DD' %>
     </div>
   </div>
+    <br>
+    <h4>Mode of Payment</h4>
+    <div class="payment_mode">
+      <%= radio_button_tag 'payment_mode', 'default', (payment_mode != 'bank_transfer') %>
+      <%= label :payment_mode_default, "Cheque/Cash" %>
+      <%= radio_button_tag 'payment_mode', 'bank_transfer', (payment_mode == 'bank_transfer') %>
+      <%= label :payment_mode_bank_transfer, 'Bank Transfer' %>
+    </div>
+
   <br>
   <% if is_payment_receipt %>
   <div class="form-inputs voucher">

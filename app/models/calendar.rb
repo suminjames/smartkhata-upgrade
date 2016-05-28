@@ -72,4 +72,9 @@ class Calendar < ActiveRecord::Base
     calendar_date_obj.ad_date
   end
 
+  # Get T+3 trading date
+  def self.t_plus_3_trading_days(from_ad_date)
+    self.t_plus_x_trading_days(from_ad_date, 3)
+  end
+
 end
