@@ -1,7 +1,5 @@
-<% cal = NepaliCalendar::Calendar.new
-    # abort('asd')
-
-    date = cal.ad_to_bs(Date.today.strftime("%Y").to_s, Date.today.strftime("%m").to_s, Date.today.strftime("%d").to_s)
+<%
+    date = ad_to_bs_string(Date.today)
 %>
 
 <%= simple_form_for(voucher, :url => url_for(:action => 'create', :controller => 'vouchers')) do |f| %>

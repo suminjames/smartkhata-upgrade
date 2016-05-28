@@ -128,7 +128,7 @@ class Bill < ActiveRecord::Base
   private
   def process_bill
     self.date ||= Time.now
-    self.date_bs ||= ad_to_bs(self.date)
+    self.date_bs ||= ad_to_bs_string(self.date)
   end
 
 end

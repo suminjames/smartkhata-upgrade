@@ -80,7 +80,7 @@ class GenerateBillsService
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
   			# update ledgers value
-  			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+  			voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
         voucher.bills_on_creation << bill
         voucher.share_transactions << transaction
         voucher.desc = description
@@ -111,7 +111,7 @@ class GenerateBillsService
 
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate})"
-          voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+          voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
           voucher.share_transactions << transaction
           voucher.desc = description
 
@@ -126,7 +126,7 @@ class GenerateBillsService
 
 
 
-          voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+          voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
           voucher.share_transactions << transaction
           voucher.desc = description
           process_accounts(closeout_ledger,voucher,false,net_adjustment_amount,description)
@@ -147,7 +147,7 @@ class GenerateBillsService
 
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
-            voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+            voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
             voucher.share_transactions << transaction
             voucher.desc = description
 

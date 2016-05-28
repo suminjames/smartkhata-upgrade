@@ -95,7 +95,7 @@ class ChequeEntriesController < ApplicationController
       processed_bills.each(&:save)
 
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced"
@@ -129,7 +129,7 @@ class ChequeEntriesController < ApplicationController
 
     ActiveRecord::Base.transaction do
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
       description = "Cheque number #{@cheque_entry.cheque_number} represented"
       voucher.particulars.each do |particular|
         reverse_accounts(particular,new_voucher,description)

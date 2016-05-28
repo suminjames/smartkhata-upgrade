@@ -1,23 +1,37 @@
 module CustomDateModule
-	# Converts a BS date (strictly in YYYY-MM-DD format) to AD date (of the same format)
-	# params bs_date	- BS date  is a `Date` object not `String`
+	# Converts a BS date  to AD date
+	# params bs_date	- BS date is a String, strictly in YYYY-MM-DD format, not `Date` object.
 	# return - AD date is a `Date` object
-	# TODO: Add validation for 1) the incoming BS date format, 2) the correctness(actual availability) of the BS date
 	def bs_to_ad (bs_date)
-		@cal = NepaliCalendar::Calendar.new
-		bs_date = Date.parse(bs_date.to_s)
-		return @cal.bs_to_ad(bs_date.year, bs_date.month, bs_date.day)
-	end
+		year, month, day = bs_date.split('-').map(&:to_i)
+    @cal = NepaliCalendarPlus::CalendarPlus.new
+		return @cal.bs_to_ad(year, month, day)
+  end
 
-	# Converts a AD date (strictly in YYYY-MM-DD format) to BS date (of the same format)
-	# params ad_date- AD date  is a `Date` object not `String`
-	# return - BS date is a `Date` object
-	# TODO: Add validation for 1) the incoming AD date format, 2) the correctness(actual availability) of the AD date
-	def ad_to_bs (ad_date)
-		@cal = NepaliCalendar::Calendar.new
-		ad_date = Date.parse(ad_date.to_s)
-		return @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
-	end
+  # This method's existence serves the purpose of supporting legacy code, which has a lot of dependency to this method.
+  # Originally(in the past), the method returned BS date, a `Date` object
+  # Currently, the method returns BS date, a String, strictly in YYYY-MM-DD format, not `Date` object.
+  def ad_to_bs(ad_date)
+    ad_to_bs_string(ad_date)
+  end
+
+	# Converts an AD date to BS date string
+	# params ad_date - AD date  is a `Date` object not `String`
+  # return - BS date is a String, strictly in YYYY-MM-DD format, not `Date` object.
+	def ad_to_bs_string (ad_date)
+    ad_date = Date.parse(ad_date.to_s)
+		@cal = NepaliCalendarPlus::CalendarPlus.new
+		return @cal.ad_to_bs_string(ad_date.year, ad_date.month, ad_date.day)
+  end
+
+  # Converts an AD date to BS date string
+  # params ad_date - AD date  is a `Date` object not `String`
+  # return - BS date is a hash, with signature {:year=> 2072, :month => 2, :day => 32}, not `Date` object.
+  def ad_to_bs_hash(ad_date)
+    ad_date = Date.parse(ad_date.to_s)
+    @cal = NepaliCalendarPlus::CalendarPlus.new
+    return @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
+  end
 
 	# Checks if a date is parsable. This is different from checking if the date is valid.
 	# For instance: 2012-02-31 is a parsable date format but not a valid date.

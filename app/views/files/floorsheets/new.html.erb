@@ -30,7 +30,7 @@
         <% @file_list.each do |file| %>
             <tr>
               <td><%= file.report_date %> </td>
-              <td><%= ad_to_bs(file.report_date) %> </td>
+              <td><%= ad_to_bs_string(file.report_date) %> </td>
               <td><%= file.updated_at.to_date %></td>
             </tr>
         <% end %>
