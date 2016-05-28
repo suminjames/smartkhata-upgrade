@@ -24,6 +24,15 @@ class ChequeEntriesController < ApplicationController
       @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
+        send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   # GET /cheque_entries/new
@@ -148,13 +157,7 @@ class ChequeEntriesController < ApplicationController
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
     if cheque.to_be_printed?
-      if cheque.voucher.complete?
         cheque.printed!
-      elsif cheque.voucher.rejected?
-        cheque.void!
-      else
-        cheque.pending_approval!
-      end
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?
