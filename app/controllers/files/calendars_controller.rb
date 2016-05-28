@@ -23,8 +23,6 @@ class Files::CalendarsController < ApplicationController
     # - Grab the last modified timestamp of the file uploaded
     # - Check the file upload date (different from modified timestamp of the file)
 
-    @cal =  NepaliCalendarPlus::CalendarPlus.new
-
     # Iterate through the rows of the spreadsheet.
     count = 0
     xlsx.sheet(0).each(
