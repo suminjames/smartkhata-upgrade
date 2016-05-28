@@ -63,17 +63,19 @@ class Group < ActiveRecord::Base
 
 
 
-  def get_ledger_group
+  def get_ledger_group(level = 1)
     group_ledger = Hash.new
     child_group = Hash.new
-
-    group_ledger[:ledgers] = self.ledgers
     group_ledger[:balance] = self.closing_blnc
-    self.children.each do |child|
-      child_group[child.name] = child.get_ledger_group
+    group_ledger[:ledgers] = []
+    # dont load all the clients
+    if level > 1 && self.name != 'Clients'
+      group_ledger[:ledgers] = self.ledgers
+      self.children.each do |child|
+        child_group[child.name] = child.get_ledger_group(level-1)
+      end
     end
     group_ledger[:child_group] = child_group
-
     return group_ledger
   end
 
