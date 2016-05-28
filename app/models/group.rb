@@ -62,13 +62,16 @@ class Group < ActiveRecord::Base
   end
 
 
-
+  # get the ledger and groups based on level selected
+  # level 1 which is default will return only the balance
   def get_ledger_group(level = 1)
     group_ledger = Hash.new
     child_group = Hash.new
     group_ledger[:balance] = self.closing_blnc
     group_ledger[:ledgers] = []
+
     # dont load all the clients
+    # as client list is too scary can go up too 5k+
     if level > 1 && self.name != 'Clients'
       group_ledger[:ledgers] = self.ledgers
       self.children.each do |child|
