@@ -9,7 +9,7 @@
 <h3 class="text-center">Balance Sheet</h3>
 <h4 class="text-center">As on <%= @date.to_s %></h4>
 <br><br>
-<table class="table">
+<table class="table balancesheet-report">
   <tr>
     <td class='col-xs-6'>
       <div class="col-xs-6"><strong>Particulars</strong></div>
@@ -22,18 +22,15 @@
   </tr>
   <tr>
     <td>
-      <% @balance_cr.each do |assets| %>
-        <div class="col-xs-6"><%= assets[0] %></div>
-        <div class="col-xs-6 text-right"><%= number_to_currency((assets[1] > 0 ? assets[1] * -1 : assets[1].abs)) %>
-        </div>
+      <% @balance_cr.each do |name, hash| %>
+        <%= render partial: 'report/balancesheet/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
       <% end %>
       <div class="col-xs-6">Opening Balance Difference</div>
       <div class="col-xs-6 text-right"><%= number_to_currency(@opening_balance_diff) %></div>
     </td>
     <td>
-      <% @balance_dr.each do |assets| %>
-        <div class="col-xs-6"><%= assets[0] %></div>
-        <div class="col-xs-6 text-right"><%= number_to_currency(assets[1]) %></div>
+      <% @balance_dr.each do |name, hash| %>
+          <%= render partial: 'report/balancesheet/group_balancesheet', locals: {name: name, hash: hash, credit: false} %>
       <% end %>
     </td>
   </tr>

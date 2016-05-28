@@ -63,6 +63,20 @@ class Group < ActiveRecord::Base
 
 
 
+  def get_ledger_group
+    group_ledger = Hash.new
+    child_group = Hash.new
+
+    group_ledger[:ledgers] = self.ledgers
+    group_ledger[:balance] = self.closing_blnc
+    self.children.each do |child|
+      child_group[child.name] = child.get_ledger_group
+    end
+    group_ledger[:child_group] = child_group
+
+    return group_ledger
+  end
+
   # get all the descendents and their balances
 
   def descendents

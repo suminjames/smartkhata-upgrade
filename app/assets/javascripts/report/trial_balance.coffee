@@ -54,4 +54,4 @@ $ ->
     closing_blnc_cr = format_number(closing_blnc_cr)
 
 
-    $this.append('<tr class="total-trial"><td>Total</td><td>'+opening_blnc_dr+'</td><td>'+opening_blnc_cr+'</td><td>'+dr_amount+'</td><td>'+cr_amount+'</td><td>'+closing_blnc_dr+'</td><td>'+closing_blnc_cr+'</td></tr>')
+    $this.append('<tr class="total-trial"><td>Total</td><td class="text-right">'+opening_blnc_dr+'</td><td class="text-right">'+opening_blnc_cr+'</td><td class="text-right">'+dr_amount+'</td><td class="text-right">'+cr_amount+'</td><td class="text-right">'+closing_blnc_dr+'</td><td class="text-right">'+closing_blnc_cr+'</td></tr>')
