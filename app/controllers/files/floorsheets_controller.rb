@@ -63,13 +63,14 @@ class Files::FloorsheetsController < Files::FilesController
 			@date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
 		end
 
-		file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
+		file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if ( @date.nil? || (!parsable_date? @date))
 
 		# do not reprocess file if it is already uploaded
 		floorsheet_file = FileUpload.find_by(file_type: @@file_type, report_date: @date)
 		# raise soft error and return if the file is already uploaded
 		file_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
+		settlement_date = Calendar::t_plus_3_trading_days(@date)
 
 		fy_code = get_fy_code
 		# loop through 13th row to last row
@@ -135,7 +136,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 		ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
-        @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count)
+        @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
       end
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
 		end
@@ -158,7 +159,7 @@ class Files::FloorsheetsController < Files::FilesController
 	# 	Bank Deposit,
 	# ]
 	# hash_dp => custom hash to store unique isin , buying/selling, customer per day
-	def process_records(arr ,hash_dp, fy_code, hash_dp_count)
+	def process_records(arr ,hash_dp, fy_code, hash_dp_count, settlement_date)
 		contract_no = arr[0].to_i
 		company_symbol = arr[1]
 		buyer_broking_firm_code = arr[2]
@@ -291,6 +292,7 @@ class Files::FloorsheetsController < Files::FilesController
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.balance_to_pay = bill.net_amount
+			bill.settlement_date = settlement_date
 			bill.save!
 
 

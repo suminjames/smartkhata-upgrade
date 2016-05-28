@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(version: 20160526072518) do
     t.integer  "fy_code"
     t.date     "date"
     t.string   "date_bs"
+    t.date     "settlement_date"
     t.integer  "client_account_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
