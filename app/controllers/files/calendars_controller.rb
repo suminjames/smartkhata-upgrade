@@ -19,9 +19,7 @@ class Files::CalendarsController < ApplicationController
       end
     end
 
-    #TODO:
-    # - Grab the last modified timestamp of the file uploaded
-    # - Check the file upload date (different from modified timestamp of the file)
+    @cal =  NepaliCalendarPlus::CalendarPlus.new
 
     # Iterate through the rows of the spreadsheet.
     count = 0

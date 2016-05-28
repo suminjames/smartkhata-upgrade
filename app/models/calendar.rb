@@ -70,16 +70,8 @@ class Calendar < ActiveRecord::Base
   # returns ad_date
   # Note: A trading day doesn't include holidays and fridays
   def self.t_plus_x_trading_days(from_ad_date, number_of_days)
-    trading_day_count = 0
-    ref_ad_date = from_ad_date
-    while trading_day_count != number_of_days
-      ref_ad_date += 1
-      calendar_date_obj = Calendar.find_by(ad_date: ref_date)
-      if calendar_date_obj.is_trading_day
-        trading_day_count += 1
-      end
-    end
-    ref_ad_date
+    calendar_date_obj = Calendar.where('ad_date >?', from_ad_date).where(is_trading_day: true).limit(number_of_days).last
+    calendar_date_obj.ad_date
   end
 
 end
