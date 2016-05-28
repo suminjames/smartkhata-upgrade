@@ -9,7 +9,7 @@
 #  cheque_number      :integer
 #  name               :string
 #  description        :string
-#  amount               :decimal(15, 4)   default("0")
+#  amount             :decimal(15, 4)   default("0")
 #  running_blnc       :decimal(15, 4)   default("0")
 #  additional_bank_id :integer
 #  particular_status  :integer          default("1")

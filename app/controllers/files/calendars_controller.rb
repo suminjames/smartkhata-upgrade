@@ -5,7 +5,7 @@ class Files::CalendarsController < ApplicationController
 
   def import
     # authorize self
-    @file = params[:file];
+    @file = params[:file]
 
     if @file == nil
       flash.now[:error] = "Please Upload a valid file"
@@ -19,70 +19,57 @@ class Files::CalendarsController < ApplicationController
       end
     end
 
-    #TODO:
-    # - Grab the last modified timestamp of the file uploaded
-    # - Check the file upload date (different from modified timestamp of the file)
-
-    from_date_bs = "2072-01-01"
-    to_date_bs = "2072-12-30"
-    from_date_ad = bs_to_ad(from_date_bs)
-    to_date_ad = bs_to_ad(to_date_bs)
-
-		@cal = NepaliCalendar::Calendar.new
-    ad_date = "2015-06-12"
-		ad_date = Date.parse(ad_date.to_s)
-    puts "FUCK IT"
-		# puts @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
-
-    abort(@cal.ad_to_bs("2015", "06", "14").to_s)
-
-    from_date_ad.upto(to_date_ad) do |ad_date|
-      p ad_date
-      bs_date = ad_to_bs(ad_date)
-      p bs_date
-      hash = { }
-      unless date_already_in_db (bs_date)
-        p bs_date
-        p bs_date.year
-        p bs_date.month
-        p bs_date.day
-        hash[:year] = bs_date.year
-        hash[:month] =  bs_date.month
-        hash[:day] = bs_date.day
-        hash[:date_type] = 'x'
-        if ad_date.saturday?
-          hash[:date_type] = 'Saturday'
-          # hash[:remarks]: 'Remarks',
-          hash[:is_holiday] = true
-        end
-        Calendar.create(hash)
-      end
-    end
+    @cal =  NepaliCalendarPlus::CalendarPlus.new
 
     # Iterate through the rows of the spreadsheet.
     count = 0
     xlsx.sheet(0).each(
-    year: 'Year',
-    month: 'Month',
-    day: 'Day',
-    date_type: 'Type',
-    remarks: 'Remarks',
-    ) do |hash|
-      #The column headers are at row 3. So skip those 3 rows.
-      if count > 3
-        date =  Date.parse(hash[:year].to_i.to_s + "-"  + hash[:month].to_i.to_s + "-" + hash[:day].to_i.to_s)
-        unless date_already_in_db (date)
-          hash[:is_holiday] = true
-          Calendar.create(hash)
+        year: 'Year',
+        month: 'Month',
+        day: 'Day',
+        is_holiday: 'Is_Holiday',
+        holiday_type: 'Holiday_Type',
+        is_trading_day: 'Is_Trading_Day',
+        remarks: 'Remarks'
+    ) do |xls_row_hash|
+      # Skip header row
+      if count > 0
+        calendar_date_hash = {}
+        calendar_date_hash[:bs_date] = xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s
+        calendar_date_hash[:ad_date] = @cal.bs_to_ad(xls_row_hash[:year].to_i, xls_row_hash[:month].to_i, xls_row_hash[:day].to_i)
+        calendar_date_hash[:is_holiday] = xls_row_hash[:is_holiday].upcase == 'TRUE' ? true : false
+        calendar_date_hash[:is_trading_day] = xls_row_hash[:is_trading_day].upcase == 'TRUE' ? true : false
+        p calendar_date_hash
+        if xls_row_hash[:holiday_type].present?
+          case xls_row_hash[:holiday_type].downcase.strip
+            when 'saturday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:saturday]
+            when 'public holiday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:public_holiday]
+            when 'unforeseen holiday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:unforeseen_holiday]
+            else
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:not_applicable]
+          end
         end
+        calendar_date_hash[:remarks] = xls_row_hash[:remarks]
+        calendar_date_obj = Calendar.find_by(bs_date: calendar_date_hash[:bs_date])
+        calendar_date_obj.update(calendar_date_hash)
       end
       count += 1
     end
   end
 
-  # Checks the passed date against the 'Calendars' table in the database
-  def date_already_in_db (date)
-    Calendar.where(year: date.year, month: date.month, day: date.day).count != 0
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def calendar_params
+    params.require(:calendar).permit(
+        :bs_date,
+        :ad_date,
+        :is_holiday,
+        :is_trading_day,
+        :holiday_type,
+        :remarks
+    )
   end
 end
 

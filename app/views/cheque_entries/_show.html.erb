@@ -6,7 +6,7 @@
   <% else %>
       <span class="glyphicon glyphicon-print print-icon"></span>
       <span>Print</span>
-      <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+      <span class="cheque-print-error"><%= "Cheque was printed before" if @cheque_entry.printed? %></span>
       <iframe class= 'hidden-iframe' id = 'iframe-for-cheque-entry-pdf-print'>
         <!--hidden iframe for printing-->
       </iframe>
