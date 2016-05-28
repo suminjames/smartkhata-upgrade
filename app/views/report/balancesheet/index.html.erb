@@ -15,7 +15,7 @@
     <div class="row">
 
       <div class="col-xs-2">
-        <%= select_tag "level_drill", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
+        <%= select_tag "drill_level", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
       </div>
       <div class="col-xs-2"><%= submit_tag "Go", class: 'btn btn-default' %></div>
 
@@ -36,14 +36,14 @@
   <tr>
     <td>
       <% @balance_cr.each do |name, hash| %>
-        <%= render partial: 'report/balancesheet/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
+        <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
       <% end %>
       <div class="col-xs-6">Opening Balance Difference</div>
       <div class="col-xs-6 text-right"><%= number_to_currency(@opening_balance_diff) %></div>
     </td>
     <td>
       <% @balance_dr.each do |name, hash| %>
-          <%= render partial: 'report/balancesheet/group_balancesheet', locals: {name: name, hash: hash, credit: false} %>
+          <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: false} %>
       <% end %>
     </td>
   </tr>

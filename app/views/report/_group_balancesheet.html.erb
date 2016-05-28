@@ -14,14 +14,12 @@
       <% else %>
           <div class="col-xs-6 text-right"><%= number_to_currency(hash[:balance]) %></div>
       <% end %>
-
-
     </div>
   </div><!-- /.box-header -->
   <div class="box-body">
     <div class="clearfix">
       <% hash[:child_group].each do |child_name, child_hash| %>
-          <%= render partial: 'report/balancesheet/group_balancesheet', locals: {name: child_name, hash: child_hash, credit: credit} %>
+          <%= render partial: 'report/group_balancesheet', locals: {name: child_name, hash: child_hash, credit: credit} %>
       <% end %>
 
       <table class="ledger clearfix table table-striped">
