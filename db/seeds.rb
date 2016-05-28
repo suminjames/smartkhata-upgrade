@@ -87,6 +87,7 @@ count = 0
 
     Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
 
+    puts " Populating calendar..."
     Calendar.populate_calendar
 
   rescue => error
@@ -94,7 +95,6 @@ count = 0
     puts "Tenant #{t.name} exists"
   end
 
-  # TODO(subas) : Note(sarojk) Why switch to public inside the loop of tenants? Should it not be after the loop?
   Apartment::Tenant.switch!('public')
 end
 

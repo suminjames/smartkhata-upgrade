@@ -27,11 +27,13 @@ class Calendar < ActiveRecord::Base
   # 1. saturday is a holiday.
   # 2. friday is a non-trading day
   def self.populate_calendar
+    @cal = NepaliCalendarPlus::CalendarPlus.new
+
     from_date_ad = @cal.bs_to_ad(2073, 1, 1)
     to_date_ad = @cal.bs_to_ad(2083, 12, 30)
 
     from_date_ad.upto(to_date_ad) do |ad_date|
-      bs_date = ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
+      bs_date = @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
       date_hash = { }
       unless bs_date_already_in_db? (bs_date)
         date_hash[:bs_date] = self.stringify_date_hash(bs_date)

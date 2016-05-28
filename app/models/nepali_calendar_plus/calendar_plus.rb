@@ -199,8 +199,6 @@ class NepaliCalendarPlus::CalendarPlus
     Date.parse(ref_date['bs_to_ad']['ad']) + days
   end
 
-  private
-
   def total_days(date_eng, reference_date)
     days = date_eng - reference_date
     days.to_i
