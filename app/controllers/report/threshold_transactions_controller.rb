@@ -3,7 +3,7 @@ class Report::ThresholdTransactionsController < ApplicationController
 		@transaction_date = params[:transaction_date]
 		if parsable_date? @transaction_date
 			date_ad = bs_to_ad(@transaction_date)
-			@transactions_above_threshold = ShareTransaction.not_cancelled.find_by_date(date_ad).where("net_amount >= ?", 500000)
+			@transactions_above_threshold = ShareTransaction.above_threshold(date_ad)
 		else
 			@transactions_above_threshold = ''
 			respond_to do |format|
