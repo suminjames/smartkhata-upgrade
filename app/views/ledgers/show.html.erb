@@ -62,7 +62,12 @@
 			<th class="text-center">Particulars</th>
       <th class="text-center">Voucher</th>
 			<th class="text-center">Bill</th>
-      <th class="text-center">Cheque</th>
+      <% if @ledger.name == "Nepse Purchase" %>
+        <th class="text-center">Settlement ID</th>
+      <% else %>
+        <th class="text-center">Cheque</th>
+      <% end %>
+
 			<th class="text-center">Pay / Receipt No</th>
       <th class="text-center">Transaction Amount</th>
       <th class="text-center">Balance</th>
@@ -97,6 +102,9 @@
               <% particular.cheque_entries.each do |cheque| %>
                   <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true  %> <br>
               <% end %>
+          <% end %>
+          <% if particular.nepse_chalan.present? %>
+              <%= link_to particular.nepse_chalan.nepse_settlement_id, nepse_chalan_path(particular.nepse_chalan.id), :target => "_blank"  %> <br>
           <% end %>
         </td>
 				<td>

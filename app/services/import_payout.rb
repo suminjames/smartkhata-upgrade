@@ -69,7 +69,7 @@ class ImportPayout < ImportFile
 
 					if transaction.nil?
 						# abort(hash['CONTRACTNO'])
-						import_error("Please upload corresponding Floorsheet First")
+						import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
 						raise ActiveRecord::Rollback
 						break
 					end

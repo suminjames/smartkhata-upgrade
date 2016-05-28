@@ -30,6 +30,7 @@
 #  deleted_at          :date
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
+#  nepse_chalan_id     :integer
 #  creator_id          :integer
 #  updater_id          :integer
 #  branch_id           :integer

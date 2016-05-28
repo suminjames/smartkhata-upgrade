@@ -15,6 +15,7 @@
 #  fy_code           :integer
 #  date              :date
 #  date_bs           :string
+#  settlement_date   :date
 #  client_account_id :integer
 #  creator_id        :integer
 #  updater_id        :integer

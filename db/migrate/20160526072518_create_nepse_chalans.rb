@@ -5,6 +5,7 @@ class CreateNepseChalans < ActiveRecord::Migration
       t.integer :transaction_type
       t.string :deposited_date_bs
       t.date :deposited_date
+      t.string :nepse_settlement_id
       t.references :voucher, index: true, foreign_key: true
       t.timestamps null: false
       t.integer :creator_id, index: true

@@ -1,20 +1,24 @@
 <p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Deposited Date (BS):</strong>
-  <%= @nepse_chalan.deposited_date_bs %>
-</p>
-
-<p>
-  <strong>Deposited date (AD):</strong>
-  <%= @nepse_chalan.deposited_date %>
-</p>
-
+<%= link_to 'Nepse Chalans', nepse_chalans_path %>
+<br><br>
+<div class="row">
+  <div class="col-xs-6">
+    <p>
+      <strong>Deposited Date (BS):</strong>
+      <%= @nepse_chalan.deposited_date_bs %>
+    </p>
+  </div>
+  <div class="col-xs-6">
+    <p>
+      <strong>Deposited date (AD):</strong>
+      <%= @nepse_chalan.deposited_date %>
+    </p>
+  </div>
+</div>
 <p>
   <strong>Voucher:</strong>
   <%= link_to "#{@nepse_chalan.voucher.voucher_code} #{@nepse_chalan.voucher.fy_code}-#{@nepse_chalan.voucher.voucher_number}", voucher_path(@nepse_chalan.voucher) , remote: true %>
 </p>
-<%= link_to 'Nepse Chalans', nepse_chalans_path %>
 <br><br>
 <%  if @share_transactions.size > 0 %>
 <h4>Share Transactions</h4>
