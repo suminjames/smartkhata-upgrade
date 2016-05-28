@@ -1,7 +1,7 @@
 class Report::BalancesheetController < ApplicationController
 	def index
-		level_drill = params[:level_drill].to_i if params[:level_drill].present?
-    @selected_drill_level = level_drill || 1
+		drill_level = params[:drill_level].to_i if params[:drill_level].present?
+    @selected_drill_level = drill_level || 1
 
 	  @balance = Group.balance_sheet
 	  @balance_dr = Hash.new
