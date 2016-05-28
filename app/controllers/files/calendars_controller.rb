@@ -25,52 +25,55 @@ class Files::CalendarsController < ApplicationController
 
     @cal =  NepaliCalendarPlus::CalendarPlus.new
 
-    from_date_ad = @cal.bs_to_ad(2073, 1, 1)
-    to_date_ad = @cal.bs_to_ad(2074, 12, 30)
-
-    from_date_ad.upto(to_date_ad) do |ad_date|
-      bs_date = @cal.ad_to_bs(ad_date.year, ad_date.month, ad_date.day)
-      date_hash = { }
-      unless bs_date_already_in_db? (bs_date)
-        date_hash[:year] = bs_date[:year]
-        date_hash[:month] =  bs_date[:month]
-        date_hash[:day] = bs_date[:day]
-        date_hash[:date_type] = 'x'
-        date_hash[:ad_date] = ad_date.to_s
-        if ad_date.saturday?
-          date_hash[:date_type] = 'Saturday'
-          # hash[:remarks]: 'Remarks',
-          date_hash[:is_holiday] = true
-        end
-        Calendar.create(date_hash)
-      end
-    end
-
     # Iterate through the rows of the spreadsheet.
     count = 0
     xlsx.sheet(0).each(
-    year: 'Year',
-    month: 'Month',
-    day: 'Day',
-    date_type: 'Type',
-    remarks: 'Remarks',
-    ) do |hash|
-      #The column headers are at row 3. So skip those 3 rows.
-      if count > 3
-        # date =  Date.parse(hash[:year].to_i.to_s + "-"  + hash[:month].to_i.to_s + "-" + hash[:day].to_i.to_s)
-        date =  {:year => hash[:year], :month => hash[:month], :day => hash[:day]}
-        unless bs_date_already_in_db? (date)
-          hash[:is_holiday] = true
-          Calendar.create(hash)
+        year: 'Year',
+        month: 'Month',
+        day: 'Day',
+        is_holiday: 'Is_Holiday',
+        holiday_type: 'Holiday_Type',
+        is_trading_day: 'Is_Trading_Day',
+        remarks: 'Remarks'
+    ) do |xls_row_hash|
+      # Skip header row
+      if count > 0
+        calendar_date_hash = {}
+        calendar_date_hash[:bs_date] = xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s
+        calendar_date_hash[:ad_date] = @cal.bs_to_ad(xls_row_hash[:year].to_i, xls_row_hash[:month].to_i, xls_row_hash[:day].to_i)
+        calendar_date_hash[:is_holiday] = xls_row_hash[:is_holiday].upcase == 'TRUE' ? true : false
+        calendar_date_hash[:is_trading_day] = xls_row_hash[:is_trading_day].upcase == 'TRUE' ? true : false
+        p calendar_date_hash
+        if xls_row_hash[:holiday_type].present?
+          case xls_row_hash[:holiday_type].downcase.strip
+            when 'saturday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:saturday]
+            when 'public holiday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:public_holiday]
+            when 'unforeseen holiday'
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:unforeseen_holiday]
+            else
+              calendar_date_hash[:holiday_type] = Calendar.holiday_types[:not_applicable]
+          end
         end
+        calendar_date_hash[:remarks] = xls_row_hash[:remarks]
+        calendar_date_obj = Calendar.find_by(bs_date: calendar_date_hash[:bs_date])
+        calendar_date_obj.update(calendar_date_hash)
       end
       count += 1
     end
   end
 
-  # Checks the passed date against the 'Calendars' table in the database
-  def bs_date_already_in_db? (date)
-    Calendar.where(year: date[:year], month: date[:month], day: date[:day]).count != 0
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def calendar_params
+    params.require(:calendar).permit(
+        :bs_date,
+        :ad_date,
+        :is_holiday,
+        :is_trading_day,
+        :holiday_type,
+        :remarks
+    )
   end
 end
 

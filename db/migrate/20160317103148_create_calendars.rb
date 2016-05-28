@@ -1,13 +1,12 @@
 class CreateCalendars < ActiveRecord::Migration
   def change
     create_table :calendars do |t|
-      t.integer :year, null: false
-      t.integer :month, null: false
-      t.integer :day, null: false
+      t.text :bs_date, null: false  # should be of format yyyy-mm-dd
+      t.date :ad_date, null: false
       t.boolean :is_holiday, default: false
-      t.integer :date_type, null: false
+      t.boolean :is_trading_day, default: true
+      t.integer :holiday_type, default: 0
       t.text :remarks
-      t.text :ad_date
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
       t.timestamps null: false
