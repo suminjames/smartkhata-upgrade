@@ -8,6 +8,7 @@ class CreateBills < ActiveRecord::Migration
     	t.integer :bill_type
     	t.integer :status , default: 0
       t.integer :special_case, default: 0
+      t.integer :settlement_approval_status, default: 0
       t.timestamps null: false
       t.integer :fy_code, index: true
       t.date :date, index: true

@@ -5,5 +5,5 @@ var title       =   '.modal-title',
 
 //i set the title through a helper function
 $(title).html('Bill details');
-$(content).html('<%= j render("show", bill: @bill) %>');
+$(content).html('<%= j render("show", bill: @bill, has_voucher_pending_approval: @has_voucher_pending_approval) %>');
 $(modal).modal();
