@@ -73,7 +73,6 @@ $(document).ready ->
     $input = $('input.select-ledger')
     $comboboxContainer = $input.closest('.combobox-container')
     if $input.val().trim() == ""
-
       if !$comboboxContainer.hasClass('has-error')
         $comboboxContainer.addClass('has-error')
         $comboboxContainer.append('<p class="error">Bank Account cant be empty</p>')
@@ -81,3 +80,15 @@ $(document).ready ->
     else
       $comboboxContainer.removeClass('has-error')
       $comboboxContainer.find('p.error').hide()
+      
+    $input_settlement = $('.settlement-id')
+    $settlement_parent = $input_settlement.closest('.row')
+
+    if $input_settlement.val().trim() == ""
+      if !$settlement_parent.hasClass('has-error')
+        $settlement_parent.addClass('has-error')
+        $settlement_parent.append('<p class="error">Settlement Id cant be empty</p>')
+      event.preventDefault()
+    else
+      $settlement_parent.removeClass('has-error')
+      $settlement_parent.find('p.error').hide()

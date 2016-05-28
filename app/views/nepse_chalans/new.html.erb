@@ -83,15 +83,21 @@
     </div>
 
     <div class="nepse-chalan-description">
+
+
       <div class="box box-default box-solid">
-        <div class="box-header">
-          <h4>Nepse Chalan Details</h4>
-        </div>
         <div class="box-body">
           <h4>Description: </h4>
           <h5 class="description"></h5>
           <h4>Amount:</h4>
           <h5 class="net-amount">0.0</h5>
+
+          <h4>Enter Settlement ID</h4>
+          <div class="row">
+            <div class="col-xs-3">
+              <%= text_field_tag :settlement_id, nil, class: 'form-control settlement-id', placeholder: "Settlement ID" %>
+            </div>
+          </div>
         </div>
       </div>
 

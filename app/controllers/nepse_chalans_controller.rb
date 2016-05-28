@@ -57,6 +57,7 @@ class NepseChalansController < ApplicationController
     selected_transaction_ids = params[:nepse_share_selection].map(&:to_i) if params[:nepse_share_selection].present?
     share_transactions = []
     bank_ledger_id = params[:bank_ledger_id]
+    nepse_settlement_id = params[:settlement_id]
 
     bank_ledger = Ledger.find_by(id: bank_ledger_id)
 
@@ -90,9 +91,9 @@ class NepseChalansController < ApplicationController
       end
 
       if last_transaction_number.nil?
-        description = "Settlement by Bank Transfer for Transaction number #{first_transaction_number}"
+        description = "Settlement by Bank Transfer for Transaction number #{first_transaction_number} Settlement ID (#{nepse_settlement_id})"
       else
-        description = "Settlement by Bank Transfer for Transaction numbers #{first_transaction_number} - #{last_transaction_number}"
+        description = "Settlement by Bank Transfer for Transaction numbers #{first_transaction_number} - #{last_transaction_number} Settlement ID (#{nepse_settlement_id})"
       end
 
 
