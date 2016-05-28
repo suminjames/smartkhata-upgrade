@@ -50,6 +50,7 @@ class Particular < ActiveRecord::Base
   has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
   has_many :cheque_entries , through: :cheque_entry_particular_associations
 
+	has_one :nepse_chalan, through: :voucher
 
 
 	validates_presence_of :ledger_id

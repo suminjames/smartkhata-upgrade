@@ -394,13 +394,14 @@ ActiveRecord::Schema.define(version: 20160526072518) do
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
 
   create_table "nepse_chalans", force: :cascade do |t|
-    t.decimal  "chalan_amount",     precision: 15, scale: 4, default: 0.0
+    t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.string   "deposited_date_bs"
     t.date     "deposited_date"
+    t.string   "nepse_settlement_id"
     t.integer  "voucher_id"
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "fy_code"

@@ -79,6 +79,7 @@ class NepseChalansController < ApplicationController
     deposited_date = Time.now
     deposited_date_bs = ad_to_bs(Time.now)
     @nepse_chalan = NepseChalan.new(deposited_date_bs: deposited_date_bs, deposited_date:deposited_date, chalan_amount: chalan_amount)
+    @nepse_chalan.nepse_settlement_id = nepse_settlement_id
     nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
 
     res = false
