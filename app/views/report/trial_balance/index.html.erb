@@ -64,12 +64,12 @@
         <% ledgers.each do |ledger| %>
            <tr class="ledger-single">
              <td><%= ledger.name %></td>
-             <td><%= number_to_currency(ledger.opening_blnc  ) if ledger.opening_blnc > 1 %></td>
-             <td><%= number_to_currency(ledger.opening_blnc.abs ) if ledger.opening_blnc < 0 %></td>
-             <td><%= number_to_currency(ledger.dr_amount)  %></td>
-             <td><%= number_to_currency(ledger.cr_amount ) %></td>
-             <td><%= number_to_currency(ledger.closing_blnc ) if ledger.closing_blnc > 1 %></td>
-             <td><%= number_to_currency(ledger.closing_blnc.abs  ) if ledger.closing_blnc < 0 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.opening_blnc  ) if ledger.opening_blnc > 1 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.opening_blnc.abs ) if ledger.opening_blnc < 0 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.dr_amount)  %></td>
+             <td class="text-right"><%= number_to_currency(ledger.cr_amount ) %></td>
+             <td class="text-right"><%= number_to_currency(ledger.closing_blnc ) if ledger.closing_blnc > 1 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.closing_blnc.abs  ) if ledger.closing_blnc < 0 %></td>
            </tr>
         <% end %>
         </tbody>
