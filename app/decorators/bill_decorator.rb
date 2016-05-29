@@ -70,7 +70,7 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_transaction_dates
-      bs_date = h.ad_to_bs(object.share_transactions[0].date).to_s + ' BS'
+      bs_date = h.ad_to_bs_string(object.share_transactions[0].date).to_s + ' BS'
       ad_date =object.share_transactions[0].date.to_s + ' AD'
       {"ad" => ad_date , "bs" => bs_date}
   end

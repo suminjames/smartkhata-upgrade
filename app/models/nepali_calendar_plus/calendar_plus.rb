@@ -107,11 +107,11 @@ class NepaliCalendarPlus::CalendarPlus
   class << self
     def today
       today = Date.today
-      date = CalendarPlus.new.ad_to_bs(today.year, today.month, today.day)
+      date = CalendarPlus.new.ad_to_bs_hash(today.year, today.month, today.day)
     end
   end
 
-  def ad_to_bs(year, month, day)
+  def ad_to_bs_hash(year, month, day)
     fail 'Invalid date!' unless valid_ad_date?(year, month, day)
 
     ref_day_eng = Date.parse(ref_date['ad_to_bs']['ad'])
@@ -120,6 +120,11 @@ class NepaliCalendarPlus::CalendarPlus
 
     days = total_days(date_ad, ref_day_eng)
     get_bs_date(days, ref_date['ad_to_bs']['bs'])
+  end
+
+  def ad_to_bs_string(year, month, day)
+    bs_date_hash = ad_to_bs_hash(year, month, day)
+    return bs_date_hash[:year].to_s + '-' + bs_date_hash[:month].to_s + '-' + bs_date_hash[:day].to_s
   end
 
   # returns a bs_date hash with signature {:year=> 2072, :month => 2, :day => 32}
@@ -193,8 +198,6 @@ class NepaliCalendarPlus::CalendarPlus
     days += (day.to_i - ref_day)
     Date.parse(ref_date['bs_to_ad']['ad']) + days
   end
-
-  private
 
   def total_days(date_eng, reference_date)
     days = date_eng - reference_date

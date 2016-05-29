@@ -40,7 +40,7 @@ class ShareTransactionsController < ApplicationController
       end
 
       respond_to do |format|
-        format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs(date)), commit: 'Search' }
+        format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs_string(date)), commit: 'Search' }
       end
 
     elsif params[:show] == 'all'
@@ -208,7 +208,7 @@ class ShareTransactionsController < ApplicationController
         @bill.save!
 
         # create a new voucher and add the bill reference to it
-        @new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+        @new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
         @new_voucher.bills_on_settlement << @bill
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"

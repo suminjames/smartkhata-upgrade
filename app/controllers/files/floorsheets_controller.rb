@@ -315,7 +315,7 @@ class Files::FloorsheetsController < Files::FilesController
 			# update description
 			description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
 			# update ledgers value
-			voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+			voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
 			voucher.bills_on_creation << bill
 			voucher.share_transactions << transaction
 			voucher.desc = description

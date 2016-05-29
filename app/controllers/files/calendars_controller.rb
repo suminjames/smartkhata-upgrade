@@ -19,8 +19,6 @@ class Files::CalendarsController < ApplicationController
       end
     end
 
-    @cal =  NepaliCalendarPlus::CalendarPlus.new
-
     # Iterate through the rows of the spreadsheet.
     count = 0
     xlsx.sheet(0).each(
@@ -36,10 +34,9 @@ class Files::CalendarsController < ApplicationController
       if count > 0
         calendar_date_hash = {}
         calendar_date_hash[:bs_date] = xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s
-        calendar_date_hash[:ad_date] = @cal.bs_to_ad(xls_row_hash[:year].to_i, xls_row_hash[:month].to_i, xls_row_hash[:day].to_i)
+        calendar_date_hash[:ad_date] = bs_to_ad(xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s)
         calendar_date_hash[:is_holiday] = xls_row_hash[:is_holiday].upcase == 'TRUE' ? true : false
         calendar_date_hash[:is_trading_day] = xls_row_hash[:is_trading_day].upcase == 'TRUE' ? true : false
-        p calendar_date_hash
         if xls_row_hash[:holiday_type].present?
           case xls_row_hash[:holiday_type].downcase.strip
             when 'saturday'

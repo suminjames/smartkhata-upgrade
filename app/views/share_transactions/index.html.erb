@@ -291,7 +291,7 @@
           total_out += share_transaction.quantity if share_transaction.selling?
         %>
         <tr>
-          <td><%= ad_to_bs(share_transaction.date) %></td>
+          <td><%= ad_to_bs_string(share_transaction.date) %></td>
           <td><%= share_transaction.contract_no %></td>
           <td><%= share_transaction.isin_info.isin%></td>
           <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
@@ -389,7 +389,7 @@
           total_out += share_transaction.quantity if share_transaction.selling?
         %>
         <tr>
-          <td><%= ad_to_bs(share_transaction.date) %></td>
+          <td><%= ad_to_bs_string(share_transaction.date) %></td>
           <td><%= share_transaction.contract_no %></td>
           <td><%= share_transaction.isin_info.isin%></td>
           <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
@@ -437,7 +437,7 @@
             @share_transactions.each_with_index do |share_transaction, index|
           %>
               <tr>
-                <td><%= ad_to_bs(share_transaction.date) %></td>
+                <td><%= ad_to_bs_string(share_transaction.date) %></td>
                 <td><%= share_transaction.contract_no %></td>
                 <td><%= share_transaction.isin_info.isin%></td>
                 <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>

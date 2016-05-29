@@ -89,7 +89,7 @@ class ImportCloseOut < ImportFile
                   # update description
                   description = "Shortage Amount Dr Settled  (#{closeout.shortage_quantity}*#{closeout.scrip_name}@#{closeout.rate}) "
                   # update ledgers value
-                  voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+                  voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
                   voucher.share_transactions << transaction
                   voucher.desc = description
                   voucher.complete!
