@@ -36,7 +36,8 @@ class Print::PrintVoucher< Prawn::Document
   end
 
   def page_width
-    578
+    # 578
+    565
   end
 
   def page_height
