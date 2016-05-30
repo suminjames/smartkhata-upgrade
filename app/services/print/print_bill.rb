@@ -126,9 +126,11 @@ class Print::PrintBill < Prawn::Document
 
     bounding_box([col(6)+col(1), row_cursor], :width => col(5)) do
       data = [
-          ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs']  +")"],
           ["Transaction Date:", @bill.formatted_transaction_dates['ad'] +" (" + @bill.formatted_transaction_dates['bs']  +")"]
       ]
+      if @bill.purchase?
+        data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs']  +")"])
+      end
       table(data, :position => :right, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
 
       move_down(30)
