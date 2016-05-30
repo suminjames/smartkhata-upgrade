@@ -325,10 +325,41 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     second_particular_ledger_id.each do |ledger_id|
       get ledger_path(ledger_id)
       assert_response :success
+
       particulars_num = ledger_index_to_particulars_count[second_particular_ledger_id.index(ledger_id)]
       assert_match "Displaying <b>all #{particulars_num}</b> particulars", response.body
-    end
 
+      # test links!
+      link_objects = css_select '.box-body.ledger.ledger-single a[data-remote=true]'
+      link_objects.each do |link_obj|
+        # Add more extended tests here?
+        link = link_obj['href']
+        # ISIN ERROR IN BILLS#SHOW
+        unless link.include? 'bills'
+          get link
+          assert_response :success
+          header_text_initial = case link
+          when /vouchers/
+            'Voucher'
+          # when /bills/
+          #   'Bill'
+          # when /cheque_entries/
+          #   'Cheque'
+          when /settlements/
+            'Settlement'
+          end
+          header_text = "#{header_text_initial} Details"
+
+          unless link.include? 'cheque_entries'
+            # Not h3.modal-title, coz we're checking direct link, not ajax
+            assert_select 'h2.section-title', header_text
+          else
+            # No cheque details header in direct link!
+            assert_match 'Pay against this cheque to', response.body
+          end
+        end
+      end
+    end
   end
 
   private
