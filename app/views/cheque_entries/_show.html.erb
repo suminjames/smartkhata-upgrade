@@ -1,4 +1,4 @@
-<%= link_to "View(pdf)", cheque_entry_path(format: "pdf") %>
+<%= link_to "View(pdf)", cheque_entry_path(format: "pdf"), :target => "_blank" %>
 
 <div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%=@cheque_entry.id%>">
   <% if @cheque_entry.bounced? %>

@@ -1,4 +1,4 @@
-<%= link_to "View(pdf)", voucher_path(format: "pdf") %>
+<%= link_to "View(pdf)", voucher_path(format: "pdf"), :target => "_blank" %>
 
 <div class="btnPrintPDF btnPrintVoucherPDF" id="voucher-<%=@voucher.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>

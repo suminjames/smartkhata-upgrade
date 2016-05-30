@@ -14,7 +14,7 @@ Note:
 @client = bill.get_client
 %>
 
-<%= link_to "View(pdf)", bill_path(format: "pdf") %>
+<%= link_to "View(pdf)", bill_path(format: "pdf"), :target => "_blank" %>
 
 <div class="btnPrintPDF btnPrintBillPDF" id="bill-<%=bill.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
