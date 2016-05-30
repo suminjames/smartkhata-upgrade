@@ -12,6 +12,7 @@
 #
 
 
+
 class EmployeeLedgerAssociation < ActiveRecord::Base
   include ::Models::Updater
 

@@ -24,6 +24,7 @@
 #
 
 
+
 class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 

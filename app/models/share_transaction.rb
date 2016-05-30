@@ -41,6 +41,7 @@
 #
 
 
+
 class ShareTransaction < ActiveRecord::Base
 
   include ::Models::UpdaterWithBranch

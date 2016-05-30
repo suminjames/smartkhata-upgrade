@@ -14,6 +14,7 @@
 #
 
 
+
 class Bank < ActiveRecord::Base
   include ::Models::Updater
   has_many :bank_accounts

@@ -23,6 +23,7 @@
 #
 
 
+
 class Ledger < ActiveRecord::Base
 
 	include ::Models::UpdaterWithBranchFycode

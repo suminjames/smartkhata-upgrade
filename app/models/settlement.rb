@@ -21,6 +21,7 @@
 #
 
 
+
 class Settlement < ActiveRecord::Base
   belongs_to :voucher
   include ::Models::Updater

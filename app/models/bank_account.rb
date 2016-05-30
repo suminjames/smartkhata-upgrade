@@ -15,6 +15,7 @@
 #
 
 
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 

@@ -46,6 +46,7 @@
 #
 
 
+
 class EmployeeAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 

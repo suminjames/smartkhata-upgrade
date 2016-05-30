@@ -12,6 +12,7 @@
 #
 
 
+
 class Order < ActiveRecord::Base
   belongs_to :client_account
   has_many :order_details

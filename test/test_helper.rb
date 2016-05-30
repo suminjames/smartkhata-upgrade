@@ -5,6 +5,10 @@ require 'rails/test_help'
 require "minitest/reporters"
 Minitest::Reporters.use!
 
+Apartment::Tenant.drop( "trishakti" ) rescue nil
+Apartment::Tenant.create( "trishakti" ) rescue nil
+Apartment::Tenant.switch!( "trishakti" )
+
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
