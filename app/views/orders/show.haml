@@ -14,7 +14,7 @@
       %td= @order.order_number
       %td= @order.client_account.name.titleize
       %td= @order.client_account.nepse_code
-      %td= ad_to_bs(@order.date)
+      %td= ad_to_bs_string(@order.date)
 
   %table.table.table-striped
     %tr

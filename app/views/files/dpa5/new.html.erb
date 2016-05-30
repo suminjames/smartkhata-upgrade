@@ -23,6 +23,7 @@
 			<thead>
 			  <tr>
 			  		<th>Date of Report</th>
+            <th>Date of Report(BS)</th>
 				    <th>Last Updated</th>
 			  </tr>
 			</thead>
@@ -30,6 +31,7 @@
 			<% @file_list.each do |file| %>
 				<tr>
 					<td><%= file.report_date %> </td>
+          <td><%= ad_to_bs_string(file.report_date) %> </td>
 					<td><%= file.updated_at.to_date %></td>
 				</tr>
 			<% end %>
@@ -37,7 +39,7 @@
 			</table>
 		</div>
     <div class="text-center">
-      <%= link_to "View Full List" , files_dpa5_index_path ,{ :class => 'button-xs' } %>
+      <%= link_to "View Full List" , files_dpa5_index_path %>
     </div>
 	</div>
 </div>

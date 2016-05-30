@@ -135,7 +135,7 @@ class EmployeeAccountsController < ApplicationController
       end
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
+  # Never trust parameters from the scary internet, only allow the white list through.
   def employee_account_params
     params.require(:employee_account).permit(
         :name,

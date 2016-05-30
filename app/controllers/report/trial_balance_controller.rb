@@ -17,7 +17,7 @@ class Report::TrialBalanceController < ApplicationController
       end
 
       respond_to do |format|
-        format.html { redirect_to report_trial_balance_index_path(search_by: "date", search_term: ad_to_bs(date)) }
+        format.html { redirect_to report_trial_balance_index_path(search_by: "date", search_term: ad_to_bs_string(date)) }
       end
       return
     elsif params[:search_by] && params[:search_term]

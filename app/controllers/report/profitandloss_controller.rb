@@ -1,5 +1,8 @@
 class Report::ProfitandlossController < ApplicationController
   def index
+    drill_level = params[:drill_level].to_i if params[:drill_level].present?
+    @selected_drill_level = drill_level || 1
+
     @balance = Group.pnl
     @profit = Hash.new
     @profit_total = 0
@@ -8,13 +11,13 @@ class Report::ProfitandlossController < ApplicationController
     @amount = 0
     @balance.each do |balance|
       if balance.sub_report == Group.sub_reports['Income']
-        @profit[balance.name] = balance.closing_blnc
-        @amount += balance.closing_blnc
-        @profit_total += balance.closing_blnc
+        @profit[balance.name] = balance.get_ledger_group(@selected_drill_level)
+        @amount += balance.get_ledger_group[:balance]
+        @profit_total += balance.get_ledger_group[:balance]
       elsif balance.sub_report == Group.sub_reports['Expense']
-        @loss[balance.name] = balance.closing_blnc
-        @amount += balance.closing_blnc
-        @loss_total += balance.closing_blnc
+        @loss[balance.name] = balance.get_ledger_group(@selected_drill_level)
+        @amount += balance.get_ledger_group[:balance]
+        @loss_total += balance.get_ledger_group[:balance]
       end
     end
 

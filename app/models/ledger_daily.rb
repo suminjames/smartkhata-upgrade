@@ -30,6 +30,6 @@ class LedgerDaily < ActiveRecord::Base
   belongs_to :updater,  class_name: 'User'
   private
   def process_daily_ledger
-    self.date_bs ||= ad_to_bs(self.date)
+    self.date_bs ||= ad_to_bs_string(self.date)
   end
 end

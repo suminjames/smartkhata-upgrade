@@ -29,8 +29,8 @@ class OrderDetail < ActiveRecord::Base
   enum state: [:cancelled, :executed, :queued]
 
   #TODO(sarojk): Find out all enums for type
-  # 10512 rows of test file only contained one of values 'buy' or 'sell'
-  enum typee: [:buy, :sell]
+  # 10512 rows of test file only contained one of values 'buying' or 'selling'
+  enum typee: [:buying, :selling]
 
   #TODO(sarojk): Find out what is a segment? Possible values?
   enum segment: [:ct]

@@ -26,9 +26,11 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.decimal :capital_gain, precision:15, scale: 4, default: 0
       t.decimal :adjusted_sell_price, precision:15, scale: 4, default: 0
 
+
       t.date :date
       t.date :deleted_at
       t.timestamps null: false
+      t.integer :nepse_chalan_id, index: true
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
       t.integer :branch_id, index: true

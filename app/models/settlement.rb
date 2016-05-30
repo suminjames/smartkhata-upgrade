@@ -10,6 +10,8 @@
 #  settlement_type   :integer
 #  fy_code           :integer
 #  settlement_number :integer
+#  client_account_id :integer
+#  vendor_account_id :integer
 #  creator_id        :integer
 #  updater_id        :integer
 #  receiver_name     :string

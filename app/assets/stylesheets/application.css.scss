@@ -120,6 +120,10 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 .padding-zero {
   padding: 0;
 }
+.z-no-padding-vertical {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 
 .modal {
   text-align: center;
@@ -240,6 +244,16 @@ a {
   margin-bottom: 20px;
 }
 #btnPrint, #btnPrintCheque{
+  display: inline-block;
+  cursor: pointer;
+}
+
+.hidden-iframe {
+  display:none;
+  visibility: hidden;
+}
+
+.btnPrintPDF {
   display: inline-block;
   cursor: pointer;
 }

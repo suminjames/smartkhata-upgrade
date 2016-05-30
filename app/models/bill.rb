@@ -15,6 +15,7 @@
 #  fy_code           :integer
 #  date              :date
 #  date_bs           :string
+#  settlement_date   :date
 #  client_account_id :integer
 #  creator_id        :integer
 #  updater_id        :integer
@@ -27,7 +28,6 @@ class Bill < ActiveRecord::Base
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
-  #TODO Now that a bill
   # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
   has_many :share_transactions
   belongs_to :client_account
@@ -40,7 +40,7 @@ class Bill < ActiveRecord::Base
 
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
-  has_many :vouchers , through: :bill_voucher_relations
+  has_many :vouchers , through: :bill_voucher_associations
   # has_many :particulars, through: :voucher
 
   # to keep track of the user who created and last updated the ledger
@@ -130,7 +130,7 @@ class Bill < ActiveRecord::Base
   private
   def process_bill
     self.date ||= Time.now
-    self.date_bs ||= ad_to_bs(self.date)
+    self.date_bs ||= ad_to_bs_string(self.date)
   end
 
 end

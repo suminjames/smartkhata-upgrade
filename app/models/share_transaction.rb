@@ -30,6 +30,7 @@
 #  deleted_at          :date
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
+#  nepse_chalan_id     :integer
 #  creator_id          :integer
 #  updater_id          :integer
 #  branch_id           :integer
@@ -47,12 +48,12 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
-
+  belongs_to :nepse_chalan
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
-  enum transaction_type: [ :buy, :sell ]
+  enum transaction_type: [ :buying, :selling ]
   # before_update :calculate_cgt
   validates :base_price, numericality: true
   scope :find_by_date, -> (date) { where(
@@ -67,6 +68,9 @@ class ShareTransaction < ActiveRecord::Base
   scope :not_cancelled_for_bill, -> { where(deleted_at: nil) }
 
   scope :cancelled, -> { where.not(deleted_at: nil) }
+  scope :without_chalan, -> {where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil)}
+
+  scope :above_threshold, ->(date) { not_cancelled.find_by_date(date).where("net_amount >= ?", 1000000)}
 
  def do_as_per_params (params)
   # TODO

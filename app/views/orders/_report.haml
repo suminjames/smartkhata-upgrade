@@ -74,7 +74,7 @@
           %td.col-sm-1= order.order_number
           %td.col-sm-2= order.client_account.name.titleize
           %td.col-sm-1= order.client_account.nepse_code
-          %td.col-sm-2= ad_to_bs(order.date)
+          %td.col-sm-2= ad_to_bs_string(order.date)
           %td.col-sm-4= order.decorate_order_details_to_string
           %td.col-sm-1= link_to 'view', order_path(order.id)
 

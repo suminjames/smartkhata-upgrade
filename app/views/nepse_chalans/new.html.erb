@@ -1,0 +1,116 @@
+<%= form_tag(new_nepse_chalan_path, :method => "get", id: "search-form") do %>
+    <%= hidden_field_tag :search_by, "date_range" %>
+    <%
+      text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+      text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+    %>
+    <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+    <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
+    <%= submit_tag "Search" %>
+<% end %>
+<% if @share_transactions.size > 0 %>
+    <br><br>
+<%= simple_form_for(@nepse_chalan) do |f| %>
+    <%= f.error_notification %>
+
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+        <h3 class="box-title">Select the Bank Ledger used for Bank Transfer </h3>
+      </div>
+      <div class="box-body">
+        <div class="row client-group">
+          <div class="col-xs-4">
+            <%= select_tag "bank_ledger_id", options_from_collection_for_select(@bank_ledger_list, "id", "name", @default_ledger_id), {:class=>'form-control combobox select-ledger'} %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="share_transactions_list nepse-chalan">
+      <%= hidden_field_tag :search_by, "date_range" %>
+      <%
+        text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+        text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+      %>
+      <%= hidden_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+      <%= hidden_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
+
+      <table class="table table-condensed table-striped">
+        <thead>
+        <tr>
+          <th>
+            All
+            <%= check_box_tag 'select_all', '', false %>
+
+          </th>
+          <th>Transaction No.</th>
+          <th>Transaction<br>Type</th>
+          <th>Company</th>
+          <th>Buyer<br>Broker<br>No.</th>
+          <th>Seller<br> Broker<br>No.</th>
+          <th>Quantity</th>
+          <th>Rate</th>
+          <th>Amount</th>
+          <th>Commission Amount</th>
+          <th>Sebo</th>
+          <th>Net Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @share_transactions.each do |share_transaction| %>
+            <tr>
+              <td>
+                <%= check_box_tag 'nepse_share_selection[]', share_transaction.id %>
+              </td>
+              <td class="trans-number"><%= share_transaction.contract_no %></td>
+              <td><%= share_transaction.transaction_type.titleize %></td>
+              <td><%= share_transaction.isin_info.company %></td>
+              <td><%= share_transaction.buyer %></td>
+              <td><%= share_transaction.seller %></td>
+              <td><%= share_transaction.quantity %></td>
+              <td><%= share_transaction.share_rate %></td>
+              <td><%= share_transaction.share_amount %></td>
+              <td><%= share_transaction.commission_amount %></td>
+              <td><%= share_transaction.sebo %></td>
+              <td class='bank-deposit'><%= share_transaction.bank_deposit %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <div class="form-actions ">
+        <a href="" class=" btn btn-default display-chalan-desc">Verify</a>
+      </div>
+    </div>
+
+    <div class="nepse-chalan-description">
+
+
+      <div class="box box-default box-solid">
+        <div class="box-body">
+          <h4>Description: </h4>
+          <h5 class="description"></h5>
+          <h4>Amount:</h4>
+          <h5 class="net-amount">0.0</h5>
+
+          <h4>Enter Settlement ID</h4>
+          <div class="row">
+            <div class="col-xs-3">
+              <%= text_field_tag :settlement_id, nil, class: 'form-control settlement-id', placeholder: "Settlement ID" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions ">
+        <%= f.button :submit %>
+        <a href="" class="btn btn-default cancel-chalan-desc">Cancel</a>
+      </div>
+    </div>
+
+
+
+
+<% end %>
+<% end %>
+<br><br>
+<%= link_to 'Back', nepse_chalans_path %>

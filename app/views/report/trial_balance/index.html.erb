@@ -1,8 +1,6 @@
 <% provide(:section_title, "Reports: Trial Balance") %>
-<% @cal = NepaliCalendar::Calendar.new
-   # abort('asd')
-
-   @date = @cal.ad_to_bs(Date.today.strftime("%Y").to_s, Date.today.strftime("%m").to_s, Date.today.strftime("%d").to_s)
+<%
+   @date = ad_to_bs_string(Date.today)
 %>
 <div class="clearfix submenu" >
   <%
@@ -64,12 +62,12 @@
         <% ledgers.each do |ledger| %>
            <tr class="ledger-single">
              <td><%= ledger.name %></td>
-             <td><%= number_to_currency(ledger.opening_blnc  ) if ledger.opening_blnc > 1 %></td>
-             <td><%= number_to_currency(ledger.opening_blnc.abs ) if ledger.opening_blnc < 0 %></td>
-             <td><%= number_to_currency(ledger.dr_amount)  %></td>
-             <td><%= number_to_currency(ledger.cr_amount ) %></td>
-             <td><%= number_to_currency(ledger.closing_blnc ) if ledger.closing_blnc > 1 %></td>
-             <td><%= number_to_currency(ledger.closing_blnc.abs  ) if ledger.closing_blnc < 0 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.opening_blnc  ) if ledger.opening_blnc > 1 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.opening_blnc.abs ) if ledger.opening_blnc < 0 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.dr_amount)  %></td>
+             <td class="text-right"><%= number_to_currency(ledger.cr_amount ) %></td>
+             <td class="text-right"><%= number_to_currency(ledger.closing_blnc ) if ledger.closing_blnc > 1 %></td>
+             <td class="text-right"><%= number_to_currency(ledger.closing_blnc.abs  ) if ledger.closing_blnc < 0 %></td>
            </tr>
         <% end %>
         </tbody>

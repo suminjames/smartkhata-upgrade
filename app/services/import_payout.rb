@@ -63,13 +63,13 @@ class ImportPayout < ImportFile
 
 					transaction = ShareTransaction.includes(:client_account).find_by(
 						contract_no: hash['CONTRACTNO'].to_i,
-						transaction_type: ShareTransaction.transaction_types[:sell]
+						transaction_type: ShareTransaction.transaction_types[:selling]
 					)
 
 
 					if transaction.nil?
 						# abort(hash['CONTRACTNO'])
-						import_error("Please upload corresponding Floorsheet First")
+						import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
 						raise ActiveRecord::Rollback
 						break
 					end

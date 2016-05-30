@@ -3,15 +3,19 @@
 # Table name: cheque_entries
 #
 #  id                 :integer          not null, primary key
+#  beneficiary_name   :string
 #  cheque_number      :integer
 #  additional_bank_id :integer
 #  status             :integer          default("0")
+#  print_status       :integer          default("0")
 #  cheque_issued_type :integer          default("0")
 #  cheque_date        :date
 #  amount             :decimal(15, 4)   default("0.0")
 #  bank_account_id    :integer
 #  client_account_id  :integer
+#  vendor_account_id  :integer
 #  settlement_id      :integer
+#  voucher_id         :integer
 #  creator_id         :integer
 #  updater_id         :integer
 #  branch_id          :integer
@@ -40,7 +44,7 @@ class ChequeEntry < ActiveRecord::Base
   has_many :particulars , through: :cheque_entry_particular_associations
 
 
-  belongs_to :voucher
+  has_many :vouchers, through: :particulars
   belongs_to :creator,  class_name: 'User'
   belongs_to :updater,  class_name: 'User'
 
@@ -50,7 +54,8 @@ class ChequeEntry < ActiveRecord::Base
                                             numericality: { only_integer: true, greater_than: 0 }
 
   # TODO (subas) make sure to do the necessary settings
-  enum status: [:unassigned, :to_be_printed, :printed, :pending_approval, :pending_clearance, :void, :approved, :bounced]
+  enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
+  enum print_status: [:to_be_printed, :printed]
   enum cheque_issued_type: [:payment, :receipt]
 
   # scope :unassigned, -> { unassigned }

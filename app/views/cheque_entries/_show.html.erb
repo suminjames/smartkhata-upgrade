@@ -1,10 +1,15 @@
-<div id="btnPrintCheque" data-cheque-id="<%= @cheque_entry.id %>">
+<%= link_to "View(pdf)", cheque_entry_path(format: "pdf") %>
+
+<div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%=@cheque_entry.id%>">
   <% if @cheque_entry.bounced? %>
       <span class="cheque-print-error"><%= "Cheque is bounced" if @cheque_entry.bounced? %></span>
   <% else %>
       <span class="glyphicon glyphicon-print print-icon"></span>
       <span>Print</span>
-      <span class="cheque-print-error"><%= "Cheque is printed" if @cheque_entry.printed? %></span>
+      <span class="cheque-print-error"><%= "Cheque was printed before" if @cheque_entry.printed? %></span>
+      <iframe class= 'hidden-iframe' id = 'iframe-for-cheque-entry-pdf-print'>
+        <!--hidden iframe for printing-->
+      </iframe>
   <% end %>
 </div>
 
@@ -46,7 +51,3 @@
   </div>
 </div>
 
-<style>
-
-
-</style>

@@ -19,6 +19,7 @@
 #  bank_account_id     :integer
 #  client_account_id   :integer
 #  employee_account_id :integer
+#  vendor_account_id   :integer
 #
 
 

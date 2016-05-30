@@ -51,7 +51,7 @@ class ImportCloseOut < ImportFile
           # calculation based on debit or credit
           transaction = ShareTransaction.includes(:bill).find_by(
               contract_no: closeout.contract_number,
-              transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buy] : ShareTransaction.transaction_types[:sell]
+              transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buying] : ShareTransaction.transaction_types[:selling]
 
           )
 
@@ -89,7 +89,7 @@ class ImportCloseOut < ImportFile
                   # update description
                   description = "Shortage Amount Dr Settled  (#{closeout.shortage_quantity}*#{closeout.scrip_name}@#{closeout.rate}) "
                   # update ledgers value
-                  voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+                  voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
                   voucher.share_transactions << transaction
                   voucher.desc = description
                   voucher.complete!

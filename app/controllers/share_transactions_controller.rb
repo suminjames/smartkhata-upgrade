@@ -40,7 +40,7 @@ class ShareTransactionsController < ApplicationController
       end
 
       respond_to do |format|
-        format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs(date)), commit: 'Search' }
+        format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs_string(date)), commit: 'Search' }
       end
 
     elsif params[:show] == 'all'
@@ -170,6 +170,10 @@ class ShareTransactionsController < ApplicationController
       @voucher = @share_transaction.voucher
       @bill = @share_transaction.bill
 
+      if !@bill.pending?
+        redirect_to deal_cancel_share_transactions_path, flash: {error: "Bill associated with the share transaction is already under process or settled"} and return
+      end
+
       relevant_share_transactions = @bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
       dp_fee_adjustment = 0.0
       total_transaction_count = relevant_share_transactions.length
@@ -177,7 +181,7 @@ class ShareTransactionsController < ApplicationController
 
       ActiveRecord::Base.transaction do
         # remove the transacted amount from the share inventory
-        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buy?, true)
+        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
 
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
@@ -204,7 +208,7 @@ class ShareTransactionsController < ApplicationController
         @bill.save!
 
         # create a new voucher and add the bill reference to it
-        @new_voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
+        @new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
         @new_voucher.bills_on_settlement << @bill
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
@@ -221,10 +225,10 @@ class ShareTransactionsController < ApplicationController
     if params[:contract_no].present? && params[:transaction_type].present?
       # TODO make it work for enum
       case params[:transaction_type]
-      when "sell"
-        transaction_type = ShareTransaction.transaction_types[:sell]
-      when "buy"
-        transaction_type = ShareTransaction.transaction_types[:buy]
+      when "selling"
+        transaction_type = ShareTransaction.transaction_types[:selling]
+      when "buying"
+        transaction_type = ShareTransaction.transaction_types[:buying]
       else
         return
       end

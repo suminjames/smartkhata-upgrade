@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations
   resources :branches
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
       get :get_cheque_number
       get :update_print
       get :bounce
+      get :represent
     end
 
   end
@@ -34,6 +36,7 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
+      get 'print'
       post 'process_selected'
     end
   end
@@ -80,6 +83,7 @@ Rails.application.routes.draw do
     resources :balancesheet
     resources :profitandloss
     resources :trial_balance
+    resources :threshold_transactions
   end
 
 

@@ -51,6 +51,7 @@ class Particular < ActiveRecord::Base
   has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
   has_many :cheque_entries , through: :cheque_entry_particular_associations
 
+	has_one :nepse_chalan, through: :voucher
 
 
 	validates_presence_of :ledger_id
@@ -76,7 +77,7 @@ class Particular < ActiveRecord::Base
 	private
 	def process_particular
 		self.transaction_date ||= Time.now
-		self.date_bs ||= ad_to_bs(self.transaction_date)
+		self.date_bs ||= ad_to_bs_string(self.transaction_date)
 	end
 
 end
