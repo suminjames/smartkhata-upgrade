@@ -1,8 +1,9 @@
-<%= link_to "View(pdf)", voucher_path(format: "pdf") %>
+<%= link_to "View(pdf)", voucher_path(format: "pdf"), :target => "_blank" %>
 
 <div class="btnPrintPDF btnPrintVoucherPDF" id="voucher-<%=@voucher.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'voucher-print-spinner') %>
   <iframe class= 'hidden-iframe' id = 'iframe-for-voucher-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>

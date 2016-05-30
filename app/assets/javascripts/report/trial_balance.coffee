@@ -22,7 +22,6 @@ $ ->
     $this = $(this)
     ledgers_list = $this.find('.ledger-single')
     for ledger in ledgers_list
-      debugger 
       data = $(ledger).find('td')
       opening_blnc_dr += parse_number(data[1])
       opening_blnc_cr += parse_number(data[2])

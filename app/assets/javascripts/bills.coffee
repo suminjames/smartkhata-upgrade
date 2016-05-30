@@ -22,7 +22,6 @@ $ ->
     $this = $(this)
 
     if ($this.is(':checked'))
-      debugger
       bill_amount = get_balance($this)
       $total_amount = $('.total-bill-amount .display-amount')
       $total_type = $('.total-bill-amount .display-type')

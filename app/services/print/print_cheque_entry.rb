@@ -4,7 +4,6 @@ class Print::PrintChequeEntry < Prawn::Document
 
   include ApplicationHelper
 
-  # def initialize(voucher, particulars, bank_account, cheque, current_tenant)
   def initialize(cheque_entry, name, cheque_date, current_tenant)
     super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
@@ -35,7 +34,8 @@ class Print::PrintChequeEntry < Prawn::Document
 
     # Dimensions
     cheque_top = page_height
-    cheque_left = 0
+    # cheque_left = 0
+    cheque_left = -0.5.cm
 
     font_size(9) do
       # Left (to the perforation) side of the cheque

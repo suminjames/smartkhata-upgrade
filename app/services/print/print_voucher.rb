@@ -36,7 +36,8 @@ class Print::PrintVoucher< Prawn::Document
   end
 
   def page_width
-    578
+    # 578
+    565
   end
 
   def page_height
@@ -113,6 +114,10 @@ class Print::PrintVoucher< Prawn::Document
       t.header = true
       t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
       t.row(0).font_style = :bold
+      t.columns(0..-1).borders = [:left]
+      t.columns(-1).borders = [:left, :right]
+      t.rows(0).borders = [:top, :bottom, :left, :right]
+      t.rows(-1).borders = [:bottom, :left, :right]
       t.column_widths = column_widths
     end
   end
@@ -134,6 +139,10 @@ class Print::PrintVoucher< Prawn::Document
       t.header = true
       t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
       t.row(0).font_style = :bold
+      t.columns(0..-1).borders = [:left]
+      t.columns(-1).borders = [:left, :right]
+      t.rows(0).borders = [:top, :bottom, :left, :right]
+      t.rows(-1).borders = [:bottom, :left, :right]
       t.column_widths = column_widths
     end
 

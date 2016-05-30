@@ -75,7 +75,6 @@ class BillDecorator < ApplicationDecorator
       {"ad" => ad_date , "bs" => bs_date}
   end
 
-  #TODO Find a way to implement clearance_date. As of now, the viable option is to add 3 WORKING DAYS to transaction date. Verify if it is the most efficient way.
   def formatted_clearance_dates
     bs_date = h.ad_to_bs(object.settlement_date).to_s + ' BS'
     ad_date = object.settlement_date.to_s + ' AD'
