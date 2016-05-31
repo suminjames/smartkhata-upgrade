@@ -61,6 +61,18 @@ class Ledger < ActiveRecord::Base
 		end
 	end
 
+	def update_custom(params)
+    self.name = params[:name]
+    self.group_id = params[:group_id]
+    self.vendor_account_id= params[:vendor_account_id]
+    unless params[:opening_blnc].nil?
+			self.opening_blnc = params[:opening_blnc].to_f * -1 if params[:opening_blnc_type].to_i == Particular.transaction_types['cr']
+			self.closing_blnc = self.opening_blnc
+    end
+    self.save!
+	end
+
+
 	def positive_amount
 		if self.opening_blnc < 0
       errors.add(:opening_blnc, "can't be negative")
