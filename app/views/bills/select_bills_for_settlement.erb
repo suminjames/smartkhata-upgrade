@@ -35,9 +35,6 @@
     <td>
       <!--  TODO: Optimize -->
       <% voucher_type = (bill.purchase?) ? Voucher.voucher_types[:receipt]: Voucher.voucher_types[:payment] %>
-      <% unless bill.settled? %>
-      <%= link_to 'Process Bill', new_voucher_path(voucher_type: voucher_type, bill_id: bill.id) %> |
-      <% end %>
       <%= link_to 'View', bill %>
     </td>
     <td><%= check_box_tag "bill_ids[]", bill.id, false, class: "check-bill"  %></td>

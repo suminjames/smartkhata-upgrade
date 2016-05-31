@@ -58,6 +58,7 @@ $(document).on("click", ".btnPrintVoucherPDF", function(event) {
 $(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
+    // Update 'print_status' of cheque entry
     $.ajax({
         url: "/cheque_entries/update_print",
         data: {

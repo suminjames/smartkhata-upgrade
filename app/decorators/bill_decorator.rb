@@ -16,7 +16,7 @@ class BillDecorator < ApplicationDecorator
 
       transaction_row = Hash.new
       # Initialization of values which undergo mutation in the loop below
-      transaction_row[:contract_no]  = ''
+      transaction_row[:contract_no]  = []
       transaction_row[:raw_quantity] = 0
       transaction_row[:raw_quantity_description] = ''
       transaction_row[:share_amount]  = 0
@@ -25,7 +25,7 @@ class BillDecorator < ApplicationDecorator
 
       # st_array[0] holds key; loop over st_array[1].
       st_array[1].each do |st|
-        transaction_row[:contract_no] += st.contract_no.to_s + ', '
+        transaction_row[:contract_no] << st.contract_no.to_s
         transaction_row[:raw_quantity] += st.raw_quantity
         transaction_row[:raw_quantity_description] += st.raw_quantity.to_s + ', '
         transaction_row[:isin] = st.isin_info.isin
@@ -40,7 +40,8 @@ class BillDecorator < ApplicationDecorator
 
       # Relevant formatting of the values
       # Note: arabic_number() method returns a string with a decimal with 2 digits compulsorily. So strip where required. For example: share_rate and raw_quantity are never in decimal values.
-      transaction_row[:contract_no] = transaction_row[:contract_no][0...-2] # strip the trailing ', '
+      transaction_row[:contract_no] = get_concatenated_string_with_similarity(transaction_row[:contract_no])
+      # transaction_row[:contract_no] = transaction_row[:contract_no][0...-2] # strip the trailing ', '
       transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
       transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2]# strip the trailing ', '
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
@@ -53,6 +54,44 @@ class BillDecorator < ApplicationDecorator
       formatted_share_transactions << transaction_row
     end
     formatted_share_transactions
+  end
+
+  # For an array of strings, returns the length upto which all strings in the array are same.
+  # Ex: Inputting ['tom', 'tommy', 'to1']  should return 2.
+  def get_string_similarity_length(str_arr)
+    return 0 if str_arr.length < 2
+    similarity_count = 0
+    match_ended = false
+    ref_str = str_arr[0]
+    (0..ref_str.length-1).each do |index|
+      str_arr.each do |str|
+        if ref_str[index] != str[index]
+          match_ended = true
+        end
+        if match_ended
+          break
+        end
+      end
+      if !match_ended
+        similarity_count += 1
+      end
+    end
+    similarity_count
+  end
+
+  def get_concatenated_string_with_similarity(str_arr)
+    return '' if str_arr.length == 0
+    return str_arr[0] if str_arr.length == 1
+
+    cutoff_index = get_string_similarity_length(str_arr) - 1
+    concat_str = (str_arr[0])[0..cutoff_index]
+    concat_str += '('
+    str_arr.each do |str|
+      concat_str += str[cutoff_index+1..-1].to_s + ', '
+    end
+    # strip comma ', ' at the end
+    concat_str = concat_str[0..-3]
+    concat_str += ')'
   end
 
   def formatted_bill_number
