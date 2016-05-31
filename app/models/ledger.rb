@@ -66,7 +66,7 @@ class Ledger < ActiveRecord::Base
     self.group_id = params[:group_id]
     self.vendor_account_id= params[:vendor_account_id]
     unless params[:opening_blnc].nil?
-			self.opening_blnc = params[:opening_blnc].to_f * -1 if params[:opening_blnc_type].to_i == Particular.transaction_types['cr']
+			self.opening_blnc = params[:opening_blnc_type].to_i == Particular.transaction_types['cr'] ? params[:opening_blnc].to_f * -1 : params[:opening_blnc].to_f.abs
 			self.closing_blnc = self.opening_blnc
     end
     self.save!
