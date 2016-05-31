@@ -26,7 +26,7 @@ class Files::FloorsheetsController < Files::FilesController
     @error_message = nil
 
 		# grab date from the first record
-		file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
+		file_error("Please Upload a valid file and make sure the file name contains floorsheet") and return if (is_invalid_file(@file, @@file_name_contains))
 
 		# read the xls file
 		xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
