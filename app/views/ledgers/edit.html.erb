@@ -1,6 +1,6 @@
 <h1>Editing Ledger</h1>
 
-<%= render 'form' , is_new_ledger: false %>
+<%= render 'form' , can_edit_balance: @can_edit_balance %>
 
 <%= link_to 'Back to Ledger', @ledger %> |
 <%= link_to 'All Ledgers', ledgers_path %>

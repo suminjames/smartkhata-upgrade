@@ -103,6 +103,7 @@ class LedgersController < ApplicationController
 
   # GET /ledgers/1/edit
   def edit
+    @can_edit_balance =  ( @ledger.particulars.count <= 0 )
   end
 
   # POST /ledgers
