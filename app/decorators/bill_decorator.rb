@@ -57,7 +57,7 @@ class BillDecorator < ApplicationDecorator
   end
 
   # For an array of strings, returns the length upto which all strings in the array are same.
-  # Ex: Inputting ['tom', 'tommy', 'to1']  should return 2.
+  # Ex: Inputting ['tom', 'tommy', 'to1'] should return 2.
   def get_string_similarity_length(str_arr)
     return 0 if str_arr.length < 2
     similarity_count = 0
@@ -79,13 +79,13 @@ class BillDecorator < ApplicationDecorator
     similarity_count
   end
 
+  # Group same day same isin same price contract numbers.
   def get_concatenated_string_with_similarity(str_arr)
     return '' if str_arr.length == 0
     return str_arr[0] if str_arr.length == 1
 
     cutoff_index = get_string_similarity_length(str_arr) - 1
-    concat_str = (str_arr[0])[0..cutoff_index]
-    concat_str += '('
+    concat_str = (str_arr[0])[0..cutoff_index] + '('
     str_arr.each do |str|
       concat_str += str[cutoff_index+1..-1].to_s + ', '
     end

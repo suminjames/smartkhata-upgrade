@@ -10,12 +10,21 @@ class SettlementsController < ApplicationController
   # GET /settlements/1
   # GET /settlements/1.json
   def show
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintSettlement.new(@settlement, current_tenant)
+        send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   def show_multiple
     @settlement_ids = params[:settlement_ids].map(&:to_i) if params[:settlement_ids].present?
     @settlements = Settlement.where(id: @settlement_ids)
   end
+
   # GET /settlements/new
   def new
     @settlement = Settlement.new

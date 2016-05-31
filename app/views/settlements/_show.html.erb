@@ -1,7 +1,14 @@
-<div id="btnPrint">
+<%= link_to "View(pdf)", settlement_path(format: "pdf"), :target => "_blank" %>
+
+<div class="btnPrintPDF btnPrintSettlementPDF" id="settlement-<%=settlement.id%>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
+  <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'settlement-print-spinner') %>
+  <iframe class="hidden-iframe" id='iframe-for-settlement-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
 </div>
+
 <div class="clearfix billfull printThis">
 
   <!-- Static Company Header BEGINS -->
@@ -59,21 +66,17 @@
     <p>Paid To: <strong><u><%= settlement.name %></u></strong></p>
   <% end %>
 
-  <p>the sum of   <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
-  <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
+  <p>the sum of <strong>Rs. <%= arabic_number(settlement.amount) %></strong></p>
+  <p>(in words) <strong><u>Rs. <%= arabic_word(settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
   <% if settlement.voucher.cheque_entries.present? %>
-  <p>By Cheque:
-    <% settlement.voucher.cheque_entries.uniq.each do |cheque| %>
-            <% if cheque.receipt? %>
+      <p>By Cheque:
+        <% settlement.voucher.cheque_entries.uniq.each do |cheque| %>
+            <% bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
             <br>
-            <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.additional_bank.name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
-            <% else %>
-            <br>
-            <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.bank_account.bank_name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+            <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque.cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque.amount}</i>".html_safe %>
         <% end %>
-    <% end %>
-  </p>
+      </p>
   <% end %>
 
   <br><br>

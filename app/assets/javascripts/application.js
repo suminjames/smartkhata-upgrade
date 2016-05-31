@@ -55,6 +55,12 @@ $(document).on("click", ".btnPrintVoucherPDF", function(event) {
     loadAndPrint( "/vouchers/"+ voucher_id+ '.pdf', 'iframe-for-voucher-pdf-print', 'voucher-print-spinner');
 });
 
+$(document).on("click", ".btnPrintSettlementPDF", function(event) {
+    // console.log("print settlement");
+    settlement_id = this.id.split("-")[1];
+    loadAndPrint( "/settlements/"+ settlement_id + '.pdf', 'iframe-for-settlement-pdf-print', 'settlement-print-spinner');
+});
+
 $(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
