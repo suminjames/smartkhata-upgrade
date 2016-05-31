@@ -30,11 +30,13 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     @purchase_bills_expected_count = 51
     @sales_bills_expected_count = 45
 
-    # where does this come from?
+    # where does this come from? (fy-code?)
     @bill_number_first_part = 7273
 
     @number_of_ledger_options_expected = 3 + 1 + 1
     # ledgers in fixtures + bank accounts w/ default for payment + bank accounts w/ default for reciept
+
+    @total_number_of_ledgers = 84
 
     first_bank_id = Bank.first.id
     @additional_bank_id = first_bank_id
@@ -360,6 +362,11 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
         end
       end
     end
+
+    get client_ledgers_path
+    assert_response :success
+    # debugger
+    assert_match "Displaying ledgers <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{@total_number_of_ledgers}</b> in total", response.body
   end
 
   private
@@ -383,5 +390,9 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     def ledger_full_path(ledger_id)
       "#{ledgers_path}?utf8=%E2%9C%93&search_by=ledger_name&search_term=#{ledger_id}&commit=Search"
+    end
+
+    def client_ledgers_path
+      "#{ledgers_path}?show=all_client"
     end
 end
