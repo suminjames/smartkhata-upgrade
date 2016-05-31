@@ -195,6 +195,7 @@ ActiveRecord::Schema.define(version: 20160526072518) do
     t.string   "bank_account"
     t.string   "bank_address"
     t.string   "company_name"
+    t.string   "company_address"
     t.string   "company_id"
     t.boolean  "invited",                   default: false
     t.string   "referrer_name"
@@ -205,6 +206,8 @@ ActiveRecord::Schema.define(version: 20160526072518) do
     t.integer  "user_id"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
+    t.string   "mobile_number"
+    t.string   "ac_code"
   end
 
   add_index "client_accounts", ["branch_id"], name: "index_client_accounts_on_branch_id", using: :btree
