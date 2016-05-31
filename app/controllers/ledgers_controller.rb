@@ -103,7 +103,7 @@ class LedgersController < ApplicationController
 
   # GET /ledgers/1/edit
   def edit
-    @can_edit_balance =  ( @ledger.particulars.count <= 0 )
+    @can_edit_balance =  ( @ledger.particulars.count <= 0 ) && (@ledger.opening_blnc == 0.0)
   end
 
   # POST /ledgers
@@ -131,7 +131,7 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1.json
   def update
     respond_to do |format|
-      if @ledger.update(ledger_params)
+      if @ledger.update_custom(ledger_params)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else
