@@ -1,16 +1,21 @@
-class Print::PrintSettlement< Prawn::Document
+class Print::PrintMultipleSettlements < Prawn::Document
   require 'prawn/table'
   require 'prawn/measurement_extensions'
 
   include ApplicationHelper
 
-  def initialize(settlement, current_tenant)
+  def initialize(settlements, current_tenant)
     super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
-    @settlement = settlement
     @current_tenant = current_tenant
 
-    draw
+    settlements.each_with_index do |settlement, index|
+      @settlement = settlement
+      draw
+      if index != settlements.length-1
+        start_new_page
+      end
+    end
   end
 
   def draw

@@ -61,10 +61,25 @@ $(document).on("click", ".btnPrintSettlementPDF", function(event) {
     loadAndPrint( "/settlements/"+ settlement_id + '.pdf', 'iframe-for-settlement-pdf-print', 'settlement-print-spinner');
 });
 
+$(document).on("click", ".btnPrintMultipleSettlementsPDF", function(event) {
+    // console.log("print multiple settlement");
+    // string in the form '[1, 4, 9]'
+    var settlement_ids_string_arr_ish = this.id.split("-")[1];
+    // string in the form '1, 4, 9'
+    settlement_ids_string_arr_ish = settlement_ids_string_arr_ish.slice(1, settlement_ids_string_arr_ish.length-1)
+    // array in the form ['1', '4', '9']
+    settlement_ids_string_arr_ish = settlement_ids_string_arr_ish.split(", ")
+    // array in the form ['1', '4', '9']
+    var settlement_ids_arr = settlement_ids_string_arr_ish.map(function(e) { return parseInt(e)})
+    var settlement_ids_argument = $.param({settlement_ids: settlement_ids_arr})
+
+    loadAndPrint( "/settlements/show_multiple.pdf?" + settlement_ids_argument, 'iframe-for-multiple-settlements-pdf-print', 'multiple-settlements-print-spinner');
+});
+
 $(document).on("click", ".btnPrintChequeEntryPDF", function(event) {
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
-    // Update 'print_status' of cheque entry
+    // Update 'print_status' of cheque entry before printing the cheque entry pdf
     $.ajax({
         url: "/cheque_entries/update_print",
         data: {

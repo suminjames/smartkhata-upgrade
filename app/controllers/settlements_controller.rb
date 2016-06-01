@@ -23,6 +23,14 @@ class SettlementsController < ApplicationController
   def show_multiple
     @settlement_ids = params[:settlement_ids].map(&:to_i) if params[:settlement_ids].present?
     @settlements = Settlement.where(id: @settlement_ids)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintMultipleSettlements.new(@settlements, current_tenant)
+        send_data pdf.render, filename: "MultipleSettlements_#{@settlement_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   # GET /settlements/new
