@@ -62,7 +62,8 @@ class LedgersController < ApplicationController
             date_from_ad = bs_to_ad(date_from_bs)
             date_to_ad = bs_to_ad(date_to_bs)
             @particulars = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order("id ASC")
-
+            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
+            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
             first = @particulars.first
             last = @particulars.last
 

@@ -30,6 +30,7 @@ class ShareTransactionsController < ApplicationController
     # Populate (and route when needed) as per the params
     if params[:search_by] == "cancelled"
       @share_transactions = ShareTransaction.cancelled.order(:isin_info_id)
+    #  last floorsheet upload date
     elsif params[:search_by] == 'last_working_day'
       #TODO(sarojk): Implement a better way to find the last working day. Maybe something in application helper?
       date  = Time.now.to_date
@@ -42,7 +43,13 @@ class ShareTransactionsController < ApplicationController
       respond_to do |format|
         format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs_string(date)), commit: 'Search' }
       end
-
+    #   to get only the floor sheet details no menus
+    #   TODO (incorporate this to show like the others share transaction details)
+    elsif params[:search_by] == 'floorsheet_date'
+      date_ad = params[:report_date].to_date if params[:report_date].present?
+      @share_transactions = ShareTransaction.find_by_date(date_ad).order(:isin_info_id)
+      @total_amount = ShareTransaction.find_by_date(date_ad).sum(:share_amount)
+      render 'floorsheet_data' and return
     elsif params[:show] == 'all'
       if params[:filter_by] == 'date' && params[:date].present?
         date_bs = params[:date]
