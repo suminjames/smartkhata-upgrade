@@ -5,7 +5,7 @@ class Print::PrintSettlement< Prawn::Document
   include ApplicationHelper
 
   def initialize(settlement, current_tenant)
-    super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 28, bottom_margin: 18, left_margin: 18)
 
     @settlement = settlement
     @current_tenant = current_tenant
@@ -31,7 +31,7 @@ class Print::PrintSettlement< Prawn::Document
   end
 
   def page_width
-    578
+    568
   end
 
   def page_height

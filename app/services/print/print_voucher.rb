@@ -5,7 +5,7 @@ class Print::PrintVoucher< Prawn::Document
   include ApplicationHelper
 
   def initialize(voucher, particulars, bank_account, cheque, current_tenant)
-    super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 28, bottom_margin: 18, left_margin: 18)
 
     @voucher = voucher
     @particulars = particulars
@@ -36,8 +36,7 @@ class Print::PrintVoucher< Prawn::Document
   end
 
   def page_width
-    # 578
-    565
+    568
   end
 
   def page_height
@@ -153,10 +152,10 @@ class Print::PrintVoucher< Prawn::Document
     bounding_box([0, row_cursor], :width => col(3)) do
       text "#{@current_tenant.full_name}"
       text "#{@current_tenant.address}"
-     text "Phone: #{@current_tenant.phone_number}"
-     text "Fax: #{@current_tenant.fax_number}"
-     text "PAN: #{@current_tenant.pan_number}"
-   end
+      text "Phone: #{@current_tenant.phone_number}"
+      text "Fax: #{@current_tenant.fax_number}"
+      text "PAN: #{@current_tenant.pan_number}"
+    end
   end
 
   def signature_fields

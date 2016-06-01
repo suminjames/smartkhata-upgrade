@@ -1,3 +1,7 @@
+# Note:
+# - US Letter Dimension:  8.5 by 11.0 inches (215.9 by 279.4 mm)
+# - A4 Dimenstion:        8.3 by 11.7 inches (210 by 297 mm)
+# - Cheque Dimension:                        (243 by 89 mm)
 class Print::PrintChequeEntry < Prawn::Document
   require 'prawn/table'
   require 'prawn/measurement_extensions'
