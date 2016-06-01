@@ -62,20 +62,51 @@
   %table.table.table-striped
     %thead
       %th #
-      %th Order Number
-      %th Client Name
+      %th Order No.
+      %th Client
       %th Client Code
       %th Date
-      %th Description
+      %th Order Nepse Id
+      %th Isin
+      %th Price
+      %th Qty
+      %th Amount
+      %th Pending Qty
+      %th Type
+      %th Sgmnt
+      %th Cndtn
+      %th State
+      -#%th Description
     %tbody
       - orders.each_with_index do |order , i|
-        %tr
-          %td.col-sm-1= i+1
-          %td.col-sm-1= order.order_number
-          %td.col-sm-2= order.client_account.name.titleize
-          %td.col-sm-1= order.client_account.nepse_code
-          %td.col-sm-2= ad_to_bs_string(order.date)
-          %td.col-sm-4= order.decorate_order_details_to_string
-          %td.col-sm-1= link_to 'view', order_path(order.id)
+        - is_first_order_detail = true
+        - order.order_details.each do |order_detail |
+          %tr
+            - if is_first_order_detail
+              - is_first_order_detail = false
+              %td= i+1
+              %td= order.order_number
+              %td= order.client_account.name.titleize
+              %td= order.client_account.nepse_code
+              %td= ad_to_bs_string(order.date)
+            -else #if is_first_order_detail = false
+              -# Empty 'td's
+              %td= ''
+              %td= ''
+              %td= ''
+              %td= ''
+              %td= ''
+            -# Order Details BEGINS
+            %td= order_detail.order_nepse_id
+            %td= order_detail.isin_info.isin
+            %td= order_detail.price.to_i
+            %td= order_detail.quantity
+            %td= order_detail.amount
+            %td= order_detail.pending_quantity
+            %td= order_detail.typee
+            %td= order_detail.segment
+            %td= order_detail.condition == 'nonee' ? 'none' : order_detail.condition
+            %td= order_detail.state
+            -# Order Details ENDS
 
 = render 'shared/pagination', collection_to_paginate: orders
