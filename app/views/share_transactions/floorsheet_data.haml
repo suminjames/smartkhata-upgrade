@@ -1,0 +1,41 @@
+- provide(:section_title, "FloorSheet Details")
+- if @share_transactions.present?
+  %table.table.table-striped
+    %thead
+      %th.col-xs-1= "#"
+      %th.col-xs-3= "Contract No."
+      %th.col-xs-1= "Symbol"
+      %th.col-xs-3= "Client Name"
+      %th.col-xs-3= "Type"
+      %th.col-xs-1= "Quantity"
+      %th.col-xs-1= "Rate"
+      %th.col-xs-1= "Amount"
+      %th.col-xs-1= "Buyer"
+      %th.col-xs-1= "Seller"
+    %tbody
+      - @share_transactions.each_with_index do |share_transaction,i|
+        %tr
+          %td= i+1
+          %td= share_transaction.contract_no
+          %td= share_transaction.isin_info.isin
+          %td= share_transaction.client_account.name.titleize
+          %td= share_transaction.transaction_type.titleize
+          %td= share_transaction.raw_quantity
+          %td= share_transaction.share_rate
+          %td= share_transaction.share_amount
+          %td= share_transaction.buyer
+          %td= share_transaction.seller
+      %tr
+        %td= "Total"
+        %td
+        %td
+        %td
+        %td
+        %td
+        %td
+        %td= @total_amount
+        %td
+        %td
+
+- else
+  %div= "No data to show"

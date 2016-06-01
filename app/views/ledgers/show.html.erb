@@ -53,7 +53,9 @@
 <% if @particulars.present? %>
     <% if @opening_blnc_sorted.present? %>
     <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted + margin_of_error_amount >= 0 ? 'dr': 'cr'}" %></p>
+    <p>Debit: <%= number_to_currency(@total_debit )%> | Credit:<%= number_to_currency(@total_credit) %></p>
     <% end %>
+
 <div class= "box box-warning">
 	<div class="box-body ledger ledger-single">
 	<table class="table">
