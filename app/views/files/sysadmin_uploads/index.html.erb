@@ -2,9 +2,10 @@
 
     <%= render 'shared/pagination', collection_to_paginate: @file_list%>
     <br>
+
     <div class="panel panel-danger">
       <div class="panel-heading">
-        List of Floor Sheet file uploaded
+        List of Sales Payout (CM05) file uploaded
       </div>
       <div class="panel-body">
         <div class="table-responsive">
@@ -19,10 +20,9 @@
             <tbody>
             <% @file_list.each do |file| %>
                 <tr>
-                  <td><%= file.report_date %> </td>
-                  <td><%= ad_to_bs_string(file.report_date) %> </td>
+                  <td><%= file.settlement_date %> </td>
+                  <td><%= ad_to_bs_string(file.settlement_date) %> </td>
                   <td><%= file.updated_at.to_date %></td>
-                  <td><%=  link_to 'view', share_transactions_path(search_by: 'floorsheet_date', report_date: file.report_date) %></td>
                 </tr>
             <% end %>
             </tbody>
@@ -33,4 +33,6 @@
 
     <%= render 'shared/pagination', collection_to_paginate: @file_list%>
 
+<% else %>
+    No files uploaded yet
 <% end %>

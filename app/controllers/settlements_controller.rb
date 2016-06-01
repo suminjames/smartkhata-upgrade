@@ -4,7 +4,13 @@ class SettlementsController < ApplicationController
   # GET /settlements
   # GET /settlements.json
   def index
-    @settlements = Settlement.all
+    if params[:settlement_type] == 'receipt'
+      @settlements = Settlement.receipt
+    elsif params[:settlement_type] == 'payment'
+      @settlements = Settlement.payment
+    else
+      @settlements = Settlement.all
+    end
   end
 
   # GET /settlements/1
