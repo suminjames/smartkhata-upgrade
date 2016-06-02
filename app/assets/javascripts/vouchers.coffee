@@ -13,7 +13,10 @@ fix_autocomplete = () ->
 
 ready = ->
   jQuery ->
-    $('select.combobox').combobox()
+    $('select.combobox').select2({
+      theme: "bootstrap",
+      selectOnClose: true
+    })
     fix_autocomplete()
 
 is_payment_bank_transfer = () ->
@@ -105,7 +108,10 @@ $(document).on 'click','.add_fields', (event) ->
   $(this).before($(this).data('fields').replace(regexp,time))
   #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
-  $('select.combobox').combobox()
+  $('select.combobox').select2({
+    theme: "bootstrap",
+    selectOnClose: true
+  })
   fix_autocomplete()
   manage_cheque_all_select()
 

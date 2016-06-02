@@ -261,3 +261,8 @@ a {
 .spinner-circular{
   display: inline
 }
+
+//select 2 fix by subas
+.select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
+  padding-top: 5px;
+}
