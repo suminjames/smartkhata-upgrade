@@ -5,7 +5,7 @@ class Print::PrintVoucher< Prawn::Document
   include ApplicationHelper
 
   def initialize(voucher, particulars, bank_account, cheque, current_tenant)
-    super(top_margin: 12, right_margin: 28, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 38, bottom_margin: 18, left_margin: 18)
 
     @voucher = voucher
     @particulars = particulars
@@ -36,7 +36,7 @@ class Print::PrintVoucher< Prawn::Document
   end
 
   def page_width
-    568
+    558
   end
 
   def page_height

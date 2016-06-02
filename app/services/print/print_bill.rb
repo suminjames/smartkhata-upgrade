@@ -3,7 +3,7 @@ class Print::PrintBill < Prawn::Document
   require 'prawn/measurement_extensions'
 
   def initialize(bill, current_tenant)
-    super(top_margin: 12, right_margin: 28, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 38, bottom_margin: 18, left_margin: 18)
 
     @bill = bill
     @current_tenant = current_tenant
@@ -29,7 +29,7 @@ class Print::PrintBill < Prawn::Document
   end
 
   def page_width
-    568
+    558
   end
 
   def page_height
@@ -85,20 +85,18 @@ class Print::PrintBill < Prawn::Document
   end
 
   def customer_details_row
-    row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(6)) do
-      data =[
-          ["Customer:", @bill.formatted_client_name],
-          ["NEPSE Code:", @bill.client.nepse_code]
-      ]
-      table(data, :column_widths =>{0 => 100} , :cell_style => {:border_width => 0, :padding => [0,2,0,0], :align => :left})
-    end
-    bounding_box([col(6), row_cursor], :width => col(6)) do
-      data =[
-          ["Contact No.:", @bill.formatted_client_phones['secondary']],
-          ["", @bill.formatted_client_phones['secondary']]
-      ]
-      table(data, :column_widths =>{0 => 100}, :position => :right, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
+    data =[
+        ["Customer:", @bill.formatted_client_name, "Contact No.:", @bill.formatted_client_phones['secondary']],
+        ["NEPSE Code:", @bill.client.nepse_code , "", @bill.formatted_client_phones['secondary']]
+    ]
+    table_width = page_width - 2
+    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.35, 2 => table_width * 0.20, 3 => table_width * 0.30}
+    table data do |t|
+      t.header = true
+      t.cell_style = {:border_width => 0, :padding => [0,2,0,0], :align => :left}
+      t.column_widths = column_widths
+      t.column(2).style(:align => :left)
+      t.column(3).style(:align => :right)
     end
   end
 

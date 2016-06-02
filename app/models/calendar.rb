@@ -30,7 +30,8 @@ class Calendar < ActiveRecord::Base
     @cal = NepaliCalendarPlus::CalendarPlus.new
 
     from_date_ad = @cal.bs_to_ad(2073, 1, 1)
-    to_date_ad = @cal.bs_to_ad(2083, 12, 30)
+    to_date_ad = @cal.bs_to_ad(2074, 12, 30)
+    # to_date_ad = @cal.bs_to_ad(2083, 12, 30)
 
     from_date_ad.upto(to_date_ad) do |ad_date|
       bs_date = @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
