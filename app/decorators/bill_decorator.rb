@@ -82,8 +82,8 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_client_phones
-    phone_1 = client.phone.blank? ? 'N/A' : @client.phone
-    phone_2 = client.phone_perm.blank? ? 'N/A' : @client.phone_perm
+    phone_1 = client.phone.blank? ? 'N/A' : client.phone
+    phone_2 = client.phone_perm.blank? ? 'N/A' : client.phone_perm
     {"primary" => phone_1, "secondary" => phone_2}
   end
 
