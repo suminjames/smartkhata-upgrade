@@ -62,17 +62,17 @@ class Print::PrintBill < Prawn::Document
   def header
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(3)) do
-      text "#{@current_tenant.full_name}"
+      text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
       text "#{@current_tenant.address}"
-     text "Phone: #{@current_tenant.phone_number}"
-     text "Fax: #{@current_tenant.fax_number}"
-     text "PAN: #{@current_tenant.pan_number}"
-   end
-   bounding_box([col(3), row_cursor-20], :width => col(6)) do
-     text "Schedule-3" , :align => :center
-     text "Relating to Sub-Regulation(I) of Regulation 16" , :align => :center
-     text "Information note to cients on execution of transaction" , :align => :center
-   end
+      text "Phone: #{@current_tenant.phone_number}"
+      text "Fax: #{@current_tenant.fax_number}"
+      text "PAN: #{@current_tenant.pan_number}"
+    end
+    bounding_box([col(3), row_cursor-20], :width => col(6)) do
+      text "Schedule-3" , :align => :center
+      text "Relating to Sub-Regulation(I) of Regulation 16" , :align => :center
+      text "Information note to cients on execution of transaction" , :align => :center
+    end
   end
 
   def footer
