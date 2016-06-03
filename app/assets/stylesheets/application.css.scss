@@ -266,3 +266,16 @@ a {
 .select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
   padding-top: 5px;
 }
+
+// admin lte hack by subas
+.fixed-top {
+  .main-header {
+    top: 0;
+    right: 0;
+    left: 0;
+    position: fixed;
+  }
+  .content-wrapper {
+    padding-top: 50px;
+  }
+}
