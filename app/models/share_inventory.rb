@@ -48,5 +48,9 @@ class ShareInventory < ActiveRecord::Base
   # def get_value_by_client(client_account)
   # end
 
+  def self.with_most_quantity
+    query = ShareInventory.joins(:isin_info).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC").limit(1)
+    query.first
+  end
 
 end

@@ -21,7 +21,7 @@
 #
 
 class Voucher < ActiveRecord::Base
-	include FiscalYearModule
+	# include FiscalYearModule
 	include ::Models::UpdaterWithBranchFycode
 
 	has_many :particulars
