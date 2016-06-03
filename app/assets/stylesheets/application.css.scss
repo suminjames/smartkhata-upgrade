@@ -285,5 +285,20 @@ select.combobox {
 }
 
 .bg-saroj {
+  h3 {
+    font-size: 30px;
+  }
   background: #EEE;
+  .small-box-footer {
+    color: #337ab7;
+  }
+}
+//.bg-saroj.small-box>.small-box-footer:hover {
+//  color: #337ab7;
+//}
+.bg-saroj.small-box:hover {
+  color: #337ab7;
+  .small-box-footer {
+    color: #337ab7;
+  }
 }
