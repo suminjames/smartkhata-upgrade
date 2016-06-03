@@ -23,25 +23,16 @@
 class Settlement < ActiveRecord::Base
 
   belongs_to :voucher
-  include ::Models::Updater
+  include ::Models::UpdaterWithBranchFycode
 
   enum settlement_type: [ :receipt, :payment]
 
   belongs_to :client_account
   belongs_to :vendor_account
 
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
-
-  # scope :by_fy_code, -> (fy_code) { where(:fy_code=> fy_code) }
   scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
-  scope :by_date, -> (date) do
-    where( :create_ad => date.beginning_of_day..date.end_of_day)
-  end
+  scope :by_date, -> (date) { where(:created_at => date.beginning_of_day..date.end_of_day) }
   scope :by_date_range, -> (date_from, date_to) { where( :date => date_from.beginning_of_day..date_to.end_of_day) }
   scope :by_client_id, -> (id) { where(client_account_id: id) }
   scope :by_vendor_id, -> (id) { where(vendor_account_id: id) }
-
-
 end

@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'dashboard/index'
+
   resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations

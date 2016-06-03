@@ -38,14 +38,8 @@ class Ledger < ActiveRecord::Base
   has_many :employee_ledger_associations
 	has_many :employee_accounts, through: :employee_ledger_associations
 
-  # to keep track of the user who created and last updated the ledger
-	belongs_to :creator,  class_name: 'User'
-	belongs_to :updater,  class_name: 'User'
-
 	validates_presence_of :name
-	# validates_presence_of :group_id
 	validate :positive_amount, on: :create
-
 	before_create :update_closing_balance
 
 	scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }

@@ -7,8 +7,15 @@ module Models::UpdaterWithBranchFycode
     base.instance_eval do
       before_create :set_creator, :add_branch_fycode
       before_save :set_updater
-      scope :by_fy_code, -> (fy_code) { where(:fy_code=> fy_code) }
+
+      # to keep track of the user who created and last updated the ledger
+      belongs_to :creator,  class_name: 'User'
+      belongs_to :updater,  class_name: 'User'
+
+      scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
+      scope :by_branch_code, -> (branch_code) { where(branch_code: branch_code)}
     end
+
   end
 
   private

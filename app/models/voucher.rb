@@ -21,7 +21,7 @@
 #
 
 class Voucher < ActiveRecord::Base
-	include FiscalYearModule
+	# include FiscalYearModule
 	include ::Models::UpdaterWithBranchFycode
 
 	has_many :particulars
@@ -40,11 +40,6 @@ class Voucher < ActiveRecord::Base
 	has_many :bills_on_creation, through: :on_creation, source: :bill
 	has_many :bills_on_settlement, through: :on_settlement, source: :bill
 	has_many :bills , through: :bill_voucher_associations
-
-
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
   belongs_to :reviewer, class_name: 'User'
 
 	# purchase and sales kept as per the accounting norm
@@ -52,7 +47,6 @@ class Voucher < ActiveRecord::Base
 	enum voucher_type: [:journal, :payment, :receipt, :contra ]
 	enum voucher_status: [:pending, :complete, :rejected]
 
-	before_create :add_branch_fycode
 	before_save :process_voucher
   after_save :assign_cheque
 

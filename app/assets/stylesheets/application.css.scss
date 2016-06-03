@@ -266,3 +266,39 @@ a {
 .select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
   padding-top: 5px;
 }
+
+// admin lte hack by subas
+.fixed-top {
+  .main-header {
+    top: 0;
+    right: 0;
+    left: 0;
+    position: fixed;
+  }
+  .content-wrapper {
+    padding-top: 50px;
+  }
+}
+
+select.combobox {
+  height: 34px;
+}
+
+.bg-saroj {
+  h3 {
+    font-size: 30px;
+  }
+  background: #EEE;
+  .small-box-footer {
+    color: #337ab7;
+  }
+}
+//.bg-saroj.small-box>.small-box-footer:hover {
+//  color: #337ab7;
+//}
+.bg-saroj.small-box:hover {
+  color: #337ab7;
+  .small-box-footer {
+    color: #337ab7;
+  }
+}

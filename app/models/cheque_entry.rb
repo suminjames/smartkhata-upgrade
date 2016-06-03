@@ -24,7 +24,7 @@
 #
 
 class ChequeEntry < ActiveRecord::Base
-  include ::Models::UpdaterWithBranch
+  include ::Models::UpdaterWithBranchFycode
 
   belongs_to :client_account
   belongs_to :vendor_account
@@ -44,8 +44,6 @@ class ChequeEntry < ActiveRecord::Base
 
 
   has_many :vouchers, through: :particulars
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
 
   # TODO (subas) make sure to do the necessary settings
   enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]

@@ -58,10 +58,6 @@ class EmployeeAccount < ActiveRecord::Base
   has_many :employee_ledger_associations
   has_many :ledgers, through: :employee_ledger_associations
 
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
-
   # defines employee association with ledgers
   enum has_access_to: [:everyone, :some, :nobody]
   accepts_nested_attributes_for :employee_ledger_associations
