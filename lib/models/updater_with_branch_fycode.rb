@@ -7,6 +7,7 @@ module Models::UpdaterWithBranchFycode
     base.instance_eval do
       before_create :set_creator, :add_branch_fycode
       before_save :set_updater
+      scope :by_fy_code, -> (fy_code) { where(:fy_code=> fy_code) }
     end
   end
 

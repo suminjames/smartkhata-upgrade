@@ -31,7 +31,7 @@
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Vouchers</strong></p></li>
           <li><%= link_to 'Journal', new_voucher_path	 %></li>
-          <li><%= link_to 'Receive', new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %></li>
+          <li><%= link_to 'Receipt', new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %></li>
           <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
           <li><%= link_to 'Pending Payment', pending_vouchers_vouchers_path %></li>
         </ul>
@@ -83,8 +83,8 @@
 
         <ul class="col-xs-2 list-unstyled">
           <li><p><strong>Settlements</strong></p></li>
-          <li><%= link_to 'Receipt', settlements_path(settlement_type: 'receipt') %></li>
-          <li><%= link_to 'Payments',  settlements_path(settlement_type: 'payment') %></li>
+          <li><%= link_to 'Receipt', settlements_path(by_settlement_type: 'receipt') %></li>
+          <li><%= link_to 'Payments',  settlements_path(by_settlement_type: 'payment') %></li>
         </ul>
 
       </div>

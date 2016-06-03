@@ -1,27 +1,47 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
+  # has_scope
+  has_scope :by_settlement_type
+  has_scope :by_client_id
+  has_scope :by_vendor_id
+  has_scope :by_fy_code
+  # has_scope :by_date
+  # has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash
+
   # GET /settlements
   # GET /settlements.json
   def index
-    if params[:settlement_type] == 'receipt'
-      @settlements = Settlement.receipt
-    elsif params[:settlement_type] == 'payment'
-      @settlements = Settlement.payment
-    else
-      @settlements = Settlement.all
-    end
+    params[:fy_code] ||= get_fy_code
+    @settlements = apply_scopes(Settlement.all)
   end
 
   # GET /settlements/1
   # GET /settlements/1.json
   def show
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintSettlement.new(@settlement, current_tenant)
+        send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   def show_multiple
     @settlement_ids = params[:settlement_ids].map(&:to_i) if params[:settlement_ids].present?
     @settlements = Settlement.where(id: @settlement_ids)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintMultipleSettlements.new(@settlements, current_tenant)
+        send_data pdf.render, filename: "MultipleSettlements_#{@settlement_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
+
   # GET /settlements/new
   def new
     @settlement = Settlement.new

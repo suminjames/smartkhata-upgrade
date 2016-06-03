@@ -32,6 +32,7 @@
               <td><%= file.report_date %> </td>
               <td><%= ad_to_bs_string(file.report_date) %> </td>
               <td><%= file.updated_at.to_date %></td>
+              <td><%=  link_to 'view', share_transactions_path(search_by: 'floorsheet_date', report_date: file.report_date) %></td>
             </tr>
         <% end %>
         </tbody>
