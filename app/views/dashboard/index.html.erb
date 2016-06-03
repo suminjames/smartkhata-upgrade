@@ -1,0 +1,97 @@
+<% provide(:section_title, "Dashboard") %>
+
+<div class="row">
+  <% #select_tag "select_urls", options_for_select(@custom_url_list.collect {|p| [ p[:url], p[:name] ] }), {prompt: 'Select a action...', :class=>'form-control combobox'} %>
+</div>
+
+<div class="row">
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%= @total_users %></h3>
+
+        <p>Clients Registered</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-person-add"></i>
+      </div>
+      <a href="<%= client_accounts_path %>" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="col-xs-4">
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <% if @amount > 0 %>
+            <div class="row box-equivalent">
+              <h3><%= number_to_currency(@amount) %></h3>
+              <p>Net Loss</p>
+            </div>
+        <% else %>
+            <h3><%= number_to_currency(@amount.abs) %></h3>
+            <p>Net Profit</p>
+        <% end %>
+      </div>
+      <div class="icon">
+        <i class="ion ion-stats-bars"></i>
+      </div>
+      <a href="<%= report_profitandloss_index_path %>" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%= @isin_with_largest_quantity.isin %>(<%= @isin_with_largest_quantity.total.to_i %>)</h3>
+
+        <p> Most Number of Shares</p>
+      </div>
+      <!--<div class="icon">-->
+        <!--<i class="fa fa-shopping-cart"></i>-->
+      <!--</div>-->
+      <a href="<%= share_inventories_path %>" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%=@purchase_bills_pending_count %></h3>
+
+        <p> Bills require action</p>
+      </div>
+      <!--<div class="icon">-->
+      <!--<i class="fa fa-shopping-cart"></i>-->
+      <!--</div>-->
+      <a href="<%= bills_path %>" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%= @pending_voucher_approve_count %></h3>
+
+        <p>Vouchers need Approval</p>
+      </div>
+      <div class="icon">
+        <!--<i class="ion ion-person-add"></i>-->
+      </div>
+      <a href="<%= vouchers_path %>" class="small-box-footer">
+        More info <i class="fa fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+</div>

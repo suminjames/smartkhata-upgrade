@@ -66,11 +66,11 @@ class OrdersController < ApplicationController
 
     if params[:search_by] == 'all_orders'
       @orders = Order.all.includes(:order_details, :client_account).page(params[:page]).per(20)
-      end
-
-      @orders = @orders.page(params[:page]).per(20).decorate if @orders.present?
-
     end
+
+    # @orders = @orders.page(params[:page]).per(20).decorate if @orders.present?
+
+  end
 
   def show
     @from_path =  request.referer
