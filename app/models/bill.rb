@@ -40,11 +40,6 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers , through: :bill_voucher_associations
-  # has_many :particulars, through: :voucher
-
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
 
   # verify this with views everytime before changing
   # bill index

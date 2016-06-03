@@ -33,6 +33,11 @@ class ApplicationController < ActionController::Base
     redirect_to (request.referrer || root_path)
   end
 
+  def current_fy_code
+    get_fy_code
+  end
+  helper_method :current_fy_code
+
   # Uses the helper methods from devise to made them available in the models
   def set_user_session
     UserSession.user = current_user

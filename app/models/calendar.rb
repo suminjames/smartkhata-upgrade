@@ -17,10 +17,6 @@
 
 class Calendar < ActiveRecord::Base
   include ::Models::Updater
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
-
   enum holiday_type: [:not_applicable, :saturday, :public_holiday, :unforeseen_holiday]
 
   # Populates dates without any prejudices but two -

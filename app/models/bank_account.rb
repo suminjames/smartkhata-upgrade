@@ -24,10 +24,6 @@ class BankAccount < ActiveRecord::Base
   has_many :cheque_entries
   has_one :ledger
   belongs_to :bank
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
-
 
   validates_presence_of :bank_id, :account_number
   accepts_nested_attributes_for :ledger
