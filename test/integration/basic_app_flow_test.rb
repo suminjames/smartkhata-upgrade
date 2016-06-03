@@ -8,14 +8,20 @@
 #                                  makes the bills id start from one
 #                                  rather than starting after the random number assigned to the fixtures.
 
-# __TODO__ maybe: calculate the bills count dynamically.. making the test work with different test files
-#          where does the 7273 in bill id come from? Extract it dynamically
+# Omitted: group_leader_ledger_id, random: cheque number
+
+# __TODO__ maybe: calculate the bills count dynamically.. making the test work with different test files?
+#          where does the 'fycode' 7273 in bill id come from? Extract it dynamically?
 require 'test_helper'
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
 
 class BasicAppFlowTest < ActionDispatch::IntegrationTest
   include CustomDateModule
   def setup
+    # To prevent isin company Nil Error in bills#show
+    Rake::Task["fetch_companies"].invoke
+    # Rake::Task["update_isin_prices"].invoke
+
     # fix the tenants issue
     host! 'trishakti.lvh.me'
     # Secure browsing!
@@ -36,10 +42,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     @number_of_ledger_options_expected = 3 + 1 + 1
     # ledgers in fixtures + bank accounts w/ default for payment + bank accounts w/ default for reciept
 
-    @total_number_of_ledgers = 84
-
-    first_bank_id = Bank.first.id
-    @additional_bank_id = first_bank_id
+    @additional_bank_id = Bank.first.id
+    @cash_ledger_id = ledgers(:one).id
 
     # assume default pagination
     @items_in_first_pagination = 20
@@ -208,7 +212,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       }
     voucher = assigns(:voucher)
     follow_redirect!
-    assert voucher_path(voucher), path
+    assert_equal voucher_path(voucher), path
     assert_equal 'Voucher was successfully created.', flash[:notice]
     # --- 5.1 - On create - incase of payment by bank, payment voucher is created
     assert_select 'h3', 'Payment voucher Bank'
@@ -312,8 +316,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     settlement_ids = voucher.settlements.pluck(:id)
     follow_redirect!
     # %5B%5D == []
-    assert show_multiple_settlements_path('settlement_ids'=> settlement_ids), path
-    # --- 5.2 - On create - receipt should be created with relevant information
+    assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
+    # --- 5.2 - On create - receipt should be created with relevant information ---
     assert_select 'h4 u', 'RECEIPT'
     assert_match payment_amount, response.body
     assert_match Bank.find(@additional_bank_id).name, response.body
@@ -322,7 +326,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     get sales_bills_path
     assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id, 1),   {count:0, text: 'Process Bill'}
     assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id+1, 1), {count:0, text: 'Process Bill'}
-    # --- 5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2
+    # --- 5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2 ---
     ledger_index_to_particulars_count = [3, 4, 11]
     second_particular_ledger_id.each do |ledger_id|
       get ledger_path(ledger_id)
@@ -336,38 +340,360 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       link_objects.each do |link_obj|
         # Add more extended tests here?
         link = link_obj['href']
-        # ISIN ERROR IN BILLS#SHOW
-        unless link.include? 'bills'
-          get link
-          assert_response :success
+        get link
+        assert_response :success
+        unless link.include? 'cheque_entries'
           header_text_initial = case link
           when /vouchers/
             'Voucher'
-          # when /bills/
-          #   'Bill'
-          # when /cheque_entries/
-          #   'Cheque'
+          when /bills/
+            'Bill'
           when /settlements/
             'Settlement'
           end
           header_text = "#{header_text_initial} Details"
-
-          unless link.include? 'cheque_entries'
-            # Not h3.modal-title, coz we're checking direct link, not ajax
-            assert_select 'h2.section-title', header_text
-          else
-            # No cheque details header in direct link!
-            assert_match 'Pay against this cheque to', response.body
-          end
+          # Not h3.modal-title, coz we're checking direct link, not ajax
+          assert_select 'h2.section-title', header_text
+        else
+          # No cheque details header in direct link!
+          assert_match 'Pay against this cheque to', response.body
         end
       end
     end
 
+    ############################################################### SECTION SIX ############################################################################
+
+    # --- 6. Client Ledgers ---
+    #
     get client_ledgers_path
     assert_response :success
-    # debugger
-    assert_match "Displaying ledgers <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{@total_number_of_ledgers}</b> in total", response.body
+    client_ledgers_count = Ledger.find_all_client_ledgers.count
+    assert_match "Displaying ledgers <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{client_ledgers_count}</b> in total", response.body
+
+    # cut the crap!
+    # --- 6. - Process sales bills
+    # --- 6. - Process purchase bills
+    # sales_bill = Ledger.find_all_client_ledgers.where("closing_blnc<0").first
+    # get client_bills_path(sales_bill.client_account_id)
+    # purchase_bill = Ledger.find_all_client_ledgers.where("closing_blnc>0").first
+    # get client_bills_path(purchase_bill.client_account_id)
+    # bill_id = css_select("input[name='bill_ids[]']")[0]['value']
+
+    # --- 6.1 Process ledger & verify ---
+    ledger = Ledger.find_all_client_ledgers.first
+    client_account_id = ledger.client_account_id
+    get ledger_path(ledger.id)
+    assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}
+    assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills'}
+    # Before processing, should show the unprocessed bill(s) list.
+    get client_bills_path(client_account_id)
+    bill_ids = []
+    css_select('input[type=checkbox][name="bill_ids[]"]').each do |bill_id_obj|
+      bill_ids << bill_id_obj['value']
+    end
+    post_via_redirect process_selected_bills_path, {
+      "bill_ids" => bill_ids,
+      "client_account_id"=> client_account_id,
+     }
+    assert_equal new_voucher_path(bill_ids:bill_ids, client_account_id: client_account_id), request.original_fullpath
+    assert_select 'h2.section-title', text: 'New Payment Voucher'
+
+    # scraping!
+    first_particular_ledger_id[3] = css_select('select#voucher_particulars_attributes_0_ledger_id option[selected=selected]')[0]['value']
+    second_particular_ledger_id[3] = css_select('select#voucher_particulars_attributes_3_ledger_id option[selected=selected]')[0]['value']
+    payment_amount = css_select('input#voucher_particulars_attributes_0_amount')[0]['value']
+
+    cheque_num = '5234'
+
+    bill_numbers = "#{@bill_number_first_part}-" + bill_ids.join(", #{@bill_number_first_part}-")
+
+    post vouchers_path,
+      {"voucher_type"=>"1",
+       "client_account_id" =>"#{client_account_id}",
+       # "bill_id"         =>"",
+       "clear_ledger"      =>"false",
+       "bill_ids"          =>bill_ids,
+       "voucher"           =>
+         {"date_bs"               => @date_today,
+         "particulars_attributes" =>
+           {"0"=>
+             {"ledger_id"         => first_particular_ledger_id[3],
+             "amount"             => payment_amount,
+             "transaction_type"   =>"cr",
+             "cheque_number"      => cheque_num,
+             "additional_bank_id" => @additional_bank_id},
+           "3"=>
+             {"ledger_id"         => second_particular_ledger_id[3],
+             "amount"             => payment_amount,
+             "transaction_type"   =>"dr",
+             # "cheque_number"      =>"",
+             "additional_bank_id" => @additional_bank_id}
+           },
+         "desc"                    =>"Settled for Bill No: #{bill_numbers}"
+         },
+       "voucher_settlement_type" =>"default",
+      }
+    voucher = assigns(:voucher)
+    follow_redirect!
+    case voucher.voucher_type
+    when 'payment'
+      assert_equal voucher_path(voucher), path
+      assert_select 'h3', 'Payment voucher Bank'
+      post finalize_payment_vouchers_path, {from_path: vouchers_path, id: "#{voucher.id}", approve: "approve"}
+      assert_equal 'Payment Voucher was successfully approved', flash[:notice]
+    when 'receipt'
+      settlement_ids = voucher.settlements.pluck(:id)
+      assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
+      assert_select 'h4 u', 'RECEIPT'
+    end
+    # rest of the select tests already done above
+    # fetch the same ledger again
+    get ledger_path(ledger.id)
+    assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger',           count: 0}
+    assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills', count: 0}
+
+    # --- 6.2 Clear ledger & verify ---
+    ledger = Ledger.find_all_client_ledgers.second
+    client_account_id = ledger.client_account_id
+    get ledger_path(ledger.id)
+    assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}
+    assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills'}
+
+    get new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id)
+    assert_select 'h2.section-title', "New #{voucher.voucher_type.capitalize} Voucher"
+
+    # scraping!
+    first_particular_ledger_id[3] = css_select('select#voucher_particulars_attributes_0_ledger_id option[selected=selected]')[0]['value']
+    second_particular_ledger_id[3] = css_select('select#voucher_particulars_attributes_3_ledger_id option[selected=selected]')[0]['value']
+    payment_amount = css_select('input#voucher_particulars_attributes_0_amount')[0]['value']
+
+    cheque_num = '5344'
+    voucher_type_code, transaction_type_first, transaction_type_second = case voucher.voucher_type
+    when 'payment' then [1, 'cr', 'dr']
+    when 'receipt' then [2, 'dr', 'cr']
+    end
+    # transaction_type_second = transaction_type_first == 'cr' ? 'dr':'cr'
+
+    post vouchers_path, {
+       "voucher_type"      => voucher_type_code,
+       "client_account_id" =>"#{client_account_id}",
+       # "bill_id"         =>"",
+       "clear_ledger"      =>"true",
+       "voucher"           =>
+         {"date_bs"               => @date_today,
+         "particulars_attributes" =>
+           {"0"=>
+             {"ledger_id"         => first_particular_ledger_id[3],
+             "amount"             => payment_amount,
+             "transaction_type"   => transaction_type_first,
+             "cheque_number"      => cheque_num,
+             "additional_bank_id" => @additional_bank_id},
+           "3"=>
+             {"ledger_id"         => second_particular_ledger_id[3],
+             "amount"             => payment_amount,
+             "transaction_type"   => transaction_type_second,
+             # "cheque_number"      =>"",
+             "additional_bank_id" => @additional_bank_id}
+           },
+         "desc"                    =>"Settled with ledger balance clearance"
+        },
+       "payment_mode"=>"default",
+       "voucher_settlement_type"=>"default",
+       "vendor_account_id"=>""
+       # "group_leader_ledger_id"=>"14",
+      }
+    voucher = assigns(:voucher)
+    follow_redirect!
+    case voucher.voucher_type
+    when 'payment'
+      assert_equal voucher_path(voucher), path
+      assert_select 'h3', 'Payment voucher Bank'
+      post finalize_payment_vouchers_path, {from_path: vouchers_path, id: "#{voucher.id}", approve: "approve"}
+      assert_equal 'Payment Voucher was successfully approved', flash[:notice]
+    when 'receipt'
+      settlement_ids = voucher.settlements.pluck(:id)
+      assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
+      assert_select 'h4 u', 'RECEIPT'
+    end
+    # rest of the select tests already done above
+    # fetch the same ledger again
+    get ledger_path(ledger.id)
+    assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger',           count: 0}
+    assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills', count: 0}
+
+
+    ############################################################### SECTION SEVEN ##########################################################################
+
+    # --- 7. Voucher creation --- Create all types of vouchers ---
+    # --- 7.1 Journal with out Bank ---
+    get new_voucher_path
+    assert_response :success
+    assert_select 'h2.section-title', text:'New Journal Voucher'
+    assert_select 'form.simple_form.new_voucher input#voucher_date_bs', value: @date_today
+    assert_select 'select#voucher_particulars_attributes_0_ledger_id option[selected=selected]', count: 0 # no pre-"selected" option
+    ledger_options = css_select 'select#voucher_particulars_attributes_0_ledger_id option'
+    assert_equal 'Cash', ledger_options[0].text  # first option should be cash
+
+    # Select some random person to credit
+    credited_ledger_id = ledger_options[4]['value']
+    credited_ledger_name = ledger_options[4].text
+    payment_amount = "500.00"
+    post vouchers_path, {
+       "voucher_type"      =>"0",
+       "clear_ledger"      =>"false",
+       "voucher"=>{
+         "date_bs"                =>@date_today,
+         "particulars_attributes" =>{
+           "0"=>{
+             "ledger_id"          =>@cash_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"dr",
+             "additional_bank_id" =>@additional_bank_id
+             },
+           # "1464762265417"=>{
+           "3"=>{
+             "ledger_id"          =>credited_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"cr",
+             "additional_bank_id" =>@additional_bank_id
+             }
+          }
+        },
+       "payment_mode"=>"default",
+    }
+
+    voucher = assigns(:voucher)
+    follow_redirect!
+    assert_equal voucher_path(voucher), path
+    assert_equal 'Voucher was successfully created.', flash[:notice]
+    assert_select 'h2.section-title', 'Voucher Details'
+
+    assert_match credited_ledger_name, response.body # credited party
+    assert_match 'Cash', response.body # debited party
+    assert_match payment_amount, response.body # amount
+    assert_match "Voucher Date: #{@date_today}", response.body # voucher date
+    assert_match "#{@bill_number_first_part}-#{voucher.voucher_number}", response.body # voucher number
+
+    # --- 7.2 Journal with Bank Account credit ---
+    get new_payment_voucher_path
+    assert_response :success
+    assert_select 'h2.section-title', text:'New Payment Voucher'
+    assert_select 'form.simple_form.new_voucher input#voucher_date_bs', value: @date_today
+    assert_select 'select#voucher_particulars_attributes_0_ledger_id option[selected=selected]', text: "Bank:#{@bank_account_payment.bank.name}(#{@bank_account_payment.account_number})"
+    # first transaction type credit & disabled
+    assert_select 'select[disabled=disabled]#voucher_particulars_attributes_0_transaction_type' do
+      assert_select 'option[selected=selected]', {text: 'cr'}
+    end
+    # second transaction type debit & disabled
+    assert_select 'select[disabled=disabled]#voucher_particulars_attributes_3_transaction_type' do
+      assert_select 'option[selected=selected]', {text: 'dr'}
+    end
+    credited_bank_account_ledger_id = css_select('select#voucher_particulars_attributes_0_ledger_id option[selected=selected]')[0]['value']
+    ledger_options = css_select 'select#voucher_particulars_attributes_3_ledger_id option'
+
+    # Select a person to credit
+    credited_ledger_id = ledger_options[10]['value']
+    credited_ledger_name = ledger_options[10].text
+    payment_amount = "500.00"
+    cheque_num = "948" #random
+    post vouchers_path, {
+       "voucher_type"      =>"1",
+       "clear_ledger"      =>"false",
+       "voucher"=>{
+         "date_bs"                =>@date_today,
+         "particulars_attributes" =>{
+           "0"=>{
+             "ledger_id"          =>credited_bank_account_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"cr",
+             "cheque_number"      =>cheque_num,
+             "additional_bank_id" =>@additional_bank_id
+             },
+           "3"=>{
+             "ledger_id"          =>credited_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"dr",
+             "additional_bank_id" =>@additional_bank_id
+             }
+          },
+          "desc"=>''
+        },
+       "payment_mode"            =>"default",
+       "voucher_settlement_type" =>"default",
+       # "group_leader_ledger_id"  =>
+    }
+
+    voucher = assigns(:voucher)
+    settlement_ids = voucher.settlements.pluck(:id)
+
+    follow_redirect!
+    assert_equal voucher_path(voucher), path
+    assert_select 'h3', 'Payment voucher Bank'
+
+    assert_match credited_ledger_name, response.body
+    assert_match payment_amount, response.body
+    assert_match cheque_num, response.body
+    assert_match "Voucher Date: #{@date_today}", response.body
+
+     # --- 7.3 Journal with Bank Account debit ---
+    get new_receipt_voucher_path
+    assert_response :success
+    assert_select 'h2.section-title', text:'New Receipt Voucher'
+    assert_select 'form.simple_form.new_voucher input#voucher_date_bs', value: @date_today
+    assert_select 'select#voucher_particulars_attributes_0_ledger_id option[selected=selected]', text: "Bank:#{@bank_account_receipt.bank.name}(#{@bank_account_receipt.account_number})"
+    # first transaction type debit & disabled
+    assert_select 'select[disabled=disabled]#voucher_particulars_attributes_0_transaction_type' do
+      assert_select 'option[selected=selected]', {text: 'dr'}
+    end
+    # second transaction type credit & disabled
+    assert_select 'select[disabled=disabled]#voucher_particulars_attributes_3_transaction_type' do
+      assert_select 'option[selected=selected]', {text: 'cr'}
+    end
+    debited_bank_account_ledger_id = css_select('select#voucher_particulars_attributes_0_ledger_id option[selected=selected]')[0]['value']
+    ledger_options = css_select 'select#voucher_particulars_attributes_3_ledger_id option'
+    # Select a person to credit
+    credited_ledger_id = ledger_options[10]['value']
+    credited_ledger_name = ledger_options[10].text
+    payment_amount = "500.00"
+
+    post vouchers_path, {
+       "voucher_type"      =>"2",
+       "clear_ledger"      =>"false",
+       "voucher"=>{
+         "date_bs"                =>@date_today,
+         "particulars_attributes" =>{
+           "0"=>{
+             "ledger_id"          =>debited_bank_account_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"dr",
+             "additional_bank_id" =>@additional_bank_id
+             },
+           "3"=>{
+             "ledger_id"          =>credited_ledger_id,
+             "amount"             =>payment_amount,
+             "transaction_type"   =>"cr",
+             "additional_bank_id" =>@additional_bank_id
+             }
+          }
+        },
+       "payment_mode"            =>"default",
+       "voucher_settlement_type" =>"default",
+       # "group_leader_ledger_id"  =>
+    }
+    voucher = assigns(:voucher)
+    settlement_ids = voucher.settlements.pluck(:id)
+    follow_redirect!
+    assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
+    assert_select 'h4 u', 'RECEIPT'
+
+    assert_match payment_amount, response.body
+    assert_match credited_ledger_name, response.body
+    assert_match "Date: #{@date_today}", response.body
+    receipt_num = Settlement.find(settlement_ids[0]).id
+    assert_match "Receipt No: #{receipt_num}", response.body
+
   end
+
 
   private
     # DO make the individual params/args instance variables if always the same END
@@ -395,4 +721,17 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     def client_ledgers_path
       "#{ledgers_path}?show=all_client"
     end
+
+    def new_receipt_voucher_path
+      "#{new_voucher_path}?voucher_type=2"
+    end
+
+    def new_payment_voucher_path
+      "#{new_voucher_path}?voucher_type=1"
+    end
+
+    def client_bills_path(client_acc_id)
+      "#{bills_path}?search_by=client_id&search_term=#{client_acc_id}"
+    end
+
 end

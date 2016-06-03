@@ -3,7 +3,7 @@
   <head>
     <title>Smartkhata</title>
     <meta name="description" content="Smart way for monitoring and accounting">
-    <link rel="stylesheet" media="all" href="/assets/application-a87d4b0308987b87d30326fca1c7687d3ac0238509e126281cd2ec9680262ecf.css" data-turbolinks-track="true" />
+    <link rel="stylesheet" media="all" href="/assets/application-f7f863e4f45428f8d6f9720e34c764016894aa0fd518f655bcdceeda309ea587.css" data-turbolinks-track="true" />
     <!-- Font Awesome Icons -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <!-- Ionicons -->
@@ -83,6 +83,10 @@
           <li><a href="/bank_accounts">Bank Accounts</a></li>
           <li><a href="/cheque_entries">Cheque Entries</a></li>
         </ul>
+        <ul class="col-xs-2 list-unstyled">
+          <li><p><strong>Nepse</strong></p></li>
+          <li><a href="/nepse_chalans">Nepse Chalan</a></li>
+        </ul>
       </div>
     </div>
   </ul>
@@ -123,92 +127,346 @@
 
             <div class="box box-default content-area">
               <div class="box-header with-border content-area">
-                <h2 class="box-title section-title">Settlement Details</h2>
+                <h2 class="box-title section-title">New Payment Voucher</h2>
               </div>
               <div class="box-body content-area">
 
-<div id="btnPrint">
-  <span class="glyphicon glyphicon-print print-icon"></span>
-  <span>Print</span>
-</div>
-<div class="clearfix billfull printThis">
 
-  <!-- Static Company Header BEGINS -->
-  <div class="clearfix">
-      <strong>
-      Trishakti Securities Public Ltd.<br>
-      Putalisadak, Kathmandu<br>
-      </strong>
 
-      <div class="row">
-        <div class="col-xs-3">
-          <strong>
-          Phone: 977-1-4232132
-          <br>
-          Fax: 977-1-4232133
-          <br>
-          PAN: 302930905
-          <br>
-          </strong>
+
+<form novalidate="novalidate" class="simple_form new_voucher" id="new_voucher" action="/vouchers" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />
+  <!-- add hidden field to track the type -->
+  <input type="hidden" name="voucher_type" id="voucher_type" value="1" />
+  <input type="hidden" name="client_account_id" id="client_account_id" value="980190963" />
+  <input type="hidden" name="bill_id" id="bill_id" />
+    <input type="hidden" name="clear_ledger" id="clear_ledger" value="false" />
+        <input type="hidden" name="bill_ids[]" id="bill_ids_" value="55" />
+
+
+  <div class="form-inputs row">
+    <div class="col-sm-4">
+      <h4>Date</h4>
+    	<input value="2073-2-21" class="form-control" placeholder="YYYY-MM-DD" type="text" name="voucher[date_bs]" id="voucher_date_bs" />
+    </div>
+  </div>
+    <br>
+    <h4>Mode of Payment</h4>
+    <div class="payment_mode">
+      <input type="radio" name="payment_mode" id="payment_mode_default" value="default" checked="checked" />
+      <label for="payment_mode_default_Cheque/Cash">Cheque/cash</label>
+      <input type="radio" name="payment_mode" id="payment_mode_bank_transfer" value="bank_transfer" />
+      <label for="payment_mode_bank_transfer_Bank Transfer">Bank transfer</label>
+    </div>
+
+  <br>
+  <div class="form-inputs voucher">
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+          <h3 class="box-title">Credit Particulars</h3>
+      </div>
+      <div class="box-body">
+        <div class="row">
+          <div class="col-xs-4"><h4>Ledger</h4></div>
+          <div class="col-xs-2"><h4>Amount</h4></div>
+          <div class="col-xs-1"><h4>Dr/Cr</h4></div>
+          <div class="col-xs-2"><h4>Cheque</h4></div>
+          <div class="col-xs-3"><h4>Cheque Issuing Bank</h4></div>
         </div>
 
-      <div class="col-xs-6 text-center">
-        <h4><u>PAYMENT</u></h4>
-      </div>
-    </div>
-    <div class="clearfix horizontal-line">
+          <div class="row particular">
+		<div class="col-xs-4"><select class="form-control combobox select-ledger" name="voucher[particulars_attributes][0][ledger_id]" id="voucher_particulars_attributes_0_ledger_id"><option value="113629430">Ledger for bank two</option>
+<option selected="selected" value="980190964">Bank:MyString(916)</option>
+<option value="980190963">Bank:The Bank(619)</option>
+<option value="298486374">Ledger for bank one</option>
+<option value="980190962">Cash</option></select></div>
+	<div class="col-xs-2"><div class="form-group decimal optional voucher_particulars_amount"><input class="numeric decimal optional form-control" type="number" step="any" value="4698570.59" name="voucher[particulars_attributes][0][amount]" id="voucher_particulars_attributes_0_amount" /></div></div>
+	<div class="col-xs-1 type-selector">
+			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
+			<div class="form-group hidden voucher_particulars_transaction_type"><input value="cr" class="hidden form-control" type="hidden" name="voucher[particulars_attributes][0][transaction_type]" id="voucher_particulars_attributes_0_transaction_type" /></div>
+			<select disabled="disabled" name="voucher[particulars_attributes][0][transaction_type]" id="voucher_particulars_attributes_0_transaction_type"><option value="dr">dr</option>
+<option selected="selected" value="cr">cr</option></select>
+	</div>
+  <div class="col-xs-4 padding-zero">
+    <div class="col-xs-6 cheque-container"><input placeholder="Cheque number" class="form-control cheque" type="number" name="voucher[particulars_attributes][0][cheque_number]" id="voucher_particulars_attributes_0_cheque_number" /></div>
+    <div class="col-xs-6 cheque-container bank">
+      <select class="form-control combobox " name="voucher[particulars_attributes][0][additional_bank_id]" id="voucher_particulars_attributes_0_additional_bank_id"><option value="980190962">MyString</option>
+<option value="298486374">MyAnotherString</option>
+<option value="980190963">TBH</option></select>
     </div>
   </div>
-  <!-- Static Company Header ENDS-->
-  <br><br>
-  <!-- Receipt No. and Receipt Date BEGINS -->
-  <div class="row">
-    <div class="col-xs-4">
-      <p>Payment No: 980191076</p>
 
-    </div>
-    <div class="col-xs-3 col-xs-offset-5 text-right">
-      <p>Date: 2073-02-17</p>
-    </div>
-  </div>
-  <!-- Receipt No. and Receipt Date ENDS -->
-
-  <!-- Receipt details START -->
-    <p>Paid To: <strong><u>Prem Bdr  Kc</u></strong></p>
-
-  <p>the sum of   <strong>Rs.   69,581.70</strong></p>
-  <p>(in words)<strong><u> Sixty Nine Thousand, Five Hundred  Eighty One Rupees And 69/100 Only</u></strong></p>
-  <!-- Receipt details END -->
-  <p>By Cheque:
-            <br>
-            Cheque Number:8374 &nbsp;&nbsp;Bank:MyString &nbsp;&nbsp;Amount:69581.7,
-  </p>
-
-  <br><br>
-  <div class="row">
-    <div class="col-xs-3 col-xs-offset-4">
-      <br>
-      <hr class="clearfix horizontal-line">
-      <p class="text-center">Paid By</p>
-    </div>
-    <div class="col-xs-3 col-xs-offset-2">
-      <br>
-      <hr class="clearfix horizontal-line">
-      <p class="text-center">Received By</p>
-    </div>
-
-  </div>
-  <hr class="clearfix horizontal-line">
-  <br>
-  <div class="clearfix">
-    <!-- Footnote BEGINS -->
-    <em>
-      <p>Settled for Bill No: 7273-5620</p>
-    </em>
-    <!-- Footnote ENDS -->
-  </div>
+  <div class="col-xs-1 padding-zero remove-particular"></div>
 </div>
 
+
+
+
+      </div>
+    </div>
+  </div>
+
+        <div class="group-ledger">
+          <input type="radio" name="voucher_settlement_type" id="voucher_settlement_type_default" value="default" checked="checked" />
+          <label for="voucher_settlement_type_default_Default">Default</label>
+          <input type="radio" name="voucher_settlement_type" id="voucher_settlement_type_client" value="client" />
+          <label for="voucher_settlement_type_client_Client">Client</label>
+          <input type="radio" name="voucher_settlement_type" id="voucher_settlement_type_vendor" value="vendor" />
+          <label for="voucher_settlement_type_vendor_Vendor">Vendor</label>
+        </div>
+
+        <div class="box box-primary z-light-bg many-to-single-settlement-client">
+          <div class="box-header">
+            <h3 class="box-title">Select the Client Ledger that needs to be assigned for receipt / payment </h3>
+          </div>
+          <div class="box-body">
+            <div class="row client-group">
+              <div class="col-xs-4">
+                  <select name="group_leader_ledger_id" id="group_leader_ledger_id" class="form-control combobox select-ledger"><option value="980190973">Lal Dhoj  Lama</option>
+<option value="980190980">Jamuna Poudel  Dulal</option>
+<option value="980190987">Kabita  Agrawal</option>
+<option value="980190988">Krishna  Prajapati</option>
+<option value="980190989">Shreejana  Kuwar</option>
+<option value="980190992">Anju  Puri</option>
+<option value="980190993">Ganesh Prasad  Aryal</option>
+<option value="980190998">Manju  Giri Puri</option>
+<option value="980191000">Prakash Raj  Uprety</option>
+<option value="980191001">Tsering Tenzing  Labrang</option>
+<option value="980191003">Yogesh Raj  Wasti</option>
+<option value="980191007">Mohit  Kedia</option>
+<option value="980191008">Upendra  Kadel</option>
+<option value="980190986">Binod Psd  Dulal</option>
+<option value="980191013">Hom Nath  Chaulagai</option>
+<option value="980190981">Shanti Bhakta  Shiwakoti</option>
+<option value="980191017">Pujan  Baidhya</option>
+<option value="980191010">Sanjay  Bajimaya</option>
+<option value="980191018">Rabin Kuwar  Kshetree</option>
+<option value="980191022">Shaurab  Shrestha</option>
+<option value="980191023">Gaurab Kumar  Saraf</option>
+<option value="980191014">Subarna  Bahadur  Silwal</option>
+<option value="980191026">Bhagwan  Pokhrel</option>
+<option value="980191016">Sita  Trital Ghimire</option>
+<option value="980191030">Api Hydro Mechanical Pvt.Ltd   </option>
+<option value="980191033">Milan  Khadka</option>
+<option value="980191028">Nabaraj  Karki</option>
+<option value="980191036">Sagar  Dotel</option>
+<option value="980191037">Milan Bhakta  Shrestha</option>
+<option value="980191002">Kuber  Thapa</option>
+<option value="980191040">Namita  Agrawal</option>
+<option value="980190974">Tej Bdr  Shrestha</option>
+<option value="980191043">Bishnu Hari  Aryal</option>
+<option value="980191032">Sofina  Pokharel</option>
+<option value="980191046">Krishna Kumar  Khadka</option>
+<option value="980190991">Tara Kumari  Pokharel Raut</option>
+<option value="980191049">Mohan Kumari  Ojha</option>
+<option value="980191052">Binod  Shrestha</option>
+<option value="980191045">Bhanu Bhakta  Acharya</option>
+<option value="980191044">Madhav Kumar  Raut</option>
+<option value="980191029">Aditya  Joshi</option>
+<option value="980191027">Arjun Bahadur  Karki</option>
+<option value="980191025">Suraj  Shrestha</option>
+<option value="980190995">Shraban  Bhattarai</option>
+<option value="980191009">Rishi Raj  Upadhaya</option>
+<option value="980191038">Aaradhya  Dhungana</option>
+<option value="980191012">Hari Prasad  Khanal</option>
+<option value="980190994">Dipendra Nath  Adhikari</option>
+<option value="980191042">Sanjib Kumar  Shrestha</option>
+<option value="980190977">Naresh  Pradhan</option>
+<option value="980191035">Nilam Prasad  Dahal</option>
+<option value="980190984">Purushottam  Shrestha</option>
+<option value="980190983">Dil Bdr  Chettri</option>
+<option value="980191020">Sabitri Kumari  Acharya</option>
+<option value="980191048">Chopnath  Upadhyaya</option>
+<option value="980191047">Man Kumari  Thapa</option>
+<option value="980190970">Manju Kumari  Joshi</option>
+<option value="980190990">Chandra Shekhar  Panthi</option>
+<option value="980191051">Hem Bahadur  Thapa</option>
+<option value="980191031">Kiran  Parajuli</option>
+<option value="980191006">Amendra Singh  Rathor</option>
+<option value="980190976">Suman Kumar  Shrestha</option>
+<option value="980190978">Prakash Babu  Kc</option>
+<option value="980190999">Laxmi Investment Pvt. Ltd   </option>
+<option value="980190982">Baburaja  Manandhar</option>
+<option value="980191021">Mikesh  Karki</option>
+<option value="980191039">Dinesh  Shrestha</option>
+<option value="980191015">Gyanendra Bdr  Bhandari Kshetry</option>
+<option value="980191034">Goma Ghimire  Katuwal</option>
+<option value="980191004">Siddhartha Insurance Limited   </option>
+<option value="980190975">Ramesh Kumar  Chaulagian</option>
+<option value="980191024">Nabin Kumar  Thapa</option>
+<option value="980191041">Krishna  Ranjit</option>
+<option value="980190979">Govinda  Dahal</option>
+<option value="980191005">Prakash  Neupane</option>
+<option value="980190972">Swikar  Sigdel</option>
+<option value="980190971">Tara Devi  Ghimire</option>
+<option value="980190985">Pawan Kumar  Agrawal</option>
+<option value="980191011">Madan  Gyawali</option>
+<option value="980191050">Peoples Investment Co. Ltd   </option>
+<option value="980191019">Ajaya  Dhungana</option>
+<option value="980190997">Prem Bdr  Kc</option>
+<option value="980190996">Bhaskar  Ghimire</option>
+<option value="980190965">Vibor Bikash Bank Ltd   </option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="box box-primary z-light-bg many-to-single-settlement-vendor">
+          <div class="box-header">
+            <h3 class="box-title">Select the Vendor that needs to be assigned for receipt / payment </h3>
+          </div>
+          <div class="box-body">
+            <div class="row vendor-group">
+              <div class="col-xs-4">
+                <select name="vendor_account_id" id="vendor_account_id" class="form-control combobox select-ledger"><option value="980190962">MyString</option>
+<option value="298486374">MyString</option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+  <br>
+  <div class="form-inputs voucher">
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+        <h3 class="box-title">Particulars</h3>
+      </div>
+      <div class="box-body dynamic-ledgers">
+        <div class="row">
+          <div class="col-xs-4"><h4>Ledger</h4></div>
+          <div class="col-xs-2"><h4>Amount</h4></div>
+          <div class="col-xs-1"><h4>Dr/Cr</h4></div>
+          <div class="col-xs-3"><h4>Cheque</h4></div>
+          <div class="col-xs-2"><h4>Bank</h4></div>
+        </div>
+
+
+          <div class="row particular">
+		<div class="col-xs-4"><select class="form-control combobox select-ledger" name="voucher[particulars_attributes][3][ledger_id]" id="voucher_particulars_attributes_3_ledger_id"><option value="980190962">Cash</option>
+<option value="980190973">Lal Dhoj  Lama</option>
+<option value="980190980">Jamuna Poudel  Dulal</option>
+<option value="980190987">Kabita  Agrawal</option>
+<option value="980190988">Krishna  Prajapati</option>
+<option value="980190989">Shreejana  Kuwar</option>
+<option value="980190992">Anju  Puri</option>
+<option value="980190993">Ganesh Prasad  Aryal</option>
+<option value="980190998">Manju  Giri Puri</option>
+<option value="980191000">Prakash Raj  Uprety</option>
+<option value="980191001">Tsering Tenzing  Labrang</option>
+<option value="980191003">Yogesh Raj  Wasti</option>
+<option value="980191007">Mohit  Kedia</option>
+<option value="980191008">Upendra  Kadel</option>
+<option value="980190986">Binod Psd  Dulal</option>
+<option value="980191010">Sanjay  Bajimaya</option>
+<option value="980191013">Hom Nath  Chaulagai</option>
+<option value="980190981">Shanti Bhakta  Shiwakoti</option>
+<option value="980191017">Pujan  Baidhya</option>
+<option value="980191018">Rabin Kuwar  Kshetree</option>
+<option value="980191022">Shaurab  Shrestha</option>
+<option value="980191023">Gaurab Kumar  Saraf</option>
+<option value="980191014">Subarna  Bahadur  Silwal</option>
+<option value="980191026">Bhagwan  Pokhrel</option>
+<option value="980191016">Sita  Trital Ghimire</option>
+<option value="980191030">Api Hydro Mechanical Pvt.Ltd   </option>
+<option value="980191033">Milan  Khadka</option>
+<option value="980191028">Nabaraj  Karki</option>
+<option value="980191036">Sagar  Dotel</option>
+<option value="980191037">Milan Bhakta  Shrestha</option>
+<option value="980191002">Kuber  Thapa</option>
+<option value="980191040">Namita  Agrawal</option>
+<option value="980190974">Tej Bdr  Shrestha</option>
+<option value="980191043">Bishnu Hari  Aryal</option>
+<option value="980191032">Sofina  Pokharel</option>
+<option value="980191046">Krishna Kumar  Khadka</option>
+<option value="980190991">Tara Kumari  Pokharel Raut</option>
+<option value="980191049">Mohan Kumari  Ojha</option>
+<option value="980190967">Nepse Purchase</option>
+<option value="980190966">Purchase Commission</option>
+<option value="980191052">Binod  Shrestha</option>
+<option value="980191045">Bhanu Bhakta  Acharya</option>
+<option value="980191044">Madhav Kumar  Raut</option>
+<option value="980191029">Aditya  Joshi</option>
+<option value="980191027">Arjun Bahadur  Karki</option>
+<option value="980191012">Hari Prasad  Khanal</option>
+<option value="980191025">Suraj  Shrestha</option>
+<option value="980190995">Shraban  Bhattarai</option>
+<option value="980191009">Rishi Raj  Upadhaya</option>
+<option value="980191038">Aaradhya  Dhungana</option>
+<option value="980190994">Dipendra Nath  Adhikari</option>
+<option value="980191042">Sanjib Kumar  Shrestha</option>
+<option value="980190977">Naresh  Pradhan</option>
+<option value="980191035">Nilam Prasad  Dahal</option>
+<option value="980190984">Purushottam  Shrestha</option>
+<option value="980190983">Dil Bdr  Chettri</option>
+<option value="980191020">Sabitri Kumari  Acharya</option>
+<option value="980191048">Chopnath  Upadhyaya</option>
+<option value="980191047">Man Kumari  Thapa</option>
+<option value="980190970">Manju Kumari  Joshi</option>
+<option value="980190990">Chandra Shekhar  Panthi</option>
+<option value="980191051">Hem Bahadur  Thapa</option>
+<option value="980191031">Kiran  Parajuli</option>
+<option value="980191006">Amendra Singh  Rathor</option>
+<option value="980190976">Suman Kumar  Shrestha</option>
+<option value="980190978">Prakash Babu  Kc</option>
+<option value="980190999">Laxmi Investment Pvt. Ltd   </option>
+<option value="980190982">Baburaja  Manandhar</option>
+<option value="980191021">Mikesh  Karki</option>
+<option value="980191039">Dinesh  Shrestha</option>
+<option value="980191015">Gyanendra Bdr  Bhandari Kshetry</option>
+<option value="980191034">Goma Ghimire  Katuwal</option>
+<option value="980191004">Siddhartha Insurance Limited   </option>
+<option value="980190975">Ramesh Kumar  Chaulagian</option>
+<option value="980191024">Nabin Kumar  Thapa</option>
+<option value="980191041">Krishna  Ranjit</option>
+<option value="980191054">Nepse Sales</option>
+<option value="980190968">TDS</option>
+<option value="980191053">Sales Commission</option>
+<option value="980190969">DP Fee/ Transfer</option>
+<option value="980190979">Govinda  Dahal</option>
+<option value="980191005">Prakash  Neupane</option>
+<option value="980190972">Swikar  Sigdel</option>
+<option value="980190971">Tara Devi  Ghimire</option>
+<option value="980191019">Ajaya  Dhungana</option>
+<option value="980190985">Pawan Kumar  Agrawal</option>
+<option value="980191011">Madan  Gyawali</option>
+<option value="980191050">Peoples Investment Co. Ltd   </option>
+<option value="980190997">Prem Bdr  Kc</option>
+<option value="980190996">Bhaskar  Ghimire</option>
+<option selected="selected" value="980190965">Vibor Bikash Bank Ltd   </option></select></div>
+	<div class="col-xs-2"><div class="form-group decimal optional voucher_particulars_amount"><input class="numeric decimal optional form-control" type="number" step="any" value="4698570.59" name="voucher[particulars_attributes][3][amount]" id="voucher_particulars_attributes_3_amount" /></div></div>
+	<div class="col-xs-1 type-selector">
+			<div class="form-group hidden voucher_particulars_transaction_type"><input value="dr" class="hidden form-control" type="hidden" name="voucher[particulars_attributes][3][transaction_type]" id="voucher_particulars_attributes_3_transaction_type" /></div>
+			<select disabled="disabled" name="voucher[particulars_attributes][3][transaction_type]" id="voucher_particulars_attributes_3_transaction_type"><option selected="selected" value="dr">dr</option>
+<option value="cr">cr</option></select>
+	</div>
+  <div class="col-xs-4 padding-zero">
+    <div class="col-xs-6 cheque-container"><input placeholder="Cheque number" class="form-control cheque" type="number" name="voucher[particulars_attributes][3][cheque_number]" id="voucher_particulars_attributes_3_cheque_number" /></div>
+    <div class="col-xs-6 cheque-container bank">
+      <select class="form-control combobox " name="voucher[particulars_attributes][3][additional_bank_id]" id="voucher_particulars_attributes_3_additional_bank_id"><option value="980190962">MyString</option>
+<option value="298486374">MyAnotherString</option>
+<option value="980190963">TBH</option></select>
+    </div>
+  </div>
+
+  <div class="col-xs-1 padding-zero remove-particular"><a class="removeThisParticular btn btn-primary" href="#">Remove</a></div>
+</div>
+
+        <a class="add_fields btn btn-primary" data-id="70155582016660" data-fields="&lt;div class=&quot;row particular&quot;&gt;		&lt;div class=&quot;col-xs-4&quot;&gt;&lt;select class=&quot;form-control combobox select-ledger&quot; name=&quot;voucher[particulars_attributes][70155582016660][ledger_id]&quot; id=&quot;voucher_particulars_attributes_70155582016660_ledger_id&quot;&gt;&lt;option value=&quot;980190962&quot;&gt;Cash&lt;/option&gt;&lt;option value=&quot;980190973&quot;&gt;Lal Dhoj  Lama&lt;/option&gt;&lt;option value=&quot;980190980&quot;&gt;Jamuna Poudel  Dulal&lt;/option&gt;&lt;option value=&quot;980190987&quot;&gt;Kabita  Agrawal&lt;/option&gt;&lt;option value=&quot;980190988&quot;&gt;Krishna  Prajapati&lt;/option&gt;&lt;option value=&quot;980190989&quot;&gt;Shreejana  Kuwar&lt;/option&gt;&lt;option value=&quot;980190992&quot;&gt;Anju  Puri&lt;/option&gt;&lt;option value=&quot;980190993&quot;&gt;Ganesh Prasad  Aryal&lt;/option&gt;&lt;option value=&quot;980190998&quot;&gt;Manju  Giri Puri&lt;/option&gt;&lt;option value=&quot;980191000&quot;&gt;Prakash Raj  Uprety&lt;/option&gt;&lt;option value=&quot;980191001&quot;&gt;Tsering Tenzing  Labrang&lt;/option&gt;&lt;option value=&quot;980191003&quot;&gt;Yogesh Raj  Wasti&lt;/option&gt;&lt;option value=&quot;980191007&quot;&gt;Mohit  Kedia&lt;/option&gt;&lt;option value=&quot;980191008&quot;&gt;Upendra  Kadel&lt;/option&gt;&lt;option value=&quot;980190986&quot;&gt;Binod Psd  Dulal&lt;/option&gt;&lt;option value=&quot;980191010&quot;&gt;Sanjay  Bajimaya&lt;/option&gt;&lt;option value=&quot;980191013&quot;&gt;Hom Nath  Chaulagai&lt;/option&gt;&lt;option value=&quot;980190981&quot;&gt;Shanti Bhakta  Shiwakoti&lt;/option&gt;&lt;option value=&quot;980191017&quot;&gt;Pujan  Baidhya&lt;/option&gt;&lt;option value=&quot;980191018&quot;&gt;Rabin Kuwar  Kshetree&lt;/option&gt;&lt;option value=&quot;980191022&quot;&gt;Shaurab  Shrestha&lt;/option&gt;&lt;option value=&quot;980191023&quot;&gt;Gaurab Kumar  Saraf&lt;/option&gt;&lt;option value=&quot;980191014&quot;&gt;Subarna  Bahadur  Silwal&lt;/option&gt;&lt;option value=&quot;980191026&quot;&gt;Bhagwan  Pokhrel&lt;/option&gt;&lt;option value=&quot;980191016&quot;&gt;Sita  Trital Ghimire&lt;/option&gt;&lt;option value=&quot;980191030&quot;&gt;Api Hydro Mechanical Pvt.Ltd   &lt;/option&gt;&lt;option value=&quot;980191033&quot;&gt;Milan  Khadka&lt;/option&gt;&lt;option value=&quot;980191028&quot;&gt;Nabaraj  Karki&lt;/option&gt;&lt;option value=&quot;980191036&quot;&gt;Sagar  Dotel&lt;/option&gt;&lt;option value=&quot;980191037&quot;&gt;Milan Bhakta  Shrestha&lt;/option&gt;&lt;option value=&quot;980191002&quot;&gt;Kuber  Thapa&lt;/option&gt;&lt;option value=&quot;980191040&quot;&gt;Namita  Agrawal&lt;/option&gt;&lt;option value=&quot;980190974&quot;&gt;Tej Bdr  Shrestha&lt;/option&gt;&lt;option value=&quot;980191043&quot;&gt;Bishnu Hari  Aryal&lt;/option&gt;&lt;option value=&quot;980191032&quot;&gt;Sofina  Pokharel&lt;/option&gt;&lt;option value=&quot;980191046&quot;&gt;Krishna Kumar  Khadka&lt;/option&gt;&lt;option value=&quot;980190991&quot;&gt;Tara Kumari  Pokharel Raut&lt;/option&gt;&lt;option value=&quot;980191049&quot;&gt;Mohan Kumari  Ojha&lt;/option&gt;&lt;option value=&quot;980190967&quot;&gt;Nepse Purchase&lt;/option&gt;&lt;option value=&quot;980190966&quot;&gt;Purchase Commission&lt;/option&gt;&lt;option value=&quot;980191052&quot;&gt;Binod  Shrestha&lt;/option&gt;&lt;option value=&quot;980191045&quot;&gt;Bhanu Bhakta  Acharya&lt;/option&gt;&lt;option value=&quot;980191044&quot;&gt;Madhav Kumar  Raut&lt;/option&gt;&lt;option value=&quot;980191029&quot;&gt;Aditya  Joshi&lt;/option&gt;&lt;option value=&quot;980191027&quot;&gt;Arjun Bahadur  Karki&lt;/option&gt;&lt;option value=&quot;980191012&quot;&gt;Hari Prasad  Khanal&lt;/option&gt;&lt;option value=&quot;980191025&quot;&gt;Suraj  Shrestha&lt;/option&gt;&lt;option value=&quot;980190995&quot;&gt;Shraban  Bhattarai&lt;/option&gt;&lt;option value=&quot;980191009&quot;&gt;Rishi Raj  Upadhaya&lt;/option&gt;&lt;option value=&quot;980191038&quot;&gt;Aaradhya  Dhungana&lt;/option&gt;&lt;option value=&quot;980190994&quot;&gt;Dipendra Nath  Adhikari&lt;/option&gt;&lt;option value=&quot;980191042&quot;&gt;Sanjib Kumar  Shrestha&lt;/option&gt;&lt;option value=&quot;980190977&quot;&gt;Naresh  Pradhan&lt;/option&gt;&lt;option value=&quot;980191035&quot;&gt;Nilam Prasad  Dahal&lt;/option&gt;&lt;option value=&quot;980190984&quot;&gt;Purushottam  Shrestha&lt;/option&gt;&lt;option value=&quot;980190983&quot;&gt;Dil Bdr  Chettri&lt;/option&gt;&lt;option value=&quot;980191020&quot;&gt;Sabitri Kumari  Acharya&lt;/option&gt;&lt;option value=&quot;980191048&quot;&gt;Chopnath  Upadhyaya&lt;/option&gt;&lt;option value=&quot;980191047&quot;&gt;Man Kumari  Thapa&lt;/option&gt;&lt;option value=&quot;980190970&quot;&gt;Manju Kumari  Joshi&lt;/option&gt;&lt;option value=&quot;980190990&quot;&gt;Chandra Shekhar  Panthi&lt;/option&gt;&lt;option value=&quot;980191051&quot;&gt;Hem Bahadur  Thapa&lt;/option&gt;&lt;option value=&quot;980191031&quot;&gt;Kiran  Parajuli&lt;/option&gt;&lt;option value=&quot;980191006&quot;&gt;Amendra Singh  Rathor&lt;/option&gt;&lt;option value=&quot;980190976&quot;&gt;Suman Kumar  Shrestha&lt;/option&gt;&lt;option value=&quot;980190978&quot;&gt;Prakash Babu  Kc&lt;/option&gt;&lt;option value=&quot;980190999&quot;&gt;Laxmi Investment Pvt. Ltd   &lt;/option&gt;&lt;option value=&quot;980190982&quot;&gt;Baburaja  Manandhar&lt;/option&gt;&lt;option value=&quot;980191021&quot;&gt;Mikesh  Karki&lt;/option&gt;&lt;option value=&quot;980191039&quot;&gt;Dinesh  Shrestha&lt;/option&gt;&lt;option value=&quot;980191015&quot;&gt;Gyanendra Bdr  Bhandari Kshetry&lt;/option&gt;&lt;option value=&quot;980191034&quot;&gt;Goma Ghimire  Katuwal&lt;/option&gt;&lt;option value=&quot;980191004&quot;&gt;Siddhartha Insurance Limited   &lt;/option&gt;&lt;option value=&quot;980190975&quot;&gt;Ramesh Kumar  Chaulagian&lt;/option&gt;&lt;option value=&quot;980191024&quot;&gt;Nabin Kumar  Thapa&lt;/option&gt;&lt;option value=&quot;980191041&quot;&gt;Krishna  Ranjit&lt;/option&gt;&lt;option value=&quot;980191054&quot;&gt;Nepse Sales&lt;/option&gt;&lt;option value=&quot;980190968&quot;&gt;TDS&lt;/option&gt;&lt;option value=&quot;980191053&quot;&gt;Sales Commission&lt;/option&gt;&lt;option value=&quot;980190969&quot;&gt;DP Fee/ Transfer&lt;/option&gt;&lt;option value=&quot;980190979&quot;&gt;Govinda  Dahal&lt;/option&gt;&lt;option value=&quot;980191005&quot;&gt;Prakash  Neupane&lt;/option&gt;&lt;option value=&quot;980190972&quot;&gt;Swikar  Sigdel&lt;/option&gt;&lt;option value=&quot;980190971&quot;&gt;Tara Devi  Ghimire&lt;/option&gt;&lt;option value=&quot;980191019&quot;&gt;Ajaya  Dhungana&lt;/option&gt;&lt;option value=&quot;980190985&quot;&gt;Pawan Kumar  Agrawal&lt;/option&gt;&lt;option value=&quot;980191011&quot;&gt;Madan  Gyawali&lt;/option&gt;&lt;option value=&quot;980191050&quot;&gt;Peoples Investment Co. Ltd   &lt;/option&gt;&lt;option value=&quot;980190997&quot;&gt;Prem Bdr  Kc&lt;/option&gt;&lt;option value=&quot;980190996&quot;&gt;Bhaskar  Ghimire&lt;/option&gt;&lt;option value=&quot;980190965&quot;&gt;Vibor Bikash Bank Ltd   &lt;/option&gt;&lt;/select&gt;&lt;/div&gt;	&lt;div class=&quot;col-xs-2&quot;&gt;&lt;div class=&quot;form-group decimal optional voucher_particulars_amount&quot;&gt;&lt;input class=&quot;numeric decimal optional form-control&quot; type=&quot;number&quot; step=&quot;any&quot; value=&quot;0.0&quot; name=&quot;voucher[particulars_attributes][70155582016660][amount]&quot; id=&quot;voucher_particulars_attributes_70155582016660_amount&quot; /&gt;&lt;/div&gt;&lt;/div&gt;	&lt;div class=&quot;col-xs-1 type-selector&quot;&gt;			&lt;div class=&quot;form-group hidden voucher_particulars_transaction_type&quot;&gt;&lt;input value=&quot;dr&quot; class=&quot;hidden form-control&quot; type=&quot;hidden&quot; name=&quot;voucher[particulars_attributes][70155582016660][transaction_type]&quot; id=&quot;voucher_particulars_attributes_70155582016660_transaction_type&quot; /&gt;&lt;/div&gt;			&lt;select disabled=&quot;disabled&quot; name=&quot;voucher[particulars_attributes][70155582016660][transaction_type]&quot; id=&quot;voucher_particulars_attributes_70155582016660_transaction_type&quot;&gt;&lt;option selected=&quot;selected&quot; value=&quot;dr&quot;&gt;dr&lt;/option&gt;&lt;option value=&quot;cr&quot;&gt;cr&lt;/option&gt;&lt;/select&gt;	&lt;/div&gt;  &lt;div class=&quot;col-xs-4 padding-zero&quot;&gt;    &lt;div class=&quot;col-xs-6 cheque-container&quot;&gt;&lt;input placeholder=&quot;Cheque number&quot; class=&quot;form-control cheque&quot; type=&quot;number&quot; name=&quot;voucher[particulars_attributes][70155582016660][cheque_number]&quot; id=&quot;voucher_particulars_attributes_70155582016660_cheque_number&quot; /&gt;&lt;/div&gt;    &lt;div class=&quot;col-xs-6 cheque-container bank&quot;&gt;      &lt;select class=&quot;form-control combobox &quot; name=&quot;voucher[particulars_attributes][70155582016660][additional_bank_id]&quot; id=&quot;voucher_particulars_attributes_70155582016660_additional_bank_id&quot;&gt;&lt;option value=&quot;980190962&quot;&gt;MyString&lt;/option&gt;&lt;option value=&quot;298486374&quot;&gt;MyAnotherString&lt;/option&gt;&lt;option value=&quot;980190963&quot;&gt;TBH&lt;/option&gt;&lt;/select&gt;    &lt;/div&gt;  &lt;/div&gt;  &lt;div class=&quot;col-xs-1 padding-zero remove-particular&quot;&gt;&lt;a class=&quot;removeThisParticular btn btn-primary&quot; href=&quot;#&quot;&gt;Remove&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;" href="#">Add Particular</a>
+      </div>
+    </div>
+
+
+
+
+  </div>
+  <div class="form-inputs">
+    <h4>Narration</h4>
+    <div class="form-group string optional voucher_desc"><input class="string optional form-control" type="text" value="Settled for Bill No: 7273-55" name="voucher[desc]" id="voucher_desc" /></div>
+  </div>
+  <div class="form-actions">
+    <input type="submit" name="commit" value="submit" class="btn btn-primary" />
+  </div>
+</form>
+<a href="/vouchers">Back</a>
 
               </div>
 
@@ -254,7 +512,7 @@
     </div><!-- ./wrapper -->
 
      <!-- REQUIRED JS SCRIPTS -->
-    <script src="/assets/application-19171594db4b57f9bb34fae83dfb9267872778620bf8bf65e0d171fb563de4bf.js" data-turbolinks-eval="false"></script>
+    <script src="/assets/application-be0c4c64330b0e4a228ef0abab3863ef74425fda6818cf3f8f47ec45a806a90e.js" data-turbolinks-eval="false"></script>
 
 
     <!-- HOTKEYS BEGINS -->
@@ -272,4 +530,5 @@
 
   </body>
 </html>
-
+"], @closed=false>, @header={"X-Frame-Options"=>"SAMEORIGIN", "X-XSS-Protection"=>"1; mode=block", "X-Content-Type-Options"=>"nosniff", "Content-Type"=>"text/html; charset=utf-8", "ETag"=>"W/"0535a64a349ab5b5ca2fadb37c99f817"", "Cache-Control"=>"max-age=0, private, must-revalidate", "Set-Cookie"=>"_smartkhata_session=V0Y3ay9DaGNySURNdDVndWFoNC9SRXNoNXV4VzhZVVlrbjloWTlXZ3Zrcm43bE9lZm01WWx5RWNOOGJOSDRWU3lFSXFyaFNvVTJVZ2hJUzRWM05rNHh2Q2Z2VDhPRHFMb1lWQUxRNTRkZEFneEpxRkR4UzJBVWpZYlRhd1prRGRJcmMxaDk1U3lkZnVqeVZPZmYwVDVIazh5c3hPdFJVNGpsaTFnTUNqY1RzPS0tcTdlQ0pyZXBQVWlsdnNhdkJKWngxdz09--aa8f4a8526123d67d7918a0b590de4f02b466f4e; path=/; HttpOnly
+request_method=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 -0000", "X-Request-Id"=>"1801ed5f-503d-4131-8a20-90b2b0979f38", "X-Runtime"=>"0.070254", "Content-Length"=>"35244"}, @status=200, @sending_file=false, @blank=false, @cv=#<MonitorMixin::ConditionVariable:0x007f9cbe256680 @monitor=#<ActionDispatch::TestResponse:0x007f9cbe256860 ...>, @cond=#<Thread::ConditionVariable:0x007f9cbe256658>>, @committed=false, @sending=false, @sent=false, @content_type=#<Mime::Type:0x007f9cb555c180 @synonyms=["application/xhtml+xml"], @symbol=:html, @string="text/html">, @charset="utf-8", @cache_control={:max_age=>"0", :extras=>["private"], :must_revalidate=>true}, @etag="W/"0535a64a349ab5b5ca2fadb37c99f817

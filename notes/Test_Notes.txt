@@ -24,11 +24,8 @@
          5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2
             -click the links given
     6. Client Ledgers
-        -steps similar to Bill Process from bills
-            -processs purchase bills
-                -similar to 5.2
-            -processs sales bills
-                -similar to 5.1
+        6.1 Process ledger & verify
+        6.2 Clear ledger & verify
     7. Voucher creation
         -Create all types of vouchers
             7.1 Journal with out Bank
