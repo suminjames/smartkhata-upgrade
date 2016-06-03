@@ -13,6 +13,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, :unless => :devise_controller?
   # after_action :verify_authorized, :unless => :devise_controller?
   before_action :set_user_session, if: :user_signed_in?
+  before_action :set_branch_fy_params
 
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found
@@ -33,14 +34,14 @@ class ApplicationController < ActionController::Base
     redirect_to (request.referrer || root_path)
   end
 
-  def current_fy_code
-    get_fy_code
-  end
-  helper_method :current_fy_code
-
   # Uses the helper methods from devise to made them available in the models
   def set_user_session
     UserSession.user = current_user
   end
 
+#   set the default fycode and branch params
+  def set_branch_fy_params
+    params[:by_fy_code] ||= get_fy_code
+    params[:by_branch_code] ||= current_user.branch_id
+  end
 end

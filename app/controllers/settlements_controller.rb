@@ -12,7 +12,6 @@ class SettlementsController < ApplicationController
   # GET /settlements
   # GET /settlements.json
   def index
-    params[:by_fy_code] = current_fy_code
     @settlements = apply_scopes(Settlement.all)
   end
 
