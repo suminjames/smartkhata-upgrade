@@ -1,16 +1,19 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
+  # has_scope
+  has_scope :by_settlement_type
+  has_scope :by_client_id
+  has_scope :by_vendor_id
+  has_scope :by_fy_code
+  # has_scope :by_date
+  # has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash
+
   # GET /settlements
   # GET /settlements.json
   def index
-    if params[:settlement_type] == 'receipt'
-      @settlements = Settlement.receipt
-    elsif params[:settlement_type] == 'payment'
-      @settlements = Settlement.payment
-    else
-      @settlements = Settlement.all
-    end
+    params[:fy_code] ||= get_fy_code
+    @settlements = apply_scopes(Settlement.all)
   end
 
   # GET /settlements/1
