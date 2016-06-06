@@ -10,7 +10,8 @@
               @filterrific.select_options[:by_client_id],
               :id,
               :name,
-              {class: 'form-control combobox', include_blank: '- Any -' }) %>
+              {include_blank: '- Any -'},
+              {class: 'form-control combobox' }) %>
     </div>
 
     <div>
@@ -18,7 +19,7 @@
       <%= f.select(
               :by_settlement_type,
               @filterrific.select_options[:by_settlement_type],
-              { include_blank: '- Any -' }
+              { include_blank: '- Any -' },{class: 'form-control combobox' }
           ) %>
     </div>
 
