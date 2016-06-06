@@ -5,7 +5,7 @@ class Print::PrintVoucher< Prawn::Document
   include ApplicationHelper
 
   def initialize(voucher, particulars, bank_account, cheque, current_tenant)
-    super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 38, bottom_margin: 18, left_margin: 18)
 
     @voucher = voucher
     @particulars = particulars
@@ -36,7 +36,7 @@ class Print::PrintVoucher< Prawn::Document
   end
 
   def page_width
-    578
+    558
   end
 
   def page_height
@@ -113,6 +113,10 @@ class Print::PrintVoucher< Prawn::Document
       t.header = true
       t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
       t.row(0).font_style = :bold
+      t.columns(0..-1).borders = [:left]
+      t.columns(-1).borders = [:left, :right]
+      t.rows(0).borders = [:top, :bottom, :left, :right]
+      t.rows(-1).borders = [:bottom, :left, :right]
       t.column_widths = column_widths
     end
   end
@@ -134,6 +138,10 @@ class Print::PrintVoucher< Prawn::Document
       t.header = true
       t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
       t.row(0).font_style = :bold
+      t.columns(0..-1).borders = [:left]
+      t.columns(-1).borders = [:left, :right]
+      t.rows(0).borders = [:top, :bottom, :left, :right]
+      t.rows(-1).borders = [:bottom, :left, :right]
       t.column_widths = column_widths
     end
 
@@ -142,12 +150,12 @@ class Print::PrintVoucher< Prawn::Document
   def header
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(3)) do
-      text "#{@current_tenant.full_name}"
+      text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
       text "#{@current_tenant.address}"
-     text "Phone: #{@current_tenant.phone_number}"
-     text "Fax: #{@current_tenant.fax_number}"
-     text "PAN: #{@current_tenant.pan_number}"
-   end
+      text "Phone: #{@current_tenant.phone_number}"
+      text "Fax: #{@current_tenant.fax_number}"
+      text "PAN: #{@current_tenant.pan_number}"
+    end
   end
 
   def signature_fields

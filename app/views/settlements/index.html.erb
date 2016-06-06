@@ -21,7 +21,7 @@
         <td><%= settlement.description %></td>
         <td><%= settlement.receipt? ? 'receipt' : 'payment' %></td>
         <!-- <td><%= settlement.voucher %></td> -->
-        <td><%= link_to 'Show', settlement %></td>
+        <td><%= link_to 'Show', settlement , target: '_blank' %></td>
       </tr>
     <% end %>
   </tbody>

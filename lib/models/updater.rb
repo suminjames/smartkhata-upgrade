@@ -4,6 +4,10 @@ module Models::Updater
     base.instance_eval do
       before_create :set_creator
       before_save :set_updater
+
+      # to keep track of the user who created and last updated the ledger
+      belongs_to :creator,  class_name: 'User'
+      belongs_to :updater,  class_name: 'User'
     end
   end
 

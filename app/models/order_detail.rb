@@ -31,7 +31,7 @@ class OrderDetail < ActiveRecord::Base
 
   #TODO(sarojk): Find out all enums for type
   # 10512 rows of test file only contained one of values 'buying' or 'selling'
-  enum typee: [:buying, :selling]
+  enum typee: [:buy, :sell]
 
   #TODO(sarojk): Find out what is a segment? Possible values?
   enum segment: [:ct]

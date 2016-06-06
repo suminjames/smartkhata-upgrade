@@ -14,7 +14,6 @@ $(document).ready ->
         $parent_row.removeClass('checked')
 
   $(document).on 'click', '.display-chalan-desc', (event) ->
-    debugger
     event.preventDefault()
     $parent = $(this).parent()
     all_selected_transaction = $('tr.checked td.trans-number')
@@ -39,7 +38,6 @@ $(document).ready ->
     net_amount = 0.0
     all_selected_transaction = $('tr.checked td.trans-number')
     all_selected_amount = $('tr.checked td.bank-deposit')
-    debugger
     for data in all_selected_amount
       net_amount += parse_number(data)
 

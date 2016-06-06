@@ -40,14 +40,8 @@ class Ledger < ActiveRecord::Base
   has_many :employee_ledger_associations
 	has_many :employee_accounts, through: :employee_ledger_associations
 
-  # to keep track of the user who created and last updated the ledger
-	belongs_to :creator,  class_name: 'User'
-	belongs_to :updater,  class_name: 'User'
-
 	validates_presence_of :name
-	# validates_presence_of :group_id
 	validate :positive_amount, on: :create
-
 	before_create :update_closing_balance
 
 	scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
@@ -62,6 +56,18 @@ class Ledger < ActiveRecord::Base
 			self.closing_blnc = self.opening_blnc
 		end
 	end
+
+	def update_custom(params)
+    self.name = params[:name]
+    self.group_id = params[:group_id]
+    self.vendor_account_id= params[:vendor_account_id]
+    unless params[:opening_blnc].nil?
+			self.opening_blnc = params[:opening_blnc_type].to_i == Particular.transaction_types['cr'] ? params[:opening_blnc].to_f * -1 : params[:opening_blnc].to_f.abs
+			self.closing_blnc = self.opening_blnc
+    end
+    self.save!
+	end
+
 
 	def positive_amount
 		if self.opening_blnc < 0

@@ -42,11 +42,6 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers , through: :bill_voucher_associations
-  # has_many :particulars, through: :voucher
-
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
 
   # verify this with views everytime before changing
   # bill index
@@ -69,10 +64,8 @@ class Bill < ActiveRecord::Base
   #  TODO: Implement multi-name search
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
-  scope :find_by_date, -> (date) { where(
-    :date => date.beginning_of_day..date.end_of_day) }
-  scope :find_by_date_range, -> (date_from, date_to) { where(
-    :date => date_from.beginning_of_day..date_to.end_of_day) }
+  scope :find_by_date, -> (date) { where( :date => date.beginning_of_day..date.end_of_day) }
+  scope :find_by_date_range, -> (date_from, date_to) { where( :date => date_from.beginning_of_day..date_to.end_of_day) }
   scope :find_by_client_id, -> (id) { where(client_account_id: id).order(:status) }
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
 

@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'dashboard/index'
+
   resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations
@@ -75,6 +77,12 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :closeouts, only: [:new] do
+      collection {post :import}
+    end
+    resources :sysadmin_uploads, only: [:new] do
+      collection {post :import}
+    end
+    resources :sysadmin_trial_balance, only: [:new] do
       collection {post :import}
     end
   end

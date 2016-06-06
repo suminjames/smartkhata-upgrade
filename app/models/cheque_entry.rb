@@ -26,7 +26,7 @@
 
 
 class ChequeEntry < ActiveRecord::Base
-  include ::Models::UpdaterWithBranch
+  include ::Models::UpdaterWithBranchFycode
 
   belongs_to :client_account
   belongs_to :vendor_account
@@ -46,12 +46,10 @@ class ChequeEntry < ActiveRecord::Base
 
 
   has_many :vouchers, through: :particulars
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
 
   # validate foreign key: ensures that the bank account exists
   validates :bank_account, presence: true
-  validates :cheque_number, presence: true, uniqueness:   { scope: :additional_bank_id, message: "should be unique" },
+  validates :cheque_number, presence: true, uniqueness:   {scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" },
                                             numericality: { only_integer: true, greater_than: 0 }
 
   # TODO (subas) make sure to do the necessary settings

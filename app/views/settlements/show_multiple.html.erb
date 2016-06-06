@@ -1,9 +1,25 @@
-<div id="btnPrint">
-  <span class="glyphicon glyphicon-print print-icon"></span>
-  <span>Print</span>
-</div>
+
 <div class="clearfix billfull printThis">
+
+  <%= link_to "View(pdf)", show_multiple_settlements_path(settlement_ids: @settlements.pluck(:id), format: "pdf"), :target => "_blank" %>
+
+  <%
+    # id_arr_str = ''
+    # @settlements.pluck(:id).each do |id|
+    #   id_arr_str += id
+    # end
+  %>
+  <div class="btnPrintPDF btnPrintMultipleSettlementsPDF" id="settlement-<%=@settlements.pluck(:id)%>">
+    <span class="glyphicon glyphicon-print print-icon"></span>
+    <span>Print</span>
+    <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'multiple-settlements-print-spinner') %>
+    <iframe class="hidden-iframe" id='iframe-for-multiple-settlements-pdf-print'>
+      <!--hidden iframe for printing-->
+    </iframe>
+  </div>
+
   <% @settlements.each do |settlement| %>
+
       <!-- Static Company Header BEGINS -->
       <div class="clearfix">
         <strong>

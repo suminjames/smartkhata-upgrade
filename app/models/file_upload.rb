@@ -20,8 +20,4 @@ class FileUpload < ActiveRecord::Base
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
   enum file_type: [:unknown, :floorsheet, :dpa5, :orders]
-
-	# to keep track of the user who created and last updated the ledger
-	belongs_to :creator,  class_name: 'User'
-	belongs_to :updater,  class_name: 'User'
 end

@@ -49,6 +49,7 @@ class CreateClientAccounts < ActiveRecord::Migration
       t.string :bank_address
 
       t.string :company_name
+			t.string :company_address
       t.string :company_id
 
     	t.boolean :invited , default: false
@@ -60,8 +61,8 @@ class CreateClientAccounts < ActiveRecord::Migration
 			t.integer :branch_id, index: true
     	t.references :user,  index: true
     	t.timestamps null: false
-
-
+			t.string :mobile_number
+			t.string :ac_code
     end
   end
 end

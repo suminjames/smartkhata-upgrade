@@ -39,9 +39,6 @@ class ShareInventory < ActiveRecord::Base
 
   belongs_to :client_account
   belongs_to :isin_info
-  # to keep track of the user who created and last updated the ledger
-  belongs_to :creator,  class_name: 'User'
-  belongs_to :updater,  class_name: 'User'
 
   # def get_value_by_isin(isin_info)
   #   ShareInventory.where(isin_info_id: isin_info.id).sum(:floorsheet_blnc)
@@ -50,5 +47,9 @@ class ShareInventory < ActiveRecord::Base
   # def get_value_by_client(client_account)
   # end
 
+  def self.with_most_quantity
+    query = ShareInventory.joins(:isin_info).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC").limit(1)
+    query.first
+  end
 
 end

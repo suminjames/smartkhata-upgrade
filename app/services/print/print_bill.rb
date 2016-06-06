@@ -3,7 +3,7 @@ class Print::PrintBill < Prawn::Document
   require 'prawn/measurement_extensions'
 
   def initialize(bill, current_tenant)
-    super(top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
+    super(top_margin: 12, right_margin: 38, bottom_margin: 18, left_margin: 18)
 
     @bill = bill
     @current_tenant = current_tenant
@@ -29,7 +29,7 @@ class Print::PrintBill < Prawn::Document
   end
 
   def page_width
-    578
+    558
   end
 
   def page_height
@@ -62,17 +62,17 @@ class Print::PrintBill < Prawn::Document
   def header
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(3)) do
-      text "#{@current_tenant.full_name}"
+      text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
       text "#{@current_tenant.address}"
-     text "Phone: #{@current_tenant.phone_number}"
-     text "Fax: #{@current_tenant.fax_number}"
-     text "PAN: #{@current_tenant.pan_number}"
-   end
-   bounding_box([col(3), row_cursor-20], :width => col(6)) do
-     text "Schedule-3" , :align => :center
-     text "Relating to Sub-Regulation(I) of Regulation 16" , :align => :center
-     text "Information note to cients on execution of transaction" , :align => :center
-   end
+      text "Phone: #{@current_tenant.phone_number}"
+      text "Fax: #{@current_tenant.fax_number}"
+      text "PAN: #{@current_tenant.pan_number}"
+    end
+    bounding_box([col(3), row_cursor-20], :width => col(6)) do
+      text "Schedule-3" , :align => :center
+      text "Relating to Sub-Regulation(I) of Regulation 16" , :align => :center
+      text "Information note to cients on execution of transaction" , :align => :center
+    end
   end
 
   def footer
@@ -85,20 +85,18 @@ class Print::PrintBill < Prawn::Document
   end
 
   def customer_details_row
-    row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(6)) do
-      data =[
-          ["Customer:", @bill.formatted_client_name],
-          ["NEPSE Code:", @bill.client.nepse_code]
-      ]
-      table(data, :column_widths =>{0 => 100} , :cell_style => {:border_width => 0, :padding => [0,2,0,0], :align => :left})
-    end
-    bounding_box([col(6), row_cursor], :width => col(6)) do
-      data =[
-          ["Contact No.:", @bill.formatted_client_phones['secondary']],
-          ["", @bill.formatted_client_phones['secondary']]
-      ]
-      table(data, :column_widths =>{0 => 100}, :position => :right, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
+    data =[
+        ["Customer:", @bill.formatted_client_name, "Contact No.:", @bill.formatted_client_phones['secondary']],
+        ["NEPSE Code:", @bill.client.nepse_code , "", @bill.formatted_client_phones['secondary']]
+    ]
+    table_width = page_width - 2
+    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.35, 2 => table_width * 0.20, 3 => table_width * 0.30}
+    table data do |t|
+      t.header = true
+      t.cell_style = {:border_width => 0, :padding => [0,2,0,0], :align => :left}
+      t.column_widths = column_widths
+      t.column(2).style(:align => :left)
+      t.column(3).style(:align => :right)
     end
   end
 
@@ -126,9 +124,11 @@ class Print::PrintBill < Prawn::Document
 
     bounding_box([col(6)+col(1), row_cursor], :width => col(5)) do
       data = [
-          ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs']  +")"],
           ["Transaction Date:", @bill.formatted_transaction_dates['ad'] +" (" + @bill.formatted_transaction_dates['bs']  +")"]
       ]
+      if @bill.purchase?
+        data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs']  +")"])
+      end
       table(data, :position => :right, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
 
       move_down(30)
