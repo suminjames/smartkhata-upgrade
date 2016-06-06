@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, :unless => :devise_controller?
   # after_action :verify_authorized, :unless => :devise_controller?
   before_action :set_user_session, if: :user_signed_in?
-  before_action :set_branch_fy_params
+  before_action :set_branch_fy_params, if: :user_signed_in?
 
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found

@@ -11,6 +11,7 @@
 #
 
 
+
 class ChequeEntryParticularAssociation < ActiveRecord::Base
   belongs_to :cheque_entry
   belongs_to :particular

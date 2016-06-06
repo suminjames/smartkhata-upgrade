@@ -18,6 +18,7 @@
 #
 
 
+
 class NepseChalan < ActiveRecord::Base
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode

@@ -27,6 +27,7 @@
 
 
 
+
 class Particular < ActiveRecord::Base
 	include CustomDateModule
 	include ::Models::UpdaterWithBranchFycode

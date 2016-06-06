@@ -14,6 +14,7 @@
 
 
 
+
 class SalesSettlement < ActiveRecord::Base
   enum status: [:pending, :complete]
   include ::Models::Updater

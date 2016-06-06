@@ -22,6 +22,7 @@
 
 
 
+
 class Voucher < ActiveRecord::Base
 	# include FiscalYearModule
 	include ::Models::UpdaterWithBranchFycode

@@ -14,6 +14,7 @@
 #  bank_id             :integer
 #
 
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 

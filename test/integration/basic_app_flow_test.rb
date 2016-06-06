@@ -29,7 +29,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # login as existing user
     lalchan = users(:user)
     post_via_redirect new_user_session_path, 'user[email]' => lalchan.email, 'user[password]' => 'password'
-    assert_equal root_path, path
+    assert_equal dashboard_index_path, path
     assert_equal 'Signed in successfully.', flash[:notice]
 
     # DO calculate these from the test files END
