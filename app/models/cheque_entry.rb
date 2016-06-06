@@ -21,6 +21,7 @@
 #  branch_id          :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  fy_code            :integer
 #
 
 class ChequeEntry < ActiveRecord::Base
