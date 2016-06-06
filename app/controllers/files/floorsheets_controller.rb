@@ -137,8 +137,15 @@ class Files::FloorsheetsController < Files::FilesController
 		ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
         @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
-      end
-      FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
+			end
+
+			create_sms = CreateSmsService.new(@processed_data)
+			unless create_sms.process
+			end
+
+			end
+
+      # FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
 		end
     # file_error(@error_message) if @error_message.present?
 	end
@@ -173,7 +180,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# commission = arr[9]
 		bank_deposit = arr[10]
 		# arr[11] = NIL
-
+		is_purchase = false
 
 		dp = 0
 		bill = nil
@@ -206,6 +213,7 @@ class Files::FloorsheetsController < Files::FilesController
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'selling']
 			type_of_transaction = ShareTransaction.transaction_types['selling']
 		else
+			is_purchase = true
 			# create or find a bill by the number
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buying']
 
@@ -248,94 +256,78 @@ class Files::FloorsheetsController < Files::FilesController
 
 		# TODO: Include base price
 
-		transaction = ShareTransaction.create(
-			contract_no: contract_no,
-			isin_info_id: company_info.id,
-			buyer: buyer_broking_firm_code,
-			seller: seller_broking_firm_code,
-			raw_quantity: share_quantity,
-			quantity: share_quantity,
-			share_rate: share_rate,
-			share_amount: share_net_amount,
-			sebo: sebon,
-			commission_rate: commission_rate,
-			commission_amount: commission,
-			dp_fee: dp,
-			cgt: cgt,
-			net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
-			bank_deposit: bank_deposit,
-			transaction_type: type_of_transaction,
-			date: @date,
-			client_account_id: client.id
-		)
+		# transaction = ShareTransaction.create(
+		# 	contract_no: contract_no,
+		# 	isin_info_id: company_info.id,
+		# 	buyer: buyer_broking_firm_code,
+		# 	seller: seller_broking_firm_code,
+		# 	raw_quantity: share_quantity,
+		# 	quantity: share_quantity,
+		# 	share_rate: share_rate,
+		# 	share_amount: share_net_amount,
+		# 	sebo: sebon,
+		# 	commission_rate: commission_rate,
+		# 	commission_amount: commission,
+		# 	dp_fee: dp,
+		# 	cgt: cgt,
+		# 	net_amount: @client_dr,#calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
+		# 	bank_deposit: bank_deposit,
+		# 	transaction_type: type_of_transaction,
+		# 	date: @date,
+		# 	client_account_id: client.id
+		# )
+		# update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buying?)
 
-		# share_inventory = ShareInventory.find_or_create_by(
-		# 	client_account_id: client.id,
-		# 	isin_info_id: company_info.id
-		# 	)
-		# share_inventory.lock!
-    #
-		# if transaction.buying?
-		# 	share_inventory.total_in += transaction.quantity
-		# 	share_inventory.floorsheet_blnc += transaction.quantity
-		# else
-		# 	share_inventory.total_out += transaction.quantity
-		# 	share_inventory.floorsheet_blnc -= transaction.quantity
-		# end
-		#
-		# share_inventory.save!
-		# TODO remove the commented part
-		update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buying?)
-
-
+		bill_id = nil
 		if type_of_transaction == ShareTransaction.transaction_types['buying']
 			bill.share_transactions << transaction
 			bill.net_amount += transaction.net_amount
 			bill.balance_to_pay = bill.net_amount
 			bill.settlement_date = settlement_date
 			bill.save!
+			bill_id = bill.id
 
-
-			# create client ledger if not exist
-			client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
-				ledger.name = client_name
-				ledger.client_account_id = client.id
-			end
-			# assign the client ledgers to group clients
-			client_group = Group.find_or_create_by!(name: "Clients")
-			client_group.ledgers << client_ledger
-
-			# find or create predefined ledgers
-			purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
-			nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
-			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
-			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-
-
-			# update description
-			description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
-			# update ledgers value
-			voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
-			voucher.bills_on_creation << bill
-			voucher.share_transactions << transaction
-			voucher.desc = description
-			voucher.complete!
-			voucher.save!
-			#
-			# transaction.voucher =  voucher
-			# transaction.save!
-
-			#TODO replace bill from particulars with bill from voucher
-			process_accounts(client_ledger,voucher,true,@client_dr,description,@date)
-			process_accounts(nepse_ledger,voucher,false,bank_deposit,description,@date)
-			process_accounts(tds_ledger,voucher,true,tds,description,@date)
-			process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,@date)
-			process_accounts(dp_ledger,voucher,false,dp,description,@date) if dp > 0
+      #
+			# # create client ledger if not exist
+			# client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
+			# 	ledger.name = client_name
+			# 	ledger.client_account_id = client.id
+			# end
+			# # assign the client ledgers to group clients
+			# client_group = Group.find_or_create_by!(name: "Clients")
+			# client_group.ledgers << client_ledger
+      #
+			# # find or create predefined ledgers
+			# purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
+			# nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
+			# tds_ledger = Ledger.find_or_create_by!(name: "TDS")
+			# dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+      #
+      #
+			# # update description
+			# description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+			# # update ledgers value
+			# voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+			# voucher.bills_on_creation << bill
+			# voucher.share_transactions << transaction
+			# voucher.desc = description
+			# voucher.complete!
+			# voucher.save!
+			# #
+			# # transaction.voucher =  voucher
+			# # transaction.save!
+      #
+			# #TODO replace bill from particulars with bill from voucher
+			# process_accounts(client_ledger,voucher,true,@client_dr,description,@date)
+			# process_accounts(nepse_ledger,voucher,false,bank_deposit,description,@date)
+			# process_accounts(tds_ledger,voucher,true,tds,description,@date)
+			# process_accounts(purchase_commission_ledger,voucher,false,purchase_commission,description,@date)
+			# process_accounts(dp_ledger,voucher,false,dp,description,@date) if dp > 0
 
 		end
 
 
-		arr.push(@client_dr,tds,commission,bank_deposit,dp)
+		arr.push(@client_dr,tds,commission,bank_deposit,dp, bill_id, is_purchase, settlement_date)
 	end
 
 	# return true if the floor sheet data is invalid
