@@ -19,8 +19,10 @@
 //= require bootstrap-combobox.js
 //= require smart_listing
 //= require layout.min.js
+//= require filterrific/filterrific-jquery
 //= require select2.min.js
 //= require_tree .
+
 $(document).on('click', '.yamm .dropdown-menu', function(e) {
   e.stopPropagation()
 });

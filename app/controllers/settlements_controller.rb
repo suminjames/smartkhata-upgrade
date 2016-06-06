@@ -12,7 +12,22 @@ class SettlementsController < ApplicationController
   # GET /settlements
   # GET /settlements.json
   def index
-    @settlements = apply_scopes(Settlement.all)
+    @ledgers_for_combobox = Ledger.all
+    # @settlements = apply_scopes(Settlement.all)
+    @filterrific = initialize_filterrific(
+        Settlement,
+        params[:filterrific],
+        select_options: {
+            by_client_id: Settlement.options_for_client_select,
+            by_settlement_type: Settlement.options_for_settlement_type_select
+        }
+    ) or return
+    @settlements= @filterrific.find.page(params[:page])
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   # GET /settlements/1

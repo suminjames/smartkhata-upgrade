@@ -1,28 +1,40 @@
 <p id="notice"><%= notice %></p>
-<% provide(:section_title, "Listing Settlements") %>
+<% provide(:section_title, "Settlements") %>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Amount</th>
-      <th>Date bs</th>
-      <th>Description</th>
-      <th>Settlement type</th>
-    </tr>
-  </thead>
+<%= form_for_filterrific @filterrific do |f| %>
+    <div>
+      Client
+      <%# give the search field the 'filterrific-periodically-observed' class for live updates %>
+      <%= f.collection_select(
+              :by_client_id,
+              @filterrific.select_options[:by_client_id],
+              :id,
+              :name,
+              {class: 'form-control combobox', include_blank: '- Any -' }) %>
+    </div>
 
-  <tbody>
-    <% @settlements.each do |settlement| %>
-      <tr>
-        <td><%= settlement.name %></td>
-        <td><%= settlement.amount %></td>
-        <td><%= settlement.date_bs %></td>
-        <td><%= settlement.description %></td>
-        <td><%= settlement.receipt? ? 'receipt' : 'payment' %></td>
-        <!-- <td><%= settlement.voucher %></td> -->
-        <td><%= link_to 'Show', settlement , target: '_blank' %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+    <div>
+      Settlement Type
+      <%= f.select(
+              :by_settlement_type,
+              @filterrific.select_options[:by_settlement_type],
+              { include_blank: '- Any -' }
+          ) %>
+    </div>
+
+    <div>
+      <%= link_to(
+              'Reset filters',
+              reset_filterrific_url
+          ) %>
+    </div>
+    <%# add an automated spinner to your form when the list is refreshed %>
+    <%= render_filterrific_spinner %>
+<% end %>
+
+<%= render(
+        partial: 'settlements/list',
+        locals: { settlements: @settlements}
+    )
+%>
+

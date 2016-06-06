@@ -1,0 +1,29 @@
+<div id="filterrific_results">
+  <%= render 'shared/pagination', collection_to_paginate: settlements %>
+  <table class="table">
+    <thead>
+    <tr>
+      <td><%= filterrific_sorting_link(@filterrific, :name)%></td>
+      <td><%= filterrific_sorting_link(@filterrific, :amount)%></td>
+      <th>Date BS</th>
+      <th>Description</th>
+      <th>Settlement type</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% settlements.each do |settlement| %>
+        <tr>
+          <td><%= settlement.name %></td>
+          <td><%= settlement.amount %></td>
+          <td><%= settlement.date_bs %></td>
+          <td><%= settlement.description %></td>
+          <td><%= settlement.receipt? ? 'receipt' : 'payment' %></td>
+          <!-- <td><%= settlement.voucher %></td> -->
+          <td><%= link_to 'Show', settlement , target: '_blank' %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <%= render 'shared/pagination', collection_to_paginate: settlements %>
+</div>
