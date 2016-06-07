@@ -94,5 +94,7 @@ Rails.application.routes.draw do
     resources :threshold_transactions
   end
 
+  get "/test" => "test#index"
+
 
 end

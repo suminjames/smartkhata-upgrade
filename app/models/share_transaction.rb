@@ -40,6 +40,9 @@
 #  isin_info_id        :integer
 #
 
+
+
+
 class ShareTransaction < ActiveRecord::Base
 
   include ::Models::UpdaterWithBranch

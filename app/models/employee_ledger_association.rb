@@ -11,6 +11,9 @@
 #  updated_at          :datetime         not null
 #
 
+
+
+
 class EmployeeLedgerAssociation < ActiveRecord::Base
   include ::Models::Updater
 

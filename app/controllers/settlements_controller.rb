@@ -2,12 +2,12 @@ class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
   # has_scope
-  has_scope :by_settlement_type
-  has_scope :by_client_id
-  has_scope :by_vendor_id
-  has_scope :by_fy_code
-  # has_scope :by_date
-  # has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash
+  has_scope :by_settlement_type, only: :index
+  has_scope :by_client_id, only: :index
+  has_scope :by_vendor_id, only: :index
+  has_scope :by_fy_code, only: :index
+  has_scope :by_date, only: :index
+  has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash, only: :index
 
   # GET /settlements
   # GET /settlements.json

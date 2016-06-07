@@ -63,6 +63,9 @@
 #  ac_code                   :string
 #
 
+
+
+
 # Note: 
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
@@ -71,6 +74,11 @@ class ClientAccount < ActiveRecord::Base
 	include ::Models::UpdaterWithBranch
 
   after_create :create_ledger
+
+  # to keep track of the user who created and last updated the ledger
+	belongs_to :creator,  class_name: 'User'
+	belongs_to :updater,  class_name: 'User'
+
   belongs_to :group_leader,  class_name: 'ClientAccount'
 
 	belongs_to :user

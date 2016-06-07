@@ -45,6 +45,9 @@
 #  updated_at                :datetime         not null
 #
 
+
+
+
 class EmployeeAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
