@@ -35,9 +35,7 @@ class CreateSmsService
 
   def process
     res = false
-
-
-
+    group_floorsheet_records
     res
   end
 
@@ -54,33 +52,43 @@ class CreateSmsService
       is_purchase = transaction_record[17]
       settlement_date = transaction_record[18]
 
+      transaction_type = is_purchase == true ? :buy : :sell
       if @grouped_records.key?(client_code)
-        if is_purchase == true
-          if @grouped_records[client_code].key?[:buy]
-          else
-            client_single_record = HashTree.new
-            client_single_record[:buy][symbol][rate][:quantity] = quantity
-            client_single_record[:buy][symbol][rate][:receivable_from_client] = client_dr
-            @grouped_records[client_code] = client_single_record
-          end
-        else
-          if @grouped_records[client_code].key?[:sell]
-          else
-            client_single_record = HashTree.new
-            client_single_record[:sell][symbol][rate][:quantity] = quantity
-            client_single_record[:sell][symbol][rate][:receivable_from_client] = client_dr
-            @grouped_records[client_code] = client_single_record
-          end
-        end
-
+        group_by_client_and_transaction_type(client_code,transaction_type, symbol, rate, quantity, client_dr)
       else
         client_single_record = HashTree.new
-        type = is_purchase == true ? :buy : :sell
-        client_single_record[type][symbol][rate][:quantity] = quantity
-        client_single_record[type][symbol][rate][:receivable_from_client] = client_dr
+        client_single_record[transaction_type][symbol][rate][:quantity] = quantity
+        client_single_record[transaction_type][symbol][rate][:receivable_from_client] = client_dr
         @grouped_records[client_code] = client_single_record
       end
+    end
+  end
 
+  def group_by_client_and_transaction_type(client_code,transaction_type, company_symbol, rate, quantity, client_dr)
+    if @grouped_records[client_code].key? transaction_type
+      if @grouped_records[client_code][transaction_type].key? company_symbol
+        if @grouped_records[client_code][transaction_type][company_symbol].key? rate
+          _record =  @grouped_records[client_code][transaction_type][company_symbol][rate]
+          _record[:quantity] += quantity
+          _record[:receivable_from_client] += client_dr
+          @grouped_records[client_code][transaction_type][company_symbol][rate] = _record
+        else
+          _record = Hash.new
+          _record[:quantity] = quantity
+          _record[:receivable_from_client] = client_dr
+          @grouped_records[client_code][transaction_type][company_symbol][rate] = _record
+        end
+      else
+        _record = HashTree.new
+        _record[rate][:quantity] = quantity
+        _record[rate][:receivable_from_client] = client_dr
+        @grouped_records[client_code][transaction_type][company_symbol] = _record
+      end
+    else
+      client_single_record = HashTree.new
+      client_single_record[transaction_type][company_symbol][rate][:quantity] = quantity
+      client_single_record[transaction_type][company_symbol][rate][:receivable_from_client] = client_dr
+      @grouped_records[client_code] = client_single_record
     end
   end
 end

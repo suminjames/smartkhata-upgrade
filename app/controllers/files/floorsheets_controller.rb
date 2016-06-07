@@ -143,8 +143,6 @@ class Files::FloorsheetsController < Files::FilesController
 			unless create_sms.process
 			end
 
-			end
-
       # FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
 		end
     # file_error(@error_message) if @error_message.present?
@@ -280,8 +278,8 @@ class Files::FloorsheetsController < Files::FilesController
 
 		bill_id = nil
 		if type_of_transaction == ShareTransaction.transaction_types['buying']
-			bill.share_transactions << transaction
-			bill.net_amount += transaction.net_amount
+			# bill.share_transactions << transaction
+			# bill.net_amount += transaction.net_amount
 			bill.balance_to_pay = bill.net_amount
 			bill.settlement_date = settlement_date
 			bill.save!
