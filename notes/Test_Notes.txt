@@ -1,36 +1,52 @@
--DO NOT REBASE! EVER. Instead, MERGE!
+Git.Merge.each::after DO
 
--After each merge, test the following (in the order listed below):
-    1. Add Bank
-        1.1. Add Bank Account
-            -of existing bank
-            -of created bank
-    2. Add Cheque Entries
-    3. Upload Floorsheet of date X
-    4. Upload CM05 of date X
-       4.1 Process Settlement
-    5. Go to Bill List, and Process
-         5.1 Sales Bill
-            -Payment Voucher should be shown
-            -default credit ledger should default to bank for sales
-            -On Create
-                -incase of payment by bank, payment voucher is created
-                -incase of payment by cash, normal voucher is created
-         5.2 Purchase Bill
-            -Receive Voucher should be shown with narration and amount
-            -default debit ledger should default to bank for sales
-            -On Create
-                -receipt should be created with relevant information
-         5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2
-            -click the links given
-    6. Client Ledgers
-        6.1 Process ledger & verify
-        6.2 Clear ledger & verify
-    7. Voucher creation
-        -Create all types of vouchers
-            7.1 Journal with out Bank
-            7.2 Journal with Bank Account credit
-            7.3 Journal with Bank Account debit
+    I. Integration testing
+        a. Basic App flow
+            1. Add Bank
+                1.1. Add Bank Account
+                    -of existing bank
+                    -of created bank
+            2. Add Cheque Entries
+            3. Upload Floorsheet of date X
+            4. Upload CM05 of date X
+               4.1 Process Settlement
+            5. Go to Bill List, and Process
+                 5.1 Sales Bill
+                    -Payment Voucher should be shown
+                    -default credit ledger should default to bank for sales
+                    -On Create
+                        -incase of payment by bank, payment voucher is created
+                        -incase of payment by cash, normal voucher is created
+                 5.2 Purchase Bill
+                    -Receive Voucher should be shown with narration and amount
+                    -default debit ledger should default to bank for sales
+                    -On Create
+                        -receipt should be created with relevant information
+                 5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2
+                    -click the links given
+            6. Client Ledgers
+                6.1 Process ledger & verify
+                6.2 Clear ledger & verify
+            7. Voucher creation
+                -Create all types of vouchers
+                    7.1 Journal with out Bank
+                    7.2 Journal with Bank Account credit
+                    7.3 Journal with Bank Account debit
 
-    8. Upload Order
-        -re-upload the same order file
+            8. Upload Order
+                -re-upload the same order file
+
+    II. Interface testing [TODO]
+        a. Bill interface
+            - when client account -has phone number
+                                  -doesn't have phone number
+            - types of bills
+                -sales, purchase
+
+    III. Functional testing [ONGOING]
+        - Bank, Bank accounts, Cheque entries
+
+    IV. Unit Testing [ONGOING]
+        - Bank, Bank accounts, Cheque entries
+
+END

@@ -32,11 +32,11 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal dashboard_index_path, path
     assert_equal 'Signed in successfully.', flash[:notice]
 
-    @bills_in_fixtures = 1
+    @purchase_bills_in_fixtures = @sales_bills_in_fixtures = 1
     # DO calculate these from the test files END
     # bill in (file + fixtures)
-    @purchase_bills_expected_count = 51 + @bills_in_fixtures
-    @sales_bills_expected_count = 45
+    @purchase_bills_expected_count = 51 + @purchase_bills_in_fixtures
+    @sales_bills_expected_count = 45 + @sales_bills_in_fixtures
 
     # where does this come from? (fy-code?)
     @bill_number_first_part = 7273
@@ -124,14 +124,14 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     purchase_bills = Bill.find_by_bill_type('purchase')
     sales_bills =    Bill.find_by_bill_type('sales')
     # verify bills count
-    assert_equal purchase_bills.count, @purchase_bills_expected_count
-    assert_equal sales_bills.count,    @sales_bills_expected_count
+    assert_equal @purchase_bills_expected_count, purchase_bills.count
+    assert_equal @sales_bills_expected_count, sales_bills.count
     # purchase_bills_starting_id = Bill.first.id
     # sales_bills_starting_id = purchase_bills_starting_id + @purchase_bills_expected_count
 
-    # .SECOND(): Ignore one purchase bill in FIXTURES
+    # .SECOND(): Ignore one purchase & one sales bill in FIXTURES
     purchase_bills_starting_id = purchase_bills.second.id
-    sales_bills_starting_id    = sales_bills.first.id
+    sales_bills_starting_id    = sales_bills.second.id
 
 
     ############################################################### SECTION FIVE ###########################################################################
@@ -298,7 +298,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_match "Displaying ledgers <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{client_ledgers_count}</b> in total", response.body
 
     # --- 6.1 Process ledger & verify ---
-    ledger = Ledger.find_all_client_ledgers.first
+    # .THIRD(): Ignore two client ledgers in fixtures
+    ledger = Ledger.find_all_client_ledgers.third
     client_account_id = ledger.client_account_id
     get ledger_path(ledger.id)
     assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}
@@ -341,7 +342,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills', count: 0}
 
     # --- 6.2 Clear ledger & verify ---
-    ledger = Ledger.find_all_client_ledgers.second
+    # .FOURTH(): Ignore two ledgers in fixtures!
+    ledger = Ledger.find_all_client_ledgers.fourth
     client_account_id = ledger.client_account_id
     get ledger_path(ledger.id)
     assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}

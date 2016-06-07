@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: 'Hoodibaba'
+  name: 'Dedra Sorenson'
   #  boid                      :string
   #  nepse_code                :string
   #  client_type               :integer          default("0")
@@ -61,5 +61,5 @@ one:
   #  ac_code                   :string
 
 
-two: {}
-#  column: value
+two:
+  name: 'Rhoda Skinner'
