@@ -139,7 +139,7 @@ class Files::FloorsheetsController < Files::FilesController
         @processed_data  << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
 			end
 
-			create_sms = CreateSmsService.new(@processed_data)
+			create_sms = CreateSmsService.new(@processed_data, current_tenant.broker_code)
 			unless create_sms.process
 			end
 
@@ -325,7 +325,7 @@ class Files::FloorsheetsController < Files::FilesController
 		end
 
 
-		arr.push(@client_dr,tds,commission,bank_deposit,dp, bill_id, is_purchase, settlement_date)
+		arr.push(@client_dr,tds,commission,bank_deposit,dp, bill_id, is_purchase, @date)
 	end
 
 	# return true if the floor sheet data is invalid
