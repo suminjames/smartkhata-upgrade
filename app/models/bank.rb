@@ -13,8 +13,10 @@
 #  updated_at :datetime         not null
 #
 
+
 class Bank < ActiveRecord::Base
   include ::Models::Updater
   has_many :bank_accounts
-  validates :bank_code, uniqueness: true
+  validates :name, uniqueness: true, presence: true
+  validates :bank_code, uniqueness: true, presence: true
 end

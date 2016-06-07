@@ -14,20 +14,21 @@
 #  bank_id             :integer
 #
 
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 
   before_save :change_default
   before_create :assign_group
 
-
   has_many :cheque_entries
   has_one :ledger
   belongs_to :bank
 
+  validates :account_number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true #, length: { in: 3..13 }
+  validates_presence_of :bank, :account_number
   validates_presence_of :bank_id, :account_number
   accepts_nested_attributes_for :ledger
-
 
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted

@@ -13,6 +13,9 @@
 #  updated_at :datetime         not null
 #
 
+
+
+
 class IsinInfo < ActiveRecord::Base
 	has_many :share_transactions
 

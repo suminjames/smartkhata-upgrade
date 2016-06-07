@@ -39,4 +39,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Configure host for testing
+  Rails.application.routes.default_url_options[:host] = 'localhost'
 end

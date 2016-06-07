@@ -21,7 +21,11 @@
 #  branch_id          :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  fy_code            :integer
 #
+
+
+
 
 class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
@@ -30,7 +34,7 @@ class ChequeEntry < ActiveRecord::Base
   belongs_to :vendor_account
   belongs_to :bank_account
   belongs_to :additional_bank, class_name: "Bank"
-  belongs_to :particular
+  # belongs_to :particular
 
   # for many to many relation between cheque and the particulars.
   # a cheque can pay/recieve for multiple particulars.
@@ -45,12 +49,15 @@ class ChequeEntry < ActiveRecord::Base
 
   has_many :vouchers, through: :particulars
 
+  # validate foreign key: ensures that the bank account exists
+  validates :bank_account, presence: true
+  validates :cheque_number, presence: true, uniqueness:   {scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" },
+                                            numericality: { only_integer: true, greater_than: 0 }
+
   # TODO (subas) make sure to do the necessary settings
   enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
   enum print_status: [:to_be_printed, :printed]
   enum cheque_issued_type: [:payment, :receipt]
 
-  validates :cheque_number, uniqueness: { scope: [:additional_bank_id, :bank_account_id ], message: "should be unique" }
   # scope :unassigned, -> { unassigned }
-
 end

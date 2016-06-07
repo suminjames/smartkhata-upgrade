@@ -22,6 +22,9 @@
 #  vendor_account_id   :integer
 #
 
+
+
+
 class Ledger < ActiveRecord::Base
 
 	include ::Models::UpdaterWithBranchFycode

@@ -1,11 +1,57 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined.  If you add columns to the
-# model remove the '{}' from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-#  column: value
+one:
+  isin_desc: foo
+  current_blnc: 5000
+  free_blnc: 5000
+  freeze_blnc: 5000
+  dmt_pending_veri: 5000
+  dmt_pending_conf: 5000
+  rmt_pending_conf: 5000
+  safe_keep_blnc: 5000
+  lock_blnc: 5000
+  earmark_blnc: 5000
+  elimination_blnc: 5000
+  avl_lend_blnc: 5000
+  lend_blnc: 5000
+  borrow_blnc: 5000
+  pledge_blnc: 5000
+  total_in: 0
+  total_out: 0
+  floorsheet_blnc: 0
+  creator_id: nil
+  updater_id: nil
+  branch_id: nil
+  report_date: <%= Date.today %>
+  client_account_id: nil
+  isin_info: one
+  # created_at: "2016-06-06 08:59:49"
+  # updated_at: "2016-06-06 08:59:49"
+
+two:
+  isin_desc: bar
+  current_blnc: 5000
+  free_blnc: 5000
+  freeze_blnc: 5000
+  dmt_pending_veri: 5000
+  dmt_pending_conf: 5000
+  rmt_pending_conf: 5000
+  safe_keep_blnc: 5000
+  lock_blnc: 5000
+  earmark_blnc: 5000
+  elimination_blnc: 5000
+  avl_lend_blnc: 5000
+  lend_blnc: 5000
+  borrow_blnc: 5000
+  pledge_blnc: 5000
+  total_in: 0
+  total_out: 0
+  floorsheet_blnc: 0
+  creator_id: nil
+  updater_id: nil
+  branch_id: nil
+  report_date: <%= Date.yesterday %>
+  client_account_id: nil
+  isin_info: two
+  # created_at: "2016-06-06 08:59:49"
+  # updated_at: "2016-06-06 08:59:49"

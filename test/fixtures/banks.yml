@@ -7,7 +7,7 @@ one:
   contact_no: MyString
 
 two:
-  name: MyString
-  bank_code: MyString
-  address: MyString
-  contact_no: MyString
+  name: MyAnotherString
+  bank_code: MyAnotherString
+  address: MyAnotherString
+  contact_no: MyAnotherString
