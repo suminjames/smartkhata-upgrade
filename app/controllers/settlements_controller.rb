@@ -12,22 +12,29 @@ class SettlementsController < ApplicationController
   # GET /settlements
   # GET /settlements.json
   def index
-    @ledgers_for_combobox = Ledger.all
-    # @settlements = apply_scopes(Settlement.all)
     @filterrific = initialize_filterrific(
         Settlement,
         params[:filterrific],
         select_options: {
             by_client_id: Settlement.options_for_client_select,
             by_settlement_type: Settlement.options_for_settlement_type_select
-        }
+        },
+        persistence_id: false
     ) or return
-    @settlements= @filterrific.find.page(params[:page])
+    @settlements= @filterrific.find.page(params[:page]).per(20)
 
     respond_to do |format|
       format.html
       format.js
     end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /settlements/1

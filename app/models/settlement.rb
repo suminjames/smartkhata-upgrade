@@ -36,18 +36,26 @@ class Settlement < ActiveRecord::Base
       available_filters: [
           :sorted_by,
           :by_settlement_type,
-          # :by_date,
-          # :by_date_range,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
           :by_client_id,
-          # :by_vendor_id
       ]
   )
 
   scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
-  scope :by_date, -> (date) { where(:created_at => date.beginning_of_day..date.end_of_day) }
-  scope :by_date_range, -> (date_from, date_to) { where( :date => date_from.beginning_of_day..date_to.end_of_day) }
+
+  scope :by_date, lambda { |date_bs|
+    where(:date_bs=> strip_leading_zeroes(date_bs))
+  }
+  scope :by_date_from, lambda { |date_bs|
+    where('date_bs >= ?', strip_leading_zeroes(date_bs))
+  }
+  scope :by_date_to, lambda { |date_bs|
+    where('date_bs <= ?', strip_leading_zeroes(date_bs))
+  }
+
   scope :by_client_id, -> (id) { where(client_account_id: id) }
-  scope :by_vendor_id, -> (id) { where(vendor_account_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
@@ -56,6 +64,10 @@ class Settlement < ActiveRecord::Base
         order("LOWER(settlements.name) #{ direction }")
       when /^amount/
         order("settlements.amount #{ direction }")
+      when /^type/
+        order("settlements.settlement_type #{ direction }")
+      when /^date/
+        order("settlements.date_bs #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
@@ -68,5 +80,23 @@ class Settlement < ActiveRecord::Base
  def self.options_for_client_select
    ClientAccount.all.order(:name)
  end
+
+  # A date_bs taken as input has the form 'YYYY-MM-DD'.
+  # In circumstances where there is leading zero in month or day like '2073-02-12' or '2073-10-01', the leading zeroes in month and day must be stripped for filtering purpose.
+  # This is because date_bs is a string not Date object in database. The comparison operator therefore like >, <  are doing string comparison.
+  def self.strip_leading_zeroes(date_bs)
+    if date_bs[5] == '0' && date_bs[8] != '0'
+      # Case 'YYYY-0M-DD'
+      date_bs[5] = ''
+    elsif date_bs[5] == '0' && date_bs[8] == '0'
+      # Case 'YYYY-0M-0D'
+      date_bs[5] = ''
+      date_bs[7] = ''
+    elsif date_bs[5] != '0' && date_bs[8] == '0'
+      # Case 'YYYY-MM-0D'
+      date_bs[8] = ''
+    end
+    date_bs
+  end
 
 end
