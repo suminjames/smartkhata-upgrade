@@ -4,9 +4,9 @@
 #                               currently located at test/fixtures/files/May10/(.xls && .csv)
 #                               Be sure not to edit/remove those files
 
-# Bills fixtures should be empty : Assuming no Bills fixtures present
-#                                  makes the bills id start from one
-#                                  rather than starting after the random number assigned to the fixtures.
+# Bills fixtures integrity crucial : Currently Assumes a single Bills fixtures present(type 'purchase')
+#                                    with fycode & bill no. hlarge enough to push it at the end of the pagination
+#                                    Tried to make it bill no. 1, but then duplication issue occurs in this test.
 
 # Omitted: group_leader_ledger_id, random: cheque number
 
@@ -32,8 +32,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal dashboard_index_path, path
     assert_equal 'Signed in successfully.', flash[:notice]
 
+    @bills_in_fixtures = 1
     # DO calculate these from the test files END
-    @purchase_bills_expected_count = 51
+    # bill in (file + fixtures)
+    @purchase_bills_expected_count = 51 + @bills_in_fixtures
     @sales_bills_expected_count = 45
 
     # where does this come from? (fy-code?)
@@ -52,7 +54,6 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "the basic flow" do
-
     ############################################################### SECTION ONE ############################################################################
 
     # --- 1. Add Bank ---
@@ -74,6 +75,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to bank_account_path(@bank_account_payment)
 
+
     ############################################################### SECTION TWO ############################################################################
 
     # --- 2. Add Cheque Entries ---
@@ -83,6 +85,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to cheque_entries_path
 
+
     ############################################################### SECTION THREE ##########################################################################
 
     # --- 3. Upload Floorsheet of date X ---
@@ -90,6 +93,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     post import_files_floorsheets_path, file: file
     get files_floorsheets_path
     assert_not assigns(:file_list).empty?
+
 
     ############################################################### SECTION FOUR ###########################################################################
 
@@ -124,8 +128,11 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal sales_bills.count,    @sales_bills_expected_count
     # purchase_bills_starting_id = Bill.first.id
     # sales_bills_starting_id = purchase_bills_starting_id + @purchase_bills_expected_count
-    purchase_bills_starting_id = purchase_bills.first.id
+
+    # .SECOND(): Ignore one purchase bill in FIXTURES
+    purchase_bills_starting_id = purchase_bills.second.id
     sales_bills_starting_id    = sales_bills.first.id
+
 
     ############################################################### SECTION FIVE ###########################################################################
 
@@ -133,7 +140,6 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     get sales_bills_path
     # select method 2
     assert_match "Displaying bills <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{@sales_bills_expected_count}</b> in total", response.body
-
     # new_voucher_path_regex = /\/vouchers\/new\?bill_id=[0-9]{1,2}&amp;voucher_type=1/
     # bill_path_regex = /\/bills\/[0-9]{1,2}/
     # ! UNABLE TO WORKOUT REGEX !
@@ -142,8 +148,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # assert_select 'a[href^="/vouchers/new?bill_id="][href$="&voucher_type=1"]', {count:20, text: 'Process Bill'}
     sales_bills_ending_count_in_page = sales_bills_starting_id + @items_in_first_pagination - 1
     sales_bills_starting_id.upto(sales_bills_ending_count_in_page) do |bill_id|
-      assert_select 'a[href=?]', new_voucher_full_path(bill_id, 1), text: 'Process Bill'
-      assert_select 'a[href=?]', bill_path(bill_id),                text: 'View'
+      # assert_select 'a[href=?]', new_voucher_full_path(bill_id, 1), text: 'Process Bill' # no more
+      assert_select 'a[href=?]', bill_path(bill_id), text: 'View'
     end
 
     # Payment voucher
@@ -210,7 +216,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # check links
     purchase_bills_ending_count_in_page = purchase_bills_starting_id + @items_in_first_pagination - 1
     purchase_bills_starting_id.upto(purchase_bills_ending_count_in_page) do |bill_id|
-      assert_select 'a[href=?]', new_voucher_full_path(bill_id, 2), text: 'Process Bill'
+      # assert_select 'a[href=?]', new_voucher_full_path(bill_id, 2), text: 'Process Bill' #no more
       assert_select 'a[href=?]', bill_path(bill_id),        text: 'View'
       # first_particular_ledger_id.Bank ..
     end
@@ -242,10 +248,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_match payment_amount, response.body
     assert_match Bank.find(@additional_bank_id).name, response.body
 
-    # Verify no process link in bill list
     get sales_bills_path
-    assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id, 1),   {count:0, text: 'Process Bill'}
-    assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id+1, 1), {count:0, text: 'Process Bill'}
+    # Verify no process link in bill list- no more shown initially
+    # assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id, 1),   {count:0, text: 'Process Bill'}
+    # assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id+1, 1), {count:0, text: 'Process Bill'}
     # --- 5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2 ---
     ledger_index_to_particulars_count = [3, 4, 11]
     second_particular_ledger_id.each do |ledger_id|
@@ -280,6 +286,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
         end
       end
     end
+
 
     ############################################################### SECTION SIX ############################################################################
 

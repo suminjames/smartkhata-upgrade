@@ -18,5 +18,5 @@ class Bank < ActiveRecord::Base
   include ::Models::Updater
   has_many :bank_accounts
   validates :name, uniqueness: true, presence: true
-  validates :bank_code, uniqueness: true
+  validates :bank_code, uniqueness: true, presence: true
 end

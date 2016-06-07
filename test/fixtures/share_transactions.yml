@@ -1,11 +1,41 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined.  If you add columns to the
-# model remove the '{}' from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
+one:
+  contract_no: 201605103284752
+  buyer: 48
+  seller: 19
+  raw_quantity: 250
+  quantity: 250
+  share_rate: 605.0
+  share_amount:  151250.0
+  sebo: 22.6875
+  commission_rate: "0.9"
+  commission_amount: 1361.25
+  dp_fee: 25.0
+  cgt: 0.0
+  net_amount: 152658.9375
+  bank_deposit: 151766.1406
+  transaction_type: 0
+  settlement_id: nil
+  base_price: 0.0
+  amount_receivable: 0.0
+  closeout_amount: 0.0
+  remarks: nil
+  purchase_price: 0.0
+  capital_gain: 0.0
+  adjusted_sell_price: 0.0
+  date: "2016-05-10"
+  created_at: "2016-06-06 10:19:26"
+  updated_at: "2016-06-06 10:19:26"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 1
+  bill_id: 1
+  client_account: one
+  isin_info: one
+  bill: one
+
 two: {}
 #  column: value
