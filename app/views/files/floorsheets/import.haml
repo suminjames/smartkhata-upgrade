@@ -1,5 +1,6 @@
 - provide(:section_title, "FloorSheet Details")
 - unless @error
+  = link_to "View Sms" ,transaction_messages_path, target: '_blank', class: 'btn btn-default'
   %table.table.table-striped
     %thead
       %th.col-xs-1= "#"
@@ -22,5 +23,6 @@
           %td= item[7]
           %td= item[8]
   %h4= "Total Amount: #{arabic_number(@total_amount)}"
+  = link_to "View Sms" ,transaction_messages_path, target: '_blank', class: 'btn btn-default'
 - else
   = link_to "Upload FloorSheet" ,new_files_floorsheet_path
