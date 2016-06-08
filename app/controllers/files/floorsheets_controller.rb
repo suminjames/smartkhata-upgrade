@@ -277,6 +277,7 @@ class Files::FloorsheetsController < Files::FilesController
 		# update_share_inventory(client.id,company_info.id, transaction.quantity, transaction.buying?)
 
 		bill_id = nil
+		bill_number = nil
 		if type_of_transaction == ShareTransaction.transaction_types['buying']
 			# bill.share_transactions << transaction
 			# bill.net_amount += transaction.net_amount
@@ -284,7 +285,7 @@ class Files::FloorsheetsController < Files::FilesController
 			bill.settlement_date = settlement_date
 			bill.save!
 			bill_id = bill.id
-
+			full_bill_number = "#{fy_code}-#{bill.bill_number}"
       #
 			# # create client ledger if not exist
 			# client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
@@ -325,7 +326,7 @@ class Files::FloorsheetsController < Files::FilesController
 		end
 
 
-		arr.push(@client_dr,tds,commission,bank_deposit,dp, bill_id, is_purchase, @date)
+		arr.push(@client_dr,tds,commission,bank_deposit,dp, bill_id, is_purchase, @date, client.id,full_bill_number)
 	end
 
 	# return true if the floor sheet data is invalid

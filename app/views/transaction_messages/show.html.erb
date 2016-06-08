@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Sms message:</strong>
+  <%= @transaction_message.sms_message %>
+</p>
+
+<p>
+  <strong>Transaction date:</strong>
+  <%= @transaction_message.transaction_date %>
+</p>
+
+<p>
+  <strong>Sms status:</strong>
+  <%= @transaction_message.sms_status %>
+</p>
+
+<p>
+  <strong>Email status:</strong>
+  <%= @transaction_message.email_status %>
+</p>
+
+<p>
+  <strong>Bill:</strong>
+  <%= @transaction_message.bill %>
+</p>
+
+<p>
+  <strong>Client account:</strong>
+  <%= @transaction_message.client_account %>
+</p>
+
+<%= link_to 'Edit', edit_transaction_message_path(@transaction_message) %> |
+<%= link_to 'Back', transaction_messages_path %>

@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sms_message: MyString
+  transaction_date: 2016-06-08
+  sms_status: 1
+  email_status: 1
+  bill_id: 
+  client_account_id: 
+
+two:
+  sms_message: MyString
+  transaction_date: 2016-06-08
+  sms_status: 1
+  email_status: 1
+  bill_id: 
+  client_account_id: 
