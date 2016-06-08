@@ -145,7 +145,7 @@ class BillDecorator < ApplicationDecorator
     when 'sales'
       bill_type_verb = "Sold"
     when 'purchase'
-      bill_type_verb = "Purchashed"
+      bill_type_verb = "Purchased"
     else
       bill_type_verb = ""
     end
