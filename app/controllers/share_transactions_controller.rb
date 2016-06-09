@@ -177,6 +177,19 @@ class ShareTransactionsController < ApplicationController
       @voucher = @share_transaction.voucher
       @bill = @share_transaction.bill
 
+      # condition when bill has not been created yet
+      if @bill.blank?
+        @share_transaction.soft_delete
+        ActiveRecord::Base.transaction do
+          update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+          @share_transaction.save!
+        end
+        flash.now[:notice] = 'Deal cancelled succesfully.'
+        @share_transaction = nil
+        return
+      end
+
+      # condition where bill is created but actions has been initiated
       if !@bill.pending?
         redirect_to deal_cancel_share_transactions_path, flash: {error: "Bill associated with the share transaction is already under process or settled"} and return
       end
