@@ -5,12 +5,10 @@ class Files::SalesController < Files::FilesController
 
   def index
     @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(20)
-    @settlements = []
   end
 
   def new
     @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(10)
-    @settlements = []
   end
 
 	def import
