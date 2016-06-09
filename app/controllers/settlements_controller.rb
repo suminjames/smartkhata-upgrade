@@ -28,7 +28,8 @@ class SettlementsController < ApplicationController
       format.js
     end
 
-      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+  # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+  # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
