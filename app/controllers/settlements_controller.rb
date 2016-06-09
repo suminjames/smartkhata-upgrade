@@ -1,13 +1,13 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
-  # has_scope
-  has_scope :by_settlement_type, only: :index
-  has_scope :by_client_id, only: :index
-  has_scope :by_vendor_id, only: :index
-  has_scope :by_fy_code, only: :index
-  has_scope :by_date, only: :index
-  has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash, only: :index
+  # # has_scope
+  # has_scope :by_settlement_type, only: :index
+  # has_scope :by_client_id, only: :index
+  # has_scope :by_vendor_id, only: :index
+  # has_scope :by_fy_code, only: :index
+  # has_scope :by_date, only: :index
+  # has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash, only: :index
 
   # GET /settlements
   # GET /settlements.json
@@ -28,6 +28,15 @@ class SettlementsController < ApplicationController
       format.js
     end
 
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
       # Recover from invalid param sets, e.g., when a filter refers to the
       # database id of a record that doesn’t exist any more.
       # In this case we reset filterrific and discard all filter params.
@@ -43,10 +52,9 @@ class SettlementsController < ApplicationController
     respond_to do |format|
       format.html
       format.js
-      format.pdf do
-        pdf = Print::PrintSettlement.new(@settlement, current_tenant)
-        send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
-      end
+
+      pdf = Print::PrintSettlement.new(@settlement, current_tenant)
+      send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
     end
   end
 
@@ -113,13 +121,13 @@ class SettlementsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_settlement
-      @settlement = Settlement.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_settlement
+    @settlement = Settlement.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def settlement_params
-      params.require(:settlement).permit(:name, :amount, :date_bs, :description, :settlement_type, :voucher_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def settlement_params
+    params.require(:settlement).permit(:name, :amount, :date_bs, :description, :settlement_type, :voucher_id)
+  end
 end

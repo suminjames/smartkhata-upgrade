@@ -21,6 +21,8 @@
 #  branch_id         :integer
 #
 
+include ::CustomDateModule
+
 class Settlement < ActiveRecord::Base
 
   belongs_to :voucher
@@ -46,13 +48,16 @@ class Settlement < ActiveRecord::Base
   scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
 
   scope :by_date, lambda { |date_bs|
-    where(:date_bs=> strip_leading_zeroes(date_bs))
+    date_ad = bs_to_ad(date_bs)
+    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
-    where('date_bs >= ?', strip_leading_zeroes(date_bs))
+    date_ad = bs_to_ad(date_bs)
+    where('created_at >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
-    where('date_bs <= ?', strip_leading_zeroes(date_bs))
+    date_ad = bs_to_ad(date_bs)
+    where('created_at <= ?', date_ad.end_of_day)
   }
 
   scope :by_client_id, -> (id) { where(client_account_id: id) }
@@ -77,26 +82,8 @@ class Settlement < ActiveRecord::Base
     [["Receipt","receipt"], ["Payment", "payment"]]
   end
 
- def self.options_for_client_select
-   ClientAccount.all.order(:name)
- end
-
-  # A date_bs taken as input has the form 'YYYY-MM-DD'.
-  # In circumstances where there is leading zero in month or day like '2073-02-12' or '2073-10-01', the leading zeroes in month and day must be stripped for filtering purpose.
-  # This is because date_bs is a string not Date object in database. The comparison operator therefore like >, <  are doing string comparison.
-  def self.strip_leading_zeroes(date_bs)
-    if date_bs[5] == '0' && date_bs[8] != '0'
-      # Case 'YYYY-0M-DD'
-      date_bs[5] = ''
-    elsif date_bs[5] == '0' && date_bs[8] == '0'
-      # Case 'YYYY-0M-0D'
-      date_bs[5] = ''
-      date_bs[7] = ''
-    elsif date_bs[5] != '0' && date_bs[8] == '0'
-      # Case 'YYYY-MM-0D'
-      date_bs[8] = ''
-    end
-    date_bs
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
   end
 
 end

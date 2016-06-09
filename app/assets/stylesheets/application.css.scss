@@ -306,3 +306,9 @@ select.combobox {
     color: #337ab7;
   }
 }
+
+// Add a bit of margin-top in elements.
+// Usually  between two .row elements, which apparently have no margin.
+.top-buffer {
+  margin-top:10px;
+}
