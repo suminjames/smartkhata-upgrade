@@ -18,6 +18,9 @@ class CreateSmsService
     @transaction_date_short = ad_to_bs(@transaction_date)[5..-1].sub('-', '/')
     # needed to revert the process
     @transaction_message = attrs[:transaction_message]
+    # since the amount to receive/ pay is dependent on bill
+    # this is required when bill is being changed
+    @bill = attrs[:bill]
     # floorsheet_records =[
     # 	Contract No.,
     # 	Symbol,
@@ -53,7 +56,7 @@ class CreateSmsService
     # if transaction message had only one share transaction
     # just soft delete the transaction message
     if share_transactions.size < 1
-      @transaction_message.soft_delete!
+      @transaction_message.soft_delete
       res = true
     else
       group_share_transaction_records(share_transactions)
@@ -115,7 +118,7 @@ class CreateSmsService
       if @grouped_records.key?(client_code)
         group_by_client_and_transaction_type(client_code, transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id, full_bill_number, transaction_record)
       else
-        client_single_record = get_client_initial_hash(transaction_type, company_symbol, rate, quantity, client_dr, share_transaction, client_name, bill_id, client_account_id, full_bill_number)
+        client_single_record = get_client_initial_hash(transaction_type, company_symbol, rate, quantity, client_dr, transaction_record, client_name, bill_id, client_account_id, full_bill_number)
         @grouped_records[client_code] = client_single_record
       end
     end
@@ -195,14 +198,17 @@ class CreateSmsService
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
         if type_of_transaction == :buy
+          # if bill is present which is true for the case of changing the message
+          # override total amount with bill amount
+          total = @bill.net_amount if @bill.present?
           sms_message = "#{client_name} bought #{str};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
         else
           sms_message += "#{client_name} sold #{str};On #{@transaction_date_short}.BNo #{@broker_code}"
         end
 
         transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
+        transaction_message.share_transactions << share_transactions
         transaction_messages << transaction_message
-        transaction_messages.share_transactions << share_transactions
       end
     end
     transaction_messages

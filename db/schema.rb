@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160609045328) do
+ActiveRecord::Schema.define(version: 20160609101901) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -624,6 +624,9 @@ ActiveRecord::Schema.define(version: 20160609045328) do
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.date     "deleted_at"
+    t.integer  "sent_sms_count"
+    t.integer  "sent_email_count"
   end
 
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree

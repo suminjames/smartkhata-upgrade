@@ -203,6 +203,7 @@ class ShareTransactionsController < ApplicationController
         # remove the transacted amount from the share inventory
         update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
 
+        # TODO (subas) Transaction amount and dp fee mismatch in calculation
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
           dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
@@ -223,7 +224,7 @@ class ShareTransactionsController < ApplicationController
         else
           @bill.balance_to_pay -= (@share_transaction.net_amount - dp_fee_adjustment)
           @bill.net_amount -= (@share_transaction.net_amount - dp_fee_adjustment)
-          @bill.partial!
+          @bill.pending!
         end
         @bill.save!
 
@@ -241,7 +242,7 @@ class ShareTransactionsController < ApplicationController
         @share_transaction.save!
 
         # rewrite the sms message
-        create_sms_result = CreateSmsService.new(broker_code: current_tenant.broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date).change_message
+        create_sms_result = CreateSmsService.new(broker_code: current_tenant.broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: @bill).change_message
 
       end
       flash.now[:notice] = 'Deal cancelled succesfully.'
