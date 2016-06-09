@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :transaction_messages
   get 'dashboard/index'
 
   resources :nepse_chalans
@@ -93,6 +94,8 @@ Rails.application.routes.draw do
     resources :trial_balance
     resources :threshold_transactions
   end
+
+  get "/test" => "test#index"
 
 
 end

@@ -9,5 +9,8 @@
 #  updated_at :datetime         not null
 #
 
+
+
+
 class Branch < ActiveRecord::Base
 end

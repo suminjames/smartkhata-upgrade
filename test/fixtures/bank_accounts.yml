@@ -7,7 +7,7 @@
 one:
   bank: one #assign bank
   account_number: 1234
-# column: value
-#
-# two: {}
-#  column: value
+
+two:
+  bank: two #assign bank
+  account_number: 5678

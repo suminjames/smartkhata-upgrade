@@ -11,6 +11,9 @@
 #  updated_at        :datetime         not null
 #
 
+
+
+
 class Order < ActiveRecord::Base
   belongs_to :client_account
   has_many :order_details

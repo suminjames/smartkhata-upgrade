@@ -63,6 +63,9 @@
 #  ac_code                   :string
 #
 
+
+
+
 # Note: 
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
@@ -71,7 +74,13 @@ class ClientAccount < ActiveRecord::Base
 	include ::Models::UpdaterWithBranch
 
   after_create :create_ledger
+
+  # to keep track of the user who created and last updated the ledger
+	belongs_to :creator,  class_name: 'User'
+	belongs_to :updater,  class_name: 'User'
+
   belongs_to :group_leader,  class_name: 'ClientAccount'
+  has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
 
 	belongs_to :user
 
@@ -84,7 +93,9 @@ class ClientAccount < ActiveRecord::Base
 	scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct}
-
+  # for future reference only .. delete if you feel you know things well enough
+  # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
+  scope :having_group_members, -> { joins(:group_members) }
 	enum client_type: [:individual, :corporate ]
 
   # create client ledger

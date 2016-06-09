@@ -87,3 +87,6 @@ pickle-email-*.html
 # Ignore nested wiki git repo.
 wiki/
 .rbenv-gemsets
+
+# Ignore byebug debugger history
+.byebug_history

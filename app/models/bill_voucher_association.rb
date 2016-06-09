@@ -10,6 +10,9 @@
 #  updated_at       :datetime         not null
 #
 
+
+
+
 class BillVoucherAssociation < ActiveRecord::Base
   belongs_to :bill
   belongs_to :voucher

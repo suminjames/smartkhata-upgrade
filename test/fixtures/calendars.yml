@@ -1,16 +1,28 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  year: 1
-  month: 1
-  day: 1
-  date_type: 1
-  remarks: MyText
+# following code extracted from Calendar.populate_calendar (as in seeds)
 
+<% @cal = NepaliCalendarPlus::CalendarPlus.new
 
-two:
-  year: 1
-  month: 1
-  day: 1
-  date_type: 1
-  remarks: MyText
+from_date_ad = @cal.bs_to_ad(2073, 1, 1)
+# to_date_ad = @cal.bs_to_ad(2083, 12, 30)
+# Just populate a single year: takes a single second & reduces 14 seconds of test time!!!
+to_date_ad = @cal.bs_to_ad(2073, 12, 30)
+
+n = 1
+from_date_ad.upto(to_date_ad) do |ad_date|
+  bs_date = @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day) %>
+calendar_<%= n %>:
+  bs_date: <%= Calendar.stringify_date_hash(bs_date) %>
+  ad_date: <%= ad_date %>
+  <% if ad_date.saturday? %>
+  is_holiday: true
+  holiday_type: <%= Calendar.holiday_types[:saturday] %>
+  is_trading_day: false
+  remarks: 'Saturday'
+  <% elsif ad_date.friday? %>
+  is_trading_day: false
+  remarks: 'Friday'
+  <% end
+  n += 1
+end %>

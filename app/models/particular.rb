@@ -25,6 +25,9 @@
 #  voucher_id         :integer
 #
 
+
+
+
 class Particular < ActiveRecord::Base
 	include CustomDateModule
 	include ::Models::UpdaterWithBranchFycode
