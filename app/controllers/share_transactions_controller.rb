@@ -252,6 +252,7 @@ class ShareTransactionsController < ApplicationController
       else
         return
       end
+      @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
 
