@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   include SmartListing::Helper::ControllerExtensions
-  helper  SmartListing::Helper
+  helper SmartListing::Helper
   include ShareInventoryModule
 
   # TODO: http://stackoverflow.com/questions/22799631/postgresql-and-activerecord-where-regex-matching
@@ -30,21 +30,21 @@ class ShareTransactionsController < ApplicationController
     # Populate (and route when needed) as per the params
     if params[:search_by] == "cancelled"
       @share_transactions = ShareTransaction.cancelled.order(:isin_info_id)
-    #  last floorsheet upload date
+      #  last floorsheet upload date
     elsif params[:search_by] == 'last_working_day'
       #TODO(sarojk): Implement a better way to find the last working day. Maybe something in application helper?
-      date  = Time.now.to_date
+      date = Time.now.to_date
       file_type = FileUpload::file_types[:floorsheet]
       fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
-      if ( fileupload.present? )
+      if (fileupload.present?)
         date = fileupload.report_date
       end
 
       respond_to do |format|
         format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs_string(date)), commit: 'Search' }
       end
-    #   to get only the floor sheet details no menus
-    #   TODO (incorporate this to show like the others share transaction details)
+      #   to get only the floor sheet details no menus
+      #   TODO (incorporate this to show like the others share transaction details)
     elsif params[:search_by] == 'floorsheet_date'
       date_ad = params[:report_date].to_date if params[:report_date].present?
       @share_transactions = ShareTransaction.find_by_date(date_ad).order(:isin_info_id)
@@ -64,10 +64,10 @@ class ShareTransactionsController < ApplicationController
             format.json { render json: flash.now[:error], status: :unprocessable_entity }
           end
         end
-      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present?  && params[:date][:to].present?
+      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
         # The dates being entered are assumed to be BS dates, not AD dates
         date_from_bs = params[:date][:from]
-        date_to_bs   = params[:date][:to]
+        date_to_bs = params[:date][:to]
         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
@@ -101,10 +101,10 @@ class ShareTransactionsController < ApplicationController
             format.json { render json: flash.now[:error], status: :unprocessable_entity }
           end
         end
-      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present?  && params[:date][:to].present?
+      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
         # The dates being entered are assumed to be BS dates, not AD dates
         date_from_bs = params[:date][:from]
-        date_to_bs   = params[:date][:to]
+        date_to_bs = params[:date][:to]
         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
@@ -140,10 +140,10 @@ class ShareTransactionsController < ApplicationController
             format.json { render json: flash.now[:error], status: :unprocessable_entity }
           end
         end
-      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present?  && params[:date][:to].present?
+      elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
         # The dates being entered are assumed to be BS dates, not AD dates
         date_from_bs = params[:date][:from]
-        date_to_bs   = params[:date][:to]
+        date_to_bs = params[:date][:to]
         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
@@ -181,7 +181,7 @@ class ShareTransactionsController < ApplicationController
       if @bill.blank?
         @share_transaction.soft_delete
         ActiveRecord::Base.transaction do
-          update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
           @share_transaction.save!
         end
         flash.now[:notice] = 'Deal cancelled succesfully.'
@@ -201,7 +201,7 @@ class ShareTransactionsController < ApplicationController
 
       ActiveRecord::Base.transaction do
         # remove the transacted amount from the share inventory
-        update_share_inventory(@share_transaction.client_account_id,@share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+        update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
 
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
@@ -216,7 +216,7 @@ class ShareTransactionsController < ApplicationController
 
         # now the bill will have atleast one deal cancelled transaction
         @bill.has_deal_cancelled!
-        if ( @bill.net_amount - @share_transaction.net_amount ).abs <= 0.1
+        if (@bill.net_amount - @share_transaction.net_amount).abs <= 0.1
           @bill.balance_to_pay = 0
           @bill.net_amount = 0
           @bill.settled!
@@ -233,10 +233,16 @@ class ShareTransactionsController < ApplicationController
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
         @voucher.particulars.each do |particular|
-          reverse_accounts(particular,@new_voucher,description, dp_fee_adjustment)
+          reverse_accounts(particular, @new_voucher, description, dp_fee_adjustment)
         end
+
+
         @share_transaction.soft_delete
         @share_transaction.save!
+
+        # rewrite the sms message
+        create_sms_result = CreateSmsService.new(broker_code: current_tenant.broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date).change_message
+
       end
       flash.now[:notice] = 'Deal cancelled succesfully.'
       @share_transaction = nil
@@ -245,17 +251,16 @@ class ShareTransactionsController < ApplicationController
     if params[:contract_no].present? && params[:transaction_type].present?
       # TODO make it work for enum
       case params[:transaction_type]
-      when "selling"
-        transaction_type = ShareTransaction.transaction_types[:selling]
-      when "buying"
-        transaction_type = ShareTransaction.transaction_types[:buying]
-      else
-        return
+        when "selling"
+          transaction_type = ShareTransaction.transaction_types[:selling]
+        when "buying"
+          transaction_type = ShareTransaction.transaction_types[:buying]
+        else
+          return
       end
       @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
-
 
 
   end
@@ -315,13 +320,13 @@ class ShareTransactionsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_share_transaction
-      @share_transaction = ShareTransaction.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_share_transaction
+    @share_transaction = ShareTransaction.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def share_transaction_params
-      params.require(:share_transaction).permit(:base_price)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def share_transaction_params
+    params.require(:share_transaction).permit(:base_price)
+  end
 end

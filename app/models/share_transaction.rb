@@ -51,6 +51,7 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :isin_info
   belongs_to :client_account
   belongs_to :nepse_chalan
+  belongs_to :transaction_message
 
   enum transaction_type: [ :buying, :selling ]
   # before_update :calculate_cgt

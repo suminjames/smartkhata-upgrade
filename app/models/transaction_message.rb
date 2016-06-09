@@ -20,4 +20,16 @@ class TransactionMessage < ActiveRecord::Base
   has_many :share_transactions
   enum sms_status: [:sms_default, :sms_sent]
   enum email_status: [:email_default, :email_sent]
+
+  scope :not_cancelled, -> { where(deleted_at: nil) }
+  scope :cancelled, -> { where.not(deleted_at: nil) }
+
+  # instead of deleting, indicate the user requested a delete & timestamp it
+  def soft_delete
+    update_attribute(:deleted_at, Time.current)
+  end
+
+  def soft_undelete
+    update_attribute(:deleted_at, nil)
+  end
 end
