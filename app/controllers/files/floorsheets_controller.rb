@@ -136,7 +136,7 @@ class Files::FloorsheetsController < Files::FilesController
       @raw_data.each do |arr|
         @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
       end
-      create_sms_result = CreateSmsService.new(@processed_data, current_tenant.broker_code).process
+      # create_sms_result = CreateSmsService.new(@processed_data, current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
     end
     # file_error(@error_message) if @error_message.present?
