@@ -4,11 +4,13 @@ class Files::SalesController < Files::FilesController
   @@file_name_contains = "CM05"
 
   def index
-    @file_list = SalesSettlement.order("settlement_date desc").page(params[:page]).per(20)
+    @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(20)
+    @settlements = []
   end
 
   def new
-    @file_list = SalesSettlement.order("settlement_date desc").limit(10);
+    @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(10)
+    @settlements = []
   end
 
 	def import
