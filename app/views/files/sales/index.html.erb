@@ -1,38 +1,6 @@
-<% if !@file_list.blank? %>
+<% provide(:section_title, "Sales Settlements Listing") %>
+<%= render 'shared/pagination', collection_to_paginate: @settlements%>
+<%= render 'list', settlements: @settlements%>
+<%= render 'shared/pagination', collection_to_paginate: @settlements%>
 
-    <%= render 'shared/pagination', collection_to_paginate: @file_list%>
-    <br>
 
-    <div class="panel panel-danger">
-      <div class="panel-heading">
-        List of Sales Payout (CM05) file uploaded
-      </div>
-      <div class="panel-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-            <tr>
-              <th>Date of Report</th>
-              <th>Date of Report(BS)</th>
-              <th>Last Updated</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% @file_list.each do |file| %>
-                <tr>
-                  <td><%= file.settlement_date %> </td>
-                  <td><%= ad_to_bs_string(file.settlement_date) %> </td>
-                  <td><%= file.updated_at.to_date %></td>
-                </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <%= render 'shared/pagination', collection_to_paginate: @file_list%>
-
-<% else %>
-    No files uploaded yet
-<% end %>

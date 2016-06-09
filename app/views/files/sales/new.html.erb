@@ -12,33 +12,10 @@
 	<% end %>
 </div>
 
-<div class="panel panel-danger">
-  <div class="panel-heading">
-    List of file uploaded
-  </div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Date of Report</th>
-          <th>Date of Report(BS)</th>
-          <th>Last Updated</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @file_list.each do |file| %>
-            <tr>
-              <td><%= file.settlement_date %> </td>
-              <td><%= ad_to_bs_string(file.settlement_date) %> </td>
-              <td><%= file.updated_at.to_date %></td>
-            </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
+<%= render 'list', settlements: @settlements%>
+
+<% if @settlements.present? %>
     <div class="text-center">
       <%= link_to "View Full List" , files_sales_path %>
     </div>
-  </div>
-</div>
+<% end %>

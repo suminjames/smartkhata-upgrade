@@ -1,0 +1,34 @@
+<% if settlements.present? %>
+    <div class="panel panel-danger top-buffer">
+      <div class="panel-heading">
+        List of Settlements Uploaded
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Settlement Id</th>
+              <th>Report Date</th>
+              <th>Upload Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% settlements.each do |settlement| %>
+                <tr>
+                  <td><%= settlement.settlement_id %> </td>
+                  <td><%= ad_to_bs_string(settlement.settlement_date) %> </td>
+                  <td><%= ad_to_bs_string(settlement.updated_at.to_date) %></td>
+                </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+<% else %>
+    <div class="text-center">
+      No files uploaded yet
+    </div>
+<% end %>

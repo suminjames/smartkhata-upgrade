@@ -51,7 +51,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 
     # convert a string to date
-    @date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+    @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
 
 
     # TODO remove this
@@ -59,7 +59,7 @@ class Files::FloorsheetsController < Files::FilesController
     if @date.nil?
       @older_detected = true
       date_data = xlsx.sheet(0).row(12)[0].to_s
-      @date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+      @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
     end
 
     file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
