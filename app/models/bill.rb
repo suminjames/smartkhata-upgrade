@@ -56,7 +56,7 @@ class Bill < ActiveRecord::Base
 	enum status: [:pending,:partial,:settled]
 
   # # Bill cancel Status
-  # #  - none : Default
+  # #  - none : regular
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
   enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
