@@ -313,7 +313,7 @@ class Files::FloorsheetsController < Files::FilesController
     end
 
 
-    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number)
+    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
 
   # return true if the floor sheet data is invalid

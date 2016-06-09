@@ -17,6 +17,7 @@ class TransactionMessage < ActiveRecord::Base
   belongs_to :bill
   belongs_to :client_account
 
+  has_many :share_transactions
   enum sms_status: [:sms_default, :sms_sent]
   enum email_status: [:email_default, :email_sent]
 end

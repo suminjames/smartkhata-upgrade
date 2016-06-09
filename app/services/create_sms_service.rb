@@ -37,6 +37,7 @@ class CreateSmsService
     #   is_purchase,
     #   transaction_date
     #   client_id
+    #   shareTransactionObject
     # ]
   end
 
@@ -58,14 +59,16 @@ class CreateSmsService
       transaction_date = transaction_record[18]
       client_account_id = transaction_record[19]
       full_bill_number = transaction_record[20]
+      share_transaction = transaction_record[21]
 
       transaction_type = is_purchase == true ? :buy : :sell
       if @grouped_records.key?(client_code)
-        group_by_client_and_transaction_type(client_code,transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id, full_bill_number)
+        group_by_client_and_transaction_type(client_code,transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id, full_bill_number,share_transaction)
       else
         client_single_record = HashTree.new
         client_single_record[:data][transaction_type][company_symbol][rate][:quantity] = quantity
         client_single_record[:data][transaction_type][company_symbol][rate][:receivable_from_client] = client_dr
+        client_single_record[:data][transaction_type][company_symbol][rate][:share_transaction] << share_transaction
         client_single_record[:info][:name] = client_name
         client_single_record[:info][:client_account_id] = client_account_id
         client_single_record[:info][:bill_id] = bill_id
@@ -85,30 +88,34 @@ class CreateSmsService
     transaction_messages.each(&:save)
   end
 
-  def group_by_client_and_transaction_type(client_code,transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id,full_bill_number)
+  def group_by_client_and_transaction_type(client_code,transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id,full_bill_number, share_transaction)
     if @grouped_records[client_code][:data].key? transaction_type
       if @grouped_records[client_code][:data][transaction_type].key? company_symbol
         if @grouped_records[client_code][:data][transaction_type][company_symbol].key? rate
           _record =  @grouped_records[client_code][:data][transaction_type][company_symbol][rate]
           _record[:quantity] += quantity
           _record[:receivable_from_client] += client_dr
+          _record[:share_transactions] << share_transaction
           @grouped_records[client_code][:data][transaction_type][company_symbol][rate] = _record
         else
           _record = Hash.new
           _record[:quantity] = quantity
           _record[:receivable_from_client] = client_dr
+          _record[:share_transactions] << share_transaction
           @grouped_records[client_code][:data][transaction_type][company_symbol][rate] = _record
         end
       else
         _record = HashTree.new
         _record[rate][:quantity] = quantity
         _record[rate][:receivable_from_client] = client_dr
+        _record[:share_transactions] << share_transaction
         @grouped_records[client_code][:data][transaction_type][company_symbol] = _record
       end
     else
       client_single_record = HashTree.new
       client_single_record[:data][transaction_type][company_symbol][rate][:quantity] = quantity
       client_single_record[:data][transaction_type][company_symbol][rate][:receivable_from_client] = client_dr
+      client_single_record[:data][transaction_type][company_symbol][rate][:share_transactions] << share_transaction
       client_single_record[:info][:name] = client_name
       client_single_record[:info][:bill_id] = bill_id
       client_single_record[:info][:client_account_id] = client_account_id
@@ -126,6 +133,7 @@ class CreateSmsService
       client_name = info[:name].split.first.titleize
       client_account_id = info[:client_account_id].to_i
       bill_id = info[:bill_id].to_i if info[:bill_id].present?
+      share_transactions = []
       full_bill_number = info[:full_bill_number]
       transaction_data = v[:data]
       transaction_data.each do |type_of_transaction, data|
@@ -136,6 +144,7 @@ class CreateSmsService
           symbol_data.each do |rate, rate_data|
             str += ",#{rate_data[:quantity].to_i}@#{rate}"
             total += rate_data[:receivable_from_client].to_f
+            
           end
         end
         sms_message = ""
