@@ -228,7 +228,7 @@ class ShareTransactionsController < ApplicationController
         @bill.save!
 
         # create a new voucher and add the bill reference to it
-        @new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+        @new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), voucher_status: Voucher.voucher_statuses[:complete])
         @new_voucher.bills_on_settlement << @bill
 
         description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
@@ -252,6 +252,7 @@ class ShareTransactionsController < ApplicationController
       else
         return
       end
+      @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
 
