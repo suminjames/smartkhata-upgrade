@@ -52,7 +52,11 @@ class CreateSmsService
 
   def change_message
     res = false
+    if @transaction_message.blank?
+      return false
+    end
     share_transactions = @transaction_message.share_transactions.not_cancelled
+
     # if transaction message had only one share transaction
     # just soft delete the transaction message
     if share_transactions.size < 1

@@ -1,4 +1,7 @@
 class DealCancelService
+  include ShareInventoryModule
+  include ApplicationHelper
+
   @@approval_action = %w{approve reject}
   attr_reader :error_message, :info_message, :share_transaction
   def initialize(attrs = {})
@@ -104,6 +107,19 @@ class DealCancelService
         end
 
         ActiveRecord::Base.transaction do
+          # settle the bill if the net amount of bill and share transaction net amount is equal
+          if (bill.net_amount - @share_transaction.net_amount - 25).abs <= 0.1
+            bill.settled!
+          end
+
+          # incase of bill created
+          relevant_share_transactions = bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
+          dp_fee_adjustment = 0.0
+          total_transaction_count = relevant_share_transactions.length
+          if total_transaction_count > 0
+            dp_fee_adjustment = (25.00/ (total_transaction_count + 1))
+          end
+
           # remove the transacted amount from the share inventory
           update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
           # create a new voucher and add the bill reference to it
@@ -148,9 +164,9 @@ class DealCancelService
             # now the bill will have atleast one deal cancelled transaction
             bill.has_deal_cancelled! if bill.share_transactions.deal_cancel_pending.size > 1
 
-            if total_transaction_count == 1
-              bill.balance_to_pay = @share_transaction.net_amount + dp_fee_per_transaction
-              bill.net_amount = @share_transaction.net_amount + dp_fee_per_transaction
+            if  total_transaction_count == 1
+              bill.balance_to_pay += @share_transaction.net_amount + dp_fee_per_transaction
+              bill.net_amount += @share_transaction.net_amount + dp_fee_per_transaction
               bill.pending!
             else
               # increment net amount
