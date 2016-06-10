@@ -3,7 +3,8 @@ require 'test_helper'
 class BankAccountTest < ActiveSupport::TestCase
   def setup
     @bank = banks(:one)
-    @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1", ledger_attributes: { opening_blnc: 500, opening_blnc_type: 0})
+    # @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1", ledger_attributes: { opening_blnc: 500, opening_blnc_type: 0})
+    @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1")
     @bank_account.ledger = Ledger.new
 
     # from the controller- following two variables not tested because they will be overrided if bank exists
@@ -41,26 +42,34 @@ class BankAccountTest < ActiveSupport::TestCase
   	assert_not @bank_account.valid?
   end
 
+  test "account number can be alphanumeric" do
+    @bank_account.account_number = 'S0M3VALU3'
+    assert @bank_account.valid?
+  end
 
+  # invalid account numbers
   test "account number should not be duplicate" do
     @bank_account.account_number = 1234
     assert_not @bank_account.valid?
   end
 
-  # Account number: to be converted to String
-  test "account number should not be string" do
-  	@bank_account.account_number = 'quux'
-  	assert_not @bank_account.valid?
-  end
-
-  test "account number should not be alphanumeric" do
-    @bank_account.account_number = 'S0M3VALU3'
+  test "account number should not be zero" do
+    @bank_account.account_number = 0
     assert_not @bank_account.valid?
   end
 
-	test "account number should not be zero" do
-  	@bank_account.account_number = 0
+  test "account number should not be negative" do
+    @bank_account.account_number = -947
+    assert_not @bank_account.valid?
+  end
+
+  test "account number should not be all letters" do
+  	@bank_account.account_number = 'quux'
   	assert_not @bank_account.valid?
+  end
+  test "account number should not contain special characters" do
+    @bank_account.account_number = '@123#'
+    assert_not @bank_account.valid?
   end
 
   # << account number boundary tests >>

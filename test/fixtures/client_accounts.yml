@@ -2,6 +2,9 @@
 
 one:
   name: 'Dedra Sorenson'
+  phone: '55555'
+  phone_perm: '666666'
+  # mobile_number: '9800000000'
   #  boid                      :string
   #  nepse_code                :string
   #  client_type               :integer          default("0")
@@ -18,8 +21,6 @@ one:
   #  state_perm                :string
   #  country                   :string           default(" ")
   #  country_perm              :string
-  #  phone                     :string
-  #  phone_perm                :string
   #  customer_product_no       :string
   #  dp_id                     :string
   #  dob                       :string
@@ -57,7 +58,6 @@ one:
   #  user_id                   :integer
   #  created_at                :datetime         not null
   #  updated_at                :datetime         not null
-  #  mobile_number             :string
   #  ac_code                   :string
 
 

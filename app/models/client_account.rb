@@ -66,7 +66,8 @@
 
 
 
-# Note: 
+
+# Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
@@ -94,6 +95,9 @@ class ClientAccount < ActiveRecord::Base
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct}
 
 	enum client_type: [:individual, :corporate ]
+
+  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm
+  validates_format_of :dob, with: /\A\d{4}-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[1-2]\d|3[01])\Z/, message: 'should be in YYYY-MM-DD format'
 
   # create client ledger
   def create_ledger

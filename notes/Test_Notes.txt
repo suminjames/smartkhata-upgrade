@@ -36,17 +36,12 @@ Git.Merge.each::after DO
             8. Upload Order
                 -re-upload the same order file
 
-    II. Interface testing [TODO]
-        a. Bill interface
-            - when client account -has phone number
-                                  -doesn't have phone number
-            - types of bills
-                -sales, purchase
+    II. Functional testing [ONGOING]
+        - Banks, Bank accounts, Cheque entries, Sales, Floorsheet, Sales settlements, Bills, Branches, Client accounts
 
-    III. Functional testing [ONGOING]
-        - Bank, Bank accounts, Cheque entries
+    III. Unit Testing [ONGOING]
+        - Bank, Bank account, Cheque entry, Client account
 
-    IV. Unit Testing [ONGOING]
-        - Bank, Bank accounts, Cheque entries
+    IV. Interface Testing [?]
 
 END
