@@ -1,0 +1,145 @@
+<% provide(:section_title, "Client Details") %>
+<p id="notice"><%= notice %></p>
+
+<!-- bootstrap tabs -->
+<div class="client-info-wrapper">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
+    <li role="presentation"><a href="#permanent-address" aria-controls="permanent-address" role="tab" data-toggle="tab">Permanent address</a></li>
+    <li role="presentation"><a href="#current-address" aria-controls="current-address" role="tab" data-toggle="tab">Current address</a></li>
+    <li role="presentation"><a href="#bank-financial-info" aria-controls="bank-financial-info" role="tab" data-toggle="tab">Bank/financial info</a></li>
+    <li role="presentation"><a href="#office-info" aria-controls="office-info" role="tab" data-toggle="tab">Office info</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="basic">
+      <h3>Basic information</h3><br>
+      <p>
+        <strong>Name:</strong>
+        <%= @client_account.name %>
+      </p><p>
+        <strong>Citizen/Birth Certificate:</strong>
+        <%= @client_account.citizen_passport %>
+      </p><p>
+        <strong>&emsp;Issued Date:</strong>
+        <%= @client_account.citizen_passport_date %>
+      </p><p>
+        <strong>&emsp;Issued District:</strong>
+        <%= @client_account.citizen_passport_district %>
+      </p><p>
+        <strong>PAN:</strong>
+        <%= @client_account.pan_no %>
+      </p><p>
+        <strong>Dob:</strong>
+        <%= @client_account.dob %>
+      </p><p>
+        <strong>Father/Mother's Name:</strong>
+        <%= @client_account.father_mother %>
+      </p><p>
+        <strong>GrandFather/Father In Law's Name:</strong>
+        <%= @client_account.granfather_father_inlaw %>
+      </p>
+      <br>
+      <h4>If associated to any organisation or company</h4>
+      <p>
+        <strong>Company Name:</strong>
+        <%= @client_account.company_name %>
+      </p><p>
+        <strong>Company Id:</strong>
+        <%= @client_account.company_id %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="permanent-address">
+      <h3>Permanent address</h3><br>
+      <p>
+        <strong>Address line 1:</strong>
+        <%= @client_account.address1_perm %>
+      </p><p>
+        <strong>Address line 2:</strong>
+        <%= @client_account.address2_perm %>
+      </p><p>
+        <strong>Address line 3:</strong>
+        <%= @client_account.address3_perm %>
+      </p><p>
+        <strong>City:</strong>
+        <%= @client_account.city_perm %>
+      </p><p>
+        <strong>State:</strong>
+        <%= @client_account.state_perm %>
+      </p><p>
+        <strong>Country:</strong>
+        <%= @client_account.country_perm %>
+      </p><p>
+        <strong>Phone:</strong>
+        <%= @client_account.phone_perm %>
+      </p><p>
+        <strong>Email:</strong>
+        <%= @client_account.email %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="current-address">
+      <h3>Current Address</h3><br>
+      <p>
+        <strong>Address line 1:</strong>
+        <%= @client_account.address1 %>
+      </p><p>
+        <strong>Address line 2:</strong>
+        <%= @client_account.address2 %>
+      </p><p>
+        <strong>Address line 3:</strong>
+        <%= @client_account.address3 %>
+      </p><p>
+        <strong>City:</strong>
+        <%= @client_account.city %>
+      </p><p>
+        <strong>State:</strong>
+        <%= @client_account.state %>
+      </p><p>
+        <strong>Country:</strong>
+        <%= @client_account.country %>
+      </p><p>
+        <strong>Phone:</strong>
+        <%= @client_account.phone %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="bank-financial-info">
+      <h3>Bank / Financial Institution Information</h3><br>
+      <p>
+        <strong>Name:</strong>
+        <%= @client_account.bank_name %>
+      </p><p>
+        <strong>Address:</strong>
+        <%= @client_account.bank_address %>
+      </p><p>
+        <strong>Account No.:</strong>
+        <%= @client_account.bank_account %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="office-info">
+      <h3>Official Information</h3><br>
+      <p>
+        <strong>Client type:</strong>
+        <%= @client_account.client_type %>
+      </p><p>
+        <strong>BoId:</strong>
+        <%= @client_account.boid %>
+      </p><p>
+        <strong>Nepse Code:</strong>
+        <%= @client_account.nepse_code %>
+      </p><p>
+        <strong>Group Leader:</strong>
+        <%= @client_account.group_leader_id %>
+      </p><p>
+        <strong>Referrer:</strong>
+        <%= @client_account.referrer_name %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="stick-to-bottom">
+  <%= link_to 'Edit', edit_client_account_path(@client_account) %> |
+  <%= link_to 'Back', client_accounts_path %>
+</div>
