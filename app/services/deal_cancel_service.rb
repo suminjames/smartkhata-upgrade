@@ -3,10 +3,11 @@ class DealCancelService
   attr_reader :error_message, :info_message, :share_transaction
   def initialize(attrs = {})
     @transaction_id = attrs[:transaction_id].to_i
-    @approval_action = attrs[:action]
+    @approval_action = attrs[:approval_action]
     @share_transaction = nil
     @error_message = nil
     @info_message = nil
+    @broker_id = attrs[:broker_code]
   end
 
   def process
@@ -30,6 +31,11 @@ class DealCancelService
     voucher = @share_transaction.voucher
     bill = @share_transaction.bill
 
+    # dont allow to approve deal cancel after starting settlement process
+    if bill.present? && !bill.pending?
+      @error_message = "Bill associated with the share transaction is already under process or settled"
+      return
+    end
 
 
     # if approval action is not present
@@ -38,39 +44,16 @@ class DealCancelService
       @share_transaction.soft_delete
       @share_transaction.transaction_cancel_status = :deal_cancel_pending
       ActiveRecord::Base.transaction do
-        @share_transaction.save!
-      end
-      @info_message = 'Deal cancelled succesfully.'
-      @share_transaction = nil
-      return
-    else
-      if @approval_action == "approve"
-        # dont allow to approve deal cancel after starting settlement process
-        if bill.present? && !bill.pending?
-          @error_message = "Bill associated with the share transaction is already under process or settled"
-          return
-        end
 
-        # condition when bill has not been created yet
-        if bill.blank?
-          ActiveRecord::Base.transaction do
-            update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
-            @share_transaction.save!
-          end
-          @info_message = 'Deal cancel approved succesfully.'
-          @share_transaction = nil
-          return
-        end
+        if bill.present?
+          # incase of bill created
+          relevant_share_transactions = bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
+          # reduce the dp fee and  amount
+          @share_transaction.net_amount -= @share_transaction.dp_fee
+          @share_transaction.dp_fee = 0
 
-        # incase of bill created
-        relevant_share_transactions = bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
-        dp_fee_adjustment = 0.0
-        total_transaction_count = relevant_share_transactions.length
-
-
-        ActiveRecord::Base.transaction do
-          # remove the transacted amount from the share inventory
-          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+          dp_fee_adjustment = 0.0
+          total_transaction_count = relevant_share_transactions.length
 
           if total_transaction_count > 1
             dp_fee_adjustment = @share_transaction.dp_fee
@@ -96,7 +79,32 @@ class DealCancelService
             bill.pending!
           end
           bill.save!
+        end
+        @share_transaction.save!
+        # rewrite the sms message
+        create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
 
+      end
+      @info_message = 'Deal cancelled succesfully.'
+      @share_transaction = nil
+      return
+    else
+      if @approval_action == "approve"
+        # condition when bill has not been created yet
+        if bill.blank?
+          ActiveRecord::Base.transaction do
+            update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+            @share_transaction.transaction_cancel_status = :deal_cancel_complete
+            @share_transaction.save!
+          end
+          @info_message = 'Deal cancel approved succesfully.'
+          @share_transaction = nil
+          return
+        end
+
+        ActiveRecord::Base.transaction do
+          # remove the transacted amount from the share inventory
+          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
           # create a new voucher and add the bill reference to it
           new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), voucher_status: Voucher.voucher_statuses[:complete])
           new_voucher.bills_on_settlement << bill
@@ -106,12 +114,11 @@ class DealCancelService
             reverse_accounts(particular, new_voucher, description, dp_fee_adjustment)
           end
 
-
           @share_transaction.transaction_cancel_status = :deal_cancel_complete
           @share_transaction.save!
 
           # rewrite the sms message
-          create_sms_result = CreateSmsService.new(broker_code: current_tenant.broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+          create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
           @info_message = 'Deal cancel approved succesfully.'
         end
       else
@@ -119,6 +126,38 @@ class DealCancelService
         @share_transaction.transaction_cancel_status = :no_deal_cancel
         ActiveRecord::Base.transaction do
           @share_transaction.save!
+          if bill.present?
+            # incase of bill created
+            relevant_share_transactions = bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
+            dp_fee_adjustment = 0.0
+            total_transaction_count = relevant_share_transactions.length
+
+            if total_transaction_count > 1
+              dp_fee  = 25
+              dp_fee_per_transaction = dp_fee / (total_transaction_count)
+              relevant_share_transactions.each do |transaction|
+                transaction.net_amount = transaction.net_amount - transaction.dp_fee + dp_fee_per_transaction
+                transaction.dp_fee = dp_fee_per_transaction
+                transaction.save!
+              end
+            end
+
+            # now the bill will have atleast one deal cancelled transaction
+            bill.has_deal_cancelled! if bill.share_transactions.deal_cancel_pending.size > 1
+            if (bill.net_amount - @share_transaction.net_amount).abs <= 0.1
+              bill.balance_to_pay = @share_transaction.net_amount
+              bill.net_amount = @share_transaction.net_amount
+              bill.pending!
+            else
+              # increment net amount
+              bill.balance_to_pay += (@share_transaction.net_amount - dp_fee_per_transaction)
+              bill.net_amount += (@share_transaction.net_amount - dp_fee_per_transaction)
+              bill.pending!
+            end
+            bill.save!
+          end
+
+          create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
         end
         @info_message = 'Deal cancelled Rejected succesfully.'
         @share_transaction = nil

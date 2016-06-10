@@ -173,7 +173,7 @@ class ShareTransactionsController < ApplicationController
   def deal_cancel
     if params[:id].present?
       from_path = params[:from_path] || deal_cancel_share_transactions_path
-      deal_cancel = DealCancelService.new(transaction_id: params[:id])
+      deal_cancel = DealCancelService.new(transaction_id: params[:id], broker_code: current_tenant.broker_code)
       deal_cancel.process
       @share_transaction = deal_cancel.share_transaction
       if deal_cancel.error_message.present?
@@ -200,7 +200,7 @@ class ShareTransactionsController < ApplicationController
 
   def pending_deal_cancel
     if params[:id].present?
-      deal_cancel = DealCancelService.new(transaction_id: params[:id], approval_action: params[:action])
+      deal_cancel = DealCancelService.new(transaction_id: params[:id], approval_action: params[:approval_action], broker_code: current_tenant.broker_code)
       deal_cancel.process
       if deal_cancel.error_message.present?
         flash.now[:error] = deal_cancel.error_message

@@ -32,11 +32,7 @@ class Vouchers::Create < Vouchers::Base
         set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
 
 
-    # do not create voucher if bills have pending deal cancel
-    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
-    if bills_have_pending_deal_cancel
-      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
-    end
+
 
     # set the voucher type
     @voucher.voucher_type = @voucher_type
@@ -65,6 +61,12 @@ class Vouchers::Create < Vouchers::Base
       client_group_leader_account = client_group_leader_ledger.client_account if client_group_leader_ledger.present?
     end
 
+    # do not create voucher if bills have pending deal cancel
+    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
+    if bills_have_pending_deal_cancel
+      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
+      return
+    end
 
     # make sure the group leader and vendor are selected where required.
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?

@@ -196,8 +196,9 @@ class Vouchers::Base
   def bills_have_pending_deal_cancel(bill_list)
     res = false
     bill_number = nil
+    bill_list ||= []
     bill_list.each do |bill|
-      if bill.share_transactions.pending_deal_cancel.size > 0
+      if bill.share_transactions.deal_cancel_pending.size > 0
         res = true
         bill_number = bill.bill_number
         break

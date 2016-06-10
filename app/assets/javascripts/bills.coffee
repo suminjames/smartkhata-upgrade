@@ -8,36 +8,21 @@ get_balance =($this) ->
   else
     return parse_number($parent.find('.bill-amount')) * -1
 
-sum_bill_balance = (bill_amount, total_bill_amount, increment) ->
-  increment ||= false
-
-  if increment
-    total_bill_amount += bill_amount
-  else
-    total_bill_amount -= bill_amount
+get_total_balance = () ->
+  debugger
+  balance = 0
+  $('.check-bill:checked').each ->
+    balance += get_balance($(this))
+  return balance
 
 $ ->
   $(document).on 'change','.check-bill', (event) ->
 
     $this = $(this)
+    debugger
+    bill_amount = get_total_balance()
+    $total_amount = $('.total-bill-amount .display-amount')
+    $total_type = $('.total-bill-amount .display-type')
 
-    if ($this.is(':checked'))
-      bill_amount = get_balance($this)
-      $total_amount = $('.total-bill-amount .display-amount')
-      $total_type = $('.total-bill-amount .display-type')
-      total_bill_amount = parse_number($total_amount)
-      if ( $total_type.text() == 'cr' )
-        total_bill_amount *= -1
-      $newTotal = sum_bill_balance(bill_amount,total_bill_amount, true)
-      $total_amount.text(format_number(Math.abs($newTotal)))
-      $total_type.text(if $newTotal >= 0 then 'dr' else 'cr')
-    else
-      bill_amount = get_balance($this)
-      $total_amount = $('.total-bill-amount .display-amount')
-      $total_type = $('.total-bill-amount .display-type')
-      total_bill_amount = parse_number($total_amount)
-      if ( $total_type.text() == 'cr' )
-        total_bill_amount *= -1
-      $newTotal = sum_bill_balance(bill_amount,total_bill_amount)
-      $total_amount.text(format_number(Math.abs($newTotal)))
-      $total_type.text(if $newTotal >= 0 then 'dr' else 'cr')
+    $total_amount.text(format_number(Math.abs(bill_amount)))
+    $total_type.text(if bill_amount >= 0 then 'dr' else 'cr')
