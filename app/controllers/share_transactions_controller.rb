@@ -203,13 +203,13 @@ class ShareTransactionsController < ApplicationController
         # remove the transacted amount from the share inventory
         update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
 
-        # TODO (subas) Transaction amount and dp fee mismatch in calculation
         if total_transaction_count > 1
           dp_fee_adjustment = @share_transaction.dp_fee
           dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
           relevant_share_transactions.each do |transaction|
             unless transaction == @share_transaction
               transaction.dp_fee += dp_fee_adjustment_per_transaction
+              transaction.net_amount += dp_fee_adjustment_per_transaction
               transaction.save!
             end
           end

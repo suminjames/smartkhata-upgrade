@@ -161,7 +161,7 @@ class CreateSmsService
         _record = HashTree.new
         _record[rate][:quantity] = quantity
         _record[rate][:receivable_from_client] = client_dr
-        _record[:share_transactions] = [share_transaction]
+        _record[rate][:share_transactions] = [share_transaction]
         @grouped_records[client_code][:data][transaction_type][company_symbol] = _record
       end
     else

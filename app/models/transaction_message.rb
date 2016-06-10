@@ -11,6 +11,9 @@
 #  client_account_id :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  deleted_at        :date
+#  sent_sms_count    :integer
+#  sent_email_count  :integer
 #
 
 class TransactionMessage < ActiveRecord::Base
