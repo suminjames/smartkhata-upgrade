@@ -81,6 +81,7 @@ class ClientAccount < ActiveRecord::Base
 	belongs_to :updater,  class_name: 'User'
 
   belongs_to :group_leader,  class_name: 'ClientAccount'
+  has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
 
 	belongs_to :user
 
@@ -93,7 +94,9 @@ class ClientAccount < ActiveRecord::Base
 	scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct}
-
+  # for future reference only .. delete if you feel you know things well enough
+  # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
+  scope :having_group_members, -> { joins(:group_members) }
 	enum client_type: [:individual, :corporate ]
 
   validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm

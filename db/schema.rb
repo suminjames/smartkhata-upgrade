@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160603120502) do
+ActiveRecord::Schema.define(version: 20160608063335) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -614,6 +614,20 @@ ActiveRecord::Schema.define(version: 20160603120502) do
     t.datetime "updated_at",   null: false
   end
 
+  create_table "transaction_messages", force: :cascade do |t|
+    t.string   "sms_message"
+    t.date     "transaction_date"
+    t.integer  "sms_status",        default: 0
+    t.integer  "email_status",      default: 0
+    t.integer  "bill_id"
+    t.integer  "client_account_id"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree
+  add_index "transaction_messages", ["client_account_id"], name: "index_transaction_messages_on_client_account_id", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -696,4 +710,5 @@ ActiveRecord::Schema.define(version: 20160603120502) do
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "settlements", "vouchers"
+  add_foreign_key "transaction_messages", "client_accounts"
 end

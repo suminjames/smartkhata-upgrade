@@ -186,6 +186,9 @@ class ChequeEntriesController < ApplicationController
     if @start_cheque_number.blank?
       has_error = true
       error_message = "Start Cheque Number cant be empty"
+    elsif @start_cheque_number <= 0 || @end_cheque_number <= 0
+      has_error = true
+      error_message = "Cheque numbers can not be a negative value"
     elsif @start_cheque_number > @end_cheque_number
       has_error = true
       error_message = "Last cheque number should be greater than the first"
@@ -211,7 +214,7 @@ class ChequeEntriesController < ApplicationController
         format.html { redirect_to cheque_entries_path, notice: 'Cheque entry was successfully created.' }
         format.json { render :show, status: :created, location: @cheque_entry }
       else
-        format.html { render :new }
+        format.html { render :new}
         format.json { render json: @cheque_entry.errors, status: :unprocessable_entity }
       end
     end

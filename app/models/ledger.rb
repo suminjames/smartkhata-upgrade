@@ -52,10 +52,13 @@ class Ledger < ActiveRecord::Base
 	scope :non_bank_ledgers, -> {where(bank_account_id: nil)}
 
 	def update_closing_balance
-		unless self.opening_blnc.nil?
+		unless self.opening_blnc.blank?
 			self.opening_blnc = self.opening_blnc * -1 if self.opening_blnc_type.to_i == Particular.transaction_types['cr']
 			self.closing_blnc = self.opening_blnc
-		end
+    else
+      self.opening_blnc = 0
+    end
+
 	end
 
 	def update_custom(params)
@@ -71,8 +74,8 @@ class Ledger < ActiveRecord::Base
 
 
 	def positive_amount
-		if self.opening_blnc < 0
-      errors.add(:opening_blnc, "can't be negative")
+		if self.opening_blnc.to_f < 0
+      errors.add(:opening_blnc, "can't be negative or blank")
 		end
 	end
 end

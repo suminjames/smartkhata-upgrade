@@ -25,7 +25,7 @@ class BankAccount < ActiveRecord::Base
   has_one :ledger
   belongs_to :bank
 
-  validates :account_number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true #, length: { in: 3..13 }
+  validates :account_number, uniqueness: true #, length: { in: 3..13 }
   validates_presence_of :bank, :account_number
   validates_presence_of :bank_id, :account_number
   accepts_nested_attributes_for :ledger
