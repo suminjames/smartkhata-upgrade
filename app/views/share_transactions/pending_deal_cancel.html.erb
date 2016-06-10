@@ -1,0 +1,33 @@
+<div class="clearfix">
+  <% if @share_transactions.size > 0 %>
+    <h4>Verify the share transaction before cancelling.</h4>
+      <table class="table table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Contract No </th>
+            <th>Client </th>
+            <th>Company</th>
+            <th>Quantity in</th>
+            <th>Quantity out</th>
+          </tr>
+        </thead>
+
+        <tbody>
+            <% @share_transactions.each do |share_transaction| %>
+            <tr>
+              <td><%= share_transaction.date %></td>
+              <td><%= share_transaction.contract_no %></td>
+              <td><%= share_transaction.client_account.name %></td>
+              <td><%= share_transaction.isin_info.company %></td>
+              <td class='quantity-in'><%= share_transaction.quantity  if share_transaction.buying? %></td>
+              <td class='quantity-out'><%= share_transaction.quantity if share_transaction.selling? %></td>
+            </tr>
+
+        </tbody>
+      </table>
+    <% end  %>
+  <% else %>
+    <h4>No pending deal cancel available</h4>
+  <% end %>
+</div>

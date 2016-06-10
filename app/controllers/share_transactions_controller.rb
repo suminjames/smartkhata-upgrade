@@ -172,85 +172,19 @@ class ShareTransactionsController < ApplicationController
   # TODO MOVE THIS TO the index controller
   def deal_cancel
     if params[:id].present?
-      @share_transaction = ShareTransaction.not_cancelled.find_by(id: params[:id].to_i)
-      # TODO(Subas) Check if @share_transaction(above) is nil and proceed accordingly; don't proceed if nil but return (with error maybe)!
-      @voucher = @share_transaction.voucher
-      @bill = @share_transaction.bill
-
-      # condition when bill has not been created yet
-      if @bill.blank?
-        @share_transaction.soft_delete
-        ActiveRecord::Base.transaction do
-          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
-          @share_transaction.save!
-        end
-        flash.now[:notice] = 'Deal cancelled succesfully.'
+      from_path = params[:from_path] || deal_cancel_share_transactions_path
+      deal_cancel = DealCancelService.new(transaction_id: params[:id])
+      deal_cancel.process
+      @share_transaction = deal_cancel.share_transaction
+      if deal_cancel.error_message.present?
+        redirect_to from_path, alert: deal_cancel.error_message and return
+      else
         @share_transaction = nil
-        return
+        redirect_to from_path, notice: deal_cancel.info_message and return
       end
-
-      # condition where bill is created but actions has been initiated
-      if !@bill.pending?
-        redirect_to deal_cancel_share_transactions_path, flash: {error: "Bill associated with the share transaction is already under process or settled"} and return
-      end
-
-      relevant_share_transactions = @bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
-      dp_fee_adjustment = 0.0
-      total_transaction_count = relevant_share_transactions.length
-
-
-      ActiveRecord::Base.transaction do
-        # remove the transacted amount from the share inventory
-        update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
-
-        if total_transaction_count > 1
-          dp_fee_adjustment = @share_transaction.dp_fee
-          dp_fee_adjustment_per_transaction = dp_fee_adjustment / (total_transaction_count - 1.0)
-          relevant_share_transactions.each do |transaction|
-            unless transaction == @share_transaction
-              transaction.dp_fee += dp_fee_adjustment_per_transaction
-              transaction.net_amount += dp_fee_adjustment_per_transaction
-              transaction.save!
-            end
-          end
-        end
-
-        # now the bill will have atleast one deal cancelled transaction
-        @bill.has_deal_cancelled!
-        if (@bill.net_amount - @share_transaction.net_amount).abs <= 0.1
-          @bill.balance_to_pay = 0
-          @bill.net_amount = 0
-          @bill.settled!
-        else
-          @bill.balance_to_pay -= (@share_transaction.net_amount - dp_fee_adjustment)
-          @bill.net_amount -= (@share_transaction.net_amount - dp_fee_adjustment)
-          @bill.pending!
-        end
-        @bill.save!
-
-        # create a new voucher and add the bill reference to it
-        @new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), voucher_status: Voucher.voucher_statuses[:complete])
-        @new_voucher.bills_on_settlement << @bill
-
-        description = "deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{@bill.fy_code}-#{@bill.bill_number})"
-        @voucher.particulars.each do |particular|
-          reverse_accounts(particular, @new_voucher, description, dp_fee_adjustment)
-        end
-
-
-        @share_transaction.soft_delete
-        @share_transaction.save!
-
-        # rewrite the sms message
-        create_sms_result = CreateSmsService.new(broker_code: current_tenant.broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: @bill).change_message
-
-      end
-      flash.now[:notice] = 'Deal cancelled succesfully.'
-      @share_transaction = nil
     end
 
     if params[:contract_no].present? && params[:transaction_type].present?
-      # TODO make it work for enum
       case params[:transaction_type]
         when "selling"
           transaction_type = ShareTransaction.transaction_types[:selling]
@@ -262,8 +196,19 @@ class ShareTransactionsController < ApplicationController
       @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
+  end
 
-
+  def pending_deal_cancel
+    if params[:id].present?
+      deal_cancel = DealCancelService.new(transaction_id: params[:id], approval_action: params[:action])
+      deal_cancel.process
+      if deal_cancel.error_message.present?
+        flash.now[:error] = deal_cancel.error_message
+      else
+        flash.now[:notice] = deal_cancel.info_message
+      end
+    end
+    @share_transactions = ShareTransaction.deal_cancel_pending
   end
 
   # GET /share_transactions/1

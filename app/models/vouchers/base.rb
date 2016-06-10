@@ -45,7 +45,7 @@ class Vouchers::Base
     #   4. specific bill
     #         process a specific bill
 
-    if ( clear_ledger || bill_ids.size > 0 ) && client_account.present?
+    if (clear_ledger || bill_ids.size > 0) && client_account.present?
 
       client_ledger = client_account.ledger
       ledger_balance = client_ledger.closing_blnc
@@ -191,5 +191,18 @@ class Vouchers::Base
       client_account = bill.client_account
     end
     return client_account, bill
+  end
+
+  def bills_have_pending_deal_cancel(bill_list)
+    res = false
+    bill_number = nil
+    bill_list.each do |bill|
+      if bill.share_transactions.pending_deal_cancel.size > 0
+        res = true
+        bill_number = bill.bill_number
+        break
+      end
+    end
+    return res, bill_number
   end
 end
