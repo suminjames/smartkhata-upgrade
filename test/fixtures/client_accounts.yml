@@ -2,8 +2,16 @@
 
 one:
   name: 'Dedra Sorenson'
-  phone: '55555'
-  phone_perm: '666666'
+  phone: 55555
+  phone_perm: 666666
+  citizen_passport: 6789
+  dob: 1900-10-10
+  father_mother: 'Zephyrus Gemini'
+  granfather_father_inlaw: 'Pallas Atum'
+  address1_perm: fooland
+  city_perm: foo-city
+  state_perm: foo-state
+  country_perm: foo-country
   # mobile_number: '9800000000'
   #  boid                      :string
   #  nepse_code                :string
@@ -23,7 +31,6 @@ one:
   #  country_perm              :string
   #  customer_product_no       :string
   #  dp_id                     :string
-  #  dob                       :string
   #  sex                       :string
   #  nationality               :string
   #  stmt_cycle_code           :string
