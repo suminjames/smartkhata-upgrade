@@ -27,10 +27,9 @@
                 <%= link_to 'Reject', pending_deal_cancel_share_transactions_path(id: share_transaction.id, approval_action: 'reject') %>
               </td>
             </tr>
-
+            <% end %>
         </tbody>
       </table>
-    <% end  %>
   <% else %>
     <h4>No pending deal cancel available</h4>
   <% end %>
