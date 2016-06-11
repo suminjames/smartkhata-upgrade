@@ -219,9 +219,6 @@ class VouchersController < ApplicationController
 
     end
 
-
-
-    # TODO remove what the fuck
     respond_to do |format|
       format.html {
         redirect_to from_path, notice: message  if success

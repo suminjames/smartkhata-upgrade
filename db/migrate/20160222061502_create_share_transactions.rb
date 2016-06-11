@@ -13,7 +13,7 @@ class CreateShareTransactions < ActiveRecord::Migration
       t.decimal :commission_amount, precision: 15, scale: 4, default: 0
       t.decimal :dp_fee, precision: 15, scale: 4, default: 0
       t.decimal :cgt, precision: 15, scale: 4, default: 0
-      t.decimal :net_amount, precision: 15, scale: 4, default: 0 # net amount is the amount irrespective of closeout
+      t.decimal :net_amount, precision: 15, scale: 4, default: 0 # net amount is the amount irrespective of closeout ( & includes charges for purchases)
       t.decimal :bank_deposit, precision: 15, scale: 4, default: 0
       t.integer :transaction_type
       t.decimal :settlement_id, precision:18, scale: 0
