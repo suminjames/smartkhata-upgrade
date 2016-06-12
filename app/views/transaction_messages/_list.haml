@@ -1,0 +1,31 @@
+%div#filterrific_results
+  = render 'shared/pagination', collection_to_paginate: transaction_messages
+
+  %table.table.table-striped
+    %thead
+
+      %th.col-xs-2= filterrific_sorting_link(@filterrific, :date)
+      %th.col-xs-2= 'Client'
+      %th.col-xs-2= 'Bill'
+      %th.col-xs-4= 'SMS Message'
+      %th.col-xs-1= 'SMS<br>Sent'.html_safe
+      %th.col-xs-1= 'Email<br>Sent'.html_safe
+      %th.col-xs-1= 'Actions'
+
+    %tbody
+      -if transaction_messages
+        -transaction_messages.each do |transaction_message|
+          %tr
+            %td= ad_to_bs_string(transaction_message.transaction_date)
+            %td= transaction_message.client_account.name
+            %td= "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" if transaction_message.bill.present?
+            %td= transaction_message.sms_message
+            %td.text-center= transaction_message.sms_default? ? 'N<br>Send'.html_safe : 'Y<br>Resend'.html_safe
+            %td.text-center= transaction_message.email_default? ? 'N<br>Send'.html_safe : 'Y<br>Resend'.html_safe
+            %td.text-center= link_to "Send Email", send_email_transaction_messages_path(id: transaction_message.id), remote: true
+
+  - if !transaction_messages || transaction_messages.empty?
+    .row.text-center.top-buffer-md
+      There are no matching settlements.
+
+  = render 'shared/pagination', collection_to_paginate: transaction_messages

@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :transaction_messages
   get 'dashboard/index'
 
   resources :nepse_chalans
@@ -41,6 +40,12 @@ Rails.application.routes.draw do
       get 'show_by_number'
       get 'print'
       post 'process_selected'
+    end
+  end
+  resources :transaction_messages do
+    collection do
+      get 'send_sms'
+      get 'send_email'
     end
   end
   resources :groups

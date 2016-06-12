@@ -27,8 +27,8 @@
     <% end %>
     </tbody>
   </table>
-  <% if !settlements %>
-      <div class="row text-center">
+  <% if !settlements || settlements.empty? %>
+      <div class="row text-center top-buffer-md">
         There are no matching settlements.
       </div>
   <% end %>
