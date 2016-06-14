@@ -99,9 +99,6 @@ class ClientAccount < ActiveRecord::Base
   scope :having_group_members, -> { joins(:group_members) }
 	enum client_type: [:individual, :corporate ]
 
-  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm
-  validates_format_of :dob, with: /\A\d{4}-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[1-2]\d|3[01])\Z/, message: 'should be in YYYY-MM-DD format'
-
   # create client ledger
   def create_ledger
     client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
