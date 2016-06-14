@@ -137,8 +137,9 @@ class Files::FloorsheetsController < Files::FilesController
         @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
       end
       create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, broker_code: current_tenant.broker_code).process
-      # FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
+      FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
     end
+    # # used to fire error when floorsheet contains client data but not mapped to system
     # file_error(@error_message) if @error_message.present?
   end
 
