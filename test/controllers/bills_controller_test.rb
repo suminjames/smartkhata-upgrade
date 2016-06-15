@@ -19,7 +19,7 @@ class BillsControllerTest < ActionController::TestCase
     get :index
     assert_redirected_to bills_path(search_by: "client_name")
 
-    get index, search_by: 'client_name'
+    get :index, search_by: 'client_name'
     assert_response :success
     assert_template 'bills/index'
   end
@@ -30,7 +30,7 @@ class BillsControllerTest < ActionController::TestCase
 
   test "should show bill of both types" do
     @assert_via_get.call(:show, @bill)
-    assert_match 'we have Purchashed these undernoted stocks', response.body # note the typo
+    assert_match 'we have Purchased these undernoted stocks', response.body
 
     @assert_via_get.call(:show, @sales_bill)
     assert_match 'we have Sold these undernoted stocks', response.body
@@ -40,7 +40,6 @@ class BillsControllerTest < ActionController::TestCase
     get :show_by_number, number: "#{@bill.fy_code}-#{@bill.bill_number}"
     assert_redirected_to bill_path(@bill)
     assert_not_nil assigns(:bill)
-    assert_template 'bills/show'
   end
 
   test "bill should show phone numbers when present" do
