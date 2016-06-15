@@ -118,24 +118,28 @@ class BillsController < ApplicationController
 
   # GET /bills/1/edit
   def edit
+    raise NotImplementedError
   end
 
   # POST /bills
   # POST /bills.json
   def create
-    # @bill = Bill.new(bill_params)
+    @bill = Bill.new(bill_params).make_provisional
+    res = false
+    if @bill.errors.blank? && @bill.save
+      res = true
+    end
+    respond_to do |format|
+      if res
+        format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
+        format.json { render :show, status: :created, location: @bill }
+      else
+        format.html { render :new }
+        format.json { render json: @bill.errors, status: :unprocessable_entity }
+      end
+    end
     #
-    # respond_to do |format|
-    #   if @bill.save
-    #     format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
-    #     format.json { render :show, status: :created, location: @bill }
-    #   else
-    #     format.html { render :new }
-    #     format.json { render json: @bill.errors, status: :unprocessable_entity }
-    #   end
-    # end
-
-    raise NotImplementedError
+    # raise NotImplementedError
   end
 
   # PATCH/PUT /bills/1
@@ -233,7 +237,7 @@ class BillsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
-    params.fetch(:bill, {})
+    params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
   end
 
 

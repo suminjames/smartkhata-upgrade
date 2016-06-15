@@ -53,6 +53,7 @@ class Bill < ActiveRecord::Base
   # - Pending: No payment has been done.
   # - Partial: Some but not all payment has been done.
   # - Settled: All payment if required ( this includes bills with all share transaction cancelled ) has been done.
+  # - Provisional: All the bills that are for view purpose only and have no effect on accounting purpose
 	enum status: [:pending,:partial,:settled, :provisional]
 
   # # Bill cancel Status
@@ -60,8 +61,15 @@ class Bill < ActiveRecord::Base
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
   enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
+  attr_accessor :provisional_base_price
+
+  validates_presence_of :client_account, :date_bs
+
+  # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
+
+
   #  TODO: Implement multi-name search
   scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
   scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
@@ -70,7 +78,7 @@ class Bill < ActiveRecord::Base
   scope :find_by_client_id, -> (id) { where(client_account_id: id).order(:status) }
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
 
-
+  # as these are used for accounting purpose do not consider provisional
   scope :requiring_processing, -> { where(status: ["pending","partial"]) }
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending],Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
@@ -120,6 +128,35 @@ class Bill < ActiveRecord::Base
     return ClientAccount.find(self.client_account_id)
   end
 
+  def make_provisional
+    # get the transaction date
+    begin
+      date_ad =  bs_to_ad(self.date_bs)
+      # get all the share transaction for the day
+      share_transactions = ShareTransaction.selling.find_by_date(date_ad)
+
+      # validates base price and return if error
+      if self.provisional_base_price.present?
+        self.errors[:provisional_base_price] << "Invalid Base Price"
+        return self
+      end
+
+      # make sure there are share transactions for the date
+      if share_transactions.size < 1
+        self.errors[:date_bs] << "No Sales Transactions Found"
+        return self
+      end
+
+      share_transactions.each do |share_transaction|
+        
+      end
+
+      self.errors[:date_bs] << "Still Processing #{self.provisional_base_price}"
+    rescue
+      self.errors[:date_bs] << "Invalid Transaction Date. Date format is YYYY-MM-DD"
+    end
+    self
+  end
 
 
   private
@@ -127,5 +164,6 @@ class Bill < ActiveRecord::Base
     self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
   end
+
 
 end
