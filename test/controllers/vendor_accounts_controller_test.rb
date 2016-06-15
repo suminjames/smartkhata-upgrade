@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class VendorAccountsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class VendorAccountsControllerTest < ActionController::TestCase
     assert_redirected_to vendor_accounts_path
   end
 end
+=end

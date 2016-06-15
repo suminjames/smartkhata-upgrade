@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class NepseChalansControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class NepseChalansControllerTest < ActionController::TestCase
     assert_redirected_to nepse_chalans_path
   end
 end
+=end

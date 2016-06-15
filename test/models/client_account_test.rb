@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class ClientAccountTest < ActiveSupport::TestCase
@@ -75,3 +76,4 @@ class ClientAccountTest < ActiveSupport::TestCase
     assert @client_account.invalid?
   end
 end
+=end
