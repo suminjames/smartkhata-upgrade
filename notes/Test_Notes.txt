@@ -37,10 +37,10 @@ Git.Merge.each::after DO
                 -re-upload the same order file
 
     II. Functional testing [ONGOING]
-        - Banks, Bank accounts, Cheque entries, Sales, Floorsheet, Sales settlements, Bills, Branches, Client accounts
+        - Banks, Bank accounts, Cheque entries, Sales, Floorsheet, Sales settlements, Bills, Branches, Client accounts, Employee accounts, Ledgers
 
     III. Unit Testing [ONGOING]
-        - Bank, Bank account, Cheque entry, Client account
+        - Bank, Bank account, Cheque entry, Client account, Employee account, Ledger
 
     IV. Interface Testing [?]
 

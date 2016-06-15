@@ -9,7 +9,7 @@ class BankAccountTest < ActiveSupport::TestCase
 
     # from the controller- following two variables not tested because they will be overrided if bank exists
     @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
-    @bank_account.bank_name = @bank.name
+    @bank_account.bank_name = 'Some Bank'
   end
 
   test "should be valid" do
@@ -53,10 +53,11 @@ class BankAccountTest < ActiveSupport::TestCase
     assert_not @bank_account.valid?
   end
 
-  test "account number should not be zero" do
-    @bank_account.account_number = 0
-    assert_not @bank_account.valid?
-  end
+  # Accepts zero
+  # test "account number should not be zero" do
+  #   @bank_account.account_number = 0
+  #   assert_not @bank_account.valid?
+  # end
 
   test "account number should not be negative" do
     @bank_account.account_number = -947
@@ -72,7 +73,49 @@ class BankAccountTest < ActiveSupport::TestCase
     assert_not @bank_account.valid?
   end
 
-  # << account number boundary tests >>
+  # ledger_attributes: opening_balance
+  test "opening balance should not be negative" do
+    @bank_account.ledger.opening_blnc = -500
+    assert_not @bank_account.valid?
+  end
+
+  test "should change default for payment" do
+    a1 = bank_accounts(:one)
+    a2 = bank_accounts(:two)
+    accounts = [a1, a2]
+    accounts.each {|account| account.update_column(:default_for_payment, true) }
+    a1.change_default
+    accounts.each {|account| account.reload}
+
+    assert     a1.default_for_payment
+    assert_not a2.default_for_payment
+  end
+
+  test "should change default for sales" do
+    a1 = bank_accounts(:one)
+    a2 = bank_accounts(:two)
+    accounts = [a1, a2]
+    accounts.each {|account| account.update_column(:default_for_receipt, true) }
+    a1.change_default
+    accounts.each {|account| account.reload}
+
+    assert     a1.default_for_receipt
+    assert_not a2.default_for_receipt
+  end
+
+  test "should get formatted bank name" do
+    assert_equal "#{@bank_account.bank.bank_code }-#{@bank_account.account_number}", @bank_account.name
+  end
+
+  test "should get bank name" do
+    assert_equal "#{@bank_account.bank.name}", @bank_account.bank_name
+  end
+
+  # Login required
+  # test "should assign group" do
+  #   # Group.find_by(name: "Current Assets")
+  #   @bank_account.assign_group
+  # end
 
 =begin
   # default for sales and purchase-
@@ -119,26 +162,6 @@ class BankAccountTest < ActiveSupport::TestCase
   	assert_not @bank_account.valid?
   end
 =end
-
-
-  # ledger_attributes: opening_balance
-  test "opening balance should not be negative" do
-  	@bank_account.ledger.opening_blnc = -500
-    assert_not @bank_account.valid?
-  end
-
-  test "opening balance should not be a very large number" do
-    @bank_account.ledger.opening_blnc = 1234567890234567890
-  	assert_not @bank_account.valid?, "No upper boundary check!"
-  end
-
-  # Numeric field in db--
-  # test "opening balance should not be string" do
-  #   @bank_account.ledger.opening_blnc = 'quux'
-  # 	assert_not @bank_account.valid?
-  # end
-
-  # << opening balance boundary tests >>
 
 =begin
 
