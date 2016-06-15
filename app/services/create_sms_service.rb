@@ -217,9 +217,9 @@ class CreateSmsService
         str[0] = ""
         if type_of_transaction == :sell
           has_sales_transaction = true
-          share_quantity_rate_message += ";bought #{str}"
-        else
           share_quantity_rate_message += ";sold #{str}"
+        else
+          share_quantity_rate_message += ";bought #{str}"
         end
       end
       share_quantity_rate_message[0] = ""
@@ -230,7 +230,7 @@ class CreateSmsService
         # if bill is present which is true for the case of changing the message
         # override total amount with bill amount
         total = @bill.net_amount if @bill.present?
-        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
+        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
       end
 
       transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
