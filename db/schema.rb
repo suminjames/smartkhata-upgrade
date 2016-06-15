@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160608063335) do
+ActiveRecord::Schema.define(version: 20160610073048) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -555,33 +555,33 @@ ActiveRecord::Schema.define(version: 20160608063335) do
   add_index "share_inventories", ["updater_id"], name: "index_share_inventories_on_updater_id", using: :btree
 
   create_table "share_transactions", force: :cascade do |t|
-    t.decimal  "contract_no",         precision: 18
+    t.decimal  "contract_no",               precision: 18
     t.integer  "buyer"
     t.integer  "seller"
     t.integer  "raw_quantity"
     t.integer  "quantity"
-    t.decimal  "share_rate",          precision: 10, scale: 4, default: 0.0
-    t.decimal  "share_amount",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "sebo",                precision: 15, scale: 4, default: 0.0
+    t.decimal  "share_rate",                precision: 10, scale: 4, default: 0.0
+    t.decimal  "share_amount",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "sebo",                      precision: 15, scale: 4, default: 0.0
     t.string   "commission_rate"
-    t.decimal  "commission_amount",   precision: 15, scale: 4, default: 0.0
-    t.decimal  "dp_fee",              precision: 15, scale: 4, default: 0.0
-    t.decimal  "cgt",                 precision: 15, scale: 4, default: 0.0
-    t.decimal  "net_amount",          precision: 15, scale: 4, default: 0.0
-    t.decimal  "bank_deposit",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "commission_amount",         precision: 15, scale: 4, default: 0.0
+    t.decimal  "dp_fee",                    precision: 15, scale: 4, default: 0.0
+    t.decimal  "cgt",                       precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",                precision: 15, scale: 4, default: 0.0
+    t.decimal  "bank_deposit",              precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
-    t.decimal  "settlement_id",       precision: 18
-    t.decimal  "base_price",          precision: 15, scale: 4, default: 0.0
-    t.decimal  "amount_receivable",   precision: 15, scale: 4, default: 0.0
-    t.decimal  "closeout_amount",     precision: 15, scale: 4, default: 0.0
+    t.decimal  "settlement_id",             precision: 18
+    t.decimal  "base_price",                precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount_receivable",         precision: 15, scale: 4, default: 0.0
+    t.decimal  "closeout_amount",           precision: 15, scale: 4, default: 0.0
     t.string   "remarks"
-    t.decimal  "purchase_price",      precision: 15, scale: 4, default: 0.0
-    t.decimal  "capital_gain",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "adjusted_sell_price", precision: 15, scale: 4, default: 0.0
+    t.decimal  "purchase_price",            precision: 15, scale: 4, default: 0.0
+    t.decimal  "capital_gain",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "adjusted_sell_price",       precision: 15, scale: 4, default: 0.0
     t.date     "date"
     t.date     "deleted_at"
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
+    t.datetime "created_at",                                                       null: false
+    t.datetime "updated_at",                                                       null: false
     t.integer  "nepse_chalan_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
@@ -590,6 +590,8 @@ ActiveRecord::Schema.define(version: 20160608063335) do
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.integer  "isin_info_id"
+    t.integer  "transaction_message_id"
+    t.integer  "transaction_cancel_status",                          default: 0
   end
 
   add_index "share_transactions", ["bill_id"], name: "index_share_transactions_on_bill_id", using: :btree
@@ -623,6 +625,9 @@ ActiveRecord::Schema.define(version: 20160608063335) do
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.date     "deleted_at"
+    t.integer  "sent_sms_count"
+    t.integer  "sent_email_count"
   end
 
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree

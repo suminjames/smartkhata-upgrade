@@ -53,10 +53,10 @@ class Bill < ActiveRecord::Base
   # - Pending: No payment has been done.
   # - Partial: Some but not all payment has been done.
   # - Settled: All payment if required ( this includes bills with all share transaction cancelled ) has been done.
-	enum status: [:pending,:partial,:settled]
+	enum status: [:pending,:partial,:settled, :provisional]
 
   # # Bill cancel Status
-  # #  - none : Default
+  # #  - none : regular
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
   enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
