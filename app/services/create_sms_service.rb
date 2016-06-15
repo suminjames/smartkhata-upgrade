@@ -52,9 +52,9 @@ class CreateSmsService
 
   def change_message
     res = false
-    if @transaction_message.blank?
-      return false
-    end
+    # if @transaction_message.blank?
+    #   return false
+    # end
     share_transactions = @transaction_message.share_transactions.not_cancelled
 
     # if transaction message had only one share transaction
@@ -169,8 +169,16 @@ class CreateSmsService
         @grouped_records[client_code][:data][transaction_type][company_symbol] = _record
       end
     else
-      client_single_record = get_client_initial_hash(transaction_type, company_symbol, rate, quantity, client_dr, share_transaction, client_name, bill_id, client_account_id, full_bill_number)
-      @grouped_records[client_code] = client_single_record
+      # Other type  of transaction record is present
+      # Hence either append or modify the hash values
+      _record = HashTree.new
+      _record[company_symbol][rate][:quantity] = quantity
+      _record[company_symbol][rate][:receivable_from_client] = client_dr
+      _record[company_symbol][rate][:share_transactions] = [share_transaction]
+      @grouped_records[client_code][:data][transaction_type] = _record
+
+      @grouped_records[client_code][:info][:bill_id] ||= bill_id
+      @grouped_records[client_code][:info][:full_bill_number] ||= full_bill_number
     end
   end
 
@@ -186,11 +194,17 @@ class CreateSmsService
       share_transactions = []
       full_bill_number = info[:full_bill_number]
       transaction_data = v[:data]
+
+      has_sales_transaction = false
+
+      share_quantity_rate_message = ""
+      total = 0.0
+      # transaction data contains both buy and sell order
       transaction_data.each do |type_of_transaction, data|
         str = ""
-        total = 0.0
+
         data.each do |symbol, symbol_data|
-          str += ";#{symbol} "
+          str += ";#{symbol}"
           symbol_data.each do |rate, rate_data|
             str += ",#{rate_data[:quantity].to_i}@#{rate}"
             total += rate_data[:receivable_from_client].to_f
@@ -198,22 +212,31 @@ class CreateSmsService
             share_transactions |= rate_data[:share_transactions]
           end
         end
-        sms_message = ""
+
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
-        if type_of_transaction == :buy
-          # if bill is present which is true for the case of changing the message
-          # override total amount with bill amount
-          total = @bill.net_amount if @bill.present?
-          sms_message = "#{client_name} bought #{str};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
+        if type_of_transaction == :sell
+          has_sales_transaction = true
+          share_quantity_rate_message += ";bought #{str}"
         else
-          sms_message += "#{client_name} sold #{str};On #{@transaction_date_short}.BNo #{@broker_code}"
+          share_quantity_rate_message += ";sold #{str}"
         end
-
-        transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
-        transaction_message.share_transactions << share_transactions
-        transaction_messages << transaction_message
       end
+      share_quantity_rate_message[0] = ""
+      sms_message = ""
+      if has_sales_transaction
+        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}"
+      else
+        # if bill is present which is true for the case of changing the message
+        # override total amount with bill amount
+        total = @bill.net_amount if @bill.present?
+        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
+      end
+
+      transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
+      transaction_message.share_transactions << share_transactions
+      transaction_messages << transaction_message
+
     end
     transaction_messages
   end

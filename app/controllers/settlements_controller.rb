@@ -53,9 +53,10 @@ class SettlementsController < ApplicationController
     respond_to do |format|
       format.html
       format.js
-
-      pdf = Print::PrintSettlement.new(@settlement, current_tenant)
-      send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
+      format.pdf do
+        pdf = Print::PrintSettlement.new(@settlement, current_tenant)
+        send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
     end
   end
 
