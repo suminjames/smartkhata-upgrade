@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class Files::OrdersControllerTest < ActionController::TestCase
@@ -12,3 +13,4 @@ class Files::OrdersControllerTest < ActionController::TestCase
   end
 
 end
+=end
