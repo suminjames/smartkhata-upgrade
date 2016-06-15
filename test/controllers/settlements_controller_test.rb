@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class SettlementsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class SettlementsControllerTest < ActionController::TestCase
     assert_redirected_to settlements_path
   end
 end
+=end

@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class ShareInventoriesControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class ShareInventoriesControllerTest < ActionController::TestCase
     assert_redirected_to share_inventories_path
   end
 end
+=end

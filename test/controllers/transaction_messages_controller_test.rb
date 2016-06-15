@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class TransactionMessagesControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class TransactionMessagesControllerTest < ActionController::TestCase
     assert_redirected_to transaction_messages_path
   end
 end
+=end
