@@ -126,9 +126,13 @@ class BillsController < ApplicationController
   def create
     @bill = Bill.new(bill_params).make_provisional
     res = false
-    if @bill.errors.blank? && @bill.save
-      res = true
+
+    Bill.transaction do
+      if @bill.errors.blank? && @bill.save
+        res = true
+      end
     end
+
     respond_to do |format|
       if res
         format.html { redirect_to @bill, notice: 'Bill was successfully created.' }

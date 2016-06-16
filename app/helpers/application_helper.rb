@@ -32,14 +32,7 @@ module ApplicationHelper
 	# Get a unique bill number based on fiscal year
 	# The returned bill number is an increment (by 1) of the previously stored bill_number.
 	def get_bill_number
-		bill = Bill.where(fy_code: get_fy_code).last
-		# initialize the bill with 1 if no bill is present
-		if bill.nil?
-			1
-		else
-			# increment the bill number
-			bill.bill_number + 1
-		end
+		Bill.new_bill_number(get_fy_code)
 	end
 
 	# process accounts to make changes on ledgers
