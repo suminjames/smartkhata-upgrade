@@ -27,21 +27,21 @@ class GenerateBillsService
         client_account = transaction.client_account
         commission = transaction.commission_amount
         sales_commission = commission * 0.75
-    		tds = commission * 0.75 * 0.15
+        tds = commission * 0.75 * 0.15
         company_symbol = transaction.isin_info.isin
         share_quantity = transaction.raw_quantity
         shortage_quantity = transaction.raw_quantity - transaction.quantity
         share_rate = transaction.share_rate
 
 
-
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
-        if hash_dp.key?(custom_key)
+        if share_transaction.bill_id.present?
+          bill = share_transaction.bill
+        elsif hash_dp.key?(custom_key)
           # find bill by the bill number
           bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date)
         else
-
           hash_dp[custom_key] = @bill_number
           # create a new bill
           bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, date: transaction.date) do |b|
@@ -62,30 +62,30 @@ class GenerateBillsService
 
         # create client ledger if not exist
 
-  			client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
-  				ledger.name = client_account.name
+        client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
+          ledger.name = client_account.name
           ledger.client_account_id =client_account.id
-  			end
+        end
 
-  			# assign the client ledgers to group clients
-  			client_group = Group.find_or_create_by!(name: "Clients")
-  			client_group.ledgers << client_ledger
+        # assign the client ledgers to group clients
+        client_group = Group.find_or_create_by!(name: "Clients")
+        client_group.ledgers << client_ledger
 
-  			# find or create predefined ledgers
-  			sales_commission_ledger = Ledger.find_or_create_by!(name: "Sales Commission")
-  			nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
-  			tds_ledger = Ledger.find_or_create_by!(name: "TDS")
-  			dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+        # find or create predefined ledgers
+        sales_commission_ledger = Ledger.find_or_create_by!(name: "Sales Commission")
+        nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
+        tds_ledger = Ledger.find_or_create_by!(name: "TDS")
+        dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
 
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
-  			# update ledgers value
-  			voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+        # update ledgers value
+        voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
         voucher.bills_on_creation << bill
         voucher.share_transactions << transaction
         voucher.desc = description
         voucher.complete!
-  			voucher.save!
+        voucher.save!
 
         # process_accounts(ledger,voucher, is_debit, amount)
 
@@ -102,12 +102,11 @@ class GenerateBillsService
           # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
           nepse_amount = transaction.closeout_amount - transaction.amount_receivable.abs
 
-          process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
-          process_accounts(nepse_ledger,voucher,true,nepse_amount,description)
-          process_accounts(tds_ledger,voucher,true,tds,description)
-          process_accounts(sales_commission_ledger,voucher,false,sales_commission,description)
-          process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description) if transaction.dp_fee  > 0
-
+          process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
+          process_accounts(nepse_ledger, voucher, true, nepse_amount, description)
+          process_accounts(tds_ledger, voucher, true, tds, description)
+          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0
 
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate})"
@@ -118,32 +117,29 @@ class GenerateBillsService
           closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
           # credit nepse
           net_adjustment_amount = transaction.closeout_amount
-          process_accounts(nepse_ledger,voucher,false,net_adjustment_amount,description)
-          process_accounts(closeout_ledger,voucher,true,net_adjustment_amount,description)
+          process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description)
+          process_accounts(closeout_ledger, voucher, true, net_adjustment_amount, description)
           voucher.complete!
           voucher.save!
-
-
 
 
           voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
           voucher.share_transactions << transaction
           voucher.desc = description
-          process_accounts(closeout_ledger,voucher,false,net_adjustment_amount,description)
-          process_accounts(client_ledger,voucher,true,net_adjustment_amount,description)
+          process_accounts(closeout_ledger, voucher, false, net_adjustment_amount, description)
+          process_accounts(client_ledger, voucher, true, net_adjustment_amount, description)
           voucher.complete!
           voucher.save!
-
 
 
         else
 
 
-          process_accounts(client_ledger,voucher,false,transaction.net_amount,description)
-          process_accounts(nepse_ledger,voucher,true,transaction.amount_receivable,description)
-          process_accounts(tds_ledger,voucher,true,tds,description)
-          process_accounts(sales_commission_ledger,voucher,false,sales_commission,description)
-          process_accounts(dp_ledger,voucher,false,transaction.dp_fee,description) if transaction.dp_fee  > 0
+          process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
+          process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description)
+          process_accounts(tds_ledger, voucher, true, tds, description)
+          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0
 
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
@@ -154,8 +150,8 @@ class GenerateBillsService
             clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
             # credit nepse
             net_adjustment_amount = transaction.share_amount
-            process_accounts(nepse_ledger,voucher,false,net_adjustment_amount,description)
-            process_accounts(clearing_ledger,voucher,true,net_adjustment_amount,description)
+            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description)
+            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description)
             voucher.complete!
             voucher.save!
           end
