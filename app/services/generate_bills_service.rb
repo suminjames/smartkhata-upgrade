@@ -41,6 +41,7 @@ class GenerateBillsService
         elsif hash_dp.key?(custom_key)
           # find bill by the bill number
           bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date)
+          bill.status = :pending
         else
           hash_dp[custom_key] = @bill_number
           # create a new bill
