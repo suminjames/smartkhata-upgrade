@@ -21,7 +21,9 @@ class Files::FloorsheetsController < Files::FilesController
   end
 
   def import
-
+    # TODO(subas): Catch invalid files where 1) all the 'data rows' are missing 2) File is 'blank'
+    #              (Refer to floorsheet controller test for more info)
+    #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
     @error_message = nil
