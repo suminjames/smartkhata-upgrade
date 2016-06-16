@@ -62,7 +62,7 @@ class Bill < ActiveRecord::Base
 
   attr_accessor :provisional_base_price
 
-  validates_presence_of :client_account, :date_bs
+  validates_presence_of :client_account
 
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }

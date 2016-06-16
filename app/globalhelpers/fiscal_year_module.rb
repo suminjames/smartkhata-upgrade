@@ -14,6 +14,9 @@ module FiscalYearModule
     return @@fiscal_year_breakpoint
   end
 
+  def available_fy_codes
+    return @@fiscal_year_breakpoint
+  end
   # Get fy code based on current year
 	# TODO modify the method to return based on fiscal years
 	def get_fy_code

@@ -36,16 +36,16 @@ class GenerateBillsService
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
-        if share_transaction.bill_id.present?
-          bill = share_transaction.bill
+        if transaction.bill_id.present?
+          bill = transaction.bill
         elsif hash_dp.key?(custom_key)
           # find bill by the bill number
-          bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date)
+          bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
           bill.status = :pending
         else
           hash_dp[custom_key] = @bill_number
           # create a new bill
-          bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, date: transaction.date) do |b|
+          bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
             b.bill_type = Bill.bill_types['sales']
 
             # TODO possible error location check
@@ -55,7 +55,6 @@ class GenerateBillsService
         end
 
         # TODO possible error location
-        bill.client_account_id = transaction.client_account_id
         bill.share_transactions << transaction
         bill.net_amount += transaction.net_amount
         bill.balance_to_pay = bill.net_amount
