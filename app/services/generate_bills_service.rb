@@ -38,10 +38,13 @@ class GenerateBillsService
         # if not create a bill and assign its number to the custom key of the hash for further processing
         if transaction.bill_id.present?
           bill = transaction.bill
+          if bill.provisional?
+            bill.status = :pending
+            bill.net_amount = 0.0
+          end
         elsif hash_dp.key?(custom_key)
           # find bill by the bill number
           bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
-          bill.status = :pending
         else
           hash_dp[custom_key] = @bill_number
           # create a new bill

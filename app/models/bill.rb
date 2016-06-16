@@ -164,6 +164,7 @@ class Bill < ActiveRecord::Base
       self.share_transactions << share_transaction
       self.net_amount += share_transaction.net_amount
     end
+    self.date = date_ad
     self.bill_type = :sales
     self.status = :provisional
     self.bill_number = Bill.new_bill_number(get_fy_code)
