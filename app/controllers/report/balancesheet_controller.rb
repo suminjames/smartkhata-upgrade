@@ -1,7 +1,11 @@
 class Report::BalancesheetController < ApplicationController
 	def index
 		drill_level = params[:drill_level].to_i if params[:drill_level].present?
+		fy_code = params[:fy_code] if params[:fy_code].present?
+
     @selected_drill_level = drill_level || 1
+		@fy_code = fy_code || get_fy_code
+
 
 	  @balance = Group.balance_sheet
 	  @balance_dr = Hash.new
@@ -12,12 +16,12 @@ class Report::BalancesheetController < ApplicationController
 
 	  @balance.each do |balance|
 	    if balance.sub_report == Group.sub_reports['Assets']
-	      @balance_dr[balance.name] = balance.get_ledger_group(@selected_drill_level)
-	      @opening_balance_dr += balance.get_ledger_group[:balance]
+	      @balance_dr[balance.name] = balance.get_ledger_group(drill_level: @selected_drill_level, fy_code: @fy_code)
+	      @opening_balance_dr += balance.get_ledger_group(fy_code: @fy_code)[:balance]
 	    end
 	    if balance.sub_report == Group.sub_reports['Liabilities']
-	      @balance_cr[balance.name] = balance.get_ledger_group(@selected_drill_level)
-	      @opening_balance_cr += balance.get_ledger_group[:balance]
+	      @balance_cr[balance.name] = balance.get_ledger_group(drill_level: @selected_drill_level, fy_code: @fy_code)
+	      @opening_balance_cr += balance.get_ledger_group(fy_code: @fy_code)[:balance]
 	    end
 
 
