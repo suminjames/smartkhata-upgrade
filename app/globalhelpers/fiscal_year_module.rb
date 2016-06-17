@@ -14,6 +14,9 @@ module FiscalYearModule
     return @@fiscal_year_breakpoint
   end
 
+  def available_fy_codes
+    return @@fiscal_year_breakpoint
+  end
   # Get fy code based on current year
 	# TODO modify the method to return based on fiscal years
 	def get_fy_code
@@ -27,3 +30,32 @@ module FiscalYearModule
 
 	end
 end
+
+# # code kept for future reference
+# module Foo
+#   def self.included base
+#     base.send :include, InstanceMethods
+#     base.extend ClassMethods
+#   end
+#
+#   module InstanceMethods
+#     def bar1
+#       'bar1'
+#       # self.class.bar2
+#     end
+#   end
+#
+#   module ClassMethods
+#     # module_function
+#     def bar2
+#       'bar2'
+#     end
+#   end
+# end
+#
+# class Test
+#   include Foo
+# end
+#
+# puts Test.new.bar1 # => "bar1"
+# puts Test.bar2 # => "bar2"
