@@ -11,6 +11,11 @@ class ClientAccountTest < ActiveSupport::TestCase
     assert @client_account.valid?
   end
 
+  # requires sign-in
+  test "should create client ledger" do; end
+  test "should assign group" do; end
+
+  # Validations should be put in the controller, if any
   test "client name should not be empty" do
     @client_account.name = '  '
     assert @client_account.invalid?
@@ -75,5 +80,5 @@ class ClientAccountTest < ActiveSupport::TestCase
     @client_account.country_perm = '  '
     assert @client_account.invalid?
   end
-end
 =end
+end
