@@ -71,6 +71,7 @@ class VouchersController < ApplicationController
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id)
 
+
     # abort("Message goes here")
     respond_to do |format|
       if voucher_creation.process
@@ -219,9 +220,6 @@ class VouchersController < ApplicationController
 
     end
 
-
-
-    # TODO remove what the fuck
     respond_to do |format|
       format.html {
         redirect_to from_path, notice: message  if success

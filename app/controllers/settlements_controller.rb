@@ -1,18 +1,50 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
-  # has_scope
-  has_scope :by_settlement_type, only: :index
-  has_scope :by_client_id, only: :index
-  has_scope :by_vendor_id, only: :index
-  has_scope :by_fy_code, only: :index
-  has_scope :by_date, only: :index
-  has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash, only: :index
+  # # has_scope
+  # has_scope :by_settlement_type, only: :index
+  # has_scope :by_client_id, only: :index
+  # has_scope :by_vendor_id, only: :index
+  # has_scope :by_fy_code, only: :index
+  # has_scope :by_date, only: :index
+  # has_scope :by_date_range, :using => [:date_from, :date_to], :type => :hash, only: :index
 
   # GET /settlements
   # GET /settlements.json
   def index
-    @settlements = apply_scopes(Settlement.all)
+    @filterrific = initialize_filterrific(
+        Settlement,
+        params[:filterrific],
+        select_options: {
+            by_client_id: Settlement.options_for_client_select,
+            by_settlement_type: Settlement.options_for_settlement_type_select
+        },
+        persistence_id: false
+    ) or return
+    @settlements= @filterrific.find.page(params[:page]).per(20)
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+
+  # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+  # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /settlements/1
@@ -91,13 +123,13 @@ class SettlementsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_settlement
-      @settlement = Settlement.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_settlement
+    @settlement = Settlement.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def settlement_params
-      params.require(:settlement).permit(:name, :amount, :date_bs, :description, :settlement_type, :voucher_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def settlement_params
+    params.require(:settlement).permit(:name, :amount, :date_bs, :description, :settlement_type, :voucher_id)
+  end
 end

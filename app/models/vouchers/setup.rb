@@ -10,6 +10,14 @@ class Vouchers::Setup < Vouchers::Base
 
 
     client_account, bill, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger)
+
+    # do not create voucher if bills have pending deal cancel
+    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
+    if bills_have_pending_deal_cancel
+      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
+      return
+    end
+
     voucher = get_new_voucher(voucher_type)
 
     if voucher_type == Voucher.voucher_types[:receipt] || voucher_type == Voucher.voucher_types[:payment]

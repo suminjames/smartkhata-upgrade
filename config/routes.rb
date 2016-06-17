@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   resources :share_transactions do
     collection do
       get 'deal_cancel'
+      get 'pending_deal_cancel'
     end
   end
   resources :bills do

@@ -2,10 +2,8 @@ require 'test_helper'
 
 class Files::SalesControllerTest < ActionController::TestCase
   def setup
-    # No idea why two settlements appear out of nowhere in the very beginning, causing date errors;
-    # Found out: Fixtures, of course!
-    # SalesSettlement.all.each.map(&:destroy!)
-    @user = users(:user)
+    # SalesSettlement.all.each.map(&:destroy!) # fixtures
+    sign_in users(:user)
     @post_floorsheet_action = Proc.new{ | different_floorsheet |
       sales_controller = @controller
       @controller = Files::FloorsheetsController.new
@@ -20,7 +18,7 @@ class Files::SalesControllerTest < ActionController::TestCase
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/csv'
       inner_file_path = case test_type
-        when 'valid' || 'invalid'
+        when 'valid'
           'May10/CM0518052016141937.csv'
         when 'valid again'
           'May12/CM0518052016142014.csv'
@@ -28,7 +26,7 @@ class Files::SalesControllerTest < ActionController::TestCase
           if sample_file
             file_name_suffix = case sample_file
               when 1 then 'missing_settlement_id'
-              when 2 then 'multiple_settlements'
+              when 2 then 'multiple_settlement_ids'
               when 3 then 'missing_trade_date'
               when 4 then 'missing_contract_number'
               when 5 then 'missing_header_row'
@@ -45,15 +43,13 @@ class Files::SalesControllerTest < ActionController::TestCase
       post :import, file: file
       # debugger
     }
-    @block_assert_via_login_and_get = lambda { | action |
-      sign_in @user
+    @block_assert_via_get = lambda { | action |
       get action
       assert_response :success
       assert_template "files/sales/#{action}"
-      assert_not_nil assigns(:file_list) if action == :new
+      assert_not_nil assigns(:settlements)
     }
-    @assert_block_via_login_and_post = Proc.new { | test_type, flash_msg, file_num, avoid_floorsheet |
-      sign_in @user
+    @assert_block_via_post = Proc.new { | test_type, flash_msg, file_num, avoid_floorsheet |
       unless avoid_floorsheet
         different_floorsheet = (test_type == "invalid" && !file_num && !avoid_floorsheet) || (test_type == "valid again")
         @post_floorsheet_action.call(different_floorsheet)
@@ -66,8 +62,6 @@ class Files::SalesControllerTest < ActionController::TestCase
       @post_action.call(post_action_type, file_num)
       if test_type == 'valid'
         assert_redirected_to sales_settlement_path(assigns(:sales_settlement_id))
-      # elsif test_type == 'invalid' && file_num
-      #   assert_redirected_to import_files_sales_path
       else
         assert_response :success
         assert_template 'files/sales/import'
@@ -78,96 +72,82 @@ class Files::SalesControllerTest < ActionController::TestCase
         assert flash.empty?
       end
       get :index
-      case test_type
-      when 'valid'
-        assert_not assigns(:file_list).empty?
-      when 'valid again'
-        assert_equal assigns(:file_list).count, 2
-      else
-        assert assigns(:file_list).empty?
+      file_count = case test_type
+      when 'valid' then 1
+      when 'valid again' then 2
+      else 0
       end
+      assert_equal @sales_settlements_in_fixtures + file_count, SalesSettlement.count
+      # assert_equal @sales_settlements_in_fixtures + file_count, assigns(:file_list).count
     }
+    # fix tenants issue
+    @request.host = 'trishakti.lvh.me'
+    @sales_settlements_in_fixtures = 2
     # Error messages
     @missing_contract_number_msg = 'the file you have uploaded has missing contract number'
     @missing_floorsheet_msg = 'please upload corresponding floorsheet first'
   end
 
   # index
-  test "authenticated user should get index" do
-    @block_assert_via_login_and_get.call(:index)
-  end
-  test "unauthenticated users should get not get index" do
-    get :index
-    assert_redirected_to new_user_session_path
+  test "should get index" do
+    @block_assert_via_get.call(:index)
   end
 
   # new
-  test "authenticated users should get new" do
-    @block_assert_via_login_and_get.call(:new)
+  test "should get new" do
+    @block_assert_via_get.call(:new)
   end
-  test "unauthenticated users should not get new" do
-    get :new
-    assert_redirected_to new_user_session_path
-  end
-
 
   # import
-  test "bar" do
-  # test "authenticated users should be able to import a file once" do
-    @assert_block_via_login_and_post.call('valid', false)
+  test "should be able to import a file once" do
+    @assert_block_via_post.call('valid', false)
     # duplicate import
     @post_action.call('valid')
     assert_contains 'the file is already uploaded', flash[:error]
   end
 
-  test "authenticated users should be able to import several files if distinct ones" do
-    @assert_block_via_login_and_post.call('valid', false)
+  test "should be able to import several files if distinct ones" do
+    @assert_block_via_post.call('valid', false)
     # another import
     @post_action.call('valid again', false)
   end
 
   # invalid imports
   test "should not import invalid file" do
-    @assert_block_via_login_and_post.call('invalid', 'please upload a valid file')
+    @assert_block_via_post.call('invalid', 'please upload a valid file')
   end
   test "should not import sales cm without a floorsheet" do
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, nil, true)
+    @assert_block_via_post.call('invalid', @missing_floorsheet_msg, nil, true)
   end
   test "should not import sales cm without the corresponding floorsheet" do
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, nil)
+    @assert_block_via_post.call('invalid', @missing_floorsheet_msg, nil)
   end
 
 
   # explicit invalid files
   test "should not import invalid sales cm: missing settlement id" do
     # The missing floorsheet error message because settlement id column is not explicitly checked
-    @assert_block_via_login_and_post.call('invalid', @missing_floorsheet_msg, 1)
+    @assert_block_via_post.call('invalid', @missing_floorsheet_msg, 1)
   end
   test "should not import invalid sales cm: multiple settlements" do
-    @assert_block_via_login_and_post.call('invalid', 'The file you have uploaded has multiple settlement ids', 2) # error
+    @assert_block_via_post.call('invalid', 'The file you have uploaded has multiple settlement ids', 2)
   end
   test "should not import invalid sales cm: trade date missing" do
-    @assert_block_via_login_and_post.call('invalid', 'please upload a correct file. trade date is missing', 3)
+    @assert_block_via_post.call('invalid', 'please upload a correct file. trade date is missing', 3)
   end
   test "should not import invalid sales cm: missing contract number" do
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 4)
+    @assert_block_via_post.call('invalid', @missing_contract_number_msg, 4)
   end
   test "should not import invalid sales cm: missing header rows" do
     # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 5)
+    @assert_block_via_post.call('invalid', @missing_contract_number_msg, 5)
   end
   test "should not import invalid sales cm: missing data rows" do
     # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 6)
+    @assert_block_via_post.call('invalid', @missing_contract_number_msg, 6)
   end
   test "should not import invalid sales cm: blank" do
     # Contract number column check hits first
-    @assert_block_via_login_and_post.call('invalid', @missing_contract_number_msg, 7)
+    @assert_block_via_post.call('invalid', @missing_contract_number_msg, 7)
   end
-
-  test "unauthenticated users should not be able to import" do
-    @post_action.call('valid')
-    assert_redirected_to new_user_session_path
-  end
-
 end

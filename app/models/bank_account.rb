@@ -25,9 +25,9 @@ class BankAccount < ActiveRecord::Base
   has_one :ledger
   belongs_to :bank
 
-  validates :account_number, uniqueness: true #, length: { in: 3..13 }
+  # alphanumeric account number with atleast a single digit
+  validates :account_number, uniqueness: true, format: {with: /\A(?=.*\d)([a-zA-Z0-9]+)\z/}
   validates_presence_of :bank, :account_number
-  validates_presence_of :bank_id, :account_number
   accepts_nested_attributes_for :ledger
 
   # change the default for purchase and sales bank accounts

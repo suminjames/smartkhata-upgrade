@@ -21,7 +21,9 @@ class Files::FloorsheetsController < Files::FilesController
   end
 
   def import
-
+    # TODO(subas): Catch invalid files where 1) all the 'data rows' are missing 2) File is 'blank'
+    #              (Refer to floorsheet controller test for more info)
+    #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
     @error_message = nil
@@ -51,7 +53,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 
     # convert a string to date
-    @date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+    @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
 
 
     # TODO remove this
@@ -59,7 +61,7 @@ class Files::FloorsheetsController < Files::FilesController
     if @date.nil?
       @older_detected = true
       date_data = xlsx.sheet(0).row(12)[0].to_s
-      @date = convert_to_date("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
+      @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
     end
 
     file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
@@ -136,9 +138,10 @@ class Files::FloorsheetsController < Files::FilesController
       @raw_data.each do |arr|
         @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
       end
-      # create_sms_result = CreateSmsService.new(@processed_data, current_tenant.broker_code).process
+      create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, broker_code: current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
     end
+    # # used to fire error when floorsheet contains client data but not mapped to system
     # file_error(@error_message) if @error_message.present?
   end
 
@@ -313,7 +316,7 @@ class Files::FloorsheetsController < Files::FilesController
     end
 
 
-    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number)
+    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
 
   # return true if the floor sheet data is invalid

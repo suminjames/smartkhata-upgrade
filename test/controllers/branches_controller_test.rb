@@ -3,21 +3,30 @@ require 'test_helper'
 class BranchesControllerTest < ActionController::TestCase
   setup do
     @branch = branches(:one)
+    sign_in users(:user)
+
+    @assert_block_via_get = Proc.new {|action, instance_var|
+      if [:show, :edit].include? action
+        get action, id: @branch
+      else
+        get action
+      end
+      assert_response :success
+      assert_template "branches/#{action}"
+      assert_not_nil assigns(instance_var) if instance_var
+    }
   end
 
   test "should get index" do
-    get :index
-    assert_response :success
-    assert_not_nil assigns(:branches)
+    @assert_block_via_get.call(:index, :branches)
   end
 
   test "should get new" do
-    get :new
-    assert_response :success
+    @assert_block_via_get.call(:new, :branch)
   end
 
   test "should create branch" do
-    assert_difference('Branch.count') do
+    assert_difference 'Branch.count', 1 do
       post :create, branch: { address: @branch.address, code: @branch.code }
     end
 
@@ -25,13 +34,11 @@ class BranchesControllerTest < ActionController::TestCase
   end
 
   test "should show branch" do
-    get :show, id: @branch
-    assert_response :success
+    @assert_block_via_get.call(:show)
   end
 
   test "should get edit" do
-    get :edit, id: @branch
-    assert_response :success
+    @assert_block_via_get.call(:edit)
   end
 
   test "should update branch" do
@@ -43,7 +50,6 @@ class BranchesControllerTest < ActionController::TestCase
     assert_difference('Branch.count', -1) do
       delete :destroy, id: @branch
     end
-
     assert_redirected_to branches_path
   end
 end

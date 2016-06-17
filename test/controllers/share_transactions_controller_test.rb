@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class ShareTransactionsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class ShareTransactionsControllerTest < ActionController::TestCase
     assert_redirected_to share_transactions_path
   end
 end
+=end

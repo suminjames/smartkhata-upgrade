@@ -3,7 +3,7 @@ module CustomDateModule
 	# params bs_date	- BS date is a String, strictly in YYYY-MM-DD format, not `Date` object.
 	# return - AD date is a `Date` object
 	def bs_to_ad (bs_date)
-		year, month, day = bs_date.split('-').map(&:to_i)
+		year, month, day = bs_date.to_s.split('-').map(&:to_i)
     @cal = NepaliCalendarPlus::CalendarPlus.new
 		return @cal.bs_to_ad(year, month, day)
   end
@@ -49,16 +49,4 @@ module CustomDateModule
 		end
 		return true
 	end
-
-	def bs_to_ad_from_string(bs_date)
-    begin
-		cal = NepaliCalendar::Calendar.new
-		bs_string_arr =  bs_date.to_s.split(/-/)
-		new_date = cal.bs_to_ad(bs_string_arr[0],bs_string_arr[1], bs_string_arr[2])
-    rescue
-      return false
-    end
-    new_date
-	end
-
 end

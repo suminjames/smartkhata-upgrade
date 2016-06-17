@@ -16,16 +16,6 @@ class Vouchers::Create < Vouchers::Base
     # result as false
     res = false
 
-    # TODO(subas) refactor this to date module
-    # convert the bs date to english date for storage
-    # cal = NepaliCalendar::Calendar.new
-    # bs_string_arr =  @voucher.date_bs.to_s.split(/-/)
-    date_ad =bs_to_ad_from_string(@voucher.date_bs)
-    if !date_ad
-      @error_message = "Invalid Date"
-      return
-    end
-    @voucher.date = date_ad
 
     # get a calculated values, these are returned nil if not applicable
     @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
@@ -57,6 +47,21 @@ class Vouchers::Create < Vouchers::Base
       client_group_leader_account = client_group_leader_ledger.client_account if client_group_leader_ledger.present?
     end
 
+    # convert the bs date to english date for storage
+    begin
+      date_ad =bs_to_ad(@voucher.date_bs)
+    rescue
+      @error_message = "Invalid Date!"
+      return
+    end
+    @voucher.date = date_ad
+
+    # do not create voucher if bills have pending deal cancel
+    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
+    if bills_have_pending_deal_cancel
+      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
+      return
+    end
 
     # make sure the group leader and vendor are selected where required.
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?

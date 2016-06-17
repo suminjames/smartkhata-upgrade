@@ -1,28 +1,90 @@
 <p id="notice"><%= notice %></p>
-<% provide(:section_title, "Listing Settlements") %>
+<% provide(:section_title, "Settlements") %>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Amount</th>
-      <th>Date bs</th>
-      <th>Description</th>
-      <th>Settlement type</th>
-    </tr>
-  </thead>
+<%= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f| %>
+    <div class="panel panel-default filter-form">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-3">
+            <label>
+              Client
+            </label>
+            <%= f.collection_select(
+                    :by_client_id,
+                    @filterrific.select_options[:by_client_id],
+                    :id,
+                    :name,
+                    {include_blank: '- Any -'},
+                    {class: 'form-control combobox' }) %>
+          </div>
 
-  <tbody>
-    <% @settlements.each do |settlement| %>
-      <tr>
-        <td><%= settlement.name %></td>
-        <td><%= settlement.amount %></td>
-        <td><%= settlement.date_bs %></td>
-        <td><%= settlement.description %></td>
-        <td><%= settlement.receipt? ? 'receipt' : 'payment' %></td>
-        <!-- <td><%= settlement.voucher %></td> -->
-        <td><%= link_to 'Show', settlement , target: '_blank' %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+          <div class="col-xs-3">
+            <label>
+              Settlement Type
+            </label>
+            <%= f.select(
+                    :by_settlement_type,
+                    @filterrific.select_options[:by_settlement_type],
+                    { include_blank: '- Any -' },{class: 'form-control combobox' }
+                ) %>
+          </div>
+
+          <div class="col-xs-2">
+            <label>
+              Date
+            </label>
+            <br>
+            <%= f.text_field(
+                    :by_date,
+                    :placeholder => 'YYYY-MM-DD',
+                    class: 'form-control' ) %>
+          </div>
+
+          <div class="col-xs-4">
+            <div class="clearfix">
+              <div class="text-center">
+                <label>
+                  Date Range
+                </label>
+              </div>
+            </div>
+            <div class="clearfix">
+              <div class="col-xs-6">
+                <%= f.text_field(
+                        :by_date_from,
+                        :placeholder => 'YYYY-MM-DD',
+                        class: 'form-control' ) %>
+              </div>
+              <div class="col-xs-6">
+                <%= f.text_field(
+                        :by_date_to,
+                        :placeholder => 'YYYY-MM-DD',
+                        class: 'form-control' ) %>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row top-buffer">
+          <div class="col-xs-3">
+            <%= f.submit 'Search' %>
+            <%= link_to(
+                    'Reset filters',
+                    reset_filterrific_url
+                ) %>
+            <br>
+          </div>
+        </div>
+      </div>
+      <%# add an automated spinner to your form when the list is refreshed %>
+      <%= render_filterrific_spinner %>
+    </div>
+<% end %>
+
+<%= render(
+        partial: 'settlements/list',
+        locals: { settlements: @settlements}
+    )
+%>
+

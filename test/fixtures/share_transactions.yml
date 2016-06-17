@@ -37,5 +37,39 @@ one:
   isin_info: one
   bill: one
 
-two: {}
-#  column: value
+two:
+  contract_no: 201605103284672
+  buyer: 48
+  seller: 46
+  raw_quantity: 500
+  quantity: 500
+  share_rate: 1326.0
+  share_amount: 663000.0
+  sebo: 99.45
+  commission_rate: "0.8"
+  commission_amount: 5304.0
+  dp_fee: 3.5714
+  cgt: 0.0
+  net_amount: 668407.0214
+  bank_deposit: 665022.15
+  transaction_type: 0
+  settlement_id: nil
+  base_price: 0.0
+  amount_receivable: 0.0
+  closeout_amount: 0.0
+  remarks: nil
+  purchase_price: 0.0
+  capital_gain: 0.0
+  adjusted_sell_price: 0.0
+  date: "2016-05-10"
+  created_at: "2016-06-06 10:19:27"
+  updated_at: "2016-06-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 2
+  bill_id: 1
+  client_account: two
+  isin_info: two
+  bill: two

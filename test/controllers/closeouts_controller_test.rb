@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class CloseoutsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class CloseoutsControllerTest < ActionController::TestCase
     assert_redirected_to closeouts_path
   end
 end
+=end

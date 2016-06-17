@@ -6,7 +6,7 @@
     %th.col-xs-2= "Client Account"
     %th.col-xs-2= "Bill"
     %th.col-xs-4= "Sms Message"
-    %th.col-xs-1= "SMS Sent"
+    %th.col-xs-1= "SMS<br>Sent".html_safe
     %th.col-xs-1= "Email Sent"
 
   %tbody
@@ -15,7 +15,7 @@
         %td= transaction_message.transaction_date
         %td= transaction_message.client_account.name
         %td= "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" if transaction_message.bill.present?
-        %td= transaction_message.sms_message
+        %td.sms-message= transaction_message.sms_message
         %td= transaction_message.sms_default? ? "N" : "Y"
         %td= transaction_message.email_default? ? "N" : "Y"
 

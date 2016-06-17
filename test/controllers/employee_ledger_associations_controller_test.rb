@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class EmployeeLedgerAssociationsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class EmployeeLedgerAssociationsControllerTest < ActionController::TestCase
     assert_redirected_to employee_ledger_associations_path
   end
 end
+=end
