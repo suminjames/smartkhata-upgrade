@@ -5,7 +5,7 @@
 existingAssociationsLedgerIds  = []
 currentlySelectedAssociationLedgerIds = []
 
-hideUnhideWarning= ->
+hideUnhideWarning = ->
   if `$('#employee_account_has_access_to_everyone').is(':checked') === true`
     $('.everyone-selected-warning').show()
   else

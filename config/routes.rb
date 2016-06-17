@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :sms
   get 'dashboard/index'
 
   resources :nepse_chalans
@@ -46,7 +47,8 @@ Rails.application.routes.draw do
   resources :transaction_messages do
     collection do
       get 'send_sms'
-      get 'send_email'
+      post 'send_email'
+      get 'send_sms_and_email'
     end
   end
   resources :groups

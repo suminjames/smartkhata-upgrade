@@ -12,8 +12,8 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  deleted_at        :date
-#  sent_sms_count    :integer
-#  sent_email_count  :integer
+#  sent_sms_count    :integer          default("0")
+#  sent_email_count  :integer          default("0")
 #
 
 class TransactionMessage < ActiveRecord::Base
@@ -49,7 +49,7 @@ class TransactionMessage < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:transaction_date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -74,6 +74,10 @@ class TransactionMessage < ActiveRecord::Base
 
   def self.options_for_client_select
     ClientAccount.all.order(:name)
+  end
+
+  def self.latest_transaction_date
+    self.maximum("transaction_date")
   end
 
 end

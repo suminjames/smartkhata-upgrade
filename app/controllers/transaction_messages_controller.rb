@@ -12,7 +12,8 @@ class TransactionMessagesController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @transaction_messages = @filterrific.find.page(params[:page]).per(20)
+    items_per_page = params[:paginate] == 'false' ? TransactionMessage.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    @transaction_messages = @filterrific.find.page(params[:page]).per(items_per_page)
 
     respond_to do |format|
       format.html
@@ -49,22 +50,27 @@ class TransactionMessagesController < ApplicationController
   end
 
   def send_email
-    transaction_message = TransactionMessage.find_by(id: params[:id].to_i) if params[:id].present?
-
-    p 'HOWDY'
-    p transaction_message
-    p transaction_message.bill.client_account
-    if transaction_message.bill && transaction_message.bill.client_account.email
-      UserMailer.bill_email(transaction_message.bill, current_tenant).deliver_now
+    500.times do |i|
+      transaction_message_ids = params[:transaction_message_ids] || []
+      transaction_message_ids.each do | transaction_message_id |
+        transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
+        if transaction_message.bill && transaction_message.bill.client_account.email
+          UserMailer.bill_email(transaction_message.bill, current_tenant).deliver_now
+        end
+      end
     end
-
     respond_to do |format|
-      format.json { render json: {}, status: :ok }
+      format.js
+      format.json { render :json => { :success => "success", :status_code => "200" } }
     end
   end
 
   # GET /transaction_messages/send_sms
   def send_sms
+
+  end
+
+  def send_sms_and_email
 
   end
 
