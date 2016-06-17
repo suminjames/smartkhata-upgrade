@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :sms
   get 'dashboard/index'
 
   resources :nepse_chalans
