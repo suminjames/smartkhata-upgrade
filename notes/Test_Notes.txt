@@ -1,6 +1,7 @@
 Git.Merge.each::after DO
+    Note: Relevant tests often need to evolve with changes in the application code
 
-    I. Integration testing
+    I. Integration testing [Roughly Done]
         a. Basic App flow
             1. Add Bank
                 1.1. Add Bank Account
@@ -37,11 +38,27 @@ Git.Merge.each::after DO
                 -re-upload the same order file
 
     II. Functional testing [ONGOING]
-        - Banks, Bank accounts, Cheque entries, Sales, Floorsheet, Sales settlements, Bills, Branches, Client accounts, Employee accounts, Ledgers
+        -Roughly Completed:
+            Banks,
+            Bank accounts,
+            Cheque entries,
+            Files(Sales, Floorsheet, Orders, dpa5),
+            Sales settlements,
+            Bills,
+            Branches,
+            Client accounts,
+            Employee accounts,
+            Ledgers
 
     III. Unit Testing [ONGOING]
-        - Bank, Bank account, Cheque entry, Client account, Employee account, Ledger
+        -Roughly Completed:
+            Bank,
+            Bank account,
+            Cheque entry,
+            Client account,
+            Employee account,
+            Ledger
 
     IV. Interface Testing [?]
-
+        <Section headers, links, relevant texts, menu, ..>
 END
