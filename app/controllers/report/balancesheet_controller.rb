@@ -8,7 +8,6 @@ class Report::BalancesheetController < ApplicationController
     @selected_drill_level = drill_level || 1
     @fy_code = get_user_selected_fy_code
 
-
     @balance = Group.balance_sheet
     @balance_dr = Hash.new
     @balance_cr = Hash.new

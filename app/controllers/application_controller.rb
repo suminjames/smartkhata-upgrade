@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
   def set_user_session
     UserSession.user = current_user
     UserSession.selected_fy_code ||= get_fy_code
-    session[:user_session] ||= get_fy_code
+    session[:user_selected_fy_code] ||= get_fy_code
   end
 
 #   set the default fycode and branch params

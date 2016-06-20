@@ -2,11 +2,7 @@ class GeneralSettingsController < ApplicationController
   before_action :set_return_path
   def set_fy
     fy_code = params[:fy_code].to_i
-    fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
-    # user session is for model access
-    UserSession.selected_fy_code = fy_code
-    # session is for controller and view
-    session[:selected_fy_code] = fy_code
+    set_user_selected_fy_code(fy_code)
     return_back
   end
 
