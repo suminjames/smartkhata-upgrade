@@ -1,4 +1,6 @@
 class Report::TrialBalanceController < ApplicationController
+  layout 'application_custom', only: [:index]
+
   def index
 
     if params[:search_by] == 'all'

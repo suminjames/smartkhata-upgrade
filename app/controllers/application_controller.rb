@@ -27,6 +27,7 @@ class ApplicationController < ActionController::Base
   def current_tenant
   	@current_tenant ||= Tenant.find_by(name: request.subdomain)
   end
+
   helper_method :current_tenant
 
   def user_not_authorized
@@ -37,6 +38,8 @@ class ApplicationController < ActionController::Base
   # Uses the helper methods from devise to made them available in the models
   def set_user_session
     UserSession.user = current_user
+    UserSession.selected_fy_code ||= get_fy_code
+    session[:user_selected_fy_code] ||= get_fy_code
   end
 
 #   set the default fycode and branch params

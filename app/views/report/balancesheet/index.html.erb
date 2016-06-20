@@ -3,13 +3,17 @@
     @date = ad_to_bs_string(Date.today)
 %>
 <%= form_tag(report_balancesheet_index_path, :method => "get", id: "search-form") do %>
-    <h4>Select the level</h4>
+
     <div class="row">
 
       <div class="col-xs-2">
+        <h4>Level</h4>
         <%= select_tag "drill_level", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
       </div>
-      <div class="col-xs-2"><%= submit_tag "Go", class: 'btn btn-default' %></div>
+      <div class="col-xs-2">
+        <h4>&nbsp;</h4>
+        <%= submit_tag "Go", class: 'btn btn-default' %>
+      </div>
 
     </div>
 <% end %>

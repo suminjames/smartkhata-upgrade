@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'general_settings/set_fy'
+
+  get 'general_settings/set_branch'
+
   resources :transaction_messages
   get 'dashboard/index'
 
