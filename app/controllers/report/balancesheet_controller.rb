@@ -1,10 +1,12 @@
 class Report::BalancesheetController < ApplicationController
+  layout 'application_custom', only: [:index]
+
   def index
     drill_level = params[:drill_level].to_i if params[:drill_level].present?
     fy_code = params[:fy_code] if params[:fy_code].present?
 
     @selected_drill_level = drill_level || 1
-    @fy_code = fy_code || get_fy_code
+    @fy_code = get_user_selected_fy_code
 
 
     @balance = Group.balance_sheet

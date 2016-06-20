@@ -137,4 +137,9 @@ module ApplicationHelper
 	def margin_of_error_amount
 		return 0.01
 	end
+
+# 	get fy_code selection form sesion
+		def get_user_selected_fy_code
+		session[:fy_code]
+	end
 end

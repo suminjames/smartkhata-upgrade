@@ -1,6 +1,5 @@
 class ChequeEntriesController < ApplicationController
   before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent]
-
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index

@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  layout 'application_default', only: [:new, :create, :show, :process_selected]
+  layout 'application_custom', only: [:index]
 
   include BillModule
 

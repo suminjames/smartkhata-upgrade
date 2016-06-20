@@ -11,10 +11,6 @@
         <%= select_tag "drill_level", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
       </div>
       <div class="col-xs-2">
-        <h4>Fiscal Year</h4>
-        <%= select_tag "fy_code", options_for_select(available_fy_codes, @fy_code) %>
-      </div>
-      <div class="col-xs-2">
         <h4>&nbsp;</h4>
         <%= submit_tag "Go", class: 'btn btn-default' %>
       </div>
