@@ -96,7 +96,7 @@ class Group < ActiveRecord::Base
     self.class.tree_for(self)
   end
 
-  def descendent_ledgers(fy_code)
+  def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
     Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
   end
