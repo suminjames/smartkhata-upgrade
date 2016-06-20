@@ -17,9 +17,24 @@ $(document).ready ->
 
     $(document). on 'click', '#send-sms', (event) ->
       console.log "send sms clicked!"
+      params = {transaction_message_ids: selectedTransactionMessagesIds}
+      $.ajax
+        url: '/transaction_messages/send_sms'
+        type: 'post'
+        data: params
+        dataType: 'json'
+        beforeSend: ->
+          console.log 'Ajax Initiated!'
+          $('#send-email-spinner').removeClass 'hidden'
+        error: (jqXHR, textStatus, errorThrown) ->
+          console.log 'There was some error!' + errorThrown + textStatus
+          $('#send-email-spinner').addClass 'hidden'
+        success: (data, textStatus, jqXHR) ->
+          console.log 'Ajax Completed!'
+          $('#send-email-spinner').addClass 'hidden'
+          return
       
     $(document). on 'click', '#send-email', (event) ->
-      console.log selectedTransactionMessagesIds
       params = {transaction_message_ids: selectedTransactionMessagesIds}
       $.ajax
         url: '/transaction_messages/send_email'

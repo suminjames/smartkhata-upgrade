@@ -45,9 +45,8 @@ Rails.application.routes.draw do
   end
   resources :transaction_messages do
     collection do
-      get 'send_sms'
+      post 'send_sms'
       post 'send_email'
-      get 'send_sms_and_email'
     end
   end
   resources :groups

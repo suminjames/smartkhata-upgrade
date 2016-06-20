@@ -2,10 +2,10 @@
 %div#filterrific_results
   %div.row
     %div.col-xs-12
-      = link_to 'Send SMS', send_sms_transaction_messages_path, remote: true, class: 'btn btn-default', id: 'send-sms'
+      = submit_tag 'Send SMS', :type => 'button', class: 'btn btn-default', id: 'send-sms'
+      = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'send-email-spinner')
       = submit_tag 'Send Email', :type => 'button', class: 'btn btn-default', id: 'send-email'
       = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'send-email-spinner')
-      = link_to 'Send SMS+Email', send_sms_and_email_transaction_messages_path, remote: true, class: 'btn btn-default', id: 'send-sms-and-email'
 
   = render 'shared/pagination', collection_to_paginate: transaction_messages
   %div#transaction_message_list

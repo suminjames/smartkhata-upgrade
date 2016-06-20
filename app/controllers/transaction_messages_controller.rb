@@ -65,13 +65,15 @@ class TransactionMessagesController < ApplicationController
     end
   end
 
-  # GET /transaction_messages/send_sms
   def send_sms
-
-  end
-
-  def send_sms_and_email
-
+    transaction_message_ids = params[:transaction_message_ids] || []
+    transaction_message_ids.each do | transaction_message_id |
+      Sms.send_bill_sms(transaction_message_id)
+      respond_to do |format|
+        format.js
+        format.json { render :json => { :success => "success", :status_code => "200" } }
+      end
+    end
   end
 
   # GET /transaction_messages/1/edit
