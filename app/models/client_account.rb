@@ -89,6 +89,8 @@ class ClientAccount < ActiveRecord::Base
   has_many :share_inventories
 	has_many :bills
 
+  # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
+  belongs_to :branch
 
 	scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
 	scope :find_by_client_id, -> (id) { where(id: id) }
