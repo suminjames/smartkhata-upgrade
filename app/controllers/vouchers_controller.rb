@@ -50,10 +50,6 @@ class VouchersController < ApplicationController
     puts @voucher_type
   end
 
-  # GET /vouchers/1/edit
-  def edit
-  end
-
   # POST /vouchers
   # POST /vouchers.json
   def create
@@ -144,7 +140,7 @@ class VouchersController < ApplicationController
     success = false
     error_message = "There was some Error"
     @voucher = Voucher.find_by(id: params[:id].to_i)
-    from_path = params[:from_path] || '/vouchers/index'
+    from_path = params[:from_path]
     message = ""
     if @voucher
       if !@voucher.rejected? && !@voucher.complete?
