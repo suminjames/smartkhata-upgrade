@@ -49,9 +49,15 @@ Rails.application.routes.draw do
     end
   end
   resources :groups
-  resources :ledgers
-  resources :orders
 
+  match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
+
+  resources :ledgers do
+    collection do
+      post 'transfer_group_member_balance'
+    end
+  end
+  resources :orders
   match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
     collection do

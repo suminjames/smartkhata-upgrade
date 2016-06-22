@@ -1,0 +1,42 @@
+= provide(:section_title, "List of Ledger of Group Members")
+- if @client_account_id.blank?
+  = form_tag group_member_ledgers_path,:method => "get", :enforce_utf8 => false do
+    .row
+      .form-group.col-sm-4
+        = select_tag "client_account_id", options_from_collection_for_select(@client_with_group_members, 'id', 'name', params[:client_account_id]), class: 'form-control combobox', include_blank: false, prompt: 'Select a Client Account...'
+      .col-sm-4
+        = submit_tag "Search", class: 'btn btn-sm'
+- elsif @ledgers.size > 0
+  = form_tag transfer_group_member_balance_ledgers_path do
+    .row
+      .col-xs-6
+        %table.table.table-condensed.table-striped.z-selectable
+          %thead
+            %th.col-xs-2
+              = check_box_tag 'select_all', '', false
+              = 'All'
+            %th.col-xs-6= "Name"
+            %th.col-xs-4.text-right= "Ledger Balance"
+          %tbody
+            - @ledgers.each do |ledger|
+              %tr{class:  ledger.closing_blnc + margin_of_error_amount < 0 ? 'ledger cr' : 'ledger dr'}
+                %td= check_box_tag "ledger_ids[]", ledger.id, false, class: "check-ledger"
+                %td= ledger.name.titleize
+                %td.text-right
+                  %span.display-amount
+                    = "#{number_to_currency(ledger.closing_blnc.abs)}"
+                  %span.display-type
+                    - if ledger.closing_blnc + margin_of_error_amount < 0
+                      = "cr"
+                    - else
+                      = "dr"
+
+    .total-ledger-amount
+      = "Total"
+      %span.display-amount=0.00
+      %span.display-type= "dr"
+    = hidden_field_tag 'client_account_id', @client_account_id
+    %br
+    = submit_tag "Transfer Balances"
+- else
+  %h4= "No Ledgers Found!"
