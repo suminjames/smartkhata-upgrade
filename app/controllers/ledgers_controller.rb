@@ -1,5 +1,6 @@
 class LedgersController < ApplicationController
   before_action :set_ledger, only: [:show, :edit, :update, :destroy]
+  before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
   # GET /ledgers
   # GET /ledgers.json
@@ -152,6 +153,59 @@ class LedgersController < ApplicationController
     end
   end
 
+
+  # Get list of group members
+  def group_members_ledgers
+    if params[:client_account_id]
+      @client_account_id = params[:client_account_id].to_i
+      @client_account = ClientAccount.find(@client_account_id)
+      @ledgers = @client_account.get_group_members_ledgers if @client_account || []
+    end
+    @client_with_group_members = ClientAccount.having_group_members
+  end
+
+  def transfer_group_member_balance
+    client_account = ClientAccount.find(@client_account_id)
+    @back_path =  request.referer || group_member_ledgers_path
+
+    if @ledger_ids.size <= 0 || client_account.blank?
+      redirect_to @back_path, :flash => { :error => 'No Ledgers were Selected' } and return
+    end
+
+    ledger_list = Ledger.get_ledger_by_ids(fy_code: get_fy_code, ledger_ids: @ledger_ids)
+    group_member_ledger_ids = client_account.get_group_members_ledger_ids
+
+    # make sure all id in ledger_ids are in group_memger_ledger_ids
+    unless (@ledger_ids - group_member_ledger_ids).empty?
+      redirect_to @back_path, :flash => { :error => 'Invalid Ledgers' } and return
+    end
+
+    group_leader_ledger = client_account.ledger
+    net_balance = 0.00
+
+    # transfer the ledger balances to the group leader
+    ActiveRecord::Base.transaction do
+      # update description
+      description = "Balance Transferred to #{client_account.name}"
+      # update ledgers value
+      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), desc: description, voucher_status: :complete)
+
+      # update each ledgers
+      ledger_list.each do |ledger|
+        _closing_balance = ledger.closing_blnc
+        net_balance += _closing_balance
+
+        process_accounts(ledger, voucher, _closing_balance < 0 , _closing_balance.abs, description)
+      end
+
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0 , net_balance.abs, description)
+    end
+
+    redirect_to group_member_ledgers_path, :flash => { :info => 'Successfully Transferred' } and return
+  end
+
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_ledger
@@ -162,4 +216,11 @@ class LedgersController < ApplicationController
     def ledger_params
       params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
     end
+
+
+  def get_ledger_ids_for_balance_transfer_params
+    @ledger_ids = []
+    @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
+    @ledger_ids = params[:ledger_ids].map(&:to_i) if params[:ledger_ids].present?
+  end
 end

@@ -122,4 +122,22 @@ class ClientAccount < ActiveRecord::Base
   def get_current_valuation
     self.share_inventories.includes(:isin_info).sum('floorsheet_blnc * isin_infos.last_price')
   end
+
+  # get the bills of client as well as all the other bills of clients who have the client as group leader
+  def get_all_related_bills
+    client_account_ids = []
+    client_account_ids << self.id
+    client_account_ids |= self.group_members.pluck(:id)
+    Bill.find_not_settled_by_client_account_ids(client_account_ids)
+  end
+
+  def get_group_members_ledgers
+    ids = self.group_members.pluck(:id)
+    Ledger.where(client_account_id: ids)
+  end
+
+  def get_group_members_ledger_ids
+    ids = self.group_members.pluck(:id)
+    Ledger.where(client_account_id: ids).pluck(:id)
+  end
 end
