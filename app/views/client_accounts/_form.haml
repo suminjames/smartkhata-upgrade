@@ -72,6 +72,9 @@
           .form-group
             %label Client type
             = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type)
+        .col-xs-6
+          .form-group
+            = f.association :branch, collection: Branch.order(:code),label_method: :code, value_method: :id,:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a branch...'
       .row
         .col-xs-6
           = f.input :boid, label: 'BoId'

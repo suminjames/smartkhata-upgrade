@@ -1,0 +1,20 @@
+%p{id: 'notice'}= notice
+- provide(:section_title, "Listing Branches")
+- unless @branches.empty?
+  %table.table.table-striped
+    %thead
+      %th.col-xs-4= "Code"
+      %th.col-xs-3= "Address"
+      %th.col-xs-1{colspan: 3}
+    %tbody
+      - @branches.each do |branch|
+        %tr
+          %td= branch.code
+          %td= branch.address
+          %td= link_to 'Show', branch
+          %td= link_to 'Edit'
+          %td= link_to 'Destroy', branch, method: :delete, data: { confirm: 'Are you sure?' }
+- else
+  %p.warning No Records!
+
+= link_to 'New Branch', new_branch_path

@@ -4,6 +4,7 @@
     <%= form_tag process_selected_bills_path do %>
   <table class="table table-no-border table-striped table-condensed text-left ">
   <tr>
+    <th></th>
     <th>S.N.</th>
     <th>Bill No.</th>
     <th>Bill Date</th>
@@ -24,6 +25,7 @@
   %>
   <!-- Bill (row) BEGINS -->
   <tr class="<%= bill.purchase? ? 'dr' : 'cr' %>">
+    <td><%= check_box_tag "bill_ids[]", bill.id, false, class: "check-bill"  %></td>
     <td><%= serial_number_count + index %></td>
     <td><%= bill.formatted_bill_number%></td>
     <td><%= bill.formatted_bill_dates["bs"]%></td>
@@ -37,7 +39,7 @@
       <% voucher_type = (bill.purchase?) ? Voucher.voucher_types[:receipt]: Voucher.voucher_types[:payment] %>
       <%= link_to 'View', bill %>
     </td>
-    <td><%= check_box_tag "bill_ids[]", bill.id, false, class: "check-bill"  %></td>
+
   </tr>
   <!-- Bill (row) ENDS -->
 

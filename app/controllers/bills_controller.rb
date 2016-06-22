@@ -35,9 +35,10 @@ class BillsController < ApplicationController
         # render a new page for bills selection
         @process_selected_bills = true
         @client_account_id = search_term.to_i
-        @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+        client_account= ClientAccount.find(@client_account_id)
+        # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+        @bills = client_account.get_all_related_bills.decorate
         render :select_bills_for_settlement and return
-
       when 'client_name'
         @bills = Bill.find_by_client_id(search_term)
       when 'bill_number'

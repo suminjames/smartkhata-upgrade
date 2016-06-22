@@ -150,7 +150,9 @@
         :company_id,
         :client_type,
         :referrer_name,
-        :group_leader_id
+        :group_leader_id,
+        :profession_code,
+        :branch_id
       )
     end
   end
