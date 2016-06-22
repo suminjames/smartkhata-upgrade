@@ -5,8 +5,11 @@ class VouchersControllerTest < ActionController::TestCase
     sign_in users(:user)
     @voucher_types = Voucher.voucher_types.keys
     @voucher = vouchers(:voucher_0)
+    @approved_cheque = cheque_entries(:two)
+    @receipt_code =  Voucher.voucher_types['receipt']
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
+    @additional_bank_id = Bank.first.id
     @assert_block_via_get = lambda { |action|
       get action, id: @voucher
       assert_response :success
@@ -26,10 +29,46 @@ class VouchersControllerTest < ActionController::TestCase
       end
       post :finalize_payment, params
       assert_equal "Payment Voucher was successfully #{msg_suffix}", flash[:notice]
-
       voucher.reload
       assert_not voucher.pending?
      }
+     @post_vouchers_path = proc { |voucher_code, cheque_number, amt, particulars_to_ignore|
+      amt ||= 5000
+      params =
+       {"voucher_type"=> "#{voucher_code}",
+       "voucher"      =>
+         {"date_bs"               => '2072-01-02',
+         "particulars_attributes" => {},
+         },
+        "vendor_account_id"       => vendor_accounts(:one).id,
+        "voucher_settlement_type" => 'vendor'
+       }
+       unless particulars_to_ignore == 2
+        params["voucher"]["particulars_attributes"]["0"] =
+              {"ledger_id"         => ledgers(:two).id,
+               "amount"             => amt,
+               "transaction_type"   => 'cr',
+               "cheque_number"      => cheque_number,
+               "additional_bank_id" => @additional_bank_id
+              }
+        unless particulars_to_ignore == 1
+          params["voucher"]["particulars_attributes"]["2"] =
+                {"ledger_id"         => ledgers(:five).id,
+                 "amount"             => amt,
+                 "transaction_type"   => 'dr',
+                 "additional_bank_id" => @additional_bank_id
+                }
+        end
+       end
+      post :create, params
+    }
+    @assert_block_via_invalid_post = proc { |cheque_number, amt, error_msg, particulars_to_ignore|
+      assert_no_difference 'Voucher.count' do
+        @post_vouchers_path.call(@receipt_code, cheque_number, amt, particulars_to_ignore)
+      end
+      assert_equal error_msg, flash[:error]
+      assert_response :success
+    }
   end
 
   test "should get new for all types of vouchers" do
@@ -43,35 +82,29 @@ class VouchersControllerTest < ActionController::TestCase
 
   test "should create all types of vouchers" do
     @voucher_types.each do |voucher_type|
-      voucher_code = Voucher.voucher_types[voucher_type]
+      voucher_type_code = Voucher.voucher_types[voucher_type]
       assert_difference 'Voucher.count', 1 do
-        params =
-          {"voucher_type"=> "#{voucher_code}",
-           "voucher"      =>
-             {"date_bs"               => '2072-01-02',
-             "particulars_attributes" =>
-               {"0"=>
-                 {"ledger_id"         => ledgers(:two).id,
-                 "amount"             => 5000,
-                 "transaction_type"   => 'cr',
-                 "cheque_number"      => '392',
-                 "additional_bank_id" => Bank.first.id
-                },
-               "2"=>
-                 {"ledger_id"         => ledgers(:five).id,
-                 "amount"             => 5000,
-                 "transaction_type"   => 'dr',
-                 "additional_bank_id" => Bank.first.id
-                }
-              },
-            },
-            "vendor_account_id"       => vendor_accounts(:one).id,
-            "voucher_settlement_type" => 'vendor'
-          }
-        post :create, params
+        @post_vouchers_path.call(voucher_type_code, '392')
       end
       assert_equal "Voucher was successfully created.", flash[:notice]
       assert_redirected_to voucher_path(assigns(:voucher))
+    end
+  end
+
+  # Invalid input tests
+  # Edit after merge to pass THIS test !
+  test "should not create a receipt voucher with a cheque_number that has already been assigned" do
+    @assert_block_via_invalid_post.call(@approved_cheque.cheque_number, '5000', 'Cheque has already been taken.')
+  end
+
+  test "should not create a voucher with negative amount or cheque number" do
+    @assert_block_via_invalid_post.call('-245', '5000', 'Cheque Number is invalid')
+    @assert_block_via_invalid_post.call('245', '-5000', 'Amount can not be negative or zero.')
+  end
+
+  test "should not create voucher with zero or one particular" do
+    [1, 2].each do |particulars_to_ignore|
+      @assert_block_via_invalid_post.call('245', '5000', 'Please include atleast 1 particular', particulars_to_ignore)
     end
   end
 

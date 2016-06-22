@@ -41,7 +41,7 @@ class Files::OrdersControllerTest < ActionController::TestCase
     # This test may sometime fail unexpectedly for unknown reasons!(maybe cache issues?)
     file_path = 'undated/Order_report_true_minified.xls'
     @post_action.call(file_path)
-    assert_response :success
+    assert_response :success, "You may ignore this fail if you ran tests in block!"
     assert_equal "Successfully uploaded and processed the file.", flash[:notice]
     assert_template 'files/orders/import'
     get :index

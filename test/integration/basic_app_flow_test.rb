@@ -10,7 +10,8 @@
 
 # Omitted: group_leader_ledger_id, random: cheque number
 
-# __TODO__ maybe: calculate the bills count dynamically.. making the test work with different test files?
+# Further work[maybe]:
+#          calculate the bills count dynamically.. making the test work with different test files?
 #          where does the 'fycode' 7273 in bill id come from? Extract it dynamically?
 require 'test_helper'
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
@@ -19,6 +20,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
   include CustomDateModule
   def setup
     # To prevent isin company Nil Error in bills#show
+    puts "\nFetching companies from NEPSE..."
     Rake::Task["fetch_companies"].invoke
     # Rake::Task["update_isin_prices"].invoke
 
@@ -56,6 +58,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
   test "the basic flow" do
     ############################################################### SECTION ONE ############################################################################
 
+    puts "Creating Bank & accounts..."
     # --- 1. Add Bank ---
     assert_difference 'Bank.count', 1 do
       post banks_path, bank: { address: 'utopia', bank_code: 'TBH', contact_no: '999999999', name: 'The Bank' }
@@ -78,6 +81,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION TWO ############################################################################
 
+    puts "Adding cheque entries..."
     # --- 2. Add Cheque Entries ---
     assert_difference 'ChequeEntry.count', 20 do
       post cheque_entries_path, { bank_account_id: @bank_account_receipt.id, start_cheque_number: 1, end_cheque_number: 10 }
@@ -88,6 +92,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION THREE ##########################################################################
 
+    puts "Uploading Floorsheet..."
     # --- 3. Upload Floorsheet of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/May10/BrokerwiseFloorSheetReport 10 May.xls'), 'text/xls')
     post import_files_floorsheets_path, file: file
@@ -97,6 +102,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION FOUR ###########################################################################
 
+    puts "Uploading Relevant CM05..."
     # --- 4. Upload CM05 of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/May10/CM0518052016141937.csv'), 'text/csv')
     post import_files_sales_path, file: file
@@ -116,6 +122,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       assert_select 'li.last.next>a', text: 'Last »'
     end
 
+    puts "Processing Settlement..."
     # --- 4.1 Process Settlement ---
     get generate_bills_path
     assert_response :success
@@ -136,6 +143,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION FIVE ###########################################################################
 
+    puts "Fetching Sales bills & processing one..."
     # --- 5. Go to bill list #sales
     get sales_bills_path
     # select method 2
@@ -210,6 +218,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # --- 5.1 - On create -incase of payment by cash, normal voucher is created
     assert_select 'h4 u', 'PAYMENT'
 
+    puts "Fetching Purchase bills & processing one..."
     # --- 5. Go to bill list #purchase
     get purchase_bills_path
     assert_match "Displaying bills <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{@purchase_bills_expected_count}</b> in total", response.body
@@ -254,6 +263,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # assert_select 'a[href=?]', new_voucher_full_path(sales_bills_starting_id+1, 1), {count:0, text: 'Process Bill'}
     # --- 5.3 Verify in Ledgers for ledgers affected in step 5.1 & 5.2 ---
     ledger_index_to_particulars_count = [3, 4, 11]
+    puts "Checking texts & links in corresponding ledgers..."
     second_particular_ledger_id.each do |ledger_id|
       get ledger_path(ledger_id)
       assert_response :success
@@ -290,13 +300,14 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION SIX ############################################################################
 
+    puts "Fetching Client ledgers..."
     # --- 6. Client Ledgers ---
-    #
     get client_ledgers_path
     assert_response :success
     client_ledgers_count = Ledger.find_all_client_ledgers.count
     assert_match "Displaying ledgers <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{client_ledgers_count}</b> in total", response.body
 
+    puts "Processing ledger & verifying..."
     # --- 6.1 Process ledger & verify ---
     # .THIRD(): Ignore two client ledgers in fixtures
     ledger = Ledger.find_all_client_ledgers.third
@@ -341,6 +352,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger',           count: 0}
     assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills', count: 0}
 
+    puts "Clearing ledger & verifying..."
     # --- 6.2 Clear ledger & verify ---
     # .FOURTH(): Ignore two ledgers in fixtures!
     ledger = Ledger.find_all_client_ledgers.fourth
@@ -382,6 +394,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION SEVEN ##########################################################################
 
+    puts "Creating different types of vouchers & verifying..."
     # --- 7. Voucher creation --- Create all types of vouchers ---
     # --- 7.1 Journal with out Bank ---
     get new_voucher_path
@@ -435,6 +448,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     [credited_ledger_name, payment_amount, "Date: #{@date_today}", "Receipt No: #{receipt_num}"].each do |item|
       assert_match item, response.body
     end
+    puts '"BASIC" app flow Test Successfully completed!!!'
   end
 
 
