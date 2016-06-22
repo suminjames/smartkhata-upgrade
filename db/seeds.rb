@@ -18,7 +18,7 @@
 
 
 @tenants = []
-tenant = Tenant.find_or_create_by!(name: "demo", dp_id: '1010')
+tenant = Tenant.find_or_create_by!(name: "smartkhata", dp_id: '1010')
 tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
 @tenants << tenant
 tenant = Tenant.find_or_create_by!(name: "danphe", dp_id: '1010')
