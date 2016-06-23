@@ -13,5 +13,5 @@ one:
 
 two:
   cheque_number: 735
-  bank_account: two
+  bank_account: one
   status: 4 # approved

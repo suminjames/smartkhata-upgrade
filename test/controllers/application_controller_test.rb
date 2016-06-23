@@ -1,5 +1,6 @@
 require 'test_helper'
 
+# THESE TESTS MUST BE RUN AS A SINGLE FILE/TEST, THEY USUALLY FAIL IN BLOCK!!!
 class ApplicationControllerTest < ActionController::TestCase
   setup do
     # Load all the controllers
@@ -19,6 +20,7 @@ class ApplicationControllerTest < ActionController::TestCase
   end
 
   # Testing Before action: :authenticate_user!
+  # ## This test may generate 'AbstractController::ActionNotFound' error when run in block
   test "should redirect unauthenticated user to login page" do
     @controllers_for_unauthenticated_test.each do |controller|
       @controller = controller.new
@@ -30,10 +32,9 @@ class ApplicationControllerTest < ActionController::TestCase
 
   # Testing Before action: :set_user_session
   # ## This test fails when run in block..
-  # ## But should pass when run as a single file!
   test "should set user session when logged in" do
     sign_in @user
-    assert_nil UserSession.user, "You may ignore this fail if you ran tests in block!"
+    assert_nil UserSession.user, "##### You may ignore this fail if you ran tests in block! # [1 of 2] #####"
     @controllers_for_authenticated_test.each do |controller|
       @controller = controller.new
       # puts '=>'+controller.to_s+'<='

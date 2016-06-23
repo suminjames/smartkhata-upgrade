@@ -37,8 +37,8 @@ Git.Merge.each::after DO
             8. Upload Order
                 -re-upload the same order file
 
-    II. Functional testing [ONGOING]
-        -Roughly Completed:
+    II. Functional testing [HALTED]
+        -Roughly Completed (basic cases):
             Application,
             Banks,
             Bank accounts,
@@ -53,11 +53,12 @@ Git.Merge.each::after DO
             Ledgers,
             Vouchers
 
-    III. Unit Testing [ONGOING]
-        -Roughly Completed:
+    III. Unit Testing [HALTED]
+        -Roughly Completed (basic cases):
             Bank,
             Bank account,
             Cheque entry,
+            Branch,
             Client account,
             Employee account,
             Ledger

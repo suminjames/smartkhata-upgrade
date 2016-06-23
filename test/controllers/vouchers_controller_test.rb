@@ -123,7 +123,45 @@ class VouchersControllerTest < ActionController::TestCase
   # Invalid input tests
   # Edit after merge to pass THIS test !
   test "should not create a receipt voucher with a cheque_number that has already been assigned" do
-    @assert_block_via_invalid_post.call(@approved_cheque.cheque_number, '5000', 'Cheque has already been taken.')
+    get :new # to set UserSession
+    @approved_cheque.update_attribute(:additional_bank_id, @additional_bank_id)
+
+    # @assert_block_via_invalid_post.call(@approved_cheque.cheque_number, '5000', 'Cheque Number is already taken')
+    amt = 5000
+    assert_no_difference 'Voucher.count' do
+      params = {
+            "voucher_type" =>"2",
+            # "client_account_id"=>"",
+            # "bill_id"=>"",
+            # "clear_ledger"=>"false",
+            "voucher" => {
+              "date_bs"                => "2071-3-9",
+              "particulars_attributes" => {
+                "0"=> {
+                  "ledger_id"          => ledgers(:two).id,
+                  "amount"             => amt,
+                  "transaction_type"   => "dr",
+                  "cheque_number"      => @approved_cheque.cheque_number,
+                  "additional_bank_id" => @additional_bank_id,
+                  # "id"               => ""
+                },
+                "3"=> {
+                  "ledger_id"          => ledgers(:five).id,
+                  "amount"             => amt,
+                  "transaction_type"   => "cr",
+                  # "cheque_number"    => "",
+                  "additional_bank_id" => @additional_bank_id
+                }
+              },
+              # "desc"=>""
+            },
+            "payment_mode"=>"default",
+            "voucher_settlement_type"=>"default",
+      }
+      post :create, params
+    end
+    assert_equal 'Cheque Number is already taken', flash[:error]
+    assert_response :success
   end
 
   test "should not create a voucher with negative amount or cheque number" do

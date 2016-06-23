@@ -79,6 +79,7 @@ class BankAccountTest < ActiveSupport::TestCase
     assert_not @bank_account.valid?
   end
 
+  # Testing public methods in the model
   test "should change default for payment" do
     a1 = bank_accounts(:one)
     a2 = bank_accounts(:two)

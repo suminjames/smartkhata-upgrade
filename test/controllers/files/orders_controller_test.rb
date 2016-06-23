@@ -37,11 +37,12 @@ class Files::OrdersControllerTest < ActionController::TestCase
     @assert_block_via_get.call(:index, 'Orders')
   end
 
+  # THIS TEST PASSES/FAILS DEPENDING UPON ITS MOOD!
+  # ## Usually fails when run in block
   test "should import valid order once" do
-    # This test may sometime fail unexpectedly for unknown reasons!(maybe cache issues?)
     file_path = 'undated/Order_report_true_minified.xls'
     @post_action.call(file_path)
-    assert_response :success, "You may ignore this fail if you ran tests in block!"
+    assert_response :success, "##### You may ignore this fail if you ran tests in block! # [2 of 2] #####"
     assert_equal "Successfully uploaded and processed the file.", flash[:notice]
     assert_template 'files/orders/import'
     get :index

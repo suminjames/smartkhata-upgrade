@@ -80,5 +80,5 @@ class ClientAccountTest < ActiveSupport::TestCase
     @client_account.country_perm = '  '
     assert @client_account.invalid?
   end
-=end
 end
+=end
