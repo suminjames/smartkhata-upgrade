@@ -50,15 +50,15 @@ class TransactionMessagesController < ApplicationController
   end
 
   def send_email
-    500.times do |i|
+    # 10.times do |i|
       transaction_message_ids = params[:transaction_message_ids] || []
       transaction_message_ids.each do | transaction_message_id |
         transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
         if transaction_message.bill && transaction_message.bill.client_account.email
-          UserMailer.bill_email(transaction_message.bill, current_tenant).deliver_now
+          HardWorker.perform_async(transaction_message.bill.id, current_tenant.id)
         end
       end
-    end
+    # end
     respond_to do |format|
       format.js
       format.json { render :json => { :success => "success", :status_code => "200" } }
@@ -68,7 +68,8 @@ class TransactionMessagesController < ApplicationController
   def send_sms
     transaction_message_ids = params[:transaction_message_ids] || []
     transaction_message_ids.each do | transaction_message_id |
-      Sms.send_bill_sms(transaction_message_id)
+      # Sms.send_bill_sms(transaction_message_id)
+      Sms.check_balance
       respond_to do |format|
         format.js
         format.json { render :json => { :success => "success", :status_code => "200" } }

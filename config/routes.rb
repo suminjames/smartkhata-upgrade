@@ -7,7 +7,6 @@ Rails.application.routes.draw do
   resources :branches
   resources :closeouts
   resources :share_inventories
-  resources :employee_client_associations
   resources :employee_accounts
   resources :banks
   resources :settlements do
@@ -103,5 +102,7 @@ Rails.application.routes.draw do
 
   get "/test" => "test#index"
 
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
 
 end

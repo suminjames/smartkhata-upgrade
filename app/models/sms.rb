@@ -20,6 +20,11 @@ class Sms < ActiveRecord::Base
   #  9 = Balance not enough.
 
 
+  def self.check_balance
+    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=BQ' + '&as=' + @access_code + '&u=' + @username + '&p=' + @password)).body
+    p result
+  end
+
   def self.send_hello_world
     self.date_time = DateTime.now.to_s(:db)
     self.mobile_number = '9779851182852'
@@ -27,8 +32,8 @@ class Sms < ActiveRecord::Base
   end
 
   def self.push_sms
-    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
-    p result
+    # result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
+    # p result
   end
 
   def self.send_bill_sms(transaction_message_id )

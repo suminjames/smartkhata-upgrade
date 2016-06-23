@@ -15,6 +15,8 @@ gem 'filterrific'
 gem 'bootstrap-kaminari-views'
 gem 'prawn'
 gem 'prawn-table', '~> 0.2.2'
+gem 'sidekiq'
+gem 'sinatra', '>= 1.3.0', require: false
 
 group :development, :test do
   gem 'byebug'

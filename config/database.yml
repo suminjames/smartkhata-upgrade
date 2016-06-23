@@ -53,6 +53,6 @@ production:
   encoding: unicode
   database: smartkhata_production
   pool:     5
-  username: smartkhata
+  username: sarojk
   password:
   template: template0
