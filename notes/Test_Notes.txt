@@ -39,16 +39,19 @@ Git.Merge.each::after DO
 
     II. Functional testing [ONGOING]
         -Roughly Completed:
+            Application,
             Banks,
             Bank accounts,
             Cheque entries,
-            Files(Sales, Floorsheet, Orders, dpa5),
+            Files,
+            Files/ %w(Sales Floorsheet Orders dpa5),
             Sales settlements,
             Bills,
             Branches,
             Client accounts,
             Employee accounts,
-            Ledgers
+            Ledgers,
+            Vouchers
 
     III. Unit Testing [ONGOING]
         -Roughly Completed:

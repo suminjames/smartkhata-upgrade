@@ -7,6 +7,7 @@ class VouchersControllerTest < ActionController::TestCase
     @voucher = vouchers(:voucher_0)
     @approved_cheque = cheque_entries(:two)
     @receipt_code =  Voucher.voucher_types['receipt']
+    @payment_code =  Voucher.voucher_types['payment']
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
     @additional_bank_id = Bank.first.id
@@ -31,8 +32,8 @@ class VouchersControllerTest < ActionController::TestCase
       assert_equal "Payment Voucher was successfully #{msg_suffix}", flash[:notice]
       voucher.reload
       assert_not voucher.pending?
-     }
-     @post_vouchers_path = proc { |voucher_code, cheque_number, amt, particulars_to_ignore|
+    }
+    @post_vouchers_path = proc { |voucher_code, cheque_number, amt, particulars_to_ignore|
       amt ||= 5000
       params =
        {"voucher_type"=> "#{voucher_code}",
@@ -89,6 +90,34 @@ class VouchersControllerTest < ActionController::TestCase
       assert_equal "Voucher was successfully created.", flash[:notice]
       assert_redirected_to voucher_path(assigns(:voucher))
     end
+  end
+
+  test "should get pending vouchers" do
+    get :pending_vouchers
+    pending_vouchers = Voucher.pending.order("id ASC").decorate
+    assert_equal assigns(:vouchers), pending_vouchers
+    assert_template "vouchers/index"
+  end
+
+  # Testing set_bill_client method: Returns an array of relevant info
+  # Note: Apparently does not 'set' anything!
+  test "set bill client" do
+    bill_1 = bills(:one)
+    client_account_1 = bill_1.client_account
+    bill_2 = bills(:two)
+    client_account_2 = bill_2.client_account
+
+    set_1 = @controller.set_bill_client(client_account_1.id, bill_1.id, @receipt_code)
+    set_2 = @controller.set_bill_client(client_account_2.id, bill_2.id, @payment_code)
+
+    bills_1 = client_account_1.bills.requiring_receive
+    amount_1 = bills_1.sum(:balance_to_pay).abs
+    bill_1 = bill_2 = nil # bacause of controller logic
+    assert_equal [client_account_1, bill_1, bills_1, amount_1], set_1
+
+    bills_2 = client_account_2.bills.requiring_payment
+    amount_2 = bills_2.sum(:balance_to_pay).abs.round(2)
+    assert_equal [client_account_2, bill_2, bills_2, amount_2], set_2
   end
 
   # Invalid input tests
