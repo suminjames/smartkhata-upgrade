@@ -104,6 +104,9 @@ Rails.application.routes.draw do
   get "/test" => "test#index"
 
   require 'sidekiq/web'
-  mount Sidekiq::Web => '/sidekiq'
+  # TODO(sarojk): Implement sidekiq view to be only accessible by (sys)admin.
+  authenticate :user do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
 end
