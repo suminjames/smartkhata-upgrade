@@ -2,6 +2,8 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
+  # layout 'application_custom', only: [:index]
+
   include BillModule
 
   # GET /bills
@@ -33,9 +35,10 @@ class BillsController < ApplicationController
         # render a new page for bills selection
         @process_selected_bills = true
         @client_account_id = search_term.to_i
-        @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+        client_account= ClientAccount.find(@client_account_id)
+        # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+        @bills = client_account.get_all_related_bills.decorate
         render :select_bills_for_settlement and return
-
       when 'client_name'
         @bills = Bill.find_by_client_id(search_term)
       when 'bill_number'
@@ -118,24 +121,32 @@ class BillsController < ApplicationController
 
   # GET /bills/1/edit
   def edit
+    raise NotImplementedError
   end
 
   # POST /bills
   # POST /bills.json
   def create
-    # @bill = Bill.new(bill_params)
-    #
-    # respond_to do |format|
-    #   if @bill.save
-    #     format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
-    #     format.json { render :show, status: :created, location: @bill }
-    #   else
-    #     format.html { render :new }
-    #     format.json { render json: @bill.errors, status: :unprocessable_entity }
-    #   end
-    # end
+    @bill = Bill.new(bill_params).make_provisional
+    res = false
 
-    raise NotImplementedError
+    Bill.transaction do
+      if @bill.errors.blank? && @bill.save
+        res = true
+      end
+    end
+
+    respond_to do |format|
+      if res
+        format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
+        format.json { render :show, status: :created, location: @bill }
+      else
+        format.html { render :new }
+        format.json { render json: @bill.errors, status: :unprocessable_entity }
+      end
+    end
+    #
+    # raise NotImplementedError
   end
 
   # PATCH/PUT /bills/1
@@ -233,7 +244,7 @@ class BillsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
-    params.fetch(:bill, {})
+    params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
   end
 
 

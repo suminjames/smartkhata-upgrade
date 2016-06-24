@@ -15,7 +15,6 @@ module Models::UpdaterWithBranchFycode
       scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
       scope :by_branch_code, -> (branch_code) { where(branch_code: branch_code)}
     end
-
   end
 
   private

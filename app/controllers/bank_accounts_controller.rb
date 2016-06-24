@@ -1,6 +1,5 @@
 class BankAccountsController < ApplicationController
   before_action :set_bank_account, only: [:show, :edit, :update, :destroy]
-
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index

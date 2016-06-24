@@ -1,4 +1,6 @@
 class Report::ThresholdTransactionsController < ApplicationController
+	layout 'application_custom', only: [:index]
+
 	def index
 		@transaction_date = params[:transaction_date]
 		@transactions_above_threshold = []

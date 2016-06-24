@@ -243,6 +243,14 @@ class Vouchers::Create < Vouchers::Base
             cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
             cheque_entry.cheque_date = DateTime.now
 
+            # if the cheque received from client is already entered to system reject it
+            if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
+              voucher.settlements = []
+              error_message = "Cheque Number is already taken"
+              raise ActiveRecord::Rollback
+            end
+
+
             if particular.additional_bank_id.present?
               cheque_entry.status = ChequeEntry.statuses[:pending_clearance]
             else

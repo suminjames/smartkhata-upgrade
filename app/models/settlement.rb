@@ -20,10 +20,10 @@
 #  updated_at        :datetime         not null
 #  branch_id         :integer
 #
-
-include ::CustomDateModule
+# include ::CustomDateModule
 
 class Settlement < ActiveRecord::Base
+  extend CustomDateModule
 
   belongs_to :voucher
   include ::Models::UpdaterWithBranchFycode
