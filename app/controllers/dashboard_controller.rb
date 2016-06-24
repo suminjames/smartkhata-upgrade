@@ -1,5 +1,7 @@
 class DashboardController < ApplicationController
   def index
+    authorize :dashboard, :index?
+
     @total_users = ClientAccount.count
 
     @balance = Group.pnl

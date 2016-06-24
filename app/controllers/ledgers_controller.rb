@@ -5,6 +5,7 @@ class LedgersController < ApplicationController
   # GET /ledgers
   # GET /ledgers.json
   def index
+    authorize Ledger
     #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
@@ -47,6 +48,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
+    authorize @ledger
     @back_path =  request.referer || ledgers_path
     if params[:show] == "all"
       @particulars = @ledger.particulars.complete.order("id ASC")
@@ -101,10 +103,12 @@ class LedgersController < ApplicationController
   # GET /ledgers/new
   def new
     @ledger = Ledger.new
+    authorize @ledger
   end
 
   # GET /ledgers/1/edit
   def edit
+    authorize @ledger
     @can_edit_balance =  ( @ledger.particulars.count <= 0 ) && (@ledger.opening_blnc == 0.0)
   end
 
@@ -112,6 +116,8 @@ class LedgersController < ApplicationController
   # POST /ledgers.json
   def create
     @ledger = Ledger.new(ledger_params)
+    authorize @ledger
+
     @success = false
     if (@ledger.opening_blnc >= 0)
       @success = true if @ledger.save
@@ -132,6 +138,7 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1
   # PATCH/PUT /ledgers/1.json
   def update
+    authorize @ledger
     respond_to do |format|
       if @ledger.update_custom(ledger_params)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
@@ -146,6 +153,7 @@ class LedgersController < ApplicationController
   # DELETE /ledgers/1
   # DELETE /ledgers/1.json
   def destroy
+    authorize @ledger
     @ledger.destroy
     respond_to do |format|
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
@@ -156,6 +164,7 @@ class LedgersController < ApplicationController
 
   # Get list of group members
   def group_members_ledgers
+    authorize Ledger
     if params[:client_account_id]
       @client_account_id = params[:client_account_id].to_i
       @client_account = ClientAccount.find(@client_account_id)
@@ -165,6 +174,7 @@ class LedgersController < ApplicationController
   end
 
   def transfer_group_member_balance
+    authorize Ledger
     client_account = ClientAccount.find(@client_account_id)
     @back_path =  request.referer || group_member_ledgers_path
 

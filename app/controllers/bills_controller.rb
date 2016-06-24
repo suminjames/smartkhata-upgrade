@@ -9,6 +9,7 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+    authorize Bill
     # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
     @process_selected_bills = false
     #default landing action for '/bills'
@@ -95,6 +96,7 @@ class BillsController < ApplicationController
   def show
     @from_path =  request.referer
     @bill = Bill.find(params[:id]).decorate
+    authorize @bill
     @has_voucher_pending_approval = false
 
     @bill.vouchers_on_settlement.each do |voucher|
@@ -117,6 +119,7 @@ class BillsController < ApplicationController
   # GET /bills/new
   def new
     @bill = Bill.new
+    authorize @bill
   end
 
   # GET /bills/1/edit
@@ -128,6 +131,8 @@ class BillsController < ApplicationController
   # POST /bills.json
   def create
     @bill = Bill.new(bill_params).make_provisional
+    authorize @bill
+
     res = false
 
     Bill.transaction do
@@ -176,6 +181,7 @@ class BillsController < ApplicationController
   end
 
   def process_selected
+    authorize Bill
     amount_margin_error = 0.01
 
     if @bill_ids.size <= 0
@@ -219,6 +225,7 @@ class BillsController < ApplicationController
 
   # Entertains ajax requests.
   def show_by_number
+    authorize Bill
     @bill_number = params[:number]
     @bill = nil
     if @bill_number

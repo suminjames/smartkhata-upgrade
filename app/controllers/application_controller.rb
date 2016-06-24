@@ -11,9 +11,10 @@ class ApplicationController < ActionController::Base
 
   # Callbacks
   before_action :authenticate_user!, :unless => :devise_controller?
-  # after_action :verify_authorized, :unless => :devise_controller?
   before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
+  after_action :verify_authorized, :unless => :devise_controller?
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found

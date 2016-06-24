@@ -148,5 +148,4 @@ module ApplicationHelper
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
   end
-
 end

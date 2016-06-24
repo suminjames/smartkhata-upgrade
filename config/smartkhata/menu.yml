@@ -1,0 +1,98 @@
+updated: true
+menus:
+  - name: File Section
+    sub_menus:
+      - name: Uploads
+        menu_items:
+          - name: FloorSheet
+            path: <%= new_files_floorsheet_path %>
+          - name: Sales CM
+            path: <%= new_files_sale_path %>
+          - name: DpA5
+            path: <%= new_files_dpa5_path %>
+          - name: Order
+            path: <%= new_files_order_path %>
+          - name: CloseOut Debit
+            path: <%= new_files_closeout_path(type: 'debit')  %>
+          - name: CloseOut Credit
+            path: <%= new_files_closeout_path(type: 'credit') %>
+      - name: Pending
+        menu_items:
+          - name: Pending Sales Settlement
+            path: <%= sales_settlements_path(pending: true) %>
+  - name: Account Section
+    sub_menus:
+      - name: Vouchers
+        menu_items:
+          - name: Journal
+            path: <%= new_voucher_path %>
+          - name: Receipt
+            path: <%= new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %>
+          - name: Payment
+            path: <%= new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %>
+          - name: Pending Payment
+            path: <%= pending_vouchers_vouchers_path %>
+      - name: Ledgers
+        menu_items:
+          - name: Ledger List
+            path: <%= ledgers_path %>
+          - name: Group Member Balance Transfer
+            path: <%= group_member_ledgers_path %>
+          - name: New Ledger
+            request_type: :get
+            path: <%= new_ledger_path %>
+            hide_on_main_navigation: true
+
+      - name: Bills
+        menu_items:
+          - name: Bill List
+            path: <%= bills_path %>
+          - name: New Provisional Bill
+            path: <%= new_bill_path %>
+          - name: Deal Cancel
+            path: <%= deal_cancel_share_transactions_path %>
+          - name: Approve Deal Cancel
+            path: <%= pending_deal_cancel_share_transactions_path %>
+      - name: Bank
+        menu_items:
+          - name: Banks
+            path: <%= banks_path %>
+          - name: Bank Accounts
+            path: <%= bank_accounts_path %>
+          - name: Cheque Entries
+            path: <%= cheque_entries_path %>
+      - name: Nepse
+        menu_items:
+          - name: Nepse Chalan
+            path: <%= nepse_chalans_path %>
+  - name: Client Register
+    path: <%= client_accounts_path %>
+  - name: Employee Register
+    path: <%= employee_accounts_path %>
+  - name: Vendor Register
+    path: <%= vendor_accounts_path %>
+  - name: Reports
+    sub_menus:
+      - name: Financial Reports
+        menu_items:
+          - name: Balance Sheet
+            path: <%= report_balancesheet_index_path  %>
+          - name: Profit & Loss
+            path: <%= report_profitandloss_index_path %>
+          - name: Trial Balance
+            path: <%= report_trial_balance_index_path %>
+      - name: Transactions / Orders
+        menu_items:
+          - name: Share Inventory
+            path: <%= share_transactions_path %>
+          - name: Orders
+            path: <%= orders_path(show: 'report')%>
+          - name: Cancelled Transactions
+            path: <%= share_transactions_path(search_by: 'cancelled') %>
+
+      - name: Settlements
+        menu_items:
+          - name: Receipt
+            path: <%= settlements_path("filterrific[by_settlement_type]":'receipt') %>
+          - name: Payment
+            path: <%= settlements_path("filterrific[by_settlement_type]":'payment') %>

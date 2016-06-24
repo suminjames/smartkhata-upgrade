@@ -38,6 +38,18 @@ class ApplicationPolicy
     Pundit.policy_scope!(user, record.class)
   end
 
+
+  def admin_and_above?
+    user.admin? || user.sys_admin?
+  end
+  def employee_and_above?
+    user.employee? || user.admin? || user.sys_admin?
+  end
+
+  def client_and_above?
+    user.client? || user.agent?
+  end
+
   class Scope
     attr_reader :user, :scope
 
@@ -50,4 +62,25 @@ class ApplicationPolicy
       scope
     end
   end
+
+  private
+
+  private
+
+  def self.permit_access_to_employee_and_above(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        employee_and_above?
+      end
+    end
+  end
+
+  def self.permit_access_to_client_and_above(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        client_and_above?
+      end
+    end
+  end
+
 end

@@ -1,0 +1,36 @@
+<% seed_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
+   # config = YAML::load_file(seed_file)
+   config = YAML::load(ERB.new(File.read(seed_file)).result(binding))
+%>
+<%= a = request.env['PATH_INFO'] %>
+<%= "/ledgers/new?search_by=ledger_name".include?(a) %>
+
+<% if config['updated'] == true %>
+    <% config['menus'].each do |menu|
+        if menu['path'].present? %>
+            <li><%= link_to menu['name'], menu['path'] %></li>
+        <% else %>
+            <li class="dropdown yamm-fw">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= menu['name'] %><span class="caret"></span></a>
+              <ul class="dropdown-menu sub-menu" role="menu">
+                <div class="yamm-content">
+                  <div class="row">
+                    <% menu['sub_menus'].each do |sub_menu| %>
+                        <ul class="col-xs-2 list-unstyled">
+                          <li><p><strong><%= sub_menu['name'] %></strong></p></li>
+                          <% sub_menu['menu_items'].each do |menu_item| %>
+                              <% if menu_item['hide_on_main_navigation'].blank? || menu_item['hide_on_main_navigation'] == false %>
+                                <li><%= link_to menu_item['name'], menu_item['path']	 %></li>
+                              <% end %>
+                          <% end %>
+                        </ul>
+                    <% end %>
+                  </div>
+                </div>
+              </ul>
+            </li>
+        <% end
+    end %>
+<% end %>
+
+
