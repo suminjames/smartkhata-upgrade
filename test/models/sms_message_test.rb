@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SmsTest < ActiveSupport::TestCase
+class SmsMessageTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

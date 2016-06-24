@@ -1,6 +1,5 @@
 require 'net/http'
-
-class Sms < ActiveRecord::Base
+class SmsMessage < ActiveRecord::Base
 
   @tag = 'B'
   @access_code = 'M210DAF977'
@@ -21,8 +20,10 @@ class Sms < ActiveRecord::Base
 
 
   def self.check_balance
-    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=BQ' + '&as=' + @access_code + '&u=' + @username + '&p=' + @password)).body
-    p result
+    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=BQ' + '&ac=' + @access_code + '&u=' + @username + '&p=' + @password)).body
+    # TODO(sarojk): Check for condition where the server is down or server returns something other than expected result pattern
+    # Expected result pattern-ish: "Balance remaining = 93.00"
+    result.split('=')[1].strip.to_f
   end
 
   def self.send_hello_world
