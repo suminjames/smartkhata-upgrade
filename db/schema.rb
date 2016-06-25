@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160610073048) do
+ActiveRecord::Schema.define(version: 20160624110117) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -396,6 +396,16 @@ ActiveRecord::Schema.define(version: 20160610073048) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
+
+  create_table "menu_items", force: :cascade do |t|
+    t.string   "name"
+    t.string   "path"
+    t.boolean  "hide_on_main_navigation"
+    t.integer  "parent_id"
+    t.string   "code"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
 
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0

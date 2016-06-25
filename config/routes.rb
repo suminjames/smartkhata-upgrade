@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :menu_items
   get 'general_settings/set_fy'
 
   get 'general_settings/set_branch'
