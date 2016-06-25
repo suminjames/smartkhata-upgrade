@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Menu Permissions</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Menu item</th>
+    <th>User</th>
+    <th>References</th>
+    <th colspan="3"></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @menu_permissions.each do |menu_permission| %>
+      <tr>
+        <td><%= menu_permission.menu_item %></td>
+        <td><%= menu_permission.user %></td>
+        <td><%= menu_permission.references %></td>
+        <td><%= link_to 'Show', menu_permission %></td>
+        <td><%= link_to 'Edit', edit_menu_permission_path(menu_permission) %></td>
+        <td><%= link_to 'Destroy', menu_permission, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Menu permission', new_menu_permission_path %>
