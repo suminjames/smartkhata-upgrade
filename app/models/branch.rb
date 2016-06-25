@@ -12,7 +12,7 @@
 
 class Branch < ActiveRecord::Base
   validates_presence_of :code, :address
-  validates :code, uniqueness:  {case_sensitive: false}
+  validates :code, uniqueness: {case_sensitive: false}
 
   def code=(val)
     write_attribute :code, val.upcase

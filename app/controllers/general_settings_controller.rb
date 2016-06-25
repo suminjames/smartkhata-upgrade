@@ -1,5 +1,6 @@
 class GeneralSettingsController < ApplicationController
   before_action :set_return_path
+
   def set_fy
     fy_code = params[:fy_code].to_i
     set_user_selected_fy_code(fy_code)

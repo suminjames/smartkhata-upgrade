@@ -9,7 +9,7 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   a.active-link {
     //color: #fff !important;
     //background-color: $link_color !important;
-     border-bottom: thin dotted #529EA5;
+    border-bottom: thin dotted #529EA5;
   }
 }
 
@@ -28,11 +28,10 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
     opacity: .15;
   }
 
-  .no-display{
-    display:none;
+  .no-display {
+    display: none;
   }
 }
-
 
 .bill-card {
 
@@ -43,7 +42,7 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   border-radius: 5px;
 }
 
-.key{
+.key {
   color: #999;
   font-style: italic;
 }
@@ -60,14 +59,14 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 }
 
 .calculation-section, .customer_details {
-  table{
-    td{
+  table {
+    td {
       padding: 2px 0px !important;
     }
   }
 }
 
-.signature-section{
+.signature-section {
   padding-top: 70px
 }
 
@@ -77,27 +76,27 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   border-bottom-color: black;
 }
 
-.bill-message{
-  padding-bottom:5px
+.bill-message {
+  padding-bottom: 5px
 }
 
-.transactions-section{
-  .deal_cancelled_transaction{
+.transactions-section {
+  .deal_cancelled_transaction {
     text-decoration: line-through;
   }
-  table{
+  table {
     // The width of this table is ought to be 1170
     // TODO: test the width against small screens, and the fixed dimensions of the page.
     width: 100%;
     font-size: 14px;
     font-family: arial;
     table-layout: fixed;
-    td{
+    td {
       padding: 2px 4px !important;
       border: 1px solid black !important;
       word-wrap: break-word;
     }
-    th{
+    th {
       background-color: rgba(210, 209, 208, 0.31);
       border: 1px solid black !important;
       word-wrap: break-word;
@@ -141,7 +140,8 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
     }
   }
 }
-.table-no-border>thead>tr>th, .table-no-border>tbody>tr>th, .table-no-border>tfoot>tr>th, .table-no-border>thead>tr>td, .table-no-border>tbody>tr>td, .table-no-border>tfoot>tr>td {
+
+.table-no-border > thead > tr > th, .table-no-border > tbody > tr > th, .table-no-border > tfoot > tr > th, .table-no-border > thead > tr > td, .table-no-border > tbody > tr > td, .table-no-border > tfoot > tr > td {
   border-top: 0px;
 }
 

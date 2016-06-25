@@ -18,23 +18,23 @@
 <br>
 <br>
 <% if !@ledgers.empty? %>
-<div class= "box box-solid box-default">
-  <div class="box-header">
-    <h4 class="box-title">List of Ledgers</h4>
-  </div>
-  <div class="box-body">
-    <table class="table">
+    <div class="box box-solid box-default">
+      <div class="box-header">
+        <h4 class="box-title">List of Ledgers</h4>
+      </div>
+      <div class="box-body">
+        <table class="table">
 
-      <thead>
-      <tr>
+          <thead>
+          <tr>
 
-      </tr>
-      </thead>
+          </tr>
+          </thead>
 
-      <tbody>
+          <tbody>
 
 
-           <% @ledgers.each do |ledger| %>
+          <% @ledgers.each do |ledger| %>
               <tr>
                 <td><%= ledger.name.titleize %></td>
                 <td class="text-right" style="padding-right: 40px;">
@@ -63,14 +63,14 @@
               </tr>
           <% end %>
 
-      </tbody>
-    </table>
-  </div>
-</div>
+          </tbody>
+        </table>
+      </div>
+    </div>
 <% end %>
 <br>
 
-<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
+<%= render 'shared/pagination', collection_to_paginate: @ledgers %>
 
 <%= link_to 'Edit', edit_vendor_account_path(@vendor_account) %> |
 <%= link_to 'Back', vendor_accounts_path %>

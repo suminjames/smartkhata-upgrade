@@ -1,10 +1,10 @@
 <div class="clearfix">
-  <% if  @share_transaction.blank? && @is_searched %>
-  <div class="alert alert-danger alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fa fa-ban"></i> Alert!</h4>
-    No matching transaction found. It either doesnt exist or is already cancelled
-  </div>
+  <% if @share_transaction.blank? && @is_searched %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+        No matching transaction found. It either doesnt exist or is already cancelled
+      </div>
   <% end %>
   <h4>Search the Transaction for Cancelling</h4>
   <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
@@ -16,43 +16,43 @@
           <div class="col-xs-2 text-right">
             <h5>Bill Type</h5>
           </div>
-          <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([ ['Purchase','buying'], ['Sales','selling']] ) , class: 'form-control' %></div>
+          <div class="col-xs-4"><%= select_tag :transaction_type, options_for_select([['Purchase', 'buying'], ['Sales', 'selling']]), class: 'form-control' %></div>
         </div>
       </div>
 
-    <%= submit_tag "Search", class: 'btn btn-sm' %>
+      <%= submit_tag "Search", class: 'btn btn-sm' %>
   <% end %>
 
   <% if @share_transaction.present? %>
-    <h4>Verify the share transaction before cancelling.</h4>
-    <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
-      <table class="table table-condensed table-striped">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Contract No </th>
-            <th>Client </th>
-            <th>Company</th>
-            <th>Quantity in</th>
-            <th>Quantity out</th>
-          </tr>
-        </thead>
+      <h4>Verify the share transaction before cancelling.</h4>
+      <%= form_tag(deal_cancel_share_transactions_path, :method => "get", id: "search-form") do %>
+          <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Contract No</th>
+              <th>Client</th>
+              <th>Company</th>
+              <th>Quantity in</th>
+              <th>Quantity out</th>
+            </tr>
+            </thead>
 
-        <tbody>
+            <tbody>
 
             <tr>
               <td><%= @share_transaction.date %></td>
               <td><%= @share_transaction.contract_no %></td>
               <td><%= @share_transaction.client_account.name %></td>
               <td><%= @share_transaction.isin_info.company %></td>
-              <td class='quantity-in'><%= @share_transaction.quantity  if @share_transaction.buying? %></td>
+              <td class='quantity-in'><%= @share_transaction.quantity if @share_transaction.buying? %></td>
               <td class='quantity-out'><%= @share_transaction.quantity if @share_transaction.selling? %></td>
             </tr>
 
-        </tbody>
-      </table>
-      <%= hidden_field_tag 'id', @share_transaction.id %>
-      <%= submit_tag "Process Deal Cancel", class: 'btn btn-sm' %>
-    <% end  %>
+            </tbody>
+          </table>
+          <%= hidden_field_tag 'id', @share_transaction.id %>
+          <%= submit_tag "Process Deal Cancel", class: 'btn btn-sm' %>
+      <% end %>
   <% end %>
 </div>

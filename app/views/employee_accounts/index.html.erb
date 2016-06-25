@@ -1,14 +1,15 @@
-
 <% provide(:section_title, "Employees") %>
-<div class="clearfix submenu" >
+<div class="clearfix submenu">
   <%
     def is_active_sub_menu_option(option)
       return params[:search_by] == option || params[:show] == option
     end
   %>
   <h5>
-    <%= link_to "Search by Employee Name",  employee_accounts_path(search_by: "name"), {:class => (is_active_sub_menu_option("name")? "active-link" : "")}   %>  |
-    <%= link_to "All Employees",  employee_accounts_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
+    <%= link_to "Search by Employee Name", employee_accounts_path(search_by: "name"), {:class => (is_active_sub_menu_option("name") ? "active-link" : "")} %>
+    |
+    <%= link_to "All Employees", employee_accounts_path(show: 'all'), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    |
     <%= link_to 'New Employee', new_employee_account_path %>
   </h5>
 </div>
@@ -30,7 +31,7 @@
 
 <% if !@employee_accounts.blank? %>
 
-    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts%>
+    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts %>
 
     <div class="table-responsive">
 
@@ -46,7 +47,7 @@
         </thead>
         <tbody>
         <%
-          serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
+          serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20) + 1
 
           @employee_accounts.each_with_index do |x, i| %>
             <tr>
@@ -54,7 +55,7 @@
               <td><%= x.name %></td>
               <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
               <td><%= x.email %></td>
-              <td><%= x.has_access_to%></td>
+              <td><%= x.has_access_to %></td>
               <!--TODO(sarojk): Width of the table columns is being messed up by the following td's adjustment. Fix it: Table flexible-->
               <td>
                 <%= link_to 'view', employee_account_path(x) %> |
@@ -67,7 +68,7 @@
       </table>
     </div>
 
-    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts%>
+    <%= render 'shared/pagination', collection_to_paginate: @employee_accounts %>
 
 <% end %>
 

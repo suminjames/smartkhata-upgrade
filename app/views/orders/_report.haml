@@ -3,17 +3,17 @@
   %h5
     =link_to "Search by Client Name",  orders_path(search_by: "client_name"), {:class => (is_active_sub_menu_option("client_name")? "active-link" : "")}
     |
-    =link_to "Search by Order Number",  orders_path(search_by: "order_number"), {:class => (is_active_sub_menu_option("order_number")? "active-link" : "")}
+ =link_to "Search by Order Number",  orders_path(search_by: "order_number"), {:class => (is_active_sub_menu_option("order_number")? "active-link" : "")}
     |
-    =link_to "All Orders",  orders_path(search_by: "all_orders"), {:class => (is_active_sub_menu_option("all_orders")? "active-link" : "")}
+ =link_to "All Orders",  orders_path(search_by: "all_orders"), {:class => (is_active_sub_menu_option("all_orders")? "active-link" : "")}
     |
-    =link_to "Search by Date",  orders_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")}
+ =link_to "Search by Date",  orders_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")}
     |
-    =link_to "Search by Date Range",  orders_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")}
-/Sub-menu ENDS
+ =link_to "Search by Date Range",  orders_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")}
+  /Sub-menu ENDS
 
-/Search form BEGINS
-%div.clearfix.search-form
+  /Search form BEGINS
+  %div.clearfix.search-form
 
   -if params[:search_by] == 'client_name'
     = form_tag(orders_path, :method => "get", id: "search-form") do
@@ -76,7 +76,7 @@
       %th Sgmnt
       %th Cndtn
       %th State
-      -#%th Description
+    -#%th Description
     %tbody
       - orders.each_with_index do |order , i|
         - is_first_order_detail = true
@@ -109,4 +109,4 @@
             %td= order_detail.state
             -# Order Details ENDS
 
-= render 'shared/pagination', collection_to_paginate: orders
+          = render 'shared/pagination', collection_to_paginate: orders

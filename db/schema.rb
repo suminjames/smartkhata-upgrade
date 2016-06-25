@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160624110117) do
+ActiveRecord::Schema.define(version: 20160625122731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -400,12 +400,26 @@ ActiveRecord::Schema.define(version: 20160624110117) do
   create_table "menu_items", force: :cascade do |t|
     t.string   "name"
     t.string   "path"
-    t.boolean  "hide_on_main_navigation"
+    t.boolean  "hide_on_main_navigation", default: false
     t.integer  "parent_id"
     t.string   "code"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
   end
+
+  create_table "menu_permissions", force: :cascade do |t|
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "menu_item_id"
+    t.integer  "user_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "menu_permissions", ["creator_id"], name: "index_menu_permissions_on_creator_id", using: :btree
+  add_index "menu_permissions", ["menu_item_id"], name: "index_menu_permissions_on_menu_item_id", using: :btree
+  add_index "menu_permissions", ["updater_id"], name: "index_menu_permissions_on_updater_id", using: :btree
+  add_index "menu_permissions", ["user_id"], name: "index_menu_permissions_on_user_id", using: :btree
 
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0
@@ -723,6 +737,7 @@ ActiveRecord::Schema.define(version: 20160624110117) do
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
+  add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "settlements", "vouchers"
   add_foreign_key "transaction_messages", "client_accounts"

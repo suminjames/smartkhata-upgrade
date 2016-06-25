@@ -30,12 +30,12 @@ class LedgersController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-      when 'ledger_name'
-        ledger_id= search_term
-        @ledgers = Ledger.includes(:client_account).find_by_ledger_id(ledger_id)
-      else
-        # If no matches for case  'search_by', return empty @ledgers
-        @ledgers = ''
+        when 'ledger_name'
+          ledger_id= search_term
+          @ledgers = Ledger.includes(:client_account).find_by_ledger_id(ledger_id)
+        else
+          # If no matches for case  'search_by', return empty @ledgers
+          @ledgers = ''
       end
     else
       @ledgers = ''
@@ -49,7 +49,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1.json
   def show
     authorize @ledger
-    @back_path =  request.referer || ledgers_path
+    @back_path = request.referer || ledgers_path
     if params[:show] == "all"
       @particulars = @ledger.particulars.complete.order("id ASC")
     elsif params[:search_by] && params[:search_term]
@@ -59,7 +59,7 @@ class LedgersController < ApplicationController
         when 'date_range'
           # The dates being entered are assumed to be BS dates, not AD dates
           date_from_bs = search_term['date_from']
-          date_to_bs   = search_term['date_to']
+          date_to_bs = search_term['date_to']
           # OPTIMIZE: Notify front-end of the particular date(s) invalidity
           if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
             date_from_ad = bs_to_ad(date_from_bs)
@@ -109,7 +109,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1/edit
   def edit
     authorize @ledger
-    @can_edit_balance =  ( @ledger.particulars.count <= 0 ) && (@ledger.opening_blnc == 0.0)
+    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_blnc == 0.0)
   end
 
   # POST /ledgers
@@ -176,10 +176,10 @@ class LedgersController < ApplicationController
   def transfer_group_member_balance
     authorize Ledger
     client_account = ClientAccount.find(@client_account_id)
-    @back_path =  request.referer || group_member_ledgers_path
+    @back_path = request.referer || group_member_ledgers_path
 
     if @ledger_ids.size <= 0 || client_account.blank?
-      redirect_to @back_path, :flash => { :error => 'No Ledgers were Selected' } and return
+      redirect_to @back_path, :flash => {:error => 'No Ledgers were Selected'} and return
     end
 
     ledger_list = Ledger.get_ledger_by_ids(fy_code: get_fy_code, ledger_ids: @ledger_ids)
@@ -187,7 +187,7 @@ class LedgersController < ApplicationController
 
     # make sure all id in ledger_ids are in group_memger_ledger_ids
     unless (@ledger_ids - group_member_ledger_ids).empty?
-      redirect_to @back_path, :flash => { :error => 'Invalid Ledgers' } and return
+      redirect_to @back_path, :flash => {:error => 'Invalid Ledgers'} and return
     end
 
     group_leader_ledger = client_account.ledger
@@ -205,27 +205,26 @@ class LedgersController < ApplicationController
         _closing_balance = ledger.closing_blnc
         net_balance += _closing_balance
 
-        process_accounts(ledger, voucher, _closing_balance < 0 , _closing_balance.abs, description)
+        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description)
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0 , net_balance.abs, description)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description)
     end
 
-    redirect_to group_member_ledgers_path, :flash => { :info => 'Successfully Transferred' } and return
+    redirect_to group_member_ledgers_path, :flash => {:info => 'Successfully Transferred'} and return
   end
 
 
-
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_ledger
-      @ledger = Ledger.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_ledger
+    @ledger = Ledger.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def ledger_params
-      params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def ledger_params
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
+  end
 
 
   def get_ledger_ids_for_balance_transfer_params

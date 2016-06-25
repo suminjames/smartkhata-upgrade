@@ -34,7 +34,7 @@ class Print::PrintTestPage < Prawn::Document
      "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
      "Times-Bold", "Times-Italic", "Times-BoldItalic"].each do |font|
       font(font) do
-        text "This is #{font} font", :size=>12
+        text "This is #{font} font", :size => 12
       end
     end
 
@@ -65,7 +65,7 @@ class Print::PrintTestPage < Prawn::Document
     end
 
     for size in 6..16
-      font_size(size) {text "SmartKhata #{size}"}
+      font_size(size) { text "SmartKhata #{size}" }
     end
 
     text "This text is flowing from the left. " * 4

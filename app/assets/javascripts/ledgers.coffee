@@ -2,12 +2,12 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-$(document). on 'click', '.z-selectable #select_all', (event) ->
+$(document) . on 'click', '.z-selectable #select_all', (event) ->
   $("input:checkbox.check-ledger").prop('checked', $(this).prop("checked"))
   update_balance_text()
 
 
-get_ledger_balance =($this) ->
+get_ledger_balance = ($this) ->
   $parent = $this.closest('tr')
   if $parent.hasClass('dr')
     return parse_number($parent.find('.display-amount'))
@@ -29,6 +29,6 @@ update_balance_text = () ->
   $total_type.text(if ledger_amount >= 0 then 'dr' else 'cr')
 
 $ ->
-  $(document).on 'change','.z-selectable .check-ledger', (event) ->
+  $(document).on 'change', '.z-selectable .check-ledger', (event) ->
     $this = $(this)
     update_balance_text()

@@ -20,7 +20,6 @@
 #  updated_at        :datetime         not null
 #  branch_id         :integer
 #
-# include ::CustomDateModule
 
 class Settlement < ActiveRecord::Base
   extend CustomDateModule
@@ -28,13 +27,13 @@ class Settlement < ActiveRecord::Base
   belongs_to :voucher
   include ::Models::UpdaterWithBranchFycode
 
-  enum settlement_type: [ :receipt, :payment]
+  enum settlement_type: [:receipt, :payment]
 
   belongs_to :client_account
   belongs_to :vendor_account
 
   filterrific(
-      default_filter_params: { sorted_by: 'name_desc' },
+      default_filter_params: {sorted_by: 'name_desc'},
       available_filters: [
           :sorted_by,
           :by_settlement_type,
@@ -79,7 +78,7 @@ class Settlement < ActiveRecord::Base
   }
 
   def self.options_for_settlement_type_select
-    [["Receipt","receipt"], ["Payment", "payment"]]
+    [["Receipt", "receipt"], ["Payment", "payment"]]
   end
 
   def self.options_for_client_select

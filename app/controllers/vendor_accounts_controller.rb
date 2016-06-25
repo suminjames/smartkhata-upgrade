@@ -64,13 +64,13 @@ class VendorAccountsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_vendor_account
-      @vendor_account = VendorAccount.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_vendor_account
+    @vendor_account = VendorAccount.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def vendor_account_params
-      params.require(:vendor_account).permit(:name, :address, :phone_number)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def vendor_account_params
+    params.require(:vendor_account).permit(:name, :address, :phone_number)
+  end
 end

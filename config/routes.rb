@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :menu_permissions
+  resources :menu_permissions
   resources :menu_items
   get 'general_settings/set_fy'
 

@@ -1,5 +1,5 @@
 <%= simple_form_for(@ledger) do |f| %>
-  <%= f.error_notification %>
+    <%= f.error_notification %>
     <div class="form-inputs row">
       <div class="col-xs-6">
         <%= f.input :name %>
@@ -9,20 +9,22 @@
     <div class="form-inputs row">
       <div class="col-xs-3">
         <%= f.input :group_id do %>
-            <%= f.collection_select(:group_id, Group.all, :id, :name,{prompt: 'Select a group...'},{:class=>'form-control combobox'}) %>
+            <%= f.collection_select(:group_id, Group.all, :id, :name, {prompt: 'Select a group...'}, {:class => 'form-control combobox'}) %>
         <% end %>
 
-        <%= f.association :vendor_account, collection: VendorAccount.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a Vendor...' %>
+        <%= f.association :vendor_account, collection: VendorAccount.order(:name), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a Vendor...' %>
       </div>
 
     </div>
 
     <% if can_edit_balance %>
-    <div class="form-inputs row">
-      <br>
-      <div class="col-xs-3"><%= f.input :opening_blnc %></div>
-      <div class="col-xs-3"><label><strong>Type </strong></label><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
-    </div>
+        <div class="form-inputs row">
+          <br>
+          <div class="col-xs-3"><%= f.input :opening_blnc %></div>
+          <div class="col-xs-3">
+            <label><strong>Type </strong></label><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %>
+          </div>
+        </div>
     <% end %>
     <br><br>
     <div class="form-actions">

@@ -45,7 +45,7 @@ class ChequeEntriesController < ApplicationController
   def edit
   end
 
-# TODO fix this hack
+  # TODO fix this hack
   def get_cheque_number
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
 
@@ -55,17 +55,17 @@ class ChequeEntriesController < ApplicationController
     end
 
 
-    cheque_number = cheque_entry.nil?  ? 0 : cheque_entry.cheque_number
+    cheque_number = cheque_entry.nil? ? 0 : cheque_entry.cheque_number
 
     respond_to do |format|
-        format.html { render plain: cheque_number.to_s  }
-        format.json { render json: cheque_number, status: :ok }
+      format.html { render plain: cheque_number.to_s }
+      format.json { render json: cheque_number, status: :ok }
     end
   end
 
   # GET /cheque_entries/bounce
   def bounce
-    @back_path =  request.referer || cheque_entries_path
+    @back_path = request.referer || cheque_entries_path
     if @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced?
       redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
     end
@@ -99,7 +99,7 @@ class ChequeEntriesController < ApplicationController
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced"
       voucher.particulars.each do |particular|
-        reverse_accounts(particular,new_voucher,description)
+        reverse_accounts(particular, new_voucher, description)
       end
 
       @cheque_entry.bounced!
@@ -119,7 +119,7 @@ class ChequeEntriesController < ApplicationController
 
   # GET /cheque_entries/represent
   def represent
-    @back_path =  request.referer || cheque_entries_path
+    @back_path = request.referer || cheque_entries_path
     if @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced?
       redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
     end
@@ -131,7 +131,7 @@ class ChequeEntriesController < ApplicationController
       new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
       description = "Cheque number #{@cheque_entry.cheque_number} represented"
       voucher.particulars.each do |particular|
-        reverse_accounts(particular,new_voucher,description)
+        reverse_accounts(particular, new_voucher, description)
       end
 
       @cheque_entry.represented!
@@ -156,7 +156,7 @@ class ChequeEntriesController < ApplicationController
 
     cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
     if cheque.to_be_printed?
-        cheque.printed!
+      cheque.printed!
       status = true
     else
       message = "Cheque is already Printed" if cheque.printed?
@@ -173,7 +173,7 @@ class ChequeEntriesController < ApplicationController
     @bank_accounts = BankAccount.all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
-    @end_cheque_number =  params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
+    @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
 
     error_message = ""
     has_error = false
@@ -204,7 +204,7 @@ class ChequeEntriesController < ApplicationController
         end
       end
     else
-       flash.now[:error] = error_message
+      flash.now[:error] = error_message
     end
 
 
@@ -213,7 +213,7 @@ class ChequeEntriesController < ApplicationController
         format.html { redirect_to cheque_entries_path, notice: 'Cheque entry was successfully created.' }
         format.json { render :show, status: :created, location: @cheque_entry }
       else
-        format.html { render :new}
+        format.html { render :new }
         format.json { render json: @cheque_entry.errors, status: :unprocessable_entity }
       end
     end
@@ -244,13 +244,13 @@ class ChequeEntriesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_cheque_entry
-      @cheque_entry = ChequeEntry.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_cheque_entry
+    @cheque_entry = ChequeEntry.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def cheque_entry_params
-      params.require(:cheque_entry).permit(:date_bs, :desc, particulars_attributes: [:ledger_id,:description, :amount,:transaction_type])
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def cheque_entry_params
+    params.require(:cheque_entry).permit(:date_bs, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
+  end
 end

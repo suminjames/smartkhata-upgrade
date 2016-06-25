@@ -47,7 +47,7 @@ class OrdersController < ApplicationController
       if params[:search_by] == 'date_range'
         # The dates being entered are assumed to be BS dates, not AD dates
         date_from_bs = params['search_term']['date_from']
-        date_to_bs   = params['search_term']['date_to']
+        date_to_bs = params['search_term']['date_to']
         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
           date_from_ad = bs_to_ad(date_from_bs)
@@ -73,7 +73,7 @@ class OrdersController < ApplicationController
   end
 
   def show
-    @from_path =  request.referer
+    @from_path = request.referer
     @order= Order.find(params[:id])
   end
 

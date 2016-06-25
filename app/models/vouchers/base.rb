@@ -88,11 +88,10 @@ class Vouchers::Base
       #       use the balance and create general voucher, settle all bills
 
 
-
       if clear_ledger
         if ledger_balance > 0
           voucher_type = Voucher.voucher_types[:receipt]
-          bills = [*bills_payment,*bills_receive]
+          bills = [*bills_payment, *bills_receive]
         else
           voucher_type = Voucher.voucher_types[:payment]
           bills = [*bills_receive, *bills_payment]
@@ -105,8 +104,8 @@ class Vouchers::Base
 
           if ledger_balance + @amount_margin_error >= 0
             voucher_type = Voucher.voucher_types[:receipt]
-            bills = [*bills_payment,*bills_receive]
-            
+            bills = [*bills_payment, *bills_receive]
+
             # if ledger balance is equal to bills amount or greater than bills amount
             # client pays only the bills amount
 
@@ -114,7 +113,7 @@ class Vouchers::Base
             if (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
               amount = (amount_to_receive_or_pay).abs
 
-            #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
+              #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
             else
               amount = ledger_balance
               bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
@@ -134,13 +133,13 @@ class Vouchers::Base
           if ledger_balance + @amount_margin_error >= 0
             raise NotImplementedError
 
-          #   eg -10000 ledger balance, -5000 amount to pay now => pay only 5000
+            #   eg -10000 ledger balance, -5000 amount to pay now => pay only 5000
           elsif ledger_balance <= amount_to_receive_or_pay
             voucher_type = Voucher.voucher_types[:payment]
             bills = [*bills_receive, *bills_payment]
             amount = (amount_to_receive_or_pay).abs
 
-          #   eg -3000 ledger balance, -5000 amount to pay now => pay only 3000
+            #   eg -3000 ledger balance, -5000 amount to pay now => pay only 3000
           else
             voucher_type = Voucher.voucher_types[:payment]
             bills = [*bills_receive, *bills_payment]

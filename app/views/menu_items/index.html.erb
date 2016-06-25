@@ -4,18 +4,18 @@
 
 <table>
   <thead>
-    <tr>
-      <th>Name</th>
-      <th>Path</th>
-      <th>Hide on main navigation</th>
-      <th>References</th>
-      <th>Code</th>
-      <th colspan="3"></th>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <th>Path</th>
+    <th>Hide on main navigation</th>
+    <th>References</th>
+    <th>Code</th>
+    <th colspan="3"></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @menu_items.each do |menu_item| %>
+  <% @menu_items.each do |menu_item| %>
       <tr>
         <td><%= menu_item.name %></td>
         <td><%= menu_item.path %></td>
@@ -24,9 +24,9 @@
         <td><%= menu_item.code %></td>
         <td><%= link_to 'Show', menu_item %></td>
         <td><%= link_to 'Edit', edit_menu_item_path(menu_item) %></td>
-        <td><%= link_to 'Destroy', menu_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', menu_item, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

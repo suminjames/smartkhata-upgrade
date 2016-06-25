@@ -42,8 +42,18 @@ class ApplicationPolicy
   def admin_and_above?
     user.admin? || user.sys_admin?
   end
+
+  #
+  # authorization for employee and above requires the permitted actions for a user
+  #
   def employee_and_above?
-    user.employee? || user.admin? || user.sys_admin?
+    # admin and sys admin dont have restrictions
+    return true if user.admin? || user.sys_admin?
+    if user.employee?
+      # deny access for the urls
+      return true if !user.blocked_path_list.include? user.current_url_link
+    end
+    return false
   end
 
   def client_and_above?

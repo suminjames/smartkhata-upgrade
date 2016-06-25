@@ -8,13 +8,13 @@ class Files::OrdersController < Files::FilesController
     @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date desc")
   end
 
-	def new
+  def new
     @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10)
-	end
+  end
 
-	def import
-		# TODO(subas): authorize self
-		@file = params[:file]
+  def import
+    # TODO(subas): authorize self
+    @file = params[:file]
 
     # Redirect to request origination page /new rather than redirecting to import
     if is_invalid_file(@file, @@file_name_contains)
@@ -35,6 +35,6 @@ class Files::OrdersController < Files::FilesController
     end
 
     flash.now[:notice] = 'Successfully uploaded and processed the file.'
-	end
+  end
 
 end

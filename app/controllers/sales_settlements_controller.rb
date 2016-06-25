@@ -2,7 +2,7 @@ class SalesSettlementsController < ApplicationController
   before_action :set_sales_settlement, only: [:show, :edit, :update, :destroy]
   # helper for smart listing
   include SmartListing::Helper::ControllerExtensions
-  helper  SmartListing::Helper
+  helper SmartListing::Helper
 
   # GET /sales_settlements
   # GET /sales_settlements.json
@@ -19,7 +19,7 @@ class SalesSettlementsController < ApplicationController
   # GET /sales_settlements/1.json
   def show
     #TODO move this to model
-    @share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id ,deleted_at: nil)
+    @share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
     if @sales_settlement.complete?
       @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list_complete", page_sizes: [50])
     else
@@ -92,13 +92,13 @@ class SalesSettlementsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_sales_settlement
-      @sales_settlement = SalesSettlement.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_sales_settlement
+    @sales_settlement = SalesSettlement.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def sales_settlement_params
-      params.fetch(:sales_settlement, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def sales_settlement_params
+    params.fetch(:sales_settlement, {})
+  end
 end

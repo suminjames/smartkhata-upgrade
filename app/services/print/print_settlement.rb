@@ -50,9 +50,9 @@ class Print::PrintSettlement< Prawn::Document
 
   def details_section
     if @settlement.receipt?
-      text "Received with thanks from: " +  "<b><u>#{@settlement.name}</u></b>", :inline_format => true
+      text "Received with thanks from: " + "<b><u>#{@settlement.name}</u></b>", :inline_format => true
     else
-      text "Paid to: " +  "<b><u>#{@settlement.name}</u></b>", :inline_format => true
+      text "Paid to: " + "<b><u>#{@settlement.name}</u></b>", :inline_format => true
     end
     text "the sum of <b>Rs. #{arabic_number(@settlement.amount)}</b>", :inline_format => true
     text "(in words) <u><b> #{arabic_word(@settlement.amount)}</b></u>", :inline_format => true
@@ -79,7 +79,7 @@ class Print::PrintSettlement< Prawn::Document
     column_widths = {0 => table_width * 1/2.0, 1 => table_width * 1/2.0}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 0, :padding => [0,2,0,0], :align => :left}
+      t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0], :align => :left}
       t.column_widths = column_widths
       t.column(1).style(:align => :right)
     end
@@ -96,19 +96,19 @@ class Print::PrintSettlement< Prawn::Document
     end
     bounding_box([col(3), row_cursor - 20], :width => col(6)) do
       settlement_type = @settlement.receipt? ? 'RECEIPT' : 'PAYMENT'
-      text "<b><u><i>" + settlement_type + "</i></u></b>" , :inline_format => true, :align => :center
+      text "<b><u><i>" + settlement_type + "</i></u></b>", :inline_format => true, :align => :center
       move_down (20)
     end
   end
 
   def signature_fields
     data = [
-        ["" , "_" * 30, "_" * 30],
+        ["", "_" * 30, "_" * 30],
         ["", "Paid by", "Received by"]
     ]
     table_width = page_width - 2
     column_widths = {0 => table_width * 1/3.0, 1 => table_width * 1/3.0, 2 => table_width * 1/3.0}
-    table(data, :column_widths => column_widths, :cell_style => {:border_width => 0, :padding => [0,2,0,0], :align => :center})
+    table(data, :column_widths => column_widths, :cell_style => {:border_width => 0, :padding => [0, 2, 0, 0], :align => :center})
   end
 
   def footer

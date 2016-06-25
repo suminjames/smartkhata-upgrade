@@ -22,7 +22,6 @@
 #  branch_id         :integer
 #
 
-
 class Bill < ActiveRecord::Base
   include CustomDateModule
 
