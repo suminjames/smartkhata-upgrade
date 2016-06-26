@@ -1,9 +1,5 @@
-#
-# available action/menus
-# default request_type is get
-#
 ---
-has_changes: false
+has_changes: true
 menus:
 - name: File Section
   sub_menus:

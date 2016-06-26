@@ -4,6 +4,7 @@ class CreateMenuItems < ActiveRecord::Migration
       t.string :name
       t.string :path
       t.boolean :hide_on_main_navigation, default: false
+      t.integer :request_type, default: 0
       t.integer :parent_id
       t.string :code
 

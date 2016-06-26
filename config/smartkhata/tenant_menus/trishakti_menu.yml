@@ -1,0 +1,147 @@
+#
+# available action/menus
+# documentation available at menu.yml.example
+#
+---
+has_changes: true
+menus:
+- name: File Section
+  sub_menus:
+  - name: Uploads
+    menu_items:
+    - name: FloorSheet
+      path: "/files/floorsheets/new"
+      database_id: 95
+    - name: Sales CM
+      path: "/files/sales/new"
+      database_id: 96
+    - name: DpA5
+      path: "/files/dpa5/new"
+      database_id: 97
+    - name: Order
+      path: "/files/orders/new"
+      database_id: 98
+    - name: CloseOut Debit
+      path: "/files/closeouts/new?type=debit"
+      database_id: 99
+    - name: CloseOut Credit
+      path: "/files/closeouts/new?type=credit"
+      database_id: 100
+    database_id: 94
+  - name: Pending
+    menu_items:
+    - name: Pending Sales Settlement
+      path: "/sales_settlements?pending=true"
+      database_id: 102
+    database_id: 101
+  database_id: 93
+- name: Account Section
+  sub_menus:
+  - name: Vouchers
+    menu_items:
+    - name: Journal
+      path: "/vouchers/new"
+      database_id: 105
+    - name: Receipt
+      path: "/vouchers/new?voucher_type=2"
+      database_id: 106
+    - name: Payment
+      path: "/vouchers/new?voucher_type=1"
+      database_id: 107
+    - name: Pending Payment
+      path: "/vouchers/pending_vouchers"
+      database_id: 108
+    database_id: 104
+  - name: Ledgers
+    menu_items:
+    - name: Ledger List
+      path: "/ledgers"
+      database_id: 110
+    - name: Group Member Balance Transfer
+      path: "/ledgers/group_members_ledgers"
+      database_id: 111
+    - name: New Ledger
+      request_type: :get
+      path: "/ledgers/new"
+      hide_on_main_navigation: true
+      database_id: 112
+    database_id: 109
+  - name: Bills
+    menu_items:
+    - name: Bill List
+      path: "/bills"
+      database_id: 114
+    - name: New Provisional Bill
+      path: "/bills/new"
+      database_id: 115
+    - name: Deal Cancel
+      path: "/share_transactions/deal_cancel"
+      database_id: 116
+    - name: Approve Deal Cancel
+      path: "/share_transactions/pending_deal_cancel"
+      database_id: 117
+    database_id: 113
+  - name: Bank
+    menu_items:
+    - name: Banks
+      path: "/banks"
+      database_id: 119
+    - name: Bank Accounts
+      path: "/bank_accounts"
+      database_id: 120
+    - name: Cheque Entries
+      path: "/cheque_entries"
+      database_id: 121
+    database_id: 118
+  - name: Nepse
+    menu_items:
+    - name: Nepse Chalan
+      path: "/nepse_chalans"
+      database_id: 123
+    database_id: 122
+  database_id: 103
+- name: Client Register
+  path: "/client_accounts"
+  database_id: 124
+- name: Employee Register
+  path: "/employee_accounts"
+  database_id: 125
+- name: Vendor Register
+  path: "/vendor_accounts"
+  database_id: 126
+- name: Reports
+  sub_menus:
+  - name: Financial Reports
+    menu_items:
+    - name: Balance Sheet
+      path: "/report/balancesheet"
+      database_id: 129
+    - name: Profit & Loss
+      path: "/report/profitandloss"
+      database_id: 130
+    - name: Trial Balance
+      path: "/report/trial_balance"
+      database_id: 131
+    database_id: 128
+  - name: Transactions / Orders
+    menu_items:
+    - name: Share Inventory
+      path: "/share_transactions"
+      database_id: 133
+    - name: Orders
+      path: "/orders?show=report"
+      database_id: 134
+    - name: Cancelled Transactions
+      path: "/share_transactions?search_by=cancelled"
+      database_id: 135
+    database_id: 132
+  - name: Settlements
+    menu_items:
+    - name: Receipt
+      path: "/settlements?filterrific%5Bby_settlement_type%5D=receipt"
+      database_id: 137
+    - name: Payment
+      path: "/settlements?filterrific%5Bby_settlement_type%5D=payment"
+      database_id: 138
+    database_id: 136
+  database_id: 127
