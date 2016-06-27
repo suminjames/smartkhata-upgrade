@@ -69,9 +69,9 @@ class Print::PrintBill < Prawn::Document
       text "PAN: #{@current_tenant.pan_number}"
     end
     bounding_box([col(3), row_cursor-20], :width => col(6)) do
-      text "Schedule-3" , :align => :center
-      text "Relating to Sub-Regulation(I) of Regulation 16" , :align => :center
-      text "Information note to cients on execution of transaction" , :align => :center
+      text "Schedule-3", :align => :center
+      text "Relating to Sub-Regulation(I) of Regulation 16", :align => :center
+      text "Information note to cients on execution of transaction", :align => :center
     end
   end
 
@@ -87,13 +87,13 @@ class Print::PrintBill < Prawn::Document
   def customer_details_row
     data =[
         ["Customer:", @bill.formatted_client_name, "Contact No.:", @bill.formatted_client_phones['secondary']],
-        ["NEPSE Code:", @bill.client.nepse_code , "", @bill.formatted_client_phones['secondary']]
+        ["NEPSE Code:", @bill.client.nepse_code, "", @bill.formatted_client_phones['secondary']]
     ]
     table_width = page_width - 2
     column_widths = {0 => table_width * 0.15, 1 => table_width * 0.35, 2 => table_width * 0.20, 3 => table_width * 0.30}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 0, :padding => [0,2,0,0], :align => :left}
+      t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0], :align => :left}
       t.column_widths = column_widths
       t.column(2).style(:align => :left)
       t.column(3).style(:align => :right)
@@ -119,17 +119,17 @@ class Print::PrintBill < Prawn::Document
       if @bill.bill_type == 'sales'
         tr_data.delete_at(5)
       end
-      table(tr_data, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
+      table(tr_data, :cell_style => {:border_width => 0, :padding => [0, 2, 0, 2], :align => :right})
     end
 
     bounding_box([col(6)+col(1), row_cursor], :width => col(5)) do
       data = [
-          ["Transaction Date:", @bill.formatted_transaction_dates['ad'] +" (" + @bill.formatted_transaction_dates['bs']  +")"]
+          ["Transaction Date:", @bill.formatted_transaction_dates['ad'] +" (" + @bill.formatted_transaction_dates['bs'] +")"]
       ]
       if @bill.purchase?
-        data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs']  +")"])
+        data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs'] +")"])
       end
-      table(data, :position => :right, :cell_style => {:border_width => 0, :padding => [0,2,0,2], :align => :right})
+      table(data, :position => :right, :cell_style => {:border_width => 0, :padding => [0, 2, 0, 2], :align => :right})
 
       move_down(30)
 
@@ -154,7 +154,7 @@ class Print::PrintBill < Prawn::Document
       end
 
       data << th_data
-      @bill.formatted_group_same_isin_same_rate_transactions.each do | formatted_share_transaction |
+      @bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
         row_data = [
             formatted_share_transaction[:contract_no],
             formatted_share_transaction[:raw_quantity].to_s + "(" + formatted_share_transaction[:raw_quantity_description] + ")",
@@ -176,11 +176,11 @@ class Print::PrintBill < Prawn::Document
       table_width = page_width
 
       if @bill.bill_type == 'purchase'
-        column_widths = {0 => table_width * 0.26, 1 => table_width * 0.20, 2 => table_width * 0.09 , 3 => table_width * 0.09 , 5 => table_width * 0.12 , 6 => table_width * 0.13 , 7 => table_width * 0.11 }
-      else  # if @bill.bill_type == 'sales'
-        column_widths = {0 => table_width * 0.25, 1 => table_width * 0.17, 2 => table_width * 0.07 , 3 => table_width * 0.07 , 4 => table_width * 0.07 , 5 => table_width * 0.10 , 6 => table_width * 0.09 , 7 => table_width * 0.09 , 8 => table_width * 0.09  }
+        column_widths = {0 => table_width * 0.26, 1 => table_width * 0.20, 2 => table_width * 0.09, 3 => table_width * 0.09, 5 => table_width * 0.12, 6 => table_width * 0.13, 7 => table_width * 0.11}
+      else # if @bill.bill_type == 'sales'
+        column_widths = {0 => table_width * 0.25, 1 => table_width * 0.17, 2 => table_width * 0.07, 3 => table_width * 0.07, 4 => table_width * 0.07, 5 => table_width * 0.10, 6 => table_width * 0.09, 7 => table_width * 0.09, 8 => table_width * 0.09}
       end
-      table(data, :header => true, :column_widths => column_widths, :cell_style => {:size => 8, :padding => [2,2,2,2], :align => :center}, :width => table_width)
+      table(data, :header => true, :column_widths => column_widths, :cell_style => {:size => 8, :padding => [2, 2, 2, 2], :align => :center}, :width => table_width)
     end
   end
 

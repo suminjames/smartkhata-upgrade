@@ -4,6 +4,7 @@ class DealCancelService
 
   @@approval_action = %w{approve reject}
   attr_reader :error_message, :info_message, :share_transaction
+
   def initialize(attrs = {})
     @transaction_id = attrs[:transaction_id].to_i
     @approval_action = attrs[:approval_action]
@@ -150,7 +151,7 @@ class DealCancelService
             total_transaction_count = relevant_share_transactions.length
 
             if total_transaction_count > 0
-              dp_fee  = 25.00
+              dp_fee = 25.00
               dp_fee_per_transaction = dp_fee / (total_transaction_count)
               # added back since it was removed when deal was cancelled.
               # @share_transaction.net_amount += dp_fee_per_transaction
@@ -164,7 +165,7 @@ class DealCancelService
             # now the bill will have atleast one deal cancelled transaction
             bill.has_deal_cancelled! if bill.share_transactions.deal_cancel_pending.size > 1
 
-            if  total_transaction_count == 1
+            if total_transaction_count == 1
               bill.balance_to_pay += @share_transaction.net_amount + dp_fee_per_transaction
               bill.net_amount += @share_transaction.net_amount + dp_fee_per_transaction
               bill.pending!

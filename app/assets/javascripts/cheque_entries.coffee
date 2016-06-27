@@ -3,7 +3,7 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 $ ->
-  $(document).on 'click','#btnPrintCheque', (event) ->
+  $(document).on 'click', '#btnPrintCheque', (event) ->
     event.stopImmediatePropagation();
     $this = $(this)
     $.ajax
@@ -18,5 +18,5 @@ $ ->
 #        if data.message.trim() != ""
 #          $this.find('.cheque-print-error').html(data['message'])
 #        else
-          printElement($('.printThis')[0])
-          window.print()
+        printElement($('.printThis')[0])
+        window.print()

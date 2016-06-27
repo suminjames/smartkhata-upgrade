@@ -11,9 +11,9 @@ class Files::SalesController < Files::FilesController
     @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(10)
   end
 
-	def import
-		# authorize self
-		@file = params[:file]
+  def import
+    # authorize self
+    @file = params[:file]
 
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
@@ -28,7 +28,7 @@ class Files::SalesController < Files::FilesController
     # else redirect to settlement path
     @sales_settlement_id = payout_upload.sales_settlement_id
     redirect_to sales_settlement_path(@sales_settlement_id) and return
-	end
+  end
 
   # method to calculate the base price
   def get_base_price

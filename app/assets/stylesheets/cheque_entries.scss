@@ -5,10 +5,9 @@
   color: red;
 }
 
-
 @media print {
   #printSection .cheque-single * {
-    font-size: 12px!important;
+    font-size: 12px !important;
   }
   .cheque-single {
     width: 740px;
@@ -20,10 +19,8 @@
 
   #printSection {
     .client-name, h4.acc-payee {
-      font-size: 14px!important;
+      font-size: 14px !important;
     }
-
-
 
     .cheque-single {
       .receipt-cheque {
@@ -48,47 +45,53 @@
 
 .receipt-section {
   display: inline-block;
-  width:110px;
+  width: 110px;
   min-height: 100px;
-  float:left;
+  float: left;
   padding-right: 5px;
   display: none;
 }
+
 .cheque-section {
   width: 590px;
   display: inline-block;
-  float:left;
+  float: left;
 }
+
 .cheque-single {
-  max-width:740px;
+  max-width: 740px;
   /*left: -20px;*/
   /*margin: auto;*/
 }
+
 .cheque-header {
   display: inline-block;
   width: 450px;
   min-height: 40px;
-  float:left;
+  float: left;
 }
-.cheque-header h4{
+
+.cheque-header h4 {
   font-style: italic;
   font-weight: bold;
   display: inline-block;
   border-top: 1px solid black;
   border-bottom: 1px solid black;
-  margin:0;
-  margin-left:270px;
+  margin: 0;
+  margin-left: 270px;
 }
+
 .bank-detail-container {
   display: inline-block;
   width: 440px;
   min-height: 80px;
   float: left;
 }
+
 span.date-head {
-  float:left;
+  float: left;
   width: 40px;
-  padding-top:5px;
+  padding-top: 5px;
 }
 
 .date-container {
@@ -101,18 +104,22 @@ span.date-head {
   width: 200px;
   display: inline-block;
 }
+
 .pay-word {
   width: 100px;
   display: inline-block;
 }
+
 .word {
   display: inline-block;
   width: 450px;
-  float:left;
+  float: left;
 }
+
 .typo span {
-  line-height: 24px!important;
+  line-height: 24px !important;
 }
+
 .amount {
   display: inline-block;
   width: 140px;
@@ -121,6 +128,7 @@ span.date-head {
   padding-left: 10px;
   margin-top: 10px;
 }
+
 span.date {
   width: 25px;
   text-align: center;
@@ -133,5 +141,7 @@ span.date {
 }
 
 @media print {
-  span.date, .amount { border-color: transparent}
+  span.date, .amount {
+    border-color: transparent
+  }
 }

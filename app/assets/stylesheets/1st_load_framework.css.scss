@@ -9,11 +9,12 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 img {
   @extend .img-responsive;
   margin: 0 auto;
-  }
+}
+
 // override for the 'Home' navigation link
 .navbar-brand {
   font-size: inherit;
-  }
+}
 
 // THESE ARE EXAMPLES YOU CAN MODIFY
 // create your own classes
@@ -21,19 +22,23 @@ img {
 .column {
   @extend .col-md-6;
   @extend .text-center;
-  }
+}
+
 .form {
   @extend .col-md-6;
-  }
+}
+
 .form-centered {
   @extend .col-md-6;
   @extend .text-center;
-  }
+}
+
 .submit {
   @extend .btn;
   @extend .btn-primary;
   @extend .btn-lg;
-  }
+}
+
 // apply styles to HTML elements
 // to make views framework-neutral
 main {
@@ -42,11 +47,12 @@ main {
   padding-bottom: 80px;
   width: 100%;
   margin-top: 51px; // accommodate the navbar
-  }
+}
+
 section {
   @extend .row;
   margin-top: 20px;
-  }
+}
 
 // Styles for form views
 // using Bootstrap
@@ -56,28 +62,35 @@ section {
   max-width: 320px;
   margin: 0 auto;
 }
+
 .authform form {
   @extend .well;
   @extend .well-lg;
   padding-bottom: 40px;
 }
+
 .authform .right {
   float: right !important;
 }
+
 .authform .button {
   @extend .btn;
   @extend .btn-primary;
 }
+
 .authform fieldset {
   @extend .well;
 }
+
 #error_explanation:not(:empty) {
   @extend .alert;
   @extend .alert-danger;
 }
+
 #error_explanation h2 {
   font-size: 16px;
 }
+
 .button-xs {
   @extend .btn;
   @extend .btn-primary;

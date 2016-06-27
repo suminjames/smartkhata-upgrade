@@ -64,13 +64,13 @@ class EmployeeClientAssociationsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_employee_client_association
-      @employee_client_association = EmployeeClientAssociation.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_employee_client_association
+    @employee_client_association = EmployeeClientAssociation.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def employee_client_association_params
-      params.fetch(:employee_client_association, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def employee_client_association_params
+    params.fetch(:employee_client_association, {})
+  end
 end

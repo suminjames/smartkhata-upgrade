@@ -59,7 +59,7 @@ class ImportPayout < ImportFile
             break
           end
 
-					@date = Date.parse(hash['TRADE_DATE'])
+          @date = Date.parse(hash['TRADE_DATE'])
 
           transaction = ShareTransaction.includes(:client_account).find_by(
               contract_no: hash['CONTRACTNO'].to_i,

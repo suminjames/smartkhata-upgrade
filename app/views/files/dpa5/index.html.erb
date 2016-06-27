@@ -1,25 +1,25 @@
 <div class="panel panel-danger">
-	<div class="panel-heading">
-		List of DPA5 file uploaded
-	</div>
-	<div class="panel-body">
-		<div class="table-responsive">
-			<table class="table table-striped">
-			<thead>
-			  <tr>
-			  		<th>Date of Report</th>
-				    <th>Last Updated</th>
-			  </tr>
-			</thead>
-			<tbody>
-			<% @file_list.each do |file| %>
-				<tr>
-					<td><%= file.report_date %> </td>
-					<td><%= file.updated_at.to_date %></td>
-				</tr>
-			<% end %>
-			</tbody>
-			</table>
-		</div>
-	</div>
+  <div class="panel-heading">
+    List of DPA5 file uploaded
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Date of Report</th>
+          <th>Last Updated</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @file_list.each do |file| %>
+            <tr>
+              <td><%= file.report_date %> </td>
+              <td><%= file.updated_at.to_date %></td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

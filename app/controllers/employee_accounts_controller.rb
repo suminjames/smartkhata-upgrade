@@ -24,10 +24,10 @@ class EmployeeAccountsController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-      when 'name'
-        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
-      else
-        @employee_accounts = []
+        when 'name'
+          @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
+        else
+          @employee_accounts = []
       end
     else
       @employee_accounts = []
@@ -115,57 +115,58 @@ class EmployeeAccountsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_employee_account
-      @employee_account = EmployeeAccount.find(params[:id])
-    end
 
-    def employee_account_ledger_association_params
-      # TODO : Make more robust!
-      if params[:employee_account][:has_access_to] == 'some'
-        employee_ledger_associations_attributes = []
-        params[:ledger_associations].each do |ledger_association|
-          employee_ledger_associations_attributes <<  {:ledger_id => ledger_association}
-        end
-        # Update of 'has_many: employee_ledger_associations' taking place via employee_ledger_associations_attributes
-        params[:employee_account][:employee_ledger_associations_attributes]= employee_ledger_associations_attributes
-        params.require(:employee_account).permit(:has_access_to, :employee_ledger_associations_attributes => [:ledger_id])
-      else
-        params.require(:employee_account).permit(:has_access_to)
+  # Use callbacks to share common setup or constraints between actions.
+  def set_employee_account
+    @employee_account = EmployeeAccount.find(params[:id])
+  end
+
+  def employee_account_ledger_association_params
+    # TODO : Make more robust!
+    if params[:employee_account][:has_access_to] == 'some'
+      employee_ledger_associations_attributes = []
+      params[:ledger_associations].each do |ledger_association|
+        employee_ledger_associations_attributes << {:ledger_id => ledger_association}
       end
+      # Update of 'has_many: employee_ledger_associations' taking place via employee_ledger_associations_attributes
+      params[:employee_account][:employee_ledger_associations_attributes]= employee_ledger_associations_attributes
+      params.require(:employee_account).permit(:has_access_to, :employee_ledger_associations_attributes => [:ledger_id])
+    else
+      params.require(:employee_account).permit(:has_access_to)
     end
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def employee_account_params
-      params.require(:employee_account).permit(
-          :name,
-          :address1 ,
-          :address1_perm,
-          :address2 ,
-          :address2_perm,
-          :address3,
-          :address3_perm,
-          :city,
-          :city_perm,
-          :state,
-          :state_perm,
-          :country,
-          :country_perm,
-          :phone,
-          :phone_perm,
-          :dob,
-          :email,
-          :father_mother,
-          :citizen_passport,
-          :granfather_father_inlaw,
-          :husband_spouse,
-          :citizen_passport_date,
-          :citizen_passport_district,
-          :pan_no,
-          :bank_name,
-          :bank_account,
-          :bank_address,
-          :has_access_to
-      )
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def employee_account_params
+    params.require(:employee_account).permit(
+        :name,
+        :address1,
+        :address1_perm,
+        :address2,
+        :address2_perm,
+        :address3,
+        :address3_perm,
+        :city,
+        :city_perm,
+        :state,
+        :state_perm,
+        :country,
+        :country_perm,
+        :phone,
+        :phone_perm,
+        :dob,
+        :email,
+        :father_mother,
+        :citizen_passport,
+        :granfather_father_inlaw,
+        :husband_spouse,
+        :citizen_passport_date,
+        :citizen_passport_district,
+        :pan_no,
+        :bank_name,
+        :bank_account,
+        :bank_address,
+        :has_access_to
+    )
+  end
 end

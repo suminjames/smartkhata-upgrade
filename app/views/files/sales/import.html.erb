@@ -1,6 +1,6 @@
 <% provide(:section_title, "Upload CM05 file") %>
-<% if(!@error) %>
-<%= link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement_id), class: "btn btn-primary" %>
+<% if (!@error) %>
+    <%= link_to "Process the Settlement", generate_bills_sales_settlements_path(id: @sales_settlement_id), class: "btn btn-primary" %>
 <% else %>
-<%= link_to "Upload CM file", new_files_sale_path %>
+    <%= link_to "Upload CM file", new_files_sale_path %>
 <% end %>

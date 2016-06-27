@@ -1,30 +1,30 @@
-<% if(!@error) %>
-<h1>Data as per the file:</h1>
-<div class="table-responsive">
-	<table class="table table-striped">
-	<thead>
-	  <tr>
-	  		<th>Name</th>
-		    <th>BOID</th>
-		    <th>Address</th>
-		    <th>Phone Number</th>
-		    <th>Date </th>
-	  </tr>
-	</thead>
-	<tbody>
-    <% @processed_data.each do |x| %>
-			<tr>
-				<td><%= x.name %></td>
-				<td><%= x.boid %></td>
-	    	<td><%= (x.address1 << "," << x.address2 << "," << x.city << " ," << x.country )%></td>
-	    	<td><%= x.phone %></td> 
-	    	<td><%= x.date %></td>
-			</tr>
-		<% end %> 
-	</tbody>
-	</table>
-</div>
-<h4> Total Records: <%= @processed_data.count %></h4>
+<% if (!@error) %>
+    <h1>Data as per the file:</h1>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>BOID</th>
+          <th>Address</th>
+          <th>Phone Number</th>
+          <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @processed_data.each do |x| %>
+            <tr>
+              <td><%= x.name %></td>
+              <td><%= x.boid %></td>
+              <td><%= (x.address1 << "," << x.address2 << "," << x.city << " ," << x.country) %></td>
+              <td><%= x.phone %></td>
+              <td><%= x.date %></td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+    <h4> Total Records: <%= @processed_data.count %></h4>
 <% else %>
-<%= link_to "Upload DPa5" ,new_files_dpa5_path %>
+    <%= link_to "Upload DPa5", new_files_dpa5_path %>
 <% end %>

@@ -7,8 +7,8 @@ class BillDecorator < ApplicationDecorator
 
     # Here, share_transactions_hash has both key and value pair as arrays.
     # hash signature excerpted from http://stackoverflow.com/questions/5009295/pushing-elements-onto-an-array-in-a-ruby-hash
-    share_transactions_hash = Hash.new {|h,k| h[k]=[]}
-    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+    share_transactions_hash = Hash.new { |h, k| h[k]=[] }
+    object.share_transactions.not_cancelled_for_bill.each do |share_transaction|
       share_transactions_hash[[share_transaction.isin_info.isin, share_transaction.share_rate, share_transaction.commission_rate]] << share_transaction
     end
     formatted_share_transactions = []
@@ -16,12 +16,12 @@ class BillDecorator < ApplicationDecorator
 
       transaction_row = Hash.new
       # Initialization of values which undergo mutation in the loop below
-      transaction_row[:contract_no]  = []
+      transaction_row[:contract_no] = []
       transaction_row[:raw_quantity] = 0
       transaction_row[:raw_quantity_description] = ''
-      transaction_row[:share_amount]  = 0
+      transaction_row[:share_amount] = 0
       transaction_row[:commission_amount] = 0
-      transaction_row[:capital_gain]  = 0
+      transaction_row[:capital_gain] = 0
 
       # st_array[0] holds key; loop over st_array[1].
       st_array[1].each do |st|
@@ -43,7 +43,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:contract_no] = get_concatenated_string_with_similarity(transaction_row[:contract_no])
       # transaction_row[:contract_no] = transaction_row[:contract_no][0...-2] # strip the trailing ', '
       transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
-      transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2]# strip the trailing ', '
+      transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2] # strip the trailing ', '
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
       transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
@@ -103,21 +103,21 @@ class BillDecorator < ApplicationDecorator
   end
 
   def formatted_bill_dates
-      bs_date = object.date_bs + ' BS'
-      ad_date = object.date.to_s + ' AD'
-      {"ad" => ad_date , "bs" => bs_date}
+    bs_date = object.date_bs + ' BS'
+    ad_date = object.date.to_s + ' AD'
+    {"ad" => ad_date, "bs" => bs_date}
   end
 
   def formatted_transaction_dates
-      bs_date = h.ad_to_bs_string(object.share_transactions[0].date).to_s + ' BS'
-      ad_date =object.share_transactions[0].date.to_s + ' AD'
-      {"ad" => ad_date , "bs" => bs_date}
+    bs_date = h.ad_to_bs_string(object.share_transactions[0].date).to_s + ' BS'
+    ad_date =object.share_transactions[0].date.to_s + ' AD'
+    {"ad" => ad_date, "bs" => bs_date}
   end
 
   def formatted_clearance_dates
     bs_date = h.ad_to_bs(object.settlement_date).to_s + ' BS'
     ad_date = object.settlement_date.to_s + ' AD'
-      {"ad" => ad_date , "bs" => bs_date}
+    {"ad" => ad_date, "bs" => bs_date}
   end
 
   def formatted_client_phones
@@ -142,14 +142,14 @@ class BillDecorator < ApplicationDecorator
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
   def formatted_bill_message
     case type
-    when 'sales'
-      bill_type_verb = "Sold"
-    when 'purchase'
-      bill_type_verb = "Purchased"
-    else
-      bill_type_verb = ""
+      when 'sales'
+        bill_type_verb = "Sold"
+      when 'purchase'
+        bill_type_verb = "Purchased"
+      else
+        bill_type_verb = ""
     end
-    "As per your order dated " + formatted_transaction_dates['bs']+ ", we have " + bill_type_verb  + " these undernoted stocks."
+    "As per your order dated " + formatted_transaction_dates['bs']+ ", we have " + bill_type_verb + " these undernoted stocks."
   end
 
   def client
@@ -175,7 +175,7 @@ class BillDecorator < ApplicationDecorator
   def formatted_companies_list
     # The `companies` hash maps an ISIN to its number of occurences
     companies = Hash.new(0);
-    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+    object.share_transactions.not_cancelled_for_bill.each do |share_transaction|
       companies[share_transaction.isin_info.isin.to_s] +=1
     end
     company_count_str = ''
@@ -187,7 +187,7 @@ class BillDecorator < ApplicationDecorator
 
   def formatted_isin_abbreviation_index
     unique_isins = Set.new()
-    object.share_transactions.not_cancelled_for_bill.each do | share_transaction|
+    object.share_transactions.not_cancelled_for_bill.each do |share_transaction|
       unique_isins.add(share_transaction.isin_info)
     end
     isin_abbreviation_index_str = ''
@@ -246,7 +246,7 @@ class BillDecorator < ApplicationDecorator
       is_relevant = purchase_entities.include? entity
     end
 
-    is_relevant == false ? 'no-display': ''
+    is_relevant == false ? 'no-display' : ''
 
   end
 

@@ -1,25 +1,27 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc + margin_of_error_amount >= 0 ? 'dr': 'cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr' : 'cr'}" %>
+  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
 
 <% if @ledger.client_account_id.present? %>
-<% if @ledger.closing_blnc.abs >= 0.01 %>
-    <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
-<% end %>
-<% if @ledger.client_account.bills.find_not_settled.present? %>
-    | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: @ledger.client_account_id) %>
-<% end %>
+    <% if @ledger.closing_blnc.abs >= 0.01 %>
+        <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
+    <% end %>
+    <% if @ledger.client_account.bills.find_not_settled.present? %>
+        | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: @ledger.client_account_id) %>
+    <% end %>
 <% end %>
 
-<div class="clearfix submenu" >
+<div class="clearfix submenu">
   <%
     def is_active_sub_menu_option(option)
       return params[:search_by] == option
     end
   %>
   <h5>
-    <%= link_to "Search by Date Range",  ledger_path(@ledger, search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")} %> |
-    <%= link_to "View all",  ledger_path(@ledger), {:class => (is_active_sub_menu_option("")? "active-link" : "")} %>
+    <%= link_to "Search by Date Range", ledger_path(@ledger, search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range") ? "active-link" : "")} %>
+    |
+    <%= link_to "View all", ledger_path(@ledger), {:class => (is_active_sub_menu_option("") ? "active-link" : "")} %>
   </h5>
 </div>
 
@@ -27,127 +29,131 @@
 
   <% if params[:search_by] == 'date_range'
   %>
-  <%= form_tag(ledger_path(@ledger), :method => "get", id: "search-form") do %>
-      <%= hidden_field_tag :search_by, "date_range" %>
-      <%
-        text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
-        text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
-      %>
-      <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
-      <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
-      <%= submit_tag "Search" %>
-  <% end %>
+      <%= form_tag(ledger_path(@ledger), :method => "get", id: "search-form") do %>
+          <%= hidden_field_tag :search_by, "date_range" %>
+          <%
+            text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+            text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+          %>
+          <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
+          <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
+          <%= submit_tag "Search" %>
+      <% end %>
   <% end %>
 </div>
 
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@particulars.present? %>
-    <% if params[:search_by] == 'date_range'  %>
-        <p>There are no particulars matching the date range '<%= params[:search_term]['date_from'] %>' to '<%= params[:search_term]['date_to'] %>'.</p>
+    <% if params[:search_by] == 'date_range' %>
+        <p>There are no particulars matching the date range '<%= params[:search_term]['date_from'] %>' to
+          '<%= params[:search_term]['date_to'] %>'.</p>
     <% end %>
 <% end %>
 
-<%= render 'shared/pagination', collection_to_paginate: @particulars%>
+<%= render 'shared/pagination', collection_to_paginate: @particulars %>
 <br>
 
 
 <% if @particulars.present? %>
     <% if @opening_blnc_sorted.present? %>
-    <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr': 'cr'}" %> | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted + margin_of_error_amount >= 0 ? 'dr': 'cr'}" %></p>
-    <p>Debit: <%= number_to_currency(@total_debit )%> | Credit:<%= number_to_currency(@total_credit) %></p>
+        <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr' : 'cr'}" %>
+          | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></p>
+        <p>Debit: <%= number_to_currency(@total_debit) %> | Credit:<%= number_to_currency(@total_credit) %></p>
     <% end %>
 
-<div class= "box box-warning">
-	<div class="box-body ledger ledger-single">
-	<table class="table">
-		<tr>
-			<th class="text-center">Date</th>
-			<th class="text-center">Particulars</th>
-      <th class="text-center">Voucher</th>
-			<th class="text-center">Bill</th>
-      <% if @ledger.name == "Nepse Purchase" %>
-        <th class="text-center">Settlement ID</th>
-      <% else %>
-        <th class="text-center">Cheque</th>
-      <% end %>
+    <div class="box box-warning">
+      <div class="box-body ledger ledger-single">
+        <table class="table">
+          <tr>
+            <th class="text-center">Date</th>
+            <th class="text-center">Particulars</th>
+            <th class="text-center">Voucher</th>
+            <th class="text-center">Bill</th>
+            <% if @ledger.name == "Nepse Purchase" %>
+                <th class="text-center">Settlement ID</th>
+            <% else %>
+                <th class="text-center">Cheque</th>
+            <% end %>
 
-			<th class="text-center">Pay / Receipt No</th>
-      <th class="text-center">Transaction Amount</th>
-      <th class="text-center">Balance</th>
-		</tr>
-		<colgroup>
-			<col class="col-1">
-			<col class="col-2">
-			<col class="col-3">
-			<col class="col-4">
-			<col class="col-5">
-			<col class="col-6">
-			<col class="col-7">
-			<col class="col-8">
-      <col class="col-9">
-		</colgroup>
-		<% @particulars.each do |particular| %>
-			<tr>
-				<td><%= particular.date_bs %></td>
-				<td><% name = particular.get_description 	 %><%= link_to name, voucher_path(particular.voucher) , remote: true %></td>
-        <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher) , remote: true %></td>
+            <th class="text-center">Pay / Receipt No</th>
+            <th class="text-center">Transaction Amount</th>
+            <th class="text-center">Balance</th>
+          </tr>
+          <colgroup>
+            <col class="col-1">
+            <col class="col-2">
+            <col class="col-3">
+            <col class="col-4">
+            <col class="col-5">
+            <col class="col-6">
+            <col class="col-7">
+            <col class="col-8">
+            <col class="col-9">
+          </colgroup>
+          <% @particulars.each do |particular| %>
+              <tr>
+                <td><%= particular.date_bs %></td>
+                <td>
+                  <% name = particular.get_description %><%= link_to name, voucher_path(particular.voucher), remote: true %></td>
+                <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
 
-				<td>
-          <!--TODO incorporate all bills -->
-					<% if particular.bills.count > 0 %>
-              <% particular.bills.each do |bill| %>
-                  <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill) , remote: true  %> <br>
-					    <% end %>
-					<% end %>
-				</td>
-        <td>
-          <% if particular.cheque_entries.count > 0 %>
-              <% particular.cheque_entries.each do |cheque| %>
-                  <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true  %> <br>
-              <% end %>
-          <% end %>
-          <% if particular.nepse_chalan.present? %>
-              <%= link_to particular.nepse_chalan.nepse_settlement_id, nepse_chalan_path(particular.nepse_chalan.id), :target => "_blank"  %> <br>
-          <% end %>
-        </td>
-				<td>
-          <% if particular.voucher.settlements.size > 0 %>
-                <% particular.voucher.settlements.each do |settlement| %>
-                    <%= link_to "#{settlement.id }", settlement_path(settlement.id) , remote: true  %><br>
-                <% end %>
-          <% end %>
+                <td>
+                  <!--TODO incorporate all bills -->
+                  <% if particular.bills.count > 0 %>
+                      <% particular.bills.each do |bill| %>
+                          <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true %> <br>
+                      <% end %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if particular.cheque_entries.count > 0 %>
+                      <% particular.cheque_entries.each do |cheque| %>
+                          <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true %> <br>
+                      <% end %>
+                  <% end %>
+                  <% if particular.nepse_chalan.present? %>
+                      <%= link_to particular.nepse_chalan.nepse_settlement_id, nepse_chalan_path(particular.nepse_chalan.id), :target => "_blank" %>
+                      <br>
+                  <% end %>
+                </td>
+                <td>
+                  <% if particular.voucher.settlements.size > 0 %>
+                      <% particular.voucher.settlements.each do |settlement| %>
+                          <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
+                      <% end %>
+                  <% end %>
 
-				<td class='text-right'>
-          <% if particular.cr?  %>
+                  <td class='text-right'>
+                    <% if particular.cr? %>
               <span class="credit-amount">
                 <%= "#{number_to_currency(particular.amount)} cr" %>
               </span>
-          <% else %>
+                    <% else %>
             <span class="debit-amount">
                 <%= "#{number_to_currency(particular.amount)} dr" %>
               </span>
-          <% end %>
-        </td>
-				<td class='text-right'>
-          <!-- -0.01 + 0.01 is equal to zero -->
-          <% if particular.running_blnc + margin_of_error_amount < 0 %>
+                    <% end %>
+                  </td>
+                  <td class='text-right'>
+                    <!-- -0.01 + 0.01 is equal to zero -->
+                    <% if particular.running_blnc + margin_of_error_amount < 0 %>
               <span class="credit-amount">
                 <%= "#{number_to_currency(particular.running_blnc.abs)} cr" %>
               </span>
-          <% else %>
+                    <% else %>
               <span class="debit-amount">
                 <%= "#{number_to_currency(particular.running_blnc.abs)} dr" %>
               </span>
-          <% end %>
+                    <% end %>
 
-        </td>
-			</tr>
-		<% end %>
-	</table>
-</div>
-</div>
+                  </td>
+                  </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
 <% end %>
 
-<%= render 'shared/pagination', collection_to_paginate: @particulars%>
+<%= render 'shared/pagination', collection_to_paginate: @particulars %>
 
 
 <%= link_to 'Edit', edit_ledger_path(@ledger) %> |

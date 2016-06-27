@@ -19,8 +19,8 @@
 
   html * {
     font-size: 10px !important;
-    font-family: arial!important;
-    line-height: 14px!important;
+    font-family: arial !important;
+    line-height: 14px !important;
   }
 
   .custom-anchor {
@@ -28,47 +28,46 @@
   }
 
   body * {
-    visibility:hidden;
+    visibility: hidden;
   }
 
   .show-on-print {
     visibility: visible;
   }
 
-  .hide-on-print{
-    visibility:hidden!important;
+  .hide-on-print {
+    visibility: hidden !important;
   }
-  .box-printable{
+  .box-printable {
     border-top: 0;
   }
 
   #printSection, #printSection * {
-    visibility:visible;
-     -webkit-print-color-adjust: exact;
-     -webkit-text-size-adjust: none;
+    visibility: visible;
+    -webkit-print-color-adjust: exact;
+    -webkit-text-size-adjust: none;
   }
   #printSection {
-    position:absolute;
-    left:0;
-    top:20px;
+    position: absolute;
+    left: 0;
+    top: 20px;
     width: 700px;
     padding-top: 20px;
     padding-left: 20px;
     margin-left: 20px;
 
-    .transactions-section{
-      table{
+    .transactions-section {
+      table {
         // The width of this table is ought to be approx 1170px in print media
         width: 100%;
         font-size: 10px;
         font-family: arial;
         table-layout: fixed;
 
-
-        td{
+        td {
           word-wrap: break-word;
         }
-        th{
+        th {
           word-wrap: break-word;
         }
         // These widths have been calibrated for arial font of 10px. These widths of print media are mathemtically proportional to their respecitve widths of screen media.

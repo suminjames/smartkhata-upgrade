@@ -17,11 +17,11 @@
 </div>
 <p>
   <strong>Voucher:</strong>
-  <%= link_to "#{@nepse_chalan.voucher.voucher_code} #{@nepse_chalan.voucher.fy_code}-#{@nepse_chalan.voucher.voucher_number}", voucher_path(@nepse_chalan.voucher) , remote: true %>
+  <%= link_to "#{@nepse_chalan.voucher.voucher_code} #{@nepse_chalan.voucher.fy_code}-#{@nepse_chalan.voucher.voucher_number}", voucher_path(@nepse_chalan.voucher), remote: true %>
 </p>
 <br><br>
-<%  if @share_transactions.size > 0 %>
-<h4>Share Transactions</h4>
+<% if @share_transactions.size > 0 %>
+    <h4>Share Transactions</h4>
     <table class="table table-condensed table-striped">
       <thead>
       <tr>

@@ -2,7 +2,7 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 $(document).ready ->
-  $(document). on 'click', '.nepse-chalan #select_all', (event) ->
+  $(document) . on 'click', '.nepse-chalan #select_all', (event) ->
     $("input:checkbox").prop('checked', $(this).prop("checked"))
     $("input:checkbox").attr('disabled', false);
 
@@ -28,10 +28,6 @@ $(document).ready ->
         $parent.find('p.error').hide()
 
 
-
-
-
-
     $('.share_transactions_list.nepse-chalan').hide()
     $('.nepse-chalan-description').show()
     desc = ""
@@ -52,7 +48,7 @@ $(document).ready ->
     $('.nepse-chalan-description .description').html(desc)
     net_amount = format_number(net_amount)
     $('.nepse-chalan-description .net-amount').html(net_amount)
-    
+
   $(document).on 'click', '.cancel-chalan-desc', (event) ->
     event.preventDefault()
     $('.share_transactions_list.nepse-chalan').show()
@@ -78,7 +74,7 @@ $(document).ready ->
     else
       $comboboxContainer.removeClass('has-error')
       $comboboxContainer.find('p.error').hide()
-      
+
     $input_settlement = $('.settlement-id')
     $settlement_parent = $input_settlement.closest('.row')
 

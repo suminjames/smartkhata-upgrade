@@ -8,12 +8,12 @@
   <% if @transactions_above_threshold.size > 0 %>
       <br><br>
       <div class="text-center">
-        <h4> <strong><%= t('annexure', :locale => :np) %> <%= t('number.two', :locale => :np) %></strong></h4>
-        <h4> <strong><%= t('threshold_transaction_detail', :locale => :np) %></strong></h4>
+        <h4><strong><%= t('annexure', :locale => :np) %> <%= t('number.two', :locale => :np) %></strong></h4>
+        <h4><strong><%= t('threshold_transaction_detail', :locale => :np) %></strong></h4>
       </div>
       <br><br>
       <h4><%= t('informer_name', :locale => :np) %> : <%= current_tenant.full_name %></h4>
-      
+
       <table class="table table-condensed bordered-full">
         <tr>
           <th class="col-1"><%= t('serial_no', :locale => :np) %> </th>

@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Menu item:</strong>
+  <%= @menu_permission.menu_item %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @menu_permission.user %>
+</p>
+
+<p>
+  <strong>References:</strong>
+  <%= @menu_permission.references %>
+</p>
+
+<%= link_to 'Edit', edit_menu_permission_path(@menu_permission) %> |
+<%= link_to 'Back', menu_permissions_path %>

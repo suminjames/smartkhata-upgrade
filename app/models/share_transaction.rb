@@ -52,14 +52,14 @@ class ShareTransaction < ActiveRecord::Base
   belongs_to :nepse_chalan
   belongs_to :transaction_message
 
-  enum transaction_type: [ :buying, :selling ]
+  enum transaction_type: [:buying, :selling]
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
   # before_update :calculate_cgt
   validates :base_price, numericality: true
   scope :find_by_date, -> (date) { where(
-    :date=> date.beginning_of_day..date.end_of_day) }
+      :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
-      :date=> date_from.beginning_of_day..date_to.end_of_day) }
+      :date => date_from.beginning_of_day..date_to.end_of_day) }
 
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
@@ -70,27 +70,29 @@ class ShareTransaction < ActiveRecord::Base
   scope :not_cancelled_for_bill, -> { where(deleted_at: nil) }
 
   scope :cancelled, -> { where.not(deleted_at: nil) }
-  scope :without_chalan, -> {where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil)}
+  scope :without_chalan, -> { where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil) }
 
-  scope :above_threshold, ->(date) { not_cancelled.find_by_date(date).where("net_amount >= ?", 1000000)}
+  scope :above_threshold, ->(date) { not_cancelled.find_by_date(date).where("net_amount >= ?", 1000000) }
 
- def do_as_per_params (params)
-  # TODO
- end
-# instead of deleting, indicate the user requested a delete & timestamp it
- def soft_delete
-   update_attribute(:deleted_at, Time.current)
- end
+  def do_as_per_params (params)
+    # TODO
+  end
 
- def soft_undelete
-   update_attribute(:deleted_at, nil)
- end
+  # instead of deleting, indicate the user requested a delete & timestamp it
+  def soft_delete
+    update_attribute(:deleted_at, Time.current)
+  end
+
+  def soft_undelete
+    update_attribute(:deleted_at, nil)
+  end
 
   def update_with_base_price(params)
     self.update(params)
     self.calculate_cgt
     self
   end
+
   def calculate_cgt
     old_cgt = self.cgt
     if self.base_price?

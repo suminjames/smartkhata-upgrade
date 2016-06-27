@@ -1,76 +1,77 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= content_for?(:title) ? yield(:title) : "Smartkhata" %></title>
-    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Smart way for monitoring and accounting" %>">
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
-    <!-- Font Awesome Icons -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <!-- Ionicons -->
-    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-    <!--  'Print' media specific CSS -->
-    <link rel="stylesheet" type="text/css" media="print" href="/print.css">
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <%= csrf_meta_tags %>
-  </head>
-  <body class="skin-blue layout-top-nav fixed-top">
-    <div class="wrapper">
-      <header class="main-header">
-        <%= render 'layouts/navigation' %>
-      </header>
-      <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper">
-        <div class="container">
-          <section class="content-main">
-            <%= render 'layouts/fy_branch_selection', can_select_fy_code: true %>
-            <%= render 'layouts/messages' %>
-            <div class="box box-default content-area">
-              <div class="box-header with-border content-area">
-                <h2 class="box-title section-title"><%= yield(:section_title) %></h2>
-              </div>
-              <div class="box-body content-area">
-                <%= yield %>
-              </div>
+<head>
+  <title><%= content_for?(:title) ? yield(:title) : "Smartkhata" %></title>
+  <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Smart way for monitoring and accounting" %>">
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+  <!-- Font Awesome Icons -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+  <!-- Ionicons -->
+  <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+  <!--  'Print' media specific CSS -->
+  <link rel="stylesheet" type="text/css" media="print" href="/print.css">
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <%= csrf_meta_tags %>
+</head>
+<body class="skin-blue layout-top-nav fixed-top">
+<div class="wrapper">
+  <header class="main-header">
+    <%= render 'layouts/navigation' %>
+  </header>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container">
+      <section class="content-main">
+        <%= render 'layouts/fy_branch_selection', can_select_fy_code: true %>
+        <%= render 'layouts/messages' %>
+        <div class="box box-default content-area">
+          <div class="box-header with-border content-area">
+            <h2 class="box-title section-title"><%= yield(:section_title) %></h2>
+          </div>
+          <div class="box-body content-area">
+            <%= yield %>
+          </div>
 
-            </div>
-          </section>
         </div>
-      </div><!-- /.content-wrapper -->
-      <!-- common bootstrap modal -->
-      <%= render 'layouts/dialog' %>
-      <!-- Main Footer -->
-      <footer class="main-footer">
-        <div class="container">
-          <!-- To the right -->
-          <!-- <div class="pull-right hidden-xs">
-            Anything you want
-          </div> -->
-          <!-- Default to the left -->
-          <strong>Copyright &copy; <%= Time.now.year %>|   <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
-        </div>
-      </footer>
+      </section>
+    </div>
+  </div><!-- /.content-wrapper -->
+  <!-- common bootstrap modal -->
+  <%= render 'layouts/dialog' %>
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <!-- To the right -->
+      <!-- <div class="pull-right hidden-xs">
+        Anything you want
+      </div> -->
+      <!-- Default to the left -->
+      <strong>Copyright &copy; <%= Time.now.year %>|
+        <a href="http://danpheinfotech.com" target="_blank">Danphe InfoTech</a>.</strong> All rights reserved.
+    </div>
+  </footer>
 
-    </div><!-- ./wrapper -->
+</div><!-- ./wrapper -->
 
-     <!-- REQUIRED JS SCRIPTS -->
-    <%= javascript_include_tag 'application', 'data-turbolinks-eval' => false %>
-    <%= yield :page_js %>
+<!-- REQUIRED JS SCRIPTS -->
+<%= javascript_include_tag 'application', 'data-turbolinks-eval' => false %>
+<%= yield :page_js %>
 
-    <!-- HOTKEYS BEGINS -->
-    <!--
-      Used in the application
-      -jquery-hotkey (jquery plugin)
-        -See https://github.com/jeresig/jquery.hotkeys for usage
-      -jquery-hotkeys-rails (gem that binds the plugin mentioned above) -->
-  <%= javascript_tag do %>
+<!-- HOTKEYS BEGINS -->
+<!--
+  Used in the application
+  -jquery-hotkey (jquery plugin)
+    -See https://github.com/jeresig/jquery.hotkeys for usage
+  -jquery-hotkeys-rails (gem that binds the plugin mentioned above) -->
+<%= javascript_tag do %>
 
-    <% end %>
-    <!-- HOTKEYS ENDS-->
+<% end %>
+<!-- HOTKEYS ENDS-->
 
-  </body>
+</body>
 </html>

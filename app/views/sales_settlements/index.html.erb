@@ -3,18 +3,18 @@
 
 <table class="table">
   <thead>
-    <tr>
-      <th>Settlement Id: </th>
-      <th> Action </th>
-    </tr>
+  <tr>
+    <th>Settlement Id:</th>
+    <th> Action</th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @sales_settlements.each do |sales_settlement| %>
+  <% @sales_settlements.each do |sales_settlement| %>
       <tr>
         <td><%= sales_settlement.settlement_id %></td>
         <td><%= link_to 'Show', sales_settlement %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>

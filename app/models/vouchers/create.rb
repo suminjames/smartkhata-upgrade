@@ -1,5 +1,6 @@
 class Vouchers::Create < Vouchers::Base
   attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id
+
   def initialize(attrs = {})
     super(attrs)
     @voucher = attrs[:voucher]
@@ -79,7 +80,7 @@ class Vouchers::Create < Vouchers::Base
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         @processed_bills, description_bills, receipt_amount = process_bills(is_payment_receipt, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
-        @voucher, res, @error_message = voucher_save(@processed_bills,@voucher,description_bills,is_payment_receipt,@client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
+        @voucher, res, @error_message = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
       else
         if has_error
           @error_message = error_message
@@ -88,7 +89,7 @@ class Vouchers::Create < Vouchers::Base
         end
       end
     else
-      @error_message  = is_payment_receipt ? "Please include atleast 1 particular" : "Particulars should be atleast 2"
+      @error_message = is_payment_receipt ? "Please include atleast 1 particular" : "Particulars should be atleast 2"
     end
     res
   end
@@ -117,7 +118,7 @@ class Vouchers::Create < Vouchers::Base
       (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
 
       # get a net usable balance to charge the client for billing purpose
-      if  voucher.receipt?
+      if voucher.receipt?
         net_usable_blnc += (particular.dr?) ? particular.amount : 0
       elsif voucher.payment?
         net_usable_blnc += (particular.cr?) ? particular.amount : 0
@@ -140,16 +141,18 @@ class Vouchers::Create < Vouchers::Base
     end
     return voucher, has_error, error_message, net_blnc, net_usable_blnc, debit_ledgers, credit_ledgers
   end
+
   def is_payment_receipt?(voucher_type)
     is_payment_receipt = false
     # ledgers need to be pre populated for sales and purchase type
     case voucher_type
-      when Voucher.voucher_types[:receipt],Voucher.voucher_types[:payment]
+      when Voucher.voucher_types[:receipt], Voucher.voucher_types[:payment]
         is_payment_receipt = true
     end
     is_payment_receipt
   end
-  def process_bills(is_payment_receipt, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment )
+
+  def process_bills(is_payment_receipt, client_account, net_blnc, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment)
     processed_bills = []
     description_bills = ""
     receipt_amount = net_usable_blnc.abs || 0.0
@@ -162,13 +165,13 @@ class Vouchers::Create < Vouchers::Base
         # modify the net usable balance in case of the ledger clearout
         if clear_ledger
           # sales voucher => purchase of shares ( Broker sells to client)
-          if  voucher_type == Voucher.voucher_types[:receipt]
-            if  bill.sales?
-              net_usable_blnc +=  ( bill.balance_to_pay * 2.00)
+          if voucher_type == Voucher.voucher_types[:receipt]
+            if bill.sales?
+              net_usable_blnc += (bill.balance_to_pay * 2.00)
             end
           else
-            if  bill.purchase?
-              net_usable_blnc +=  ( bill.balance_to_pay * 2.00)
+            if bill.purchase?
+              net_usable_blnc += (bill.balance_to_pay * 2.00)
             end
           end
         end
@@ -176,7 +179,7 @@ class Vouchers::Create < Vouchers::Base
         # since the data is stored to 4 digits and payment is only applicable in 2 digits
         # round the balance_to_pay to 2 digits
 
-        if bill.balance_to_pay.round(2) <=  net_usable_blnc || ( bill.balance_to_pay.round(2) - net_usable_blnc).abs <= @amount_margin_error
+        if bill.balance_to_pay.round(2) <= net_usable_blnc || (bill.balance_to_pay.round(2) - net_usable_blnc).abs <= @amount_margin_error
           net_usable_blnc = net_usable_blnc - bill.balance_to_pay
           description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(bill.balance_to_pay)}   Date: #{bill.date_bs} | "
           bill.balance_to_pay = 0
@@ -196,7 +199,8 @@ class Vouchers::Create < Vouchers::Base
     end
     return processed_bills, description_bills, receipt_amount
   end
-  def voucher_save(processed_bills,voucher,description_bills,is_payment_receipt,client_account, receipt_amount, voucher_settlement_type, vendor_account, client_group_leader_account)
+
+  def voucher_save(processed_bills, voucher, description_bills, is_payment_receipt, client_account, receipt_amount, voucher_settlement_type, vendor_account, client_group_leader_account)
     error_message = nil
     res = false
     settlement = nil
@@ -237,10 +241,10 @@ class Vouchers::Create < Vouchers::Base
           end
 
           begin
-          # cheque entry recording
-          #   cheque is payment if issued from the company
-          #   cheque is receipt type if issued from the client
-            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number,bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
+            # cheque entry recording
+            #   cheque is payment if issued from the company
+            #   cheque is receipt type if issued from the client
+            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
             cheque_entry.cheque_date = DateTime.now
 
             # if the cheque received from client is already entered to system reject it
@@ -287,7 +291,7 @@ class Vouchers::Create < Vouchers::Base
         unless voucher.is_payment_bank
           ledger.lock!
           closing_blnc = ledger.closing_blnc
-          ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
+          ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
           particular.opening_blnc = closing_blnc
           particular.running_blnc = ledger.closing_blnc
           particular.complete!
@@ -297,7 +301,7 @@ class Vouchers::Create < Vouchers::Base
       end
 
       # if voucher settlement type is other than default create only a single settlement.
-      if  is_payment_receipt && voucher_settlement_type != 'default'
+      if is_payment_receipt && voucher_settlement_type != 'default'
         if voucher_settlement_type == 'client'
           voucher.beneficiary_name = client_group_leader_account.name
         else
@@ -337,7 +341,7 @@ class Vouchers::Create < Vouchers::Base
 
     # incase of multiple settlement or default take the amount from particular
     if !is_single_settlement
-      if  voucher.receipt?
+      if voucher.receipt?
         receipt_amount += (particular.cr?) ? particular.amount : 0
       elsif voucher.payment?
         receipt_amount += (particular.dr?) ? particular.amount : 0

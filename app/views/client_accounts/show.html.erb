@@ -5,11 +5,18 @@
 <div class="client-info-wrapper">
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
-    <li role="presentation"><a href="#permanent-address" aria-controls="permanent-address" role="tab" data-toggle="tab">Permanent address</a></li>
-    <li role="presentation"><a href="#current-address" aria-controls="current-address" role="tab" data-toggle="tab">Current address</a></li>
-    <li role="presentation"><a href="#bank-financial-info" aria-controls="bank-financial-info" role="tab" data-toggle="tab">Bank/financial info</a></li>
-    <li role="presentation"><a href="#office-info" aria-controls="office-info" role="tab" data-toggle="tab">Office info</a></li>
+    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a>
+    </li>
+    <li role="presentation">
+      <a href="#permanent-address" aria-controls="permanent-address" role="tab" data-toggle="tab">Permanent address</a>
+    </li>
+    <li role="presentation">
+      <a href="#current-address" aria-controls="current-address" role="tab" data-toggle="tab">Current address</a></li>
+    <li role="presentation">
+      <a href="#bank-financial-info" aria-controls="bank-financial-info" role="tab" data-toggle="tab">Bank/financial
+        info</a></li>
+    <li role="presentation">
+      <a href="#office-info" aria-controls="office-info" role="tab" data-toggle="tab">Office info</a></li>
   </ul>
 
   <!-- Tab panes -->
@@ -19,25 +26,32 @@
       <p>
         <strong>Name:</strong>
         <%= @client_account.name %>
-      </p><p>
+      </p>
+      <p>
         <strong>Citizen/Birth Certificate:</strong>
         <%= @client_account.citizen_passport %>
-      </p><p>
+      </p>
+      <p>
         <strong>&emsp;Issued Date:</strong>
         <%= @client_account.citizen_passport_date %>
-      </p><p>
+      </p>
+      <p>
         <strong>&emsp;Issued District:</strong>
         <%= @client_account.citizen_passport_district %>
-      </p><p>
+      </p>
+      <p>
         <strong>PAN:</strong>
         <%= @client_account.pan_no %>
-      </p><p>
+      </p>
+      <p>
         <strong>Dob:</strong>
         <%= @client_account.dob %>
-      </p><p>
+      </p>
+      <p>
         <strong>Father/Mother's Name:</strong>
         <%= @client_account.father_mother %>
-      </p><p>
+      </p>
+      <p>
         <strong>GrandFather/Father In Law's Name:</strong>
         <%= @client_account.granfather_father_inlaw %>
       </p>
@@ -46,7 +60,8 @@
       <p>
         <strong>Company Name:</strong>
         <%= @client_account.company_name %>
-      </p><p>
+      </p>
+      <p>
         <strong>Company Id:</strong>
         <%= @client_account.company_id %>
       </p>
@@ -56,25 +71,32 @@
       <p>
         <strong>Address line 1:</strong>
         <%= @client_account.address1_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>Address line 2:</strong>
         <%= @client_account.address2_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>Address line 3:</strong>
         <%= @client_account.address3_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>City:</strong>
         <%= @client_account.city_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>State:</strong>
         <%= @client_account.state_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>Country:</strong>
         <%= @client_account.country_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>Phone:</strong>
         <%= @client_account.phone_perm %>
-      </p><p>
+      </p>
+      <p>
         <strong>Email:</strong>
         <%= @client_account.email %>
       </p>
@@ -84,22 +106,28 @@
       <p>
         <strong>Address line 1:</strong>
         <%= @client_account.address1 %>
-      </p><p>
+      </p>
+      <p>
         <strong>Address line 2:</strong>
         <%= @client_account.address2 %>
-      </p><p>
+      </p>
+      <p>
         <strong>Address line 3:</strong>
         <%= @client_account.address3 %>
-      </p><p>
+      </p>
+      <p>
         <strong>City:</strong>
         <%= @client_account.city %>
-      </p><p>
+      </p>
+      <p>
         <strong>State:</strong>
         <%= @client_account.state %>
-      </p><p>
+      </p>
+      <p>
         <strong>Country:</strong>
         <%= @client_account.country %>
-      </p><p>
+      </p>
+      <p>
         <strong>Phone:</strong>
         <%= @client_account.phone %>
       </p>
@@ -109,10 +137,12 @@
       <p>
         <strong>Name:</strong>
         <%= @client_account.bank_name %>
-      </p><p>
+      </p>
+      <p>
         <strong>Address:</strong>
         <%= @client_account.bank_address %>
-      </p><p>
+      </p>
+      <p>
         <strong>Account No.:</strong>
         <%= @client_account.bank_account %>
       </p>
@@ -122,16 +152,20 @@
       <p>
         <strong>Client type:</strong>
         <%= @client_account.client_type %>
-      </p><p>
+      </p>
+      <p>
         <strong>BoId:</strong>
         <%= @client_account.boid %>
-      </p><p>
+      </p>
+      <p>
         <strong>Nepse Code:</strong>
         <%= @client_account.nepse_code %>
-      </p><p>
+      </p>
+      <p>
         <strong>Group Leader:</strong>
         <%= @client_account.group_leader_id %>
-      </p><p>
+      </p>
+      <p>
         <strong>Referrer:</strong>
         <%= @client_account.referrer_name %>
       </p>

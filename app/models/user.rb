@@ -33,13 +33,11 @@
 #
 
 
-
-
 class User < ActiveRecord::Base
-  enum role: [:user, :vip, :admin]
+  enum role: [:user, :client, :agent, :employee, :admin, :sys_admin]
   after_initialize :set_default_role, :if => :new_record?
   has_many :client_accounts
-
+  include MenuPermissionModule
   def set_default_role
     self.role ||= :user
   end
@@ -48,4 +46,10 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
+
+  attr_accessor :current_url_link
+
+  def blocked_path_list
+    get_blocked_path_list
+  end
 end

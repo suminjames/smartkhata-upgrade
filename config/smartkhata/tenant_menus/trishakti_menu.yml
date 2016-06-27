@@ -1,0 +1,193 @@
+#
+# available action/menus
+# documentation available at menu.yml
+#
+---
+has_changes: false
+menus:
+- name: File Section
+  code: FS
+  sub_menus:
+  - name: Uploads
+    code: FS_UPL
+    menu_items:
+    - name: FloorSheet
+      path: "/files/floorsheets/new"
+      code: FS_UPL_FLS
+      menu_item_id: 141
+    - name: Sales CM
+      path: "/files/sales/new"
+      code: FS_UPL_SCM
+      menu_item_id: 142
+    - name: DpA5
+      path: "/files/dpa5/new"
+      code: FS_UPL_DPA5
+      menu_item_id: 143
+    - name: Order
+      path: "/files/orders/new"
+      code: FS_UPL_ORD
+      menu_item_id: 144
+    - name: CloseOut Debit
+      path: "/files/closeouts/new?type=debit"
+      code: FS_UPL_CLD
+      menu_item_id: 145
+    - name: CloseOut Credit
+      path: "/files/closeouts/new?type=credit"
+      code: FS_UPL_CLC
+      menu_item_id: 146
+    menu_item_id: 140
+  - name: Pending
+    code: FS_PND
+    menu_items:
+    - name: Pending Sales Settlement
+      path: "/sales_settlements?pending=true"
+      code: FS_PND_SAS
+      menu_item_id: 148
+    menu_item_id: 147
+  menu_item_id: 139
+- name: Account Section
+  code: AS
+  sub_menus:
+  - name: Vouchers
+    code: AS_VOU
+    menu_items:
+    - name: Journal
+      path: "/vouchers/new"
+      code: AS_VOU_JOU
+      menu_item_id: 151
+    - name: Receipt
+      path: "/vouchers/new?voucher_type=2"
+      code: AS_VOU_REC
+      menu_item_id: 152
+    - name: Payment
+      path: "/vouchers/new?voucher_type=1"
+      code: AS_VOU_PAY
+      menu_item_id: 153
+    - name: Pending Payment
+      path: "/vouchers/pending_vouchers"
+      code: AS_VOU_PEP
+      menu_item_id: 154
+    menu_item_id: 150
+  - name: Ledgers
+    code: AS_LED
+    menu_items:
+    - name: Ledger List
+      path: "/ledgers"
+      code: AS_LED_LEL
+      menu_item_id: 156
+    - name: Group Member Balance Transfer
+      path: "/ledgers/group_members_ledgers"
+      code: AS_LED_GMB
+      menu_item_id: 157
+    - name: New Ledger
+      request_type: :get
+      path: "/ledgers/new"
+      hide_on_main_navigation: 
+      code: AS_LED_NEL
+      menu_item_id: 158
+    menu_item_id: 155
+  - name: Bills
+    code: AS_BIL
+    menu_items:
+    - name: Bill List
+      path: "/bills"
+      code: AS_BIL_BIL
+      menu_item_id: 160
+    - name: New Provisional Bill
+      path: "/bills/new"
+      code: AS_BIL_NPB
+      menu_item_id: 161
+    - name: Deal Cancel
+      path: "/share_transactions/deal_cancel"
+      code: AS_BIL_DEC
+      menu_item_id: 162
+    - name: Approve Deal Cancel
+      path: "/share_transactions/pending_deal_cancel"
+      code: AS_BIL_ADC
+      menu_item_id: 163
+    menu_item_id: 159
+  - name: Bank
+    code: AS_BAN
+    menu_items:
+    - name: Banks
+      path: "/banks"
+      code: AS_BAN_BAN
+      menu_item_id: 165
+    - name: Bank Accounts
+      path: "/bank_accounts"
+      code: AS_BAN_BAA
+      menu_item_id: 166
+    - name: Cheque Entries
+      path: "/cheque_entries"
+      code: AS_BAN_CHE
+      menu_item_id: 167
+    menu_item_id: 164
+  - name: Nepse
+    code: AS_NEP
+    menu_items:
+    - name: Nepse Chalan
+      path: "/nepse_chalans"
+      code: AS_NEP_NEC
+      menu_item_id: 169
+    menu_item_id: 168
+  menu_item_id: 149
+- name: Client Register
+  path: "/client_accounts"
+  code: CR
+  menu_item_id: 170
+- name: Employee Register
+  path: "/employee_accounts"
+  code: ER
+  menu_item_id: 171
+- name: Vendor Register
+  path: "/vendor_accounts"
+  code: VR
+  menu_item_id: 172
+- name: Reports
+  code: RS
+  sub_menus:
+  - name: Financial Reports
+    code: RS_FIR
+    menu_items:
+    - name: Balance Sheet
+      path: "/report/balancesheet"
+      code: RS_FIR_BAS
+      menu_item_id: 175
+    - name: Profit & Loss
+      path: "/report/profitandloss"
+      code: RS_FIR_PNL
+      menu_item_id: 176
+    - name: Trial Balance
+      path: "/report/trial_balance"
+      code: RS_FIR_TRB
+      menu_item_id: 177
+    menu_item_id: 174
+  - name: Transactions / Orders
+    code: RS_TRO
+    menu_items:
+    - name: Share Inventory
+      path: "/share_transactions"
+      code: RS_TRO_SHI
+      menu_item_id: 179
+    - name: Orders
+      path: "/orders?show=report"
+      code: RS_TRO_ORD
+      menu_item_id: 180
+    - name: Cancelled Transactions
+      path: "/share_transactions?search_by=cancelled"
+      code: RS_TRO_CAT
+      menu_item_id: 181
+    menu_item_id: 178
+  - name: Settlements
+    code: RS_SET
+    menu_items:
+    - name: Receipt
+      path: "/settlements?filterrific%5Bby_settlement_type%5D=receipt"
+      code: RS_SET_REC
+      menu_item_id: 183
+    - name: Payment
+      path: "/settlements?filterrific%5Bby_settlement_type%5D=payment"
+      code: RS_SET_PAY
+      menu_item_id: 184
+    menu_item_id: 182
+  menu_item_id: 173
