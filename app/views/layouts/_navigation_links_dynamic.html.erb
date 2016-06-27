@@ -2,7 +2,8 @@
 <% seed_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
    config = YAML::load(ERB.new(File.read(seed_file)).result(binding))
 %>
-<% config['menus'] = permitted_menu_list(config['menus'], current_user.id) if user_signed_in? %>
+<% if user_signed_in? %>
+<% config['menus'] = permitted_menu_list(config['menus'], current_user.id) %>
 
 <% config['menus'].each do |menu|
   if menu['path'].present? %>
@@ -33,5 +34,6 @@
         <% end %>
     <% end
        end %>
+ <% end %>
 
 <%= render "layouts/nav_links_for_auth" %>

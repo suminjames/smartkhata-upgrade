@@ -14,6 +14,7 @@ class BanksController < ApplicationController
   # GET /banks/new
   def new
     @bank = Bank.new
+    authorize @bank
   end
 
   # GET /banks/1/edit

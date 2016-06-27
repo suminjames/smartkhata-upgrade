@@ -28,7 +28,7 @@ module MenuPermissionModule
   # Get Blocked path list for the current user
   #
   def get_blocked_path_list
-    MenuItem.all.pluck(:path).compact
+    MenuItem.all.pluck(:path).to_a.compact
   end
 
   #
@@ -42,6 +42,7 @@ module MenuPermissionModule
   # get blocked path_list from session
   #
   def blocked_path_list
-    session['blocked_path_list']
+    get_blocked_path_list
+    # session['blocked_path_list']
   end
 end

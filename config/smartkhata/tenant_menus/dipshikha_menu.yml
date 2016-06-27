@@ -1,147 +1,193 @@
 #
 # available action/menus
-# documentation available at menu.yml.example
+# documentation available at menu.yml
 #
 ---
-has_changes: true
+has_changes: false
 menus:
 - name: File Section
+  code: FS
   sub_menus:
   - name: Uploads
+    code: FS_UPL
     menu_items:
     - name: FloorSheet
       path: "/files/floorsheets/new"
-      database_id: 141
+      code: FS_UPL_FLS
+      menu_item_id: 187
     - name: Sales CM
       path: "/files/sales/new"
-      database_id: 142
+      code: FS_UPL_SCM
+      menu_item_id: 188
     - name: DpA5
       path: "/files/dpa5/new"
-      database_id: 143
+      code: FS_UPL_DPA5
+      menu_item_id: 189
     - name: Order
       path: "/files/orders/new"
-      database_id: 144
+      code: FS_UPL_ORD
+      menu_item_id: 190
     - name: CloseOut Debit
       path: "/files/closeouts/new?type=debit"
-      database_id: 145
+      code: FS_UPL_CLD
+      menu_item_id: 191
     - name: CloseOut Credit
       path: "/files/closeouts/new?type=credit"
-      database_id: 146
-    database_id: 140
+      code: FS_UPL_CLC
+      menu_item_id: 192
+    menu_item_id: 186
   - name: Pending
+    code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
       path: "/sales_settlements?pending=true"
-      database_id: 148
-    database_id: 147
-  database_id: 139
+      code: FS_PND_SAS
+      menu_item_id: 194
+    menu_item_id: 193
+  menu_item_id: 185
 - name: Account Section
+  code: AS
   sub_menus:
   - name: Vouchers
+    code: AS_VOU
     menu_items:
     - name: Journal
       path: "/vouchers/new"
-      database_id: 151
+      code: AS_VOU_JOU
+      menu_item_id: 197
     - name: Receipt
       path: "/vouchers/new?voucher_type=2"
-      database_id: 152
+      code: AS_VOU_REC
+      menu_item_id: 198
     - name: Payment
       path: "/vouchers/new?voucher_type=1"
-      database_id: 153
+      code: AS_VOU_PAY
+      menu_item_id: 199
     - name: Pending Payment
       path: "/vouchers/pending_vouchers"
-      database_id: 154
-    database_id: 150
+      code: AS_VOU_PEP
+      menu_item_id: 200
+    menu_item_id: 196
   - name: Ledgers
+    code: AS_LED
     menu_items:
     - name: Ledger List
       path: "/ledgers"
-      database_id: 156
+      code: AS_LED_LEL
+      menu_item_id: 202
     - name: Group Member Balance Transfer
       path: "/ledgers/group_members_ledgers"
-      database_id: 157
+      code: AS_LED_GMB
+      menu_item_id: 203
     - name: New Ledger
       request_type: :get
       path: "/ledgers/new"
-      hide_on_main_navigation: true
-      database_id: 158
-    database_id: 155
+      hide_on_main_navigation: 
+      code: AS_LED_NEL
+      menu_item_id: 204
+    menu_item_id: 201
   - name: Bills
+    code: AS_BIL
     menu_items:
     - name: Bill List
       path: "/bills"
-      database_id: 160
+      code: AS_BIL_BIL
+      menu_item_id: 206
     - name: New Provisional Bill
       path: "/bills/new"
-      database_id: 161
+      code: AS_BIL_NPB
+      menu_item_id: 207
     - name: Deal Cancel
       path: "/share_transactions/deal_cancel"
-      database_id: 162
+      code: AS_BIL_DEC
+      menu_item_id: 208
     - name: Approve Deal Cancel
       path: "/share_transactions/pending_deal_cancel"
-      database_id: 163
-    database_id: 159
+      code: AS_BIL_ADC
+      menu_item_id: 209
+    menu_item_id: 205
   - name: Bank
+    code: AS_BAN
     menu_items:
     - name: Banks
       path: "/banks"
-      database_id: 165
+      code: AS_BAN_BAN
+      menu_item_id: 211
     - name: Bank Accounts
       path: "/bank_accounts"
-      database_id: 166
+      code: AS_BAN_BAA
+      menu_item_id: 212
     - name: Cheque Entries
       path: "/cheque_entries"
-      database_id: 167
-    database_id: 164
+      code: AS_BAN_CHE
+      menu_item_id: 213
+    menu_item_id: 210
   - name: Nepse
+    code: AS_NEP
     menu_items:
     - name: Nepse Chalan
       path: "/nepse_chalans"
-      database_id: 169
-    database_id: 168
-  database_id: 149
+      code: AS_NEP_NEC
+      menu_item_id: 215
+    menu_item_id: 214
+  menu_item_id: 195
 - name: Client Register
   path: "/client_accounts"
-  database_id: 170
+  code: CR
+  menu_item_id: 216
 - name: Employee Register
   path: "/employee_accounts"
-  database_id: 171
+  code: ER
+  menu_item_id: 217
 - name: Vendor Register
   path: "/vendor_accounts"
-  database_id: 172
+  code: VR
+  menu_item_id: 218
 - name: Reports
+  code: RS
   sub_menus:
   - name: Financial Reports
+    code: RS_FIR
     menu_items:
     - name: Balance Sheet
       path: "/report/balancesheet"
-      database_id: 175
+      code: RS_FIR_BAS
+      menu_item_id: 221
     - name: Profit & Loss
       path: "/report/profitandloss"
-      database_id: 176
+      code: RS_FIR_PNL
+      menu_item_id: 222
     - name: Trial Balance
       path: "/report/trial_balance"
-      database_id: 177
-    database_id: 174
+      code: RS_FIR_TRB
+      menu_item_id: 223
+    menu_item_id: 220
   - name: Transactions / Orders
+    code: RS_TRO
     menu_items:
     - name: Share Inventory
       path: "/share_transactions"
-      database_id: 179
+      code: RS_TRO_SHI
+      menu_item_id: 225
     - name: Orders
       path: "/orders?show=report"
-      database_id: 180
+      code: RS_TRO_ORD
+      menu_item_id: 226
     - name: Cancelled Transactions
       path: "/share_transactions?search_by=cancelled"
-      database_id: 181
-    database_id: 178
+      code: RS_TRO_CAT
+      menu_item_id: 227
+    menu_item_id: 224
   - name: Settlements
+    code: RS_SET
     menu_items:
     - name: Receipt
       path: "/settlements?filterrific%5Bby_settlement_type%5D=receipt"
-      database_id: 183
+      code: RS_SET_REC
+      menu_item_id: 229
     - name: Payment
       path: "/settlements?filterrific%5Bby_settlement_type%5D=payment"
-      database_id: 184
-    database_id: 182
-  database_id: 173
+      code: RS_SET_PAY
+      menu_item_id: 230
+    menu_item_id: 228
+  menu_item_id: 219

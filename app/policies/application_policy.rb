@@ -51,6 +51,7 @@ class ApplicationPolicy
     return true if user.admin? || user.sys_admin?
     if user.employee?
       # deny access for the urls
+      # TODO(subas) incorporate post / get methods
       return true if !user.blocked_path_list.include? user.current_url_link
     end
     return false

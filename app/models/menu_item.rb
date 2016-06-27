@@ -33,5 +33,5 @@ class MenuItem < ActiveRecord::Base
   scope :black_listed_for_user_test, ->(user_id) { includes(:menu_permissions) }
 
   enum request_type: [:get, :post]
-
+  validates_uniqueness_of :code
 end

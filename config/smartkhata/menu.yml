@@ -6,96 +6,142 @@
 has_changes: false
 menus:
 - name: File Section
+  code: FS
   sub_menus:
   - name: Uploads
+    code: FS_UPL
     menu_items:
     - name: FloorSheet
       path: "<%= new_files_floorsheet_path %>"
+      code: FS_UPL_FLS
     - name: Sales CM
       path: "<%= new_files_sale_path %>"
+      code: FS_UPL_SCM
     - name: DpA5
       path: "<%= new_files_dpa5_path %>"
+      code: FS_UPL_DPA5
     - name: Order
       path: "<%= new_files_order_path %>"
+      code: FS_UPL_ORD
     - name: CloseOut Debit
       path: "<%= new_files_closeout_path(type: 'debit')  %>"
+      code: FS_UPL_CLD
     - name: CloseOut Credit
       path: "<%= new_files_closeout_path(type: 'credit') %>"
+      code: FS_UPL_CLC
   - name: Pending
+    code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
       path: "<%= sales_settlements_path(pending: true) %>"
+      code: FS_PND_SAS
 - name: Account Section
+  code: AS
   sub_menus:
   - name: Vouchers
+    code: AS_VOU
     menu_items:
     - name: Journal
       path: "<%= new_voucher_path %>"
+      code: AS_VOU_JOU
     - name: Receipt
       path: "<%= new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %>"
+      code: AS_VOU_REC
     - name: Payment
       path: "<%= new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %>"
+      code: AS_VOU_PAY
     - name: Pending Payment
       path: "<%= pending_vouchers_vouchers_path %>"
+      code: AS_VOU_PEP
   - name: Ledgers
+    code: AS_LED
     menu_items:
     - name: Ledger List
       path: "<%= ledgers_path %>"
+      code: AS_LED_LEL
     - name: Group Member Balance Transfer
       path: "<%= group_member_ledgers_path %>"
+      code: AS_LED_GMB
     - name: New Ledger
       request_type: :get
       path: "<%= new_ledger_path %>"
-      hide_on_main_navigation: true
+      hide_on_main_navigation: 
+      code: AS_LED_NEL
   - name: Bills
+    code: AS_BIL
     menu_items:
     - name: Bill List
       path: "<%= bills_path %>"
+      code: AS_BIL_BIL
     - name: New Provisional Bill
       path: "<%= new_bill_path %>"
+      code: AS_BIL_NPB
     - name: Deal Cancel
       path: "<%= deal_cancel_share_transactions_path %>"
+      code: AS_BIL_DEC
     - name: Approve Deal Cancel
       path: "<%= pending_deal_cancel_share_transactions_path %>"
+      code: AS_BIL_ADC
   - name: Bank
+    code: AS_BAN
     menu_items:
     - name: Banks
       path: "<%= banks_path %>"
+      code: AS_BAN_BAN
     - name: Bank Accounts
       path: "<%= bank_accounts_path %>"
+      code: AS_BAN_BAA
     - name: Cheque Entries
       path: "<%= cheque_entries_path %>"
+      code: AS_BAN_CHE
   - name: Nepse
+    code: AS_NEP
     menu_items:
     - name: Nepse Chalan
       path: "<%= nepse_chalans_path %>"
+      code: AS_NEP_NEC
 - name: Client Register
   path: "<%= client_accounts_path %>"
+  code: CR
 - name: Employee Register
   path: "<%= employee_accounts_path %>"
+  code: ER
 - name: Vendor Register
   path: "<%= vendor_accounts_path %>"
+  code: VR
 - name: Reports
+  code: RS
   sub_menus:
   - name: Financial Reports
+    code: RS_FIR
     menu_items:
     - name: Balance Sheet
       path: "<%= report_balancesheet_index_path  %>"
+      code: RS_FIR_BAS
     - name: Profit & Loss
       path: "<%= report_profitandloss_index_path %>"
+      code: RS_FIR_PNL
     - name: Trial Balance
       path: "<%= report_trial_balance_index_path %>"
+      code: RS_FIR_TRB
   - name: Transactions / Orders
+    code: RS_TRO
     menu_items:
     - name: Share Inventory
       path: "<%= share_transactions_path %>"
+      code: RS_TRO_SHI
     - name: Orders
       path: "<%= orders_path(show: 'report')%>"
+      code: RS_TRO_ORD
     - name: Cancelled Transactions
       path: "<%= share_transactions_path(search_by: 'cancelled') %>"
+      code: RS_TRO_CAT
   - name: Settlements
+    code: RS_SET
     menu_items:
     - name: Receipt
       path: "<%= settlements_path('filterrific[by_settlement_type]':'receipt') %>"
+      code: RS_SET_REC
     - name: Payment
       path: "<%= settlements_path('filterrific[by_settlement_type]':'payment') %>"
+      code: RS_SET_PAY

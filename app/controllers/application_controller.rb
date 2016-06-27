@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
     UserSession.user = current_user
     UserSession.selected_fy_code ||= get_fy_code
     session[:user_selected_fy_code] ||= get_fy_code
-    session[:blocked_path_list] ||= get_blocked_path_list
+    # session[:blocked_path_list] ||= get_blocked_path_list
   end
 
   #   set the default fycode and branch params
