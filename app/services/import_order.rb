@@ -216,7 +216,7 @@ class ImportOrder < ImportFile
     hashed_row = {}
     (0..12).each do |i|
       if i == 0
-        #order_id(at index 0) is taken as 201601016317314.0 . Strip the decimal. 
+        #order_id(at index 0) is taken as 201601016317314.0 . Strip the decimal.
         hashed_row[keys[i]] = row[i].to_s.split(".")[0]
       else
         hashed_row[keys[i]] = row[i]
@@ -310,29 +310,33 @@ class ImportOrder < ImportFile
     @rows = []
     @processed_data = []
     # begin
-    xlsx = Roo::Spreadsheet.open(file)
+    xlsx = Roo::Spreadsheet.open(file, extension: :xls)
     excel_sheet = xlsx.sheet(0)
     order_end_row = bottom_most_order_row_index(excel_sheet)
-    (ORDER_BEGIN_ROW..order_end_row).each do |i|
-      row = excel_sheet.row(i)
-      if is_valid_row?(row)
-        stripped_row = strip_row_of_nil_entries(row)
-        hashed_row = get_hash_equivalent_of_row(stripped_row)
-        update_runtime_totals(hashed_row)
-        # Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
-        #if i == ORDER_BEGIN_ROW
-        #if is_previously_uploaded_file(hashed_row[:ORDER_ID])
-        #@error_message = "Looks like you are trying to upload an already uploaded file! Please upload a valid file." and return
-        #end
-        #end
-        @processed_data << hashed_row
-      else
-        @error_message = "Row #{i.to_s} is invalid! Please upload a valid file." and return
+    if order_end_row != -1
+      (ORDER_BEGIN_ROW..order_end_row).each do |i|
+        row = excel_sheet.row(i)
+        if is_valid_row?(row)
+          stripped_row = strip_row_of_nil_entries(row)
+          hashed_row = get_hash_equivalent_of_row(stripped_row)
+          update_runtime_totals(hashed_row)
+          # Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
+          #if i == ORDER_BEGIN_ROW
+          #if is_previously_uploaded_file(hashed_row[:ORDER_ID])
+          #@error_message = "Looks like you are trying to upload an already uploaded file! Please upload a valid file." and return
+          #end
+          #end
+          @processed_data << hashed_row
+        else
+          @error_message = "Row #{i.to_s} is invalid! Please upload a valid file." and return
+        end
       end
+    else
+      @error_message = "One of the rows is invalid! Please upload a valid file." and return
     end
 
     # Parsing the rows complete
-    # Return error if totals of rows doesn't equal those in grand total row 
+    # Return error if totals of rows doesn't equal those in grand total row
     if grand_total_row_hash(excel_sheet) != $runtime_totals
       @error_message = "The sum of totals of rows doesn't add up to those in grand total row! Please upload a valid file." and return
     end

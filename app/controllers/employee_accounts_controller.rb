@@ -3,7 +3,7 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts
   # GET /employee_accounts.json
-   def index
+  def index
     #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:search_by].blank? && params[:show].blank?
@@ -104,17 +104,17 @@ class EmployeeAccountsController < ApplicationController
     end
   end
 
-    # DELETE /employee_accounts/1
-    # DELETE /employee_accounts/1.json
-    def destroy
-      @employee_account.destroy
-      respond_to do |format|
-        format.html { redirect_to employee_accounts_url, notice: 'Employee account was successfully destroyed.' }
-        format.json { head :no_content }
-      end
+  # DELETE /employee_accounts/1
+  # DELETE /employee_accounts/1.json
+  def destroy
+    @employee_account.destroy
+    respond_to do |format|
+      format.html { redirect_to employee_accounts_url, notice: 'Employee account was successfully destroyed.' }
+      format.json { head :no_content }
     end
+  end
 
-    private
+  private
     # Use callbacks to share common setup or constraints between actions.
     def set_employee_account
       @employee_account = EmployeeAccount.find(params[:id])
@@ -135,37 +135,37 @@ class EmployeeAccountsController < ApplicationController
       end
     end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def employee_account_params
-    params.require(:employee_account).permit(
-        :name,
-        :address1 ,
-        :address1_perm,
-        :address2 ,
-        :address2_perm,
-        :address3,
-        :address3_perm,
-        :city,
-        :city_perm,
-        :state,
-        :state_perm,
-        :country,
-        :country_perm,
-        :phone,
-        :phone_perm,
-        :dob,
-        :email,
-        :father_mother,
-        :citizen_passport,
-        :granfather_father_inlaw,
-        :husband_spouse,
-        :citizen_passport_date,
-        :citizen_passport_district,
-        :pan_no,
-        :bank_name,
-        :bank_account,
-        :bank_address,
-        :has_access_to
-    )
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def employee_account_params
+      params.require(:employee_account).permit(
+          :name,
+          :address1 ,
+          :address1_perm,
+          :address2 ,
+          :address2_perm,
+          :address3,
+          :address3_perm,
+          :city,
+          :city_perm,
+          :state,
+          :state_perm,
+          :country,
+          :country_perm,
+          :phone,
+          :phone_perm,
+          :dob,
+          :email,
+          :father_mother,
+          :citizen_passport,
+          :granfather_father_inlaw,
+          :husband_spouse,
+          :citizen_passport_date,
+          :citizen_passport_district,
+          :pan_no,
+          :bank_name,
+          :bank_account,
+          :bank_address,
+          :has_access_to
+      )
+    end
 end

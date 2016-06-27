@@ -1,3 +1,5 @@
+=begin
+# Not views to get
 require 'test_helper'
 
 class GeneralSettingsControllerTest < ActionController::TestCase
@@ -10,5 +12,5 @@ class GeneralSettingsControllerTest < ActionController::TestCase
     get :set_branch
     assert_response :success
   end
-
 end
+=end
