@@ -27,10 +27,21 @@ class BranchesControllerTest < ActionController::TestCase
 
   test "should create branch" do
     assert_difference 'Branch.count', 1 do
-      post :create, branch: { address: @branch.address, code: @branch.code }
+      post :create, branch: { address: 'Utopia', code: 'BR' }
+      # debugger
     end
-
     assert_redirected_to branch_path(assigns(:branch))
+  end
+
+  # Briefly testing invalid input: duplicate branch code
+  test "should not create invalid branch- duplicate code" do
+    assert_no_difference 'Branch.count'do
+      post :create, branch: { address: 'Utopia', code: @branch.code }
+    end
+    assert_response :success
+    assert_match 'has already been taken', response.body
+    # simple_form does not use flash?
+    # assert_not_nil flash[:error]
   end
 
   test "should show branch" do
@@ -42,8 +53,12 @@ class BranchesControllerTest < ActionController::TestCase
   end
 
   test "should update branch" do
-    patch :update, id: @branch, branch: { address: @branch.address, code: @branch.code }
+    assert_not_equal 'SJ', @branch.code
+    patch :update, id: @branch, branch: { address: 'San Jose', code: 'SJ' }
     assert_redirected_to branch_path(assigns(:branch))
+
+    @branch.reload
+    assert_equal 'SJ', @branch.code
   end
 
   test "should destroy branch" do

@@ -115,6 +115,7 @@ class EmployeeAccountsController < ApplicationController
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_employee_account
     @employee_account = EmployeeAccount.find(params[:id])

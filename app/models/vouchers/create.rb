@@ -42,7 +42,7 @@ class Vouchers::Create < Vouchers::Base
 
     vendor_account = nil
     if @voucher_settlement_type == 'vendor'
-      vendor_account = VendorAccount.find(id: @vendor_account_id)
+      vendor_account = VendorAccount.find_by(id: @vendor_account_id )
     elsif @voucher_settlement_type == 'client'
       client_group_leader_ledger = Ledger.find_by(id: @group_leader_ledger_id)
       client_group_leader_account = client_group_leader_ledger.client_account if client_group_leader_ledger.present?
