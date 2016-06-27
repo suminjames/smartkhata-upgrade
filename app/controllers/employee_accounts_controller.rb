@@ -4,6 +4,7 @@ class EmployeeAccountsController < ApplicationController
   # GET /employee_accounts
   # GET /employee_accounts.json
   def index
+    authorize EmployeeAccount
     #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:search_by].blank? && params[:show].blank?
@@ -38,29 +39,44 @@ class EmployeeAccountsController < ApplicationController
   # GET /employee_accounts/1
   # GET /employee_accounts/1.json
   def show
+    authorize @employee_account
   end
 
   # GET /employee_accounts/new
   def new
     @employee_account = EmployeeAccount.new
+    authorize @employee_account
   end
 
   # GET /employee_accounts/1/edit
   def edit
     @ledgers = Ledger.all.order(:name)
+    authorize @employee_account
   end
 
   # POST /employee_accounts
   # POST /employee_accounts.json
   def create
     @employee_account = EmployeeAccount.new(employee_account_params)
+    authorize @employee_account
 
-    respond_to do |format|
+    res = false
+    ActiveRecord::Base.transaction do
+
+
       if @employee_account.save
-
         # Assign to Employee group
         @employee_account.assign_group("Employees")
+        # and invite the user
+        user = User.invite!(:email => @employee_account.email, role: :employee)
+        @employee_account.user_id = user.id
+        @employee_account.save!
+        res = true
+      end
+    end
 
+    respond_to do |format|
+      if res
         format.html { redirect_to @employee_account, notice: 'Employee account was successfully created.' }
         format.json { render :show, status: :created, location: @employee_account }
       else
@@ -74,6 +90,7 @@ class EmployeeAccountsController < ApplicationController
   # PATCH/PUT /employee_accounts/1.json
   def update
     # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
+    authorize @employee_account
     if params[:edit_type] == 'ledger_association'
       # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
       ActiveRecord::Base.transaction do
@@ -107,6 +124,7 @@ class EmployeeAccountsController < ApplicationController
   # DELETE /employee_accounts/1
   # DELETE /employee_accounts/1.json
   def destroy
+    authorize @employee_account
     @employee_account.destroy
     respond_to do |format|
       format.html { redirect_to employee_accounts_url, notice: 'Employee account was successfully destroyed.' }
@@ -168,5 +186,10 @@ class EmployeeAccountsController < ApplicationController
         :bank_address,
         :has_access_to
     )
+  end
+
+  def valid_email?(email)
+    # VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+    true if email.present? && (email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i)
   end
 end
