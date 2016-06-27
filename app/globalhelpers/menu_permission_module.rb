@@ -35,7 +35,7 @@ module MenuPermissionModule
   # Check if the path is blocked or not
   #
   def is_blocked_path(blocked_path_list, path)
-    blocked_path_list.include? path
+    !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include? path)
   end
 
   #

@@ -37,6 +37,7 @@ class User < ActiveRecord::Base
   enum role: [:user, :client, :agent, :employee, :admin, :sys_admin]
   after_initialize :set_default_role, :if => :new_record?
   has_many :client_accounts
+  has_one :employee_account
   include MenuPermissionModule
   def set_default_role
     self.role ||= :user

@@ -51,8 +51,8 @@ class EmployeeAccount < ActiveRecord::Base
 
   # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
   # TODO(sarojk) Find a better way to implement unique identification
-  validates :name, presence: true, uniqueness: true
-  validates :email, presence: true, uniqueness: true
+  # validates :email, presence: true, uniqueness: true
+  validates_format_of :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
   after_create :create_ledger
 
@@ -68,7 +68,7 @@ class EmployeeAccount < ActiveRecord::Base
 
   # create employee ledger
   def create_ledger
-    employee_ledger = Ledger.find_or_create_by!(name: self.name) do |ledger|
+    employee_ledger = Ledger.create!(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
     end

@@ -38,6 +38,9 @@ class ApplicationPolicy
     Pundit.policy_scope!(user, record.class)
   end
 
+  def sys_admin?
+    user.sys_admin?
+  end
 
   def admin_and_above?
     user.admin? || user.sys_admin?
@@ -58,6 +61,10 @@ class ApplicationPolicy
   end
 
   def client_and_above?
+    user.client? || user.employee? || admin_and_above?
+  end
+
+  def client_or_agent?
     user.client? || user.agent?
   end
 
@@ -76,7 +83,21 @@ class ApplicationPolicy
 
   private
 
-  private
+  def self.permit_access_to_sysadmin(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        sys_admin?
+      end
+    end
+  end
+
+  def self.permit_access_to_admin_and_above(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        admin_and_above?
+      end
+    end
+  end
 
   def self.permit_access_to_employee_and_above(*actions)
     actions.each do |action|
@@ -86,10 +107,18 @@ class ApplicationPolicy
     end
   end
 
-  def self.permit_access_to_client_and_above(*actions)
+  def permit_access_to_client_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
         client_and_above?
+      end
+    end
+  end
+
+  def self.permit_access_to_client_or_agent(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        client_or_agent?
       end
     end
   end

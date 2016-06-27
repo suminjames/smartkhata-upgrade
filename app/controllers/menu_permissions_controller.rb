@@ -15,6 +15,7 @@ class MenuPermissionsController < ApplicationController
   # GET /menu_permissions/new
   def new
     @menu_permission = MenuPermission.new
+    @user_list =  User.includes(:employee_account.pluck(:email, :employee_account.name))
   end
 
   # GET /menu_permissions/1/edit
