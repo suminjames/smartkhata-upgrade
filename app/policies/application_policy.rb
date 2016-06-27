@@ -60,6 +60,10 @@ class ApplicationPolicy
     return false
   end
 
+  def client_and_above?
+    user.client? || user.employee? || admin_and_above?
+  end
+
   def client_or_agent?
     user.client? || user.agent?
   end
@@ -99,6 +103,14 @@ class ApplicationPolicy
     actions.each do |action|
       define_method("#{action}?") do
         employee_and_above?
+      end
+    end
+  end
+
+  def permit_access_to_client_and_above(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        client_and_above?
       end
     end
   end
