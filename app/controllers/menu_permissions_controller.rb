@@ -15,6 +15,7 @@ class MenuPermissionsController < ApplicationController
   # GET /menu_permissions/new
   def new
     @menu_permission = MenuPermission.new
+    @user_list =  User.includes(:employee_account.pluck(:email, :employee_account.name))
   end
 
   # GET /menu_permissions/1/edit
@@ -69,6 +70,6 @@ class MenuPermissionsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def menu_permission_params
-    params.require(:menu_permission).permit(:menu_item_id, :user_id)
+    params.require(:menu_permission).permit(:menu_item_id, :user, :references)
   end
 end

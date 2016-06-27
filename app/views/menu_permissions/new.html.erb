@@ -1,5 +1,7 @@
 <h1>New Menu Permission</h1>
 
-<%= render 'form' %>
-
+<% @users.each do |user| %>
+    <%= user.email %> </br>
+    <%= user.employee_account.name  if user.employee_account.present? %>
+<% end %>
 <%= link_to 'Back', menu_permissions_path %>
