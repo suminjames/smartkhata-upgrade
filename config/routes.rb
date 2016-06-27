@@ -94,7 +94,7 @@ Rails.application.routes.draw do
     resources :closeouts, only: [:new] do
       collection {post :import}
     end
-    resources :sysadmin_uploads, only: [:new] do
+    resources :sysadmin_client_nepse_mapping, only: [:new] do
       collection {post :import}
     end
     resources :sysadmin_trial_balance, only: [:new] do

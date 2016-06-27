@@ -188,11 +188,11 @@ class Files::FloorsheetsController < Files::FilesController
       client.name = client_name.titleize
     end
 
-    # if client.nil?
-    #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
-    #   raise ActiveRecord::Rollback
-    #   return
-    # end
+    if client.nil?
+      @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
+      raise ActiveRecord::Rollback
+      return
+    end
 
 
     # check for the bank deposit value which is available only for buying
