@@ -19,7 +19,7 @@ class VouchersControllerTest < ActionController::TestCase
     @assert_block_via_finalize_payment = lambda { |finalize_type|
       voucher = vouchers(:voucher_pending)
       assert voucher.pending?
-      params = {id: voucher}
+      params = {id: voucher, from_path: vouchers_path}
       msg_suffix = case finalize_type
       when 'approve'
         params[:approve] = 'true'
@@ -122,7 +122,7 @@ class VouchersControllerTest < ActionController::TestCase
 
   # Invalid input tests
   # Edit after merge to pass THIS test !
-  test "should not create a receipt voucher with a cheque_number that has already been assigned" do
+  test "should not create invalid voucher: receipt voucher with a cheque_number that has already been assigned" do
     get :new # to set UserSession
     @approved_cheque.update_attribute(:additional_bank_id, @additional_bank_id)
 
@@ -164,12 +164,12 @@ class VouchersControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should not create a voucher with negative amount or cheque number" do
+  test "should not create invalid voucher: negative amount or cheque number" do
     @assert_block_via_invalid_post.call('-245', '5000', 'Cheque Number is invalid')
     @assert_block_via_invalid_post.call('245', '-5000', 'Amount can not be negative or zero.')
   end
 
-  test "should not create voucher with zero or one particular" do
+  test "should not create invalid voucher: zero or one particular" do
     [1, 2].each do |particulars_to_ignore|
       @assert_block_via_invalid_post.call('245', '5000', 'Please include atleast 1 particular', particulars_to_ignore)
     end
