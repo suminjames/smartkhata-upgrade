@@ -76,7 +76,7 @@ class EmployeeAccountsController < ApplicationController
         # and invite the user
         user = User.invite!(:email => @employee_account.email, role: :employee)
         @employee_account.user_id = user.id
-        @employee_account.save
+        @employee_account.save!
         res = true
       end
     end
