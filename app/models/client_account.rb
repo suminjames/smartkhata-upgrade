@@ -120,4 +120,17 @@ class ClientAccount < ActiveRecord::Base
   def get_current_valuation
     self.share_inventories.includes(:isin_info).sum('floorsheet_blnc * isin_infos.last_price')
   end
+
+  # In case both numbers are messageable, 'phone' has higher priority over 'phone_perm'
+  # Returns nil if neither is messageable
+  def messageable_phone_number
+    messageable_phone_number = nil
+    if SmsMessage.messageable_phone_number?(self.phone)
+      messageable_phone_number = self.phone
+    elsif SmsMessage.messageable_phone_number?(self.phone_perm)
+      messageable_phone_number = self.phone_perm
+    end
+    messageable_phone_number
+  end
+
 end

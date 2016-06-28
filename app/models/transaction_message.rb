@@ -80,4 +80,12 @@ class TransactionMessage < ActiveRecord::Base
     self.maximum("transaction_date")
   end
 
+  def can_email?
+    return self.bill && self.client_account.email.present?
+  end
+
+  def can_sms?
+    return self.bill && self.client_account.messageable_phone_number.present?
+  end
+
 end

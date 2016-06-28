@@ -2,22 +2,30 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-selectedTransactionMessagesIds = []
+selectedTransactionMessagesIdsForEmail = []
+selectedTransactionMessagesIdsForSMS= []
 
 $(document).ready ->
   if $('#transaction_message_list').length > 0
     console.log("doc loaded!")
 
     $(document).on 'change', 'input:checkbox', (event)->
-      selectedTransactionMessagesIds = `$("#filterrific_results input:checkbox:checked").not('#select_all').map(function(){return this.id}).get();`
+      selectedTransactionMessagesIdsForEmail = `$("#filterrific_results .email:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
+      selectedTransactionMessagesIdsForSMS = `$("#filterrific_results .sms:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
+      console.log selectedTransactionMessagesIdsForEmail 
+      console.log selectedTransactionMessagesIdsForSMS
       
-    $(document). on 'click', '#select_all', (event) ->
-      $("input:checkbox").prop('checked', $(this).prop("checked"))
-      $("input:checkbox").attr('disabled', false);
+    $(document). on 'click', '.email#select_all', (event) ->
+      $(".email:input:checkbox").not('.cant-email').prop('checked', $(this).prop("checked"))
+      $(".email:input:checkbox").not('.cant-email').attr('disabled', false)
 
+    $(document). on 'click', '.sms#select_all', (event) ->
+      $(".sms:input:checkbox").not('.cant-sms').prop('checked', $(this).prop("checked"))
+      $(".sms:input:checkbox").not('.cant-sms').attr('disabled', false)
+      
     $(document). on 'click', '#send-sms', (event) ->
       console.log "send sms clicked!"
-      params = {transaction_message_ids: selectedTransactionMessagesIds}
+      params = {transaction_message_ids: selectedTransactionMessagesIdsForSMS}
       $.ajax
         url: '/transaction_messages/send_sms'
         type: 'post'
@@ -25,17 +33,17 @@ $(document).ready ->
         dataType: 'json'
         beforeSend: ->
           console.log 'Ajax Initiated!'
-          $('#send-email-spinner').removeClass 'hidden'
+          $('#send-sms-spinner').removeClass 'hidden'
         error: (jqXHR, textStatus, errorThrown) ->
           console.log 'There was some error!' + errorThrown + textStatus
-          $('#send-email-spinner').addClass 'hidden'
+          $('#send-sms-spinner').addClass 'hidden'
         success: (data, textStatus, jqXHR) ->
           console.log 'Ajax Completed!'
-          $('#send-email-spinner').addClass 'hidden'
+          $('#send-sms-spinner').addClass 'hidden'
           return
       
     $(document). on 'click', '#send-email', (event) ->
-      params = {transaction_message_ids: selectedTransactionMessagesIds}
+      params = {transaction_message_ids: selectedTransactionMessagesIdsForEmail}
       $.ajax
         url: '/transaction_messages/send_email'
         type: 'post'
@@ -51,9 +59,6 @@ $(document).ready ->
           console.log 'Ajax Completed!'
           $('#send-email-spinner').addClass 'hidden'
           return
-          
-    $(document). on 'click', '#send-sms-and-email', (event) ->
-      console.log "send sms and email clicked!"
 
 
       

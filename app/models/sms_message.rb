@@ -1,3 +1,12 @@
+# == Schema Information
+#
+# Table name: sms_messages
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
 require 'net/http'
 class SmsMessage < ActiveRecord::Base
 
@@ -26,14 +35,18 @@ class SmsMessage < ActiveRecord::Base
     result.split('=')[1].strip.to_f
   end
 
-  def self.send_hello_world
-    self.date_time = DateTime.now.to_s(:db)
-    self.mobile_number = '9779851182852'
-    self.message = 'Hello World, from DIT'
+  def self.send_hello_world(current_tenant_id)
+    @current_tenant = Tenant.find_by_id(current_tenant_id)
+    Apartment::Tenant.switch!(@current_tenant.name)
+    @date_time = DateTime.now.to_s(:db)
+    @mobile_number = '9779851153385'
+    @message = 'Hello World, from DIT'
+    self.push_sms
+    Apartment::Tenant.switch!('public')
   end
 
   def self.push_sms
-    # result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
+    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
     # p result
   end
 
@@ -48,20 +61,30 @@ class SmsMessage < ActiveRecord::Base
 
   # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = msg.gsub!(' ', '%20')
+    @message = msg.gsub(' ', '%20')
   end
 
-  # TODO(sarojk): Check validity of number (as in it is a valid cell phone number)
-  # @params number - a string
-  # 13 digits (prefix: 977) 984,985,986,980,981,974,975
   def self.mobile_number= (number)
-    # Strip any non-digit character
-    @mobile_number = number.to_s.gsub(/\D/, '')
-    # If the number doesn't start with 977, prepend 977.
-    @mobile_number = @mobile_number.prepend('977') unless @mobile_number.start_with?('977')
+    @mobil_number = self.manipulate_phone_number(number)
   end
 
   def self.date_time
     @date_time = DateTime.now.to_s(:db)
   end
+
+  # Strip any non-digit character
+  # If the number doesn't start with 977, prepend 977.
+  def self.manipulate_phone_number(number)
+    number = number.to_s.gsub(/\D/, '')
+    number = number.prepend('977') unless number.start_with?('977')
+  end
+
+  # Checks for number validity as per Miracle Infocom's sendable pattern: 13 digits (prefix: 977) 984,985,986,980,981,974,975
+  # @params number - a string
+  def self.messageable_phone_number?(number)
+    number = manipulate_phone_number(number)
+    non_area_code_segment = number.split('977')[1]
+    return non_area_code_segment.present? && non_area_code_segment.length == 10 && non_area_code_segment.starts_with?('984', '985', '986', '980', '981', '974', '975')
+  end
+
 end

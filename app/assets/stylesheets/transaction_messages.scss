@@ -4,3 +4,12 @@
 td.sms-message {
   word-break: break-all;
 }
+
+input[type="checkbox"].email.cant-email {
+  display: none
+}
+
+input[type="checkbox"].sms.cant-sms{
+  display: none
+}
+

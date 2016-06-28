@@ -13,7 +13,7 @@ class TransactionMessagesController < ApplicationController
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? TransactionMessage.by_date(params[:filterrific][:by_date]).count(:all) : 20
-    @transaction_messages = @filterrific.find.page(params[:page]).per(items_per_page)
+    @transaction_messages = @filterrific.find.page(params[:page]).per(items_per_page).decorate
 
     respond_to do |format|
       format.html
@@ -50,15 +50,16 @@ class TransactionMessagesController < ApplicationController
   end
 
   def send_email
-    # 10.times do |i|
-      transaction_message_ids = params[:transaction_message_ids] || []
-      transaction_message_ids.each do | transaction_message_id |
-        transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
-        if transaction_message.bill && transaction_message.bill.client_account.email
-          HardWorker.perform_async(transaction_message.bill.id, current_tenant.id)
+    transaction_message_ids = params[:transaction_message_ids] || []
+    transaction_message_ids.each do | transaction_message_id |
+      transaction_message = TransactionMessage.find_by(id: transaction_message_id)
+      if transaction_message.can_email?
+        10.times do |i|
+          EmailWorker.perform_async(transaction_message.bill.id, current_tenant.id)
+          # UserMailer.delay.bill_email(transaction_message.bill.id, current_tenant.id)
         end
       end
-    # end
+    end
     respond_to do |format|
       format.js
       format.json { render :json => { :success => "success", :status_code => "200" } }
@@ -68,12 +69,15 @@ class TransactionMessagesController < ApplicationController
   def send_sms
     transaction_message_ids = params[:transaction_message_ids] || []
     transaction_message_ids.each do | transaction_message_id |
-      # Sms.send_bill_sms(transaction_message_id)
-      Sms.check_balance
-      respond_to do |format|
-        format.js
-        format.json { render :json => { :success => "success", :status_code => "200" } }
+      transaction_message = TransactionMessage.find_by(id: transaction_message_id)
+      if transaction_message.can_sms?
+        # SmsMessage.delay.send_hello_world(current_tenant.id)
+        # SmsMessage.delay.send_bill_sms(transaction_message.id)
       end
+    end
+    respond_to do |format|
+      format.js
+      format.json { render :json => { :success => "success", :status_code => "200" } }
     end
   end
 

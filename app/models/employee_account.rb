@@ -76,7 +76,7 @@ class EmployeeAccount < ActiveRecord::Base
     end
   end
 
-  # assign the employee ledger to  'Employees' group
+  # assign the employee ledger to 'Employees' group
   def assign_group(group_name)
     client_group = Group.find_or_create_by!(name: group_name)
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
