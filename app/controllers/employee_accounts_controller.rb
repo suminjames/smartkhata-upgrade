@@ -50,8 +50,13 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts/1/edit
   def edit
-    @ledgers = Ledger.all.order(:name)
     authorize @employee_account
+    if params[:type] == 'ledger_access'
+      @ledgers = Ledger.all.order(:name)
+      render :edit_employee_ledger_association and return
+    elsif params[:type] == 'menu_access'
+      render :edit_employee_menu_permission and return
+    end
   end
 
   # POST /employee_accounts
@@ -119,6 +124,14 @@ class EmployeeAccountsController < ApplicationController
 
       end
     end
+  end
+
+  # POST/update_menu_access
+  def update_menu_access
+    authorize @employee_account
+
+
+
   end
 
   # DELETE /employee_accounts/1

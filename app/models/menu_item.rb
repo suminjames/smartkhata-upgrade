@@ -32,6 +32,10 @@ class MenuItem < ActiveRecord::Base
 
   scope :black_listed_for_user_test, ->(user_id) { includes(:menu_permissions) }
 
+  # scope :with_no_childrens
+  scope :having_childrens, -> { includes(:children).where.not(children_menu_items: {id: nil}) }
+  scope :first_level_menu_items, -> { where(parent_id: nil) }
+
   enum request_type: [:get, :post]
   validates_uniqueness_of :code
 end

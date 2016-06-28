@@ -12,26 +12,32 @@ class CreateMenuItemsService
     tenants = Tenant.all
     tenants.each do |t|
       Apartment::Tenant.switch!(t.name)
-      menu_list['menus'].each do |menu|
-        params = {name: menu['name'], code: menu['code'], path: menu['path'], hide_on_main_navigation: menu['hide_on_main_navigation'], request_type: menu['request_type']}
-        menu_item = MenuItem.create(params)
-        menu['menu_item_id'] = menu_item.id
-        sub_menu_list = menu['sub_menus'] || []
-        sub_menu_list.each do |sub_menu|
-          params = {name: sub_menu['name'], code: sub_menu['code'], path: sub_menu['path'], hide_on_main_navigation: sub_menu['hide_on_main_navigation'], request_type: menu['request_type']}
-          sub_menu_item = MenuItem.create(params)
-          sub_menu['menu_item_id'] = sub_menu_item.id
-          menu_item.children << sub_menu_item
+      begin
+        menu_list['menus'].each do |menu|
+          params = {name: menu['name'], code: menu['code'], path: menu['path'], hide_on_main_navigation: menu['hide_on_main_navigation'], request_type: menu['request_type']}
+          menu_item = MenuItem.create(params)
+          menu['menu_item_id'] = menu_item.id
+          sub_menu_list = menu['sub_menus'] || []
+          sub_menu_list.each do |sub_menu|
+            params = {name: sub_menu['name'], code: sub_menu['code'], path: sub_menu['path'], hide_on_main_navigation: sub_menu['hide_on_main_navigation'], request_type: menu['request_type']}
+            puts sub_menu['name']
+            sub_menu_item = MenuItem.create(params)
+            sub_menu['menu_item_id'] = sub_menu_item.id
+            menu_item.children << sub_menu_item
 
-          inner_menu_list = sub_menu['menu_items'] || []
-          inner_menu_list.each do |menu_item|
-            params = {name: menu_item['name'], code: menu_item['code'], path: menu_item['path'], hide_on_main_navigation: menu_item['hide_on_main_navigation'], request_type: menu['request_type']}
-            _menu_item = MenuItem.create(params)
-            menu_item['menu_item_id'] = _menu_item.id
-            sub_menu_item.children << _menu_item
+            inner_menu_list = sub_menu['menu_items'] || []
+            inner_menu_list.each do |menu_item|
+              params = {name: menu_item['name'], code: menu_item['code'], path: menu_item['path'], hide_on_main_navigation: menu_item['hide_on_main_navigation'], request_type: menu['request_type']}
+              _menu_item = MenuItem.create(params)
+              menu_item['menu_item_id'] = _menu_item.id
+              sub_menu_item.children << _menu_item
+            end
           end
+          menu_item.save!
+
         end
-        menu_item.save!
+      rescue
+        puts 'ad'
       end
 
       # store the database id for each of the tenant menu items

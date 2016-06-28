@@ -16,7 +16,11 @@ Rails.application.routes.draw do
   resources :closeouts
   resources :share_inventories
   resources :employee_client_associations
-  resources :employee_accounts
+  resources :employee_accounts do
+    collection do
+      post :update_menu_access
+    end
+  end
   resources :banks
   resources :settlements do
     collection do

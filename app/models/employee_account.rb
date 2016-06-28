@@ -58,6 +58,8 @@ class EmployeeAccount < ActiveRecord::Base
 
   has_many :employee_ledger_associations
   has_many :ledgers, through: :employee_ledger_associations
+  belongs_to :user
+  has_many :menu_permissions, through: :user
 
   # defines employee association with ledgers
   enum has_access_to: [:everyone, :some, :nobody]
