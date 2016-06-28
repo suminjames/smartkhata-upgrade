@@ -54,10 +54,7 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_email?
-        10.times do |i|
-          EmailWorker.perform_async(transaction_message.bill.id, current_tenant.id)
-          # UserMailer.delay.bill_email(transaction_message.bill.id, current_tenant.id)
-        end
+        UserMailer.delay.bill_email(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|
@@ -72,7 +69,7 @@ class TransactionMessagesController < ApplicationController
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_sms?
         # SmsMessage.delay.send_hello_world(current_tenant.id)
-        # SmsMessage.delay.send_bill_sms(transaction_message.id)
+        SmsMessage.delay.send_bill_sms(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|

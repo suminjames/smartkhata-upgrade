@@ -7,6 +7,7 @@
 #  transaction_date  :date
 #  sms_status        :integer          default("0")
 #  email_status      :integer          default("0")
+#  remarks           :string
 #  bill_id           :integer
 #  client_account_id :integer
 #  created_at        :datetime         not null
@@ -21,8 +22,8 @@ class TransactionMessage < ActiveRecord::Base
   belongs_to :client_account
 
   has_many :share_transactions
-  enum sms_status: [:sms_default, :sms_sent]
-  enum email_status: [:email_default, :email_sent]
+  enum sms_status: [:sms_unsent, :sms_queued, :sms_sent]
+  enum email_status: [:email_unsent, :email_queued, :email_sent]
 
   scope :not_cancelled, -> { where(deleted_at: nil) }
   scope :cancelled, -> { where.not(deleted_at: nil) }
@@ -86,6 +87,16 @@ class TransactionMessage < ActiveRecord::Base
 
   def can_sms?
     return self.bill && self.client_account.messageable_phone_number.present?
+  end
+
+  def increase_sent_email_count!
+    self.sent_email_count += 1
+    self.save
+  end
+
+  def increase_sent_sms_count!
+    self.sent_sms_count += 1
+    self.save
   end
 
 end

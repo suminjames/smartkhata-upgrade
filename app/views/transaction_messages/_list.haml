@@ -39,10 +39,10 @@
               %td= "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" if transaction_message.bill.present?
               %td.sms-message= transaction_message.sms_message
               %td.text-center
-                = transaction_message.sms_default? ? 'No': "Yes(#{transaction_message.sent_sms_count})"
+                = transaction_message.sms_sent? ? "Yes(#{transaction_message.sent_sms_count})" : 'No'
                 %br
               %td.text-center
-                = transaction_message.email_default? ? 'No': "Yes(#{transaction_message.sent_email_count})"
+                = transaction_message.email_sent? ? "Yes(#{transaction_message.sent_email_count})" :  'No'
                 %br
 
     - if !transaction_messages || transaction_messages.empty?

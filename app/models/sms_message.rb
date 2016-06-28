@@ -39,24 +39,34 @@ class SmsMessage < ActiveRecord::Base
     @current_tenant = Tenant.find_by_id(current_tenant_id)
     Apartment::Tenant.switch!(@current_tenant.name)
     @date_time = DateTime.now.to_s(:db)
-    @mobile_number = '9779851153385'
+    @mobile_number = '9851153385'
     @message = 'Hello World, from DIT'
     self.push_sms
     Apartment::Tenant.switch!('public')
   end
 
+  # The reply_code is a string
   def self.push_sms
-    result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
-    # p result
+    reply_code = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + @tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
   end
 
-  def self.send_bill_sms(transaction_message_id )
+  def self.send_bill_sms(transaction_message_id, current_tenant_id )
+    @current_tenant = Tenant.find_by_id(current_tenant_id)
+    Apartment::Tenant.switch!(@current_tenant.name)
     self.date_time
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
+    transaction_message.sms_queued!
     self.message = transaction_message.sms_message
     self.date_time
-    self.mobile_number = '(98511)53-3 85'
-    self.push_sms
+    self.mobile_number = transaction_message.bill.client_account.messageable_phone_number
+    reply_code = self.push_sms
+    if reply_code == '1'
+      transaction_message.increase_sent_sms_count!
+      transaction_message.sms_sent!
+    else
+      transaction_message.sms_unsent!
+    end
+    Apartment::Tenant.switch!('public')
   end
 
   # Encodes the message specifically encoding the (white)space
@@ -65,7 +75,7 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.mobile_number= (number)
-    @mobil_number = self.manipulate_phone_number(number)
+    @mobile_number = self.manipulate_phone_number(number)
   end
 
   def self.date_time
