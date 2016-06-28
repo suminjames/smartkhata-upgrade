@@ -71,6 +71,7 @@
 class ClientAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
+  DATE_REGEX = /\A\d{4}-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[1-2]\d|3[01])\Z/
   after_create :create_ledger
 
   # to keep track of the user who created and last updated the ledger
@@ -88,6 +89,14 @@ class ClientAccount < ActiveRecord::Base
 
   # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
+
+  # 35 fields present. Validate accordingly!
+  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format'
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :email, with: Devise::email_regexp, allow_blank: true
+  # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
+  # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :find_by_client_id, -> (id) { where(id: id) }
