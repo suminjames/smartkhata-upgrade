@@ -21,16 +21,13 @@ class CreateMenuItemsService
           sub_menu_list.each do |sub_menu|
             params = {name: sub_menu['name'], code: sub_menu['code'], path: sub_menu['path'], hide_on_main_navigation: sub_menu['hide_on_main_navigation'], request_type: menu['request_type']}
             puts sub_menu['name']
-            sub_menu_item = MenuItem.create(params)
+            sub_menu_item = menu_item.children.create(params)
             sub_menu['menu_item_id'] = sub_menu_item.id
-            menu_item.children << sub_menu_item
-
             inner_menu_list = sub_menu['menu_items'] || []
             inner_menu_list.each do |menu_item|
               params = {name: menu_item['name'], code: menu_item['code'], path: menu_item['path'], hide_on_main_navigation: menu_item['hide_on_main_navigation'], request_type: menu['request_type']}
-              _menu_item = MenuItem.create(params)
+              _menu_item = sub_menu_item.children.create(params)
               menu_item['menu_item_id'] = _menu_item.id
-              sub_menu_item.children << _menu_item
             end
           end
           menu_item.save!
@@ -63,5 +60,17 @@ class CreateMenuItemsService
     end
 
     true
+  end
+
+
+  def delete_all
+    tenants = Tenant.all
+    tenants.each do |t|
+      Apartment::Tenant.switch!(t.name)
+      MenuItem.delete_all
+      MenuPermission.delete_all
+    end
+    Apartment::Tenant.switch!('public')
+    return true
   end
 end

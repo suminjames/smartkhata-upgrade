@@ -56,6 +56,6 @@ class User < ActiveRecord::Base
   attr_accessor :current_url_link
 
   def blocked_path_list
-    get_blocked_path_list
+    get_blocked_path_list(self.id)
   end
 end

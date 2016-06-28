@@ -58,3 +58,11 @@ $(document).ready ->
       $("input:checkbox").prop('checked', $(this).prop("checked"))
       $("input:checkbox").attr('disabled', false);
 
+
+# code to select required menus
+$(document).ready ->
+  $(document) . on 'click', '.menu-permission-list .select_all', (event) ->
+    $this  = $(this)
+    $this.siblings('ul')
+      .find("input[type='checkbox']")
+      .prop('checked', this.checked)

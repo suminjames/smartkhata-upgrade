@@ -107,7 +107,7 @@ class ApplicationPolicy
     end
   end
 
-  def permit_access_to_client_and_above(*actions)
+  def self.permit_access_to_client_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
         client_and_above?

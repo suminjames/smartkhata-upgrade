@@ -1,13 +1,18 @@
 <% provide(:section_title, "Edit Employee Menu Permission") %>
-<%= form_for @employee_account do -%>
-    <%= MenuItem.count || 0 %>
-    <% MenuItem.first_level_menu_items.each do |menu_item| -%>
-        <div>
-          <% if menu_item.path.present? %>
-          <%= check_box_tag :menu_ids, menu_item.id, @employee_account.menu_permissions.include?(menu_item), :name => 'employee_account[menu_ids][]' -%>
-          <% end %>
-          <%= label_tag :menu_ids, menu_item.name -%>
-        </div>
-    <% end -%>
+
+<%= simple_form_for @employee_account do |f| -%>
+    <%= f.input :name, placeholder: 'Name', disabled: true %>
+    <%= hidden_field_tag 'edit_type', 'menu_access' %>
+    <p>Select the Menu that are available for the user </p>
+    <%= arranged_tree_as_list(@menu_items, {:list_style => :boostrap_list_group, :ul_class => ['menu-permission-list'] }) do |menu_item| %>
+        <% if menu_item['path'].present? %>
+            <%= check_box_tag :menu_ids, menu_item.id, @employee_account.menu_permissions.pluck(:menu_item_id).include?(menu_item.id), :name => 'employee_account[menu_ids][]' -%>
+        <% else %>
+            <%= check_box_tag '', '', false, class: 'select_all' %>
+        <% end %>
+        <%= label_tag :menu_ids, menu_item.name -%>
+    <% end %>
+    <br>
+    <br>
     <%= submit_tag -%>
 <% end -%>

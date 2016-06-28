@@ -26,9 +26,11 @@ module MenuPermissionModule
 
   #
   # Get Blocked path list for the current user
+  # user id should be passed because this method is also being called from user model
+  # and model dont have access to current_user helper
   #
-  def get_blocked_path_list
-    MenuItem.all.pluck(:path).to_a.compact
+  def get_blocked_path_list(user_id = current_user.id)
+    MenuItem.black_listed_paths_for_user(user_id)
   end
 
   #
