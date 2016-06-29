@@ -653,13 +653,14 @@ ActiveRecord::Schema.define(version: 20160625122731) do
     t.date     "transaction_date"
     t.integer  "sms_status",        default: 0
     t.integer  "email_status",      default: 0
+    t.string   "remarks"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.date     "deleted_at"
-    t.integer  "sent_sms_count"
-    t.integer  "sent_email_count"
+    t.integer  "sent_sms_count",    default: 0
+    t.integer  "sent_email_count",  default: 0
   end
 
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree
