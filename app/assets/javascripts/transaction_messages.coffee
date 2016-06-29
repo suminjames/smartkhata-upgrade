@@ -6,7 +6,18 @@ selectedTransactionMessagesIdsForEmail = []
 selectedTransactionMessagesIdsForSMS= []
 allTransactionMessagesIds = []
 
-$(document).ready ->
+transactionMessagesStatusesPoller = undefined
+
+clearTransactionMessagesStatusesPoller = ->
+  if $('#transaction_message_list').length = 0
+    clearInterval transactionMessagesStatusesPoller
+    $(document).off 'page:change', clearTransactionMessagesStatusesPoller
+
+
+#$(document).on 'page:change', -> 
+#  clearTransactionMessagesStatusesPoller 
+  
+$(document).on 'page:change', ->
   if $('#transaction_message_list').length > 0
     console.log("doc loaded!")
     
@@ -14,7 +25,8 @@ $(document).ready ->
     allTransactionMessagesIds = `$("#filterrific_results .email:input:checkbox").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 
     # Poll for transaction messages' email and sms status every 4 seconds
-    setInterval pollForTransactionMessagesStatuses , 4000
+    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 4000
+    $(document).on 'page:change', clearTransactionMessagesStatusesPoller
     
     $(document).on 'change', 'input:checkbox', (event)->
       selectedTransactionMessagesIdsForEmail = `$("#filterrific_results .email:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
