@@ -8,10 +8,10 @@ allTransactionMessagesIds = []
 
 transactionMessagesStatusesPoller = undefined
 
+# Issue with turbolinks and setInterval is circumvented using idea from https://product.reverb.com/2015/04/09/fun-with-setinterval-and-turbolinks/
 clearTransactionMessagesStatusesPoller = ->
-  if $('#transaction_message_list').length = 0
-    clearInterval transactionMessagesStatusesPoller
-    $(document).off 'page:change', clearTransactionMessagesStatusesPoller
+  clearInterval transactionMessagesStatusesPoller
+  $(document).off 'page:change', clearTransactionMessagesStatusesPoller
 
 
 #$(document).on 'page:change', -> 
