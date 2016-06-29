@@ -1,4 +1,4 @@
-class TransactionMessageDecorator < ApplicationDecorator
+class SmsMessageDecorator < ApplicationDecorator
   delegate_all
 
   # Define presentation-specific methods here. Helpers are accessed through
@@ -9,4 +9,5 @@ class TransactionMessageDecorator < ApplicationDecorator
   #       object.created_at.strftime("%a %m/%d/%y")
   #     end
   #   end
+
 end

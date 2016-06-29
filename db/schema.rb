@@ -630,6 +630,11 @@ ActiveRecord::Schema.define(version: 20160625122731) do
   add_index "share_transactions", ["updater_id"], name: "index_share_transactions_on_updater_id", using: :btree
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
+  create_table "sms_messages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.string   "name"
     t.string   "dp_id"
