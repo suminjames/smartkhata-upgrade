@@ -1,22 +1,24 @@
 -# be sure to make changes on list_complete too
-
 - unless smart_listing.empty?
-  = link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement.id), class: "btn btn-primary"
-  %table.table.table-striped
-    %thead
-      %th.col-xs-4= "Company Name"
-      %th.col-xs-3= "Client"
-      %th.col-xs-1= "Quantity"
-      %th.col-xs-1= "Rate"
-      %th.col-xs-1= "Base Price"
-      %th.col-xs-1= "CGT"
-    %tbody
-      - smart_listing.collection.each do |o|
-        %tr.editable{data: {id: o.id}}
-          -# Render share transaction row partial
-          = smart_listing.render object: o, partial: "share_transactions/share_transaction", locals: {object: o}
-  = smart_listing.paginate
-  = smart_listing.pagination_per_page_links
-  = link_to "Process the Settlement", generate_bills_sales_settlements_path(id:@sales_settlement.id), class: "btn btn-primary"
+  = form_tag generate_bills_sales_settlements_path, method: :get do
+    = hidden_field_tag 'id', @sales_settlement.id
+    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
+    %table.table.table-striped
+      %thead
+        %th.col-xs-4= "Company Name"
+        %th.col-xs-3= "Client"
+        %th.col-xs-1= "Quantity"
+        %th.col-xs-1= "Rate"
+        %th.col-xs-1= "Base Price"
+        %th.col-xs-1= "CGT"
+      %tbody
+        - smart_listing.collection.each do |o|
+          %tr.editable{data: {id: o.id}}
+            -# Render share transaction row partial
+            = smart_listing.render object: o, partial: "share_transactions/share_transaction", locals: {object: o}
+    = smart_listing.paginate
+    = smart_listing.pagination_per_page_links
+    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
 - else
   %p.warning No records!
+
