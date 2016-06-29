@@ -3,6 +3,7 @@ module ApplicationHelper
   include FiscalYearModule
   include CustomDateModule
   include NumberFormatterModule
+  include MenuPermissionModule
 
   def link_to_add_fields(name, f, association, extra_info = nil)
     new_object = f.object.send(association).klass.new
@@ -148,5 +149,4 @@ module ApplicationHelper
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
   end
-
 end

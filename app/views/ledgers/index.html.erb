@@ -1,17 +1,19 @@
 <% provide(:section_title, "Ledgers") %>
-
-
-<div class="clearfix submenu" >
+<div class="clearfix submenu">
   <%
     def is_active_sub_menu_option(option)
       return params[:search_by] == option || params[:show] == option
     end
   %>
   <h5>
-    <%= link_to 'Search by Ledger Name',  ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name")? "active-link" : "")} %> |
-    <%= link_to "All Ledgers",  ledgers_path(show: "all"), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
-    <%= link_to "All Internal Ledgers",  ledgers_path(show: "all_internal"), {:class => (is_active_sub_menu_option("all_internal")? "active-link" : "")} %> |
-    <%= link_to "All Client Ledgers",  ledgers_path(show: "all_client"), {:class => (is_active_sub_menu_option("all_client")? "active-link" : "")} %> |
+    <%= link_to 'Search by Ledger Name', ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name") ? "active-link" : "")} %>
+    |
+    <%= link_to "All Ledgers", ledgers_path(show: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    |
+    <%= link_to "All Internal Ledgers", ledgers_path(show: "all_internal"), {:class => (is_active_sub_menu_option("all_internal") ? "active-link" : "")} %>
+    |
+    <%= link_to "All Client Ledgers", ledgers_path(show: "all_client"), {:class => (is_active_sub_menu_option("all_client") ? "active-link" : "")} %>
+    |
     <%= link_to 'New Ledger', new_ledger_path %>
   </h5>
 </div>
@@ -24,32 +26,32 @@
       <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
           <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "ledger_name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a ledger...'%>
+            <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a ledger...' %>
           </div>
           <%= submit_tag "Search", class: 'btn btn-sm' %>
       <% end %>
   <% end %>
 </div>
 
-<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
+<%= render 'shared/pagination', collection_to_paginate: @ledgers %>
 
 <% # OPTIMIZE Incorporate search term specific message %>
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@ledgers.present? %>
-<% if params[:search_by] == 'ledger_name'  %>
-<p>There are no ledgers matching the name '<%= params[:search_term] %>'.</p>
-<% end %>
+    <% if params[:search_by] == 'ledger_name' %>
+        <p>There are no ledgers matching the name '<%= params[:search_term] %>'.</p>
+    <% end %>
 <% end %>
 
 <table class="table ledger-list">
   <thead>
-    <tr>
+  <tr>
 
-    </tr>
+  </tr>
   </thead>
 
   <tbody>
 
-    <% if !@ledgers.empty?
+    <% if @ledgers
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>
@@ -58,32 +60,32 @@
               <span class="credit-amount">
                 <%= "#{number_to_currency(ledger.closing_blnc.abs)} cr" %>
               </span>
-          <% else %>
+              <% else %>
               <span class="debit-amount">
                 <%= "#{number_to_currency(ledger.closing_blnc.abs)} dr" %>
               </span>
-          <% end %>
-        </td>
-        <td>
-        <%= link_to 'Show', ledger %>
-        <% if ledger.client_account_id.present? %>
-              <!-- if ledgers closing balance is non zero (0.01 is taken to consider the decimal places) we can clear the ledger at once -->
-              <% if ledger.closing_blnc.abs >= 0.01 %>
-                  | <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id) %>
               <% end %>
-              <% if ledger.client_account.bills.find_not_settled.present? %>
-                | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: ledger.client_account_id) %>
+            </td>
+            <td>
+              <%= link_to 'Show', ledger %>
+              <% if ledger.client_account_id.present? %>
+                  <!-- if ledgers closing balance is non zero (0.01 is taken to consider the decimal places) we can clear the ledger at once -->
+                  <% if ledger.closing_blnc.abs >= 0.01 %>
+                      | <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id) %>
+                  <% end %>
+                  <% if ledger.client_account.bills.find_not_settled.present? %>
+                      | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: ledger.client_account_id) %>
+                  <% end %>
               <% end %>
-        <% end %>
-        </td>
-      </tr>
+            </td>
+          </tr>
       <% end %>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 
 <br>
 
-<%= render 'shared/pagination', collection_to_paginate: @ledgers%>
+<%= render 'shared/pagination', collection_to_paginate: @ledgers %>
 
 </div>

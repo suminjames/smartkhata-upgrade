@@ -12,9 +12,9 @@ one:
   city_perm: foo-city
   state_perm: foo-state
   country_perm: foo-country
+  nepse_code: 99999
   # mobile_number: '9800000000'
   #  boid                      :string
-  #  nepse_code                :string
   #  client_type               :integer          default("0")
   #  date                      :date
   #  address1                  :string           default(" ")

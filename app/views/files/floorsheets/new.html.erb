@@ -1,15 +1,15 @@
 <% provide(:section_title, "Upload FloorSheet file") %>
 <p> Upload file should be in xls format </p>
 <div>
-	<%= form_tag import_files_floorsheets_path, multipart: true do %>
-		<div class="form-group">
-			<%= file_field_tag :file %>
-		</div>
-		<div class="form-group">
-			<%= submit_tag "Import" ,   { :class => 'btn btn-primary' } %>
-		</div>
+  <%= form_tag import_files_floorsheets_path, multipart: true do %>
+      <div class="form-group">
+        <%= file_field_tag :file %>
+      </div>
+      <div class="form-group">
+        <%= submit_tag "Import", {:class => 'btn btn-primary'} %>
+      </div>
 
-	<% end %>
+  <% end %>
 </div>
 
 <div class="panel panel-danger">
@@ -32,14 +32,14 @@
               <td><%= file.report_date %> </td>
               <td><%= ad_to_bs_string(file.report_date) %> </td>
               <td><%= file.updated_at.to_date %></td>
-              <td><%=  link_to 'view', share_transactions_path(search_by: 'floorsheet_date', report_date: file.report_date) %></td>
+              <td><%= link_to 'view', share_transactions_path(search_by: 'floorsheet_date', report_date: file.report_date) %></td>
             </tr>
         <% end %>
         </tbody>
       </table>
     </div>
     <div class="text-center">
-      <%= link_to "View Full List" , files_floorsheets_path %>
+      <%= link_to "View Full List", files_floorsheets_path %>
     </div>
   </div>
 </div>

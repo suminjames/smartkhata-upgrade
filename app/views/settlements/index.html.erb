@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 <% provide(:section_title, "Settlements") %>
 
-<%= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f| %>
+<%= form_for_filterrific @filterrific, html: {id: 'filterrific-no-ajax-auto-submit'} do |f| %>
     <div class="panel panel-default filter-form">
       <div class="panel-body">
         <div class="row">
@@ -15,7 +15,7 @@
                     :id,
                     :name,
                     {include_blank: '- Any -'},
-                    {class: 'form-control combobox' }) %>
+                    {class: 'form-control combobox'}) %>
           </div>
 
           <div class="col-xs-3">
@@ -25,7 +25,7 @@
             <%= f.select(
                     :by_settlement_type,
                     @filterrific.select_options[:by_settlement_type],
-                    { include_blank: '- Any -' },{class: 'form-control combobox' }
+                    {include_blank: '- Any -'}, {class: 'form-control combobox'}
                 ) %>
           </div>
 
@@ -37,7 +37,7 @@
             <%= f.text_field(
                     :by_date,
                     :placeholder => 'YYYY-MM-DD',
-                    class: 'form-control' ) %>
+                    class: 'form-control') %>
           </div>
 
           <div class="col-xs-4">
@@ -53,20 +53,20 @@
                 <%= f.text_field(
                         :by_date_from,
                         :placeholder => 'YYYY-MM-DD',
-                        class: 'form-control' ) %>
+                        class: 'form-control') %>
               </div>
               <div class="col-xs-6">
                 <%= f.text_field(
                         :by_date_to,
                         :placeholder => 'YYYY-MM-DD',
-                        class: 'form-control' ) %>
+                        class: 'form-control') %>
               </div>
             </div>
           </div>
 
         </div>
 
-        <div class="row top-buffer">
+        <div class="row top-buffer-sm">
           <div class="col-xs-3">
             <%= f.submit 'Search' %>
             <%= link_to(
@@ -84,7 +84,7 @@
 
 <%= render(
         partial: 'settlements/list',
-        locals: { settlements: @settlements}
+        locals: {settlements: @settlements}
     )
 %>
 

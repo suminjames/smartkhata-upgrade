@@ -65,9 +65,9 @@ class BankAccountsControllerTest < ActionController::TestCase
     assert_response :success
     assert_template 'bank_accounts/new'
     assert_not_nil assigns(:bank_account)
-    # Flash appears to be empty- has it something to do with respond_to format ?
-    # Not a problem in the frontend!
-    # assert_not flash.empty?
+    assert_match 'should be numeric or alphanumeric', response.body
+    # simple_form does not use flash?
+    # assert_not_nil flash[:error]
   end
 
   # show

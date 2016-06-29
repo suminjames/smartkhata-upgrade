@@ -80,7 +80,7 @@ class Print::PrintVoucher< Prawn::Document
     column_widths = {0 => table_width * 1/2.0, 1 => table_width * 1/2.0}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 0, :padding => [0,2,0,0], :align => :left}
+      t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0], :align => :left}
       t.column_widths = column_widths
       t.column(1).style(:align => :right)
     end
@@ -92,26 +92,26 @@ class Print::PrintVoucher< Prawn::Document
     ]
 
     @particulars.each do |particular|
-      particular_desc =  ''
+      particular_desc = ''
       if @voucher.formatted_description.size > 0
-          particular desc += "Being paid to #{particular.ledger.name} for"
-          @voucher.formatted_description.each do |b|
-            particular_desc += "Bill : #{b[0]} Amount: #{b[1]} | "
-          end
-          # Remove the trailing | and space
-          particular_desc = particular_desc[0...-2]
+        particular desc += "Being paid to #{particular.ledger.name} for"
+        @voucher.formatted_description.each do |b|
+          particular_desc += "Bill : #{b[0]} Amount: #{b[1]} | "
+        end
+        # Remove the trailing | and space
+        particular_desc = particular_desc[0...-2]
       else
         particular_desc += @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{particular.ledger.name}"
       end
 
-      data << [particular.ledger.name, particular_desc, @cheque, arabic_number(particular.amount) ]
+      data << [particular.ledger.name, particular_desc, @cheque, arabic_number(particular.amount)]
     end
 
     table_width = page_width - 2
     column_widths = {0 => table_width * 3/12.0, 1 => table_width * 4/12.0, 2 => table_width * 3/12.0, 3 => table_width * 2/12.0}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
+      t.cell_style = {:border_width => 1, :padding => [1, 2, 1, 2], :align => :left}
       t.row(0).font_style = :bold
       t.columns(0..-1).borders = [:left]
       t.columns(-1).borders = [:left, :right]
@@ -136,7 +136,7 @@ class Print::PrintVoucher< Prawn::Document
     column_widths = {0 => table_width * 6/12.0, 1 => table_width * 3/12.0, 2 => table_width * 3/12.0}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 1, :padding => [1,2,1,2], :align => :left}
+      t.cell_style = {:border_width => 1, :padding => [1, 2, 1, 2], :align => :left}
       t.row(0).font_style = :bold
       t.columns(0..-1).borders = [:left]
       t.columns(-1).borders = [:left, :right]
@@ -165,7 +165,7 @@ class Print::PrintVoucher< Prawn::Document
     ]
     table_width = page_width - 2
     column_widths = {0 => table_width * 1/3.0, 1 => table_width * 1/3.0, 2 => table_width * 1/3.0}
-    table(data, :column_widths => column_widths, :cell_style => {:border_width => 0, :padding => [0,2,0,0], :align => :center})
+    table(data, :column_widths => column_widths, :cell_style => {:border_width => 0, :padding => [0, 2, 0, 0], :align => :center})
   end
 
 end

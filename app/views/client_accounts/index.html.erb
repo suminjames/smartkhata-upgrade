@@ -1,14 +1,17 @@
 <% provide(:section_title, "Clients") %>
-<div class="clearfix submenu" >
+<div class="clearfix submenu">
   <%
     def is_active_sub_menu_option(option)
       return params[:search_by] == option || params[:show] == option
     end
   %>
   <h5>
-    <%= link_to "Search by Client Name",  client_accounts_path(search_by: "name"), {:class => (is_active_sub_menu_option("name")? "active-link" : "")}   %>  |
-    <%= link_to "All Clients",  client_accounts_path(show: 'all'), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
-    <%= link_to "Search by BoID",  client_accounts_path(search_by: "boid"), {:class => (is_active_sub_menu_option("boid")? "active-link" : "")} %>  |
+    <%= link_to "Search by Client Name", client_accounts_path(search_by: "name"), {:class => (is_active_sub_menu_option("name") ? "active-link" : "")} %>
+    |
+    <%= link_to "All Clients", client_accounts_path(show: 'all'), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    |
+    <%= link_to "Search by BoID", client_accounts_path(search_by: "boid"), {:class => (is_active_sub_menu_option("boid") ? "active-link" : "")} %>
+    |
     <%= link_to 'New Client', new_client_account_path %>
   </h5>
 </div>
@@ -21,7 +24,7 @@
       <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
           <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...'%>
+            <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...' %>
           </div>
           <%= submit_tag "Search", class: 'btn btn-sm' %>
       <% end %>
@@ -30,47 +33,47 @@
   <%
     if params[:search_by] == 'boid'
   %>
-  <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
-  <%= hidden_field_tag :search_by, "boid" %>
-  <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by BoID" %>
-  <%= submit_tag "Search" %>
+      <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
+          <%= hidden_field_tag :search_by, "boid" %>
+          <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by BoID" %>
+          <%= submit_tag "Search" %>
+      <% end %>
   <% end %>
-<% end %>
 </div>
 
 <% if !@client_accounts.blank? %>
-    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts %>
 
     <div class="table-responsive">
 
-        <table class="table table-striped">
+      <table class="table table-striped">
         <thead>
-          <tr>
-            <th>Sr.</th>
-            <th>BOID</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-          </tr>
+        <tr>
+          <th>Sr.</th>
+          <th>BOID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+        </tr>
         </thead>
         <tbody>
         <%
-          serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20 ) + 1
+          serial_number_count = params[:page].blank? ? 1 : ((params[:page].to_i - 1) * 20) + 1
 
           @client_accounts.each_with_index do |x, i| %>
-          <tr>
-            <td><%= serial_number_count + i %></td>
-            <td><%= x.boid %></td>
-            <td><%= x.name %></td>
-            <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
-            <td><%= x.email %></td>
-            <td><%= link_to 'edit', edit_client_account_path(x) %></td>
-          </tr>
+            <tr>
+              <td><%= serial_number_count + i %></td>
+              <td><%= x.boid %></td>
+              <td><%= x.name %></td>
+              <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
+              <td><%= x.email %></td>
+              <td><%= link_to 'edit', edit_client_account_path(x) %></td>
+            </tr>
         <% end %>
-      </tbody>
+        </tbody>
       </table>
     </div>
 
-    <%= render 'shared/pagination', collection_to_paginate: @client_accounts%>
+    <%= render 'shared/pagination', collection_to_paginate: @client_accounts %>
 
 <% end %>

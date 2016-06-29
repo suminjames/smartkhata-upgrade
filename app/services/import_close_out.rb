@@ -3,11 +3,12 @@ class ImportCloseOut < ImportFile
   include CommissionModule
   include ShareInventoryModule
 
-	def initialize(file,type)
+  def initialize(file, type)
     super(file)
     @closeout_type = type
   end
-	def process
+
+  def process
     open_file(@file)
     unless @error_message
       ActiveRecord::Base.transaction do
@@ -33,18 +34,18 @@ class ImportCloseOut < ImportFile
 
           # update the attributes
           closeout.update!(
-            settlement_id: hash['SETTLEMENTID'],
-            contract_number: hash['CONTRACTNUMBER'],
-            seller_cm: hash['SELLERCM'],
-            seller_client: hash['SELLERCLIENT'],
-            buyer_cm: hash['BUYERCM'],
-            buyer_client: hash['BUYERCLIENT'],
-            isin: hash['ISIN'],
-            scrip_name: hash['SCRIPNAME'],
-            quantity: hash['TRADEDQTY'],
-            shortage_quantity: hash['SHORTAGEQTY'],
-            rate: hash['RATE'],
-            net_amount: closeout.debit? ? hash['CLOSEOUTDBTAMT'] : hash['CLOSEOUTCRAMT']
+              settlement_id: hash['SETTLEMENTID'],
+              contract_number: hash['CONTRACTNUMBER'],
+              seller_cm: hash['SELLERCM'],
+              seller_client: hash['SELLERCLIENT'],
+              buyer_cm: hash['BUYERCM'],
+              buyer_client: hash['BUYERCLIENT'],
+              isin: hash['ISIN'],
+              scrip_name: hash['SCRIPNAME'],
+              quantity: hash['TRADEDQTY'],
+              shortage_quantity: hash['SHORTAGEQTY'],
+              rate: hash['RATE'],
+              net_amount: closeout.debit? ? hash['CLOSEOUTDBTAMT'] : hash['CLOSEOUTCRAMT']
           )
 
 
@@ -71,7 +72,7 @@ class ImportCloseOut < ImportFile
             # debit is for sales
             if closeout.debit?
 
-              update_share_inventory(transaction.client_account_id,transaction.isin_info_id, closeout.shortage_quantity, false)
+              update_share_inventory(transaction.client_account_id, transaction.isin_info_id, closeout.shortage_quantity, false)
 
               commission_amount = get_commission_by_rate(transaction.commission_rate, net_amount)
               dp_fee = 0.0
@@ -81,7 +82,7 @@ class ImportCloseOut < ImportFile
 
               closeout_amount = commission_amount + dp_fee + closeout.net_amount
               closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
-              default_bank_purchase = BankAccount.where(:default_for_payment   => true).first
+              default_bank_purchase = BankAccount.where(:default_for_payment => true).first
 
 
               if default_bank_purchase.present?
@@ -95,8 +96,8 @@ class ImportCloseOut < ImportFile
                   voucher.complete!
                   voucher.save!
 
-                  process_accounts(default_bank_purchase.ledger,voucher,true,closeout_amount,description)
-                  process_accounts(closeout_ledger,voucher,false,closeout_amount,description)
+                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description)
+                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description)
 
                 end
               else
@@ -104,9 +105,9 @@ class ImportCloseOut < ImportFile
                 raise ActiveRecord::Rollback
                 break
               end
-            # credit the close out account and debit the bank account
+              # credit the close out account and debit the bank account
 
-            # credit is for sales
+              # credit is for sales
             else
               import_error("Closeout upload is not implemented properly for sales case. Please contact developer")
               raise ActiveRecord::Rollback
@@ -119,5 +120,5 @@ class ImportCloseOut < ImportFile
         end
       end
     end
-	end
+  end
 end

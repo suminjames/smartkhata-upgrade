@@ -17,7 +17,7 @@ class VouchersController < ApplicationController
   # GET /vouchers/1
   # GET /vouchers/1.json
   def show
-    @from_path =  request.referer || pending_vouchers_vouchers_path
+    @from_path = request.referer || pending_vouchers_vouchers_path
     full_view = params[:full] || false
     @particulars = @voucher.particulars
     if @voucher.is_payment_bank && !full_view
@@ -26,16 +26,16 @@ class VouchersController < ApplicationController
       @particular_with_bank = @particulars.has_bank.first
       @bank_account = @particular_with_bank.ledger.bank_account
       @cheque = @particular_with_bank.cheque_number
-      @particulars =  @particulars.general
+      @particulars = @particulars.general
     end
-      respond_to do |format|
-        format.html
-        format.js
-        format.pdf do
-          pdf = Print::PrintVoucher.new(@voucher, @particulars, @bank_account, @cheque, current_tenant)
-          send_data pdf.render, filename: "Voucher_#{@voucher.voucher_number}.pdf", type: 'application/pdf', disposition: "inline"
-        end
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintVoucher.new(@voucher, @particulars, @bank_account, @cheque, current_tenant)
+        send_data pdf.render, filename: "Voucher_#{@voucher.voucher_number}.pdf", type: 'application/pdf', disposition: "inline"
       end
+    end
   end
 
   # GET /vouchers/new
@@ -96,8 +96,8 @@ class VouchersController < ApplicationController
         @vendor_account_list = voucher_creation.vendor_account_list
         @client_ledger_list = voucher_creation.client_ledger_list
         @is_payment_receipt = voucher_creation.is_payment_receipt?(@voucher_type)
-        @voucher_settlement_type  = voucher_creation.voucher_settlement_type
-        @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
+        @voucher_settlement_type = voucher_creation.voucher_settlement_type
+        @group_leader_ledger_id = voucher_creation.group_leader_ledger_id
         @vendor_account_id = voucher_creation.vendor_account_id
 
         if voucher_creation.error_message
@@ -151,7 +151,7 @@ class VouchersController < ApplicationController
               ledger.lock!
 
               closing_blnc = ledger.closing_blnc
-              ledger.closing_blnc = ( particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
+              ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
               particular.opening_blnc = closing_blnc
               particular.running_blnc = ledger.closing_blnc
               particular.complete!
@@ -168,7 +168,7 @@ class VouchersController < ApplicationController
             success = true
             message = "Payment Voucher was successfully approved"
           end
-        elsif  params[:reject]
+        elsif params[:reject]
           # TODO(Subas) what happens to bill
           @voucher.reviewer_id = UserSession.user_id
           voucher_amount = 0.0
@@ -218,7 +218,7 @@ class VouchersController < ApplicationController
 
     respond_to do |format|
       format.html {
-        redirect_to from_path, notice: message  if success
+        redirect_to from_path, notice: message if success
         redirect_to from_path, alert: error_message unless success
       }
       format.json { head :no_content }
@@ -246,53 +246,52 @@ class VouchersController < ApplicationController
     end
 
 
-
     case voucher_type
-    when Voucher.voucher_types[:receipt]
-      # check if the client account is present
-      # and grab all the bills from which we can receive amount if bill is not present
-      # else grab the amount to be paid from the bill
-      if client_account.present?
-        unless bill.present?
-          bills = client_account.bills.requiring_receive
+      when Voucher.voucher_types[:receipt]
+        # check if the client account is present
+        # and grab all the bills from which we can receive amount if bill is not present
+        # else grab the amount to be paid from the bill
+        if client_account.present?
+          unless bill.present?
+            bills = client_account.bills.requiring_receive
 
-          # TODO how to make the below commented line work
-          # amount = bills.sum(&:balance_to_pay)
-          amount = bills.sum(:balance_to_pay)
-        else
-          bills = [bill]
-          amount = bill.balance_to_pay
+            # TODO how to make the below commented line work
+            # amount = bills.sum(&:balance_to_pay)
+            amount = bills.sum(:balance_to_pay)
+          else
+            bills = [bill]
+            amount = bill.balance_to_pay
+          end
+
+          amount = amount.abs
         end
 
-        amount = amount.abs
-      end
-
-    when Voucher.voucher_types[:payment]
-      if client_account.present?
-        unless bill.present?
-          bills = client_account.bills.requiring_payment
-          amount = bills.sum(:balance_to_pay)
-        else
-          bills = [bill]
-          amount = bill.balance_to_pay
+      when Voucher.voucher_types[:payment]
+        if client_account.present?
+          unless bill.present?
+            bills = client_account.bills.requiring_payment
+            amount = bills.sum(:balance_to_pay)
+          else
+            bills = [bill]
+            amount = bill.balance_to_pay
+          end
+          amount = amount.abs
         end
-        amount = amount.abs
-      end
     end
     amount = amount.round(2)
     return client_account, bill, bills, amount
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_voucher
-      @voucher = Voucher.find(params[:id]).decorate
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_voucher
+    @voucher = Voucher.find(params[:id]).decorate
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def voucher_params
-      params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id,:description, :amount,:transaction_type, :cheque_number, :additional_bank_id])
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def voucher_params
+    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id])
+  end
 
   def set_voucher_general_params
     # get parameters for voucher types and assign it as journal if not available
@@ -319,7 +318,7 @@ class VouchersController < ApplicationController
   def set_clear_ledger
     clear_ledger = false
     if params[:clear_ledger].present?
-      return true if ( params[:clear_ledger] == true || params[:clear_ledger] == 'true')
+      return true if (params[:clear_ledger] == true || params[:clear_ledger] == 'true')
     end
     clear_ledger
   end

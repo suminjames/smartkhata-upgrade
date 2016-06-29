@@ -1,100 +1,100 @@
 <% if user_signed_in? %>
 <%# add navigation links to this file %>
-<li class="dropdown yamm-fw">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">File Section<span class="caret"></span></a>
-  <ul class="dropdown-menu sub-menu" role="menu">
-    <div class="yamm-content">
-      <div class="row">
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Uploads</strong></p></li>
-          <li><%= link_to 'FloorSheet', new_files_floorsheet_path %></li>
-          <li><%= link_to 'Sales CM', new_files_sale_path	 %></li>
-          <li><%= link_to 'DpA5', new_files_dpa5_path %></li>
-          <li><%= link_to 'Order', new_files_order_path %></li>
-          <li><%= link_to 'CloseOut Debit', new_files_closeout_path(type: 'debit') %></li>
-          <li><%= link_to 'CloseOut Credit', new_files_closeout_path(type: 'credit') %></li>
-        </ul>
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Pending</strong></p></li>
-          <li><%= link_to 'Pending Sales Settlement', sales_settlements_path(pending: true)	 %></li>
-        </ul>
+    <li class="dropdown yamm-fw">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">File Section<span class="caret"></span></a>
+      <ul class="dropdown-menu sub-menu" role="menu">
+        <div class="yamm-content">
+          <div class="row">
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Uploads</strong></p></li>
+              <li><%= link_to 'FloorSheet', new_files_floorsheet_path %></li>
+              <li><%= link_to 'Sales CM', new_files_sale_path %></li>
+              <li><%= link_to 'DpA5', new_files_dpa5_path %></li>
+              <li><%= link_to 'Order', new_files_order_path %></li>
+              <li><%= link_to 'CloseOut Debit', new_files_closeout_path(type: 'debit') %></li>
+              <li><%= link_to 'CloseOut Credit', new_files_closeout_path(type: 'credit') %></li>
+            </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Pending</strong></p></li>
+              <li><%= link_to 'Pending Sales Settlement', sales_settlements_path(pending: true) %></li>
+            </ul>
 
-      </div>
-    </div>
-  </ul>
-</li>
-<li class="dropdown yamm-fw">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account Section<span class="caret"></span></a>
-  <ul class="dropdown-menu sub-menu" role="menu">
-    <div class="yamm-content">
-      <div class="row">
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Vouchers</strong></p></li>
-          <li><%= link_to 'Journal', new_voucher_path	 %></li>
-          <li><%= link_to 'Receipt', new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %></li>
-          <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
-          <li><%= link_to 'Pending Payment', pending_vouchers_vouchers_path %></li>
-        </ul>
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Ledgers</strong></p></li>
-          <li><%= link_to 'Ledger List', ledgers_path %></li>
-          <li><%= link_to 'Group Member Balance Transfer', group_member_ledgers_path %></li>
-        </ul>
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Bills</strong></p></li>
-          <li><%= link_to 'Bill List', bills_path %></li>
-          <li><%= link_to 'New Provisional Bill', new_bill_path %></li>
-          <li><%= link_to 'Deal Cancel', deal_cancel_share_transactions_path %></li>
-          <li><%= link_to 'Approve Deal Cancel', pending_deal_cancel_share_transactions_path %></li>
-        </ul>
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Bank</strong></p></li>
-          <li><%= link_to 'Banks', banks_path %></li>
-          <li><%= link_to 'Bank Accounts', bank_accounts_path %></li>
-          <li><%= link_to 'Cheque Entries', cheque_entries_path %></li>
-        </ul>
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Nepse</strong></p></li>
-          <li><%= link_to 'Nepse Chalan', nepse_chalans_path %></li>
-        </ul>
-      </div>
-    </div>
-  </ul>
-</li>
-<li><%= link_to 'Client Register', client_accounts_path %></li>
-<li><%= link_to 'Employee Register', employee_accounts_path %></li>
-<li><%= link_to 'Vendor Register', vendor_accounts_path %></li>
+          </div>
+        </div>
+      </ul>
+    </li>
+    <li class="dropdown yamm-fw">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account Section<span class="caret"></span></a>
+      <ul class="dropdown-menu sub-menu" role="menu">
+        <div class="yamm-content">
+          <div class="row">
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Vouchers</strong></p></li>
+              <li><%= link_to 'Journal', new_voucher_path %></li>
+              <li><%= link_to 'Receipt', new_voucher_path(voucher_type: Voucher.voucher_types[:receipt]) %></li>
+              <li><%= link_to 'Payment', new_voucher_path(voucher_type: Voucher.voucher_types[:payment]) %></li>
+              <li><%= link_to 'Pending Payment', pending_vouchers_vouchers_path %></li>
+            </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Ledgers</strong></p></li>
+              <li><%= link_to 'Ledger List', ledgers_path %></li>
+              <li><%= link_to 'Group Member Balance Transfer', group_member_ledgers_path %></li>
+            </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Bills</strong></p></li>
+              <li><%= link_to 'Bill List', bills_path %></li>
+              <li><%= link_to 'New Provisional Bill', new_bill_path %></li>
+              <li><%= link_to 'Deal Cancel', deal_cancel_share_transactions_path %></li>
+              <li><%= link_to 'Approve Deal Cancel', pending_deal_cancel_share_transactions_path %></li>
+            </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Bank</strong></p></li>
+              <li><%= link_to 'Banks', banks_path %></li>
+              <li><%= link_to 'Bank Accounts', bank_accounts_path %></li>
+              <li><%= link_to 'Cheque Entries', cheque_entries_path %></li>
+            </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Nepse</strong></p></li>
+              <li><%= link_to 'Nepse Chalan', nepse_chalans_path %></li>
+            </ul>
+          </div>
+        </div>
+      </ul>
+    </li>
+    <li><%= link_to 'Client Register', client_accounts_path %></li>
+    <li><%= link_to 'Employee Register', employee_accounts_path %></li>
+    <li><%= link_to 'Vendor Register', vendor_accounts_path %></li>
 
-<li class="dropdown yamm-fw">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports<span class="caret"></span></a>
-  <ul class="dropdown-menu sub-menu" role="menu">
-    <div class="yamm-content">
-      <div class="row">
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Financial Reports</strong></p></li>
-          <li><%= link_to 'Balance Sheet', report_balancesheet_index_path	 %></li>
-          <li><%= link_to 'Profit & Loss', report_profitandloss_index_path %></li>
-          <li><%= link_to 'Trial Balance', report_trial_balance_index_path %></li>
-        </ul>
+    <li class="dropdown yamm-fw">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports<span class="caret"></span></a>
+      <ul class="dropdown-menu sub-menu" role="menu">
+        <div class="yamm-content">
+          <div class="row">
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Financial Reports</strong></p></li>
+              <li><%= link_to 'Balance Sheet', report_balancesheet_index_path %></li>
+              <li><%= link_to 'Profit & Loss', report_profitandloss_index_path %></li>
+              <li><%= link_to 'Trial Balance', report_trial_balance_index_path %></li>
+            </ul>
 
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Transactions / Orders</strong></p></li>
-          <li><%= link_to 'Share Inventory', share_transactions_path %></li>
-          <li><%= link_to 'Orders', orders_path(show: 'report')%></li>
-          <li><%= link_to 'Cancelled Transactions', share_transactions_path(search_by: 'cancelled') %></li>
-        </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Transactions / Orders</strong></p></li>
+              <li><%= link_to 'Share Inventory', share_transactions_path %></li>
+              <li><%= link_to 'Orders', orders_path(show: 'report') %></li>
+              <li><%= link_to 'Cancelled Transactions', share_transactions_path(search_by: 'cancelled') %></li>
+            </ul>
 
-        <ul class="col-xs-2 list-unstyled">
-          <li><p><strong>Settlements</strong></p></li>
-          <li><%= link_to 'Receipt', settlements_path("filterrific[by_settlement_type]":'receipt') %></li>
-          <li><%= link_to 'Payment', settlements_path("filterrific[by_settlement_type]":'payment') %></li>
-        </ul>
+            <ul class="col-xs-2 list-unstyled">
+              <li><p><strong>Settlements</strong></p></li>
+              <li><%= link_to 'Receipt', settlements_path("filterrific[by_settlement_type]": 'receipt') %></li>
+              <li><%= link_to 'Payment', settlements_path("filterrific[by_settlement_type]": 'payment') %></li>
+            </ul>
 
-      </div>
-    </div>
+          </div>
+        </div>
 
 
-  </ul>
-</li>
+      </ul>
+    </li>
 <% end %>
 <%= render "layouts/nav_links_for_auth" %>

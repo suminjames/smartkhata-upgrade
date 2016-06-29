@@ -14,10 +14,8 @@
 #
 
 
-
-
 class FileUpload < ActiveRecord::Base
-	include ::Models::UpdaterWithBranch
+  include ::Models::UpdaterWithBranch
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
   enum file_type: [:unknown, :floorsheet, :dpa5, :orders]

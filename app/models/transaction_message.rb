@@ -7,13 +7,14 @@
 #  transaction_date  :date
 #  sms_status        :integer          default("0")
 #  email_status      :integer          default("0")
+#  remarks           :string
 #  bill_id           :integer
 #  client_account_id :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  deleted_at        :date
-#  sent_sms_count    :integer
-#  sent_email_count  :integer
+#  sent_sms_count    :integer          default("0")
+#  sent_email_count  :integer          default("0")
 #
 
 class TransactionMessage < ActiveRecord::Base
@@ -21,8 +22,8 @@ class TransactionMessage < ActiveRecord::Base
   belongs_to :client_account
 
   has_many :share_transactions
-  enum sms_status: [:sms_default, :sms_sent]
-  enum email_status: [:email_default, :email_sent]
+  enum sms_status: [:sms_unsent, :sms_queued, :sms_sent]
+  enum email_status: [:email_unsent, :email_queued, :email_sent]
 
   scope :not_cancelled, -> { where(deleted_at: nil) }
   scope :cancelled, -> { where.not(deleted_at: nil) }
@@ -35,4 +36,67 @@ class TransactionMessage < ActiveRecord::Base
   def soft_undelete
     update_attribute(:deleted_at, nil)
   end
+
+  filterrific(
+      default_filter_params: { sorted_by: 'id_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id,
+      ]
+  )
+
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day).order(:id)
+  }
+  scope :by_date_from, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('transaction_date >= ?', date_ad.beginning_of_day).order(:id)
+  }
+  scope :by_date_to, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('transaction_date <= ?', date_ad.end_of_day).order(:id)
+  }
+
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(:id) }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        order("transaction_messages.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  def self.latest_transaction_date
+    self.maximum("transaction_date")
+  end
+
+  def can_email?
+    return self.bill && self.client_account.email.present?
+  end
+
+  def can_sms?
+    return self.bill && self.client_account.messageable_phone_number.present?
+  end
+
+  def increase_sent_email_count!
+    self.sent_email_count += 1
+    self.save
+  end
+
+  def increase_sent_sms_count!
+    self.sent_sms_count += 1
+    self.save
+  end
+
 end

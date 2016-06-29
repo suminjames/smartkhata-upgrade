@@ -1,5 +1,5 @@
 class ImportFile
-  attr_reader :status_code,:sales_settlement_id,:error_message,:processed_data
+  attr_reader :status_code, :sales_settlement_id, :error_message, :processed_data
 
   def initialize(file)
     @file = file
@@ -22,6 +22,7 @@ class ImportFile
   def extract_xls(file)
     raise NotImplementedError
   end
+
   def extract_xlsx(file)
     raise NotImplementedError
   end
@@ -29,11 +30,15 @@ class ImportFile
   # open the corresponding file
   def open_file(file)
     case File.extname(file.original_filename)
-    when ".csv" then extract_csv(file)
-      when ".xls" then extract_xls(file)
-      when ".xlsx" then extract_xlsx(file)
-    # else raise "Unknown file type: #{file.original_filename}"
-    else @error_message = "Unknown file type: #{file.original_filename}"
+      when ".csv" then
+        extract_csv(file)
+      when ".xls" then
+        extract_xls(file)
+      when ".xlsx" then
+        extract_xlsx(file)
+      # else raise "Unknown file type: #{file.original_filename}"
+      else
+        @error_message = "Unknown file type: #{file.original_filename}"
     end
   end
 

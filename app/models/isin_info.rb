@@ -13,15 +13,12 @@
 #  updated_at :datetime         not null
 #
 
-
-
-
 class IsinInfo < ActiveRecord::Base
-	has_many :share_transactions
+  has_many :share_transactions
 
-	# Used by combobox in view
-	# In rare circumstances, the data crawled from nepse's site has (apparently errorenous) numeric(eg: 001) value as isin code for a company. This method makes it easier to identify a company in these cases.
-	def identifier_for_combobox
-		self.isin + ' (' + self.company + ')'
-	end
+  # Used by combobox in view
+  # In rare circumstances, the data crawled from nepse's site has (apparently errorenous) numeric(eg: 001) value as isin code for a company. This method makes it easier to identify a company in these cases.
+  def identifier_for_combobox
+    self.isin + ' (' + self.company + ')'
+  end
 end

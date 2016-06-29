@@ -10,7 +10,7 @@
         <%= name %></div>
 
       <% if credit %>
-        <div class="col-xs-6 text-right"><%= number_to_currency(( hash[:balance] > 0 ?  hash[:balance] * -1 : hash[:balance].abs)) %></div>
+          <div class="col-xs-6 text-right"><%= number_to_currency((hash[:balance] > 0 ? hash[:balance] * -1 : hash[:balance].abs)) %></div>
       <% else %>
           <div class="col-xs-6 text-right"><%= number_to_currency(hash[:balance]) %></div>
       <% end %>
@@ -23,20 +23,20 @@
       <% end %>
 
       <table class="ledger clearfix table table-striped">
-      <% hash[:ledgers].each do |ledger| %>
+        <% hash[:ledgers].each do |ledger| %>
 
             <tr>
-            <td class="col-xs-6">
-              <%= link_to ledger.name, ledger, :target => "_blank" %>
-            </td>
-            <% if credit %>
-                <td class="col-xs-6 text-right"><%= number_to_currency((ledger.closing_blnc > 0 ? ledger.closing_blnc * -1 : ledger.closing_blnc.abs)) %></td>
-            <% else %>
-                <td class="col-xs-6 text-right"><%= number_to_currency(ledger.closing_blnc) %></td>
-            <% end %>
+              <td class="col-xs-6">
+                <%= link_to ledger.name, ledger, :target => "_blank" %>
+              </td>
+              <% if credit %>
+                  <td class="col-xs-6 text-right"><%= number_to_currency((ledger.closing_blnc > 0 ? ledger.closing_blnc * -1 : ledger.closing_blnc.abs)) %></td>
+              <% else %>
+                  <td class="col-xs-6 text-right"><%= number_to_currency(ledger.closing_blnc) %></td>
+              <% end %>
             </tr>
 
-      <% end %>
+        <% end %>
       </table>
     </div>
   </div><!-- /.box-body -->

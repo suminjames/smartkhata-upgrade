@@ -10,25 +10,25 @@ Note:
   - net receivable amount
 -->
 <%
-# Client associated with the bill
-@client = bill.get_client
+  # Client associated with the bill
+  @client = bill.get_client
 %>
 
 <%= link_to "View(pdf)", bill_path(format: "pdf"), :target => "_blank" %>
 
-<div class="btnPrintPDF btnPrintBillPDF" id="bill-<%=bill.id%>">
+<div class="btnPrintPDF btnPrintBillPDF" id="bill-<%= bill.id %>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
-  <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'bill-print-spinner') %>
+  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'bill-print-spinner') %>
   <iframe class="hidden-iframe" id='iframe-for-bill-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
 </div>
 
-<div id = "printThis" class="clearfix bill-full printThis">
+<div id="printThis" class="clearfix bill-full printThis">
   <div class="settlement-holder">
-    <% if  bill.settled? && !has_voucher_pending_approval %>
-    <%= image_tag("settled.png") %>
+    <% if bill.settled? && !has_voucher_pending_approval %>
+        <%= image_tag("settled.png") %>
     <% end %>
   </div>
   <!-- Static Company Header BEGINS -->
@@ -37,8 +37,8 @@ Note:
       <%= current_tenant.full_name %><br>
       <%= current_tenant.address %><br>
     </strong>
-      <div class="row">
-        <strong>
+    <div class="row">
+      <strong>
         <div class="col-xs-3">
           Phone: <%= current_tenant.phone_number %>
           <br>
@@ -70,23 +70,23 @@ Note:
     </div>
     <div class="col-xs-5">
       Bill Date:
-      <%= bill.formatted_bill_dates["ad"]%>
-      (<%= bill.formatted_bill_dates["bs"]%>)
+      <%= bill.formatted_bill_dates["ad"] %>
+      (<%= bill.formatted_bill_dates["bs"] %>)
     </div>
     <div class="col-xs-3 text-right">
       Fiscal Year:
-      <%= bill.formatted_fy_code%>
+      <%= bill.formatted_fy_code %>
     </div>
   </div>
   <!-- Bill No. and Bill Date ENDS -->
 
   <!-- Customer Details BEGINS -->
   <div class="row customer_details">
-    <div class="col-xs-6" >
+    <div class="col-xs-6">
       <table class="table table-no-border">
         <tr>
           <td>Customer:</td>
-          <td><%= bill.formatted_client_name%></td>
+          <td><%= bill.formatted_client_name %></td>
         </tr>
         <tr>
           <td>NEPSE Code:</td>
@@ -112,7 +112,7 @@ Note:
   <!-- Transaction Details BEGINS -->
   <div class="clearfix transactions-section">
     <div class="clearfix bill-message">
-    <%= bill.formatted_bill_message %>
+      <%= bill.formatted_bill_message %>
     </div>
     <table class="table table-bordered table-condensed text-center table-no-border">
       <tr>
@@ -131,32 +131,34 @@ Note:
 
       </colgroup>
       <%
-      # bill.share_transactions.each do | share_transaction |
-      bill.formatted_group_same_isin_same_rate_transactions.each do | formatted_share_transaction |
-        # Only show those share transactions that haven't been 'deal cancelled'
-        %>
-        <tr>
-          <!-- <th>Transaction No</th> -->
-          <td><%= formatted_share_transaction[:contract_no] %></td>
-          <!-- <th>No of Shares</th> -->
-          <td><%= formatted_share_transaction[:raw_quantity] %>(<%= formatted_share_transaction[:raw_quantity_description] %>)</td>
-          <!-- <th>Company Name</th> -->
-          <td><%= formatted_share_transaction[:isin]%></td>
-          <!-- <th>Share Rate</th> -->
-          <td><%= formatted_share_transaction[:share_rate] %></td>
-          <!-- <th>Base Price</th> -->
-          <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= formatted_share_transaction[:base_price] %></td>
-          <!-- <th>Amount</th> -->
-          <td><%= formatted_share_transaction[:share_amount] %></td>
-          <!-- <th>Commission Rate</th> -->
-          <td><%= formatted_share_transaction[:commission_rate] %></td>
-          <!-- <th>Commission Amount</th> -->
-          <td><%= formatted_share_transaction[:commission_amount] %></td>
-          <!-- <th>Capital Gain</th> -->
-          <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= formatted_share_transaction[:capital_gain] %></td>
-        </tr>
-        <%
-      end
+        # bill.share_transactions.each do | share_transaction |
+        bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
+          # Only show those share transactions that haven't been 'deal cancelled'
+      %>
+          <tr>
+            <!-- <th>Transaction No</th> -->
+            <td><%= formatted_share_transaction[:contract_no] %></td>
+            <!-- <th>No of Shares</th> -->
+            <td><%= formatted_share_transaction[:raw_quantity] %>
+              (<%= formatted_share_transaction[:raw_quantity_description] %>)
+            </td>
+            <!-- <th>Company Name</th> -->
+            <td><%= formatted_share_transaction[:isin] %></td>
+            <!-- <th>Share Rate</th> -->
+            <td><%= formatted_share_transaction[:share_rate] %></td>
+            <!-- <th>Base Price</th> -->
+            <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= formatted_share_transaction[:base_price] %></td>
+            <!-- <th>Amount</th> -->
+            <td><%= formatted_share_transaction[:share_amount] %></td>
+            <!-- <th>Commission Rate</th> -->
+            <td><%= formatted_share_transaction[:commission_rate] %></td>
+            <!-- <th>Commission Amount</th> -->
+            <td><%= formatted_share_transaction[:commission_amount] %></td>
+            <!-- <th>Capital Gain</th> -->
+            <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= formatted_share_transaction[:capital_gain] %></td>
+          </tr>
+      <%
+        end
       %>
     </table>
   </div>
@@ -204,13 +206,13 @@ Note:
       <div>
         <table class="table table-no-border table-condensed text-right">
           <% if bill.purchase? %>
-          <tr>
-            <td>Date of clearance:</td>
-            <td>
-              <%= bill.formatted_clearance_dates['ad'] %>
-              (<%= bill.formatted_clearance_dates['bs'] %>)
-            </td>
-          </tr>
+              <tr>
+                <td>Date of clearance:</td>
+                <td>
+                  <%= bill.formatted_clearance_dates['ad'] %>
+                  (<%= bill.formatted_clearance_dates['bs'] %>)
+                </td>
+              </tr>
           <% end %>
           <tr>
             <td>Transaction Date:</td>
@@ -226,8 +228,8 @@ Note:
       <!-- Authorised Signature section BEGINS -->
       <div class="row signature-section">
         <div class="col-xs-8 col-xs-offset-4 text-center">
-        <div class="clearfix horizontal-line">
-        </div>
+          <div class="clearfix horizontal-line">
+          </div>
           (Authorized Signature)
           <br>
           <%= current_tenant.full_name %>
@@ -252,7 +254,7 @@ Note:
     <div class="clearfix text-left">
       <div>
         **Company Code Index =>
-          <i><%= bill.formatted_isin_abbreviation_index %></i>
+        <i><%= bill.formatted_isin_abbreviation_index %></i>
       </div>
     </div>
     <!--Company Abbreviation Index ENDS-->

@@ -15,35 +15,33 @@
 #
 
 
-
-
 class Group < ActiveRecord::Base
   include ::Models::Updater
   include FiscalYearModule
 
-	belongs_to :parent, :class_name => 'Group'
+  belongs_to :parent, :class_name => 'Group'
   has_many :children, :class_name => 'Group', :foreign_key => 'parent_id'
   has_many :ledgers
 
-  enum reports: [ "PNL", "Balance"]
-  enum sub_reports: [ "Income", "Expense", "Assets", "Liabilities"]
+  enum reports: ["PNL", "Balance"]
+  enum sub_reports: ["Income", "Expense", "Assets", "Liabilities"]
 
   scope :top_level, -> {
-  	where(:parent_id => nil)
-	}
-  scope :trial_balance, -> { where(:for_trial_balance => true)}
+    where(:parent_id => nil)
+  }
+  scope :trial_balance, -> { where(:for_trial_balance => true) }
 
-	scope :balance_sheet, -> {
-		where(:parent_id => nil, :report => reports['Balance'])
-	}
+  scope :balance_sheet, -> {
+    where(:parent_id => nil, :report => reports['Balance'])
+  }
   scope :pnl, -> {
     where(:report => reports['PNL'])
   }
 
   # TODO add some uniqueness other than name
   validates :name, uniqueness: true
-	# not so good approach
-	# kept for performance test later on
+  # not so good approach
+  # kept for performance test later on
   def descendents_bad
     children.map do |child|
       [child] + child.descendents_bad
@@ -59,7 +57,7 @@ class Group < ActiveRecord::Base
   end
 
   def closing_blnc_bad
-  	self.descendent_ledgers_bad.sum(&:closing_blnc)
+    self.descendent_ledgers_bad.sum(&:closing_blnc)
   end
 
 
@@ -102,7 +100,7 @@ class Group < ActiveRecord::Base
   end
 
   def closing_blnc(fy_code = get_fy_code)
-  	self.descendent_ledgers(fy_code).sum(:closing_blnc)
+    self.descendent_ledgers(fy_code).sum(:closing_blnc)
   end
 
   def self.tree_for(instance)
@@ -110,7 +108,7 @@ class Group < ActiveRecord::Base
   end
 
   def self.tree_sql_for(instance)
-    tree_sql =  <<-SQL
+    tree_sql = <<-SQL
       WITH RECURSIVE search_tree(id, path) AS (
           SELECT id, ARRAY[id]
           FROM #{table_name}
@@ -124,7 +122,6 @@ class Group < ActiveRecord::Base
       SELECT id FROM search_tree ORDER BY path
     SQL
   end
-
 
 
 end

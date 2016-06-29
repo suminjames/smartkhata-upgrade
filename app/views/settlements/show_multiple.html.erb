@@ -1,4 +1,3 @@
-
 <div class="clearfix billfull printThis">
 
   <%= link_to "View(pdf)", show_multiple_settlements_path(settlement_ids: @settlements.pluck(:id), format: "pdf"), :target => "_blank" %>
@@ -9,10 +8,10 @@
     #   id_arr_str += id
     # end
   %>
-  <div class="btnPrintPDF btnPrintMultipleSettlementsPDF" id="settlement-<%=@settlements.pluck(:id)%>">
+  <div class="btnPrintPDF btnPrintMultipleSettlementsPDF" id="settlement-<%= @settlements.pluck(:id) %>">
     <span class="glyphicon glyphicon-print print-icon"></span>
     <span>Print</span>
-    <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'multiple-settlements-print-spinner') %>
+    <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'multiple-settlements-print-spinner') %>
     <iframe class="hidden-iframe" id='iframe-for-multiple-settlements-pdf-print'>
       <!--hidden iframe for printing-->
     </iframe>
@@ -63,7 +62,7 @@
 
         </div>
         <div class="col-xs-3 col-xs-offset-5 text-right">
-          <p>Date: <%= settlement.date_bs%></p>
+          <p>Date: <%= settlement.date_bs %></p>
         </div>
       </div>
       <!-- Receipt No. and Receipt Date ENDS -->
@@ -75,7 +74,7 @@
           <p>Paid To: <strong><u><%= settlement.name %></u></strong></p>
       <% end %>
 
-      <p>the sum of   <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
+      <p>the sum of <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
       <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
       <!-- Receipt details END -->
       <% if settlement.voucher.cheque_entries.present? %>

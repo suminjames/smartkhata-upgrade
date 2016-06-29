@@ -1,10 +1,10 @@
 <%= link_to "View(pdf)", voucher_path(format: "pdf"), :target => "_blank" %>
 
-<div class="btnPrintPDF btnPrintVoucherPDF" id="voucher-<%=@voucher.id%>">
+<div class="btnPrintPDF btnPrintVoucherPDF" id="voucher-<%= @voucher.id %>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
-  <%= image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'voucher-print-spinner') %>
-  <iframe class= 'hidden-iframe' id = 'iframe-for-voucher-pdf-print'>
+  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'voucher-print-spinner') %>
+  <iframe class='hidden-iframe' id='iframe-for-voucher-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
 </div>
@@ -55,7 +55,7 @@
             <% @particulars.each do |particular| %>
                 <div class="row">
                   <div class="col-xs-3">
-                    <%= particular.ledger.name 	 %>
+                    <%= particular.ledger.name %>
                   </div>
                   <div class="col-xs-4">
 
@@ -110,13 +110,13 @@
           <%= form_tag(finalize_payment_vouchers_path) do %>
               <%= hidden_field_tag 'from_path', @from_path %>
               <%= hidden_field_tag 'id', @voucher.id %>
-              <%= submit_tag 'Reject' , :name => 'reject', class: 'hide-on-print' %>
+              <%= submit_tag 'Reject', :name => 'reject', class: 'hide-on-print' %>
               <%= submit_tag 'Approve', :name => 'approve', class: 'hide-on-print' %>
           <% end %>
 
       <% end %>
 
-  <% else #if !@voucher.is_payment_bank %>
+  <% else #if !@voucher.is_payment_bank  %>
       <div>
         <strong>
           <%= current_tenant.full_name %><br>
@@ -154,11 +154,11 @@
           <% @particulars.each do |particular| %>
               <div class="row">
                 <div class="col-xs-6">
-                  <%= particular.ledger.name 	 %>
+                  <%= particular.ledger.name %>
                 </div>
                 <div class="col-xs-6 row">
-                  <div class="col-xs-6"><%= (particular.dr?) ?arabic_number(particular.amount) : ""  %></div>
-                  <div class="col-xs-6"><%= (particular.cr?)? arabic_number(particular.amount) : ""  %></div>
+                  <div class="col-xs-6"><%= (particular.dr?) ? arabic_number(particular.amount) : "" %></div>
+                  <div class="col-xs-6"><%= (particular.cr?) ? arabic_number(particular.amount) : "" %></div>
 
                 </div>
               </div>

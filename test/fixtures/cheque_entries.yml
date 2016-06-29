@@ -10,3 +10,8 @@ one:
   # particulars: one
   # Client account?
   # Additional bank id?
+
+two:
+  cheque_number: 735
+  bank_account: one
+  status: 4 # approved

@@ -28,6 +28,7 @@ class LedgersControllerTest < ActionController::TestCase
     assert_difference 'Ledger.count', 1 do
       post :create, ledger: { name: 'foo' }
     end
+    assert_equal "Ledger was successfully created.", flash[:notice]
     assert_redirected_to ledger_path(assigns(:ledger))
   end
 
@@ -45,6 +46,7 @@ class LedgersControllerTest < ActionController::TestCase
     assert_not_equal @ledger.name, 'bar'
     patch :update, id: @ledger, ledger: { name: 'bar' }
     assert_redirected_to ledger_path(assigns(:ledger))
+    assert_equal "Ledger was successfully updated.", flash[:notice]
     @ledger.reload
     assert_equal @ledger.name, 'bar'
   end
@@ -54,6 +56,7 @@ class LedgersControllerTest < ActionController::TestCase
     assert_difference 'Ledger.count', -1 do
       delete :destroy, id: @ledger
     end
+    assert_equal "Ledger was successfully destroyed.", flash[:notice]
     assert_redirected_to ledgers_path
   end
 end

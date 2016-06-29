@@ -70,18 +70,18 @@ class BankAccountsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_bank_account
-      @bank_account = BankAccount.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_bank_account
+    @bank_account = BankAccount.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def bank_account_params
-      params.require(:bank_account).permit(:bank_id, :account_number, :default_for_receipt, :default_for_payment,
-                                           ledger_attributes: [:opening_blnc, :opening_blnc_type])
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def bank_account_params
+    params.require(:bank_account).permit(:bank_id, :account_number, :default_for_receipt, :default_for_payment,
+                                         ledger_attributes: [:opening_blnc, :opening_blnc_type])
+  end
 
-    def bank_account_update_params
-      params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
-    end
+  def bank_account_update_params
+    params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
+  end
 end

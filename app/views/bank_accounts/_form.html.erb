@@ -4,7 +4,7 @@
         <%= f.error_notification %>
 
         <div class="form-inputs">
-          <%= f.association :bank, collection: Bank.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank...' %>
+          <%= f.association :bank, collection: Bank.order(:name), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank...' %>
           <%= f.input :account_number %>
           <%= f.input :default_for_receipt %>
           <%= f.input :default_for_payment %>
@@ -13,7 +13,9 @@
           <div class="row">
             <%= f.fields_for :ledger do |p| %>
                 <div class="col-xs-6"><%= p.input :opening_blnc %></div>
-                <div class="col-xs-6"><label>Type</label><%= p.select :opening_blnc_type, options_for_select(Particular.transaction_types) %></div>
+                <div class="col-xs-6">
+                  <label>Type</label><%= p.select :opening_blnc_type, options_for_select(Particular.transaction_types) %>
+                </div>
             <% end %>
           </div>
         </div>

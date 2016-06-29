@@ -1,22 +1,55 @@
+%p#notice= notice
 - provide(:section_title, "Transaction Messages")
-%table.table.table-striped
-  %thead
 
-    %th.col-xs-2= "Transaction date"
-    %th.col-xs-2= "Client Account"
-    %th.col-xs-2= "Bill"
-    %th.col-xs-4= "Sms Message"
-    %th.col-xs-1= "SMS<br>Sent".html_safe
-    %th.col-xs-1= "Email Sent"
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Client
+          = f.collection_select(                        |
+            :by_client_id,                              |
+            @filterrific.select_options[:by_client_id], |
+            :id,                                        |
+            :name,                                      |
+            {include_blank: '- Any -'},                 |
+            {class: 'form-control combobox' })          |
+        .col-xs-2
+          %label
+            Date
+          %br/
+          = f.text_field(                 |
+            :by_date,                     |
+            :placeholder => 'YYYY-MM-DD', |
+            class: 'form-control' )       |
+        .col-xs-4
+          .clearfix
+            .text-center
+              %label
+                Date Range
+          .clearfix
+            .col-xs-6
+              = f.text_field(                 |
+                :by_date_from,                |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' )       |
+            .col-xs-6
+              = f.text_field(                 |
+                :by_date_to,                  |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' )       |
+      .row.top-buffer-sm
+        .col-xs-3
+          = f.submit 'Search'
+          = link_to(                  |
+                'Reset filters',      |
+                reset_filterrific_url |
+            )                         |
+          %br/
+    = render_filterrific_spinner
 
-  %tbody
-    -@transaction_messages.each do |transaction_message|
-      %tr
-        %td= transaction_message.transaction_date
-        %td= transaction_message.client_account.name
-        %td= "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" if transaction_message.bill.present?
-        %td.sms-message= transaction_message.sms_message
-        %td= transaction_message.sms_default? ? "N" : "Y"
-        %td= transaction_message.email_default? ? "N" : "Y"
+
+= render(partial: 'transaction_messages/list', locals: { transaction_messages: @transaction_messages} )
 
 = link_to 'New Transaction message', new_transaction_message_path

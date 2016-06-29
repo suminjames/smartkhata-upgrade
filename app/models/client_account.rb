@@ -64,42 +64,39 @@
 #
 
 
-
-
-
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
-	include ::Models::UpdaterWithBranch
+  include ::Models::UpdaterWithBranch
 
   after_create :create_ledger
 
   # to keep track of the user who created and last updated the ledger
-	belongs_to :creator,  class_name: 'User'
-	belongs_to :updater,  class_name: 'User'
+  belongs_to :creator, class_name: 'User'
+  belongs_to :updater, class_name: 'User'
 
-  belongs_to :group_leader,  class_name: 'ClientAccount'
+  belongs_to :group_leader, class_name: 'ClientAccount'
   has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
 
-	belongs_to :user
+  belongs_to :user
 
-	has_one :ledger
+  has_one :ledger
   has_many :share_inventories
-	has_many :bills
+  has_many :bills
 
   # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
 
-	scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
-	scope :find_by_client_id, -> (id) { where(id: id) }
+  scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
+  scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
-  scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct}
+  scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
-  scope :having_group_members, -> { joins(:group_members) }
-	enum client_type: [:individual, :corporate ]
+  scope :having_group_members, -> { joins(:group_members).uniq }
+  enum client_type: [:individual, :corporate]
 
   # create client ledger
   def create_ledger
@@ -113,10 +110,10 @@ class ClientAccount < ActiveRecord::Base
 
   # assign the client ledger to 'Clients' group
   def assign_group
-		client_group = Group.find_or_create_by!(name: "Clients")
+    client_group = Group.find_or_create_by!(name: "Clients")
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
     client_ledger = Ledger.find(client_account_id: self.id)
-		client_group.ledgers <<  client_ledger
+    client_group.ledgers << client_ledger
   end
 
   def get_current_valuation
@@ -130,6 +127,7 @@ class ClientAccount < ActiveRecord::Base
     client_account_ids |= self.group_members.pluck(:id)
     Bill.find_not_settled_by_client_account_ids(client_account_ids)
   end
+
   # get the bill ids of client as well as all the other bills of clients who have the client as group leader
   def get_all_related_bill_ids
     bill_ids = []
@@ -144,8 +142,25 @@ class ClientAccount < ActiveRecord::Base
     Ledger.where(client_account_id: ids)
   end
 
+  def get_group_members_ledgers_with_balance
+    ids = self.group_members.pluck(:id)
+    Ledger.where(client_account_id: ids).where('(closing_blnc - 0.01) > ?', '0')
+  end
+
   def get_group_members_ledger_ids
     ids = self.group_members.pluck(:id)
     Ledger.where(client_account_id: ids).pluck(:id)
+  end
+
+  # In case both numbers are messageable, 'phone' has higher priority over 'phone_perm'
+  # Returns nil if neither is messageable
+  def messageable_phone_number
+    messageable_phone_number = nil
+    if SmsMessage.messageable_phone_number?(self.phone)
+      messageable_phone_number = self.phone
+    elsif SmsMessage.messageable_phone_number?(self.phone_perm)
+      messageable_phone_number = self.phone_perm
+    end
+    messageable_phone_number
   end
 end

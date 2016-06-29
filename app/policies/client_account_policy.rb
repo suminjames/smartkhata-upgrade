@@ -12,7 +12,7 @@ class ClientAccountPolicy
   end
 
   def show?
-    @current_user.admin? or @current_user == @user
+    user == record || employee_and_above?
   end
 
   def update?

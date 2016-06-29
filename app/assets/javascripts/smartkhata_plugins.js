@@ -94,7 +94,7 @@ $(function () {
  * All SmartKhata functions are implemented below.
  */
 function _smartkhata_init() {
-    
+
     /* Tree()
      * ======
      * Converts the sidebar into a multilevel
@@ -164,7 +164,7 @@ function _smartkhata_init() {
         animationSpeed: $.SmartKhata.options.animationSpeed,
         activate: function (_box) {
             var _this = this;
-            if (! _box) {
+            if (!_box) {
                 _box = document; // activate all boxes per default
             }
             //Listen for collapse event triggers

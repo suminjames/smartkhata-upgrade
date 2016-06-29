@@ -1,8 +1,8 @@
 <% provide(:section_title, "Close Out") %>
-<% if(!@error) %>
-<h1>Data as per the file:</h1>
-<h4> Total Records: <%= @processed_data.count %></h4>
+<% if (!@error) %>
+    <h1>Data as per the file:</h1>
+    <h4> Total Records: <%= @processed_data.count %></h4>
 <% else %>
-<%= link_to "Upload Close Out Debit" ,new_files_closeout_path(type: 'debit') %> |
-    <%= link_to "Upload Close Out Credit" ,new_files_closeout_path(type: 'credit') %>
+    <%= link_to "Upload Close Out Debit", new_files_closeout_path(type: 'debit') %> |
+    <%= link_to "Upload Close Out Credit", new_files_closeout_path(type: 'credit') %>
 <% end %>

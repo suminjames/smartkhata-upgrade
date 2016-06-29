@@ -2,15 +2,16 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.credit-amount { color: red}
-.ledger-single , .ledger-list {
+//.credit-amount { color: red}
+.ledger-single, .ledger-list {
   tr:hover {
     background: #EEEEEE;
   }
 }
+
 .ledger {
 
-  table{
+  table {
     // The width of this table is ought to be 900px.
     // TODO: test the 900px width against small screens, and the fixed dimensions of the page.
     width: 100%;
@@ -21,12 +22,12 @@
     }
     font-family: arial;
     table-layout: fixed;
-    td{
+    td {
       padding: 2px 4px !important;
       border: 1px solid black !important;
       word-wrap: break-word;
     }
-    th{
+    th {
       background-color: rgba(210, 209, 208, 0.31);
       border: 1px solid black !important;
       word-wrap: break-word;

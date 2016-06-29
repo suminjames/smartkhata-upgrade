@@ -3,7 +3,7 @@
 class @GoogleAnalytics
 
   @load: ->
-    # Google Analytics depends on a global _gaq array. window is the global scope.
+# Google Analytics depends on a global _gaq array. window is the global scope.
     window._gaq = []
     window._gaq.push ["_setAccount", GoogleAnalytics.analyticsId()]
 

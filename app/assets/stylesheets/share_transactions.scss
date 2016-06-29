@@ -18,9 +18,10 @@ $link_color: #2f8a93;
   a.active-link {
     //color: #fff !important;
     //background-color: $link_color !important;
-     border-bottom: thin dotted #529EA5;
+    border-bottom: thin dotted #529EA5;
   }
 }
+
 .submenu-nested {
   @extend .submenu;
   font-size: 11px;

@@ -14,52 +14,56 @@
  *= require_self
  */
 body {
-	    background-color: #222d32	;
+  background-color: #222d32;
 }
+
 .container {
-    width: 1170px;
-    max-width: none !important;
+  width: 1170px;
+  max-width: none !important;
 }
+
 .navbar-header {
-    float: left;
+  float: left;
 }
+
 .content-wrapper, .right-side, .main-footer {
-	margin-left: -15px;
+  margin-left: -15px;
   // margin-right: -15px;
 }
 
 .box-body.content-area {
-	min-height: 500px;
-	padding:25px;
+  min-height: 500px;
+  padding: 25px;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {  /*safari and chrome*/
-    select {
-        height:35px;
-        line-height:35px;
-        background:#f4f4f4;
-				width: 100%;
-    }
+@media screen and (-webkit-min-device-pixel-ratio: 0) { /*safari and chrome*/
+  select {
+    height: 35px;
+    line-height: 35px;
+    background: #f4f4f4;
+    width: 100%;
+  }
 }
+
 select::-moz-focus-inner { /*Remove button padding in FF*/
-    border: 0;
-    padding: 0;
+  border: 0;
+  padding: 0;
 }
+
 @-moz-document url-prefix() { /* targets Firefox only */
-    select {
-        padding: 15px 0!important;
-    }
-}
-@media screen\0 { /* IE Hacks: targets IE 8, 9 and 10 */
-    select {
-        height:35px;
-        line-height:35px;
-				width: 100%;
-    }
+  select {
+    padding: 15px 0 !important;
+  }
 }
 
-
-
+@media screen \0
+{ /* IE Hacks: targets IE 8, 9 and 10 */
+  select {
+    height: 35px;
+    line-height: 35px;
+    width: 100%;
+  }
+}
 
 // combobox
 @media (min-width: 768px) {
@@ -74,52 +78,61 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
     width: auto;
   }
 }
+
 .combobox-selected .caret {
   display: none;
 }
+
 /* :not doesn't work in IE8 */
 .combobox-container:not(.combobox-selected) .glyphicon-remove {
   display: none;
 }
+
 .typeahead-long {
   max-height: 300px;
   overflow-y: auto;
 }
+
 .control-group.error .combobox-container .add-on {
   color: #B94A48;
   border-color: #B94A48;
 }
+
 .control-group.error .combobox-container .caret {
   border-top-color: #B94A48;
 }
+
 .control-group.warning .combobox-container .add-on {
   color: #C09853;
   border-color: #C09853;
 }
+
 .control-group.warning .combobox-container .caret {
   border-top-color: #C09853;
 }
+
 .control-group.success .combobox-container .add-on {
   color: #468847;
   border-color: #468847;
 }
+
 .control-group.success .combobox-container .caret {
   border-top-color: #468847;
 }
 
-
 .z-light-bg {
-	background: #ECF0F5;
+  background: #ECF0F5;
 
-	.box-header {
+  .box-header {
     // !important override for print
-		background: #D2D6DE!important;
-	}
+    background: #D2D6DE !important;
+  }
 }
 
 .padding-zero {
   padding: 0;
 }
+
 .z-no-padding-vertical {
   padding-top: 0;
   padding-bottom: 0;
@@ -127,7 +140,7 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 
 .modal {
   text-align: center;
-  padding: 0!important;
+  padding: 0 !important;
 }
 
 .modal:before {
@@ -142,11 +155,8 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   display: inline-block;
   text-align: left;
   vertical-align: middle;
-	width: 1170px;
+  width: 1170px;
 }
-
-
-
 
 @media print {
   body {
@@ -181,33 +191,36 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
 .yamm .dropdown {
   position: static;
 }
+
 .yamm .container {
   position: relative;
 }
+
 .yamm .dropdown-menu {
   left: auto;
 }
+
 .yamm .yamm-content {
   padding: 20px 30px;
 }
+
 .yamm .dropdown.yamm-fw .dropdown-menu {
   left: 0;
   right: 0;
 }
 
-
-
 // hack admin lte
 .navbar-right .dropdown-menu {
-    right: auto;
-    left: auto;
+  right: auto;
+  left: auto;
 }
 
 .sub-menu {
-	// background-color:lighten(#3C8DBC, 15%);;
+  // background-color:lighten(#3C8DBC, 15%);;
 }
+
 .z-small-view {
-	font-size: 12px;
+  font-size: 12px;
 }
 
 // Changes made by Danphe Devs
@@ -227,29 +240,30 @@ a {
   }
 }
 
-
 .trial .table > tbody + tbody {
   border-top: none;
 }
+
 .trial .total-trial {
   background: lightgrey;
 }
 
-
-.grey-hr{
+.grey-hr {
   border-color: grey;
 }
-.print-icon{
+
+.print-icon {
   font-size: 20px;
   margin-bottom: 20px;
 }
-#btnPrint, #btnPrintCheque{
+
+#btnPrint, #btnPrintCheque {
   display: inline-block;
   cursor: pointer;
 }
 
 .hidden-iframe {
-  display:none;
+  display: none;
   visibility: hidden;
 }
 
@@ -258,7 +272,7 @@ a {
   cursor: pointer;
 }
 
-.spinner-circular{
+.spinner-circular {
   display: inline
 }
 
@@ -297,6 +311,7 @@ select.combobox {
     color: #337ab7;
   }
 }
+
 //.bg-saroj.small-box>.small-box-footer:hover {
 //  color: #337ab7;
 //}
@@ -309,6 +324,23 @@ select.combobox {
 
 // Add a bit of margin-top in elements.
 // Usually  between two .row elements, which apparently have no margin.
-.top-buffer {
+.top-buffer-sm {
   margin-top:10px;
+}
+.top-buffer-md {
+  margin-top:30px;
+}
+.top-buffer-lg {
+  margin-top:50px;
+}
+
+#filterrific_results {
+  min-height: 300px;
+}
+
+.search-form.clearfix {
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
 }

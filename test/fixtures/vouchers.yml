@@ -4,8 +4,24 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-#  column: value
+<% (0..3).each do |n| %>
+voucher_<%= n %>:
+  fy_code: 7777
+  voucher_number: 292<%= n %>
+  date: '2070-12-12'
+  date_bs: '2013-09-24'
+   # desc             :string
+  #  beneficiary_name :string
+  voucher_type: <%= n %>
+  voucher_status: 1
+  #  branch_id        :integer
+  #  is_payment_bank  :boolean
+<% end %>
+
+voucher_pending:
+  fy_code: 7777
+  voucher_number: 2930
+  date: '2070-12-12'
+  date_bs: '2013-09-24'
+  voucher_type: 0
+  voucher_status: 0 #pending

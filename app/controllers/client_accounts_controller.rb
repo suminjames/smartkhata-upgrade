@@ -1,4 +1,4 @@
-  class ClientAccountsController < ApplicationController
+class ClientAccountsController < ApplicationController
   before_action :set_client_account, only: [:show, :edit, :update, :destroy]
 
   # GET /client_accounts
@@ -24,12 +24,12 @@
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-      when 'name'
-        @client_accounts = ClientAccount.find_by_client_id(search_term)
-      when 'boid'
-        @client_accounts = ClientAccount.find_by_boid(search_term)
-      else
-        @client_accounts = []
+        when 'name'
+          @client_accounts = ClientAccount.find_by_client_id(search_term)
+        when 'boid'
+          @client_accounts = ClientAccount.find_by_boid(search_term)
+        else
+          @client_accounts = []
       end
     else
       @client_accounts = []
@@ -56,7 +56,7 @@
     @clients_for_combobox = ClientAccount.all.order(:name)
     @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
 
-    @from_path =  request.referer
+    @from_path = request.referer
   end
 
   # POST /client_accounts
@@ -108,20 +108,20 @@
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_client_account
-      @client_account = ClientAccount.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_client_account
+    @client_account = ClientAccount.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def client_account_params
-      params.require(:client_account).permit(
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def client_account_params
+    params.require(:client_account).permit(
         :boid,
         :nepse_code,
         :name,
-        :address1 ,
+        :address1,
         :address1_perm,
-        :address2 ,
+        :address2,
         :address2_perm,
         :address3,
         :address3_perm,
@@ -153,6 +153,6 @@
         :group_leader_id,
         :profession_code,
         :branch_id
-      )
-    end
+    )
   end
+end

@@ -5,19 +5,19 @@
 <%= link_to 'Available Cheques', cheque_entries_path %>
 <table class="table">
   <thead>
-    <tr>
-      <th>Cheque Number</th>
-      <th>Bank Name</th>
-      <th>Account Number</th>
-      <th>Client Name</th>
-      <th>Cheque Date</th>
-      <th>Printed</th>
-      <th>Status</th>
-    </tr>
+  <tr>
+    <th>Cheque Number</th>
+    <th>Bank Name</th>
+    <th>Account Number</th>
+    <th>Client Name</th>
+    <th>Cheque Date</th>
+    <th>Printed</th>
+    <th>Status</th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @cheque_entries.each do |cheque_entry| %>
+  <% @cheque_entries.each do |cheque_entry| %>
       <tr>
         <td><%= cheque_entry.cheque_number %></td>
         <td><%= cheque_entry.bank_account.bank.name %></td>
@@ -28,12 +28,12 @@
         <td><%= cheque_entry.status.titleize %></td>
         <td><%= link_to 'Show', cheque_entry if !cheque_entry.unassigned? %>
           <% if cheque_entry.additional_bank_id.present? %>
-          | <%= link_to 'Bounce', bounce_cheque_entries_path(id: cheque_entry.id) if !cheque_entry.bounced? %>
+              | <%= link_to 'Bounce', bounce_cheque_entries_path(id: cheque_entry.id) if !cheque_entry.bounced? %>
               <%= link_to 'Represent', represent_cheque_entries_path(id: cheque_entry.id) if cheque_entry.bounced? %>
-        <% end %>
+          <% end %>
         </td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

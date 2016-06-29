@@ -1,28 +1,28 @@
-<% inverse = false; ledger_list_financial = extra_info[:ledger_list_financial]; ledger_list_available = extra_info[:ledger_list_available]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id]%>
+<% inverse = false; ledger_list_financial = extra_info[:ledger_list_financial]; ledger_list_available = extra_info[:ledger_list_available]; voucher_type = extra_info[:voucher_type] ; default_ledger_id = extra_info[:default_ledger_id] %>
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
-	<% if inverse == true %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name,{:selected => default_ledger_id },{:class=>'form-control combobox select-ledger'}) %></div>
-	<% else %>
-		<div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name,{},{:class=>'form-control combobox select-ledger'}) %></div>
-	<% end %>
-	<div class="col-xs-2"><%= f.input :amount ,label: false %></div>
-	<div class="col-xs-1 type-selector">
-		<% if ( voucher_type == Voucher.voucher_types[:receipt] && inverse == false  ) || ( voucher_type == Voucher.voucher_types[:payment] && inverse == true ) %>
-			<!--  hidden input to store the transaction type as disabled wont submit data to server -->
-			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "cr" }%>
-			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"cr"),{},{:disabled => true} %>
-		<% elsif voucher_type == Voucher.voucher_types[:payment] || (voucher_type == Voucher.voucher_types[:receipt] )%>
-			<%= f.input :transaction_type, :as => :hidden, :input_html => { :value => "dr" }%>
-			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a,"dr"),{},{:disabled => true} %>
-		<% else %>
-			<%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
-		<% end %>
-	</div>
+  <% if inverse == true %>
+      <div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name, {:selected => default_ledger_id}, {:class => 'form-control combobox select-ledger'}) %></div>
+  <% else %>
+      <div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name, {}, {:class => 'form-control combobox select-ledger'}) %></div>
+  <% end %>
+  <div class="col-xs-2"><%= f.input :amount, label: false %></div>
+  <div class="col-xs-1 type-selector">
+    <% if (voucher_type == Voucher.voucher_types[:receipt] && inverse == false) || (voucher_type == Voucher.voucher_types[:payment] && inverse == true) %>
+        <!--  hidden input to store the transaction type as disabled wont submit data to server -->
+        <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "cr"} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "cr"), {}, {:disabled => true} %>
+    <% elsif voucher_type == Voucher.voucher_types[:payment] || (voucher_type == Voucher.voucher_types[:receipt]) %>
+        <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "dr"} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "dr"), {}, {:disabled => true} %>
+    <% else %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
+    <% end %>
+  </div>
   <div class="col-xs-4 padding-zero">
-    <div class="col-xs-6 cheque-container"><%= f.number_field :cheque_number,		placeholder: 'Cheque number', class: 'form-control cheque' %></div>
+    <div class="col-xs-6 cheque-container"><%= f.number_field :cheque_number, placeholder: 'Cheque number', class: 'form-control cheque' %></div>
     <div class="col-xs-6 cheque-container bank">
-      <%= f.collection_select(:additional_bank_id, Bank.all, :id, :bank_code,{},{:class=>'form-control combobox '}) %>
+      <%= f.collection_select(:additional_bank_id, Bank.all, :id, :bank_code, {}, {:class => 'form-control combobox '}) %>
     </div>
   </div>
 
