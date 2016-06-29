@@ -5,6 +5,7 @@ module MenuPermissionModule
   #
   def permitted_menu_list(menu_list, user_id)
     # remove menu items from the list if it contains the blocked path
+    blocked_path_list = get_blocked_path_list
     menu_list.each do |menu|
       if menu['sub_menus'].present?
         sub_menus =menu['sub_menus'] || []
@@ -36,15 +37,8 @@ module MenuPermissionModule
   #
   # Check if the path is blocked or not
   #
-  def is_blocked_path(path, blocked_path_list = blocked_path_list)
+  def is_blocked_path(path, blocked_path_list = get_blocked_path_list)
     !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include? path)
   end
 
-  #
-  # get blocked path_list from session
-  #
-  def blocked_path_list
-    get_blocked_path_list
-    # session['blocked_path_list']
-  end
 end
