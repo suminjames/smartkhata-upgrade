@@ -18,6 +18,8 @@
 #
 
 class TransactionMessage < ActiveRecord::Base
+  extend CustomDateModule
+
   belongs_to :bill
   belongs_to :client_account
 

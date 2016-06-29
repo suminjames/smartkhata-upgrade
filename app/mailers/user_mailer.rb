@@ -10,7 +10,7 @@ class UserMailer < ApplicationMailer
     @bill = @transaction_message.bill
     email = @bill.client_account.email
     subject = "Your bill from #{@current_tenant.full_name}"
-    bill_pdf = Print::PrintBill.new(@bill.decorate, @current_tenant)
+    bill_pdf = Print::PrintBill.new(@bill.decorate, @current_tenant, 'for_email')
     attachments['Bill.pdf'] = bill_pdf.render
     mail(from: "#{@current_tenant.name}@danpheinfotech.com",
          to: email,

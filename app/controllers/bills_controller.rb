@@ -110,7 +110,7 @@ class BillsController < ApplicationController
       format.html
       format.js
       format.pdf do
-        pdf = Print::PrintBill.new(@bill, current_tenant)
+        pdf = Print::PrintBill.new(@bill, current_tenant, 'for_print')
         send_data pdf.render, filename: "Bill_#{@bill.fy_code}_#{@bill.bill_number}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
