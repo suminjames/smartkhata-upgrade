@@ -1,7 +1,6 @@
 - provide(:section_title, 'FloorSheet Details')
 - unless @error
-  - # OPTIMIZE(sarojk): Is there a guarantee that the 21st object is going to be a ShareTransaction object? Also, is created_at proper attribute to use?
-  - this_floorsheet_date_bs = ad_to_bs_string(@processed_data[0][21].created_at)
+  - this_floorsheet_date_bs = ad_to_bs_string(@date)
   - paginate = false
   = link_to 'View SMS', transaction_messages_path(:paginate => paginate, 'filterrific[by_date]': this_floorsheet_date_bs), target: '_blank', class: 'btn btn-default'
   %table.table.table-striped
