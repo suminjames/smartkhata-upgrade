@@ -88,7 +88,7 @@ class TransactionMessage < ActiveRecord::Base
   end
 
   def can_sms?
-    return self.bill && self.client_account.messageable_phone_number.present?
+    return self.client_account.messageable_phone_number.present?
   end
 
   def increase_sent_email_count!
