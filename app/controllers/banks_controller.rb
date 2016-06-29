@@ -1,6 +1,5 @@
 class BanksController < ApplicationController
   before_action :set_bank, only: [:show, :edit, :update]
-
   # GET /banks
   # GET /banks.json
   def index
@@ -15,6 +14,7 @@ class BanksController < ApplicationController
   # GET /banks/new
   def new
     @bank = Bank.new
+    authorize @bank
   end
 
   # GET /banks/1/edit
@@ -62,13 +62,13 @@ class BanksController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_bank
-      @bank = Bank.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_bank
+    @bank = Bank.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def bank_params
-      params.require(:bank).permit(:name, :bank_code, :address, :contact_no)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def bank_params
+    params.require(:bank).permit(:name, :bank_code, :address, :contact_no)
+  end
 end

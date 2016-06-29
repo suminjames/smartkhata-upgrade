@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @menu_item.name %>
+</p>
+
+<p>
+  <strong>Path:</strong>
+  <%= @menu_item.path %>
+</p>
+
+<p>
+  <strong>Hide on main navigation:</strong>
+  <%= @menu_item.hide_on_main_navigation %>
+</p>
+
+<p>
+  <strong>References:</strong>
+  <%= @menu_item.references %>
+</p>
+
+<p>
+  <strong>Code:</strong>
+  <%= @menu_item.code %>
+</p>
+
+<%= link_to 'Edit', edit_menu_item_path(@menu_item) %> |
+<%= link_to 'Back', menu_items_path %>

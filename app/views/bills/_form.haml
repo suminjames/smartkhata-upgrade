@@ -1,0 +1,11 @@
+= simple_form_for(@bill) do |f|
+  = f.error_notification
+  .has-error
+    = f.error :base
+  .form-inputs
+    = f.association :client_account, collection: ClientAccount.order(:name),:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select Client...'
+    = f.input :date_bs, label: 'Transaction Date', class: 'form-control', placeholder: 'YYYY-MM-DD'
+    = f.input :provisional_base_price, as: :decimal, input_html: {value: f.object.provisional_base_price || '100'}
+
+  .form-actions
+    = f.button :submit

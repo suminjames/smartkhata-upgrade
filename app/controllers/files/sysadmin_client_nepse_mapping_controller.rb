@@ -1,15 +1,15 @@
-class Files::SysadminUploadsController < Files::FilesController
+class Files::SysadminClientNepseMappingController < Files::FilesController
 
   def index
-
+    authorize self
   end
 
   def new
-
+    authorize self
   end
 
   def import
-    # authorize self
+    authorize self
     @file = params[:file]
 
     # file_error("Please Upload a valid file") and return if (is_invalid_file(@file))

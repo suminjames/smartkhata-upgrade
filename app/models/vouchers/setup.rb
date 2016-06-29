@@ -4,7 +4,7 @@ class Vouchers::Setup < Vouchers::Base
     voucher_setup(@voucher_type, @client_account_id, @bill_ids, @bill_id, @clear_ledger)
   end
 
-  def voucher_setup(voucher_type,client_account_id, bill_ids, bill_id, clear_ledger )
+  def voucher_setup(voucher_type, client_account_id, bill_ids, bill_id, clear_ledger)
     is_payment_receipt = false
     default_ledger_id = nil
 
@@ -24,7 +24,7 @@ class Vouchers::Setup < Vouchers::Base
       is_payment_receipt = true
       ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.where(:default_for_payment => true).first
-      default_bank_receive = BankAccount.where(:default_for_receipt   => true).first
+      default_bank_receive = BankAccount.where(:default_for_receipt => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
       ledger_list_available = Ledger.non_bank_ledgers
 
@@ -35,7 +35,7 @@ class Vouchers::Setup < Vouchers::Base
       else
         default_ledger_id = default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
       end
-      voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.size > 0
+      voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
@@ -45,7 +45,7 @@ class Vouchers::Setup < Vouchers::Base
     voucher.particulars = []
     if is_payment_receipt
       transaction_type = voucher_type == Voucher.voucher_types[:receipt] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
-      voucher.particulars << Particular.new(ledger_id: default_ledger_id,amount: amount, transaction_type: transaction_type)
+      voucher.particulars << Particular.new(ledger_id: default_ledger_id, amount: amount, transaction_type: transaction_type)
     end
 
     vendor_account_list = VendorAccount.all
@@ -53,13 +53,13 @@ class Vouchers::Setup < Vouchers::Base
 
     # settlement by clearance only in case of payment to client
     if settlement_by_clearance
-      voucher.desc = "Settled for Bill No: #{bills.map{|a| "#{a.fy_code}-#{a.bill_number}"}.join(',')}" if bills.size > 0
-      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id,amount: amount, transaction_type: Particular.transaction_types[:cr])
+      voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
+      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id, amount: amount, transaction_type: Particular.transaction_types[:cr])
       clearance_ledger = Ledger.find_by!(name: "Clearing Account")
-      voucher.particulars << Particular.new(ledger_id: clearance_ledger,amount: amount, transaction_type: Particular.transaction_types[:dr])
+      voucher.particulars << Particular.new(ledger_id: clearance_ledger, amount: amount, transaction_type: Particular.transaction_types[:dr])
     else
       # for sales and purchase we need two particular one for debit and one for credit
-      voucher.particulars <<  Particular.new(ledger_id: client_account.ledger.id,amount: amount) if client_account.present?
+      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id, amount: amount) if client_account.present?
       # a general particular for the voucher
       voucher.particulars << Particular.new if client_account.nil?
     end

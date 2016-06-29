@@ -16,8 +16,6 @@
 #
 
 
-
-
 class Calendar < ActiveRecord::Base
   include ::Models::Updater
   enum holiday_type: [:not_applicable, :saturday, :public_holiday, :unforeseen_holiday]
@@ -33,7 +31,7 @@ class Calendar < ActiveRecord::Base
 
     from_date_ad.upto(to_date_ad) do |ad_date|
       bs_date = @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
-      date_hash = { }
+      date_hash = {}
       unless bs_date_already_in_db? (bs_date)
         date_hash[:bs_date] = self.stringify_date_hash(bs_date)
         date_hash[:ad_date] = ad_date

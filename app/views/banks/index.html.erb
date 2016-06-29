@@ -2,17 +2,17 @@
 <%= link_to 'New Bank', new_bank_path %>
 <table class="table">
   <thead>
-    <tr>
-      <th>Name</th>
-      <th>Bank code</th>
-      <th>Address</th>
-      <th>Contact no</th>
-      <th colspan="3"></th>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <th>Bank code</th>
+    <th>Address</th>
+    <th>Contact no</th>
+    <th colspan="3"></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @banks.each do |bank| %>
+  <% @banks.each do |bank| %>
       <tr>
         <td><%= bank.name %></td>
         <td><%= bank.bank_code %></td>
@@ -21,7 +21,7 @@
         <td><%= link_to 'Show', bank %></td>
         <td><%= link_to 'Edit', edit_bank_path(bank) %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

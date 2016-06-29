@@ -1,16 +1,16 @@
 <%= simple_form_for(@transaction_message) do |f| %>
-  <%= f.error_notification %>
+    <%= f.error_notification %>
 
-  <div class="form-inputs">
-    <%= f.input :sms_message %>
-    <%= f.input :transaction_date %>
-    <%= f.input :sms_status %>
-    <%= f.input :email_status %>
-    <%= f.association :bill %>
-    <%= f.association :client_account %>
-  </div>
+    <div class="form-inputs">
+      <%= f.input :sms_message %>
+      <%= f.input :transaction_date %>
+      <%= f.input :sms_status %>
+      <%= f.input :email_status %>
+      <%= f.association :bill %>
+      <%= f.association :client_account %>
+    </div>
 
-  <div class="form-actions">
-    <%= f.button :submit %>
-  </div>
+    <div class="form-actions">
+      <%= f.button :submit %>
+    </div>
 <% end %>

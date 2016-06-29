@@ -149,14 +149,14 @@ class NepaliCalendarPlus::CalendarPlus
       end
 
       if j > 12
-        j  = 1
+        j = 1
         i += 1
       end
 
       days -= 1
     end
 
-    {:year=> year, :month => month, :day => day}
+    {:year => year, :month => month, :day => day}
   end
 
   def bs_to_ad(year, month, day)
@@ -164,7 +164,7 @@ class NepaliCalendarPlus::CalendarPlus
 
     ref_day_nep = ref_date['bs_to_ad']['bs']
 
-    date_bs = {:year=> year, :month => month, :day => day}
+    date_bs = {:year => year, :month => month, :day => day}
     return unless bs_date_in_range?(date_bs, Date.parse(ref_day_nep))
 
     get_ad_date(year, month, day, ref_day_nep)
@@ -236,8 +236,8 @@ class NepaliCalendarPlus::CalendarPlus
 
   def ref_date
     {
-        'bs_to_ad' => { 'bs' => '2000/01/01', 'ad' => '1943/04/14' },
-        'ad_to_bs' => { 'bs' => '2000/09/17', 'ad' => '1944/01/01' }
+        'bs_to_ad' => {'bs' => '2000/01/01', 'ad' => '1943/04/14'},
+        'ad_to_bs' => {'bs' => '2000/09/17', 'ad' => '1944/01/01'}
     }
   end
 

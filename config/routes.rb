@@ -1,5 +1,11 @@
 Rails.application.routes.draw do
   resources :sms_messages
+  resources :menu_permissions
+  resources :menu_items
+  get 'general_settings/set_fy'
+
+  get 'general_settings/set_branch'
+
   get 'dashboard/index'
 
   resources :nepse_chalans
@@ -8,7 +14,11 @@ Rails.application.routes.draw do
   resources :branches
   resources :closeouts
   resources :share_inventories
-  resources :employee_accounts
+  resources :employee_accounts do
+    collection do
+      post :update_menu_access
+    end
+  end
   resources :banks
   resources :settlements do
     collection do
@@ -51,7 +61,14 @@ Rails.application.routes.draw do
     end
   end
   resources :groups
-  resources :ledgers
+
+  match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
+
+  resources :ledgers do
+    collection do
+      post 'transfer_group_member_balance'
+    end
+  end
   resources :orders
 
   match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
@@ -87,7 +104,7 @@ Rails.application.routes.draw do
     resources :closeouts, only: [:new] do
       collection {post :import}
     end
-    resources :sysadmin_uploads, only: [:new] do
+    resources :sysadmin_client_nepse_mapping, only: [:new] do
       collection {post :import}
     end
     resources :sysadmin_trial_balance, only: [:new] do

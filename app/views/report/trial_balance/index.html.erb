@@ -1,17 +1,19 @@
 <% provide(:section_title, "Reports: Trial Balance") %>
 <%
-   @date = ad_to_bs_string(Date.today)
+  @date = ad_to_bs_string(Date.today)
 %>
-<div class="clearfix submenu" >
+<div class="clearfix submenu">
   <%
     def is_active_sub_menu_option(option)
       return params[:search_by] == option
     end
   %>
   <h5>
-    <%= link_to "Full Report",  report_trial_balance_index_path(search_by: "all"), {:class => (is_active_sub_menu_option("all")? "active-link" : "")} %>  |
-    <%= link_to "Last Working Day", report_trial_balance_index_path(search_by: "lwd"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %> |
-    <%= link_to "Search by Date",  report_trial_balance_index_path(search_by: "date"), {:class => (is_active_sub_menu_option("date")? "active-link" : "")} %>
+    <%= link_to "Full Report", report_trial_balance_index_path(search_by: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    |
+    <%= link_to "Last Working Day", report_trial_balance_index_path(search_by: "lwd"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
+    |
+    <%= link_to "Search by Date", report_trial_balance_index_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
   </h5>
 </div>
 
@@ -35,43 +37,43 @@
 
 
 <% if @balance_report.present? %>
-<h2 class="text-center"><%= current_tenant.full_name %></h2>
-<h3 class="text-center">Trial Balance</h3>
-<h4 class="text-center"> <%= params[:search_term]? "For the date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
-<br><br>
-<div class="box-body ledger trial">
-  <table class="table">
-    <thead>
-      <th>Name</th>
-      <th>Opening <br> Balance Dr</th>
-      <th>Opening <br> Balance Cr</th>
-      <th>Net Debit</th>
-      <th>Net Credit</th>
-      <th>Closing <br> Balance  Dr</th>
-      <th>Closing <br> Balance  Cr</th>
+    <h2 class="text-center"><%= current_tenant.full_name %></h2>
+    <h3 class="text-center">Trial Balance</h3>
+    <h4 class="text-center"> <%= params[:search_term] ? "For the date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
+    <br><br>
+    <div class="box-body ledger trial">
+      <table class="table">
+        <thead>
+        <th>Name</th>
+        <th>Opening <br> Balance Dr</th>
+        <th>Opening <br> Balance Cr</th>
+        <th>Net Debit</th>
+        <th>Net Credit</th>
+        <th>Closing <br> Balance Dr</th>
+        <th>Closing <br> Balance Cr</th>
 
 
-    </thead>
+        </thead>
 
-      <% @balance_report.each do |group, ledgers| %>
-        <tr class="">
-        <td colspan="7"><h4><strong><%= group %></strong></h4></td>
+        <% @balance_report.each do |group, ledgers| %>
+            <tr class="">
+              <td colspan="7"><h4><strong><%= group %></strong></h4></td>
 
-        </tr>
-        <tbody class="ledger-group">
-        <% ledgers.each do |ledger| %>
-           <tr class="ledger-single">
-             <td><%= ledger.name %></td>
-             <td class="text-right"><%= number_to_currency(ledger.opening_blnc  ) if ledger.opening_blnc > 1 %></td>
-             <td class="text-right"><%= number_to_currency(ledger.opening_blnc.abs ) if ledger.opening_blnc < 0 %></td>
-             <td class="text-right"><%= number_to_currency(ledger.dr_amount)  %></td>
-             <td class="text-right"><%= number_to_currency(ledger.cr_amount ) %></td>
-             <td class="text-right"><%= number_to_currency(ledger.closing_blnc ) if ledger.closing_blnc > 1 %></td>
-             <td class="text-right"><%= number_to_currency(ledger.closing_blnc.abs  ) if ledger.closing_blnc < 0 %></td>
-           </tr>
+            </tr>
+            <tbody class="ledger-group">
+            <% ledgers.each do |ledger| %>
+                <tr class="ledger-single">
+                  <td><%= ledger.name %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_blnc) if ledger.opening_blnc > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_blnc.abs) if ledger.opening_blnc < 0 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.dr_amount) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.cr_amount) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_blnc) if ledger.closing_blnc > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_blnc.abs) if ledger.closing_blnc < 0 %></td>
+                </tr>
+            <% end %>
+            </tbody>
         <% end %>
-        </tbody>
-      <% end %>
-  </table>
- </div>
+      </table>
+    </div>
 <% end %>

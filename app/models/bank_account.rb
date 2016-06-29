@@ -15,6 +15,7 @@
 #
 
 
+
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
 
@@ -26,7 +27,7 @@ class BankAccount < ActiveRecord::Base
   belongs_to :bank
 
   # alphanumeric account number with atleast a single digit
-  validates :account_number, uniqueness: true, format: {with: /\A(?=.*\d)([a-zA-Z0-9]+)\z/}
+  validates :account_number, uniqueness: true, format: {with: /\A(?=.*\d)([a-zA-Z0-9]+)\z/, message: 'should be numeric or alphanumeric'}
   validates_presence_of :bank, :account_number
   accepts_nested_attributes_for :ledger
 
@@ -34,13 +35,13 @@ class BankAccount < ActiveRecord::Base
   # so that the current one becomes the default if opted
   def change_default
     if self.default_for_payment
-      bank_accounts = BankAccount.where( :default_for_payment => true)
+      bank_accounts = BankAccount.where(:default_for_payment => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
       bank_accounts.update_all(:default_for_payment => false)
     end
 
     if self.default_for_receipt
-      bank_accounts = BankAccount.where( :default_for_receipt => true)
+      bank_accounts = BankAccount.where(:default_for_receipt => true)
       bank_accounts = BankAccount.where.not(:id => self.id)
       bank_accounts.update_all(:default_for_receipt => false)
     end
@@ -54,6 +55,7 @@ class BankAccount < ActiveRecord::Base
   def bank_name
     "#{self.bank.name}"
   end
+
   # assign the ledgers to group name bank accounts
   def assign_group
 

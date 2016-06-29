@@ -3,24 +3,24 @@
 <%= link_to 'New Nepse chalan', new_nepse_chalan_path %>
 <table class="table">
   <thead>
-    <tr>
-      <th>Deposited date (BS)</th>
-      <th>Deposited date (AD)</th>
-      <th>Voucher</th>
-      <th colspan="1"></th>
-    </tr>
+  <tr>
+    <th>Deposited date (BS)</th>
+    <th>Deposited date (AD)</th>
+    <th>Voucher</th>
+    <th colspan="1"></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @nepse_chalans.each do |nepse_chalan| %>
+  <% @nepse_chalans.each do |nepse_chalan| %>
       <tr>
         <td><%= nepse_chalan.deposited_date_bs %></td>
         <td><%= nepse_chalan.deposited_date %></td>
-        <td><%= link_to "#{nepse_chalan.voucher.voucher_code} #{nepse_chalan.voucher.fy_code}-#{nepse_chalan.voucher.voucher_number}", voucher_path(nepse_chalan.voucher) , remote: true %></td>
+        <td><%= link_to "#{nepse_chalan.voucher.voucher_code} #{nepse_chalan.voucher.fy_code}-#{nepse_chalan.voucher.voucher_number}", voucher_path(nepse_chalan.voucher), remote: true %></td>
 
         <td><%= link_to 'Show', nepse_chalan %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

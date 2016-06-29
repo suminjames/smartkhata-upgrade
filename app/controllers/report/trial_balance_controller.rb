@@ -1,4 +1,6 @@
 class Report::TrialBalanceController < ApplicationController
+  layout 'application_custom', only: [:index]
+
   def index
 
     if params[:search_by] == 'all'
@@ -9,10 +11,10 @@ class Report::TrialBalanceController < ApplicationController
         @balance_report[balance.name] = balance.descendent_ledgers
       end
     elsif params[:search_by] == 'lwd'
-      date  = Time.now.to_date
+      date = Time.now.to_date
       file_type = FileUpload::file_types[:floorsheet]
       fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
-      if ( fileupload.present? )
+      if (fileupload.present?)
         date = fileupload.report_date
       end
 
@@ -40,7 +42,7 @@ class Report::TrialBalanceController < ApplicationController
                 if day_ledger.length > 0
                   ledger.opening_blnc = day_ledger.first.opening_blnc
                   ledger.closing_blnc = day_ledger.last.closing_blnc
-                    ledger.cr_amount = day_ledger.sum(:cr_amount)
+                  ledger.cr_amount = day_ledger.sum(:cr_amount)
                   ledger.dr_amount = day_ledger.sum(:dr_amount)
                   modified_ledger_list << ledger
                 end

@@ -1,15 +1,18 @@
 <% provide(:section_title, "Reports: Profit and Loss") %>
 <%
-    @date = ad_to_bs_string(Date.today)
+  @date = ad_to_bs_string(Date.today)
 %>
 <%= form_tag(report_profitandloss_index_path, :method => "get", id: "search-form") do %>
-    <h4>Select the level</h4>
     <div class="row">
 
       <div class="col-xs-2">
-        <%= select_tag "drill_level", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
+        <h4>Level</h4>
+        <%= select_tag "drill_level", options_for_select([1, 2, 3, 4], @selected_drill_level) %>
       </div>
-      <div class="col-xs-2"><%= submit_tag "Go", class: 'btn btn-default' %></div>
+      <div class="col-xs-2">
+        <h4>&nbsp;</h4>
+        <%= submit_tag "Go", class: 'btn btn-default' %>
+      </div>
 
     </div>
 <% end %>
@@ -33,26 +36,26 @@
   </tr>
   <tr>
     <td class='col-xs-6'>
-      <% @loss.each do |name,hash| %>
+      <% @loss.each do |name, hash| %>
           <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: false} %>
       <% end %>
       <% if @amount < 0 %>
-        <div class="row box-equivalent">
-          <div class="col-xs-6">Profit</div>
-          <div class="col-xs-6 text-right"><%= number_to_currency(@amount.abs) %></div>
-        </div>
+          <div class="row box-equivalent">
+            <div class="col-xs-6">Profit</div>
+            <div class="col-xs-6 text-right"><%= number_to_currency(@amount.abs) %></div>
+          </div>
       <% end %>
     </td>
 
     <td class='col-xs-6'>
-      <% @profit.each do |name,hash| %>
+      <% @profit.each do |name, hash| %>
           <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
       <% end %>
       <% if @amount > 0 %>
-        <div class="row box-equivalent">
-          <div class="col-xs-6">Loss</div>
-          <div class="col-xs-6 text-right"><%= number_to_currency(@amount) %></div>
-        </div>
+          <div class="row box-equivalent">
+            <div class="col-xs-6">Loss</div>
+            <div class="col-xs-6 text-right"><%= number_to_currency(@amount) %></div>
+          </div>
       <% end %>
     </td>
   </tr>
@@ -67,7 +70,8 @@
     <td>
       <div class="row box-equivalent">
         <div class="col-xs-6"><strong>Total</strong></div>
-        <div class="col-xs-6 text-right"><strong><%= number_to_currency(@profit_total> 0 ? @profit_total * -1 : @profit_total.abs) %></strong></div>
+        <div class="col-xs-6 text-right">
+          <strong><%= number_to_currency(@profit_total> 0 ? @profit_total * -1 : @profit_total.abs) %></strong></div>
       </div>
     </td>
   </tr>

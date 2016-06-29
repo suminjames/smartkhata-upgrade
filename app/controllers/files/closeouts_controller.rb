@@ -4,14 +4,14 @@ class Files::CloseoutsController < Files::FilesController
     @closeout_type = params[:type] == 'debit' ? 'debit' : 'credit'
   end
 
-	def import
-		# authorize self
-		@file = params[:file]
+  def import
+    # authorize self
+    @file = params[:file]
     @closeout_type = params[:type] == 'debit' ? 'debit' : 'credit'
 
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file))
 
-    closeout_upload = ImportCloseOut.new(@file,@closeout_type)
+    closeout_upload = ImportCloseOut.new(@file, @closeout_type)
     closeout_upload.process
     @processed_data = closeout_upload.processed_data
 
@@ -20,5 +20,5 @@ class Files::CloseoutsController < Files::FilesController
       return
     end
 
-	end
+  end
 end

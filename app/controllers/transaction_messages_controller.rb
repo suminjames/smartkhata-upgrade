@@ -136,13 +136,13 @@ class TransactionMessagesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_transaction_message
-      @transaction_message = TransactionMessage.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_transaction_message
+    @transaction_message = TransactionMessage.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def transaction_message_params
-      params.require(:transaction_message).permit(:sms_message, :transaction_date, :sms_status, :email_status, :bill_id, :client_account_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def transaction_message_params
+    params.require(:transaction_message).permit(:sms_message, :transaction_date, :sms_status, :email_status, :bill_id, :client_account_id)
+  end
 end

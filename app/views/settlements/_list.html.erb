@@ -3,11 +3,11 @@
   <table class="table">
     <thead>
     <tr>
-      <th><%= filterrific_sorting_link(@filterrific, :name)%></th>
-      <th><%= filterrific_sorting_link(@filterrific, :amount)%></th>
-      <th><%= filterrific_sorting_link(@filterrific, :date)%></th>
+      <th><%= filterrific_sorting_link(@filterrific, :name) %></th>
+      <th><%= filterrific_sorting_link(@filterrific, :amount) %></th>
+      <th><%= filterrific_sorting_link(@filterrific, :date) %></th>
       <th>Description</th>
-      <th><%= filterrific_sorting_link(@filterrific, :type)%></th>
+      <th><%= filterrific_sorting_link(@filterrific, :type) %></th>
     </tr>
     </thead>
 
@@ -21,7 +21,7 @@
               <td><%= settlement.description %></td>
               <td><%= settlement.receipt? ? 'receipt' : 'payment' %></td>
               <!-- <td><%= settlement.voucher %></td> -->
-              <td><%= link_to 'Show', settlement , target: '_blank' %></td>
+              <td><%= link_to 'Show', settlement, target: '_blank' %></td>
             </tr>
         <% end %>
     <% end %>

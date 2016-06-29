@@ -62,13 +62,13 @@ class EmployeeLedgerAssociationsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_employee_ledger_association
-      @employee_ledger_association = EmployeeLedgerAssociation.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_employee_ledger_association
+    @employee_ledger_association = EmployeeLedgerAssociation.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def employee_ledger_association_params
-      params.fetch(:employee_ledger_association, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def employee_ledger_association_params
+    params.fetch(:employee_ledger_association, {})
+  end
 end

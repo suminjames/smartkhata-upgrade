@@ -9,7 +9,7 @@ manage_cheque_all_select = () ->
 
 fix_autocomplete = () ->
   $('.combobox-container input:text').each ->
-    $(this).attr('autocomplete','off')
+    $(this).attr('autocomplete', 'off')
 
 ready = ->
   jQuery ->
@@ -35,7 +35,7 @@ manage_cheque = ($this, clear_cheque) ->
   $parent_row = $this.parent().parent()
   $cheque = $parent_row.find('.cheque')
 
-  if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0) && !is_payment_bank_transfer()
+  if ($this.find("option[value=" + $val + "]").text().indexOf('Bank:') == 0) && !is_payment_bank_transfer()
     callback = (response) ->
       if parseInt(response) != 0
         $cheque.val(response)
@@ -55,7 +55,7 @@ manage_cheque = ($this, clear_cheque) ->
 
 error_populate_cheque_number = ($this) ->
   $val = $val = $this.val()
-  if ($this.find("option[value="+$val+"]").text().indexOf('Bank:') == 0) && !is_payment_bank_transfer()
+  if ($this.find("option[value=" + $val + "]").text().indexOf('Bank:') == 0) && !is_payment_bank_transfer()
     $input = $this.parent().parent().find('input.cheque')
     if($input.val().trim().length == 0)
       if !$input.parent().hasClass('has-error')
@@ -65,9 +65,9 @@ error_populate_cheque_number = ($this) ->
     else
       $input.parent().removeClass('has-error')
       $input.parent().find('p.error').hide()
-  
+
 $ ->
-  $(document).on 'change','.type-selector select', (event) ->
+  $(document).on 'change', '.type-selector select', (event) ->
     $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
     manage_cheque($ledgerSelect, true)
 
@@ -75,12 +75,12 @@ $ ->
   manage_cheque_all_select()
 
 $ ->
-  $(document).on 'change','.cheque', (event) ->
+  $(document).on 'change', '.cheque', (event) ->
     $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
     error_populate_cheque_number($ledgerSelect)
 
 $ ->
-  $(document).on 'change','select.select-ledger', (event) ->
+  $(document).on 'change', 'select.select-ledger', (event) ->
     $this = $(this)
     manage_cheque($this)
 
@@ -88,8 +88,8 @@ $ ->
   $('#new_voucher').on 'submit', (event) ->
     $(".particular").each ->
       $this = $(this)
-#      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
-#        $this.remove()
+    #      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
+    #        $this.remove()
 
 
     $("select.select-ledger").each ->
@@ -102,10 +102,10 @@ $ ->
     $(this).closest('div.row.particular').remove()
     event.preventDefault()
 
-$(document).on 'click','.add_fields', (event) ->
+$(document).on 'click', '.add_fields', (event) ->
   time = new Date().getTime()
-  regexp = new RegExp($(this).data('id'),'g')
-  $(this).before($(this).data('fields').replace(regexp,time))
+  regexp = new RegExp($(this).data('id'), 'g')
+  $(this).before($(this).data('fields').replace(regexp, time))
   #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
   $('select.combobox').select2({

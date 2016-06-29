@@ -73,3 +73,4 @@ group :test do
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
 end
 gem 'virtus'
+gem 'ancestry'

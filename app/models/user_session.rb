@@ -4,7 +4,7 @@
 
 class UserSession
   class << self
-    attr_reader :user
+    attr_reader :user, :selected_fy_code
     delegate :id, :email, :branch_id, to: :user
     # Stores the current_user for devise using the application_controller
     def user=(usr)
@@ -15,9 +15,14 @@ class UserSession
     def user_id
       user.id
     end
+
     # def user_full_name
     #   user.employee_acount.present? ? user.employee_acount.name : 'asdf'
     # end
+
+    def selected_fy_code=(fy_code)
+      @selected_fy_code = fy_code
+    end
 
     def branch_id
       user.branch_id
@@ -27,5 +32,4 @@ class UserSession
       @user = nil
     end
   end
-
 end

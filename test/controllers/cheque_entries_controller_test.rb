@@ -43,11 +43,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   end
 
   # briefly testing invalid inputs- more in unit test
-  # imaginary bank account
-  test "should not create cheque_entry with imaginary bank account" do
-    @assert_block_via_invalid_post.call(92649, 10, 15)
-  end
-  # at the time of creation, THIS TEST GENERATES uncaught ValidationError.
+  # Negative cheque number
   test "should not create cheque_entry with negative cheque number" do
     @assert_block_via_invalid_post.call(@bank_account.id, -245, -245)
   end

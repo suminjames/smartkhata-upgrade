@@ -1,15 +1,19 @@
 <% provide(:section_title, "Reports:Balance Sheet") %>
 <%
-    @date = ad_to_bs_string(Date.today)
+  @date = ad_to_bs_string(Date.today)
 %>
 <%= form_tag(report_balancesheet_index_path, :method => "get", id: "search-form") do %>
-    <h4>Select the level</h4>
+
     <div class="row">
 
       <div class="col-xs-2">
-        <%= select_tag "drill_level", options_for_select([ 1,2,3,4 ], @selected_drill_level) %>
+        <h4>Level</h4>
+        <%= select_tag "drill_level", options_for_select([1, 2, 3, 4], @selected_drill_level) %>
       </div>
-      <div class="col-xs-2"><%= submit_tag "Go", class: 'btn btn-default' %></div>
+      <div class="col-xs-2">
+        <h4>&nbsp;</h4>
+        <%= submit_tag "Go", class: 'btn btn-default' %>
+      </div>
 
     </div>
 <% end %>
@@ -34,7 +38,7 @@
   <tr>
     <td>
       <% @balance_cr.each do |name, hash| %>
-        <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
+          <%= render partial: 'report/group_balancesheet', locals: {name: name, hash: hash, credit: true} %>
       <% end %>
       <div class="row box-equivalent">
         <div class="col-xs-6">Opening Balance Difference</div>
@@ -52,7 +56,9 @@
     <td>
       <div class="row box-equivalent">
         <div class="col-xs-6"><strong>Total</strong></div>
-        <div class="col-xs-6 text-right"><strong><%= number_to_currency(@opening_balance_cr> 0 ? @opening_balance_cr * -1 : @opening_balance_cr.abs) %></strong></div>
+        <div class="col-xs-6 text-right">
+          <strong><%= number_to_currency(@opening_balance_cr> 0 ? @opening_balance_cr * -1 : @opening_balance_cr.abs) %></strong>
+        </div>
       </div>
 
     </td>

@@ -1,0 +1,13 @@
+<%= simple_form_for(@menu_permission) do |f| %>
+    <%= f.error_notification %>
+
+    <div class="form-inputs">
+      <%= f.association :menu_item %>
+      <%= f.input :user %>
+      <%= f.input :references %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.button :submit %>
+    </div>
+<% end %>

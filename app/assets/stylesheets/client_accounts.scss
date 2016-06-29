@@ -1,3 +1,12 @@
 // Place all the styles related to the ClientAccounts controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.stick-to-bottom {
+  position: absolute;
+  bottom: 20px;
+}
+
+.client-info-wrapper {
+  margin-bottom: 30px;
+}

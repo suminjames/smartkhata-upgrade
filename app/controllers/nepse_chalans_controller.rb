@@ -24,25 +24,25 @@ class NepseChalansController < ApplicationController
 
     case search_by
       when 'date_range'
-      # The dates being entered are assumed to be BS dates, not AD dates
-      date_from_bs = search_term['date_from']
-      date_to_bs   = search_term['date_to']
-      # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-      if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-        date_from_ad = bs_to_ad(date_from_bs)
-        date_to_ad = bs_to_ad(date_to_bs)
-        @share_transactions = ShareTransaction.buying.without_chalan.find_by_date_range(date_from_ad, date_to_ad)
-      else
-        @share_transactions = []
-        respond_to do |format|
-          flash.now[:error] = 'Invalid date(s)'
-          format.html { render :new }
-          format.json { render json: flash.now[:error], status: :unprocessable_entity }
+        # The dates being entered are assumed to be BS dates, not AD dates
+        date_from_bs = search_term['date_from']
+        date_to_bs = search_term['date_to']
+        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+          date_from_ad = bs_to_ad(date_from_bs)
+          date_to_ad = bs_to_ad(date_to_bs)
+          @share_transactions = ShareTransaction.buying.without_chalan.find_by_date_range(date_from_ad, date_to_ad)
+        else
+          @share_transactions = []
+          respond_to do |format|
+            flash.now[:error] = 'Invalid date(s)'
+            format.html { render :new }
+            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+          end
         end
-      end
-    else
-      # If no matches for case 'search_by', return empty @bills
-      @share_transactions = []
+      else
+        # If no matches for case 'search_by', return empty @bills
+        @share_transactions = []
     end
   end
 
@@ -78,7 +78,7 @@ class NepseChalansController < ApplicationController
     chalan_amount = share_transactions.sum(:bank_deposit)
     deposited_date = Time.now
     deposited_date_bs = ad_to_bs(Time.now)
-    @nepse_chalan = NepseChalan.new(deposited_date_bs: deposited_date_bs, deposited_date:deposited_date, chalan_amount: chalan_amount)
+    @nepse_chalan = NepseChalan.new(deposited_date_bs: deposited_date_bs, deposited_date: deposited_date, chalan_amount: chalan_amount)
     @nepse_chalan.nepse_settlement_id = nepse_settlement_id
     nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
 
@@ -98,15 +98,13 @@ class NepseChalansController < ApplicationController
       end
 
 
-
-
       voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
       voucher.desc = description
       voucher.complete!
       voucher.save!
 
-      process_accounts(bank_ledger,voucher,false,chalan_amount,description)
-      process_accounts(nepse_ledger,voucher,true,chalan_amount,description)
+      process_accounts(bank_ledger, voucher, false, chalan_amount, description)
+      process_accounts(nepse_ledger, voucher, true, chalan_amount, description)
 
       @nepse_chalan.voucher = voucher
       @nepse_chalan.share_transactions = share_transactions
@@ -149,13 +147,13 @@ class NepseChalansController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_nepse_chalan
-      @nepse_chalan = NepseChalan.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_nepse_chalan
+    @nepse_chalan = NepseChalan.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def nepse_chalan_params
-      params.require(:nepse_chalan).permit(:deposited_date_bs, :deposited_date, :voucher_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def nepse_chalan_params
+    params.require(:nepse_chalan).permit(:deposited_date_bs, :deposited_date, :voucher_id)
+  end
 end

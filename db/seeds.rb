@@ -14,13 +14,18 @@ tenant = Tenant.find_or_create_by!(name: "trishakti", dp_id: '11400')
 tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '48')
 tenant = Tenant.find_or_create_by!(name: "public", dp_id: '11400')
 tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '48')
+tenant = Tenant.find_or_create_by!(name: "smartkhata", dp_id: '1010')
+tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
+tenant = Tenant.find_or_create_by!(name: "danphe", dp_id: '1010')
+tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
 @tenants = Tenant.all
-
 
 @admin_users = [
     {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
     {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
-    {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'}
+    {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
+    {:email => 'demo@danfeinfotech.com', :password => '12demo09'},
+    {:email => 'danphe@danfeinfotech.com', :password => '32Dan089'},
 ]
 
 count = 0

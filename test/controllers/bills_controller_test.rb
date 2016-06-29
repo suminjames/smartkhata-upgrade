@@ -1,6 +1,8 @@
 require 'test_helper'
+require "#{Rails.root}/app/globalhelpers/custom_date_module"
 
 class BillsControllerTest < ActionController::TestCase
+  include CustomDateModule
   setup do
     sign_in users(:user)
     @bill = bills(:one)
@@ -13,13 +15,32 @@ class BillsControllerTest < ActionController::TestCase
       assert_not_nil assigns(:bill)
       assert_template "bills/#{action}"
     }
+    @assert_block_via_invalid_post = proc { | param_to_skip, error_msg, provided_params |
+      share_transaction = ShareTransaction.selling.first
+      bs_date = ad_to_bs(share_transaction.date.to_s)
+      client_account = share_transaction.client_account
+      if provided_params
+        bs_date = provided_params[:date_bs] || bs_date
+      end
+      bill_params = {}
+      bill_params[:provisional_base_price] = '100000' unless param_to_skip == :provisional_base_price
+      bill_params[:date_bs] = bs_date unless param_to_skip == :date_bs
+      bill_params[:client_account_id] = client_account unless param_to_skip == :client_account_id
+      assert_no_difference 'Bill.count' do
+        post :create, bill: bill_params
+      end
+      assert_response :success
+      # No error flash in simple_form!
+      assert_match 'Please review the problems below:', response.body
+      assert_match error_msg, response.body
+    }
   end
 
   test "should get index" do
     get :index
     assert_redirected_to bills_path(search_by: "client_name")
 
-    get index, search_by: 'client_name'
+    get :index, search_by: 'client_name'
     assert_response :success
     assert_template 'bills/index'
   end
@@ -30,7 +51,7 @@ class BillsControllerTest < ActionController::TestCase
 
   test "should show bill of both types" do
     @assert_via_get.call(:show, @bill)
-    assert_match 'we have Purchashed these undernoted stocks', response.body # note the typo
+    assert_match 'we have Purchased these undernoted stocks', response.body
 
     @assert_via_get.call(:show, @sales_bill)
     assert_match 'we have Sold these undernoted stocks', response.body
@@ -40,7 +61,6 @@ class BillsControllerTest < ActionController::TestCase
     get :show_by_number, number: "#{@bill.fy_code}-#{@bill.bill_number}"
     assert_redirected_to bill_path(@bill)
     assert_not_nil assigns(:bill)
-    assert_template 'bills/show'
   end
 
   test "bill should show phone numbers when present" do
@@ -54,6 +74,7 @@ class BillsControllerTest < ActionController::TestCase
       assert_select 'div.row.customer_details td', text: "#{phone_num}"
     end
 
+    # Remove phone numbers
     @bill.client_account.phone = @bill.client_account.phone_perm = nil
     @bill.client_account.save
     @bill.reload
@@ -80,11 +101,39 @@ class BillsControllerTest < ActionController::TestCase
     assert_equal 0.0, @bill.balance_to_pay.to_f
   end
 
-  # features not implemented
-  test "should not create bill" do
-    exception = assert_raises(Exception) { post :create, bill: {  }}
-    assert_equal( "NotImplementedError", exception.message )
+  test "should create bill once for a date" do
+    share_transaction = ShareTransaction.selling.first
+    bs_date = ad_to_bs(share_transaction.date.to_s)
+    client_account = share_transaction.client_account
+    assert_difference 'Bill.count', 1 do
+      post :create, bill: { date_bs: bs_date, provisional_base_price: '100000', client_account_id: client_account}
+    end
+    assert_redirected_to bill_path(assigns(:bill))
+    # flash outta nowhere?
+    assert_equal 'Bill was successfully created.', flash[:notice]
+
+    # Duplicate attempt
+    assert_no_difference 'Bill.count' do
+      post :create, bill: { date_bs: bs_date, provisional_base_price: '100000', client_account_id: client_account}
+    end
+    assert_match 'Sales Bill already Created for this date', response.body
   end
+
+  # Testing invalid input
+  test "should not create invalid bill: empty param" do
+    empty_param_to_err_msg_hash = {:date_bs                => 'Invalid Transaction Date. Date format is YYYY-MM-DD',
+                                   :client_account_id      => 'No Sales Transactions Found',
+                                   :provisional_base_price => 'Invalid Base Price'}
+    empty_param_to_err_msg_hash.each do |empty_param, error_msg|
+      @assert_block_via_invalid_post.call(empty_param, error_msg)
+    end
+  end
+
+  test "should not create invalid bill: date without a share transaction" do
+    @assert_block_via_invalid_post.call(nil, 'No Sales Transactions Found', date_bs: '2070-01-10')
+  end
+
+  # features not implemented
   test "should not update bill" do
     exception = assert_raises(Exception) { patch :update, id: @bill, bill: {  }}
     assert_equal( "NotImplementedError", exception.message )

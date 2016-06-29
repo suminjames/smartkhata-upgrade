@@ -1,7 +1,7 @@
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
-get_balance =($this) ->
+get_balance = ($this) ->
   $parent = $this.closest('tr')
   if $parent.hasClass('dr')
     return parse_number($parent.find('.bill-amount'))
@@ -16,8 +16,7 @@ get_total_balance = () ->
   return balance
 
 $ ->
-  $(document).on 'change','.check-bill', (event) ->
-
+  $(document).on 'change', '.check-bill', (event) ->
     $this = $(this)
     debugger
     bill_amount = get_total_balance()

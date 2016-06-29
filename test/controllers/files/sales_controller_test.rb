@@ -18,7 +18,7 @@ class Files::SalesControllerTest < ActionController::TestCase
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/csv'
       inner_file_path = case test_type
-        when 'valid' || 'invalid'
+        when 'valid'
           'May10/CM0518052016141937.csv'
         when 'valid again'
           'May12/CM0518052016142014.csv'
@@ -47,7 +47,7 @@ class Files::SalesControllerTest < ActionController::TestCase
       get action
       assert_response :success
       assert_template "files/sales/#{action}"
-      assert_not_nil assigns(:file_list) if action == :new
+      assert_not_nil assigns(:settlements)
     }
     @assert_block_via_post = Proc.new { | test_type, flash_msg, file_num, avoid_floorsheet |
       unless avoid_floorsheet
@@ -77,8 +77,11 @@ class Files::SalesControllerTest < ActionController::TestCase
       when 'valid again' then 2
       else 0
       end
-      assert_equal @sales_settlements_in_fixtures + file_count, assigns(:file_list).count
+      assert_equal @sales_settlements_in_fixtures + file_count, SalesSettlement.count
+      # assert_equal @sales_settlements_in_fixtures + file_count, assigns(:file_list).count
     }
+    # fix tenants issue
+    @request.host = 'trishakti.lvh.me'
     @sales_settlements_in_fixtures = 2
     # Error messages
     @missing_contract_number_msg = 'the file you have uploaded has missing contract number'

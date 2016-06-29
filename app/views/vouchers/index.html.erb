@@ -1,27 +1,24 @@
-
-
-<h4>Listing Pending Vouchers</h4>
-
+<% provide(:section_title, "Listing Pending Vouchers") %>
 <table class='table'>
   <thead>
-    <tr>
-      <th>Date</th>
-      <th>Voucher Number</th>
-      <th>Voucher Description</th>
-      <th>Linked Ledgers</th>
-    </tr>
+  <tr>
+    <th>Date</th>
+    <th>Voucher Number</th>
+    <th>Voucher Description</th>
+    <th>Linked Ledgers</th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @vouchers.each do |voucher| %>
+  <% @vouchers.each do |voucher| %>
       <tr>
         <td><%= voucher.date_bs %></td>
         <td><%= "#{voucher.voucher_code}-#{voucher.voucher_number}" %></td>
         <td><%= voucher.desc %></td>
-        <td><%= voucher.formatted_linked_ledgers%></td>
+        <td><%= voucher.formatted_linked_ledgers %></td>
         <td><%= link_to 'Show', voucher %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

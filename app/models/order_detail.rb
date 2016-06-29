@@ -1,4 +1,3 @@
-
 # == Schema Information
 #
 # Table name: order_details
@@ -19,8 +18,6 @@
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #
-
-
 
 
 class OrderDetail < ActiveRecord::Base

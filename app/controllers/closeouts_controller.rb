@@ -62,13 +62,13 @@ class CloseoutsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_closeout
-      @closeout = Closeout.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_closeout
+    @closeout = Closeout.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def closeout_params
-      params.fetch(:closeout, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def closeout_params
+    params.fetch(:closeout, {})
+  end
 end

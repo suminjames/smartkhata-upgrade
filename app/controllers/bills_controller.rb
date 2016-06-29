@@ -2,11 +2,14 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
+  # layout 'application_custom', only: [:index]
+
   include BillModule
 
   # GET /bills
   # GET /bills.json
   def index
+    authorize Bill
     # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
     @process_selected_bills = false
     #default landing action for '/bills'
@@ -29,56 +32,57 @@ class BillsController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-      when 'client_id'
-        # render a new page for bills selection
-        @process_selected_bills = true
-        @client_account_id = search_term.to_i
-        @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
-        render :select_bills_for_settlement and return
-
-      when 'client_name'
-        @bills = Bill.find_by_client_id(search_term)
-      when 'bill_number'
-        @bills = Bill.find_by_bill_number(search_term)
-      when 'bill_status'
-        @bills = Bill.find_not_settled
-      when 'bill_type'
-        type = search_term
-        @bills = Bill.find_by_bill_type(type)
-      when 'date'
-        # The date being entered are assumed to be BS date, not AD date
-        date_bs = search_term
-        if parsable_date? date_bs
-          date_ad = bs_to_ad(date_bs)
-          @bills = Bill.find_by_date(date_ad)
-        else
-          @bills = ''
-          respond_to do |format|
-            format.html { render :index }
-            flash.now[:error] = 'Invalid date'
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+        when 'client_id'
+          # render a new page for bills selection
+          @process_selected_bills = true
+          @client_account_id = search_term.to_i
+          client_account= ClientAccount.find(@client_account_id)
+          # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+          @bills = client_account.get_all_related_bills.decorate
+          render :select_bills_for_settlement and return
+        when 'client_name'
+          @bills = Bill.find_by_client_id(search_term)
+        when 'bill_number'
+          @bills = Bill.find_by_bill_number(search_term)
+        when 'bill_status'
+          @bills = Bill.find_not_settled
+        when 'bill_type'
+          type = search_term
+          @bills = Bill.find_by_bill_type(type)
+        when 'date'
+          # The date being entered are assumed to be BS date, not AD date
+          date_bs = search_term
+          if parsable_date? date_bs
+            date_ad = bs_to_ad(date_bs)
+            @bills = Bill.find_by_date(date_ad)
+          else
+            @bills = ''
+            respond_to do |format|
+              format.html { render :index }
+              flash.now[:error] = 'Invalid date'
+              format.json { render json: flash.now[:error], status: :unprocessable_entity }
+            end
           end
-        end
-      when 'date_range'
-        # The dates being entered are assumed to be BS dates, not AD dates
-        date_from_bs = search_term['date_from']
-        date_to_bs   = search_term['date_to']
-        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-          date_from_ad = bs_to_ad(date_from_bs)
-          date_to_ad = bs_to_ad(date_to_bs)
-          @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
-        else
-          @bills = ''
-          respond_to do |format|
-            flash.now[:error] = 'Invalid date(s)'
-            format.html { render :index }
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
+        when 'date_range'
+          # The dates being entered are assumed to be BS dates, not AD dates
+          date_from_bs = search_term['date_from']
+          date_to_bs = search_term['date_to']
+          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+            date_from_ad = bs_to_ad(date_from_bs)
+            date_to_ad = bs_to_ad(date_to_bs)
+            @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
+          else
+            @bills = ''
+            respond_to do |format|
+              flash.now[:error] = 'Invalid date(s)'
+              format.html { render :index }
+              format.json { render json: flash.now[:error], status: :unprocessable_entity }
+            end
           end
-        end
-      else
-        # If no matches for case 'search_by', return empty @bills
-        @bills = ''
+        else
+          # If no matches for case 'search_by', return empty @bills
+          @bills = ''
       end
     else
       @bills = ''
@@ -90,8 +94,9 @@ class BillsController < ApplicationController
   # GET /bills/1
   # GET /bills/1.json
   def show
-    @from_path =  request.referer
+    @from_path = request.referer
     @bill = Bill.find(params[:id]).decorate
+    authorize @bill
     @has_voucher_pending_approval = false
 
     @bill.vouchers_on_settlement.each do |voucher|
@@ -114,28 +119,39 @@ class BillsController < ApplicationController
   # GET /bills/new
   def new
     @bill = Bill.new
+    authorize @bill
   end
 
   # GET /bills/1/edit
   def edit
+    raise NotImplementedError
   end
 
   # POST /bills
   # POST /bills.json
   def create
-    # @bill = Bill.new(bill_params)
-    #
-    # respond_to do |format|
-    #   if @bill.save
-    #     format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
-    #     format.json { render :show, status: :created, location: @bill }
-    #   else
-    #     format.html { render :new }
-    #     format.json { render json: @bill.errors, status: :unprocessable_entity }
-    #   end
-    # end
+    @bill = Bill.new(bill_params).make_provisional
+    authorize @bill
 
-    raise NotImplementedError
+    res = false
+
+    Bill.transaction do
+      if @bill.errors.blank? && @bill.save
+        res = true
+      end
+    end
+
+    respond_to do |format|
+      if res
+        format.html { redirect_to @bill, notice: 'Bill was successfully created.' }
+        format.json { render :show, status: :created, location: @bill }
+      else
+        format.html { render :new }
+        format.json { render json: @bill.errors, status: :unprocessable_entity }
+      end
+    end
+    #
+    # raise NotImplementedError
   end
 
   # PATCH/PUT /bills/1
@@ -165,11 +181,12 @@ class BillsController < ApplicationController
   end
 
   def process_selected
+    authorize Bill
     amount_margin_error = 0.01
 
     if @bill_ids.size <= 0
-      @back_path =  request.referer || bills_path
-      redirect_to @back_path, :flash => { :error => 'No Bills were Selected' } and return
+      @back_path = request.referer || bills_path
+      redirect_to @back_path, :flash => {:error => 'No Bills were Selected'} and return
     end
 
 
@@ -187,7 +204,7 @@ class BillsController < ApplicationController
     amount_to_receive_or_pay = amount_to_receive - amount_to_pay
 
     @processed_bills = []
-    if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error  < 0 && ledger_balance + amount_margin_error >= 0
+    if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
 
       Bill.transaction do
         bill_list.each do |bill|
@@ -208,6 +225,7 @@ class BillsController < ApplicationController
 
   # Entertains ajax requests.
   def show_by_number
+    authorize Bill
     @bill_number = params[:number]
     @bill = nil
     if @bill_number
@@ -233,7 +251,7 @@ class BillsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
-    params.fetch(:bill, {})
+    params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
   end
 
 
