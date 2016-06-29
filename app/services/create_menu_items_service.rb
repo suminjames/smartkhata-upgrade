@@ -5,9 +5,9 @@ class CreateMenuItemsService
     menu_list_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
     menu_list = YAML::load(ERB.new(File.read(menu_list_file)).result(binding))
 
-    # if menu_list['has_changes'] != true
-    #   return false
-    # end
+    if menu_list['has_changes'] != true
+      return false
+    end
 
     tenants = Tenant.all
     tenants.each do |t|
@@ -33,8 +33,8 @@ class CreateMenuItemsService
           menu_item.save!
 
         end
-      rescue
-        puts 'ad'
+      # rescue
+      #   puts 'there was issue'
       end
 
       # store the database id for each of the tenant menu items
@@ -67,8 +67,8 @@ class CreateMenuItemsService
     tenants = Tenant.all
     tenants.each do |t|
       Apartment::Tenant.switch!(t.name)
-      MenuItem.delete_all
       MenuPermission.delete_all
+      MenuItem.delete_all
     end
     Apartment::Tenant.switch!('public')
     return true

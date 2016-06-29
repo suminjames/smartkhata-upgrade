@@ -24,7 +24,7 @@
 #
 
 class MenuItem < ActiveRecord::Base
-  has_ancestry :cache_depth => true
+  has_ancestry
   # belongs_to :parent, :class_name => 'MenuItem'
   # has_many :children, :class_name => 'MenuItem', foreign_key: 'parent_id'
   has_many :menu_permissions

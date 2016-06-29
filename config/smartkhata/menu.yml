@@ -65,7 +65,7 @@ menus:
     - name: New Ledger
       request_type: :get
       path: "<%= new_ledger_path %>"
-      hide_on_main_navigation: 
+      hide_on_main_navigation: true
       code: AS_LED_NEL
   - name: Bills
     code: AS_BIL

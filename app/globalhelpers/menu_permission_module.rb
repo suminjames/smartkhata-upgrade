@@ -10,17 +10,17 @@ module MenuPermissionModule
         sub_menus =menu['sub_menus'] || []
 
         sub_menus.each do |sub_menu|
-          sub_menu['menu_items'].delete_if { |x| is_blocked_path(blocked_path_list, x['path']) }
+          sub_menu['menu_items'].delete_if { |x| is_blocked_path(x['path'], blocked_path_list) }
         end
 
         # remove the sub menus that dont have any items present and are without links
-        menu['sub_menus'].delete_if { |x| (!x['path'].present? && x['menu_items'].size < 1) || (x['path'].present? && is_blocked_path(blocked_path_list, x['path'])) }
+        menu['sub_menus'].delete_if { |x| (!x['path'].present? && x['menu_items'].size < 1) || (x['path'].present? && is_blocked_path(x['path'], blocked_path_list)) }
       end
     end
 
     # delete all the menus that dont have submenus and are without links
     menu_list.delete_if {
-        |x| (!x['path'].present? && x['sub_menus'].size < 1) || (x['path'].present? && is_blocked_path(blocked_path_list, x['path'])) }
+        |x| (!x['path'].present? && x['sub_menus'].size < 1) || (x['path'].present? && is_blocked_path(x['path'], blocked_path_list)) }
     menu_list
   end
 
@@ -36,7 +36,7 @@ module MenuPermissionModule
   #
   # Check if the path is blocked or not
   #
-  def is_blocked_path(blocked_path_list, path)
+  def is_blocked_path(path, blocked_path_list = blocked_path_list)
     !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include? path)
   end
 
