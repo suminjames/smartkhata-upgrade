@@ -1,7 +1,17 @@
-<h1>New Menu Permission</h1>
+<%= form_tag cheque_entries_path, :method => 'post', :enforce_utf8 => false do %>
+    <div class="row">
+      <div class="col-sm-4  form-group clearfix">
+        <label>Employee Account </label>
+        <%= select_tag "user_id", options_from_collection_for_select(@users, 'user_id', 'name'), class: 'form-control combobox', include_blank: false, prompt: 'Select an Employee ...' %>
 
-<% @users.each do |user| %>
-    <%= user.email %> </br>
-    <%= user.employee_account.name  if user.employee_account.present? %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+      </div>
+    </div>
+    <div><%= submit_tag 'Save Entries', class: 'btn btn-primary' %></div>
 <% end %>
+
 <%= link_to 'Back', menu_permissions_path %>
+

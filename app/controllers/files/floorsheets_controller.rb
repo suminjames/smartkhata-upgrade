@@ -141,6 +141,7 @@ class Files::FloorsheetsController < Files::FilesController
       create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, broker_code: current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
     end
+
     # # used to fire error when floorsheet contains client data but not mapped to system
     # file_error(@error_message) if @error_message.present?
   end
@@ -188,11 +189,12 @@ class Files::FloorsheetsController < Files::FilesController
       client.name = client_name.titleize
     end
 
-    if client.nil?
-      @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
-      raise ActiveRecord::Rollback
-      return
-    end
+    # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase)
+    # if client.nil?
+    #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
+    #   raise ActiveRecord::Rollback
+    #   return
+    # end
 
 
     # check for the bank deposit value which is available only for buying

@@ -42,8 +42,8 @@ class ApplicationPolicy
     user.sys_admin?
   end
 
-  def admin_and_above?
-    user.admin? || user.sys_admin?
+  def admin?
+    user.admin?
   end
 
   #
@@ -61,7 +61,7 @@ class ApplicationPolicy
   end
 
   def client_and_above?
-    user.client? || user.employee? || admin_and_above?
+    user.client? || user.employee? || admin?
   end
 
   def client_or_agent?
@@ -91,10 +91,10 @@ class ApplicationPolicy
     end
   end
 
-  def self.permit_access_to_admin_and_above(*actions)
+  def self.permit_access_to_admin(*actions)
     actions.each do |action|
       define_method("#{action}?") do
-        admin_and_above?
+        admin?
       end
     end
   end
@@ -107,7 +107,7 @@ class ApplicationPolicy
     end
   end
 
-  def permit_access_to_client_and_above(*actions)
+  def self.permit_access_to_client_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
         client_and_above?

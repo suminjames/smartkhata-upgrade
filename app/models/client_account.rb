@@ -95,7 +95,7 @@ class ClientAccount < ActiveRecord::Base
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
-  scope :having_group_members, -> { joins(:group_members) }
+  scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
 
   # create client ledger

@@ -402,11 +402,13 @@ ActiveRecord::Schema.define(version: 20160625122731) do
     t.string   "path"
     t.boolean  "hide_on_main_navigation", default: false
     t.integer  "request_type",            default: 0
-    t.integer  "parent_id"
     t.string   "code"
+    t.string   "ancestry"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
   end
+
+  add_index "menu_items", ["ancestry"], name: "index_menu_items_on_ancestry", using: :btree
 
   create_table "menu_permissions", force: :cascade do |t|
     t.integer  "creator_id"

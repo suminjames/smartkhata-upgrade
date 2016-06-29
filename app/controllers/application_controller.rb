@@ -13,10 +13,10 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, :unless => :devise_controller?
   before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
-  after_action :verify_authorized, :unless => :devise_controller?
+  # after_action :verify_authorized, :unless => :devise_controller?
 
   # method from menu permission module
-  before_action :blocked_path_list, if: :user_signed_in?
+  before_action :get_blocked_path_list, if: :user_signed_in?
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 

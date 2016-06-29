@@ -50,8 +50,14 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts/1/edit
   def edit
-    @ledgers = Ledger.all.order(:name)
     authorize @employee_account
+    if params[:type] == 'ledger_access'
+      @ledgers = Ledger.all.order(:name)
+      render :edit_employee_ledger_association and return
+    elsif params[:type] == 'menu_access'
+      @menu_items = MenuItem.arrange
+      render :edit_employee_menu_permission and return
+    end
   end
 
   # POST /employee_accounts
@@ -107,6 +113,19 @@ class EmployeeAccountsController < ApplicationController
           end
         end
       end
+    elsif params[:edit_type] == 'menu_access'
+      # get menu ids
+      menu_ids = params[:employee_account][:menu_ids].map(&:to_i) if params[:employee_account][:menu_ids].present?
+      ActiveRecord::Base.transaction do
+        # delete previously set records
+        # TODO(SUBAS) remove only the changed ones
+        # create only the changed ones
+        MenuPermission.delete_previous_permissions_for(@employee_account.user_id)
+        menu_ids.each do |menu_id|
+          MenuPermission.create!(user_id: @employee_account.user_id, menu_item_id: menu_id)
+        end
+      end
+      redirect_to edit_employee_account_path(id: params[:id], type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
     elsif params[:edit_type] == 'create_or_update'
       respond_to do |format|
         if @employee_account.update(employee_account_params)
@@ -119,6 +138,14 @@ class EmployeeAccountsController < ApplicationController
 
       end
     end
+  end
+
+  # POST/update_menu_access
+  def update_menu_access
+    authorize @employee_account
+
+
+
   end
 
   # DELETE /employee_accounts/1
@@ -137,6 +164,10 @@ class EmployeeAccountsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_employee_account
     @employee_account = EmployeeAccount.find(params[:id])
+  end
+
+  def employee_account_menu_params
+    params.require(:employee_account).permit(:menu_permission => [])
   end
 
   def employee_account_ledger_association_params
