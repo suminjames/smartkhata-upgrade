@@ -25,7 +25,7 @@ class ImportSysadminFile < ImportFile
           client_account.company_name = hash["ORGANIZATION_NAME"]
           client_account.company_address = hash["ORGANIZATION_ADDRESS"]
           client_account.company_id = hash["IDCARD_NO"]
-          client_account.nepse_code = hash["NEPSE_CUSTOMER_CODE"]
+          client_account.nepse_code = hash["NEPSE_CUSTOMER_CODE"].upcase
           client_account.mobile_number = hash["MOBILE_NO"]
           client_account.phone_perm = hash["PER_TEL_NO"]
           client_account.address1 = "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{ hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"

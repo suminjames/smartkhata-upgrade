@@ -21,28 +21,28 @@ class LedgersController < ApplicationController
     end
 
     if params[:show] == "all"
-      @ledgers = Ledger.all.includes(:client_account)
+      @ledgers = Ledger.all.includes(:client_account).order(:name).page(params[:page]).per(20)
     elsif params[:show] == "all_client"
-      @ledgers = Ledger.includes(:client_account).find_all_client_ledgers
+      @ledgers = Ledger.find_all_client_ledgers.includes(:client_account).order(:name).page(params[:page]).per(20)
     elsif params[:show] == "all_internal"
-      @ledgers = Ledger.includes(:client_account).find_all_internal_ledgers
+      @ledgers = Ledger.find_all_internal_ledgers.includes(:client_account).order(:name).page(params[:page]).per(20)
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
         when 'ledger_name'
           ledger_id= search_term
-          @ledgers = Ledger.includes(:client_account).find_by_ledger_id(ledger_id)
+          @ledgers = Ledger.find_by_ledger_id(ledger_id).includes(:client_account).order(:name).page(params[:page]).per(20)
         else
           # If no matches for case  'search_by', return empty @ledgers
-          @ledgers = ''
+          @ledgers = []
       end
     else
-      @ledgers = ''
+      @ledgers = []
     end
     # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
     # TODO chain .decorate function
-    @ledgers = @ledgers.order(:name).page(params[:page]).per(20) unless @ledgers.blank?
+    # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
   end
 
   # GET /ledgers/1
