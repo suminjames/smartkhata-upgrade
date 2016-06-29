@@ -38,7 +38,7 @@ class TransactionMessage < ActiveRecord::Base
   end
 
   filterrific(
-      default_filter_params: { sorted_by: 'date_desc' },
+      default_filter_params: { sorted_by: 'id_asc' },
       available_filters: [
           :sorted_by,
           :by_date,
@@ -50,24 +50,24 @@ class TransactionMessage < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day)
+    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day).order(:id)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('transaction_date >= ?', date_ad.beginning_of_day)
+    where('transaction_date >= ?', date_ad.beginning_of_day).order(:id)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('transaction_date <= ?', date_ad.end_of_day)
+    where('transaction_date <= ?', date_ad.end_of_day).order(:id)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(:id) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
-      when /^date/
-        order("transaction_messages.transaction_date #{ direction }")
+      when /^id/
+        order("transaction_messages.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

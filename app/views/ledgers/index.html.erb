@@ -49,7 +49,7 @@
 
   <tbody>
 
-    <% if !@ledgers.empty?
+    <% if @ledgers
       @ledgers.each do |ledger| %>
       <tr>
         <td><%= ledger.name.titleize %></td>

@@ -68,14 +68,27 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_sms?
-        # SmsMessage.delay.send_hello_world(current_tenant.id)
-        SmsMessage.delay.send_bill_sms(transaction_message.id, current_tenant.id)
+        SmsMessage.delay(:retry => true).send_bill_sms(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|
       format.js
       format.json { render :json => { :success => "success", :status_code => "200" } }
     end
+  end
+
+  def sent_status
+    transaction_message_ids = params[:transaction_message_ids] || []
+    @transaction_messages = []
+    transaction_message_ids.each do | transaction_message_id |
+      transaction_message = TransactionMessage.find(transaction_message_id)
+      @transaction_messages << transaction_message
+    end
+    respond_to do |format|
+      format.js
+      format.json { render :json => @transaction_messages }
+    end
+
   end
 
   # GET /transaction_messages/1/edit

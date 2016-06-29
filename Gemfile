@@ -16,7 +16,6 @@ gem 'bootstrap-kaminari-views'
 gem 'prawn'
 gem 'prawn-table', '~> 0.2.2'
 gem 'sidekiq'
-gem 'sidekiq-status'
 gem 'sinatra', '>= 1.3.0', require: false
 
 group :development, :test do

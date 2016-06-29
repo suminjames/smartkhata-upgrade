@@ -4,16 +4,23 @@
 
 selectedTransactionMessagesIdsForEmail = []
 selectedTransactionMessagesIdsForSMS= []
+allTransactionMessagesIds = []
 
 $(document).ready ->
   if $('#transaction_message_list').length > 0
     console.log("doc loaded!")
+    
+    # Store all transaction messages' ids in the DOM(window) right now.
+    allTransactionMessagesIds = `$("#filterrific_results .email:input:checkbox").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 
+    # Poll for transaction messages' email and sms status every 4 seconds
+    setInterval pollForTransactionMessagesStatuses , 4000
+    
     $(document).on 'change', 'input:checkbox', (event)->
       selectedTransactionMessagesIdsForEmail = `$("#filterrific_results .email:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
       selectedTransactionMessagesIdsForSMS = `$("#filterrific_results .sms:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
-      console.log selectedTransactionMessagesIdsForEmail 
-      console.log selectedTransactionMessagesIdsForSMS
+#      console.log selectedTransactionMessagesIdsForEmail 
+#      console.log selectedTransactionMessagesIdsForSMS
       
     $(document). on 'click', '.email#select_all', (event) ->
       $(".email:input:checkbox").not('.cant-email').prop('checked', $(this).prop("checked"))
@@ -61,4 +68,57 @@ $(document).ready ->
           return
 
 
-      
+$ ->
+  $('[data-toggle="tooltip"]').tooltip()
+  return
+
+pollForTransactionMessagesStatuses = ->
+#  console.log allTransactionMessagesIds
+  params = {transaction_message_ids: allTransactionMessagesIds}
+  $.ajax
+    url: '/transaction_messages/sent_status'
+    type: 'post'
+    data: params
+    dataType: 'json'
+    beforeSend: ->
+      console.log 'Ajax Initiated!'
+    error: (jqXHR, textStatus, errorThrown) ->
+      console.log 'There was some error!' + errorThrown + textStatus
+    success: (data, textStatus, jqXHR) ->
+#      console.log data
+      reflectStatusChanges data
+      return
+
+reflectStatusChanges = (data) ->
+  transactionMessages = data
+  for transactionMessage in transactionMessages
+    updateEmailStatus(transactionMessage)
+    updateSmsStatus(transactionMessage)
+
+# change the email sent status (and email count if sent)
+updateEmailStatus = (transactionMessage) ->
+  emailStatus =  transactionMessage.email_status
+  emailStatusStr = ''
+  if emailStatus == 'email_unsent'
+    emailStatusStr = 'No'
+  else if emailStatus == 'email_queued'
+    sentEmailCount = transactionMessage.sent_email_count
+    emailStatusStr = 'Queued' + '(' + sentEmailCount + ')'
+  else if emailStatus == 'email_sent'
+    sentEmailCount = transactionMessage.sent_email_count
+    emailStatusStr = 'Yes' + '(' + sentEmailCount + ')'
+  $("#email_status_" + transactionMessage.id).html(emailStatusStr)
+
+# change the sms sent status (and sms count if sent)
+updateSmsStatus = (transactionMessage) ->
+  smsStatus =  transactionMessage.sms_status
+  smsStatusStr = ''
+  if smsStatus == 'sms_unsent'
+    smsStatusStr = 'No'
+  else if smsStatus == 'sms_queued'
+    sentSmsCount = transactionMessage.sent_sms_count
+    smsStatusStr = 'Queued' + '(' + sentSmsCount + ')'
+  else if smsStatus == 'sms_sent'
+    sentSmsCount = transactionMessage.sent_sms_count
+    smsStatusStr = 'Yes' + '(' + sentSmsCount + ')'
+  $("#sms_status_" + transactionMessage.id).html(smsStatusStr)

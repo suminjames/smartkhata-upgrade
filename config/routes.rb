@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     collection do
       post 'send_sms'
       post 'send_email'
+      post 'sent_status'
     end
   end
   resources :groups
@@ -104,7 +105,6 @@ Rails.application.routes.draw do
   get "/test" => "test#index"
 
   require 'sidekiq/web'
-  require 'sidekiq-status/web'
   # TODO(sarojk): Implement sidekiq view to be only accessible by (sys)admin.
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'

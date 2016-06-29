@@ -19,8 +19,8 @@
           = check_box_tag 'select_all', '', false, class: 'sms'
         %th.col-xs-1.text-center= filterrific_sorting_link(@filterrific, :date)
         %th.col-xs-2.text-center= 'Client'
-        %th.col-xs-2.text-center= 'Client<br>Phone'.html_safe
         %th.col-xs-2.text-center= 'Client<br>Email'.html_safe
+        %th.col-xs-2.text-center= 'Client<br>Mobile'.html_safe
         %th.col-xs-1.text-center= 'Bill'
         %th.col-xs-2.text-center= 'SMS Message'
         %th.col-xs-1.text-center= 'SMS<br>Sent'.html_safe
@@ -34,14 +34,16 @@
               %td= ad_to_bs_string(transaction_message.transaction_date)[2..-1]
               %td= transaction_message.client_account.name
               %td.text-center
-                = transaction_message.client_account.messageable_phone_number.present? ? transaction_message.client_account.messageable_phone_number : 'N/A'
-              %td.text-center= transaction_message.client_account.email.blank? ? 'N/A': transaction_message.client_account.email
-              %td= "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" if transaction_message.bill.present?
-              %td.sms-message= transaction_message.sms_message
+                = transaction_message.client_account.email.blank? ? "<a class='no-hover warning-text' data-toggle='tooltip' title='Client does not have a valid email.'>N/A</a>".html_safe : transaction_message.client_account.email
               %td.text-center
+                = transaction_message.client_account.messageable_phone_number.present? ? transaction_message.client_account.messageable_phone_number : "<a class='no-hover warning-text' data-toggle='tooltip' title='Client does not have a valid mobile number.'>N/A</a>".html_safe
+              %td
+                = transaction_message.bill.present? ? "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" : "<a class='no-hover warning-text' data-toggle='tooltip' title='The transaction does not have a bill yet.'>N/A</a>".html_safe
+              %td.sms-message= transaction_message.sms_message
+              %td.text-center{:id => "sms_status_#{transaction_message.id}"}
                 = transaction_message.sms_sent? ? "Yes(#{transaction_message.sent_sms_count})" : 'No'
                 %br
-              %td.text-center
+              %td.text-center{:id => "email_status_#{transaction_message.id}"}
                 = transaction_message.email_sent? ? "Yes(#{transaction_message.sent_email_count})" :  'No'
                 %br
 
