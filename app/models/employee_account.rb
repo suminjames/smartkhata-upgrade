@@ -51,13 +51,15 @@ class EmployeeAccount < ActiveRecord::Base
 
   # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
   # TODO(sarojk) Find a better way to implement unique identification
-  # validates :email, presence: true, uniqueness: true
+  validates :email, presence: true, uniqueness: true
   validates_format_of :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
   after_create :create_ledger
 
   has_many :employee_ledger_associations
   has_many :ledgers, through: :employee_ledger_associations
+  belongs_to :user
+  has_many :menu_permissions, through: :user
 
   # defines employee association with ledgers
   enum has_access_to: [:everyone, :some, :nobody]
@@ -74,7 +76,7 @@ class EmployeeAccount < ActiveRecord::Base
     end
   end
 
-  # assign the employee ledger to  'Employees' group
+  # assign the employee ledger to 'Employees' group
   def assign_group(group_name)
     client_group = Group.find_or_create_by!(name: group_name)
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through

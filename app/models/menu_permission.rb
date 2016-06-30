@@ -14,4 +14,8 @@
 class MenuPermission < ActiveRecord::Base
   include ::Models::Updater
   belongs_to :menu_item
+
+  def self.delete_previous_permissions_for(user_id)
+    MenuPermission.where(user_id: user_id).delete_all
+  end
 end

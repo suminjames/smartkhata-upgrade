@@ -335,8 +335,18 @@ select.combobox {
 
 // Add a bit of margin-top in elements.
 // Usually  between two .row elements, which apparently have no margin.
-.top-buffer {
-  margin-top: 10px;
+.top-buffer-sm {
+  margin-top:10px;
+}
+.top-buffer-md {
+  margin-top:30px;
+}
+.top-buffer-lg {
+  margin-top:50px;
+}
+
+#filterrific_results {
+  min-height: 300px;
 }
 
 .highlighted-box{

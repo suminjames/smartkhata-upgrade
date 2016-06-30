@@ -65,7 +65,7 @@ menus:
     - name: New Ledger
       request_type: :get
       path: "<%= new_ledger_path %>"
-      hide_on_main_navigation: 
+      hide_on_main_navigation: true
       code: AS_LED_NEL
   - name: Bills
     code: AS_BIL
@@ -82,6 +82,9 @@ menus:
     - name: Approve Deal Cancel
       path: "<%= pending_deal_cancel_share_transactions_path %>"
       code: AS_BIL_ADC
+    - name: Transaction Messages
+      path: "<%= transaction_messages_path %>"
+      code: AS_BIL_TRM
   - name: Bank
     code: AS_BAN
     menu_items:

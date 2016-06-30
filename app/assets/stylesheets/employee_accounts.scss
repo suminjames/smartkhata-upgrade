@@ -8,3 +8,12 @@
   background-color: #dee7ef !important;
   border-color: white !important;
 }
+
+ul.menu-permission-list {
+  list-style: none;
+  padding-left: 0px;
+
+  ul {
+    padding-left: 30px;
+  }
+}

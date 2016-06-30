@@ -1,12 +1,11 @@
 Rails.application.routes.draw do
-  resources :menu_permissions
+  resources :sms_messages
   resources :menu_permissions
   resources :menu_items
   get 'general_settings/set_fy'
 
   get 'general_settings/set_branch'
 
-  resources :transaction_messages
   get 'dashboard/index'
 
   resources :nepse_chalans
@@ -15,8 +14,11 @@ Rails.application.routes.draw do
   resources :branches
   resources :closeouts
   resources :share_inventories
-  resources :employee_client_associations
-  resources :employee_accounts
+  resources :employee_accounts do
+    collection do
+      post :update_menu_access
+    end
+  end
   resources :banks
   resources :settlements do
     collection do
@@ -51,6 +53,13 @@ Rails.application.routes.draw do
       post 'process_selected'
     end
   end
+  resources :transaction_messages do
+    collection do
+      post 'send_sms'
+      post 'send_email'
+      post 'sent_status'
+    end
+  end
   resources :groups
 
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
@@ -61,6 +70,7 @@ Rails.application.routes.draw do
     end
   end
   resources :orders
+
   match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
     collection do
@@ -111,5 +121,10 @@ Rails.application.routes.draw do
 
   get "/test" => "test#index"
 
+  require 'sidekiq/web'
+  # TODO(sarojk): Implement sidekiq view to be only accessible by (sys)admin.
+  authenticate :user do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
 end

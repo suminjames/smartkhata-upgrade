@@ -95,7 +95,7 @@ class ClientAccount < ActiveRecord::Base
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
-  scope :having_group_members, -> { joins(:group_members) }
+  scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
 
   # create client ledger
@@ -150,5 +150,17 @@ class ClientAccount < ActiveRecord::Base
   def get_group_members_ledger_ids
     ids = self.group_members.pluck(:id)
     Ledger.where(client_account_id: ids).pluck(:id)
+  end
+
+  # In case both numbers are messageable, 'phone' has higher priority over 'phone_perm'
+  # Returns nil if neither is messageable
+  def messageable_phone_number
+    messageable_phone_number = nil
+    if SmsMessage.messageable_phone_number?(self.phone)
+      messageable_phone_number = self.phone
+    elsif SmsMessage.messageable_phone_number?(self.phone_perm)
+      messageable_phone_number = self.phone_perm
+    end
+    messageable_phone_number
   end
 end
