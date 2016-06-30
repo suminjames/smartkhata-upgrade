@@ -87,18 +87,25 @@ class Print::PrintSettlement< Prawn::Document
 
   def header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(3)) do
-      text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
-      text "#{@current_tenant.address}"
-      text "Phone: #{@current_tenant.phone_number}"
-      text "Fax: #{@current_tenant.fax_number}"
-      text "PAN: #{@current_tenant.pan_number}"
+    settlement_type = @settlement.receipt? ? 'RECEIPT' : 'PAYMENT'
+    data = [
+        [{:content => @current_tenant.full_name, :colspan => 2}],
+        [@current_tenant.address, {:content => settlement_type, :colspan => 1, :rowspan => 4}],
+        ["Phone: #{@current_tenant.phone_number}"],
+        ["Fax: #{@current_tenant.fax_number}"],
+        ["PAN: #{@current_tenant.pan_number}"]
+    ]
+    table_width = page_width - 2
+    column_widths = {0 => table_width * 6/12.0, 1 => table_width * 6/12.0}
+    table data do |t|
+      t.header = true
+      t.row(0).font_style = :bold
+      t.row(0).size = 10
+      t.row(1).column(1).font_style = :bold_italic
+      t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0]}
+      t.column_widths = column_widths
     end
-    bounding_box([col(3), row_cursor - 20], :width => col(6)) do
-      settlement_type = @settlement.receipt? ? 'RECEIPT' : 'PAYMENT'
-      text "<b><u><i>" + settlement_type + "</i></u></b>", :inline_format => true, :align => :center
-      move_down (20)
-    end
+    move_down 3
   end
 
   def signature_fields
