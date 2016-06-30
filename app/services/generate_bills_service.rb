@@ -5,6 +5,8 @@ class GenerateBillsService
 
   def initialize(params)
     @sales_settlement = params[:sales_settlement]
+    @payment_by_bank = params[:payment_by_bank]
+    @bank_account = params[:bank_account]
   end
 
   def process
@@ -14,15 +16,18 @@ class GenerateBillsService
     @bill_number = get_bill_number
     fy_code = get_fy_code
 
+    if @payment_by_bank
+      share_transactions_by_bank = []
+    end
+
     # Begin Transaction
     ActiveRecord::Base.transaction do
       # only generate bill for the transactions which are not soft deleted
       share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
-      share_transactions.each do |transaction|
 
-        # create a custom key to hold the similar isin transaction per user in a same bill
+      share_transactions.each do |transaction|
         client_code = transaction.client_account_id
-        # script_id = transaction.isin_info_id
+        # create a custom key to hold the similar isin transaction per user in a same bill
         custom_key = (client_code.to_s)
         client_account = transaction.client_account
         commission = transaction.commission_amount
@@ -133,11 +138,7 @@ class GenerateBillsService
           process_accounts(client_ledger, voucher, true, net_adjustment_amount, description)
           voucher.complete!
           voucher.save!
-
-
         else
-
-
           process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
           process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description)
           process_accounts(tds_ledger, voucher, true, tds, description)
@@ -158,9 +159,7 @@ class GenerateBillsService
             voucher.complete!
             voucher.save!
           end
-
         end
-
       end
       # mark the sales settlement as complete to prevent future processing
       @sales_settlement.complete!
