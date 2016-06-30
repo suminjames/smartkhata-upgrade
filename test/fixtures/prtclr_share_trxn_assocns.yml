@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  association_type: 1
+  particular_id: 
+  share_transaction_id: 
+
+two:
+  association_type: 1
+  particular_id: 
+  share_transaction_id: 
