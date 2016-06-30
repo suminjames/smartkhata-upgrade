@@ -58,7 +58,7 @@ class SmsMessage < ActiveRecord::Base
     transaction_message.sms_queued!
     self.message = transaction_message.sms_message
     self.date_time
-    self.mobile_number = transaction_message.bill.client_account.messageable_phone_number
+    self.mobile_number = transaction_message.client_account.messageable_phone_number
     reply_code = self.push_sms
     if reply_code == '1'
       transaction_message.increase_sent_sms_count!

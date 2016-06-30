@@ -18,6 +18,8 @@
 #
 
 class TransactionMessage < ActiveRecord::Base
+  extend CustomDateModule
+
   belongs_to :bill
   belongs_to :client_account
 
@@ -86,7 +88,7 @@ class TransactionMessage < ActiveRecord::Base
   end
 
   def can_sms?
-    return self.bill && self.client_account.messageable_phone_number.present?
+    return self.client_account.messageable_phone_number.present?
   end
 
   def increase_sent_email_count!
