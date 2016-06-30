@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :bank_payment_letters
   resources :sms_messages
   resources :menu_permissions
   resources :menu_items

@@ -42,6 +42,9 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
+
+  scope :for_payment_letter, ->(settlement_id) { includes(:client_account).where(settlement_id: settlement_id).where.not(client_accounts: {bank_account: nil}) }
+
   # verify this with views everytime before changing
   # bill index
   # bill show

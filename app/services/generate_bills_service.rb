@@ -5,8 +5,6 @@ class GenerateBillsService
 
   def initialize(params)
     @sales_settlement = params[:sales_settlement]
-    @payment_by_bank = params[:payment_by_bank]
-    @bank_account = params[:bank_account]
   end
 
   def process
@@ -15,10 +13,6 @@ class GenerateBillsService
     # get bill number
     @bill_number = get_bill_number
     fy_code = get_fy_code
-
-    if @payment_by_bank
-      share_transactions_by_bank = []
-    end
 
     # Begin Transaction
     ActiveRecord::Base.transaction do
@@ -66,6 +60,7 @@ class GenerateBillsService
         bill.share_transactions << transaction
         bill.net_amount += transaction.net_amount
         bill.balance_to_pay = bill.net_amount
+        bill.settlement_id = @sales_settlement.settlement_id
         bill.save!
 
         # create client ledger if not exist

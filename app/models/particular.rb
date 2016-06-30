@@ -48,6 +48,8 @@ class Particular < ActiveRecord::Base
 
   has_one :nepse_chalan, through: :voucher
 
+  has_one :bank_payment_letter
+
 
   validates_presence_of :ledger_id
   enum transaction_type: [:dr, :cr]

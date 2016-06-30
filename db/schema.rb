@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160629103546) do
+ActiveRecord::Schema.define(version: 20160630110058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,6 +31,24 @@ ActiveRecord::Schema.define(version: 20160629103546) do
   add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
   add_index "bank_accounts", ["creator_id"], name: "index_bank_accounts_on_creator_id", using: :btree
   add_index "bank_accounts", ["updater_id"], name: "index_bank_accounts_on_updater_id", using: :btree
+
+  create_table "bank_payment_letters", force: :cascade do |t|
+    t.decimal  "settlement_amount",   precision: 15, scale: 4, default: 0.0
+    t.integer  "fy_code"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "bank_account_id"
+    t.integer  "sales_settlement_id"
+    t.integer  "branch_id"
+    t.integer  "voucher_id"
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
+  end
+
+  add_index "bank_payment_letters", ["bank_account_id"], name: "index_bank_payment_letters_on_bank_account_id", using: :btree
+  add_index "bank_payment_letters", ["branch_id"], name: "index_bank_payment_letters_on_branch_id", using: :btree
+  add_index "bank_payment_letters", ["sales_settlement_id"], name: "index_bank_payment_letters_on_sales_settlement_id", using: :btree
+  add_index "bank_payment_letters", ["voucher_id"], name: "index_bank_payment_letters_on_voucher_id", using: :btree
 
   create_table "banks", force: :cascade do |t|
     t.string   "name"
@@ -60,13 +78,13 @@ ActiveRecord::Schema.define(version: 20160629103546) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",                  precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",              precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                     default: 0
-    t.integer  "special_case",                               default: 0
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.integer  "status",                                               default: 0
+    t.integer  "special_case",                                         default: 0
+    t.datetime "created_at",                                                         null: false
+    t.datetime "updated_at",                                                         null: false
     t.integer  "fy_code"
     t.date     "date"
     t.string   "date_bs"
@@ -75,6 +93,7 @@ ActiveRecord::Schema.define(version: 20160629103546) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
+    t.integer  "settlement_id",     limit: 8
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
@@ -477,26 +496,27 @@ ActiveRecord::Schema.define(version: 20160629103546) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",           precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
-    t.integer  "ledger_type",                                 default: 0
+    t.integer  "ledger_type",                                     default: 0
     t.integer  "cheque_number"
     t.string   "name"
     t.string   "description"
-    t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
-    t.decimal  "running_blnc",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount",                 precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc",           precision: 15, scale: 4, default: 0.0
     t.integer  "additional_bank_id"
-    t.integer  "particular_status",                           default: 1
+    t.integer  "particular_status",                               default: 1
     t.string   "date_bs"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.date     "transaction_date"
-    t.datetime "created_at",                                                null: false
-    t.datetime "updated_at",                                                null: false
+    t.datetime "created_at",                                                    null: false
+    t.datetime "updated_at",                                                    null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
+    t.integer  "bank_payment_letter_id"
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree
@@ -505,6 +525,17 @@ ActiveRecord::Schema.define(version: 20160629103546) do
   add_index "particulars", ["ledger_id"], name: "index_particulars_on_ledger_id", using: :btree
   add_index "particulars", ["updater_id"], name: "index_particulars_on_updater_id", using: :btree
   add_index "particulars", ["voucher_id"], name: "index_particulars_on_voucher_id", using: :btree
+
+  create_table "prtclr_share_trxn_assocns", force: :cascade do |t|
+    t.integer  "association_type"
+    t.integer  "particular_id"
+    t.integer  "share_transaction_id"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "prtclr_share_trxn_assocns", ["particular_id"], name: "index_prtclr_share_trxn_assocns_on_particular_id", using: :btree
+  add_index "prtclr_share_trxn_assocns", ["share_transaction_id"], name: "index_prtclr_share_trxn_assocns_on_share_transaction_id", using: :btree
 
   create_table "sales_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18
@@ -741,12 +772,17 @@ ActiveRecord::Schema.define(version: 20160629103546) do
   add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
+  add_foreign_key "bank_payment_letters", "branches"
+  add_foreign_key "bank_payment_letters", "sales_settlements"
+  add_foreign_key "bank_payment_letters", "vouchers"
   add_foreign_key "bill_voucher_associations", "bills"
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
+  add_foreign_key "prtclr_share_trxn_assocns", "particulars"
+  add_foreign_key "prtclr_share_trxn_assocns", "share_transactions"
   add_foreign_key "settlements", "vouchers"
   add_foreign_key "transaction_messages", "client_accounts"
 end
