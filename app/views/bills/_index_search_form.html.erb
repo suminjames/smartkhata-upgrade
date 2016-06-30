@@ -7,7 +7,7 @@
             <%= hidden_field_tag :search_by, "client_name" %>
             <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...' %>
           </div>
-          <%= submit_tag "Search", class: 'btn btn-sm' %>
+          <%= submit_tag "Search", class: 'btn btn-md btn-primary' %>
       <% end %>
   <% end %>
 
@@ -17,9 +17,9 @@
       <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "bill_type" %>
           <div class="col-xs-3">
-            <%= select_tag :search_term, options_for_select([['Sales', 'sales'], ['Purchase', 'purchase']], params[:search_term]) %>
+            <%= select_tag :search_term, options_for_select([['Sales', 'sales'], ['Purchase', 'purchase']], params[:search_term]), class: "form-control" %>
           </div>
-          <%= submit_tag "Search" %>
+          <%= submit_tag "Search", class: "btn btn-md btn-primary" %>
       <% end %>
   <% end %>
 
@@ -28,8 +28,10 @@
   %>
       <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "bill_number" %>
-          <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number" %>
-          <%= submit_tag "Search" %>
+          <div class="col-sm-3">
+            <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by Bill Number", class: "form-control" %>
+          </div>
+          <%= submit_tag "Search", class: "btn btn-md btn-primary" %>
       <% end %>
   <% end %>
 
@@ -38,8 +40,10 @@
   %>
       <%= form_tag(bills_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "date" %>
-          <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD" %>
-          <%= submit_tag "Search" %>
+          <div class="col-sm-3">
+            <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD", class: "form-control" %>
+          </div>
+          <%= submit_tag "Search", class: "btn btn-md btn-primary" %>
       <% end %>
   <% end %>
 
@@ -52,9 +56,13 @@
             text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
             text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
           %>
-          <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
-          <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
-          <%= submit_tag "Search" %>
+          <div class="col-sm-3">
+            <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD", class: "form-control" %>
+          </div><div class="col-sm-3">
+            <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD", class: "form-control" %>
+          </div><div class="col-sm-3">
+            <%= submit_tag "Search", class: "btn btn-md btn-primary" %>
+          </div>
       <% end %>
   <% end %>
 </div>

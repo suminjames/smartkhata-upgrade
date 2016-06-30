@@ -9,7 +9,7 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
-    authorize Bill
+    # authorize Bill
     # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
     @process_selected_bills = false
     #default landing action for '/bills'
