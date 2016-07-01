@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160630082211) do
+ActiveRecord::Schema.define(version: 20160630101208) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -631,9 +631,25 @@ ActiveRecord::Schema.define(version: 20160630082211) do
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
   create_table "sms_messages", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.string   "phone"
+    t.integer  "phone_type"
+    t.integer  "sms_type"
+    t.integer  "credit_used"
+    t.integer  "remarks"
+    t.integer  "transaction_message_id"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "fy_code"
+    t.integer  "branch_id"
   end
+
+  add_index "sms_messages", ["branch_id"], name: "index_sms_messages_on_branch_id", using: :btree
+  add_index "sms_messages", ["creator_id"], name: "index_sms_messages_on_creator_id", using: :btree
+  add_index "sms_messages", ["fy_code"], name: "index_sms_messages_on_fy_code", using: :btree
+  add_index "sms_messages", ["transaction_message_id"], name: "index_sms_messages_on_transaction_message_id", using: :btree
+  add_index "sms_messages", ["updater_id"], name: "index_sms_messages_on_updater_id", using: :btree
 
   create_table "tenants", force: :cascade do |t|
     t.string   "name"
@@ -653,14 +669,13 @@ ActiveRecord::Schema.define(version: 20160630082211) do
     t.date     "transaction_date"
     t.integer  "sms_status",        default: 0
     t.integer  "email_status",      default: 0
-    t.string   "remarks"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.date     "deleted_at"
-    t.integer  "sent_sms_count",    default: 5
-    t.integer  "sent_email_count",  default: 5
+    t.integer  "sent_sms_count",    default: 0
+    t.integer  "sent_email_count",  default: 0
     t.string   "remarks_email"
     t.string   "remarks_sms"
   end
@@ -751,5 +766,6 @@ ActiveRecord::Schema.define(version: 20160630082211) do
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "settlements", "vouchers"
+  add_foreign_key "sms_messages", "transaction_messages"
   add_foreign_key "transaction_messages", "client_accounts"
 end

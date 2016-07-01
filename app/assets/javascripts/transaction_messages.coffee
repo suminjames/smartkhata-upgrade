@@ -85,7 +85,6 @@ $ ->
   return
 
 pollForTransactionMessagesStatuses = ->
-#  console.log allTransactionMessagesIds
   params = {transaction_message_ids: allTransactionMessagesIds}
   $.ajax
     url: '/transaction_messages/sent_status'
