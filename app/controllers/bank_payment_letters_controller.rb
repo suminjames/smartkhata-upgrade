@@ -10,14 +10,15 @@ class BankPaymentLettersController < ApplicationController
   # GET /bank_payment_letters/1
   # GET /bank_payment_letters/1.json
   def show
+
   end
 
   # GET /bank_payment_letters/new
   def new
     @settlement_id = params[:settlement_id]
-    if params[:sales_settlement_id].present?
+    if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
-      @sales_settlement = SalesSettlement.where(id: params[:settlement_id])
+      @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
       @bills = @sales_settlement.bills if @sales_settlement.present?
       @searched = true
@@ -36,7 +37,9 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
-    CreateBankPaymentLetterService.new(bill_ids: params[:bill_ids].map(&:to_i)).process
+    particulars, settlement_amount  = CreateBankPaymentLetterService.new(bill_ids: params[:bill_ids].map(&:to_i)).process
+    @bank_payment_letter.particulars = particulars
+    @bank_payment_letter.settlement_amount = settlement_amount
 
     respond_to do |format|
       if @bank_payment_letter.save

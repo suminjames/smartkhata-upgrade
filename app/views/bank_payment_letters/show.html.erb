@@ -1,34 +1,9 @@
-<p id="notice"><%= notice %></p>
+Please Pay Rs. <%= @bank_payment_letter.settlement_amount %> to below mentioned account <br>
+<% @bank_payment_letter.particulars.each do |p| %>
+    <%= p.ledger.client_account.name %>
+    <%= p.amount %><br>
+<% end %>
 
-<p>
-  <strong>Fy code:</strong>
-  <%= @bank_payment_letter.fy_code %>
-</p>
-
-<p>
-  <strong>Creator:</strong>
-  <%= @bank_payment_letter.creator_id %>
-</p>
-
-<p>
-  <strong>Updater:</strong>
-  <%= @bank_payment_letter.updater_id %>
-</p>
-
-<p>
-  <strong>Sales settlement:</strong>
-  <%= @bank_payment_letter.sales_settlement %>
-</p>
-
-<p>
-  <strong>Branch:</strong>
-  <%= @bank_payment_letter.branch %>
-</p>
-
-<p>
-  <strong>Voucher:</strong>
-  <%= @bank_payment_letter.voucher %>
-</p>
 
 <%= link_to 'Edit', edit_bank_payment_letter_path(@bank_payment_letter) %> |
 <%= link_to 'Back', bank_payment_letters_path %>

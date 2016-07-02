@@ -78,13 +78,13 @@ ActiveRecord::Schema.define(version: 20160630191219) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",                  precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",              precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",                    precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",                precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                               default: 0
-    t.integer  "special_case",                                         default: 0
-    t.datetime "created_at",                                                         null: false
-    t.datetime "updated_at",                                                         null: false
+    t.integer  "status",                                                 default: 0
+    t.integer  "special_case",                                           default: 0
+    t.datetime "created_at",                                                           null: false
+    t.datetime "updated_at",                                                           null: false
     t.integer  "fy_code"
     t.date     "date"
     t.string   "date_bs"
@@ -93,7 +93,7 @@ ActiveRecord::Schema.define(version: 20160630191219) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
-    t.integer  "settlement_id",     limit: 8
+    t.integer  "sales_settlement_id", limit: 8
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
