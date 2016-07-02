@@ -56,14 +56,14 @@ class ShareTransaction < ActiveRecord::Base
   # required in case of payment letter
   # TODO(Subas) Make sure if voucher_id is required for share transactions.
   # they can be taken from particulars... a thought
-  has_many :on_creation, -> { on_creation }, class_name: "PrtclrShareTrxnAssocn"
-  has_many :on_settlement, -> { on_settlement }, class_name: "PrtclrShareTrxnAssocn"
-  has_many :on_payment_by_letter, -> { on_payment_by_letter }, class_name: "PrtclrShareTrxnAssocn"
-  has_many :prtclr_share_trxn_assocns
+  has_many :on_creation, -> { on_creation }, class_name: "ParticularShareTransactions"
+  has_many :on_settlement, -> { on_settlement }, class_name: "ParticularShareTransactions"
+  has_many :on_payment_by_letter, -> { on_payment_by_letter }, class_name: "ParticularShareTransactions"
+  has_many :particulars_share_transactions
   has_many :particulars_on_creation, through: :on_creation, source: :particular
   has_many :particulars_on_settlement, through: :on_settlement, source: :particular
   has_many :particulars_on_payment_by_letter, through: :on_payment_by_letter, source: :particular
-  has_many :particulars, through: :prtclr_share_trxn_assocns
+  has_many :particulars, through: :particulars_share_transactions
 
 
   enum transaction_type: [:buying, :selling]

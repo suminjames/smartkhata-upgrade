@@ -60,7 +60,7 @@ class GenerateBillsService
         bill.share_transactions << transaction
         bill.net_amount += transaction.net_amount
         bill.balance_to_pay = bill.net_amount
-        bill.settlement_id = @sales_settlement.settlement_id
+        bill.settlement_id = @sales_settlement.id
         bill.save!
 
         # create client ledger if not exist

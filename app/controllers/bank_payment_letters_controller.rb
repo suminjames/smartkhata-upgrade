@@ -15,9 +15,11 @@ class BankPaymentLettersController < ApplicationController
   # GET /bank_payment_letters/new
   def new
     @settlement_id = params[:settlement_id]
-    if params[:settlement_id].present?
+    if params[:sales_settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
-      @bills = Bill.where(settlement_id: params[:settlement_id].to_i)
+      @sales_settlement = SalesSettlement.where(id: params[:settlement_id])
+      @bills = []
+      @bills = @sales_settlement.bills if @sales_settlement.present?
       @searched = true
       # CreateBankPaymentLetterService.new(settlement_id: params[:settlement_id], bills: @bills).process
 
@@ -34,6 +36,8 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
+    CreateBankPaymentLetterService.new(bill_ids: params[:bill_ids].map(&:to_i)).process
+
     respond_to do |format|
       if @bank_payment_letter.save
         format.html { redirect_to @bank_payment_letter, notice: 'Bank payment letter was successfully created.' }

@@ -7,7 +7,7 @@ class CreateBankPaymentLetters < ActiveRecord::Migration
       t.integer :creator_id
       t.integer :updater_id
       t.references :bank_account, index: true
-      t.references :sales_settlement, index: true, foreign_key: true
+      t.references :sales_settlement,:limit => 8, index: true, foreign_key: true
       t.references :branch, index: true, foreign_key: true
       t.references :voucher, index: true, foreign_key: true
 

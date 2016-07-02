@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160630110058) do
+ActiveRecord::Schema.define(version: 20160630191219) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -33,16 +33,16 @@ ActiveRecord::Schema.define(version: 20160630110058) do
   add_index "bank_accounts", ["updater_id"], name: "index_bank_accounts_on_updater_id", using: :btree
 
   create_table "bank_payment_letters", force: :cascade do |t|
-    t.decimal  "settlement_amount",   precision: 15, scale: 4, default: 0.0
+    t.decimal  "settlement_amount",             precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "bank_account_id"
-    t.integer  "sales_settlement_id"
+    t.integer  "sales_settlement_id", limit: 8
     t.integer  "branch_id"
     t.integer  "voucher_id"
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
+    t.datetime "created_at",                                                           null: false
+    t.datetime "updated_at",                                                           null: false
   end
 
   add_index "bank_payment_letters", ["bank_account_id"], name: "index_bank_payment_letters_on_bank_account_id", using: :btree
@@ -526,16 +526,14 @@ ActiveRecord::Schema.define(version: 20160630110058) do
   add_index "particulars", ["updater_id"], name: "index_particulars_on_updater_id", using: :btree
   add_index "particulars", ["voucher_id"], name: "index_particulars_on_voucher_id", using: :btree
 
-  create_table "prtclr_share_trxn_assocns", force: :cascade do |t|
-    t.integer  "association_type"
-    t.integer  "particular_id"
-    t.integer  "share_transaction_id"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+  create_table "particulars_share_transactions", id: false, force: :cascade do |t|
+    t.integer "particular_id"
+    t.integer "share_transaction_id"
+    t.integer "association_type"
   end
 
-  add_index "prtclr_share_trxn_assocns", ["particular_id"], name: "index_prtclr_share_trxn_assocns_on_particular_id", using: :btree
-  add_index "prtclr_share_trxn_assocns", ["share_transaction_id"], name: "index_prtclr_share_trxn_assocns_on_share_transaction_id", using: :btree
+  add_index "particulars_share_transactions", ["particular_id"], name: "index_particulars_share_transactions_on_particular_id", using: :btree
+  add_index "particulars_share_transactions", ["share_transaction_id"], name: "index_particulars_share_transactions_on_share_transaction_id", using: :btree
 
   create_table "sales_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18
@@ -684,6 +682,7 @@ ActiveRecord::Schema.define(version: 20160630110058) do
     t.date     "transaction_date"
     t.integer  "sms_status",        default: 0
     t.integer  "email_status",      default: 0
+    t.string   "remarks"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
@@ -781,8 +780,8 @@ ActiveRecord::Schema.define(version: 20160630110058) do
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
-  add_foreign_key "prtclr_share_trxn_assocns", "particulars"
-  add_foreign_key "prtclr_share_trxn_assocns", "share_transactions"
+  add_foreign_key "particulars_share_transactions", "particulars"
+  add_foreign_key "particulars_share_transactions", "share_transactions"
   add_foreign_key "settlements", "vouchers"
   add_foreign_key "transaction_messages", "client_accounts"
 end

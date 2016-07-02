@@ -3,7 +3,7 @@
   <%= form_tag(new_bank_payment_letter_path, :method => "get", id: "search-form") do %>
       <div class="row">
         <div class="col-xs-4">
-          <%= text_field_tag :settlement_id, @settlement_id,:required => true, placeholder: "Search by Settlement ID", :autofocus => true, class: 'form-control' %>
+          <%= text_field_tag :settlement_id, @settlement_id, :required => true, placeholder: "Search by Settlement ID", :autofocus => true, class: 'form-control' %>
         </div>
         <%= submit_tag "Search", class: 'btn btn-sm' %>
       </div>
@@ -17,12 +17,19 @@
         Select the bills which need to be paid by letter
       </div>
       <div class="panel-body">
-        <% @bills.each do |bill| %>
-            <%= "#{bill.client_account.name.titleize} #{bill.net_amount} #{bill.bill_number} #{bill.client_account.bank_account}" %> <br>
+        <%= simple_form_for @bank_payment_letter do |f| %>
+            <% @bills.each do |bill| %>
+                <%= f.input :sales_settlement_id, :as => :hidden, :input_html => { :value => @sales_settlement.id } %>
+                <%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]' %>
+                <%= "#{bill.client_account.name.titleize} #{bill.net_amount} #{bill.bill_number} #{bill.client_account.bank_account}" %>
+                <br>
+            <% end %>
+            <div class="form-actions">
+              <%= f.button :submit %>
+            </div>
         <% end %>
       </div>
     </div>
-
 
 <% elsif @is_searched %>
     <h4> No Matching Records found </h4>

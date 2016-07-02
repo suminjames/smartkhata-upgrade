@@ -48,6 +48,10 @@ class BankAccount < ActiveRecord::Base
 
   end
 
+  def self.default_for_payment
+    BankAccount.where(:default_for_payment => true).first
+  end
+
   def name
     "#{self.bank.bank_code }-#{self.account_number}"
   end

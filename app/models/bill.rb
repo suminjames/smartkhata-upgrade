@@ -20,6 +20,7 @@
 #  creator_id        :integer
 #  updater_id        :integer
 #  branch_id         :integer
+#  settlement_id     :integer
 #
 
 class Bill < ActiveRecord::Base
@@ -187,6 +188,10 @@ class Bill < ActiveRecord::Base
     end
   end
 
+  # get the bill number with fy code prepended
+  def full_bill_number
+    "#{self.fy_code}-#{self.bill_number}"
+  end
 
   private
   def process_bill
