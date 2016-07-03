@@ -46,6 +46,11 @@ class CreateBankPaymentLetterService
         particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
         particulars << particular
         net_paid_amount += amount_to_settle
+
+        # mark the bills as settled
+        bill.balance_to_pay = 0
+        bill.status = Bill.statuses[:settled]
+        bill.save!
       end
       particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description)
     end

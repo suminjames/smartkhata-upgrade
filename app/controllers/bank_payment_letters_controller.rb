@@ -20,7 +20,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills if @sales_settlement.present?
+      @bills = @sales_settlement.bills.requiring_processing if @sales_settlement.present?
       @searched = true
       # CreateBankPaymentLetterService.new(settlement_id: params[:settlement_id], bills: @bills).process
 

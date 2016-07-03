@@ -86,6 +86,8 @@ class Bill < ActiveRecord::Base
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
 
+  scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
+  scope :for_payment_letter, ->{with_client_bank_account.requiring_processing}
 
   before_save :process_bill
 
@@ -192,6 +194,9 @@ class Bill < ActiveRecord::Base
   def full_bill_number
     "#{self.fy_code}-#{self.bill_number}"
   end
+
+
+
 
   private
   def process_bill

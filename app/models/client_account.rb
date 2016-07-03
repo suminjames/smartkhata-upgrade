@@ -46,7 +46,7 @@
 #  dob_ad                    :string
 #  bank_name                 :string
 #  bank_account              :string
-#  bank_address              :string
+#  bank_branch               :string
 #  company_name              :string
 #  company_address           :string
 #  company_id                :string
@@ -97,6 +97,14 @@ class ClientAccount < ActiveRecord::Base
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
+
+  validate :bank_details_present?
+
+  def bank_details_present?
+    if bank_account.present? && (bank_name.blank? || bank_address.blank?)
+      errors.add :bank_account, "Please fill the required bank details"
+    end
+  end
 
   # create client ledger
   def create_ledger

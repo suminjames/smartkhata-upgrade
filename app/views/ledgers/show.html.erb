@@ -100,7 +100,9 @@
                   <!--TODO incorporate all bills -->
                   <% if particular.bills.count > 0 %>
                       <% particular.bills.each do |bill| %>
-                          <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true %> <br>
+                          <% if bill.client_account_id == @ledger.client_account_id %>
+                          <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
+                              <% end %>
                       <% end %>
                   <% end %>
                 </td>
