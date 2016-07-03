@@ -14,37 +14,37 @@ menus:
     - name: FloorSheet
       path: "/files/floorsheets/new"
       code: FS_UPL_FLS
-      menu_item_id: 95
+      menu_item_id: 3
     - name: Sales CM
       path: "/files/sales/new"
       code: FS_UPL_SCM
-      menu_item_id: 96
+      menu_item_id: 4
     - name: DpA5
       path: "/files/dpa5/new"
       code: FS_UPL_DPA5
-      menu_item_id: 97
+      menu_item_id: 5
     - name: Order
       path: "/files/orders/new"
       code: FS_UPL_ORD
-      menu_item_id: 98
+      menu_item_id: 6
     - name: CloseOut Debit
       path: "/files/closeouts/new?type=debit"
       code: FS_UPL_CLD
-      menu_item_id: 99
+      menu_item_id: 7
     - name: CloseOut Credit
       path: "/files/closeouts/new?type=credit"
       code: FS_UPL_CLC
-      menu_item_id: 100
-    menu_item_id: 94
+      menu_item_id: 8
+    menu_item_id: 2
   - name: Pending
     code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
       path: "/sales_settlements?pending=true"
       code: FS_PND_SAS
-      menu_item_id: 102
-    menu_item_id: 101
-  menu_item_id: 93
+      menu_item_id: 10
+    menu_item_id: 9
+  menu_item_id: 1
 - name: Account Section
   code: AS
   sub_menus:
@@ -54,95 +54,99 @@ menus:
     - name: Journal
       path: "/vouchers/new"
       code: AS_VOU_JOU
-      menu_item_id: 105
+      menu_item_id: 13
     - name: Receipt
       path: "/vouchers/new?voucher_type=2"
       code: AS_VOU_REC
-      menu_item_id: 106
+      menu_item_id: 14
     - name: Payment
       path: "/vouchers/new?voucher_type=1"
       code: AS_VOU_PAY
-      menu_item_id: 107
+      menu_item_id: 15
     - name: Pending Payment
       path: "/vouchers/pending_vouchers"
       code: AS_VOU_PEP
-      menu_item_id: 108
-    menu_item_id: 104
+      menu_item_id: 16
+    menu_item_id: 12
   - name: Ledgers
     code: AS_LED
     menu_items:
     - name: Ledger List
       path: "/ledgers"
       code: AS_LED_LEL
-      menu_item_id: 110
+      menu_item_id: 18
     - name: Group Member Balance Transfer
       path: "/ledgers/group_members_ledgers"
       code: AS_LED_GMB
-      menu_item_id: 111
+      menu_item_id: 19
     - name: New Ledger
       request_type: :get
       path: "/ledgers/new"
       hide_on_main_navigation: true
       code: AS_LED_NEL
-      menu_item_id: 112
-    menu_item_id: 109
+      menu_item_id: 20
+    menu_item_id: 17
   - name: Bills
     code: AS_BIL
     menu_items:
     - name: Bill List
       path: "/bills"
       code: AS_BIL_BIL
-      menu_item_id: 114
+      menu_item_id: 22
     - name: New Provisional Bill
       path: "/bills/new"
       code: AS_BIL_NPB
-      menu_item_id: 115
+      menu_item_id: 23
     - name: Deal Cancel
       path: "/share_transactions/deal_cancel"
       code: AS_BIL_DEC
-      menu_item_id: 116
+      menu_item_id: 24
     - name: Approve Deal Cancel
       path: "/share_transactions/pending_deal_cancel"
       code: AS_BIL_ADC
-      menu_item_id: 117
-    menu_item_id: 113
+      menu_item_id: 25
+    - name: Transaction Messages
+      path: "/transaction_messages"
+      code: AS_BIL_TRM
+      menu_item_id: 26
+    menu_item_id: 21
   - name: Bank
     code: AS_BAN
     menu_items:
     - name: Banks
       path: "/banks"
       code: AS_BAN_BAN
-      menu_item_id: 119
+      menu_item_id: 28
     - name: Bank Accounts
       path: "/bank_accounts"
       code: AS_BAN_BAA
-      menu_item_id: 120
+      menu_item_id: 29
     - name: Cheque Entries
       path: "/cheque_entries"
       code: AS_BAN_CHE
-      menu_item_id: 121
-    menu_item_id: 118
+      menu_item_id: 30
+    menu_item_id: 27
   - name: Nepse
     code: AS_NEP
     menu_items:
     - name: Nepse Chalan
       path: "/nepse_chalans"
       code: AS_NEP_NEC
-      menu_item_id: 123
-    menu_item_id: 122
-  menu_item_id: 103
+      menu_item_id: 32
+    menu_item_id: 31
+  menu_item_id: 11
 - name: Client Register
   path: "/client_accounts"
   code: CR
-  menu_item_id: 124
+  menu_item_id: 33
 - name: Employee Register
   path: "/employee_accounts"
   code: ER
-  menu_item_id: 125
+  menu_item_id: 34
 - name: Vendor Register
   path: "/vendor_accounts"
   code: VR
-  menu_item_id: 126
+  menu_item_id: 35
 - name: Reports
   code: RS
   sub_menus:
@@ -152,42 +156,42 @@ menus:
     - name: Balance Sheet
       path: "/report/balancesheet"
       code: RS_FIR_BAS
-      menu_item_id: 129
+      menu_item_id: 38
     - name: Profit & Loss
       path: "/report/profitandloss"
       code: RS_FIR_PNL
-      menu_item_id: 130
+      menu_item_id: 39
     - name: Trial Balance
       path: "/report/trial_balance"
       code: RS_FIR_TRB
-      menu_item_id: 131
-    menu_item_id: 128
+      menu_item_id: 40
+    menu_item_id: 37
   - name: Transactions / Orders
     code: RS_TRO
     menu_items:
     - name: Share Inventory
       path: "/share_transactions"
       code: RS_TRO_SHI
-      menu_item_id: 133
+      menu_item_id: 42
     - name: Orders
       path: "/orders?show=report"
       code: RS_TRO_ORD
-      menu_item_id: 134
+      menu_item_id: 43
     - name: Cancelled Transactions
       path: "/share_transactions?search_by=cancelled"
       code: RS_TRO_CAT
-      menu_item_id: 135
-    menu_item_id: 132
+      menu_item_id: 44
+    menu_item_id: 41
   - name: Settlements
     code: RS_SET
     menu_items:
     - name: Receipt
       path: "/settlements?filterrific%5Bby_settlement_type%5D=receipt"
       code: RS_SET_REC
-      menu_item_id: 137
+      menu_item_id: 46
     - name: Payment
       path: "/settlements?filterrific%5Bby_settlement_type%5D=payment"
       code: RS_SET_PAY
-      menu_item_id: 138
-    menu_item_id: 136
-  menu_item_id: 127
+      menu_item_id: 47
+    menu_item_id: 45
+  menu_item_id: 36

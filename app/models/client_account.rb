@@ -46,7 +46,7 @@
 #  dob_ad                    :string
 #  bank_name                 :string
 #  bank_account              :string
-#  bank_branch               :string
+#  bank_address              :string
 #  company_name              :string
 #  company_address           :string
 #  company_id                :string
@@ -62,7 +62,6 @@
 #  mobile_number             :string
 #  ac_code                   :string
 #
-
 
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched

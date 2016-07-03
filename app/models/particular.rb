@@ -34,6 +34,29 @@ class Particular < ActiveRecord::Base
   belongs_to :voucher
   delegate :bills, :to => :voucher, :allow_nil => true
 
+  attr_accessor :running_total
+
+  def self.distance_with_running_total
+    total = 0.0
+    Particular.order(:id).collect do |w|
+      total += w.amount
+      w.running_total = total
+      w
+    end
+  end
+
+  # get the particulars with running total
+  # records: collection of particular
+  def self.with_running_total(records)
+    total = 0.0
+    records.collect do |w|
+      total += w.amount
+      w.running_total = total
+      w
+    end
+  end
+
+
   # belongs_to :receipt
   has_many :cheque_entries
 
