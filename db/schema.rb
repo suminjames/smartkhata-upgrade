@@ -631,11 +631,11 @@ ActiveRecord::Schema.define(version: 20160630101208) do
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
   create_table "sms_messages", force: :cascade do |t|
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.string   "phone"
-    t.integer  "phone_type"
-    t.integer  "sms_type"
+    t.integer  "phone_type",             default: 0
+    t.integer  "sms_type",               default: 0
     t.integer  "credit_used"
     t.integer  "remarks"
     t.integer  "transaction_message_id"

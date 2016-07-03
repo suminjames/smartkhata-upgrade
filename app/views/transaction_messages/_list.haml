@@ -45,6 +45,7 @@
                 %br
               %td.text-center{:id => "email_status_#{transaction_message.id}"}
                 = transaction_message.email_sent? ? "Yes(#{transaction_message.sent_email_count})" :  'No'
+                = link_to "Preview", transaction_message_path(id: transaction_message.id, format: "pdf"), :target => "_blank"
                 %br
 
     - if !transaction_messages || transaction_messages.empty?

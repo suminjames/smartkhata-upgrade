@@ -85,7 +85,7 @@ class TransactionMessage < ActiveRecord::Base
   end
 
   def can_email?
-    return self.bill && self.client_account.email.present?
+    return self.client_account.email.present?
   end
 
   def can_sms?
