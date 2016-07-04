@@ -71,7 +71,6 @@
 class ClientAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
-  DATE_REGEX = /\A\d{4}-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[1-2]\d|3[01])\Z/
   after_create :create_ledger
 
   # to keep track of the user who created and last updated the ledger
@@ -90,11 +89,14 @@ class ClientAccount < ActiveRecord::Base
   # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
 
-  # 35 fields present. Validate accordingly!
+  # 36 fields present. Validate accordingly!
   validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm
   validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format'
   validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
-  validates_format_of :email, with: Devise::email_regexp, allow_blank: true
+  validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present
+  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
@@ -159,5 +161,10 @@ class ClientAccount < ActiveRecord::Base
   def get_group_members_ledger_ids
     ids = self.group_members.pluck(:id)
     Ledger.where(client_account_id: ids).pluck(:id)
+  end
+
+  # validation helper
+  def any_bank_field_present
+    bank_name? || bank_address? || bank_account?
   end
 end
