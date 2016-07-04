@@ -64,6 +64,7 @@
 #
 
 
+
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
@@ -95,7 +96,7 @@ class ClientAccount < ActiveRecord::Base
   validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
-  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present
+  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
