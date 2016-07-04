@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class MenuItemsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class MenuItemsControllerTest < ActionController::TestCase
     assert_redirected_to menu_items_path
   end
 end
+=end

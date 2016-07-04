@@ -6,7 +6,9 @@ class Files::Dpa5Controller < ApplicationController
 
   def new
     # authorize self
-    @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10);
+    dpa5_files = FileUpload.where(file_type: @@file_type)
+    @file_list = dpa5_files.order("report_date desc").limit(Files::PREVIEW_LIMIT)
+    @list_incomplete = dpa5_files.count > Files::PREVIEW_LIMIT
     if (@file_list.count > 1)
       if ((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
         flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
