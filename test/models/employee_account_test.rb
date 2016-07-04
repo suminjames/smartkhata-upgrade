@@ -19,11 +19,6 @@ class EmployeeAccountTest < ActiveSupport::TestCase
     assert @employee_account.invalid?
   end
 
-  test 'name should not be duplicate' do
-    @employee_account.name = 'Aton Gopinatha'
-    assert @employee_account.invalid?
-  end
-
   test 'email should not be duplicate' do
     @employee_account.email = 'cynthia@example.com'
     assert @employee_account.invalid?

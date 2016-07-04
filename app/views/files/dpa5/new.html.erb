@@ -1,5 +1,5 @@
+<% provide(:section_title, "Upload DPA5 file") %>
 <div>
-  <h2>Upload DPA5 file</h2>
   <%= form_tag import_files_dpa5_index_path, multipart: true do %>
       <div class="form-group">
         <%= file_field_tag :file %>
@@ -11,36 +11,42 @@
   <% end %>
 </div>
 
-
-
-<div class="panel panel-danger">
+<div class="panel panel-default">
   <div class="panel-heading">
     List of file uploaded
   </div>
   <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Date of Report</th>
-          <th>Date of Report(BS)</th>
-          <th>Last Updated</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @file_list.each do |file| %>
-            <tr>
-              <td><%= file.report_date %> </td>
-              <td><%= ad_to_bs_string(file.report_date) %> </td>
-              <td><%= file.updated_at.to_date %></td>
-            </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-    <div class="text-center">
-      <%= link_to "View Full List", files_dpa5_index_path %>
-    </div>
+    <% if @file_list.present? %>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Date of Report</th>
+            <th>Date of Report(BS)</th>
+            <th>Last Updated</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% @file_list.each do |file| %>
+              <tr>
+                <td><%= file.report_date %> </td>
+                <td><%= ad_to_bs_string(file.report_date) %> </td>
+                <td><%= file.updated_at.to_date %></td>
+              </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+      <% if @list_incomplete %>
+          <div class="text-center">
+            <%= link_to "View Full List", files_dpa5_index_path %>
+          </div>
+      <% end %>
+    <% else %>
+      <div class="text-center text-muted">
+        No DPA5 file uploaded yet.
+      </div>
+    <% end %>
   </div>
 </div>
 

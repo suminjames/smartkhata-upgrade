@@ -15,19 +15,17 @@
 </div>
 
 
-<div class="clearfix search-form">
-  <%
-    if params[:search_by] == 'name'
-  %>
+<% if params[:search_by] == 'name' %>
+  <div class="clearfix search-form">
       <%= form_tag(employee_accounts_path, :method => "get", id: "search-form") do %>
           <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "name" %>
             <%= select_tag "search_term", options_from_collection_for_select(@employees_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select an employee...' %>
           </div>
-          <%= submit_tag "Search", class: 'btn btn-sm' %>
+          <%= submit_tag "Search", class: 'btn btn-sm btn-primary' %>
       <% end %>
-  <% end %>
-</div>
+  </div>
+<% end %>
 
 <% if !@employee_accounts.blank? %>
 

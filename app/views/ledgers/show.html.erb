@@ -25,10 +25,9 @@
   </h5>
 </div>
 
-<div class="clearfix search-form">
 
-  <% if params[:search_by] == 'date_range'
-  %>
+<% if params[:search_by] == 'date_range' %>
+  <div class="clearfix search-form">
       <%= form_tag(ledger_path(@ledger), :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "date_range" %>
           <%
@@ -39,8 +38,8 @@
           <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
           <%= submit_tag "Search" %>
       <% end %>
-  <% end %>
-</div>
+  </div>
+<% end %>
 
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@particulars.present? %>
     <% if params[:search_by] == 'date_range' %>

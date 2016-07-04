@@ -8,7 +8,9 @@ class Files::SalesController < Files::FilesController
   end
 
   def new
-    @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(10)
+    settlements = SalesSettlement.order("settlement_date desc")
+    @settlements = settlements.page(params[:page]).per(Files::PREVIEW_LIMIT)
+    @list_incomplete = settlements.count > Files::PREVIEW_LIMIT
   end
 
   def import

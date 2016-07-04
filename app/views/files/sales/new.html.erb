@@ -1,5 +1,5 @@
 <% provide(:section_title, "Upload Sales CM file") %>
-<p> Upload file should be in csv format </p>
+<p class="text-muted"> Note: Upload file should be in csv format </p>
 <div>
   <%= form_tag import_files_sales_path, multipart: true do %>
       <div class="form-group">
@@ -14,7 +14,7 @@
 
 <%= render 'list', settlements: @settlements %>
 
-<% if @settlements.present? %>
+<% if @list_incomplete %>
     <div class="text-center">
       <%= link_to "View Full List", files_sales_path %>
     </div>
