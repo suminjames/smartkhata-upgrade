@@ -1,12 +1,16 @@
+<% provide(:section_title, "New Nepse Chalan") %>
 <%= form_tag(new_nepse_chalan_path, :method => "get", id: "search-form") do %>
     <%= hidden_field_tag :search_by, "date_range" %>
     <%
       text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
       text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
     %>
-    <%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
-    <%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD" %>
-    <%= submit_tag "Search" %>
+    Enter a date range to display the list:<br><br>
+    <div class="clearfix">
+      <div class="col-sm-2 compact"><%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD", class: 'form-control' %></div>
+      <div class="col-sm-2 compact"><%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD", class: 'form-control' %></div>
+      <div class="col-sm-2 compact"><%= submit_tag "Search", class: 'btn btn-primary' %></div>
+    </div>
 <% end %>
 <% if @share_transactions.size > 0 %>
     <br><br>
@@ -29,7 +33,7 @@
         <div class="share_transactions_list nepse-chalan">
           <%= hidden_field_tag :search_by, "date_range" %>
           <%
-            text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+            text_field_value_1 = params[:search_term  ]['date_from'] unless params[:search_term].blank?
             text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
           %>
           <%= hidden_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD" %>
@@ -78,7 +82,7 @@
             </tbody>
           </table>
           <div class="form-actions ">
-            <a href="" class=" btn btn-default display-chalan-desc">Verify</a>
+            <a href="" class=" btn btn-primary display-chalan-desc">Verify</a>
           </div>
         </div>
 
@@ -103,7 +107,7 @@
 
           <div class="form-actions ">
             <%= f.button :submit %>
-            <a href="" class="btn btn-default cancel-chalan-desc">Cancel</a>
+            <a href="" class="btn btn-negative cancel-chalan-desc">Cancel</a>
           </div>
         </div>
 

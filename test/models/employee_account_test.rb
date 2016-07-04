@@ -24,7 +24,6 @@ class EmployeeAccountTest < ActiveSupport::TestCase
       @employee_account.email = email
       assert @employee_account.invalid?
     end
-
   end
 
   test 'email should not be duplicate' do

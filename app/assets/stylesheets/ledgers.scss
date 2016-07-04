@@ -2,10 +2,14 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+ // varaiables
+$table-row-hover-bg: rgba(60, 141, 188, 0.3);
+
 //.credit-amount { color: red}
 .ledger-single, .ledger-list {
   tr:hover {
-    background: #EEEEEE;
+    // background: #EEEEEE;
+    background: $table-row-hover-bg;
   }
 }
 
