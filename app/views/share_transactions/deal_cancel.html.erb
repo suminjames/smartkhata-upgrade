@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <%= submit_tag "Search", class: 'btn btn-sm' %>
+      <%= submit_tag "Search", class: 'btn btn-sm btn-primary' %>
   <% end %>
 
   <% if @share_transaction.present? %>
@@ -52,7 +52,7 @@
             </tbody>
           </table>
           <%= hidden_field_tag 'id', @share_transaction.id %>
-          <%= submit_tag "Process Deal Cancel", class: 'btn btn-sm' %>
+          <%= submit_tag "Process Deal Cancel", class: 'btn btn-sm btn-primary' %>
       <% end %>
   <% end %>
 </div>

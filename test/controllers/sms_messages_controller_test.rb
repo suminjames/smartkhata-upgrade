@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class SmsMessagesControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class SmsMessagesControllerTest < ActionController::TestCase
     assert_redirected_to sms_messages_path
   end
 end
+=end
