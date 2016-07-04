@@ -20,10 +20,8 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills.for_payment_letter if @sales_settlement.present?
-      @searched = true
-      # CreateBankPaymentLetterService.new(settlement_id: params[:settlement_id], bills: @bills).process
-
+      @bills = @sales_settlement.bills.requiring_processing if @sales_settlement.present?
+      @is_searched = true
       return
     end
     @bank_payment_letter = BankPaymentLetter.new
@@ -36,16 +34,27 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters
   # POST /bank_payment_letters.json
   def create
+    @settlement_id = params[:settlement_id]
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
-    particulars, settlement_amount  = CreateBankPaymentLetterService.new(bill_ids: params[:bill_ids].map(&:to_i)).process
-    @bank_payment_letter.particulars = particulars
-    @bank_payment_letter.settlement_amount = settlement_amount
+    particulars = false
+    bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
+    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids)
+    particulars, settlement_amount  = payment_letter_generation.process
 
-    respond_to do |format|
+    if particulars
+      @bank_payment_letter.particulars = particulars
+      @bank_payment_letter.settlement_amount = settlement_amount
       if @bank_payment_letter.save
+        result = true
+      end
+    end
+    
+    respond_to do |format|
+      if result
         format.html { redirect_to @bank_payment_letter, notice: 'Bank payment letter was successfully created.' }
         format.json { render :show, status: :created, location: @bank_payment_letter }
       else
+        flash.now[:error] = payment_letter_generation.error_message
         format.html { render :new }
         format.json { render json: @bank_payment_letter.errors, status: :unprocessable_entity }
       end
