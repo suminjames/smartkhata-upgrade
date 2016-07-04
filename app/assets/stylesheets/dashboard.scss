@@ -1,3 +1,30 @@
 // Place all the styles related to the Dashboard controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+.small-box{
+  overflow: hidden;
+  border: 1px solid #d7d7d7;
+  &:hover .icon{
+    // Keep the font size, rather use the smooth CSS3 transitioning!
+    font-size: 90px;
+    -webkit-transform: scale(1.25);
+    -moz-transform: scale(1.25);
+    -ms-transform: scale(1.25);
+    -o-transform: scale(1.25);
+    transform: scale(1.1);
+  }
+}
+
+.bill-image{
+  width: 70px;
+  padding-top: 10px;
+  opacity: 0.3;
+}
+
+i.ion-document-text{
+  position: relative;
+  right: 10px;
+  top: 1px;
+}

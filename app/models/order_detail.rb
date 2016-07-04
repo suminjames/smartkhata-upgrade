@@ -23,18 +23,19 @@
 class OrderDetail < ActiveRecord::Base
   belongs_to :isin_info
 
-  #TODO(sarojk): Find out all enums for state
-  # 10512 rows of test file only contained one of values 'cancelled', 'executed', or 'queued'
   enum state: [:cancelled, :executed, :queued]
 
-  #TODO(sarojk): Find out all enums for type
-  # 10512 rows of test file only contained one of values 'buying' or 'selling'
   enum typee: [:buy, :sell]
 
-  #TODO(sarojk): Find out what is a segment? Possible values?
-  enum segment: [:ct]
+  # ct: continous trade
+  # atc: at the time of closing
+  # ato: at the time of opening
+  enum segment: [:ct, :atc, :ato]
 
   #TODO(sarojk): Find out what is a condition? Possible values?
-  # 'none' is reserved, so resorted to 'nonee'
-  enum condition: [:nonee, :aon]
+  # none is reserved, so resorted to 'nonee'
+  # ioc: immediate or cancel
+  # fok: fill or kill
+  # aon: all or none
+  enum condition: [:nonee, :aon, :ioc, :fok]
 end

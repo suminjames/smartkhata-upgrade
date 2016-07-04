@@ -8,7 +8,9 @@ class Files::FloorsheetsController < Files::FilesController
   @@file_name_contains = "FLOORSHEET"
 
   def new
-    @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10);
+    floorsheets = FileUpload.where(file_type: @@file_type)
+    @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
+    @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
     # if (@file_list.count > 1)
     # 	if((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
     # 		flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"

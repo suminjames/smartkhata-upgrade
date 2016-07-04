@@ -9,7 +9,9 @@ class Files::OrdersController < Files::FilesController
   end
 
   def new
-    @file_list = FileUpload.where(file_type: @@file_type).order("report_date desc").limit(10)
+    orders = FileUpload.where(file_type: @@file_type)
+    @file_list = orders.order("report_date desc").limit(Files::PREVIEW_LIMIT)
+    @list_incomplete = orders.count > Files::PREVIEW_LIMIT
   end
 
   def import

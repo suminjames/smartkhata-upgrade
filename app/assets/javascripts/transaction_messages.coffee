@@ -25,7 +25,7 @@ $(document).on 'page:change', ->
     allTransactionMessagesIds = `$("#filterrific_results .email:input:checkbox").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 
     # Poll for transaction messages' email and sms status every 4 seconds
-    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 4000
+#    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 10000
     $(document).on 'page:change', clearTransactionMessagesStatusesPoller
     
     $(document).on 'change', 'input:checkbox', (event)->
@@ -85,7 +85,6 @@ $ ->
   return
 
 pollForTransactionMessagesStatuses = ->
-#  console.log allTransactionMessagesIds
   params = {transaction_message_ids: allTransactionMessagesIds}
   $.ajax
     url: '/transaction_messages/sent_status'
