@@ -1,9 +1,8 @@
 = simple_form_for(@client_account) do |f|
   = f.error_notification
 
-  .row
+  .clearfix
     .col-xs-12
-      %h3 Client Information
       = hidden_field_tag 'from_path', @from_path
       = f.input :name, placeholder: "Name"
       = f.input :citizen_passport, label: "Citizen/Birth Certificate",placeholder: "Citizenship/Birth Certificate"

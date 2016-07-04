@@ -1,4 +1,146 @@
 <!--TODO(sarojk) Don't allow any form actions. Disable all fields. No submit button.-->
-<%= render ('form') %>
+<% provide(:section_title, "Employee Details") %>
 
-<%= link_to 'Back', employee_accounts_path %>
+<p id="notice"><%= notice %></p>
+
+<!-- bootstrap tabs -->
+<div class="person-info-wrapper">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a>
+    </li>
+    <li role="presentation">
+      <a href="#permanent-address" aria-controls="permanent-address" role="tab" data-toggle="tab">Permanent address</a>
+    </li>
+    <li role="presentation">
+      <a href="#current-address" aria-controls="current-address" role="tab" data-toggle="tab">Current address</a></li>
+    <li role="presentation">
+      <a href="#bank-financial-info" aria-controls="bank-financial-info" role="tab" data-toggle="tab">Bank/financial
+        info</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="basic">
+      <h3>Basic information</h3><br>
+      <p>
+        <strong>Name:</strong>
+        <%= @employee_account.name %>
+      </p>
+      <p>
+        <strong>Email:</strong>
+        <%= @employee_account.email %>
+      </p>
+      <p>
+        <strong>Citizen/Birth Certificate:</strong>
+        <%= @employee_account.citizen_passport %>
+      </p>
+      <p>
+        <strong>&emsp;Issued Date:</strong>
+        <%= @employee_account.citizen_passport_date %>
+      </p>
+      <p>
+        <strong>&emsp;Issued District:</strong>
+        <%= @employee_account.citizen_passport_district %>
+      </p>
+      <p>
+        <strong>PAN:</strong>
+        <%= @employee_account.pan_no %>
+      </p>
+      <p>
+        <strong>Dob:</strong>
+        <%= @employee_account.dob %>
+      </p>
+      <p>
+        <strong>Father/Mother's Name:</strong>
+        <%= @employee_account.father_mother %>
+      </p>
+      <p>
+        <strong>GrandFather/Father In Law's Name:</strong>
+        <%= @employee_account.granfather_father_inlaw %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="permanent-address">
+      <h3>Permanent address</h3><br>
+      <p>
+        <strong>Address line 1:</strong>
+        <%= @employee_account.address1_perm %>
+      </p>
+      <p>
+        <strong>Address line 2:</strong>
+        <%= @employee_account.address2_perm %>
+      </p>
+      <p>
+        <strong>Address line 3:</strong>
+        <%= @employee_account.address3_perm %>
+      </p>
+      <p>
+        <strong>City:</strong>
+        <%= @employee_account.city_perm %>
+      </p>
+      <p>
+        <strong>State:</strong>
+        <%= @employee_account.state_perm %>
+      </p>
+      <p>
+        <strong>Country:</strong>
+        <%= @employee_account.country_perm %>
+      </p>
+      <p>
+        <strong>Phone:</strong>
+        <%= @employee_account.phone_perm %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="current-address">
+      <h3>Current Address</h3><br>
+      <p>
+        <strong>Address line 1:</strong>
+        <%= @employee_account.address1 %>
+      </p>
+      <p>
+        <strong>Address line 2:</strong>
+        <%= @employee_account.address2 %>
+      </p>
+      <p>
+        <strong>Address line 3:</strong>
+        <%= @employee_account.address3 %>
+      </p>
+      <p>
+        <strong>City:</strong>
+        <%= @employee_account.city %>
+      </p>
+      <p>
+        <strong>State:</strong>
+        <%= @employee_account.state %>
+      </p>
+      <p>
+        <strong>Country:</strong>
+        <%= @employee_account.country %>
+      </p>
+      <p>
+        <strong>Phone:</strong>
+        <%= @employee_account.phone %>
+      </p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="bank-financial-info">
+      <h3>Bank / Financial Institution Information</h3><br>
+      <p>
+        <strong>Name:</strong>
+        <%= @employee_account.bank_name %>
+      </p>
+      <p>
+        <strong>Address:</strong>
+        <%= @employee_account.bank_address %>
+      </p>
+      <p>
+        <strong>Account No.:</strong>
+        <%= @employee_account.bank_account %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="stick-to-bottom">
+  <%= link_to 'Edit', edit_employee_account_path(@employee_account) %> |
+  <%= link_to 'Back', employee_accounts_path %>
+</div>
