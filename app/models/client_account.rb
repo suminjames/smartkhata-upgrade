@@ -96,7 +96,7 @@ class ClientAccount < ActiveRecord::Base
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present
-  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present
+  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
@@ -106,7 +106,7 @@ class ClientAccount < ActiveRecord::Base
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
-  scope :having_group_members, -> { joins(:group_members) }
+  scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
 
   # create client ledger
@@ -163,8 +163,20 @@ class ClientAccount < ActiveRecord::Base
     Ledger.where(client_account_id: ids).pluck(:id)
   end
 
+  # In case both numbers are messageable, 'phone' has higher priority over 'phone_perm'
+  # Returns nil if neither is messageable
+  def messageable_phone_number
+    messageable_phone_number = nil
+    if SmsMessage.messageable_phone_number?(self.phone)
+      messageable_phone_number = self.phone
+    elsif SmsMessage.messageable_phone_number?(self.phone_perm)
+      messageable_phone_number = self.phone_perm
+    end
+    messageable_phone_number
+  end
+
   # validation helper
-  def any_bank_field_present
+  def any_bank_field_present?
     bank_name? || bank_address? || bank_account?
   end
 end

@@ -5,6 +5,7 @@ class CreateTransactionMessages < ActiveRecord::Migration
       t.date :transaction_date
       t.integer :sms_status, default: 0
       t.integer :email_status, default: 0
+      t.string :remarks
       t.references :bill, index: true
       t.references :client_account, index: true, foreign_key: true
 

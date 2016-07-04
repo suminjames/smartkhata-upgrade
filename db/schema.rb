@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160625122731) do
+ActiveRecord::Schema.define(version: 20160629103546) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -402,11 +402,13 @@ ActiveRecord::Schema.define(version: 20160625122731) do
     t.string   "path"
     t.boolean  "hide_on_main_navigation", default: false
     t.integer  "request_type",            default: 0
-    t.integer  "parent_id"
     t.string   "code"
+    t.string   "ancestry"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
   end
+
+  add_index "menu_items", ["ancestry"], name: "index_menu_items_on_ancestry", using: :btree
 
   create_table "menu_permissions", force: :cascade do |t|
     t.integer  "creator_id"
@@ -628,6 +630,11 @@ ActiveRecord::Schema.define(version: 20160625122731) do
   add_index "share_transactions", ["updater_id"], name: "index_share_transactions_on_updater_id", using: :btree
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
+  create_table "sms_messages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.string   "name"
     t.string   "dp_id"
@@ -646,13 +653,14 @@ ActiveRecord::Schema.define(version: 20160625122731) do
     t.date     "transaction_date"
     t.integer  "sms_status",        default: 0
     t.integer  "email_status",      default: 0
+    t.string   "remarks"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.date     "deleted_at"
-    t.integer  "sent_sms_count"
-    t.integer  "sent_email_count"
+    t.integer  "sent_sms_count",    default: 5
+    t.integer  "sent_email_count",  default: 5
   end
 
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree

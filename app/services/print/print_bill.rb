@@ -2,11 +2,13 @@ class Print::PrintBill < Prawn::Document
   require 'prawn/table'
   require 'prawn/measurement_extensions'
 
-  def initialize(bill, current_tenant)
+  def initialize(bill, current_tenant, print_type)
     super(top_margin: 12, right_margin: 38, bottom_margin: 18, left_margin: 18)
 
     @bill = bill
     @current_tenant = current_tenant
+    # @print_type is one of the strings: 'for_print', 'for_email'
+    @print_type = print_type
 
     draw
   end
@@ -76,7 +78,11 @@ class Print::PrintBill < Prawn::Document
   end
 
   def footer
-    text "<u><i>Note: Please bring this bill for enquiry and further processing.</i></u>", :inline_format => true
+    if @print_type == 'for_email'
+      text "<u><i>Note: This is computer generated document, and therefore doesn't have a signature. </i></u>", :inline_format => true
+    elsif @print_type == 'for_print'
+      text "<u><i>Note: Please bring this bill for enquiry and further processing.</i></u>", :inline_format => true
+    end
     text "**Company Code Index => <i>#{@bill.formatted_isin_abbreviation_index}</i>", :inline_format => true
   end
 
@@ -133,8 +139,10 @@ class Print::PrintBill < Prawn::Document
 
       move_down(30)
 
-      text "_" * 35, :align => :center
-      text "(Authorized Signature)", :align => :center
+      if @print_type != 'for_email'
+        text "_" * 35, :align => :center
+        text "(Authorized Signature)", :align => :center
+      end
       text @current_tenant.full_name, :align => :center
       text "Broker Code No.: #{@current_tenant.broker_code}", :align => :center
       text "Nepal Stock Exchange", :align => :center

@@ -51,12 +51,12 @@
 
   <tbody>
 
-  <% if !@ledgers.empty?
-       @ledgers.each do |ledger| %>
-          <tr>
-            <td><%= ledger.name.titleize %></td>
-            <td class="text-right" style="padding-right: 40px;">
-              <% if ledger.closing_blnc + margin_of_error_amount < 0 %>
+    <% if @ledgers
+      @ledgers.each do |ledger| %>
+      <tr>
+        <td><%= ledger.name.titleize %></td>
+        <td class="text-right" style="padding-right: 40px;">
+          <% if ledger.closing_blnc + margin_of_error_amount < 0 %>
               <span class="credit-amount">
                 <%= "#{number_to_currency(ledger.closing_blnc.abs)} cr" %>
               </span>

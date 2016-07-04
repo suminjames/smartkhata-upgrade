@@ -15,6 +15,8 @@ gem 'filterrific'
 gem 'bootstrap-kaminari-views'
 gem 'prawn'
 gem 'prawn-table', '~> 0.2.2'
+gem 'sidekiq'
+gem 'sinatra', '>= 1.3.0', require: false
 
 group :development, :test do
   gem 'byebug'
@@ -34,6 +36,9 @@ gem 'sendgrid'
 gem 'simple_form'
 gem "smart_listing"
 group :development do
+  gem 'brakeman', :require => false
+  gem 'traceroute'
+  gem 'rack-mini-profiler'
   gem 'better_errors'
   gem 'annotate'
   gem 'hirb'
@@ -68,3 +73,4 @@ group :test do
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
 end
 gem 'virtus'
+gem 'ancestry'
