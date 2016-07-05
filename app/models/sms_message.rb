@@ -19,6 +19,7 @@
 
 require 'net/http'
 class SmsMessage < ActiveRecord::Base
+  extend CustomDateModule
 
   include ::Models::UpdaterWithBranchFycode
 
@@ -28,7 +29,64 @@ class SmsMessage < ActiveRecord::Base
   enum sms_type: [:undefined_sms_type, :transaction_message_sms]
   enum phone_type: [:undefined_phone_type, :ntc, :ncell]
 
-  attr_accessor :remarks, :credit_used
+
+  filterrific(
+      # default_filter_params: {sorted_by: 'name_desc'},
+      available_filters: [
+          :sorted_by,
+          :by_sms_message_type,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id,
+      ]
+  )
+
+  scope :by_sms_message_type, -> (type) { where(:sms_type=> SmsMessage.sms_types[type]) }
+
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('created_at >= ?', date_ad.beginning_of_day)
+  }
+  scope :by_date_to, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('created_at <= ?', date_ad.end_of_day)
+  }
+
+  scope :by_client_id, lambda { |id|
+    joins(:transaction_message).where('transaction_messages.client_account_id = ?', id)
+  }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    # case sort_option.to_s
+    #   # when /^name/
+    #   #   order("LOWER(sms_messages.name) #{ direction }")
+    #   # when /^amount/
+    #   #   order("sms_messages.amount #{ direction }")
+    #   # when /^type/
+    #   #   order("sms_messages.sms_messages#{ direction }")
+    #   # when /^date/
+    #   #   order("sms_messagesms_messages.date_bs #{ direction }")
+    #   # else
+    #   #   raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    # end
+  }
+
+  def self.options_for_sms_message_type_select
+    [["Transaction Message", "transaction_message_sms"], ["Undefined", "undefined_sms_type"]]
+  end
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  # TODO(sarojk): IMPORTANT! Valid message block's length should have been 255, but Miracle has issues and can only send 250 lenth message block currently. Check and change later.
+  MAX_MESSAGE_BLOCK_LENGTH = 250
 
   @access_code = 'M210DAF977'
   @username = 'danpheit'
@@ -47,12 +105,10 @@ class SmsMessage < ActiveRecord::Base
   #  9 = Balance not enough.
 
   def initialize (args = {})
-    p 'Initialized'
     super()
     self.phone = args[:phone]
     self.sms_type = args[:sms_type]
     self.transaction_message_id = args[:transaction_message_id]
-    p 'PHone type called'
     self.phone_type = self.class.get_phone_type(self.phone)
     self.credit_used = 0
   end
@@ -97,7 +153,8 @@ class SmsMessage < ActiveRecord::Base
     #   -else, if none fails, register sent!
     #TODO(sarojk): Consider sane breaking of text . Looks like , and ; are sane break points.
     # http://stackoverflow.com/questions/754407/what-is-the-best-way-to-chop-a-string-into-chunks-of-a-given-length-in-ruby
-    valid_message_blocks = transaction_message.sms_message.scan(/.{1,255}/)
+    # TODO(sarojk): IMPORTANT! Change 250 to 255 after Miracle solves the issue with max message block length.
+    valid_message_blocks = transaction_message.sms_message.scan(/.{1,250}/)
     sms_failed = false
     transaction_message.sms_queued!
     valid_message_blocks.each do |message|
@@ -106,12 +163,12 @@ class SmsMessage < ActiveRecord::Base
       reply_code = '1'
       if reply_code != '1'
         sms_failed = true
-        if transaction_message.sms_message.length > 255
+        if transaction_message.sms_message.length >  MAX_MESSAGE_BLOCK_LENGTH
           sms_message_obj.remarks = 'Not all valid length blocks succesfully sent of this message which is greater than 255 characters.'
         end
         break
       else
-        sms_message_obj.credit_used += credit_required(@message)
+        sms_message_obj.credit_used += self.credit_required(@message)
       end
     end
     if sms_failed
@@ -119,7 +176,7 @@ class SmsMessage < ActiveRecord::Base
     else
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!
-      sms_message_obj.save!
+      sms_message_obj.save
     end
     Apartment::Tenant.switch!('public')
   end
@@ -133,7 +190,7 @@ class SmsMessage < ActiveRecord::Base
     @mobile_number = self.manipulate_phone_number(number)
   end
 
-  # :db used to get it in
+  # :db used to get the date_time in Miracle recommended syntax of the date.
   def self.date_time
     @date_time = DateTime.now.to_s(:db)
   end
@@ -164,7 +221,7 @@ class SmsMessage < ActiveRecord::Base
     while message_length > 0
       if message_length > 160
         credit += 2
-        message_length -= 255
+        message_length -= MAX_MESSAGE_BLOCK_LENGTH
       elsif message_length <= 160
         credit += 1
         message_length -= 160

@@ -156,11 +156,18 @@ class ClientAccount < ActiveRecord::Base
   # Returns nil if neither is messageable
   def messageable_phone_number
     messageable_phone_number = nil
-    if SmsMessage.messageable_phone_number?(self.phone)
+    if SmsMessage.messageable_phone_number?(self.mobile_number)
+      messageable_phone_number = self.mobile_number
+    elsif SmsMessage.messageable_phone_number?(self.phone)
       messageable_phone_number = self.phone
     elsif SmsMessage.messageable_phone_number?(self.phone_perm)
       messageable_phone_number = self.phone_perm
     end
     messageable_phone_number
   end
+
+  def name_and_nepse_code
+    "#{self.name} (#{self.nepse_code})"
+  end
+
 end

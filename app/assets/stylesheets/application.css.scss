@@ -344,3 +344,11 @@ select.combobox {
   border: 1px solid #ddd;
   margin-bottom: 10px;
 }
+
+.table-fixed-width {
+  table-layout: fixed;
+}
+
+.wrap-text {
+  word-wrap: break-word !important;
+}

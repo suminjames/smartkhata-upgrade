@@ -1,4 +1,3 @@
-
 %div#filterrific_results
   %div.row
     %div.col-xs-12
@@ -19,10 +18,9 @@
           = check_box_tag 'select_all', '', false, class: 'sms'
         %th.col-xs-1.text-center= filterrific_sorting_link(@filterrific, :date)
         %th.col-xs-2.text-center= 'Client'
-        %th.col-xs-2.text-center= 'Client<br>Email'.html_safe
-        %th.col-xs-2.text-center= 'Client<br>Mobile'.html_safe
+        %th.col-xs-2.text-center= 'Contacts'
         %th.col-xs-1.text-center= 'Bill'
-        %th.col-xs-2.text-center= 'SMS Message'
+        %th.col-xs-4.text-center= 'SMS Message'
         %th.col-xs-1.text-center= 'SMS<br>Sent'.html_safe
         %th.col-xs-1.text-center= 'Email<br>Sent'.html_safe
       %tbody
@@ -32,24 +30,39 @@
               %td.text-center= check_box_tag transaction_message.id, '', false, class: transaction_message.can_email? ? 'email' : 'email cant-email'
               %td.text-center= check_box_tag transaction_message.id, '', false, class: transaction_message.can_sms? ? 'sms' : 'sms cant-sms'
               %td= ad_to_bs_string(transaction_message.transaction_date)[2..-1]
-              %td= transaction_message.client_account.name
-              %td.text-center
+              %td
+                = transaction_message.client_account.name
+                %span.light-text="(#{transaction_message.client_account.nepse_code})"
+              %td
+                <span class="glyphicon glyphicon-envelope"></span>
                 = transaction_message.client_account.email.blank? ? "<a class='no-hover warning-text' data-toggle='tooltip' title='Client does not have a valid email.'>N/A</a>".html_safe : transaction_message.client_account.email
-              %td.text-center
+                <br>
+                <span class="glyphicon glyphicon-phone"></span>
                 = transaction_message.client_account.messageable_phone_number.present? ? transaction_message.client_account.messageable_phone_number : "<a class='no-hover warning-text' data-toggle='tooltip' title='Client does not have a valid mobile number.'>N/A</a>".html_safe
               %td
                 = transaction_message.bill.present? ? "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" : "<a class='no-hover warning-text' data-toggle='tooltip' title='The transaction does not have a bill yet.'>N/A</a>".html_safe
               %td.sms-message= transaction_message.sms_message
               %td.text-center{:id => "sms_status_#{transaction_message.id}"}
-                = transaction_message.sms_sent? ? "Yes(#{transaction_message.sent_sms_count})" : 'No'
+                - if transaction_message.sms_sent?
+                  = 'Yes'
+                  <br>
+                  %small.light-text= "count:#{transaction_message.sent_sms_count}"
+                - else
+                  = 'No'
+
+              %td.text-center
+                %span{:id => "email_status_#{transaction_message.id}"}
+                  - if transaction_message.email_sent?
+                    = 'Yes'
+                    <br>
+                    %small.light-text= "count:#{transaction_message.sent_email_count}"
+                  - else
+                    = 'No'
                 %br
-              %td.text-center{:id => "email_status_#{transaction_message.id}"}
-                = transaction_message.email_sent? ? "Yes(#{transaction_message.sent_email_count})" :  'No'
                 = link_to "Preview", transaction_message_path(id: transaction_message.id, format: "pdf"), :target => "_blank"
-                %br
 
     - if !transaction_messages || transaction_messages.empty?
-      .row.text-center.top-buffer-md
+      %div.row.text-center.top-buffer-md
         There are no matching transaction messages.
 
   = render 'shared/pagination', collection_to_paginate: transaction_messages
