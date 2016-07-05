@@ -31,7 +31,7 @@ class SmsMessage < ActiveRecord::Base
 
 
   filterrific(
-      # default_filter_params: {sorted_by: 'name_desc'},
+      default_filter_params: {sorted_by: 'id_desc'},
       available_filters: [
           :sorted_by,
           :by_sms_message_type,
@@ -42,39 +42,33 @@ class SmsMessage < ActiveRecord::Base
       ]
   )
 
-  scope :by_sms_message_type, -> (type) { where(:sms_type=> SmsMessage.sms_types[type]) }
+  scope :by_sms_message_type, -> (type) { where(:sms_type=> SmsMessage.sms_types[type]).order(id: :desc) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(:updated_at => date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at >= ?', date_ad.beginning_of_day)
+    where('updated_at >= ?', date_ad.beginning_of_day).order(id: :desc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at <= ?', date_ad.end_of_day)
+    where('updated_at <= ?', date_ad.end_of_day).order(id: :desc)
   }
 
   scope :by_client_id, lambda { |id|
-    joins(:transaction_message).where('transaction_messages.client_account_id = ?', id)
+    joins(:transaction_message).where('transaction_messages.client_account_id = ?', id).order(id: :desc)
   }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
-    # case sort_option.to_s
-    #   # when /^name/
-    #   #   order("LOWER(sms_messages.name) #{ direction }")
-    #   # when /^amount/
-    #   #   order("sms_messages.amount #{ direction }")
-    #   # when /^type/
-    #   #   order("sms_messages.sms_messages#{ direction }")
-    #   # when /^date/
-    #   #   order("sms_messagesms_messages.date_bs #{ direction }")
-    #   # else
-    #   #   raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
-    # end
+    case sort_option.to_s
+      when /^id/
+        order("sms_messages.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
   }
 
   def self.options_for_sms_message_type_select

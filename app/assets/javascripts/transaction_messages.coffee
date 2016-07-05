@@ -25,7 +25,7 @@ $(document).on 'page:change', ->
     allTransactionMessagesIds = `$("#filterrific_results .email:input:checkbox").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 
     # Poll for transaction messages' email and sms status every x seconds
-    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 10000
+#    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 6000
     $(document).on 'page:change', clearTransactionMessagesStatusesPoller
     
     $(document).on 'change', 'input:checkbox', (event)->
@@ -114,10 +114,10 @@ updateEmailStatus = (transactionMessage) ->
     emailStatusStr = 'No'
   else if emailStatus == 'email_queued'
     sentEmailCount = transactionMessage.sent_email_count
-    emailStatusStr = 'Queued' + "<br>" + "<small class='light-text'>" + "count:" + sentEmailCount + '</small>'
+    emailStatusStr = 'Queued' + "<br>" + "<div class='light-text'>" + "count:" + sentEmailCount + '</div >'
   else if emailStatus == 'email_sent'
     sentEmailCount = transactionMessage.sent_email_count
-    emailStatusStr = 'Yes' + "<br>" + "<small class='light-text'>" + "count:" + sentEmailCount + '</small>'
+    emailStatusStr = 'Yes' + "<br>" + "<div class='light-text'>" + "count:" + sentEmailCount + '</div >'
   $("#email_status_" + transactionMessage.id).html(emailStatusStr)
 
 # change the sms sent status (and sms count if sent)
@@ -128,8 +128,8 @@ updateSmsStatus = (transactionMessage) ->
     smsStatusStr = 'No'
   else if smsStatus == 'sms_queued'
     sentSmsCount = transactionMessage.sent_sms_count
-    smsStatusStr = 'Queued' + "<br>" + "<small class='light-text'>" + "count:" + sentSmsCount + '</small>'
+    smsStatusStr = 'Queued' + "<br>" + "<div class='light-text'>" + "count:" + sentSmsCount + '</div >'
   else if smsStatus == 'sms_sent'
     sentSmsCount = transactionMessage.sent_sms_count
-    smsStatusStr = 'Yes' + "<br>" + "<small class='light-text'>" + "count:" + sentSmsCount + '</small>'
+    smsStatusStr = 'Yes' + "<br>" + "<div class='light-text'>" + "count:" + sentSmsCount + '</div >'
   $("#sms_status_" + transactionMessage.id).html(smsStatusStr)

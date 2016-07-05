@@ -149,4 +149,9 @@ module ApplicationHelper
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
   end
+
+  # @params time - Time object holds time, date and timezone
+  def to_ktm_timezone(time)
+    time.in_time_zone("Kathmandu")
+  end
 end

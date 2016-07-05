@@ -167,7 +167,7 @@ class ClientAccount < ActiveRecord::Base
   end
 
   def name_and_nepse_code
-    "#{self.name} (#{self.nepse_code})"
+    "#{self.name.titleize} (#{self.nepse_code})"
   end
 
 end

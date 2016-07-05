@@ -5,17 +5,25 @@
     %table.table.table-striped.table-fixed-width
       %thead
         %th.col-xs-2.text-center= 'Client'
-        %th.col-xs-1.text-center= 'Date'
+        %th.col-xs-1.text-center= 'Sent'
         %th.col-xs-1.text-center= 'Phone'
-        %th.col-xs-1.text-center= 'Credit Used'
+        %th.col-xs-1.text-center= 'Credit'
         %th.col-xs-4.text-center= 'Message'
       %tbody
         - if sms_messages
           - sms_messages.each do |sms_message|
             - client_account = sms_message.transaction_message.client_account
             %tr
-              %td.col-xs-1.text-center= "#{client_account.name.titleize} (#{client_account.nepse_code})"
-              %td.col-xs-1.text-center= ad_to_bs_string(sms_message.transaction_message.transaction_date)[2..-1]
+              %td.col-xs-1.text-center
+                = client_account.name.titleize
+                %span.light-text
+                  ="(#{client_account.nepse_code})"
+              %td.col-xs-1.text-center
+                - time = to_ktm_timezone sms_message.updated_at
+                - date = ad_to_bs_string(time.to_date)
+                = date.squish
+                <br>
+                = time.strftime("%H:%M:%S").squish
               %td.col-xs-1.text-center= sms_message.phone
               %td.col-xs-1.text-center= sms_message.credit_used
               %td.col-xs-4.wrap-text= sms_message.transaction_message.sms_message

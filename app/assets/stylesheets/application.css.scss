@@ -13,6 +13,7 @@
  *= require_tree .
  *= require_self
  */
+
 body {
   background-color: #222d32;
 }
@@ -351,4 +352,9 @@ select.combobox {
 
 .wrap-text {
   word-wrap: break-word !important;
+}
+
+.light-text{
+  font-size: 85%;
+  color: #808084 !important;
 }
