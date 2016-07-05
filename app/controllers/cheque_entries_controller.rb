@@ -25,9 +25,6 @@ class ChequeEntriesController < ApplicationController
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
 
-    # TODO(sarojk): Delete the line below.
-    @all_cheque_entries = ChequeEntry.where(id: [1, 2])
-
     respond_to do |format|
       format.html
       format.js

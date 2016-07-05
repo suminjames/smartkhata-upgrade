@@ -1,5 +1,4 @@
 <%= link_to "View(pdf)", cheque_entry_path(format: "pdf"), :target => "_blank" %>
-<%= link_to "View All (pdf)", show_multiple_cheque_entries_path(cheque_entry_ids: @all_cheque_entries.pluck(:id), format: "pdf"), :target => "_blank" %>
 
 <div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%= @cheque_entry.id %>">
   <% if @cheque_entry.bounced? %>
