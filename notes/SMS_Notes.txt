@@ -1,0 +1,13 @@
+
+
+- Miracle doesn't send a message that is more than 255 characters long.
+    - To bypass this, snip the (>255 character long) message into further message block(s) of valid characters length, and send them. Each message block counts towards separate sms credit.
+
+    -
+
+
+- Block of message
+    - less than 160 characters
+- Current charge
+    - NRs. 1.40 for a block of message
+
