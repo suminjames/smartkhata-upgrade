@@ -1,9 +1,10 @@
 class CreateBankPaymentLetterService
   include ApplicationHelper
-  attr_reader :error_message
+  attr_accessor :error_message
 
   def initialize(params)
     @sales_settlement = params[:sales_settlement]
+    @bank_payment_letter = params[:bank_payment_letter]
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = 'There was an error'
@@ -12,14 +13,14 @@ class CreateBankPaymentLetterService
   def process
     fy_code = get_fy_code
 
-    payment_bank_account = BankAccount.default_for_payment
+    payment_bank_account = @bank_payment_letter.bank_account
 
-
+    # bank payment letter cant be created without bills and payment bank account
     if @bills.empty?
       @error_message = "Bill List is empty"
       return false
     elsif payment_bank_account.nil?
-      @error_message = "No Bank Account is specified"
+      @error_message = "No Bank Account is selected"
       return false
     end
 

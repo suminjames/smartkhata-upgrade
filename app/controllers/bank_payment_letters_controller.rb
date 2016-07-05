@@ -38,7 +38,7 @@ class BankPaymentLettersController < ApplicationController
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids)
+    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter)
     particulars, settlement_amount  = payment_letter_generation.process
 
     if particulars
@@ -48,7 +48,7 @@ class BankPaymentLettersController < ApplicationController
         result = true
       end
     end
-    
+
     respond_to do |format|
       if result
         format.html { redirect_to @bank_payment_letter, notice: 'Bank payment letter was successfully created.' }

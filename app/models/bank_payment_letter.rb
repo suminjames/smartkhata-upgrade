@@ -21,4 +21,7 @@ class BankPaymentLetter < ActiveRecord::Base
   belongs_to :voucher
   belongs_to :bank_account
   has_many :particulars
+  delegate :bills, :to => :voucher, :allow_nil => true
+
+  enum letter_status: [:pending, :approved, :cancelled]
 end

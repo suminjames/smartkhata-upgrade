@@ -18,7 +18,7 @@
 
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
-
+  attr_reader :bank_account_name
   before_save :change_default
   before_create :assign_group
 
@@ -53,6 +53,10 @@ class BankAccount < ActiveRecord::Base
   end
 
   def name
+    "#{self.bank.bank_code }-#{self.account_number}"
+  end
+
+  def bank_account_name
     "#{self.bank.bank_code }-#{self.account_number}"
   end
 

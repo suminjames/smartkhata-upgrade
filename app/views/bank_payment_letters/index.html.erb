@@ -1,32 +1,30 @@
 <p id="notice"><%= notice %></p>
+<% provide(:section_title, "Bank Payment Letters") %>
 
-<h1>Listing Bank Payment Letters</h1>
 
-<table>
+<table class="table table-striped">
   <thead>
     <tr>
-      <th>Fy code</th>
-      <th>Creator</th>
-      <th>Updater</th>
       <th>Sales settlement</th>
       <th>Branch</th>
       <th>Voucher</th>
-      <th colspan="3"></th>
+      <th>Bills</th>
+      <th>Created at</th>
+      <th>Status</th>
+      <th colspan="1"></th>
     </tr>
   </thead>
 
   <tbody>
     <% @bank_payment_letters.each do |bank_payment_letter| %>
       <tr>
-        <td><%= bank_payment_letter.fy_code %></td>
-        <td><%= bank_payment_letter.creator_id %></td>
-        <td><%= bank_payment_letter.updater_id %></td>
-        <td><%= bank_payment_letter.sales_settlement %></td>
+        <td><%= bank_payment_letter.sales_settlement.settlement_id %></td>
         <td><%= bank_payment_letter.branch %></td>
         <td><%= bank_payment_letter.voucher %></td>
+        <td><%= bank_payment_letter.bills.map(&:full_bill_number).join(',') if bank_payment_letter.voucher.present? %></td>
+        <td><%= bank_payment_letter.created_at.to_date %></td>
+        <td><%= bank_payment_letter.letter_status.titleize %></td>
         <td><%= link_to 'Show', bank_payment_letter %></td>
-        <td><%= link_to 'Edit', edit_bank_payment_letter_path(bank_payment_letter) %></td>
-        <td><%= link_to 'Destroy', bank_payment_letter, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
