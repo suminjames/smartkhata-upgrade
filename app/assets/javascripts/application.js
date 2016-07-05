@@ -122,3 +122,20 @@ function callPrint(iframeId, spinnerId) {
     PDF.contentWindow.print();
     $('#' + spinnerId).addClass('hidden')
 }
+
+// Scroll to top box
+var amountScrolled = 300;
+$(window).scroll(function() {
+    if ( $(window).scrollTop() > amountScrolled ) {
+        $('.back-to-top').fadeIn('slow');
+    } else {
+        $('.back-to-top').fadeOut('slow');
+    }
+});
+// the animation
+$('.back-to-top').click(function () {
+  $('body,html').animate({
+    scrollTop: 0
+  }, 700);
+  return false;
+});

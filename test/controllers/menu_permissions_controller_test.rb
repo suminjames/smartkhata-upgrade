@@ -1,3 +1,4 @@
+=begin
 require 'test_helper'
 
 class MenuPermissionsControllerTest < ActionController::TestCase
@@ -47,3 +48,4 @@ class MenuPermissionsControllerTest < ActionController::TestCase
     assert_redirected_to menu_permissions_path
   end
 end
+=end

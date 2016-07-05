@@ -109,11 +109,13 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     @sales_settlement_id = assigns(:sales_settlement_id)
     follow_redirect!
     assert_equal sales_settlement_path(@sales_settlement_id), path
-    assert_select 'a[href=?]', generate_bills_path, text: 'Process the Settlement'
+    assert_select 'input[type=hidden][name=id]', value: @sales_settlement_id
+    assert_select 'form[action=?]', generate_bills_path do
+      assert_select 'button[type=submit]', text: 'Process the Settlement'
+    end
     # test pagination
     # select method 1
-    inner_pagination_div = css_select 'div.pagination-per-page'
-    inner_pagination_div_text = inner_pagination_div[0].text.gsub(/\s+/, "")
+    inner_pagination_div_text = css_select('div.pagination-per-page')[0].text.gsub(/\s+/, "")
     assert_equal inner_pagination_div_text, 'Perpage50|Total69'
     assert_select 'ul.pagination' do
       assert_select 'li.active>a', text: '1'
@@ -124,7 +126,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     puts "Processing Settlement..."
     # --- 4.1 Process Settlement ---
-    get generate_bills_path
+    get generate_bills_path, {id: @sales_settlement_id}
     assert_response :success
     assert_select 'h3', text: 'Bills generated Successfully'
 
@@ -454,7 +456,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
   private
     def generate_bills_path
-      generate_bills_sales_settlements_path(id: @sales_settlement_id)
+      # generate_bills_sales_settlements_path(id: @sales_settlement_id)
+      generate_bills_sales_settlements_path
     end
 
     def sales_bills_path

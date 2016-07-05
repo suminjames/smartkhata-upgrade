@@ -35,7 +35,8 @@
         <% end %>
       </div>
       <div class="icon">
-        <i class="ion ion-stats-bars"></i>
+        <!-- <i class="ion ion-stats-bars"></i> -->
+        <i class="ion ion-cash"></i>
       </div>
       <a href="<%= report_profitandloss_index_path %>" class="small-box-footer">
         More info <i class="fa fa-arrow-circle-right"></i>
@@ -50,9 +51,9 @@
         <h3><%= @isin_with_largest_quantity.present? ? "#{@isin_with_largest_quantity.isin}(#{@isin_with_largest_quantity.total.to_i})" : '--' %> </h3>
         <p> Most Number of Shares</p>
       </div>
-      <!--<div class="icon">-->
-      <!--<i class="fa fa-shopping-cart"></i>-->
-      <!--</div>-->
+      <div class="icon">
+        <i class="ion ion-arrow-graph-up-right"></i>
+      </div>
       <a href="<%= share_transactions_path %>" class="small-box-footer">
         More info <i class="fa fa-arrow-circle-right"></i>
       </a>
@@ -67,9 +68,10 @@
 
         <p> Bills require action</p>
       </div>
-      <!--<div class="icon">-->
-      <!--<i class="fa fa-shopping-cart"></i>-->
-      <!--</div>-->
+      <div class="icon">
+        <!-- <i class="ion ion-cash"></i> -->
+        <img src="<%= image_url('bill_icon.png') %>" class="bill-image">
+      </div>
       <a href="<%= bills_path %>" class="small-box-footer">
         More info <i class="fa fa-arrow-circle-right"></i>
       </a>
@@ -85,7 +87,7 @@
         <p>Vouchers need Approval</p>
       </div>
       <div class="icon">
-        <!--<i class="ion ion-person-add"></i>-->
+        <i class="ion ion-document-text"></i>
       </div>
       <a href="<%= vouchers_path %>" class="small-box-footer">
         More info <i class="fa fa-arrow-circle-right"></i>
