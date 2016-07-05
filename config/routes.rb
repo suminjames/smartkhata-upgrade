@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       get :update_print
       get :bounce
       get :represent
+      get :show_multiple
     end
 
   end

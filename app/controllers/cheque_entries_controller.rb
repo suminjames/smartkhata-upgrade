@@ -15,6 +15,7 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
+    # TODO(subas): Is @bank needed? There apparently doesn't seem to be its any use in corresponding view.
     if @cheque_entry.additional_bank_id.present?
       @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
       @name = current_tenant.full_name
@@ -24,12 +25,28 @@ class ChequeEntriesController < ApplicationController
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
 
+    # TODO(sarojk): Delete the line below.
+    @all_cheque_entries = ChequeEntry.where(id: [1, 2])
+
     respond_to do |format|
       format.html
       format.js
       format.pdf do
         pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
+  end
+
+  def show_multiple
+    @cheque_entry_ids = params[:cheque_entry_ids].map(&:to_i) if params[:cheque_entry_ids].present?
+    @cheque_entries = ChequeEntry.where(id: @cheque_entry_ids)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintMultipleChequeEntries.new(@cheque_entries, current_tenant)
+        send_data pdf.render, filename: "MultipleChequeEntries#{@cheque_entry_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
   end

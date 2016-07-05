@@ -65,7 +65,7 @@ class Print::PrintChequeEntry < Prawn::Document
   end
 
   def page_height
-    279.4.mm
+    90.mm
   end
 
   def col (unit)
