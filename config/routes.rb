@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
-  resources :bank_payment_letters
+  resources :bank_payment_letters do
+    collection do
+      get 'pending_letters'
+      post 'finalize_payment'
+    end
+  end
   resources :sms_messages
   resources :menu_permissions
   resources :menu_items

@@ -4,6 +4,12 @@ Please Pay Rs. <%= @bank_payment_letter.settlement_amount %> to below mentioned 
     <%= p.amount %><br>
 <% end %>
 
+<% if @bank_payment_letter.pending? %>
+    <%= form_tag(finalize_payment_bank_payment_letters_path) do %>
+        <%= hidden_field_tag 'id', @bank_payment_letter.id %>
+        <%= submit_tag 'Reject', :name => 'reject', class: 'hide-on-print' %>
+        <%= submit_tag 'Approve', :name => 'approve', class: 'hide-on-print' %>
+    <% end %>
 
-<%= link_to 'Edit', edit_bank_payment_letter_path(@bank_payment_letter) %> |
+<% end %>
 <%= link_to 'Back', bank_payment_letters_path %>

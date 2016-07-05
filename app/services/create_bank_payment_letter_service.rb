@@ -31,7 +31,7 @@ class CreateBankPaymentLetterService
     ActiveRecord::Base.transaction do
       voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
       voucher.desc = description
-      voucher.complete!
+      voucher.pending!
       voucher.save!
       @bills.each do |bill|
         client_account = bill.client_account
@@ -52,19 +52,29 @@ class CreateBankPaymentLetterService
 
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
-        particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
+        # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
+        closing_balance = client_ledger.closing_blnc
+        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending)
+
         particulars << particular
         net_paid_amount += amount_to_settle
 
         # mark the bills as settled
         bill.balance_to_pay = 0
         bill.status = Bill.statuses[:settled]
+        bill.settlement_approval_status = :pending_approval
         bill.save!
       end
-      particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description)
+      # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
+      closing_balance = bank_ledger.closing_blnc
+      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending)
+      @bank_payment_letter.voucher = voucher
     end
-    return particulars, net_paid_amount
+
+    return particulars, net_paid_amount, @bank_payment_letter
   end
+
+
 
   def group_transaction_by_client(share_transactions)
 

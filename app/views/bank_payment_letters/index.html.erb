@@ -20,7 +20,7 @@
       <tr>
         <td><%= bank_payment_letter.sales_settlement.settlement_id %></td>
         <td><%= bank_payment_letter.branch %></td>
-        <td><%= bank_payment_letter.voucher %></td>
+        <td><%= "#{bank_payment_letter.voucher.voucher_code}-#{bank_payment_letter.voucher.voucher_number}" if bank_payment_letter.voucher.present? %></td>
         <td><%= bank_payment_letter.bills.map(&:full_bill_number).join(',') if bank_payment_letter.voucher.present? %></td>
         <td><%= bank_payment_letter.created_at.to_date %></td>
         <td><%= bank_payment_letter.letter_status.titleize %></td>

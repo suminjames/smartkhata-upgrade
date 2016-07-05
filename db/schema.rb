@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160705062452) do
+ActiveRecord::Schema.define(version: 20160705172244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 20160705062452) do
     t.datetime "created_at",                                                           null: false
     t.datetime "updated_at",                                                           null: false
     t.integer  "letter_status",                                          default: 0
+    t.integer  "reviewer_id",                                            default: 0
   end
 
   add_index "bank_payment_letters", ["bank_account_id"], name: "index_bank_payment_letters_on_bank_account_id", using: :btree
@@ -79,13 +80,13 @@ ActiveRecord::Schema.define(version: 20160705062452) do
   create_table "bills", force: :cascade do |t|
     t.integer  "bill_number"
     t.string   "client_name"
-    t.decimal  "net_amount",                    precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",                precision: 15, scale: 4, default: 0.0
+    t.decimal  "net_amount",                           precision: 15, scale: 4, default: 0.0
+    t.decimal  "balance_to_pay",                       precision: 15, scale: 4, default: 0.0
     t.integer  "bill_type"
-    t.integer  "status",                                                 default: 0
-    t.integer  "special_case",                                           default: 0
-    t.datetime "created_at",                                                           null: false
-    t.datetime "updated_at",                                                           null: false
+    t.integer  "status",                                                        default: 0
+    t.integer  "special_case",                                                  default: 0
+    t.datetime "created_at",                                                                  null: false
+    t.datetime "updated_at",                                                                  null: false
     t.integer  "fy_code"
     t.date     "date"
     t.string   "date_bs"
@@ -94,7 +95,8 @@ ActiveRecord::Schema.define(version: 20160705062452) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
-    t.integer  "sales_settlement_id", limit: 8
+    t.integer  "sales_settlement_id",        limit: 8
+    t.integer  "settlement_approval_status",                                    default: 0
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
@@ -661,25 +663,9 @@ ActiveRecord::Schema.define(version: 20160705062452) do
   add_index "share_transactions", ["voucher_id"], name: "index_share_transactions_on_voucher_id", using: :btree
 
   create_table "sms_messages", force: :cascade do |t|
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.string   "phone"
-    t.integer  "phone_type",             default: 0
-    t.integer  "sms_type",               default: 0
-    t.integer  "credit_used"
-    t.integer  "remarks"
-    t.integer  "transaction_message_id"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "fy_code"
-    t.integer  "branch_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
-
-  add_index "sms_messages", ["branch_id"], name: "index_sms_messages_on_branch_id", using: :btree
-  add_index "sms_messages", ["creator_id"], name: "index_sms_messages_on_creator_id", using: :btree
-  add_index "sms_messages", ["fy_code"], name: "index_sms_messages_on_fy_code", using: :btree
-  add_index "sms_messages", ["transaction_message_id"], name: "index_sms_messages_on_transaction_message_id", using: :btree
-  add_index "sms_messages", ["updater_id"], name: "index_sms_messages_on_updater_id", using: :btree
 
   create_table "tenants", force: :cascade do |t|
     t.string   "name"
@@ -707,8 +693,6 @@ ActiveRecord::Schema.define(version: 20160705062452) do
     t.date     "deleted_at"
     t.integer  "sent_sms_count",    default: 0
     t.integer  "sent_email_count",  default: 0
-    t.string   "remarks_email"
-    t.string   "remarks_sms"
   end
 
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree
@@ -802,6 +786,5 @@ ActiveRecord::Schema.define(version: 20160705062452) do
   add_foreign_key "particulars_share_transactions", "particulars"
   add_foreign_key "particulars_share_transactions", "share_transactions"
   add_foreign_key "settlements", "vouchers"
-  add_foreign_key "sms_messages", "transaction_messages"
   add_foreign_key "transaction_messages", "client_accounts"
 end

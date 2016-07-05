@@ -13,6 +13,8 @@
 #  voucher_id          :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
+#  letter_status       :integer          default("0")
+#  reviewer_id         :integer          default("0")
 #
 
 class BankPaymentLetter < ActiveRecord::Base
