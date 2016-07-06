@@ -63,7 +63,6 @@
 #  ac_code                   :string
 #
 
-
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
@@ -97,6 +96,14 @@ class ClientAccount < ActiveRecord::Base
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
+
+  validate :bank_details_present?
+
+  def bank_details_present?
+    if bank_account.present? && (bank_name.blank? || bank_address.blank?)
+      errors.add :bank_account, "Please fill the required bank details"
+    end
+  end
 
   # create client ledger
   def create_ledger

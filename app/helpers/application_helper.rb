@@ -63,8 +63,9 @@ module ApplicationHelper
     daily_report.cr_amount += cr_amount
     daily_report.save!
 
-    Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc, running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
+    particular = Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc, running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
     ledger.save!
+    particular
   end
 
   def reverse_accounts(particular, voucher, descr, adjustment = 0.0)

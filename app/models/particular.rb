@@ -2,27 +2,28 @@
 #
 # Table name: particulars
 #
-#  id                 :integer          not null, primary key
-#  opening_blnc       :decimal(15, 4)   default("0")
-#  transaction_type   :integer
-#  ledger_type        :integer          default("0")
-#  cheque_number      :integer
-#  name               :string
-#  description        :string
-#  amount             :decimal(15, 4)   default("0")
-#  running_blnc       :decimal(15, 4)   default("0")
-#  additional_bank_id :integer
-#  particular_status  :integer          default("1")
-#  date_bs            :string
-#  creator_id         :integer
-#  updater_id         :integer
-#  fy_code            :integer
-#  branch_id          :integer
-#  transaction_date   :date
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  ledger_id          :integer
-#  voucher_id         :integer
+#  id                     :integer          not null, primary key
+#  opening_blnc           :decimal(15, 4)   default("0")
+#  transaction_type       :integer
+#  ledger_type            :integer          default("0")
+#  cheque_number          :integer
+#  name                   :string
+#  description            :string
+#  amount                 :decimal(15, 4)   default("0")
+#  running_blnc           :decimal(15, 4)   default("0")
+#  additional_bank_id     :integer
+#  particular_status      :integer          default("1")
+#  date_bs                :string
+#  creator_id             :integer
+#  updater_id             :integer
+#  fy_code                :integer
+#  branch_id              :integer
+#  transaction_date       :date
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  ledger_id              :integer
+#  voucher_id             :integer
+#  bank_payment_letter_id :integer
 #
 
 class Particular < ActiveRecord::Base
@@ -32,6 +33,29 @@ class Particular < ActiveRecord::Base
   belongs_to :ledger
   belongs_to :voucher
   delegate :bills, :to => :voucher, :allow_nil => true
+
+  attr_accessor :running_total
+
+  def self.distance_with_running_total
+    total = 0.0
+    Particular.order(:id).collect do |w|
+      total += w.amount
+      w.running_total = total
+      w
+    end
+  end
+
+  # get the particulars with running total
+  # records: collection of particular
+  def self.with_running_total(records)
+    total = 0.0
+    records.collect do |w|
+      total += w.amount
+      w.running_total = total
+      w
+    end
+  end
+
 
   # belongs_to :receipt
   has_many :cheque_entries
@@ -47,6 +71,8 @@ class Particular < ActiveRecord::Base
   has_many :cheque_entries, through: :cheque_entry_particular_associations
 
   has_one :nepse_chalan, through: :voucher
+
+  has_one :bank_payment_letter
 
 
   validates_presence_of :ledger_id

@@ -1,0 +1,67 @@
+<% provide(:section_title, "New Bank Payment Letter") %>
+<div class="clearfix search-form">
+  <%= form_tag(new_bank_payment_letter_path, :method => "get", id: "search-form") do %>
+      <div class="row">
+        <div class="col-xs-4">
+          <%= text_field_tag :settlement_id, @settlement_id, :required => true, placeholder: "Search by Settlement ID", :autofocus => true, class: 'form-control' %>
+        </div>
+        <%= submit_tag "Search", class: 'btn btn-sm' %>
+      </div>
+
+  <% end %>
+</div>
+
+<% if @bills.present? && @bills.size > 0 %>
+
+
+      <%= simple_form_for @bank_payment_letter do |f| %>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Select the bills which need to be paid by letter
+          </div>
+          <div class="panel-body">
+          <%= f.input :sales_settlement_id, :as => :hidden, :input_html => { :value => @sales_settlement.id } %>
+          <table class="table table-striped selectable-table">
+            <thead>
+            <tr>
+              <th>S.No.</th>
+              <th><%= check_box_tag '', '', false, class: 'select_all' %></th>
+              <th>Client Name</th>
+              <th>Bill number</th>
+              <th>Bill Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% @bills.each_with_index do |bill, index| %>
+                <tr>
+                  <td><%= index + 1  %></td>
+                  <td><%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]', class: "check-bill"  %></td>
+                  <td><%= bill.client_account.name.titleize %></td>
+                  <td><%= bill.full_bill_number %></td>
+                  <td class="text-right bill-amount"><%= arabic_number(bill.net_amount) %></td>
+
+                </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+        </div>
+
+        <div class="total-bill-amount">
+          <h4>Total:<span class="display-amount">0.00</span><span class="display-type hidden">dr</span></h4>
+        </div>
+
+        <%= f.association :bank_account, collection: BankAccount.all, label_method: :bank_account_name, selected: BankAccount.default_for_payment, :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank account...' %>
+
+        <div class="form-actions">
+          <%= f.button :submit %>
+        </div>
+      <% end %>
+
+
+
+
+<% elsif @is_searched %>
+    <h5> No Matching Records found </h5>
+<% end %>
+

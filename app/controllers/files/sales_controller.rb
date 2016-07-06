@@ -27,7 +27,6 @@ class Files::SalesController < Files::FilesController
       return
     end
 
-    # else redirect to settlement path
     @sales_settlement_id = payout_upload.sales_settlement_id
     redirect_to sales_settlement_path(@sales_settlement_id) and return
   end
