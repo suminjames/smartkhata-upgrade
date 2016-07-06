@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 <% provide(:section_title, "Bank Payment Letters") %>
-
-
+<%= link_to 'New Bank payment letter', new_bank_payment_letter_path , class: 'btn btn-default'%>
+<br><br>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -32,4 +32,4 @@
 
 <br>
 
-<%= link_to 'New Bank payment letter', new_bank_payment_letter_path %>
+<%= link_to 'New Bank payment letter', new_bank_payment_letter_path, class: 'btn btn-default'%>

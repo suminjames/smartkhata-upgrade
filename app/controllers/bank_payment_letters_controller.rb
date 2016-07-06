@@ -20,7 +20,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills.for_payment_letter if @sales_settlement.present?
+      @bills = @sales_settlement.bills.for_sales_payment if @sales_settlement.present?
       @is_searched = true
       return
     end
