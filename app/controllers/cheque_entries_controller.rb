@@ -3,13 +3,48 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
-    if params[:type] == 'client'
-      @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
-    elsif params[:type] == 'company'
-      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
-    else
-      @cheque_entries = ChequeEntry.unassigned
+    # if params[:type] == 'client'
+    #   @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
+    # elsif params[:type] == 'company'
+    #   @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
+    # else
+    #   @cheque_entries = ChequeEntry.unassigned
+    # end
+    @filterrific = initialize_filterrific(
+        ChequeEntry,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ChequeEntry.options_for_client_select,
+            by_bank_account_id: ChequeEntry.options_for_bank_account_select,
+            by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status
+        },
+        persistence_id: false
+    ) or return
+    items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    @cheque_entries = @filterrific.find.page(params[:page]).per(items_per_page)
+
+    respond_to do |format|
+      format.html
+      format.js
     end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /cheque_entries/1

@@ -1,0 +1,35 @@
+%div#filterrific_results
+  = render 'shared/pagination', collection_to_paginate: cheque_entries
+
+  - if cheque_entries.present?
+    %div.row.top-buffer-sm
+      %div.col-xs-12
+        = submit_tag 'Print', :type => 'button', class: 'btn btn-default', id: 'print-selected-cheque-entries'
+        = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'print-selected-cheque-entries-spinner')
+        = submit_tag 'Print Preview', :type => 'button', class: 'btn btn-default', id: 'print-preview-selected-cheque-entries'
+        = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'print-preview-selected-cheque-entries-spinner')
+
+  %div#cheque_entry_list
+    %table.table.table-striped
+      %thead
+        %th.text-center
+          = 'All'
+          = check_box_tag 'select_all', '', false, class: 'email'
+        %th.col-xs-1.text-center= 'Cheque Number'
+        %th.col-xs-1.text-center= 'Bank Account'
+        %th.col-xs-1.text-center= 'Date'
+        %th.col-xs-2.text-center= 'Beneficiary Name'
+        %th.col-xs-1.text-center= 'Amount'
+        %th.col-xs-4.text-center= 'Type'
+        %th.col-xs-1.text-center= 'Printed'.html_safe
+      %tbody
+        -if cheque_entries
+          -cheque_entries.each do |cheque_entry|
+            %tr
+    -#          TODO
+
+    - if !cheque_entries || cheque_entries.empty?
+      %div.row.text-center.top-buffer-md
+        There are no matching cheque entries.
+
+  = render 'shared/pagination', collection_to_paginate: cheque_entries

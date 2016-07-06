@@ -26,6 +26,7 @@
 
 
 class ChequeEntry < ActiveRecord::Base
+  extend CustomDateModule
   include ::Models::UpdaterWithBranchFycode
 
   belongs_to :client_account
@@ -52,10 +53,69 @@ class ChequeEntry < ActiveRecord::Base
   validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id], message: "should be unique"},
             numericality: {only_integer: true, greater_than: 0}
 
+  filterrific(
+      default_filter_params: { sorted_by: 'id_desc' },
+      available_filters: [
+          :sorted_by,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id,
+          :by_bank_account_id,
+          :by_cheque_entry_status
+      ]
+  )
+
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('created_at>= ?', date_ad.beginning_of_day).order(id: :desc)
+  }
+  scope :by_date_to, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('created_at<= ?', date_ad.end_of_day).order(id: :desc)
+  }
+
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
+  scope :by_bank_account_id, -> (id) { where(bank_account_id: id).order(id: :desc) }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        order("cheque_entries.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
+
+
   # TODO (subas) make sure to do the necessary settings
   enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
   enum print_status: [:to_be_printed, :printed]
   enum cheque_issued_type: [:payment, :receipt]
 
   # scope :unassigned, -> { unassigned }
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  def self.options_for_bank_account_select
+    BankAccount.all.order(:bank_name)
+  end
+  def self.options_for_cheque_entry_status
+    [
+        ["Unassigned" ,"unassigned"],
+        ["Pending Approval" ,"pending_approval"],
+        ["Pending Clearance" ,"pending_clearance"],
+        ["Void" ,"void"],
+        ["Approved" ,"approved"],
+        ["Bounced" ,"bounced"],
+        ["Represented" ,"represented"]
+    ]
+  end
 end
