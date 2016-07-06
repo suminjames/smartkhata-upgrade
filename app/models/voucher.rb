@@ -37,10 +37,10 @@ class Voucher < ActiveRecord::Base
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
   has_many :bill_voucher_associations
-
   has_many :bills_on_creation, through: :on_creation, source: :bill
   has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
+
   belongs_to :reviewer, class_name: 'User'
 
   # purchase and sales kept as per the accounting norm

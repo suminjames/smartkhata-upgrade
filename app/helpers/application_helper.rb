@@ -63,8 +63,9 @@ module ApplicationHelper
     daily_report.cr_amount += cr_amount
     daily_report.save!
 
-    Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc, running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
+    particular = Particular.create!(transaction_type: transaction_type, ledger_id: ledger.id, name: descr, voucher_id: voucher.id, amount: amount, opening_blnc: closing_blnc, running_blnc: ledger.closing_blnc, transaction_date: transaction_date)
     ledger.save!
+    particular
   end
 
   def reverse_accounts(particular, voucher, descr, adjustment = 0.0)
@@ -148,5 +149,20 @@ module ApplicationHelper
     UserSession.selected_fy_code = fy_code
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
+  end
+
+  # @params time - Time object holds time, date and timezone
+  def to_ktm_timezone(time)
+    time.in_time_zone("Kathmandu")
+  end
+
+  # Generically enum, when put in view, has the following form 'first_second', or 'third'. This isn't very pretty to the eyes. Transform to remove underscore and titleize.
+  # Modify a string by
+  # -replacing underscore '_' with space
+  # -titleizing
+  def pretty_enum(enum_string)
+    str = enum_string.dup
+    str.tr!('_', ' ')
+    str.titleize
   end
 end

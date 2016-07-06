@@ -18,7 +18,6 @@ get_total_balance = () ->
 $ ->
   $(document).on 'change', '.check-bill', (event) ->
     $this = $(this)
-    debugger
     bill_amount = get_total_balance()
     $total_amount = $('.total-bill-amount .display-amount')
     $total_type = $('.total-bill-amount .display-type')

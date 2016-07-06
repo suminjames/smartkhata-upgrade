@@ -8,7 +8,7 @@ class TransactionMessagesController < ApplicationController
         TransactionMessage,
         params[:filterrific],
         select_options: {
-            by_client_id: Settlement.options_for_client_select,
+            by_client_id: TransactionMessage.options_for_client_select,
         },
         persistence_id: false
     ) or return
