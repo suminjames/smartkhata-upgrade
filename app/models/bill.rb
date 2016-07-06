@@ -2,24 +2,26 @@
 #
 # Table name: bills
 #
-#  id                :integer          not null, primary key
-#  bill_number       :integer
-#  client_name       :string
-#  net_amount        :decimal(15, 4)   default("0")
-#  balance_to_pay    :decimal(15, 4)   default("0")
-#  bill_type         :integer
-#  status            :integer          default("0")
-#  special_case      :integer          default("0")
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  fy_code           :integer
-#  date              :date
-#  date_bs           :string
-#  settlement_date   :date
-#  client_account_id :integer
-#  creator_id        :integer
-#  updater_id        :integer
-#  branch_id         :integer
+#  id                         :integer          not null, primary key
+#  bill_number                :integer
+#  client_name                :string
+#  net_amount                 :decimal(15, 4)   default("0")
+#  balance_to_pay             :decimal(15, 4)   default("0")
+#  bill_type                  :integer
+#  status                     :integer          default("0")
+#  special_case               :integer          default("0")
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  fy_code                    :integer
+#  date                       :date
+#  date_bs                    :string
+#  settlement_date            :date
+#  client_account_id          :integer
+#  creator_id                 :integer
+#  updater_id                 :integer
+#  branch_id                  :integer
+#  sales_settlement_id        :integer
+#  settlement_approval_status :integer          default("0")
 #
 
 class Bill < ActiveRecord::Base
@@ -42,6 +44,9 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
+
+  scope :for_payment_letter, ->(settlement_id) { includes(:client_account).where(settlement_id: settlement_id).where.not(client_accounts: {bank_account: nil}) }
+
   # verify this with views everytime before changing
   # bill index
   # bill show
@@ -53,6 +58,13 @@ class Bill < ActiveRecord::Base
   # - Settled: All payment if required ( this includes bills with all share transaction cancelled ) has been done.
   # - Provisional: All the bills that are for view purpose only and have no effect on accounting purpose
   enum status: [:pending, :partial, :settled, :provisional]
+
+  #
+  # Settlement Approval Status
+  # - incognito : no action by default, bill rejected will also fall under this catagory
+  # - PendingApproval: Approval is required
+  # - Approved: Bill is approved
+  enum settlement_approval_status: [:incognito, :pending_approval, :approved]
 
   # # Bill cancel Status
   # #  - none : regular
@@ -82,6 +94,8 @@ class Bill < ActiveRecord::Base
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
 
+  scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
+  scope :for_payment_letter, ->{with_client_bank_account.requiring_processing}
 
   before_save :process_bill
 
@@ -183,6 +197,13 @@ class Bill < ActiveRecord::Base
       bill.bill_number + 1
     end
   end
+
+  # get the bill number with fy code prepended
+  def full_bill_number
+    "#{self.fy_code}-#{self.bill_number}"
+  end
+
+
 
 
   private
