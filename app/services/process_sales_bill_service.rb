@@ -36,6 +36,12 @@ class ProcessSalesBillService
       voucher.pending!
       voucher.save!
 
+      bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
+      if bills_have_pending_deal_cancel
+        @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
+        raise ActiveRecord::Rollback
+      end
+
       @bills.each do |bill|
         bank_account = @bank_account
         cheque_entry = ChequeEntry.unassigned.where(bank_account_id: bank_account.id).first
@@ -80,6 +86,7 @@ class ProcessSalesBillService
         cheque_entry.cheque_date = DateTime.now
         cheque_entry.status = ChequeEntry.statuses[:to_be_printed]
         cheque_entry.client_account_id = client_account.id
+        cheque_entry.beneficiary_name = client_account.name.titleize
         cheque_entry.amount = amount_to_settle
         cheque_entry.save!
         particular.cheque_entries_on_payment << cheque_entry
@@ -93,9 +100,15 @@ class ProcessSalesBillService
       short_description = "Settlement by bank payment for settlement ID #{@sales_settlement.settlement_id}"
       Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending, ledger_type: :has_bank)
 
+      if description_bills.blank?
+        @error_message = "Error while processing, Client may have dues"
+        raise ActiveRecord::Rollback
+      end
+
       voucher.desc = description_bills
       voucher.is_payment_bank = true
       voucher.save!
+
     end
 
     return true if @error_message.blank?
@@ -161,4 +174,19 @@ class ProcessSalesBillService
   end
 
 
+end
+
+
+def bills_have_pending_deal_cancel(bill_list)
+  res = false
+  bill_number = nil
+  bill_list ||= []
+  bill_list.each do |bill|
+    if bill.share_transactions.deal_cancel_pending.size > 0
+      res = true
+      bill_number = bill.bill_number
+      break
+    end
+  end
+  return res, bill_number
 end

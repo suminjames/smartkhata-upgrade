@@ -95,6 +95,7 @@ class Bill < ActiveRecord::Base
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
 
   scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
+  # TODO(subas) rename this variable for payment letter
   scope :for_payment_letter, ->{with_client_bank_account.requiring_processing}
 
   before_save :process_bill
