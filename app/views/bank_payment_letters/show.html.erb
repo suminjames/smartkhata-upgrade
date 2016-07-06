@@ -1,4 +1,18 @@
-<p>Date: <%= Time.now.to_date %></p>
+<% provide(:section_title, "Bank Payment Letter") %>
+
+<%= link_to "View(pdf)", bank_payment_letter_path(format: "pdf"), :target => "_blank" %>
+
+<div class="btnPrintPDF btnPrintBankPaymentLetterPDF" id="bank_payment_letter-<%= @bank_payment_letter.id %>">
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'bank-payment-letter-print-spinner') %>
+  <iframe class="hidden-iframe" id='iframe-for-bank-payment-letter-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
+</div>
+
+
+<p>Date: <%= @bank_payment_letter.created_at.strftime("%Y-%m-%d")%></p>
 <p>The Manager,<br><%= @bank_payment_letter.bank_account.bank_name %><br><%= @bank_payment_letter.bank_account.bank.address %></p>
 <p>Dear Sir/Madam,</p>
 <p>We hereby authorize you to disburse Rs <%= arabic_number(@bank_payment_letter.settlement_amount) %> in different accounts of our clients as mentioned in the list below.</p>
@@ -33,7 +47,7 @@
 <p>Please debit our Account No <%= @bank_payment_letter.bank_account.account_number %> held at your Bank against the aforementioned total amount in this letter.</p>
 <br>
 <p>Thank you.</p>
-<p>For Trishakti Securities Public Limited</p>
+<p>For <%= current_tenant.full_name%></p>
 <p>Tanka Prasad Gautam</p>
 <p>Executive Chairman</p>
 

@@ -17,7 +17,7 @@
       <%= simple_form_for @bank_payment_letter do |f| %>
         <div class="panel panel-default">
           <div class="panel-heading">
-            Select the bills which need to be paid by letter
+            Select the bills which need to be paid by letter.
           </div>
           <div class="panel-body">
           <%= f.input :sales_settlement_id, :as => :hidden, :input_html => { :value => @sales_settlement.id } %>

@@ -7,21 +7,42 @@
 #                         Cheque without perforated strips = 256mm - 27mm = 229mm
 #                         Overall Page = (256 by 89 mm)  => ( 725.65 by 252.28 pdf-points)
 #     Important! Cheque Dimension is actually US letter size, if the right most past-perforated section is ignored.
-class Print::PrintChequeEntry < Prawn::Document
+class Print::PrintMultipleChequeEntries < Prawn::Document
   require 'prawn/table'
   require 'prawn/measurement_extensions'
 
   include ApplicationHelper
 
-  def initialize(cheque_entry, name, cheque_date, current_tenant)
+  def initialize(cheque_entries, current_tenant)
     super(:page_size => [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
-    @beneficiary_name = name
-    @cheque_date = cheque_date
-    @cheque_entry = cheque_entry
     @current_tenant = current_tenant
 
-    draw
+    cheque_entries.each_with_index do |cheque_entry, index|
+      @cheque_entry = cheque_entry
+
+      # Code borrowed from ChequeEntry#show action BEGINS
+      # Important! Future changes to the aforementioned action should also be reflected (manually) here.
+      if @cheque_entry.additional_bank_id.present?
+        @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
+        @name = current_tenant.full_name
+      else
+        @bank = @cheque_entry.bank_account.bank
+        @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
+      end
+      @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+      # Code borrowed from ChequeEntry#show action ENDS
+
+      @beneficiary_name = @name
+      @cheque_date = @cheque_date
+
+      draw
+
+      if index != cheque_entries.length - 1
+        start_new_page
+      end
+    end
+
   end
 
   def draw
