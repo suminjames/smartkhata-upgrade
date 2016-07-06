@@ -70,7 +70,7 @@
         .col-xs-6
           .form-group
             %label Client type
-            = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type)
+            = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type), {}, class: 'form-control'
         .col-xs-6
           .form-group
             = f.association :branch, collection: Branch.order(:code),label_method: :code, value_method: :id,:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a branch...'
@@ -89,3 +89,4 @@
 
       .form-actions
         = f.button :submit
+        = link_to "Cancel", client_accounts_path, class: 'btn btn-success btn-flat'

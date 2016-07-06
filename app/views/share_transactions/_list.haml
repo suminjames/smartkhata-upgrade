@@ -2,7 +2,7 @@
 - unless smart_listing.empty?
   = form_tag generate_bills_sales_settlements_path, method: :get do
     = hidden_field_tag 'id', @sales_settlement.id
-    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
+    = button_tag "Process the Settlement", class: "btn btn-primary btn-flat process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
     %table.table.table-striped
       %thead
         %th.col-xs-4= "Company Name"
@@ -18,7 +18,7 @@
             = smart_listing.render object: o, partial: "share_transactions/share_transaction", locals: {object: o}
     = smart_listing.paginate
     = smart_listing.pagination_per_page_links
-    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
+    = button_tag "Process the Settlement", class: "btn btn-primary btn-flat process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
 - else
   %p.warning No records!
 
