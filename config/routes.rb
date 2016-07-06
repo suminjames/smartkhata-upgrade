@@ -114,7 +114,10 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :sysadmin_client_nepse_mapping, only: [:new] do
-      collection {post :import}
+      collection do
+        post :import
+        get 'nepse_phone'
+      end
     end
     resources :sysadmin_trial_balance, only: [:new] do
       collection {post :import}
