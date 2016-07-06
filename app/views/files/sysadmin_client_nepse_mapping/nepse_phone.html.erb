@@ -1,0 +1,14 @@
+<% provide(:section_title, "Upload Sales CM file") %>
+<p> Upload file should be in csv format </p>
+<div>
+  <%= form_tag import_files_sysadmin_client_nepse_mapping_index_path, multipart: true do %>
+      <div class="form-group">
+        <%= file_field_tag :file %>
+      </div>
+      <%= hidden_field_tag :from_nepse, true %>
+      <div class="form-group">
+        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary'}  %>
+      </div>
+
+  <% end %>
+</div>

@@ -8,13 +8,17 @@ class Files::SysadminClientNepseMappingController < Files::FilesController
     authorize self
   end
 
+  def nepse_phone
+    authorize self
+  end
+
   def import
     authorize self
     @file = params[:file]
-
+    @from_nepse = params[:from_nepse]
     # file_error("Please Upload a valid file") and return if (is_invalid_file(@file))
 
-    file_upload = ImportSysadminFile.new(@file)
+    file_upload = ImportSysadminFile.new(@file, @from_nepse)
     file_upload.process
 
     if file_upload.error_message
