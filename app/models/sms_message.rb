@@ -153,8 +153,8 @@ class SmsMessage < ActiveRecord::Base
     transaction_message.sms_queued!
     valid_message_blocks.each do |message|
       self.message = message
-      # reply_code = self.push_sms
-      reply_code = '1'
+      reply_code = self.push_sms
+      # reply_code = '1'
       if reply_code != '1'
         sms_failed = true
         if transaction_message.sms_message.length >  MAX_MESSAGE_BLOCK_LENGTH
