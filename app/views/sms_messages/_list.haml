@@ -22,7 +22,7 @@
                 - time = to_ktm_timezone sms_message.updated_at
                 - date = ad_to_bs_string(time.to_date)
                 = date.squish
-                <br>
+                %br
                 = time.strftime("%H:%M:%S").squish
               %td.col-xs-1.text-center= sms_message.phone
               %td.col-xs-1.text-center= sms_message.credit_used

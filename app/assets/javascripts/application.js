@@ -46,6 +46,10 @@ $(document).on("click", "#btnPrint", function (event) {
     window.print();
 });
 
+$(document).on("click", ".btnPrintBankPaymentLetterPDF", function (event) {
+    bill_id = this.id.split("-")[1];
+    loadAndPrint("/bank_payment_letters/" + bill_id + '.pdf', 'iframe-for-bank-payment-letter-pdf-print', 'bank-payment-letter-print-spinner');
+});
 
 $(document).on("click", ".btnPrintBillPDF", function (event) {
     bill_id = this.id.split("-")[1];

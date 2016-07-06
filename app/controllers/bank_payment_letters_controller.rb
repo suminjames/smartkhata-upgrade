@@ -10,6 +10,14 @@ class BankPaymentLettersController < ApplicationController
   # GET /bank_payment_letters/1
   # GET /bank_payment_letters/1.json
   def show
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Pdf::PdfBankPaymentLetter.new(@bank_payment_letter, current_tenant)
+        send_data pdf.render, filename: "BankPaymentLetter#{@bank_payment_letter.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
 
   end
 
