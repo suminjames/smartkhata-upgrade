@@ -4,10 +4,14 @@
   - if cheque_entries.present?
     %div.row.top-buffer-sm
       %div.col-xs-12
-        = submit_tag 'Print', :type => 'button', class: 'btn btn-default', id: 'print-selected-cheque-entries'
-        = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'print-selected-cheque-entries-spinner')
-        = submit_tag 'Print Preview', :type => 'button', class: 'btn btn-default', id: 'print-preview-selected-cheque-entries'
-        = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'print-preview-selected-cheque-entries-spinner')
+        %div.btnPrintPDF.btnPrintChequeEntriesPDF
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print Selected'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
+          %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
+        %div.btnPrintPDF.btnViewChequeEntriesPDF
+          %span.glyphicon.glyphicon-eye-open
+          %span= 'View Selected'
 
   %div#cheque_entry_list
     %table.table.table-striped
@@ -15,7 +19,7 @@
         %th.text-center
           = 'All'
           %br
-          = check_box_tag 'select_all', '', false, class: 'email'
+          = check_box_tag 'select_all', '', false, class: 'cheque-entry'
         %th.col-xs-1.text-center= 'Cheque Number'
         %th.col-xs-2.text-center= 'Bank Account'
         %th.col-xs-1.text-center= 'Date'
@@ -28,10 +32,10 @@
         -if cheque_entries
           -cheque_entries.each do |cheque_entry|
             %tr
-              %td.text-center= check_box_tag cheque_entry.id, '', false
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
-              %td.text-center= cheque_entry.cheque_date
+              %td.text-center= ad_to_bs_string(cheque_entry.cheque_date) if cheque_entry.cheque_date.present?
               %td.text-center= cheque_entry.beneficiary_name
               %td.text-center= cheque_entry.amount
               %td.text-center= pretty_enum(cheque_entry.status)

@@ -145,3 +145,7 @@ span.date {
     border-color: transparent
   }
 }
+
+input[type="checkbox"].cheque-entry.cant-print {
+  display: none
+}
