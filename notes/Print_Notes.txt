@@ -1,0 +1,22 @@
+
+#. Documents that undergo printing/pdf-generation.
+
+1. Bill
+    -2 types
+        -for print
+        -for email
+            -doesn't hold signature section
+            -adds a note saying something like no signature because being computer-generated.
+2. Settlement
+    -2 types
+        -Receipt
+        -Payment
+3. Multiple Settlements
+    -2 types
+        -Receipt
+        -Payment
+4. Voucher
+    -2 types
+        -with Bank
+        -without Bank
+5. Cheque Entry

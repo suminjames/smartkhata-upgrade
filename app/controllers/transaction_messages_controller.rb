@@ -42,6 +42,14 @@ class TransactionMessagesController < ApplicationController
   # GET /transaction_messages/1
   # GET /transaction_messages/1.json
   def show
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Pdf::PdfTransactionMessage.new(@transaction_message.transaction_date, @transaction_message.client_account, current_tenant)
+        send_data pdf.render, filename: "TransactionMessage_#{@transaction_message.transaction_date}_#{@transaction_message.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
   end
 
   # GET /transaction_messages/new
@@ -54,7 +62,8 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_email?
-        UserMailer.delay.bill_email(transaction_message.id, current_tenant.id)
+        # UserMailer.delay.bill_email(transaction_message.id, current_tenant.id)
+        UserMailer.delay.transaction_message_email(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|
