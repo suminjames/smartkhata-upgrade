@@ -180,6 +180,35 @@ class BillsController < ApplicationController
     raise NotImplementedError
   end
 
+  def sales_payment
+    @settlement_id = params[:settlement_id]
+    if params[:settlement_id].present?
+      @bank_payment_letter = BankPaymentLetter.new
+      @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
+      @bills = []
+      @bills = @sales_settlement.bills.requiring_processing if @sales_settlement.present?
+      @is_searched = true
+      return
+    end
+  end
+
+  def sales_payment_process
+    @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
+    @bank_account = BankAccount.find_by(id: params[:bank_account_id])
+    bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
+
+    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement )
+
+    respond_to do |format|
+      if process_sales_bill.process
+        format.html { redirect_to pending_vouchers_vouchers_path, notice: 'Sales Settlement successfully created.' }
+      else
+        flash.now[:error] = process_sales_bill.error_message
+        format.html { render :sales_payment }
+      end
+    end
+  end
+
   def process_selected
     authorize Bill
     amount_margin_error = 0.01
