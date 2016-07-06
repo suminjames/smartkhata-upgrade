@@ -58,6 +58,8 @@ Rails.application.routes.draw do
       get 'show_by_number'
       get 'print'
       post 'process_selected'
+      get 'sales_payment'
+      post 'sales_payment_process'
     end
   end
   resources :transaction_messages do

@@ -701,6 +701,7 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.date     "transaction_date"
     t.integer  "sms_status",        default: 0
     t.integer  "email_status",      default: 0
+    t.string   "remarks"
     t.integer  "bill_id"
     t.integer  "client_account_id"
     t.datetime "created_at",                    null: false
