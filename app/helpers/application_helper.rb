@@ -155,4 +155,14 @@ module ApplicationHelper
   def to_ktm_timezone(time)
     time.in_time_zone("Kathmandu")
   end
+
+  # Generically enum, when put in view, has the following form 'first_second', or 'third'. This isn't very pretty to the eyes. Transform to remove underscore and titleize.
+  # Modify a string by
+  # -replacing underscore '_' with space
+  # -titleizing
+  def pretty_enum(enum_string)
+    str = enum_string.dup
+    str.tr!('_', ' ')
+    str.titleize
+  end
 end

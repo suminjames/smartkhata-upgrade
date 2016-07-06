@@ -16,7 +16,8 @@ class ChequeEntriesController < ApplicationController
         select_options: {
             by_client_id: ChequeEntry.options_for_client_select,
             by_bank_account_id: ChequeEntry.options_for_bank_account_select,
-            by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status
+            by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status,
+            by_cheque_issued_type: ChequeEntry.options_for_cheque_issued_type
         },
         persistence_id: false
     ) or return

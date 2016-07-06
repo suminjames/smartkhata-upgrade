@@ -14,19 +14,29 @@
       %thead
         %th.text-center
           = 'All'
+          %br
           = check_box_tag 'select_all', '', false, class: 'email'
         %th.col-xs-1.text-center= 'Cheque Number'
-        %th.col-xs-1.text-center= 'Bank Account'
+        %th.col-xs-2.text-center= 'Bank Account'
         %th.col-xs-1.text-center= 'Date'
         %th.col-xs-2.text-center= 'Beneficiary Name'
         %th.col-xs-1.text-center= 'Amount'
-        %th.col-xs-4.text-center= 'Type'
-        %th.col-xs-1.text-center= 'Printed'.html_safe
+        %th.col-xs-1.text-center= 'Status'
+        %th.col-xs-1.text-center= 'Type'
+        %th.col-xs-1.text-center= 'Printed'
       %tbody
         -if cheque_entries
           -cheque_entries.each do |cheque_entry|
             %tr
-    -#          TODO
+              %td.text-center= check_box_tag cheque_entry.id, '', false
+              %td.text-center= cheque_entry.cheque_number
+              %td.text-center= cheque_entry.bank_account.name
+              %td.text-center= cheque_entry.cheque_date
+              %td.text-center= cheque_entry.beneficiary_name
+              %td.text-center= cheque_entry.amount
+              %td.text-center= pretty_enum(cheque_entry.status)
+              %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
+              %td.text-center= pretty_enum(cheque_entry.print_status)
 
     - if !cheque_entries || cheque_entries.empty?
       %div.row.text-center.top-buffer-md

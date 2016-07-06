@@ -61,7 +61,8 @@ class ChequeEntry < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_bank_account_id,
-          :by_cheque_entry_status
+          :by_cheque_entry_status,
+          :by_cheque_issued_type
       ]
   )
 
@@ -80,6 +81,8 @@ class ChequeEntry < ActiveRecord::Base
 
   scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
   scope :by_bank_account_id, -> (id) { where(bank_account_id: id).order(id: :desc) }
+  scope :by_cheque_entry_status, -> (status) { where(:status => ChequeEntry.statuses[status]).order(id: :desc) }
+  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
@@ -117,4 +120,12 @@ class ChequeEntry < ActiveRecord::Base
         ["Represented" ,"represented"]
     ]
   end
+
+  def self.options_for_cheque_issued_type
+    [
+        ['Payment', 'payment'],
+        ['Receipt', 'receipt']
+    ]
+  end
+
 end
