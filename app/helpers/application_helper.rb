@@ -90,7 +90,7 @@ module ApplicationHelper
         transaction_date: transaction_date,
         # no option yet for client to segregate reports on the base of cost center
         # not sure if its necessary
-        running_balance_client: particular_closing_blnc_org,
+        running_blnc_client: particular_closing_blnc_org,
         branch_id: branch_id
     )
     ledger.save!

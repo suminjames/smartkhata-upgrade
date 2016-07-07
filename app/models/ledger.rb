@@ -20,8 +20,9 @@
 #  client_account_id   :integer
 #  employee_account_id :integer
 #  vendor_account_id   :integer
+#  opening_balance_org :decimal(15, 4)   default("0")
+#  closing_balance_org :decimal(15, 4)   default("0")
 #
-
 
 class Ledger < ActiveRecord::Base
   include ::Models::UpdaterWithFyCode

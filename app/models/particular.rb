@@ -24,6 +24,10 @@
 #  ledger_id              :integer
 #  voucher_id             :integer
 #  bank_payment_letter_id :integer
+#  opening_blnc_org       :decimal(15, 4)   default("0")
+#  running_blnc_org       :decimal(15, 4)   default("0")
+#  hide_for_client        :boolean          default("false")
+#  running_blnc_client    :decimal(15, 4)   default("0")
 #
 
 class Particular < ActiveRecord::Base
