@@ -20,9 +20,9 @@
         #only show the span below if 'everyone' is selected
         $visibility = @employee_account.has_access_to != 'everyone' ? 'none' : ''
       %>
-      <span class="alert alert-info everyone-selected-warning" style="display:<%= $visibility %>">
+      <div class="alert alert-info everyone-selected-warning text-center" style="display:<%= $visibility %>">
         <strong>Warning!</strong> Setting access to Everyone results in automatic granting of access to any ledgers or clients created in the future.
-      </span>
+      </div>
 
       <br>
       <br>
