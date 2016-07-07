@@ -24,6 +24,7 @@ class GenerateBillsService
         # create a custom key to hold the similar isin transaction per user in a same bill
         custom_key = (client_code.to_s)
         client_account = transaction.client_account
+        cost_center_id = client_account.branch_id
         commission = transaction.commission_amount
         sales_commission = commission * 0.75
         tds = commission * 0.75 * 0.15
@@ -52,6 +53,7 @@ class GenerateBillsService
 
             # TODO possible error location check
             b.client_name = transaction.client_account.name if !transaction.client_account.nil?
+            b.branch_id = cost_center_id
           end
           @bill_number += 1
         end
@@ -64,7 +66,7 @@ class GenerateBillsService
         bill.save!
 
         # create client ledger if not exist
-
+        # TODO(subas) This should have been an exception
         client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
           ledger.name = client_account.name
           ledger.client_account_id =client_account.id
@@ -87,6 +89,7 @@ class GenerateBillsService
         voucher.bills_on_creation << bill
         voucher.share_transactions << transaction
         voucher.desc = description
+        voucher.branch_id = cost_center_id
         voucher.complete!
         voucher.save!
 
@@ -100,16 +103,19 @@ class GenerateBillsService
         # dp is credited
 
         # TODO replace bill from particular with that in voucher
+        # closeout amout is positive meaning there is a closeout on sales
+        # closeout on buy is handled on deal cancel
+        # TODO(Subas) dont transfer extra balance to client but keep it in closeout ledger
         if transaction.closeout_amount.present? && transaction.closeout_amount > 0
 
           # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
           nepse_amount = transaction.closeout_amount - transaction.amount_receivable.abs
 
-          process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
-          process_accounts(nepse_ledger, voucher, true, nepse_amount, description)
-          process_accounts(tds_ledger, voucher, true, tds, description)
-          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
-          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0
+          process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id)
+          process_accounts(nepse_ledger, voucher, true, nepse_amount, description, cost_center_id)
+          process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id)
+          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id)
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id) if transaction.dp_fee > 0
 
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate})"
@@ -120,26 +126,29 @@ class GenerateBillsService
           closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
           # credit nepse
           net_adjustment_amount = transaction.closeout_amount
-          process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description)
-          process_accounts(closeout_ledger, voucher, true, net_adjustment_amount, description)
+          process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description, cost_center_id)
+          process_accounts(closeout_ledger, voucher, true, net_adjustment_amount, description, cost_center_id)
           voucher.complete!
           voucher.save!
 
 
-          voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
-          voucher.share_transactions << transaction
-          voucher.desc = description
-          process_accounts(closeout_ledger, voucher, false, net_adjustment_amount, description)
-          process_accounts(client_ledger, voucher, true, net_adjustment_amount, description)
-          voucher.complete!
-          voucher.save!
+          # voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+          # voucher.share_transactions << transaction
+          # voucher.desc = description
+          # process_accounts(closeout_ledger, voucher, false, net_adjustment_amount, description,cost_center_id)
+          # process_accounts(client_ledger, voucher, true, net_adjustment_amount, description,cost_center_id)
+          # voucher.complete!
+          # voucher.save!
         else
-          process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
-          process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description)
-          process_accounts(tds_ledger, voucher, true, tds, description)
-          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
-          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0
+          process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id)
+          process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id)
+          process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id)
+          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id)
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id) if transaction.dp_fee > 0
 
+
+          # in case of sales transaction greater than 5000000 it has to be settled seperately
+          # not with nepse
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
             voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
@@ -149,8 +158,8 @@ class GenerateBillsService
             clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
             # credit nepse
             net_adjustment_amount = transaction.share_amount
-            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description)
-            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description)
+            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description, cost_center_id)
+            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description, cost_center_id)
             voucher.complete!
             voucher.save!
           end
