@@ -1,0 +1,48 @@
+%div#filterrific_results
+  = render 'shared/pagination', collection_to_paginate: share_transactions
+
+  - if share_transactions.present?
+    %div.row.top-buffer-sm
+      %div.col-xs-12
+        %div.btnPrintPDF.btnPrintChequeEntriesPDF
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
+          %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
+        %div.btnPrintPDF.btnViewChequeEntriesPDF
+          %span.glyphicon.glyphicon-eye-open
+          %span= 'View'
+
+  %div#share_transaction_list
+    %table.table.table-striped
+      %thead
+        %th.text-center= 'SN'
+        %th.col-xs-1= 'Transaction<br>Date'.html_safe
+        %th.col-xs-2= 'Transaction No'
+        %th.col-xs-2= 'Company'
+        %th.col-xs-1= 'Bill No'
+        %th.col-xs-1= 'Quantity<br>In'.html_safe
+        %th.col-xs-1= 'Quantity<br>Out'.html_safe
+        %th.col-xs-1= 'Market Rate'
+        %th.col-xs-1= 'Amount'
+        %th.col-xs-1= 'Commission'
+      %tbody
+        -if share_transactions
+          -share_transactions.each_with_index do |share_transaction, index|
+            %tr
+              %td= index + 1
+              %td= ad_to_bs_string(share_transaction.date)
+              %td= share_transaction.contract_no
+              %td= share_transaction.isin_info.company
+              %td= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
+              %td.quantity-in= arabic_number(share_transaction.quantity) if share_transaction.buying?
+              %td.quantity-out= arabic_number(share_transaction.quantity) if share_transaction.selling?
+              %td= arabic_number(share_transaction.isin_info.last_price.to_f)
+              %td= arabic_number(share_transaction.share_amount)
+              %td= arabic_number(share_transaction.commission_amount)
+
+    - if !share_transactions || share_transactions.empty?
+      %div.row.text-center.top-buffer-md
+        There are no matching share transactions.
+
+  = render 'shared/pagination', collection_to_paginate: share_transactions

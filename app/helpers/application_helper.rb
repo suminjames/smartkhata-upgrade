@@ -118,20 +118,6 @@ module ApplicationHelper
     broker_commission * 0.15
   end
 
-
-  # Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
-  # In the returned hash, 'isin' is the key and 'price' is the value.
-  def get_latest_isin_price_list
-    companies = IsinInfo.all
-
-    price_hash = {}
-    companies.each do |isin|
-      price_hash[isin.isin] = isin.last_price.to_f
-    end
-
-    price_hash
-  end
-
   # 	get the margin of error amount
   def margin_of_error_amount
     return 0.01
