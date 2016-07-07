@@ -100,7 +100,7 @@ class Group < ActiveRecord::Base
   end
 
   def closing_blnc(fy_code = get_fy_code)
-    self.descendent_ledgers(fy_code).sum(:closing_blnc)
+    self.descendent_ledgers(fy_code).to_a.sum(&:closing_blnc_org)
   end
 
   def self.tree_for(instance)

@@ -304,6 +304,8 @@ class Files::FloorsheetsController < Files::FilesController
       # update description
       description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
       # update ledgers value
+      # voucher date will be today's date
+      # bill date will be earlier
       voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
@@ -312,11 +314,11 @@ class Files::FloorsheetsController < Files::FilesController
       voucher.save!
 
       #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date)
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, client_branch_id, description, @date)
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date)
-      process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, client_branch_id, @date)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date) if dp > 0
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id)
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id)
+      process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, client_branch_id)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id) if dp > 0
 
     end
 

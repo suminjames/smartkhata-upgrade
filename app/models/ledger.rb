@@ -26,6 +26,7 @@
 
 class Ledger < ActiveRecord::Base
   include ::Models::UpdaterWithFyCode
+  attr_accessor :opening_blnc_type
 
   has_many :particulars
   has_many :vouchers, :through => :particulars
@@ -33,12 +34,13 @@ class Ledger < ActiveRecord::Base
   belongs_to :bank_account
   belongs_to :client_account
   belongs_to :vendor_account
-  attr_accessor :opening_blnc_type
-  has_many :ledger_dailies
 
+  has_many :ledger_dailies
+  has_many :ledger_balances
   has_many :employee_ledger_associations
   has_many :employee_accounts, through: :employee_ledger_associations
 
+  #TODO(subas) remove updation of closing balance
   validates_presence_of :name
   validate :positive_amount, on: :create
   before_create :update_closing_balance
@@ -79,6 +81,18 @@ class Ledger < ActiveRecord::Base
     if self.opening_blnc.to_f < 0
       errors.add(:opening_blnc, "can't be negative or blank")
     end
+  end
+
+  def opening_balance_org
+    self.ledger_balances.first.opening_blnc
+  end
+  def closing_balance_org
+    self.ledger_balances.first.closing_blnc
+  end
+
+  def closing_blnc_org(attrs = {})
+    last_day_balance = self.ledger_dailies.order('date Desc').last
+    closing_blnc = last_day_balance.present? ? last_day_balance.closing_blnc : 0.00
   end
 
   def self.get_ledger_by_ids(attrs = {})

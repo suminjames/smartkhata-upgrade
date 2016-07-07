@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160707051816) do
+ActiveRecord::Schema.define(version: 20160707125902) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -366,6 +366,20 @@ ActiveRecord::Schema.define(version: 20160707051816) do
     t.datetime "created_at",                                        null: false
     t.datetime "updated_at",                                        null: false
   end
+
+  create_table "ledger_balances", force: :cascade do |t|
+    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.integer  "fy_code"
+    t.integer  "branch_id"
+    t.integer  "ledger_id"
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+  end
+
+  add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
+  add_index "ledger_balances", ["fy_code"], name: "index_ledger_balances_on_fy_code", using: :btree
+  add_index "ledger_balances", ["ledger_id"], name: "index_ledger_balances_on_ledger_id", using: :btree
 
   create_table "ledger_dailies", force: :cascade do |t|
     t.date     "date"
@@ -804,6 +818,7 @@ ActiveRecord::Schema.define(version: 20160707051816) do
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
+  add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "particulars_share_transactions", "particulars"

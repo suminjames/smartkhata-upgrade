@@ -37,45 +37,61 @@ module ApplicationHelper
   end
 
   # process accounts to make changes on ledgers
-  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date = Time.now)
+  def process_accounts(ledger, voucher, debit, amount, descr, branch_id)
+
+    # note accounting date can be different from transaction date
+    accounting_date = Time.now.to_date
+
     ledger.lock!
     transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
     # closing_blnc = ledger.closing_blnc
     dr_amount = 0
     cr_amount = 0
-    daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: transaction_date.to_date, branch_id: branch_id)
-    daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: transaction_date.to_date, branch_id: nil)
-    particular_opening_blnc = daily_report.closing_blnc
-    particular_opening_blnc_org = daily_report_org.closing_blnc
+
+    # daily report to store debit and credit transactions
+    daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
+    daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil)
+
+    # ledger balance by org and cost center
+    ledger_blnc_org = ledger.ledger_balances.find_or_create_by!(branch_id: nil) do |b|
+      b.opening_blnc = ledger.opening_blnc
+      b.closing_blnc = ledger.opening_blnc
+    end
+    ledger_blnc_cost_center =ledger.ledger_balances.find_or_create_by!(branch_id: branch_id)
+
+
+    particular_opening_blnc = ledger_blnc_cost_center.closing_blnc
+    particular_opening_blnc_org = ledger_blnc_org.closing_blnc
 
     if debit
-      # ledger.closing_blnc += amount
-      # ledger.dr_amount += amount
       dr_amount = amount
+      ledger_blnc_org.closing_blnc += amount
+      ledger_blnc_cost_center.closing_blnc += amount
       daily_report.closing_blnc += amount
       daily_report_org.closing_blnc += amount
     else
-      # ledger.closing_blnc -= amount
-      # ledger.cr_amount += amount
+      ledger_blnc_org.closing_blnc -= amount
+      ledger_blnc_cost_center.closing_blnc -= amount
       daily_report.closing_blnc -= amount
       daily_report_org.closing_blnc -= amount
       cr_amount = amount
     end
 
-
-    daily_report.opening_blnc ||= ledger.opening_blnc
+    daily_report.opening_blnc ||= particular_opening_blnc
     daily_report.dr_amount += dr_amount
     daily_report.cr_amount += cr_amount
     daily_report.save!
 
-    daily_report_org.opening_blnc ||= ledger.opening_blnc
+    daily_report_org.opening_blnc ||= particular_opening_blnc_org
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
 
+    ledger_blnc_org.save!
+    ledger_blnc_cost_center.save!
 
-    particular_closing_blnc = daily_report.closing_blnc
-    particular_closing_blnc_org = daily_report_org.closing_blnc
+    particular_closing_blnc = ledger_blnc_cost_center.closing_blnc
+    particular_closing_blnc_org = ledger_blnc_org.closing_blnc
 
     particular = Particular.create!(
         transaction_type: transaction_type,
@@ -87,7 +103,7 @@ module ApplicationHelper
         running_blnc: particular_closing_blnc,
         opening_blnc_org: particular_opening_blnc_org,
         running_blnc_org: particular_closing_blnc_org,
-        transaction_date: transaction_date,
+        transaction_date: accounting_date,
         # no option yet for client to segregate reports on the base of cost center
         # not sure if its necessary
         running_blnc_client: particular_closing_blnc_org,
