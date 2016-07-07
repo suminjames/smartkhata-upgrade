@@ -48,12 +48,10 @@ class Files::FloorsheetsController < Files::FilesController
     @bill_number = get_bill_number
 
 
-    # grab date from the first record
+
     file_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
-
+    # grab date from the first record
     date_data = xlsx.sheet(0).row(12)[3].to_s
-
-
     # convert a string to date
     @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
 
@@ -74,7 +72,6 @@ class Files::FloorsheetsController < Files::FilesController
     file_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
     settlement_date = Calendar::t_plus_3_trading_days(@date)
-
     fy_code = get_fy_code
     # loop through 13th row to last row
     # parse the data
@@ -84,7 +81,7 @@ class Files::FloorsheetsController < Files::FilesController
     (12..(data_sheet.last_row)).each do |i|
 
       row_data = data_sheet.row(i)
-
+      # break if row with Total is found
       if (row_data[0].to_s.tr(' ', '') == 'Total')
         @total_amount = row_data[21].to_f
         break
@@ -136,6 +133,7 @@ class Files::FloorsheetsController < Files::FilesController
 
     file_error("The amount dont match up") and return if (@total_amount_file - @total_amount).abs > 0.1
 
+    # critical functionality happens here
     ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
         @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
@@ -182,7 +180,6 @@ class Files::FloorsheetsController < Files::FilesController
 
     dp = 0
     bill = nil
-
     type_of_transaction = ShareTransaction.transaction_types['buying']
 
 
@@ -191,6 +188,8 @@ class Files::FloorsheetsController < Files::FilesController
       client.name = client_name.titleize
     end
 
+
+
     # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase)
     # if client.nil?
     #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
@@ -198,6 +197,8 @@ class Files::FloorsheetsController < Files::FilesController
     #   return
     # end
 
+    # client branch id is used to enforce branch cost center
+    client_branch_id = client.branch_id
 
     # check for the bank deposit value which is available only for buying
     # used 25.0 instead of 25 to get number with decimal
@@ -220,10 +221,10 @@ class Files::FloorsheetsController < Files::FilesController
         bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
+          b.branch_id = client_branch_id
         end
         @bill_number += 1
       end
-
     end
 
     # amount: amount of the transaction
@@ -311,11 +312,11 @@ class Files::FloorsheetsController < Files::FilesController
       voucher.save!
 
       #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, @date)
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, @date)
-      process_accounts(tds_ledger, voucher, true, tds, description, @date)
-      process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, @date)
-      process_accounts(dp_ledger, voucher, false, dp, description, @date) if dp > 0
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date)
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, client_branch_id, description, @date)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date)
+      process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, client_branch_id, @date)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date) if dp > 0
 
     end
 

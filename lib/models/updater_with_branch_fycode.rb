@@ -13,7 +13,7 @@ module Models::UpdaterWithBranchFycode
       belongs_to :updater,  class_name: 'User'
 
       scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
-      scope :by_branch_code, -> (branch_code) { where(branch_code: branch_code)}
+      scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
     end
   end
 

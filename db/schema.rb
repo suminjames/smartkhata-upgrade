@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160705172244) do
+ActiveRecord::Schema.define(version: 20160707051816) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -407,6 +407,8 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.integer  "client_account_id"
     t.integer  "employee_account_id"
     t.integer  "vendor_account_id"
+    t.decimal  "opening_balance_org", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance_org", precision: 15, scale: 4, default: 0.0
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
@@ -520,6 +522,10 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.integer  "ledger_id"
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
+    t.decimal  "opening_balance_org",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_balance_org",    precision: 15, scale: 4, default: 0.0
+    t.boolean  "hide_for_client"
+    t.decimal  "running_balance_client", precision: 15, scale: 4, default: 0.0
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree

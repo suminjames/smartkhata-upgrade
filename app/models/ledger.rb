@@ -24,7 +24,7 @@
 
 
 class Ledger < ActiveRecord::Base
-  include ::Models::UpdaterWithBranchFycode
+  include ::Models::UpdaterWithFyCode
 
   has_many :particulars
   has_many :vouchers, :through => :particulars

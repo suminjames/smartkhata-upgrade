@@ -1,19 +1,19 @@
 # encoding: utf-8
 # TODO how to remove the code repetition
-module Models::UpdaterWithBranch
+module Models::UpdaterWithFyCode
 
   include FiscalYearModule
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator, :add_branch
+      before_create :set_creator, :add_fy_code
       before_save :set_updater
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
 
-      scope :by_branch_id, -> (branch_code) { where(branch_id: branch_code)}
+      scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
     end
   end
 
@@ -27,7 +27,7 @@ module Models::UpdaterWithBranch
     self.creator_id = UserSession.id
   end
 
-  def add_branch
-    self.branch_id ||= UserSession.branch_id
+  def add_fy_code
+    self.fy_code ||= get_fy_code
   end
 end

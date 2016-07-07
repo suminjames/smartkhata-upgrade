@@ -94,7 +94,7 @@ class LedgersController < ApplicationController
     elsif params[:search_by]
       @particulars = ''
     else
-      @particulars = @ledger.particulars.complete.order("id ASC")
+      @particulars = @ledger.particulars.complete.where(branch_id: 2).order("id ASC")
     end
 
     @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
