@@ -7,6 +7,7 @@
 #  transaction_date  :date
 #  sms_status        :integer          default("0")
 #  email_status      :integer          default("0")
+#  remarks           :string
 #  bill_id           :integer
 #  client_account_id :integer
 #  created_at        :datetime         not null
@@ -17,6 +18,7 @@
 #  remarks_email     :string
 #  remarks_sms       :string
 #
+
 
 class TransactionMessage < ActiveRecord::Base
   extend CustomDateModule

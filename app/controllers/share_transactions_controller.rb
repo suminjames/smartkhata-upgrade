@@ -10,6 +10,13 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
+    # debugger
+    # send xls file when requested
+    if params[:format] == 'xlsx'
+      report = Excelsheet::ShareTransactionsReport.new(params)
+      send_file(report, type: Reports::Excelsheet::TYPE)
+      return
+    end
     # default landing action for '/share_transactions'
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|

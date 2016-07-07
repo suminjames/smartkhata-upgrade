@@ -21,6 +21,7 @@
 #  branch_id         :integer
 #
 
+
 class Settlement < ActiveRecord::Base
   extend CustomDateModule
 

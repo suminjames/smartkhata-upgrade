@@ -26,6 +26,7 @@
 #  bank_payment_letter_id :integer
 #
 
+
 class Particular < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithBranchFycode

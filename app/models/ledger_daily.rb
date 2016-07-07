@@ -19,6 +19,7 @@
 #
 
 
+
 class LedgerDaily < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithBranchFycode

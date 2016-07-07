@@ -24,6 +24,7 @@
 #  settlement_approval_status :integer          default("0")
 #
 
+
 class Bill < ActiveRecord::Base
   include CustomDateModule
 

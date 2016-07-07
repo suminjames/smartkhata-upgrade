@@ -63,6 +63,7 @@
 #  ac_code                   :string
 #
 
+
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.

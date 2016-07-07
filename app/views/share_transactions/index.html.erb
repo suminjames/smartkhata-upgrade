@@ -464,3 +464,8 @@
 <!--Pagination BEGINS-->
 <%= render 'shared/pagination', collection_to_paginate: @share_transactions %>
 <!--Pagination ENDS-->
+
+<p>
+  Download: <%= link_to "Generic Report", share_transactions_path(format: "xlsx") %>
+</p>
+<p> Download: <%= link_to "Specific Report", share_transactions_path({format: "xlsx"}.merge request.GET.delete_if{|k| ['commit', 'utf8'].include? k}) %> </p>

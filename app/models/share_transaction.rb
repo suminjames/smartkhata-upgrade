@@ -42,6 +42,7 @@
 #  transaction_cancel_status :integer          default("0")
 #
 
+
 class ShareTransaction < ActiveRecord::Base
 
   include ::Models::UpdaterWithBranch

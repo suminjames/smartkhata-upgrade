@@ -74,3 +74,5 @@ group :test do
 end
 gem 'virtus'
 gem 'ancestry'
+gem 'zip-zip'
+gem 'axlsx'

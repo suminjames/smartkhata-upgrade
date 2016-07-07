@@ -17,6 +17,7 @@
 #  branch_id              :integer
 #
 
+
 require 'net/http'
 class SmsMessage < ActiveRecord::Base
 

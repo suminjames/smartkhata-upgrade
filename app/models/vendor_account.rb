@@ -14,6 +14,7 @@
 #
 
 
+
 class VendorAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
   has_many :ledgers
