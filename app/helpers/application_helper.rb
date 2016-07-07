@@ -151,4 +151,10 @@ module ApplicationHelper
     str.tr!('_', ' ')
     str.titleize
   end
+
+
+  # For serial number in element listing to work properly with kaminari pagination
+  def kaminari_serial_number(page_number, per_page)
+    params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
+  end
 end

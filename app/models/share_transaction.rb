@@ -91,15 +91,15 @@ class ShareTransaction < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at>= ?', date_ad.beginning_of_day).order(id: :desc)
+    where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at<= ?', date_ad.end_of_day).order(id: :desc)
+    where('date<= ?', date_ad.end_of_day).order(id: :desc)
   }
 
   scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
