@@ -119,23 +119,20 @@ class SmsMessage < ActiveRecord::Base
   # The reply_code is a string
   def self.push_sms
     tag = 'B'
+    # p 'URI========================>'
+    # p URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)
     reply_code = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
   end
 
-  def self.send_hello_world(current_tenant_id)
-    @current_tenant = Tenant.find_by_id(current_tenant_id)
-    Apartment::Tenant.switch!(@current_tenant.name)
+  def self.send_hello_world
     self.date_time
     self.mobile_number = '9851153385'
     self.message = 'Hello, from DIT!'
     p self.push_sms
     p self.check_balance
-    Apartment::Tenant.switch!('public')
   end
 
-  def self.send_bill_sms(transaction_message_id, current_tenant_id )
-    @current_tenant = Tenant.find_by_id(current_tenant_id)
-    Apartment::Tenant.switch!(@current_tenant.name)
+  def self.send_bill_sms(transaction_message_id)
     self.date_time
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
     self.mobile_number = transaction_message.client_account.messageable_phone_number
@@ -153,8 +150,12 @@ class SmsMessage < ActiveRecord::Base
     transaction_message.sms_queued!
     valid_message_blocks.each do |message|
       self.message = message
-      reply_code = self.push_sms
-      # reply_code = '1'
+      test = true
+      if test
+        reply_code = Random.rand(3).to_s
+      else
+        reply_code = self.push_sms
+      end
       if reply_code != '1'
         sms_failed = true
         if transaction_message.sms_message.length >  MAX_MESSAGE_BLOCK_LENGTH
@@ -166,18 +167,24 @@ class SmsMessage < ActiveRecord::Base
       end
     end
     if sms_failed
-      transaction_message.sms_unsent!
+      # If sms has been not been sent before (ie. sms_count == 0), then only set status to sms_unsent.
+      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_un
+      if transaction_message.sent_sms_count == 0
+        transaction_message.sms_unsent!
+      else
+        # As the transaction message sms_status has been earlier(see above) set to sms_queued, set it back to sms_sent because it is for messages which have sms_sent_count != 0 (ie. the sms_sent successfully in the past.)
+        transaction_message.sms_sent!
+      end
     else
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!
       sms_message_obj.save
     end
-    Apartment::Tenant.switch!('public')
   end
 
   # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = msg.gsub(' ', '%20')
+    @message = msg.gsub(' ', '%20').gsub('@', '%40')
   end
 
   def self.mobile_number= (number)
