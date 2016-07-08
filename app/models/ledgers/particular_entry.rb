@@ -18,7 +18,7 @@ class Ledgers::ParticularEntry
 
     # check if there are records after the entry
     if accounting_date <= Time.now
-      ledger_activities = ledger.ledger_dailies.where('date > ?', Time.now.to_date).order('date ASC')
+      ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
       if ledger_activities.size > 0
         # there are some records after the transaction date
         future_activity_org = ledger_activities.where(branch_id: nil).first
@@ -31,7 +31,7 @@ class Ledgers::ParticularEntry
           d.save!
         end
 
-        particulars = ledger.particulars.where('transaction_date > ?', Time.now.to_date)
+        particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
         particulars.each do |p|
           p.opening_blnc += amount
           p.running_blnc += amount
