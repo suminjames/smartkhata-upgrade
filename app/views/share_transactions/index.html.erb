@@ -201,6 +201,20 @@
 </div>
 <!--Menu, Sub-menu, and Form logic ENDS-->
 
+<!-- Report download links -->
+<p>
+  <span class="text-muted">Download as excelsheet:</span>
+  <%
+  if params[:search_by] == 'client' && ShareTransaction.not_cancelled.where(client_account_id: params[:search_term])
+    print link_to "Client Wise Report", share_transactions_path({format: 'xlsx', search_by: 'client', search_term: params[:search_term]})
+  elsif params[:search_by] == 'company' && isin = IsinInfo.find_by(id: params[:search_term])
+    print link_to "Company Wise Report", share_transactions_path({format: "xlsx"}.merge request.GET.delete_if{|k| ['commit', 'utf8'].include? k})
+  end
+  # link_to "Client Wise Report", share_transactions_path({format: "xlsx"}.merge request.GET.delete_if{|k| ['commit', 'utf8'].include? k})
+  print link_to "Full Report", share_transactions_path(format: "xlsx") %>
+</p>
+<p> Download: <%= link_to "Specific Report", share_transactions_path({format: "xlsx"}.merge request.GET.delete_if{|k| ['commit', 'utf8'].include? k}) %> </p>
+
 
 <!--Pagination BEGINS-->
 <%= render 'shared/pagination', collection_to_paginate: @share_transactions %>
@@ -464,8 +478,3 @@
 <!--Pagination BEGINS-->
 <%= render 'shared/pagination', collection_to_paginate: @share_transactions %>
 <!--Pagination ENDS-->
-
-<p>
-  Download: <%= link_to "Generic Report", share_transactions_path(format: "xlsx") %>
-</p>
-<p> Download: <%= link_to "Specific Report", share_transactions_path({format: "xlsx"}.merge request.GET.delete_if{|k| ['commit', 'utf8'].include? k}) %> </p>

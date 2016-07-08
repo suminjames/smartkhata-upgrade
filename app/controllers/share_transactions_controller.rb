@@ -13,8 +13,8 @@ class ShareTransactionsController < ApplicationController
     # debugger
     # send xls file when requested
     if params[:format] == 'xlsx'
-      report = Excelsheet::ShareTransactionsReport.new(params)
-      send_file(report, type: Reports::Excelsheet::TYPE)
+      report = Reports::Excelsheet::ShareTransactionsReport.new(params)
+      send_file(report.file_path, type: Reports::Excelsheet::TYPE)
       return
     end
     # default landing action for '/share_transactions'

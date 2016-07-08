@@ -1,3 +1,3 @@
-class Reports::ExcelSheet
+class Reports::Excelsheet
   TYPE = "application/vnd.ms-excel"
 end
