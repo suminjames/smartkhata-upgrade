@@ -7,6 +7,8 @@
 #  closing_blnc :decimal(15, 4)   default("0.0")
 #  fy_code      :integer
 #  branch_id    :integer
+#  creator_id   :integer
+#  updater_id   :integer
 #  ledger_id    :integer
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null

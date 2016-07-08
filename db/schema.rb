@@ -372,6 +372,8 @@ ActiveRecord::Schema.define(version: 20160707125902) do
     t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
     t.integer  "ledger_id"
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false

@@ -91,8 +91,11 @@ class Ledger < ActiveRecord::Base
   end
 
   def closing_blnc_org(attrs = {})
-    last_day_balance = self.ledger_dailies.order('date Desc').last
-    closing_blnc = last_day_balance.present? ? last_day_balance.closing_blnc : 0.00
+    if self.ledger_balances.size > 0
+      last_day_balance = self.ledger_balances.first.closing_blnc
+    else
+      0.0
+    end
   end
 
   def self.get_ledger_by_ids(attrs = {})
