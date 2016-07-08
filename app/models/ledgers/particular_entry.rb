@@ -10,11 +10,11 @@ class Ledgers::ParticularEntry
     # closing_blnc = ledger.closing_blnc
     dr_amount = 0
     cr_amount = 0
+    opening_blnc_org = nil
 
     # daily report to store debit and credit transactions
     # daily_report = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
     daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil)
-
 
     # check if there are records after the entry
     if accounting_date <= Time.now
@@ -25,19 +25,21 @@ class Ledgers::ParticularEntry
 
         opening_blnc_org = future_activity_org.opening_blnc
 
+        adjustment_amount = debit ? amount : amount * -1
+
         ledger_activities.each do |d|
-          d.closing_blnc += amount
-          d.opening_blnc += amount
+          d.closing_blnc += adjustment_amount
+          d.opening_blnc += adjustment_amount
           d.save!
         end
 
         particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
         particulars.each do |p|
-          p.opening_blnc += amount
-          p.running_blnc += amount
-          p.opening_blnc_org += amount
-          p.running_blnc_org += amount
-          p.running_blnc_client += amount
+          p.opening_blnc += adjustment_amount
+          p.running_blnc += adjustment_amount
+          p.opening_blnc_org += adjustment_amount
+          p.running_blnc_org += adjustment_amount
+          p.running_blnc_client += adjustment_amount
           p.save!
         end
       end
@@ -46,15 +48,8 @@ class Ledgers::ParticularEntry
     opening_blnc_org ||= ledger.opening_blnc
 
     # ledger balance by org and cost center
-    ledger_blnc_org = ledger.ledger_balances.find_or_create_by!(branch_id: nil) do |b|
-      b.opening_blnc = opening_blnc_org
-      b.closing_blnc = opening_blnc_org
-    end
+    ledger_blnc_org = ledger.ledger_balances.find_or_create_by!(branch_id: nil)
     # ledger_blnc_cost_center =ledger.ledger_balances.find_or_create_by!(branch_id: branch_id)
-
-
-    # particular_opening_blnc = ledger_blnc_cost_center.closing_blnc
-    particular_opening_blnc_org = ledger_blnc_org.closing_blnc
 
     if debit
       dr_amount = amount
@@ -75,7 +70,7 @@ class Ledgers::ParticularEntry
     # daily_report.cr_amount += cr_amount
     # daily_report.save!
 
-    daily_report_org.opening_blnc ||= particular_opening_blnc_org
+    daily_report_org.opening_blnc ||= opening_blnc_org
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
@@ -84,7 +79,7 @@ class Ledgers::ParticularEntry
     # ledger_blnc_cost_center.save!
 
     # particular_closing_blnc = ledger_blnc_cost_center.closing_blnc
-    particular_closing_blnc_org = ledger_blnc_org.closing_blnc
+    particular_closing_blnc_org = daily_report_org.closing_blnc
 
     particular = Particular.create!(
         transaction_type: transaction_type,
@@ -94,7 +89,7 @@ class Ledgers::ParticularEntry
         amount: amount,
         # opening_blnc: particular_opening_blnc,
         # running_blnc: particular_closing_blnc,
-        opening_blnc_org: particular_opening_blnc_org,
+        opening_blnc_org: opening_blnc_org,
         running_blnc_org: particular_closing_blnc_org,
         transaction_date: accounting_date,
         # no option yet for client to segregate reports on the base of cost center
@@ -102,8 +97,6 @@ class Ledgers::ParticularEntry
         running_blnc_client: particular_closing_blnc_org,
         branch_id: branch_id
     )
-
-
 
     ledger.save!
     particular

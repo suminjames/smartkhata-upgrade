@@ -94,10 +94,10 @@ class LedgersController < ApplicationController
     elsif params[:search_by]
       @particulars = ''
     else
-      @particulars = @ledger.particulars.complete.order("id ASC")
+      @particulars = @ledger.particulars.complete
     end
 
-    @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
+    @particulars = @particulars.order('transaction_date ASC').page(params[:page]).per(20) unless @particulars.blank?
   end
 
   # GET /ledgers/new
