@@ -4,7 +4,6 @@ class UserMailer < ApplicationMailer
 
   def bill_email (transaction_message_id, current_tenant_id)
     @current_tenant = Tenant.find_by_id(current_tenant_id)
-    Apartment::Tenant.switch!(@current_tenant.name)
     @transaction_message = TransactionMessage.find_by_id(transaction_message_id)
     @transaction_message.email_queued!
     @bill = @transaction_message.bill
@@ -19,13 +18,10 @@ class UserMailer < ApplicationMailer
     )
     @transaction_message.increase_sent_email_count!
     @transaction_message.email_sent!
-    Apartment::Tenant.switch!('public')
   end
 
   def transaction_message_email (transaction_message_id, current_tenant_id)
     @current_tenant = Tenant.find_by_id(current_tenant_id)
-    Apartment::Tenant.switch!(@current_tenant.name)
-
     @transaction_message = TransactionMessage.find_by_id(transaction_message_id)
     @transaction_message.email_queued!
     email = @transaction_message.client_account.email
@@ -39,6 +35,5 @@ class UserMailer < ApplicationMailer
     )
     @transaction_message.increase_sent_email_count!
     @transaction_message.email_sent!
-    Apartment::Tenant.switch!('public')
   end
 end

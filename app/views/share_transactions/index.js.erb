@@ -1,1 +1,6 @@
 <%= smart_listing_update(:share_transactions) %>
+<!--TODO(sarojk): Ask Subas if filterrific snippet has any effect ( like slowing or conflict) with the smart_lsiting snippet above.-->
+<% js = escape_javascript(
+  render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions})
+) %>
+$("#filterrific_results").html("<%= js %>");
