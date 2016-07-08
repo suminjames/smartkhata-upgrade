@@ -119,8 +119,6 @@ class SmsMessage < ActiveRecord::Base
   # The reply_code is a string
   def self.push_sms
     tag = 'B'
-    # p 'URI========================>'
-    # p URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)
     reply_code = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&dt=' + @date_time + '&mob=' + @mobile_number + '&msg=' + @message + '&u=' + @username + '&p=' + @password)).body
   end
 
@@ -150,8 +148,7 @@ class SmsMessage < ActiveRecord::Base
     transaction_message.sms_queued!
     valid_message_blocks.each do |message|
       self.message = message
-      test = true
-      if test
+      if !Rails.env.production?
         reply_code = Random.rand(3).to_s
       else
         reply_code = self.push_sms
@@ -184,7 +181,7 @@ class SmsMessage < ActiveRecord::Base
 
   # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = msg.gsub(' ', '%20').gsub('@', '%40')
+    @message = msg.gsub(' ', '%20').gsub('@', 'at')
   end
 
   def self.mobile_number= (number)
