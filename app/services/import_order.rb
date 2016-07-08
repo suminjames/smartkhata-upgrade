@@ -143,7 +143,10 @@ class ImportOrder < ImportFile
 # ]
 
   def non_nil_row_indices
-    [0, 2, 6, 8, 10, 12, 14, 16, 20, 21, 22, 23, 24, 26]
+    # The indices below not working with "Today's Orders" but "Historic Orders". The latter is date_from - date_to order list
+    # [0, 2, 6, 8, 10, 12, 14, 16, 20, 21, 22, 23, 24, 26]
+    [0, 2, 5, 6, 8, 10, 12, 14, 17, 18, 19, 20, 22, 24]
+
   end
 
   def get_hash_keys
@@ -163,7 +166,9 @@ class ImportOrder < ImportFile
   end
 
   def is_valid_row?(row=[])
-    expected_row_length = 27
+    # 27 is apparently not for "Today's Orders" but "Historic Orders".
+    # expected_row_length = 27
+    expected_row_length = 25
     return false if row.length != expected_row_length
     non_nil_row_indices.each do |index|
       return false if row[index].nil?
@@ -211,7 +216,7 @@ class ImportOrder < ImportFile
 
   def get_hash_equivalent_of_row(row)
     keys = get_hash_keys
-    # The 0-th indexed value in a valid row is Serial Number of the row. This is to be excluded fom the row hash. Therefore, the row shift.
+    # The 0-th indexed value in a valid row is Serial Number of the row. This is to be excluded from the row hash. Therefore, the row shift.
     row.shift
     hashed_row = {}
     (0..12).each do |i|
@@ -285,9 +290,9 @@ class ImportOrder < ImportFile
   def grand_total_row_hash(excel_sheet)
     grand_total_row = excel_sheet.row(grand_total_row_index(excel_sheet))
     grand_total = {}
-    grand_total[:total_quantity] = grand_total_row[14]
-    grand_total[:total_amount] = grand_total_row[16]
-    grand_total[:total_pending_quantity] = grand_total_row[20]
+    grand_total[:total_quantity] = grand_total_row[12]
+    grand_total[:total_amount] = grand_total_row[14]
+    grand_total[:total_pending_quantity] = grand_total_row[17]
     grand_total
   end
 
@@ -304,7 +309,7 @@ class ImportOrder < ImportFile
     return -1
   end
 
-  ORDER_BEGIN_ROW = 14
+  ORDER_BEGIN_ROW = 15
 
   def extract_xls(file)
     @rows = []
