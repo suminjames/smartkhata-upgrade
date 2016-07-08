@@ -1,18 +1,6 @@
 %div#filterrific_results
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
-  - if share_transactions.present?
-    %div.row.top-buffer-sm
-      %div.col-xs-12
-        %div.btnPrintPDF.btnPrintChequeEntriesPDF
-          %span.glyphicon.glyphicon-print.print-icon
-          %span= 'Print'
-          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
-          %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
-        %div.btnPrintPDF.btnViewChequeEntriesPDF
-          %span.glyphicon.glyphicon-eye-open
-          %span= 'View'
-
   %div#share_transaction_list
     %table.table.table-striped
       %thead
