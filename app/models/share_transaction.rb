@@ -43,6 +43,7 @@
 #
 
 class ShareTransaction < ActiveRecord::Base
+  extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
   belongs_to :bill
@@ -65,15 +66,54 @@ class ShareTransaction < ActiveRecord::Base
   has_many :particulars_on_payment_by_letter, through: :on_payment_by_letter, source: :particular
   has_many :particulars, through: :particulars_share_transactions
 
+  filterrific(
+      default_filter_params: { sorted_by: 'id_desc' },
+      available_filters: [
+          :sorted_by,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id,
+          :by_isin_id,
+      ]
+  )
 
   enum transaction_type: [:buying, :selling]
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
   # before_update :calculate_cgt
   validates :base_price, numericality: true
+
+
   scope :find_by_date, -> (date) { where(
       :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
       :date => date_from.beginning_of_day..date_to.end_of_day) }
+
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
+  }
+  scope :by_date_to, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('date<= ?', date_ad.end_of_day).order(id: :desc)
+  }
+
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
+  scope :by_isin_id, -> (id) { where(isin_info_id: id).order(id: :desc) }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        order("share_transactions.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
 
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
@@ -119,5 +159,13 @@ class ShareTransaction < ActiveRecord::Base
 
   def deal_cancelled
     self.deleted_at.present?
+  end
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  def self.options_for_isin_select
+    IsinInfo.all.order(:isin)
   end
 end
