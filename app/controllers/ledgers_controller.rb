@@ -97,7 +97,7 @@ class LedgersController < ApplicationController
       @particulars = @ledger.particulars.complete
     end
 
-    @particulars = @particulars.order('transaction_date ASC').page(params[:page]).per(20) unless @particulars.blank?
+    @particulars = @particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20) unless @particulars.blank?
   end
 
   # GET /ledgers/new

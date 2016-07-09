@@ -65,8 +65,8 @@ class Ledgers::ParticularEntry
       ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
       if ledger_activities.size > 0
         # there are some records after the transaction date
-        future_activity_cost_center = ledger_activities.where(branch_id: nil).first
-        future_activity_org = ledger_activities.where(branch_id: branch_id).first
+        future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
+        future_activity_org = ledger_activities.where(branch_id: nil).first
 
         opening_blnc_org = future_activity_org.opening_blnc
         opening_blnc_cost_center = future_activity_cost_center.opening_blnc
@@ -112,7 +112,7 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-    daily_report_cost_center.opening_blnc ||= particular_opening_blnc
+    daily_report_cost_center.opening_blnc ||= opening_blnc_cost_center
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
@@ -125,7 +125,7 @@ class Ledgers::ParticularEntry
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 
-    particular_closing_blnc = ledger_blnc_cost_center.closing_blnc
+    particular_closing_blnc = daily_report_cost_center.closing_blnc
     particular_closing_blnc_org = daily_report_org.closing_blnc
 
     new_particular = Particular.create!(
