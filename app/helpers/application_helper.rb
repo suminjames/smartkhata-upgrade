@@ -38,7 +38,7 @@ module ApplicationHelper
 
   # process accounts to make changes on ledgers
   def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date)
-   Ledgers::ParticularEntry.new.process(ledger, voucher, debit, amount, descr, branch_id,transaction_date)
+   Ledgers::ParticularEntry.new.insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date)
   end
 
   def reverse_accounts(particular, voucher, descr, adjustment = 0.0)
