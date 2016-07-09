@@ -137,13 +137,13 @@
                   </td>
                   <td class='text-right'>
                     <!-- -0.01 + 0.01 is equal to zero -->
-                    <% if particular.running_blnc + margin_of_error_amount < 0 %>
+                    <% if particular.running_total + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.running_blnc.abs)} cr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} cr" %>
               </span>
                     <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(particular.running_blnc.abs)} dr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} dr" %>
               </span>
                     <% end %>
 

@@ -104,4 +104,23 @@ class Ledger < ActiveRecord::Base
     self.by_fy_code(fy_code).where(id: ledger_ids)
   end
 
+  def descendent_ledgers(fy_code = get_fy_code)
+    subtree = self.class.tree_sql_for(self)
+    Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
+  end
+
+  def balance_till_date
+    balance = self.class.sum_sql_for(self)
+  end
+
+  def self.sum_sql_for(instance)
+    sum_sql = <<-SQL
+      WITH search_tree AS (
+        SELECT amount
+        FROM particulars
+        WHERE ledger_id = #{instance.id}
+      )SELECT SUM(amount) FROM search_tree
+    SQL
+  end
+
 end

@@ -40,24 +40,17 @@ class Particular < ActiveRecord::Base
 
   attr_accessor :running_total
 
-  def self.distance_with_running_total
-    total = 0.0
-    Particular.order(:id).collect do |w|
-      total += w.amount
-      w.running_total = total
-      w
-    end
-  end
-
   # get the particulars with running total
   # records: collection of particular
-  def self.with_running_total(records)
+  def self.with_running_total(records, opening_blnc = 0.0)
     total = 0.0
-    records.collect do |w|
-      total += w.amount
+    records.map do |w|
+      total += ( w.amount + opening_blnc)
+      # we need to add the opening blnc only once
+      opening_blnc = 0.0
       w.running_total = total
-      w
     end
+    records
   end
 
 

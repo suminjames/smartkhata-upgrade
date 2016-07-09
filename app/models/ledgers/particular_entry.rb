@@ -79,15 +79,15 @@ class Ledgers::ParticularEntry
           d.save!
         end
 
-        particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
-        particulars.each do |p|
-          p.opening_blnc += adjustment_amount
-          p.running_blnc += adjustment_amount
-          p.opening_blnc_org += adjustment_amount
-          p.running_blnc_org += adjustment_amount
-          p.running_blnc_client += adjustment_amount
-          p.save!
-        end
+        # particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
+        # particulars.each do |p|
+        #   p.opening_blnc += adjustment_amount
+        #   p.running_blnc += adjustment_amount
+        #   p.opening_blnc_org += adjustment_amount
+        #   p.running_blnc_org += adjustment_amount
+        #   p.running_blnc_client += adjustment_amount
+        #   p.save!
+        # end
       end
     end
 
@@ -134,14 +134,14 @@ class Ledgers::ParticularEntry
         name: descr,
         voucher_id: voucher.id,
         amount: amount,
-        opening_blnc: opening_blnc_cost_center,
-        running_blnc: particular_closing_blnc,
-        opening_blnc_org: opening_blnc_org,
-        running_blnc_org: particular_closing_blnc_org,
+        # opening_blnc: opening_blnc_cost_center,
+        # running_blnc: particular_closing_blnc,
+        # opening_blnc_org: opening_blnc_org,
+        # running_blnc_org: particular_closing_blnc_org,
         transaction_date: accounting_date,
         # no option yet for client to segregate reports on the base of cost center
         # not sure if its necessary
-        running_blnc_client: particular_closing_blnc_org,
+        # running_blnc_client: particular_closing_blnc_org,
         branch_id: branch_id
     )
 

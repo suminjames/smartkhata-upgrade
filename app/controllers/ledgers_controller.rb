@@ -97,7 +97,24 @@ class LedgersController < ApplicationController
       @particulars = @ledger.particulars.complete
     end
 
-    @particulars = @particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20) unless @particulars.blank?
+
+    page = params[:page].to_i - 1 if params[:page].present? || 0
+    opening_blnc = 0
+
+    # this is for the purpose of getting raw sql
+
+    # opening_blnc_1 = @particulars.order('transaction_date ASC','created_at ASC').limit(20*page).pluck(:amount).sum.to_f if page > 0
+
+
+    # raw sql can be potentially dangerous and memory leakage point
+    # need to make sure this has proper binding
+    query = "SELECT SUM(subquery.amount) FROM (SELECT amount FROM particulars WHERE ledger_id = #{@ledger.id} ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+    opening_blnc = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f if page > 0
+
+    @particulars = Particular.with_running_total(@particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20), opening_blnc) unless @particulars.blank?
+
+
+
   end
 
   # GET /ledgers/new
