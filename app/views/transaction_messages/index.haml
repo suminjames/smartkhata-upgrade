@@ -48,6 +48,7 @@
             )                         |
         .col-xs-3
           %div.no-paginate
+            = check_box_tag 'no_paginate', 'true', params[:no_paginate] == 'true'
             Show in single page
     = render_filterrific_spinner
 
