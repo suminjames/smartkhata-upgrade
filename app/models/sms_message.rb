@@ -107,7 +107,6 @@ class SmsMessage < ActiveRecord::Base
     self.credit_used = 0
   end
 
-
   def self.check_balance
     tag = 'BQ'
     result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&u=' + @username + '&p=' + @password)).body
