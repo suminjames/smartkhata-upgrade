@@ -40,7 +40,7 @@ class ImportOrder < ImportFile
             order_obj.order_number = get_new_order_number
             order_obj.client_account_id = client_account_id
             order_obj.fy_code= get_fy_code
-            order_obj.date = Date.parse(hash['ORDER_DATE_TIME'].to_s)
+            order_obj.date = @order_file_date
             order_obj.save!
           end
           order_id = order_obj.id
@@ -105,6 +105,15 @@ class ImportOrder < ImportFile
     record = OrderDetail.find_by(order_nepse_id: order_id)
     !record.nil?
   end
+
+# Get Order File Date, which is different from order_detail date(time). Sometimes earlier order_details can still persist in later order file.
+  def order_file_date(cell_str)
+    # ( 06-Jul-2016 )
+    cell_str ||= ''
+    stripped_date_str = cell_str[3..-2]
+    parsable_date?(stripped_date_str) ? Date.parse(stripped_date_str) : nil
+  end
+
 
 # Method overwrite ImportFile's Method
   def extract_csv(file)
@@ -317,6 +326,10 @@ class ImportOrder < ImportFile
     # begin
     xlsx = Roo::Spreadsheet.open(file, extension: :xls)
     excel_sheet = xlsx.sheet(0)
+    @order_file_date = order_file_date(excel_sheet.j5)
+    if @order_file_date.nil?
+      @error_message = "Order Date is missing/invalid in cell J5! Please upload a valid file." and return
+    end
     order_end_row = bottom_most_order_row_index(excel_sheet)
     if order_end_row != -1
       (ORDER_BEGIN_ROW..order_end_row).each do |i|
