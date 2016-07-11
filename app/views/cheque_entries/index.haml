@@ -13,8 +13,8 @@
             @filterrific.select_options[:by_client_id], |
             :id,                                        |
             :name_and_nepse_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            {include_blank: true},                 |
+            {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
           %div.top-buffer-md
             = f.submit 'Search'
             = link_to(                  |
@@ -29,24 +29,24 @@
             @filterrific.select_options[:by_bank_account_id], |
             :id,                                        |
             :name,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' }) |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
             Status
           = f.select(                        |
             :by_cheque_entry_status,                              |
             @filterrific.select_options[:by_cheque_entry_status], |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -'})          |
         .col-xs-2
           %label
             Type
           = f.select(                        |
             :by_cheque_issued_type,                              |
             @filterrific.select_options[:by_cheque_issued_type], |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' }) |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -'})     |
         .col-xs-2
           %label
             Date

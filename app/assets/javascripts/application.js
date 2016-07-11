@@ -23,8 +23,21 @@
 //= require select2.min.js
 //= require_tree .
 
-// Override select2 default option for minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
-$.fn.select2.defaults.set("minimumInputLength", "3");
+$(document).on("ready", function(){
+    $('select').select2({
+        theme: 'bootstrap',
+        tags: true,
+        allowClear: true
+    });
+    $(".min-3").select2({
+        theme: 'bootstrap',
+        tags: true,
+        allowClear: true,
+        // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
+        minimumInputLength: 3,
+    });
+});
+
 
 $(document).on('click', '.yamm .dropdown-menu', function (e) {
     e.stopPropagation()

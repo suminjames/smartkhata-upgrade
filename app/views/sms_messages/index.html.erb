@@ -15,8 +15,8 @@
                     @filterrific.select_options[:by_client_id],
                     :id,
                     :name_and_nepse_code,
-                    {include_blank: '- Any -'},
-                    {class: 'form-control combobox'}) %>
+                    {include_blank: true},
+                    {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' }) %>
           </div>
 
           <div class="col-xs-3">
@@ -26,8 +26,8 @@
             <%= f.select(
                     :by_sms_message_type,
                     @filterrific.select_options[:by_sms_message_type],
-                    {include_blank: '- Any -'}, {class: 'form-control combobox'}
-                ) %>
+                    {include_blank: true},
+                    {class: 'form-control combobox', 'data-placeholder': '- Any -' }) %>
           </div>
 
           <div class="col-xs-2">

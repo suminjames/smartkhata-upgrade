@@ -13,8 +13,8 @@
             @filterrific.select_options[:by_client_id], |
             :id,                                        |
             :name_and_nepse_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            {include_blank: true},                 |
+            {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
           %div.top-buffer-md
             = f.submit 'Search'
             = link_to(                  |
@@ -29,8 +29,8 @@
             @filterrific.select_options[:by_isin_id], |
             :id,                                        |
             :name_and_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })    |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
             Date

@@ -12,9 +12,9 @@
             :by_client_id,                              |
             @filterrific.select_options[:by_client_id], |
             :id,                                        |
-            :name_and_nepse_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            :name_and_nepse_code,                 |
+            {include_blank: true},                 |
+            {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
         .col-xs-2
           %label
             Date
