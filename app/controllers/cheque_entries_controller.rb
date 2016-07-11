@@ -217,28 +217,25 @@ class ChequeEntriesController < ApplicationController
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
     @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
+    existing_cheque_numbers = ChequeEntry.where(bank_account_id: @bank_account_id).pluck(:cheque_number)
+    has_error = true
 
-    error_message = ""
-    has_error = false
-
-    unless @bank_account_id.present?
-      has_error = true
-      error_message = "Bank Account cant be empty"
+    error_message = case
+    when @bank_account_id.blank?
+      "Bank Account cannot be empty"
+    when @start_cheque_number.blank?
+      "Start Cheque Number cannot be empty"
+    when @start_cheque_number <= 0 || @end_cheque_number <= 0
+      "Cheque numbers cannot be negative"
+    when @start_cheque_number > @end_cheque_number
+      "Last cheque number should be greater than the first"
+    when (@end_cheque_number - @start_cheque_number) > 501
+      "Maximum of 500 cheque entries allowed"
+    when existing_cheque_numbers.any? {|n| n.between? @start_cheque_number, @end_cheque_number }
+      "Cheque number cannot be duplicate for a bank"
+    else
+      has_error = false
     end
-    if @start_cheque_number.blank?
-      has_error = true
-      error_message = "Start Cheque Number cant be empty"
-    elsif @start_cheque_number <= 0 || @end_cheque_number <= 0
-      has_error = true
-      error_message = "Cheque numbers can not be a negative value"
-    elsif @start_cheque_number > @end_cheque_number
-      has_error = true
-      error_message = "Last cheque number should be greater than the first"
-    elsif (@end_cheque_number - @start_cheque_number) > 501
-      has_error = true
-      error_message = "Only 500 cheque entries allowed"
-    end
-
 
     if !has_error
       ActiveRecord::Base.transaction do

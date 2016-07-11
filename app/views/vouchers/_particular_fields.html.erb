@@ -11,12 +11,12 @@
     <% if (voucher_type == Voucher.voucher_types[:receipt] && inverse == false) || (voucher_type == Voucher.voucher_types[:payment] && inverse == true) %>
         <!--  hidden input to store the transaction type as disabled wont submit data to server -->
         <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "cr"} %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "cr"), {}, {:disabled => true} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "cr"), {}, {class: "form-control", :disabled => true} %>
     <% elsif voucher_type == Voucher.voucher_types[:payment] || (voucher_type == Voucher.voucher_types[:receipt]) %>
         <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "dr"} %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "dr"), {}, {:disabled => true} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "dr"), {}, {class: "form-control", :disabled => true} %>
     <% else %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type), {}, class: "form-control" %>
     <% end %>
   </div>
   <div class="col-xs-4 padding-zero">
@@ -26,5 +26,5 @@
     </div>
   </div>
 
-  <div class="col-xs-1 padding-zero remove-particular"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receipt] && inverse || inverse == false %></div>
+  <div class="col-xs-1 padding-zero remove-particular"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-success btn-flat lighter' if voucher_type == Voucher.voucher_types[:receipt] && inverse || inverse == false %></div>
 </div>

@@ -153,9 +153,7 @@ $(window).scroll(function() {
     }
 });
 // the animation
-$('.back-to-top').click(function () {
-  $('body,html').animate({
-    scrollTop: 0
-  }, 700);
-  return false;
+// $('.back-to-top').on('click', function () { // <- works only after reload!?
+$(document).on("click", ".back-to-top", function (event) {
+  $('body,html').animate({ scrollTop: 0 }, 700);
 });

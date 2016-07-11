@@ -12,7 +12,7 @@ module ApplicationHelper
       # render(association.to_s.singularize + "_fields" , f: builder)
       render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info}
     end
-    link_to(name, '#', class: "add_fields btn btn-primary", data: {id: id, fields: fields.gsub("\n", "")})
+    link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.gsub("\n", "")})
   end
 
 
