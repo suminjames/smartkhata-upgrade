@@ -185,15 +185,13 @@ class ClientAccount < ActiveRecord::Base
     messageable_phone_number
   end
 
-<<<<<<< HEAD
   # validation helper
   def any_bank_field_present?
     bank_name? || bank_address? || bank_account?
   end
-=======
+
   def name_and_nepse_code
     "#{self.name.titleize} (#{self.nepse_code})"
   end
 
->>>>>>> alpha
 end
