@@ -8,7 +8,7 @@ class TransactionMessagesController < ApplicationController
         TransactionMessage,
         params[:filterrific],
         select_options: {
-            by_client_id: Settlement.options_for_client_select,
+            by_client_id: TransactionMessage.options_for_client_select,
         },
         persistence_id: false
     ) or return
@@ -62,8 +62,7 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_email?
-        # UserMailer.delay.bill_email(transaction_message.id, current_tenant.id)
-        UserMailer.delay.transaction_message_email(transaction_message.id, current_tenant.id)
+        UserMailer.delay(:retry => false).transaction_message_email(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|
@@ -77,7 +76,7 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_sms?
-        SmsMessage.delay(:retry => true).send_bill_sms(transaction_message.id, current_tenant.id)
+        SmsMessage.send_bill_sms(transaction_message.id)
       end
     end
     respond_to do |format|

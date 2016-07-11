@@ -1,5 +1,5 @@
 %p#notice= notice
-- provide(:section_title, "Transaction Messages")
+- provide(:section_title, "Share Inventory")
 
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
   .panel.panel-default.filter-form
@@ -15,6 +15,22 @@
             :name_and_nepse_code,                                      |
             {include_blank: '- Any -'},                 |
             {class: 'form-control combobox' })          |
+          %div.top-buffer-md
+            = f.submit 'Search'
+            = link_to(                  |
+                  'Reset filters',      |
+                  reset_filterrific_url |
+              )                         |
+        .col-xs-3
+          %label
+            Company
+          = f.collection_select(                        |
+            :by_isin_id,                              |
+            @filterrific.select_options[:by_isin_id], |
+            :id,                                        |
+            :name_and_code,                                      |
+            {include_blank: '- Any -'},                 |
+            {class: 'form-control combobox' })    |
         .col-xs-2
           %label
             Date
@@ -23,32 +39,22 @@
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
             class: 'form-control' )       |
-        .col-xs-4
+        .col-xs-2.text-center
+          %label
+            Date Range
           .clearfix
-            .text-center
-              %label
-                Date Range
-          .clearfix
-            .col-xs-6
+            .row
               = f.text_field(                 |
                 :by_date_from,                |
                 :placeholder => 'YYYY-MM-DD', |
                 class: 'form-control' )       |
-            .col-xs-6
+            .row.top-buffer-sm
               = f.text_field(                 |
                 :by_date_to,                  |
                 :placeholder => 'YYYY-MM-DD', |
                 class: 'form-control' )       |
-      .row.top-buffer-sm
-        .col-xs-3
-          = f.submit 'Search'
-          = link_to(                  |
-                'Reset filters',      |
-                reset_filterrific_url |
-            )                         |
-          %br
     = render_filterrific_spinner
 
 
-= render(partial: 'transaction_messages/list', locals: { transaction_messages: @transaction_messages} )
+= render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
 

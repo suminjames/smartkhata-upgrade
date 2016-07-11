@@ -118,20 +118,6 @@ module ApplicationHelper
     broker_commission * 0.15
   end
 
-
-  # Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
-  # In the returned hash, 'isin' is the key and 'price' is the value.
-  def get_latest_isin_price_list
-    companies = IsinInfo.all
-
-    price_hash = {}
-    companies.each do |isin|
-      price_hash[isin.isin] = isin.last_price.to_f
-    end
-
-    price_hash
-  end
-
   # 	get the margin of error amount
   def margin_of_error_amount
     return 0.01
@@ -149,5 +135,26 @@ module ApplicationHelper
     UserSession.selected_fy_code = fy_code
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
+  end
+
+  # @params time - Time object holds time, date and timezone
+  def to_ktm_timezone(time)
+    time.in_time_zone("Kathmandu")
+  end
+
+  # Generically enum, when put in view, has the following form 'first_second', or 'third'. This isn't very pretty to the eyes. Transform to remove underscore and titleize.
+  # Modify a string by
+  # -replacing underscore '_' with space
+  # -titleizing
+  def pretty_enum(enum_string)
+    str = enum_string.dup
+    str.tr!('_', ' ')
+    str.titleize
+  end
+
+
+  # For serial number in element listing to work properly with kaminari pagination
+  def kaminari_serial_number(page_number, per_page)
+    params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
 end

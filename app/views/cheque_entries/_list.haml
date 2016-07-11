@@ -1,0 +1,49 @@
+%div#filterrific_results
+  = render 'shared/pagination', collection_to_paginate: cheque_entries
+
+  - if cheque_entries.present?
+    %div.row.top-buffer-sm
+      %div.col-xs-12
+        %div.btnPrintPDF.btnPrintChequeEntriesPDF
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print Selected'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
+          %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
+        %div.btnPrintPDF.btnViewChequeEntriesPDF
+          %span.glyphicon.glyphicon-eye-open
+          %span= 'View Selected'
+
+  %div#cheque_entry_list
+    %table.table.table-striped
+      %thead
+        %th.text-center
+          = 'All'
+          %br
+          = check_box_tag 'select_all', '', false, class: 'cheque-entry'
+        %th.col-xs-1.text-center= 'Cheque Number'
+        %th.col-xs-2.text-center= 'Bank Account'
+        %th.col-xs-1.text-center= 'Date'
+        %th.col-xs-2.text-center= 'Beneficiary Name'
+        %th.col-xs-1.text-center= 'Amount'
+        %th.col-xs-1.text-center= 'Status'
+        %th.col-xs-1.text-center= 'Type'
+        %th.col-xs-1.text-center= 'Printed'
+      %tbody
+        -if cheque_entries
+          -cheque_entries.each do |cheque_entry|
+            %tr
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
+              %td.text-center= cheque_entry.cheque_number
+              %td.text-center= cheque_entry.bank_account.name
+              %td.text-center= ad_to_bs_string(cheque_entry.cheque_date) if cheque_entry.cheque_date.present?
+              %td.text-center= cheque_entry.beneficiary_name
+              %td.text-center= cheque_entry.amount
+              %td.text-center= pretty_enum(cheque_entry.status)
+              %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
+              %td.text-center= pretty_enum(cheque_entry.print_status)
+
+    - if !cheque_entries || cheque_entries.empty?
+      %div.row.text-center.top-buffer-md
+        There are no matching cheque entries.
+
+  = render 'shared/pagination', collection_to_paginate: cheque_entries

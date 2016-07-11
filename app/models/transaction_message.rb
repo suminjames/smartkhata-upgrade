@@ -43,7 +43,7 @@ class TransactionMessage < ActiveRecord::Base
   end
 
   filterrific(
-      default_filter_params: { sorted_by: 'id_asc' },
+      default_filter_params: { sorted_by: 'id_desc' },
       available_filters: [
           :sorted_by,
           :by_date,
@@ -55,18 +55,18 @@ class TransactionMessage < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day).order(:id)
+    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('transaction_date >= ?', date_ad.beginning_of_day).order(:id)
+    where('transaction_date >= ?', date_ad.beginning_of_day).order(id: :desc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('transaction_date <= ?', date_ad.end_of_day).order(:id)
+    where('transaction_date <= ?', date_ad.end_of_day).order(id: :desc)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(:id) }
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
