@@ -25,7 +25,7 @@ $(document).on 'page:change', ->
     allTransactionMessagesIds = `$("#filterrific_results .email:input:checkbox").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 
     # Poll for transaction messages' email and sms status every x seconds
-    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 1000
+#    transactionMessagesStatusesPoller = setInterval pollForTransactionMessagesStatuses , 1000
     $(document).on 'page:change', clearTransactionMessagesStatusesPoller
     
     $(document).on 'change', 'input:checkbox', (event)->
@@ -33,7 +33,10 @@ $(document).on 'page:change', ->
       selectedTransactionMessagesIdsForSMS = `$("#filterrific_results .sms:input:checkbox:checked").not('.email#select_all, .sms#select_all').map(function(){return this.id}).get();`
 #      console.log selectedTransactionMessagesIdsForEmail 
 #      console.log selectedTransactionMessagesIdsForSMS
-      
+
+    $(document). on 'click', '.refresh-icon', (event) ->
+      window.location.reload(true)
+    
     $(document). on 'click', '.email#select_all', (event) ->
       $(".email:input:checkbox").not('.cant-email').prop('checked', $(this).prop("checked"))
       $(".email:input:checkbox").not('.cant-email').attr('disabled', false)
@@ -77,7 +80,7 @@ $(document).on 'page:change', ->
         data: params
         dataType: 'json'
         beforeSend: ->
-          console.log 'Send SMS Ajax Initiated!'
+          console.log 'Send Email Ajax Initiated!'
           $('#send-email').prop 'disabled', true
           $('#send-email').attr 'value', 'Sending Email...'
           $('#send-email-spinner').removeClass 'hidden'
