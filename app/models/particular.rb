@@ -45,7 +45,8 @@ class Particular < ActiveRecord::Base
   def self.with_running_total(records, opening_balance = 0.0)
     total = 0.0
     records.map do |w|
-      total += ( w.amount + opening_balance)
+      amount = w.cr? ? (-1 * w.amount) : w.amount
+      total += (amount + opening_balance)
       # we need to add the opening blnc only once
       opening_balance = 0.0
       w.running_total = total

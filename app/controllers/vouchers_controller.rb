@@ -135,7 +135,7 @@ class VouchersController < ApplicationController
   end
 
   # TODO make sure authorization is performed
-
+  # TODO (Subas) move this to Ledgers/particular entry
   def finalize_payment
     success = false
     error_message = "There was some Error"
@@ -147,15 +147,7 @@ class VouchersController < ApplicationController
         if params[:approve]
           Voucher.transaction do
             @voucher.particulars.each do |particular|
-              ledger = Ledger.find(particular.ledger_id)
-              ledger.lock!
-
-              closing_balance = ledger.closing_balance
-              ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
-              # particular.opening_balance = closing_balance
-              # particular.running_blnc = ledger.closing_balance
-              particular.complete!
-              ledger.save!
+              Ledgers::ParticularEntry.new.insert_particular(particular)
             end
 
             @voucher.cheque_entries.uniq.each do |cheque_entry|

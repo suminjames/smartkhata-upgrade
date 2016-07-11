@@ -16,6 +16,55 @@ class Ledgers::ParticularEntry
             adjustment: adjustment
     )
   end
+
+  def insert_particular(particular)
+    ledger = Ledger.find(particular.ledger_id)
+
+    ledger.lock!
+    dr_amount = 0
+    cr_amount = 0
+    opening_balance_org = nil
+    opening_balance_cost_center = nil
+    daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id)
+    daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil)
+
+    ledger_blnc_org = LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
+    ledger_blnc_cost_center =  LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
+    amount = particular.amount
+    if particular.dr?
+      dr_amount = amount
+      ledger_blnc_org.closing_balance += amount
+      ledger_blnc_cost_center.closing_balance += amount
+      daily_report_cost_center.closing_balance += amount
+      daily_report_org.closing_balance += amount
+    else
+      ledger_blnc_org.closing_balance -= amount
+      ledger_blnc_cost_center.closing_balance -= amount
+      daily_report_cost_center.closing_balance -= amount
+      daily_report_org.closing_balance -= amount
+      cr_amount = amount
+    end
+
+
+    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
+    daily_report_cost_center.dr_amount += dr_amount
+    daily_report_cost_center.cr_amount += cr_amount
+    daily_report_cost_center.save!
+
+    daily_report_org.opening_balance ||= opening_balance_org
+    daily_report_org.dr_amount += dr_amount
+    daily_report_org.cr_amount += cr_amount
+    daily_report_org.save!
+
+    ledger_blnc_org.save!
+    ledger_blnc_cost_center.save!
+
+    # particular.opening_balance = closing_balance
+    # particular.running_blnc = ledger.closing_balance
+    particular.complete!
+    ledger.save!
+  end
+
   def process(attrs = {})
     ledger = attrs[:ledger]
     voucher = attrs[:voucher]
@@ -78,16 +127,6 @@ class Ledgers::ParticularEntry
           d.opening_balance += adjustment_amount
           d.save!
         end
-
-        # particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
-        # particulars.each do |p|
-        #   p.opening_balance += adjustment_amount
-        #   p.running_blnc += adjustment_amount
-        #   p.opening_balance_org += adjustment_amount
-        #   p.running_blnc_org += adjustment_amount
-        #   p.running_blnc_client += adjustment_amount
-        #   p.save!
-        # end
       end
     end
 

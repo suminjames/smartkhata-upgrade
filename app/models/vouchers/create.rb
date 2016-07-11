@@ -289,15 +289,15 @@ class Vouchers::Create < Vouchers::Base
         end
 
         unless voucher.is_payment_bank
-          ledger.lock!
-          closing_balance = ledger.closing_balance
-          ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
-          particular.opening_balance = closing_balance
-          particular.running_blnc = ledger.closing_balance
-          particular.complete!
-          ledger.save!
+          # ledger.lock!
+          # # closing_balance = ledger.closing_balance
+          # # ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
+          # # particular.opening_balance = closing_balance
+          # # particular.running_blnc = ledger.closing_balance
+          # particular.complete!
+          # ledger.save!
+          Ledgers::ParticularEntry.new.insert_particular(particular)
         end
-
       end
 
       # if voucher settlement type is other than default create only a single settlement.
