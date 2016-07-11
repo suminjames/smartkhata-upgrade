@@ -44,11 +44,14 @@ class ApplicationController < ActionController::Base
   def set_user_session
     current_user.current_url_link = request.path
     UserSession.user = current_user
-    UserSession.selected_fy_code ||= get_fy_code
-    UserSession.selected_branch_id ||= current_user.branch_id
+
     # session storage for controllers
     session[:user_selected_fy_code] ||= get_fy_code
     session[:user_selected_branch_id] ||= current_user.branch_id
+
+    # set the session variable for the session
+    UserSession.selected_fy_code = session[:user_selected_fy_code]
+    UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
 
   #   set the default fycode and branch params

@@ -14,6 +14,7 @@ module Models::UpdaterWithBranchFycode
 
       scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
+      scope :by_branch_fy_code_default, -> { where(branch_id: UserSession.selected_branch_id).where(fy_code: UserSession.selected_fy_code)}
     end
   end
 

@@ -92,14 +92,20 @@ module ApplicationHelper
   def set_user_selected_branch_fy_code(branch_id, fy_code)
     fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
     # user session is for model access
-    UserSession.selected_fy_code = fy_code
+
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
     session[:user_selected_branch_id] = branch_id
+
+    UserSession.selected_fy_code = session[:user_selected_fy_code]
+    UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
 
 
-
+  # get available branches
+  def available_branches
+    Branch.all
+  end
 
   # @params time - Time object holds time, date and timezone
   def to_ktm_timezone(time)

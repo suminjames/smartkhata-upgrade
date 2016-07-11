@@ -239,7 +239,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_balance, :group_id, :opening_balance_type, :vendor_account_id)
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id)
   end
 
 
