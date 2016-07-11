@@ -368,15 +368,15 @@ ActiveRecord::Schema.define(version: 20160707125902) do
   end
 
   create_table "ledger_balances", force: :cascade do |t|
-    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "ledger_id"
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
   end
 
   add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
@@ -385,18 +385,18 @@ ActiveRecord::Schema.define(version: 20160707125902) do
 
   create_table "ledger_dailies", force: :cascade do |t|
     t.date     "date"
-    t.decimal  "dr_amount",    precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",    precision: 15, scale: 4, default: 0.0
-    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
     t.string   "date_bs"
     t.integer  "fy_code"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "ledger_id"
     t.integer  "branch_id"
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
   end
 
   add_index "ledger_dailies", ["branch_id"], name: "index_ledger_dailies_on_branch_id", using: :btree
@@ -517,7 +517,7 @@ ActiveRecord::Schema.define(version: 20160707125902) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",           precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",        precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                     default: 0
     t.integer  "cheque_number"
@@ -538,7 +538,7 @@ ActiveRecord::Schema.define(version: 20160707125902) do
     t.integer  "ledger_id"
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
-    t.decimal  "opening_blnc_org",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance_org",    precision: 15, scale: 4, default: 0.0
     t.decimal  "running_blnc_org",       precision: 15, scale: 4, default: 0.0
     t.boolean  "hide_for_client",                                 default: false
     t.decimal  "running_blnc_client",    precision: 15, scale: 4, default: 0.0

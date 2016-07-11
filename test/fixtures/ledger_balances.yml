@@ -1,15 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  opening_blnc: 9.99
-  closing_blnce: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   fy_code: 1
   branch_id: 1
   ledger_id: 
 
 two:
-  opening_blnc: 9.99
-  closing_blnce: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   fy_code: 1
   branch_id: 1
   ledger_id: 

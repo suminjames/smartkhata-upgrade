@@ -4,8 +4,8 @@ class CreateLedgerDailies < ActiveRecord::Migration
       t.date :date
       t.decimal :dr_amount, precision: 15, scale: 4, default: 0.00
       t.decimal :cr_amount, precision: 15, scale: 4, default: 0.00
-      t.decimal :opening_blnc, precision: 15, scale: 4, default: 0.00
-      t.decimal :closing_blnc, precision: 15, scale: 4, default: 0.00
+      t.decimal :opening_balance, precision: 15, scale: 4, default: 0.00
+      t.decimal :closing_balance, precision: 15, scale: 4, default: 0.00
       t.string :date_bs
       t.integer :fy_code, index: true
       t.integer :creator_id, index: true

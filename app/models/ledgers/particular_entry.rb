@@ -53,8 +53,8 @@ class Ledgers::ParticularEntry
 
     dr_amount = 0
     cr_amount = 0
-    opening_blnc_org = nil
-    opening_blnc_cost_center = nil
+    opening_balance_org = nil
+    opening_balance_cost_center = nil
 
     # daily report to store debit and credit transactions
     daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
@@ -68,22 +68,22 @@ class Ledgers::ParticularEntry
         future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
         future_activity_org = ledger_activities.where(branch_id: nil).first
 
-        opening_blnc_org = future_activity_org.opening_blnc
-        opening_blnc_cost_center = future_activity_cost_center.opening_blnc
+        opening_balance_org = future_activity_org.opening_balance
+        opening_balance_cost_center = future_activity_cost_center.opening_balance
 
         adjustment_amount = debit ? amount : amount * -1
 
         ledger_activities.each do |d|
-          d.closing_blnc += adjustment_amount
-          d.opening_blnc += adjustment_amount
+          d.closing_balance += adjustment_amount
+          d.opening_balance += adjustment_amount
           d.save!
         end
 
         # particulars = ledger.particulars.where('transaction_date > ?', accounting_date)
         # particulars.each do |p|
-        #   p.opening_blnc += adjustment_amount
+        #   p.opening_balance += adjustment_amount
         #   p.running_blnc += adjustment_amount
-        #   p.opening_blnc_org += adjustment_amount
+        #   p.opening_balance_org += adjustment_amount
         #   p.running_blnc_org += adjustment_amount
         #   p.running_blnc_client += adjustment_amount
         #   p.save!
@@ -91,33 +91,34 @@ class Ledgers::ParticularEntry
       end
     end
 
-    opening_blnc_org ||= ledger.opening_blnc
-    opening_blnc_cost_center ||= ledger.opening_blnc
+
 
     # ledger balance by org and cost center
-    ledger_blnc_org = ledger.ledger_balances.find_or_create_by!(branch_id: nil)
-    ledger_blnc_cost_center =ledger.ledger_balances.find_or_create_by!(branch_id: branch_id)
+    ledger_blnc_org = LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
+    ledger_blnc_cost_center =  LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: branch_id)
+    opening_balance_org ||= ledger_blnc_org.opening_balance
+    opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
     if debit
       dr_amount = amount
-      ledger_blnc_org.closing_blnc += amount
-      ledger_blnc_cost_center.closing_blnc += amount
-      daily_report_cost_center.closing_blnc += amount
-      daily_report_org.closing_blnc += amount
+      ledger_blnc_org.closing_balance += amount
+      ledger_blnc_cost_center.closing_balance += amount
+      daily_report_cost_center.closing_balance += amount
+      daily_report_org.closing_balance += amount
     else
-      ledger_blnc_org.closing_blnc -= amount
-      ledger_blnc_cost_center.closing_blnc -= amount
-      daily_report_cost_center.closing_blnc -= amount
-      daily_report_org.closing_blnc -= amount
+      ledger_blnc_org.closing_balance -= amount
+      ledger_blnc_cost_center.closing_balance -= amount
+      daily_report_cost_center.closing_balance -= amount
+      daily_report_org.closing_balance -= amount
       cr_amount = amount
     end
 
-    daily_report_cost_center.opening_blnc ||= opening_blnc_cost_center
+    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
 
-    daily_report_org.opening_blnc ||= opening_blnc_org
+    daily_report_org.opening_balance ||= opening_balance_org
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
@@ -125,8 +126,8 @@ class Ledgers::ParticularEntry
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 
-    particular_closing_blnc = daily_report_cost_center.closing_blnc
-    particular_closing_blnc_org = daily_report_org.closing_blnc
+    particular_closing_balance = daily_report_cost_center.closing_balance
+    particular_closing_balance_org = daily_report_org.closing_balance
 
     new_particular = Particular.create!(
         transaction_type: transaction_type,
@@ -134,14 +135,14 @@ class Ledgers::ParticularEntry
         name: descr,
         voucher_id: voucher.id,
         amount: amount,
-        # opening_blnc: opening_blnc_cost_center,
-        # running_blnc: particular_closing_blnc,
-        # opening_blnc_org: opening_blnc_org,
-        # running_blnc_org: particular_closing_blnc_org,
+        # opening_balance: opening_balance_cost_center,
+        # running_blnc: particular_closing_balance,
+        # opening_balance_org: opening_balance_org,
+        # running_blnc_org: particular_closing_balance_org,
         transaction_date: accounting_date,
         # no option yet for client to segregate reports on the base of cost center
         # not sure if its necessary
-        # running_blnc_client: particular_closing_blnc_org,
+        # running_blnc_client: particular_closing_balance_org,
         branch_id: branch_id
     )
 
@@ -172,8 +173,8 @@ class Ledgers::ParticularEntry
   #     ledger = particular.ledger
   #     amount = particular.amount
   #
-  #     opening_blnc_org = nil
-  #     opening_blnc_cost_center = nil
+  #     opening_balance_org = nil
+  #     opening_balance_cost_center = nil
   #
   #     # daily report to store debit and credit transactions
   #     daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
@@ -181,8 +182,8 @@ class Ledgers::ParticularEntry
   #
   #     ledger.lock!
   #
-  #     particular_opening_blnc = daily_report.closing_blnc
-  #     particular_opening_blnc_org = daily_report_org.closing_blnc
+  #     particular_opening_balance = daily_report.closing_balance
+  #     particular_opening_balance_org = daily_report_org.closing_balance
   #
   #     # in case of client account charge the dp fee.
   #     if ledger.client_account_id.present?
@@ -191,27 +192,27 @@ class Ledgers::ParticularEntry
   #
   #     if particular.cr?
   #       dr_amount = amount
-  #       daily_report.closing_blnc += amount
-  #       daily_report_org.closing_blnc += amount
+  #       daily_report.closing_balance += amount
+  #       daily_report_org.closing_balance += amount
   #     else
-  #       daily_report.closing_blnc -= amount
-  #       daily_report_org.closing_blnc -= amount
+  #       daily_report.closing_balance -= amount
+  #       daily_report_org.closing_balance -= amount
   #       cr_amount = amount
   #     end
   #
-  #     daily_report.opening_blnc ||= ledger.opening_blnc
+  #     daily_report.opening_balance ||= ledger.opening_balance
   #     daily_report.dr_amount += dr_amount
   #     daily_report.cr_amount += cr_amount
   #     daily_report.save!
   #
-  #     daily_report_org.opening_blnc ||= ledger.opening_blnc
+  #     daily_report_org.opening_balance ||= ledger.opening_balance
   #     daily_report_org.dr_amount += dr_amount
   #     daily_report_org.cr_amount += cr_amount
   #     daily_report_org.save!
   #
   #
-  #     particular_closing_blnc = daily_report.closing_blnc
-  #     particular_closing_blnc_org = daily_report_org.closing_blnc
+  #     particular_closing_balance = daily_report.closing_balance
+  #     particular_closing_balance_org = daily_report_org.closing_balance
   #
   #     cheque_entries_on_receipt = particular.cheque_entries_on_receipt
   #     cheque_entries_on_payment = particular.cheque_entries_on_payment
@@ -222,10 +223,10 @@ class Ledgers::ParticularEntry
   #         name: descr,
   #         voucher_id: voucher.id,
   #         amount: amount,
-  #         opening_blnc: particular_opening_blnc,
-  #         running_blnc: particular_closing_blnc,
-  #         opening_blnc_org: particular_opening_blnc_org,
-  #         running_blnc_org: particular_closing_blnc_org
+  #         opening_balance: particular_opening_balance,
+  #         running_blnc: particular_closing_balance,
+  #         opening_balance_org: particular_opening_balance_org,
+  #         running_blnc_org: particular_closing_balance_org
   #     )
   #
   #     if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0

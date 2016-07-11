@@ -4,14 +4,14 @@ one:
   date: 2016-04-18
   dr_amount: 9.99
   cr_amount: 9.99
-  opening_blnc: 9.99
-  closing_blnc: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   date_bs: MyString
 
 two:
   date: 2016-04-18
   dr_amount: 9.99
   cr_amount: 9.99
-  opening_blnc: 9.99
-  closing_blnc: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   date_bs: MyString

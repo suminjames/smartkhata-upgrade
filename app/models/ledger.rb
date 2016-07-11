@@ -26,7 +26,7 @@
 
 class Ledger < ActiveRecord::Base
   include ::Models::UpdaterWithFyCode
-  attr_accessor :opening_blnc_type
+  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial
 
   has_many :particulars
   has_many :vouchers, :through => :particulars
@@ -43,7 +43,7 @@ class Ledger < ActiveRecord::Base
   #TODO(subas) remove updation of closing balance
   validates_presence_of :name
   validate :positive_amount, on: :create
-  before_create :update_closing_balance
+  before_create :update_closing_blnc
 
   scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
   scope :find_all_client_ledgers, -> { where.not(client_account_id: nil) }
@@ -51,14 +51,13 @@ class Ledger < ActiveRecord::Base
   scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
 
-  def update_closing_balance
+  def update_closing_blnc
     unless self.opening_blnc.blank?
-      self.opening_blnc = self.opening_blnc * -1 if self.opening_blnc_type.to_i == Particular.transaction_types['cr']
+      self.opening_blnc = self.opening_blnc * -1 if self.opening_balance_type.to_i == Particular.transaction_types['cr']
       self.closing_blnc = self.opening_blnc
     else
       self.opening_blnc = 0
     end
-
   end
 
   def update_custom(params)
@@ -83,20 +82,25 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  def opening_balance_org
-    self.ledger_balances.first.opening_blnc
-  end
-  def closing_balance_org
-    self.ledger_balances.first.closing_blnc
-  end
 
-  def closing_blnc_org(attrs = {})
-    if self.ledger_balances.size > 0
-      last_day_balance = self.ledger_balances.first.closing_blnc
+  def closing_balance
+    if self.ledger_balances.by_branch_fy_code_default.first.present?
+      self.ledger_balances.by_branch_fy_code_default.first.closing_balance
     else
-      0.0
+      new_balance = self.ledger_balances.by_branch_fy_code_default.create!
+      new_balance.closing_balance
     end
   end
+
+  def opening_balance
+    if self.ledger_balances.by_branch_fy_code_default.first.present?
+      self.ledger_balances.by_branch_fy_code_default.first.opening_balance
+    else
+      new_balance = self.ledger_balances.by_branch_fy_code_default.create!
+      new_balance.opening_balance
+    end
+  end
+
 
   def self.get_ledger_by_ids(attrs = {})
     fy_code = attrs[:fy_code]
@@ -108,19 +112,4 @@ class Ledger < ActiveRecord::Base
     subtree = self.class.tree_sql_for(self)
     Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
   end
-
-  def balance_till_date
-    balance = self.class.sum_sql_for(self)
-  end
-
-  def self.sum_sql_for(instance)
-    sum_sql = <<-SQL
-      WITH search_tree AS (
-        SELECT amount
-        FROM particulars
-        WHERE ledger_id = #{instance.id}
-      )SELECT SUM(amount) FROM search_tree
-    SQL
-  end
-
 end

@@ -151,7 +151,7 @@ class ClientAccount < ActiveRecord::Base
 
   def get_group_members_ledgers_with_balance
     ids = self.group_members.pluck(:id)
-    Ledger.where(client_account_id: ids).where('(closing_blnc - 0.01) > ?', '0')
+    Ledger.where(client_account_id: ids).where('(closing_balance - 0.01) > ?', '0')
   end
 
   def get_group_members_ledger_ids

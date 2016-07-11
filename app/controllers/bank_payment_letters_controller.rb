@@ -84,10 +84,8 @@ class BankPaymentLettersController < ApplicationController
               ledger = Ledger.find(particular.ledger_id)
               ledger.lock!
 
-              closing_blnc = ledger.closing_blnc
-              ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
-              particular.opening_blnc = closing_blnc
-              particular.running_blnc = ledger.closing_blnc
+              closing_balance = ledger.closing_balance
+              ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
               particular.complete!
               ledger.save!
             end

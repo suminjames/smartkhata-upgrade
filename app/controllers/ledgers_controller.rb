@@ -70,12 +70,12 @@ class LedgersController < ApplicationController
             first = @particulars.first
             last = @particulars.last
 
-            @closing_blnc_sorted = last.running_blnc
+            @closing_balance_sorted = last.running_blnc
 
             if first.dr?
-              @opening_blnc_sorted = first.running_blnc - first.amount
+              @opening_balance_sorted = first.running_blnc - first.amount
             else
-              @opening_blnc_sorted = first.running_blnc + first.amount
+              @opening_balance_sorted = first.running_blnc + first.amount
             end
 
 
@@ -99,19 +99,19 @@ class LedgersController < ApplicationController
 
 
     page = params[:page].to_i - 1 if params[:page].present? || 0
-    opening_blnc = 0
+    opening_balance = 0
 
     # this is for the purpose of getting raw sql
 
-    # opening_blnc_1 = @particulars.order('transaction_date ASC','created_at ASC').limit(20*page).pluck(:amount).sum.to_f if page > 0
+    # opening_balance_1 = @particulars.order('transaction_date ASC','created_at ASC').limit(20*page).pluck(:amount).sum.to_f if page > 0
 
-
+    test = @particulars.sum(:amount)
     # raw sql can be potentially dangerous and memory leakage point
     # need to make sure this has proper binding
-    query = "SELECT SUM(subquery.amount) FROM (SELECT amount FROM particulars WHERE ledger_id = #{@ledger.id} ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
-    opening_blnc = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f if page > 0
+    query = "SELECT SUM(subquery.amount) FROM (SELECT amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+    opening_balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f if page > 0
 
-    @particulars = Particular.with_running_total(@particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20), opening_blnc) unless @particulars.blank?
+    @particulars = Particular.with_running_total(@particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20), opening_balance) unless @particulars.blank?
 
 
 
@@ -126,7 +126,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1/edit
   def edit
     authorize @ledger
-    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_blnc == 0.0)
+    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
   end
 
   # POST /ledgers
@@ -136,7 +136,7 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     @success = false
-    if (@ledger.opening_blnc >= 0)
+    if (@ledger.opening_balance >= 0)
       @success = true if @ledger.save
     else
       flash.now[:error] = "Dont act smart."
@@ -219,13 +219,12 @@ class LedgersController < ApplicationController
 
       # update each ledgers
       ledger_list.each do |ledger|
-        _closing_balance = ledger.closing_blnc
+        _closing_balance = ledger.closing_balance
         net_balance += _closing_balance
-
-        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description)
+        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
     end
 
     redirect_to group_member_ledgers_path, :flash => {:info => 'Successfully Transferred'} and return
@@ -240,7 +239,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
+    params.require(:ledger).permit(:name, :opening_balance, :group_id, :opening_balance_type, :vendor_account_id)
   end
 
 

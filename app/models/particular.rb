@@ -3,7 +3,7 @@
 # Table name: particulars
 #
 #  id                     :integer          not null, primary key
-#  opening_blnc           :decimal(15, 4)   default("0")
+#  opening_balance        :decimal(15, 4)   default("0")
 #  transaction_type       :integer
 #  ledger_type            :integer          default("0")
 #  cheque_number          :integer
@@ -24,7 +24,7 @@
 #  ledger_id              :integer
 #  voucher_id             :integer
 #  bank_payment_letter_id :integer
-#  opening_blnc_org       :decimal(15, 4)   default("0")
+#  opening_balance_org    :decimal(15, 4)   default("0")
 #  running_blnc_org       :decimal(15, 4)   default("0")
 #  hide_for_client        :boolean          default("false")
 #  running_blnc_client    :decimal(15, 4)   default("0")
@@ -42,12 +42,12 @@ class Particular < ActiveRecord::Base
 
   # get the particulars with running total
   # records: collection of particular
-  def self.with_running_total(records, opening_blnc = 0.0)
+  def self.with_running_total(records, opening_balance = 0.0)
     total = 0.0
     records.map do |w|
-      total += ( w.amount + opening_blnc)
+      total += ( w.amount + opening_balance)
       # we need to add the opening blnc only once
-      opening_blnc = 0.0
+      opening_balance = 0.0
       w.running_total = total
     end
     records

@@ -221,7 +221,7 @@ class BillsController < ApplicationController
 
     client_account = ClientAccount.find(@client_account_id)
     client_ledger = client_account.ledger
-    ledger_balance = client_ledger.closing_blnc
+    ledger_balance = client_ledger.closing_balance
     bill_list = get_bills_from_ids(@bill_ids)
     bills_receive = bill_list.requiring_receive
     bills_payment = bill_list.requiring_payment
