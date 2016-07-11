@@ -53,7 +53,7 @@ class ChequeEntry < ActiveRecord::Base
             numericality: {only_integer: true, greater_than: 0}
 
   filterrific(
-      default_filter_params: { sorted_by: 'id_desc' },
+      default_filter_params: { sorted_by: 'id_asc' },
       available_filters: [
           :sorted_by,
           :by_date,
@@ -72,17 +72,23 @@ class ChequeEntry < ActiveRecord::Base
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at>= ?', date_ad.beginning_of_day).order(id: :desc)
+    where('created_at>= ?', date_ad.beginning_of_day).order(id: :asc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at<= ?', date_ad.end_of_day).order(id: :desc)
+    where('created_at<= ?', date_ad.end_of_day).order(id: :asc)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
-  scope :by_bank_account_id, -> (id) { where(bank_account_id: id).order(id: :desc) }
-  scope :by_cheque_entry_status, -> (status) { where(:status => ChequeEntry.statuses[status]).order(id: :desc) }
-  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]).order(id: :desc) }
+  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :asc) }
+  scope :by_bank_account_id, -> (id) { where(bank_account_id: id).order(id: :asc) }
+  scope :by_cheque_entry_status, lambda {|status|
+    if status == 'assigned'
+      where.not(:status => ChequeEntry.statuses['unassigned']).order(id: :asc)
+    else
+      where(:status => ChequeEntry.statuses[status]).order(id: :asc)
+    end
+  }
+  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]).order(id: :asc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
@@ -100,8 +106,6 @@ class ChequeEntry < ActiveRecord::Base
   enum print_status: [:to_be_printed, :printed]
   enum cheque_issued_type: [:payment, :receipt]
 
-  # scope :unassigned, -> { unassigned }
-
   def self.options_for_client_select
     ClientAccount.all.order(:name)
   end
@@ -112,6 +116,7 @@ class ChequeEntry < ActiveRecord::Base
 
   def self.options_for_cheque_entry_status
     [
+        ["Assigned" ,"assigned"],
         ["Unassigned" ,"unassigned"],
         ["Pending Approval" ,"pending_approval"],
         ["Pending Clearance" ,"pending_clearance"],

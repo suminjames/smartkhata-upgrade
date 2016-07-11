@@ -23,7 +23,7 @@
 //= require select2.min.js
 //= require_tree .
 
-$(document).on("ready", function(){
+$(document).on("ready page:load", function(){
     $('select').select2({
         theme: 'bootstrap',
         tags: true,
