@@ -63,8 +63,6 @@
 #  ac_code                   :string
 #
 
-
-
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
@@ -110,6 +108,14 @@ class ClientAccount < ActiveRecord::Base
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
+
+  validate :bank_details_present?
+
+  def bank_details_present?
+    if bank_account.present? && (bank_name.blank? || bank_address.blank?)
+      errors.add :bank_account, "Please fill the required bank details"
+    end
+  end
 
   # create client ledger
   def create_ledger
@@ -169,7 +175,9 @@ class ClientAccount < ActiveRecord::Base
   # Returns nil if neither is messageable
   def messageable_phone_number
     messageable_phone_number = nil
-    if SmsMessage.messageable_phone_number?(self.phone)
+    if SmsMessage.messageable_phone_number?(self.mobile_number)
+      messageable_phone_number = self.mobile_number
+    elsif SmsMessage.messageable_phone_number?(self.phone)
       messageable_phone_number = self.phone
     elsif SmsMessage.messageable_phone_number?(self.phone_perm)
       messageable_phone_number = self.phone_perm
@@ -177,8 +185,15 @@ class ClientAccount < ActiveRecord::Base
     messageable_phone_number
   end
 
+<<<<<<< HEAD
   # validation helper
   def any_bank_field_present?
     bank_name? || bank_address? || bank_account?
   end
+=======
+  def name_and_nepse_code
+    "#{self.name.titleize} (#{self.nepse_code})"
+  end
+
+>>>>>>> alpha
 end

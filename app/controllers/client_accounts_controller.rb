@@ -159,8 +159,8 @@ class ClientAccountsController < ApplicationController
         :referrer_name,
         :group_leader_id,
         :profession_code,
-        :mobile_number,
-        :branch_id
+        :branch_id,
+        :mobile_number
     )
   end
 end

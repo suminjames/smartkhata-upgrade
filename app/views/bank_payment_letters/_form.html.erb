@@ -1,0 +1,16 @@
+<%= simple_form_for(@bank_payment_letter) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs">
+    <%= f.input :fy_code %>
+    <%= f.input :creator_id %>
+    <%= f.input :updater_id %>
+    <%= f.association :sales_settlement %>
+    <%= f.association :branch %>
+    <%= f.association :voucher %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>

@@ -1,0 +1,4 @@
+<% js = escape_javascript(
+  render(partial: 'sms_messages/list', locals: { sms_messages: @sms_messages})
+) %>
+$("#filterrific_results").html("<%= js %>");

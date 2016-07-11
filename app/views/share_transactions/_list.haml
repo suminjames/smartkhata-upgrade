@@ -2,7 +2,20 @@
 - unless smart_listing.empty?
   = form_tag generate_bills_sales_settlements_path, method: :get do
     = hidden_field_tag 'id', @sales_settlement.id
-    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
+    .callout.callout-info
+      -#%p="Please Unselect the option if you dont want the payment to be created by Letter to Bank"
+    .panel.panel-default
+      .panel-body
+        -#.checkbox
+        -#  %label
+        -#    = check_box_tag 'payment_letter', 'yes', :checked
+        -#    = "Payment by Bank Letter"
+        -#.form-group
+        -#  .row
+        -#    .col-xs-6
+        -#      %p= "Bank Account"
+        -#      = select_tag "bank_account_id", options_from_collection_for_select(BankAccount.all.where.not(id: 1), "id", "name", @receipt_bank_account), {:class => 'form-control combobox select-ledger'}
+        = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
     %table.table.table-striped
       %thead
         %th.col-xs-4= "Company Name"
@@ -18,7 +31,5 @@
             = smart_listing.render object: o, partial: "share_transactions/share_transaction", locals: {object: o}
     = smart_listing.paginate
     = smart_listing.pagination_per_page_links
-    = button_tag "Process the Settlement", class: "btn btn-primary process-settlement", data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Generating Bills..."}
 - else
   %p.warning No records!
-

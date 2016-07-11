@@ -62,17 +62,17 @@ class NepseChalansController < ApplicationController
     bank_ledger = Ledger.find_by(id: bank_ledger_id)
 
     if !bank_ledger.present?
-      redirect_to new_nepse_chalan_path, flash: {error: 'Bank Ledger is not selected'}
+      redirect_to new_nepse_chalan_path, flash: {error: 'Bank Ledger is not selected'} and return
     end
 
     if selected_transaction_ids.nil?
-      redirect_to new_nepse_chalan_path, flash: {error: 'Try again'}
+      redirect_to new_nepse_chalan_path, flash: {error: 'Try again'} and return
     end
 
 
     share_transactions = ShareTransaction.buying.where(id: selected_transaction_ids)
     if share_transactions.size < 1
-      redirect_to new_nepse_chalan_path, flash: {error: 'No transactions selected'}
+      redirect_to new_nepse_chalan_path, flash: {error: 'No transactions selected'} and return
     end
 
     chalan_amount = share_transactions.sum(:bank_deposit)

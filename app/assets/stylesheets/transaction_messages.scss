@@ -20,3 +20,14 @@ input[type="checkbox"].sms.cant-sms{
 a.no-hover:hover{
   background-color: transparent;
 }
+
+.email-queued-warning {
+  color: #635D5D !important;
+  background-color: #dee7ef !important;
+  border-color: white !important;
+  display: none;
+}
+
+.refresh-icon {
+  cursor: pointer;
+}

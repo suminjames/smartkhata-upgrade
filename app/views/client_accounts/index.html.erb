@@ -63,7 +63,7 @@
               <td><%= serial_number_count + i %></td>
               <td><%= x.boid %></td>
               <td><%= x.name %></td>
-              <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
+              <td><%= x.mobile_number %><%= "," unless x.mobile_number.blank? %><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
               <td><%= x.email %></td>
               <td>
                 <%= link_to 'view', client_account_path(x) %>&nbsp;|&nbsp;
