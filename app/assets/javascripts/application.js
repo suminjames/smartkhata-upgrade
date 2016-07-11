@@ -23,6 +23,9 @@
 //= require select2.min.js
 //= require_tree .
 
+// Override select2 default option for minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
+$.fn.select2.defaults.set("minimumInputLength", "3");
+
 $(document).on('click', '.yamm .dropdown-menu', function (e) {
     e.stopPropagation()
 });
@@ -46,6 +49,10 @@ $(document).on("click", "#btnPrint", function (event) {
     window.print();
 });
 
+$(document).on("click", ".btnPrintBankPaymentLetterPDF", function (event) {
+    bill_id = this.id.split("-")[1];
+    loadAndPrint("/bank_payment_letters/" + bill_id + '.pdf', 'iframe-for-bank-payment-letter-pdf-print', 'bank-payment-letter-print-spinner');
+});
 
 $(document).on("click", ".btnPrintBillPDF", function (event) {
     bill_id = this.id.split("-")[1];

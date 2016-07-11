@@ -1,0 +1,65 @@
+<% provide(:section_title, "Bank Payment Letter") %>
+
+<%= link_to "View(pdf)", bank_payment_letter_path(format: "pdf"), :target => "_blank" %>
+
+<div class="btnPrintPDF btnPrintBankPaymentLetterPDF" id="bank_payment_letter-<%= @bank_payment_letter.id %>">
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'bank-payment-letter-print-spinner') %>
+  <iframe class="hidden-iframe" id='iframe-for-bank-payment-letter-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
+</div>
+
+
+<p>Date: <%= @bank_payment_letter.created_at.strftime("%Y-%m-%d")%></p>
+<p>The Manager,<br><%= @bank_payment_letter.bank_account.bank_name %><br><%= @bank_payment_letter.bank_account.bank.address %></p>
+<p>Dear Sir/Madam,</p>
+<p>We hereby authorize you to disburse Rs <%= arabic_number(@bank_payment_letter.settlement_amount) %> in different accounts of our clients as mentioned in the list below.</p>
+<table class="table condensed table-striped">
+  <thead>
+    <th>S.No</th>
+    <th>Client Name</th>
+    <th>Nepse Code</th>
+    <th>Bank Details</th>
+    <th>Bill</th>
+    <th>Amount</th>
+  </thead>
+  <tbody>
+    <% @bank_payment_letter.particulars.each_with_index do |p, index| %>
+  <tr>
+    <td><%= index+1 %></td>
+    <td><%= p.ledger.client_account.name %></td>
+    <td><%= p.ledger.client_account.nepse_code %></td>
+    <td><%= p.ledger.client_account.bank_name %> <br> <%= p.ledger.client_account.bank_account %> <br><%= p.ledger.client_account.bank_address %></td>
+    <td><% p.bills.each do |bill| %>
+          <% if bill.client_account_id == p.ledger.client_account_id %>
+              <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
+          <% end %>
+      <% end %>
+    </td>
+    <td><%= arabic_number(p.amount) %></td>
+  </tr>
+      <% end %>
+  </tbody>
+</table>
+<br><br>
+<p>Please debit our Account No <%= @bank_payment_letter.bank_account.account_number %> held at your Bank against the aforementioned total amount in this letter.</p>
+<br>
+<p>Thank you.</p>
+<p>For <%= current_tenant.full_name%></p>
+<p>Tanka Prasad Gautam</p>
+<p>Executive Chairman</p>
+
+
+<br><br>
+
+<% if @bank_payment_letter.pending? %>
+    <%= form_tag(finalize_payment_bank_payment_letters_path) do %>
+        <%= hidden_field_tag 'id', @bank_payment_letter.id %>
+        <%= submit_tag 'Reject', :name => 'reject', class: 'hide-on-print' %>
+        <%= submit_tag 'Approve', :name => 'approve', class: 'hide-on-print' %>
+    <% end %>
+
+<% end %>
+<%= link_to 'Back', bank_payment_letters_path %>

@@ -1,0 +1,34 @@
+
+Tanka Ji's suggestion on the payment letter formatting:
+
+Date: <Date>
+
+The Manager,
+<Bank Name>,
+<Bank Address>.
+
+Dear Sir/Madam,
+
+We hereby authorize you to disburse Rs <Total Amont> in different accounts of our clients as mentioned in the list below.
+
+<ul>
+    <li> SN
+    <li> Client Name (NEPSE Code)
+    <li> Bank Name
+    <li> Bank Branch
+    <li> Bank Ac #
+    <li> Amount(NRs.)
+    <li> Bill Number
+
+
+Please debit our Account No <ac#> held at your Bank against the aforementioned total amount in this letter.
+
+Thank you.
+
+For Trishakti Securities Public Limited
+
+
+Tanka Prasad Gautam
+Executive Chairaman
+
+

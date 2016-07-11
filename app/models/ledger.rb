@@ -69,6 +69,10 @@ class Ledger < ActiveRecord::Base
     self.save!
   end
 
+  # get the particulars with running balance
+  def particulars_with_running_balance
+    Particular.with_running_total(self.particulars)
+  end
 
   def positive_amount
     if self.opening_blnc.to_f < 0

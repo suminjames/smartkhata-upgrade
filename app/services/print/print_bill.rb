@@ -63,18 +63,25 @@ class Print::PrintBill < Prawn::Document
 
   def header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(3)) do
-      text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
-      text "#{@current_tenant.address}"
-      text "Phone: #{@current_tenant.phone_number}"
-      text "Fax: #{@current_tenant.fax_number}"
-      text "PAN: #{@current_tenant.pan_number}"
+    sub_regulation_notice_string = "\nSchedule 3\nRelating to Sub-Regulation(I) of Regulation 16\nInformation note to cients on execution of transaction"
+    data = [
+        [{:content => @current_tenant.full_name, :colspan => 2}],
+        [@current_tenant.address, {:content => sub_regulation_notice_string, :colspan => 1, :rowspan => 4}],
+        ["Phone: #{@current_tenant.phone_number}"],
+        ["Fax: #{@current_tenant.fax_number}"],
+        ["PAN: #{@current_tenant.pan_number}"]
+    ]
+    table_width = page_width - 2
+    column_widths = {0 => table_width * 5/12.0, 1 => table_width * 7/12.0}
+    table data do |t|
+      t.header = true
+      t.row(0).font_style = :bold
+      t.row(0).size = 10
+      t.column(1).style(:align => :center)
+      t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0]}
+      t.column_widths = column_widths
     end
-    bounding_box([col(3), row_cursor-20], :width => col(6)) do
-      text "Schedule-3", :align => :center
-      text "Relating to Sub-Regulation(I) of Regulation 16", :align => :center
-      text "Information note to cients on execution of transaction", :align => :center
-    end
+    move_down 3
   end
 
   def footer
@@ -150,11 +157,10 @@ class Print::PrintBill < Prawn::Document
   end
 
   def share_transactions_section
-
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(12)) do
-      data = []
 
+      data = []
       th_data = ["Transaction No", "No of Shares", "Company Code", "Share Rate", "Base Price", "Amount", "Commission", "Commission Amount", "Capital Gain Tax"]
       if @bill.bill_type == 'purchase'
         th_data.delete_at(4)
@@ -181,14 +187,34 @@ class Print::PrintBill < Prawn::Document
         data << row_data
       end
 
-      table_width = page_width
+      table_width = page_width - 2
 
       if @bill.bill_type == 'purchase'
-        column_widths = {0 => table_width * 0.26, 1 => table_width * 0.20, 2 => table_width * 0.09, 3 => table_width * 0.09, 5 => table_width * 0.12, 6 => table_width * 0.13, 7 => table_width * 0.11}
+        column_widths = {0 => table_width * 0.26,
+                         1 => table_width * 0.20,
+                         2 => table_width * 0.09,
+                         3 => table_width * 0.09,
+                         5 => table_width * 0.12,
+                         6 => table_width * 0.13,
+                         7 => table_width * 0.11}
       else # if @bill.bill_type == 'sales'
-        column_widths = {0 => table_width * 0.25, 1 => table_width * 0.17, 2 => table_width * 0.07, 3 => table_width * 0.07, 4 => table_width * 0.07, 5 => table_width * 0.10, 6 => table_width * 0.09, 7 => table_width * 0.09, 8 => table_width * 0.09}
+        column_widths = {0 => table_width * 0.25,
+                         1 => table_width * 0.17,
+                         2 => table_width * 0.07,
+                         3 => table_width * 0.07,
+                         4 => table_width * 0.07,
+                         5 => table_width * 0.10,
+                         6 => table_width * 0.09,
+                         7 => table_width * 0.09,
+                         8 => table_width * 0.09}
       end
-      table(data, :header => true, :column_widths => column_widths, :cell_style => {:size => 8, :padding => [2, 2, 2, 2], :align => :center}, :width => table_width)
+      table data do |t|
+        t.header = true
+        t.row(0).font_style = :bold
+        t.cell_style = {:size => 8, :padding => [2, 2, 2, 2], :align => :center}
+        t.width = table_width
+        t.column_widths = column_widths
+      end
     end
   end
 

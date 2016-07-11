@@ -3,18 +3,55 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
-    if params[:type] == 'client'
-      @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
-    elsif params[:type] == 'company'
-      @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
-    else
-      @cheque_entries = ChequeEntry.unassigned
+    # if params[:type] == 'client'
+    #   @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
+    # elsif params[:type] == 'company'
+    #   @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
+    # else
+    #   @cheque_entries = ChequeEntry.unassigned
+    # end
+    @filterrific = initialize_filterrific(
+        ChequeEntry,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ChequeEntry.options_for_client_select,
+            by_bank_account_id: ChequeEntry.options_for_bank_account_select,
+            by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status,
+            by_cheque_issued_type: ChequeEntry.options_for_cheque_issued_type
+        },
+        persistence_id: false
+    ) or return
+    items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    @cheque_entries = @filterrific.find.page(params[:page]).per(items_per_page)
+
+    respond_to do |format|
+      format.html
+      format.js
     end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
+    # TODO(subas): Is @bank needed? There apparently doesn't seem to be its any use in corresponding view.
     if @cheque_entry.additional_bank_id.present?
       @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
       @name = current_tenant.full_name
@@ -30,6 +67,19 @@ class ChequeEntriesController < ApplicationController
       format.pdf do
         pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
+  end
+
+  def show_multiple
+    @cheque_entry_ids = params[:cheque_entry_ids].map(&:to_i) if params[:cheque_entry_ids].present?
+    @cheque_entries = ChequeEntry.where(id: @cheque_entry_ids)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintMultipleChequeEntries.new(@cheque_entries, current_tenant)
+        send_data pdf.render, filename: "MultipleChequeEntries#{@cheque_entry_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
   end

@@ -149,7 +149,7 @@ class Print::PrintVoucher< Prawn::Document
 
   def header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(3)) do
+    bounding_box([0, row_cursor], :width => col(9)) do
       text "<b>#{@current_tenant.full_name}<b>", :inline_format => true, :size => 9
       text "#{@current_tenant.address}"
       text "Phone: #{@current_tenant.phone_number}"

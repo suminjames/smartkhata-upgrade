@@ -1,8 +1,8 @@
 - provide(:section_title, 'FloorSheet Details')
 - unless @error
   - this_floorsheet_date_bs = ad_to_bs_string(@date)
-  - paginate = false
-  = link_to 'View SMS', transaction_messages_path(:paginate => paginate, 'filterrific[by_date]': this_floorsheet_date_bs), target: '_blank', class: 'btn btn-primary btn-flat'
+  - no_paginate = 'true'
+  = link_to 'View Transaction Messages', transaction_messages_path(:no_paginate => no_paginate, 'filterrific[by_date]': this_floorsheet_date_bs), target: '_blank', class: 'btn btn-default'
   %table.table.table-striped
     %thead
       %th.col-xs-1= '#'
@@ -25,6 +25,6 @@
           %td= item[7]
           %td= item[8]
   %h4= "Total Amount: #{arabic_number(@total_amount)}"
-  = link_to 'View SMS', transaction_messages_path(:paginate => paginate, 'filterrific[by_date]': this_floorsheet_date_bs), target: '_blank', class: 'btn btn-primary btn-flat'
+  = link_to 'View Transaction Messages', transaction_messages_path(:no_paginate => no_paginate, 'filterrific[by_date]': this_floorsheet_date_bs), target: '_blank', class: 'btn btn-default'
 - else
   = link_to 'Upload FloorSheet', new_files_floorsheet_path

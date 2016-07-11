@@ -361,6 +361,20 @@ select.combobox {
   margin-bottom: 10px;
 }
 
+.table-fixed-width {
+  table-layout: fixed;
+}
+
+.wrap-text {
+  word-wrap: break-word !important;
+}
+
+.light-text{
+  font-size: 85%;
+  color: #808084 !important;
+}
+
+
 button.close{
   line-height: 0.7;
 }

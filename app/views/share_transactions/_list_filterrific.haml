@@ -1,0 +1,37 @@
+%div#filterrific_results
+  = render 'shared/pagination', collection_to_paginate: share_transactions
+
+  %div#share_transaction_list
+    %table.table.table-striped
+      %thead
+        %th.text-center= 'SN'
+        %th.col-xs-1.text-center= 'Transaction<br>Date'.html_safe
+        %th.col-xs-2.text-center= 'Transaction No'
+        %th.col-xs-2.text-center= 'Company'
+        %th.col-xs-1.text-center= 'Bill No'
+        %th.col-xs-1.text-center= 'Quantity<br>In'.html_safe
+        %th.col-xs-1.text-center= 'Quantity<br>Out'.html_safe
+        %th.col-xs-1.text-center= 'Market Rate'
+        %th.col-xs-1.text-center= 'Amount'
+        %th.col-xs-1.text-center= 'Commission'
+      %tbody
+        -if share_transactions
+          -pagination_count = kaminari_serial_number(params[:page], share_transactions.count)
+          -share_transactions.each_with_index do |share_transaction, index|
+            %tr
+              %td.text-center= pagination_count + index
+              %td.text-center= ad_to_bs_string(share_transaction.date)
+              %td.text-center= share_transaction.contract_no
+              %td.text-center= share_transaction.isin_info.company
+              %td.text-center= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
+              %td.quantity-in.text-right= arabic_number(share_transaction.quantity) if share_transaction.buying?
+              %td.quantity-out.text-right= arabic_number(share_transaction.quantity) if share_transaction.selling?
+              %td.text-right= arabic_number(share_transaction.isin_info.last_price.to_f)
+              %td.text-right= arabic_number(share_transaction.share_amount)
+              %td.text-right= arabic_number(share_transaction.commission_amount)
+
+    - if !share_transactions || share_transactions.empty?
+      %div.row.text-center.top-buffer-md
+        There are no matching share transactions.
+
+  = render 'shared/pagination', collection_to_paginate: share_transactions

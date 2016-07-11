@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  resources :bank_payment_letters do
+    collection do
+      get 'pending_letters'
+      post 'finalize_payment'
+    end
+  end
   resources :sms_messages
   resources :menu_permissions
   resources :menu_items
@@ -31,6 +37,7 @@ Rails.application.routes.draw do
       get :update_print
       get :bounce
       get :represent
+      get :show_multiple
     end
 
   end
@@ -51,6 +58,8 @@ Rails.application.routes.draw do
       get 'show_by_number'
       get 'print'
       post 'process_selected'
+      get 'sales_payment'
+      post 'sales_payment_process'
     end
   end
   resources :transaction_messages do
@@ -105,7 +114,10 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :sysadmin_client_nepse_mapping, only: [:new] do
-      collection {post :import}
+      collection do
+        post :import
+        get 'nepse_phone'
+      end
     end
     resources :sysadmin_trial_balance, only: [:new] do
       collection {post :import}
