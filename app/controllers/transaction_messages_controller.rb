@@ -12,7 +12,7 @@ class TransactionMessagesController < ApplicationController
         },
         persistence_id: false
     ) or return
-    items_per_page = params[:paginate] == 'false' ? TransactionMessage.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    items_per_page = params[:no_paginate] == 'true' ?  TransactionMessage.all.count : 20
     @transaction_messages = @filterrific.find.page(params[:page]).per(items_per_page).decorate
 
     respond_to do |format|
