@@ -55,6 +55,8 @@
                 class: 'form-control' )       |
     = render_filterrific_spinner
 
+download Report:
+= link_to "as xlsx", @download_path_xlsx
 
 = render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
 
