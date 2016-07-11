@@ -4,6 +4,7 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts
   # GET /client_accounts.json
   def index
+    authorize ClientAccount
     #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:search_by].blank? && params[:show].blank?
@@ -40,6 +41,7 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts/1
   # GET /client_accounts/1.json
   def show
+    authorize @client_account
   end
 
   # GET /client_accounts/new
@@ -48,10 +50,12 @@ class ClientAccountsController < ApplicationController
     @clients_for_combobox = ClientAccount.all.order(:name)
     @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
     @client_account = ClientAccount.new
+    authorize @client_account
   end
 
   # GET /client_accounts/1/edit
   def edit
+    authorize @client_account
     # Instance variable used by combobox in view to populate names for group leader  and referrer selection
     @clients_for_combobox = ClientAccount.all.order(:name)
     @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
@@ -63,6 +67,7 @@ class ClientAccountsController < ApplicationController
   # POST /client_accounts.json
   def create
     @client_account = ClientAccount.new(client_account_params)
+    authorize @client_account
     respond_to do |format|
       if @client_account.save
         format.html { redirect_to @client_account, notice: 'Client account was successfully created.' }
@@ -77,6 +82,7 @@ class ClientAccountsController < ApplicationController
   # PATCH/PUT /client_accounts/1
   # PATCH/PUT /client_accounts/1.json
   def update
+    authorize @client_account
     from_path = params[:from_path]
 
     respond_to do |format|
@@ -100,6 +106,7 @@ class ClientAccountsController < ApplicationController
   # DELETE /client_accounts/1
   # DELETE /client_accounts/1.json
   def destroy
+    authorize @client_account
     @client_account.destroy
     respond_to do |format|
       format.html { redirect_to client_accounts_url, notice: 'Client account was successfully destroyed.' }

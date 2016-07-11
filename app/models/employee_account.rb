@@ -53,7 +53,7 @@ class EmployeeAccount < ActiveRecord::Base
   # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
   # TODO(sarojk) Find a better way to implement unique identification
   validates_presence_of :name, :email
-  validates :email, uniqueness: true, format: {with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i}
+  validates :email, uniqueness: true, format: {with: EMAIL_REGEX}
 
   after_create :create_ledger
 
