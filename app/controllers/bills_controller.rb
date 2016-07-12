@@ -243,7 +243,6 @@ class BillsController < ApplicationController
           @processed_bills << bill
         end
       end
-
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
     end

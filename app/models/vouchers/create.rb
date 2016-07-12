@@ -17,6 +17,7 @@ class Vouchers::Create < Vouchers::Base
     # result as false
     res = false
 
+    # amount_entered = voucher.particulars.dr.sum(:amount)
 
     # get a calculated values, these are returned nil if not applicable
     @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =

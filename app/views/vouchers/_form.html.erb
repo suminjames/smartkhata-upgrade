@@ -41,11 +41,12 @@
             </div>
             <div class="box-body">
               <div class="row">
-                <div class="col-xs-4"><h4>Ledger</h4></div>
+                <div class="col-xs-3"><h4>Account Head</h4></div>
                 <div class="col-xs-2"><h4>Amount</h4></div>
                 <div class="col-xs-1"><h4>Dr/Cr</h4></div>
                 <div class="col-xs-2"><h4>Cheque</h4></div>
-                <div class="col-xs-3"><h4>Cheque Issuing Bank</h4></div>
+                <div class="col-xs-2"><h4>Cheque Issuing Bank</h4></div>
+                <div class="col-xs-2"><h4>Branch</h4></div>
               </div>
               <%= f.fields_for :particulars do |p| %>
                   <%= render :partial => 'particular_fields', :locals => {:f => p, :extra_info => {:ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :inverse => true, :default_ledger_id => default_ledger_id}} if ((
@@ -73,7 +74,7 @@
           </div>
           <div class="box-body">
             <div class="row client-group">
-              <div class="col-xs-4">
+              <div class="col-xs-3">
                 <%= select_tag "group_leader_ledger_id", options_from_collection_for_select(client_ledger_list, "id", "name", group_leader_ledger_id), {:class => 'form-control combobox select-ledger'} %>
               </div>
             </div>
@@ -85,7 +86,7 @@
           </div>
           <div class="box-body">
             <div class="row vendor-group">
-              <div class="col-xs-4">
+              <div class="col-xs-3">
                 <%= select_tag "vendor_account_id", options_from_collection_for_select(vendor_account_list, "id", "name", vendor_account_id), {:class => 'form-control combobox select-ledger'} %>
               </div>
             </div>
@@ -102,11 +103,12 @@
         </div>
         <div class="box-body dynamic-ledgers">
           <div class="row">
-            <div class="col-xs-4"><h4>Ledger</h4></div>
+            <div class="col-xs-3"><h4>Account Head</h4></div>
             <div class="col-xs-2"><h4>Amount</h4></div>
             <div class="col-xs-1"><h4>Dr/Cr</h4></div>
-            <div class="col-xs-3"><h4>Cheque</h4></div>
-            <div class="col-xs-2"><h4>Bank</h4></div>
+            <div class="col-xs-2"><h4>Cheque</h4></div>
+            <div class="col-xs-2"><h4>Cheque Issuing Bank</h4></div>
+            <div class="col-xs-2"><h4>Branch</h4></div>
           </div>
           <%= f.fields_for :particulars do |p| %>
               <%= render :partial => 'particular_fields', :locals => {:f => p, :extra_info => {:inverse => false, :ledger_list_financial => ledger_list_financial, :ledger_list_available => ledger_list_available, :voucher_type => voucher_type, :default_ledger_id => default_ledger_id}} unless (p.object.transaction_type.present? && (
