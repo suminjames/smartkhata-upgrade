@@ -13,9 +13,9 @@
                     :by_client_id,
                     @filterrific.select_options[:by_client_id],
                     :id,
-                    :name,
-                    {include_blank: '- Any -'},
-                    {class: 'form-control combobox'}) %>
+                    :name_and_nepse_code,
+                    {include_blank: true},
+                    {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' }) %>
           </div>
 
           <div class="col-xs-3">
@@ -25,8 +25,8 @@
             <%= f.select(
                     :by_settlement_type,
                     @filterrific.select_options[:by_settlement_type],
-                    {include_blank: '- Any -'}, {class: 'form-control combobox'}
-                ) %>
+                    {include_blank: true},
+                    {class: 'form-control combobox', 'data-placeholder': '- Any -'}) %>
           </div>
 
           <div class="col-xs-2">
@@ -68,12 +68,9 @@
 
         <div class="row top-buffer-sm">
           <div class="col-xs-3">
-            <%= f.submit 'Search', class: 'btn btn-primary' %>
-            <%= link_to(
-                    'Reset filters',
-                    reset_filterrific_url
-                ) %>
-            <br>
+            <%= f.submit 'Search', class: 'btn btn-xs btn-primary btn-flat' %>
+            <%= link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')                         %>
+            <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner') %>
           </div>
         </div>
       </div>

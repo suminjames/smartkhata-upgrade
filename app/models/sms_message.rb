@@ -125,7 +125,7 @@ class SmsMessage < ActiveRecord::Base
   def self.send_hello_world
     self.date_time
     self.mobile_number = '9851153385'
-    self.message = 'Hello, from DIT!'
+    self.message = 'Hello, @ from DIT!'
     p self.push_sms
     p self.check_balance
   end

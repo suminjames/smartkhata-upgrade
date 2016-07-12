@@ -1,6 +1,9 @@
 %p#notice= notice
 - provide(:section_title, "Cheque Entries")
 
+%div.bottom-buffer-sm
+  = link_to 'New Cheque Entries', new_cheque_entry_path
+
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
   .panel.panel-default.filter-form
     .panel-body
@@ -13,14 +16,8 @@
             @filterrific.select_options[:by_client_id], |
             :id,                                        |
             :name_and_nepse_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
-          %div.top-buffer-md
-            = f.submit 'Search'
-            = link_to(                  |
-                  'Reset filters',      |
-                  reset_filterrific_url |
-              )                         |
+            {include_blank: true},                 |
+            {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
         .col-xs-2
           %label
             Bank Account
@@ -29,24 +26,24 @@
             @filterrific.select_options[:by_bank_account_id], |
             :id,                                        |
             :name,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' }) |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
             Status
           = f.select(                        |
             :by_cheque_entry_status,                              |
             @filterrific.select_options[:by_cheque_entry_status], |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -'})          |
         .col-xs-2
           %label
             Type
           = f.select(                        |
             :by_cheque_issued_type,                              |
             @filterrific.select_options[:by_cheque_issued_type], |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' }) |
+            {include_blank: true},                 |
+            {class: 'form-control combobox', 'data-placeholder': '- Any -'})     |
         .col-xs-2
           %label
             Date
@@ -69,6 +66,11 @@
                 :by_date_to,                  |
                 :placeholder => 'YYYY-MM-DD', |
                 class: 'form-control' )       |
+      .row
+        .col-xs-3
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
     = render_filterrific_spinner
 
 

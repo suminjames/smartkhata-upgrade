@@ -20,3 +20,11 @@
         -with Bank
         -without Bank
 5. Cheque Entry
+
+
+Letter Head (from Trishakti)
+- A4 size
+- Top letter head section: 38 mm
+- Bottom footer section: 20mm
+- Apparent left margin: 11mm
+- Apparent right margin: 11mm

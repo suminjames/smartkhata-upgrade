@@ -10,11 +10,12 @@ class BankPaymentLettersController < ApplicationController
   # GET /bank_payment_letters/1
   # GET /bank_payment_letters/1.json
   def show
+    print_in_letter_head = false
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        pdf = Pdf::PdfBankPaymentLetter.new(@bank_payment_letter, current_tenant)
+        pdf = Pdf::PdfBankPaymentLetter.new(@bank_payment_letter, current_tenant, print_in_letter_head)
         send_data pdf.render, filename: "BankPaymentLetter#{@bank_payment_letter.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
@@ -28,7 +29,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills.for_sales_payment if @sales_settlement.present?
+      @bills = @sales_settlement.bills.for_sales_payment_list if @sales_settlement.present?
       @is_searched = true
       return
     end

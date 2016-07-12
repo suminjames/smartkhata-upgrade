@@ -71,6 +71,11 @@ class CreateSmsService
     end
   end
 
+  # If exists, strips a number of redundant zeroes after decimal.
+  def strip_redundant_decimal_zeroes(number)
+    number % 1 == 0 ? number.to_i : number
+  end
+
   # group by the array from floorsheet
   def group_floorsheet_records
     @floorsheet_records.each do |transaction_record|
@@ -206,7 +211,7 @@ class CreateSmsService
         data.each do |symbol, symbol_data|
           str += ";#{symbol}"
           symbol_data.each do |rate, rate_data|
-            str += ",#{rate_data[:quantity].to_i}@#{rate}"
+            str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
             total += rate_data[:receivable_from_client].to_f
             # merge two arrays
             share_transactions |= rate_data[:share_transactions]
@@ -230,7 +235,7 @@ class CreateSmsService
         # if bill is present which is true for the case of changing the message
         # override total amount with bill amount
         total = @bill.net_amount if @bill.present?
-        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay NRs #{total.round(2)}.BNo #{@broker_code}"
+        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay Rs #{total.round(2)}.BNo #{@broker_code}"
       end
 
       transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)

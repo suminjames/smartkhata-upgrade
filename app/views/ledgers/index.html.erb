@@ -26,7 +26,7 @@
             <%= hidden_field_tag :search_by, "ledger_name" %>
             <%= select_tag "search_term", options_from_collection_for_select(@ledgers_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a ledger...' %>
           </div>
-          <%= submit_tag "Search", class: 'btn btn-md btn-primary' %>
+          <%= submit_tag "Search", class: 'btn btn-flat btn-primary' %>
       <% end %>
   </div>
 <% end %>

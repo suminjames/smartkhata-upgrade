@@ -5,8 +5,9 @@
       <div class="form-group">
         <%= file_field_tag :file %>
       </div>
+      <%= hidden_field_tag :nepse_boid, true %>
       <div class="form-group">
-        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
+        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary'}  %>
       </div>
 
   <% end %>
