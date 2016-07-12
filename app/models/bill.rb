@@ -45,7 +45,7 @@ class Bill < ActiveRecord::Base
   has_many :vouchers, through: :bill_voucher_associations
 
 
-  scope :for_payment_letter, ->(settlement_id) { includes(:client_account).where(settlement_id: settlement_id).where.not(client_accounts: {bank_account: nil}) }
+  # scope :for_payment_letter, ->(settlement_id) { includes(:client_account).where(settlement_id: settlement_id).where.not(client_accounts: {bank_account: nil}) }
 
   # verify this with views everytime before changing
   # bill index
@@ -95,11 +95,15 @@ class Bill < ActiveRecord::Base
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]) }
   scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
   scope :with_client_bank_account_and_balance_cr, ->{ includes(client_account: :ledger).where.not(:client_accounts => {bank_account: nil}).where('ledgers.closing_blnc < 0').references(:ledger) }
+  scope :with_balance_cr, ->{ includes(client_account: :ledger).where('ledgers.closing_blnc < 0').references(:ledger) }
 
   # TODO(subas) rename this variable for payment letter
   scope :for_payment_letter, ->{with_client_bank_account_and_balance_cr.requiring_processing}
 
   scope :for_sales_payment, ->{with_client_bank_account_and_balance_cr.requiring_processing}
+
+  # Similar to scope 'for_sales_payment' but displays clients without bank_account
+  scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
 
   before_save :process_bill
 
