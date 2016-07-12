@@ -1,4 +1,5 @@
 class Ledgers::ParticularEntry
+  # create a new particulars
   def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date)
     process(ledger: ledger,
             voucher: voucher,
@@ -9,6 +10,8 @@ class Ledgers::ParticularEntry
             accounting_date: accounting_date
     )
   end
+
+  # reverse a particular entry
   def revert(particular, voucher, descr, adjustment)
     process(particular: particular,
             voucher: voucher,
@@ -17,9 +20,9 @@ class Ledgers::ParticularEntry
     )
   end
 
+  # update balances
   def insert_particular(particular)
     ledger = Ledger.find(particular.ledger_id)
-
     ledger.lock!
     dr_amount = 0
     cr_amount = 0
@@ -75,6 +78,9 @@ class Ledgers::ParticularEntry
     accounting_date = attrs[:accounting_date] || Time.now.to_date
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
+
+    # when all branch selected fall back to the user's branch id
+    branch_id = UserSession.branch_id if branch_id == 0
 
     # If the case is for revert transaction
     if particular

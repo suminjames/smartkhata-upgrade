@@ -246,9 +246,6 @@ class VouchersController < ApplicationController
         if client_account.present?
           unless bill.present?
             bills = client_account.bills.requiring_receive
-
-            # TODO how to make the below commented line work
-            # amount = bills.sum(&:balance_to_pay)
             amount = bills.sum(:balance_to_pay)
           else
             bills = [bill]
