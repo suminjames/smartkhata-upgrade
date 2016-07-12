@@ -94,7 +94,6 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
   end
 
   def client_accounts_list
-    @bank_payment_letter
     data = []
     th_data = ['S.N.',
                'Client Name',
