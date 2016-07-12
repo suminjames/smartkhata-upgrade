@@ -24,12 +24,12 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
-    $('select').select2({
+    $('.filterrific-select').select2({
         theme: 'bootstrap',
         tags: true,
         allowClear: true
     });
-    $(".min-3").select2({
+    $('.filterrific-select.min-3').select2({
         theme: 'bootstrap',
         tags: true,
         allowClear: true,

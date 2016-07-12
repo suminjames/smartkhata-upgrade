@@ -17,7 +17,7 @@
             :id,                                        |
             :name_and_nepse_code,                                      |
             {include_blank: true},                 |
-            {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
+            {class: 'form-control combobox filterrific-select min-3', 'data-placeholder': '- Any -' })          |
         .col-xs-2
           %label
             Bank Account
@@ -27,7 +27,7 @@
             :id,                                        |
             :name,                                      |
             {include_blank: true},                 |
-            {class: 'form-control combobox', 'data-placeholder': '- Any -' }) |
+            {class: 'form-control combobox filterrific-select', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
             Status
@@ -35,7 +35,7 @@
             :by_cheque_entry_status,                              |
             @filterrific.select_options[:by_cheque_entry_status], |
             {include_blank: true},                 |
-            {class: 'form-control combobox', 'data-placeholder': '- Any -'})          |
+            {class: 'form-control combobox filterrific-select', 'data-placeholder': '- Any -'})          |
         .col-xs-2
           %label
             Type
@@ -43,7 +43,7 @@
             :by_cheque_issued_type,                              |
             @filterrific.select_options[:by_cheque_issued_type], |
             {include_blank: true},                 |
-            {class: 'form-control combobox', 'data-placeholder': '- Any -'})     |
+            {class: 'form-control combobox filterrific-select', 'data-placeholder': '- Any -'})     |
         .col-xs-2
           %label
             Date
