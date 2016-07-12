@@ -50,71 +50,21 @@ class LedgersController < ApplicationController
   def show
     authorize @ledger
     @back_path = request.referer || ledgers_path
-    if params[:show] == "all"
-      @particulars = @ledger.particulars.complete.order("id ASC")
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'date_range'
-          # The dates being entered are assumed to be BS dates, not AD dates
-          date_from_bs = search_term['date_from']
-          date_to_bs = search_term['date_to']
-          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-            date_from_ad = bs_to_ad(date_from_bs)
-            date_to_ad = bs_to_ad(date_to_bs)
-            @particulars = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order("id ASC")
-            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
-            first = @particulars.first
-            last = @particulars.last
+    ledger_query = Ledgers::Query.new(params, @ledger)
 
-            @closing_balance_sorted = last.running_blnc
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
 
-            if first.dr?
-              @opening_balance_sorted = first.running_blnc - first.amount
-            else
-              @opening_balance_sorted = first.running_blnc + first.amount
-            end
-
-
-          else
-            @particulars = ''
-            respond_to do |format|
-              flash.now[:error] = 'Invalid date(s)'
-              format.html { render :show }
-              format.json { render json: flash.now[:error], status: :unprocessable_entity }
-            end
-          end
-        else
-          @particulars = ''
+    unless ledger_query.error_message.blank?
+      respond_to do |format|
+        flash.now[:error] = ledger_query.error_message
+        format.html { render :show }
+        format.json { render json: flash.now[:error], status: :unprocessable_entity }
       end
-
-    elsif params[:search_by]
-      @particulars = ''
-    else
-      @particulars = @ledger.particulars.complete
     end
-
-
-    page = params[:page].to_i - 1 if params[:page].present? || 0
-    opening_balance = 0
-
-    # this is for the purpose of getting raw sql
-
-    # opening_balance_1 = @particulars.order('transaction_date ASC','created_at ASC').limit(20*page).pluck(:amount).sum.to_f if page > 0
-
-    test = @particulars.sum(:amount)
-    # raw sql can be potentially dangerous and memory leakage point
-    # need to make sure this has proper binding
-    query = "SELECT SUM(subquery.amount) FROM (SELECT amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
-    opening_balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f if page > 0
-
-    @particulars = Particular.with_running_total(@particulars.order('transaction_date ASC','created_at ASC').page(params[:page]).per(20), opening_balance) unless @particulars.blank?
-
-
-
   end
 
   # GET /ledgers/new

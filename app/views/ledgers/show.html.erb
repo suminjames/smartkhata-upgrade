@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance_org.abs)} #{@ledger.opening_balance_org >= 0 ? 'dr' : 'cr'}" %>
-  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance_org.abs)} #{@ledger.closing_balance_org + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance_org >= 0 ? 'dr' : 'cr'}" %>
+  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance_org + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
 
 <% if @ledger.client_account_id.present? %>
     <% if @ledger.closing_balance.abs >= 0.01 %>
@@ -90,7 +90,7 @@
           </colgroup>
           <% @particulars.each do |particular| %>
               <tr>
-                <td><%= particular.transaction_date %></td>
+                <td><%= ad_to_bs(particular.transaction_date) %></td>
 
                 <td>
                   <% name = particular.get_description %><%= link_to name, voucher_path(particular.voucher), remote: true %></td>
