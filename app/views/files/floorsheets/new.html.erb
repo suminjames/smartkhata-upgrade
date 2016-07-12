@@ -6,7 +6,7 @@
         <%= file_field_tag :file %>
       </div>
       <div class="form-group">
-        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary'}  %>
+        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
       </div>
 
   <% end %>
@@ -33,7 +33,7 @@
                 <td><%= file.report_date %> </td>
                 <td><%= ad_to_bs_string(file.report_date) %> </td>
                 <td><%= file.updated_at.to_date %></td>
-                <td><%= link_to 'view', share_transactions_path(search_by: 'floorsheet_date', report_date: file.report_date) %></td>
+                <td><%= link_to 'view', share_transactions_path(:paginate => false, 'filterrific[by_date]': ad_to_bs_string(file.report_date)) %></td>
               </tr>
           <% end %>
           </tbody>

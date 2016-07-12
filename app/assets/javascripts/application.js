@@ -23,6 +23,9 @@
 //= require select2.min.js
 //= require_tree .
 
+// Override select2 default option for minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
+$.fn.select2.defaults.set("minimumInputLength", "3");
+
 $(document).on('click', '.yamm .dropdown-menu', function (e) {
     e.stopPropagation()
 });
@@ -137,9 +140,7 @@ $(window).scroll(function() {
     }
 });
 // the animation
-$('.back-to-top').click(function () {
-  $('body,html').animate({
-    scrollTop: 0
-  }, 700);
-  return false;
+// $('.back-to-top').on('click', function () { // <- works only after reload!?
+$(document).on("click", ".back-to-top", function (event) {
+  $('body,html').animate({ scrollTop: 0 }, 700);
 });

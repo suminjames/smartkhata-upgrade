@@ -23,9 +23,9 @@
     <h4>Mode of Payment</h4>
     <div class="payment_mode">
       <%= radio_button_tag 'payment_mode', 'default', (payment_mode != 'bank_transfer') %>
-      <%= label :payment_mode_default, "Cheque/Cash" %>
+      <%= label :payment_mode_default, "Cheque/Cash", for: 'payment_mode_default' %>
       <%= radio_button_tag 'payment_mode', 'bank_transfer', (payment_mode == 'bank_transfer') %>
-      <%= label :payment_mode_bank_transfer, 'Bank Transfer' %>
+      <%= label :payment_mode_bank_transfer, 'Bank Transfer', for: 'payment_mode_bank_transfer' %>
     </div>
 
     <br>
@@ -60,11 +60,11 @@
 
         <div class="group-ledger">
           <%= radio_button_tag 'voucher_settlement_type', 'default', (voucher_settlement_type != 'client'|| voucher_settlement_type != 'vendor') %>
-          <%= label :voucher_settlement_type_default, 'Default' %>
+          <%= label :voucher_settlement_type_default, 'Default', for: 'voucher_settlement_type_default' %>
           <%= radio_button_tag 'voucher_settlement_type', 'client', (voucher_settlement_type == 'client') %>
-          <%= label :voucher_settlement_type_client, 'Client' %>
+          <%= label :voucher_settlement_type_client, 'Client', for: 'voucher_settlement_type_client' %>
           <%= radio_button_tag 'voucher_settlement_type', 'vendor', (voucher_settlement_type == 'vendor') %>
-          <%= label :voucher_settlement_type_vendor, 'Vendor' %>
+          <%= label :voucher_settlement_type_vendor, 'Vendor', for: 'voucher_settlement_type_vendor' %>
         </div>
 
         <div class="box box-primary z-light-bg many-to-single-settlement-client">
@@ -124,6 +124,6 @@
       <%= f.input :desc, label: false %>
     </div>
     <div class="form-actions">
-      <%= f.submit "submit", class: 'btn btn-primary' %>
+      <%= f.submit "submit", class: 'btn btn-primary btn-flat' %>
     </div>
 <% end %>

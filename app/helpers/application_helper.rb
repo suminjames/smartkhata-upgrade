@@ -12,7 +12,7 @@ module ApplicationHelper
       # render(association.to_s.singularize + "_fields" , f: builder)
       render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info}
     end
-    link_to(name, '#', class: "add_fields btn btn-primary", data: {id: id, fields: fields.gsub("\n", "")})
+    link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.gsub("\n", "")})
   end
 
 
@@ -53,20 +53,6 @@ module ApplicationHelper
   # method to calculate the tds
   def get_broker_tds(broker_commission)
     broker_commission * 0.15
-  end
-
-
-  # Gets the list of latest price crawled from  http://www.nepalstock.com.np/main/todays_price.
-  # In the returned hash, 'isin' is the key and 'price' is the value.
-  def get_latest_isin_price_list
-    companies = IsinInfo.all
-
-    price_hash = {}
-    companies.each do |isin|
-      price_hash[isin.isin] = isin.last_price.to_f
-    end
-
-    price_hash
   end
 
   # 	get the margin of error amount
@@ -120,5 +106,11 @@ module ApplicationHelper
     str = enum_string.dup
     str.tr!('_', ' ')
     str.titleize
+  end
+
+
+  # For serial number in element listing to work properly with kaminari pagination
+  def kaminari_serial_number(page_number, per_page)
+    params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
 end
