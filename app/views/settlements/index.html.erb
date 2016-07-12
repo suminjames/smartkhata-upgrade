@@ -69,11 +69,8 @@
         <div class="row top-buffer-sm">
           <div class="col-xs-3">
             <%= f.submit 'Search', class: 'btn btn-xs btn-primary btn-flat' %>
-            <%= link_to(
-                    'Reset filters',
-                    reset_filterrific_url
-                ) %>
-            <br>
+            <%= link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')                         %>
+            <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner') %>
           </div>
         </div>
       </div>

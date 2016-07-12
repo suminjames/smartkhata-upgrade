@@ -36,8 +36,17 @@ $(document).on("ready page:load", function(){
         // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
         minimumInputLength: 3,
     });
+    hideFilterrificSpinner()
 });
 
+function hideFilterrificSpinner(){
+    $('#filteriffic-spinner').addClass('hidden');
+}
+
+$(document).on("click", ".filterrific-reset", function (event) {
+    console.log ("filterrific reset clicked");
+    $('#filteriffic-spinner').removeClass('hidden');
+});
 
 $(document).on('click', '.yamm .dropdown-menu', function (e) {
     e.stopPropagation()

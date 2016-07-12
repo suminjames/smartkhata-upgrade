@@ -17,10 +17,8 @@
             {class: 'form-control combobox min-3', 'data-placeholder': '- Any -' })          |
           %div.top-buffer-md
             = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
-            = link_to(                  |
-                  'Reset filters',      |
-                  reset_filterrific_url |
-              )                         |
+            = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+            = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
         .col-xs-3
           %label
             Company
