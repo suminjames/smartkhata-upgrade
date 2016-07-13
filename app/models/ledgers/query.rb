@@ -87,15 +87,15 @@ class Ledgers::Query
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
     if no_pagination
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.by_branch_fy_code.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
       else
         @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
       end
     else
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
       else
-        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC').page(page).per(limit)
       end
     end
 
@@ -118,7 +118,7 @@ class Ledgers::Query
     if date_from_ad.present? && date_to_ad.present?
       query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     else
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     end
     opening_balance += ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
     opening_balance

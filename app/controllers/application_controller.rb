@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
+  # before_action :get_allowed_branch, if: :user_signed_in?
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 

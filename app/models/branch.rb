@@ -18,4 +18,18 @@ class Branch < ActiveRecord::Base
   def code=(val)
     write_attribute :code, val.upcase
   end
+
+  def self.permitted_branches_for_user(user)
+    # TODO(subas) self branch should be allowed
+    branches = []
+    if user.present?
+      permitted_ids = BranchPermission.where(user_id: user.id).pluck(:branch_id)
+      branches = Branch.where(id: permitted_ids)
+      branches = Branch.all if user.admin?
+      if branches.size == Branch.all.count
+        branches << Branch.new(code: 'ALL', id: 0)
+      end
+    end
+      branches
+  end
 end
