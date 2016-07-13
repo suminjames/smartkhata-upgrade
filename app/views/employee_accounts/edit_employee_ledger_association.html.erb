@@ -1,96 +1,108 @@
 <% provide(:section_title, "Edit Employee Ledger Access") %>
 <% employee_account = @employee_account; ledgers = @ledgers %>
-<div id="edit_employee_ledger_association">
-  <%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
-      <%= f.error_notification %>
+<div class="nav-tabs-custom">
+  <ul class="nav nav-tabs">
+    <li class=""><%= link_to 'Menu Access', edit_employee_account_path(@employee_account, type: 'menu_access') %></li>
+    <li class=""><%= link_to 'Branch Access', edit_employee_account_path(@employee_account, type: 'branch_access') %></li>
+    <li class="active"><%= link_to 'Ledger Access', edit_employee_account_path(@employee_account, type: 'ledger_access') %></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab_1">
+      <div id="edit_employee_ledger_association">
+        <%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
+            <%= f.error_notification %>
 
-      <%= hidden_field_tag 'edit_type', 'ledger_association' %>
+            <%= hidden_field_tag 'edit_type', 'ledger_association' %>
 
-      <%= f.input :name, placeholder: 'Name', disabled: true %>
+            <%= f.input :name, placeholder: 'Name', disabled: true %>
 
-      <strong>Has Access To:</strong>
-      <%= f.radio_button :has_access_to, 'everyone' %> Everyone &nbsp;&nbsp;&nbsp;
-      <%= f.radio_button :has_access_to, 'some' %> Some &nbsp;&nbsp;&nbsp;
-      <%= f.radio_button :has_access_to, 'nobody' %> Nobody
+            <strong>Has Access To:</strong>
+            <%= f.radio_button :has_access_to, 'everyone' %> Everyone &nbsp;&nbsp;&nbsp;
+            <%= f.radio_button :has_access_to, 'some' %> Some &nbsp;&nbsp;&nbsp;
+            <%= f.radio_button :has_access_to, 'nobody' %> Nobody
 
-      <br>
-      <br>
+            <br>
+            <br>
 
-      <%
-        #only show the span below if 'everyone' is selected
-        $visibility = @employee_account.has_access_to != 'everyone' ? 'none' : ''
-      %>
-      <div class="alert alert-info everyone-selected-warning text-center" style="display:<%= $visibility %>">
-        <strong>Warning!</strong> Setting access to Everyone results in automatic granting of access to any ledgers or clients created in the future.
-      </div>
+            <%
+              #only show the span below if 'everyone' is selected
+              $visibility = @employee_account.has_access_to != 'everyone' ? 'none' : ''
+            %>
+            <div class="alert alert-info everyone-selected-warning text-center" style="display:<%= $visibility %>">
+              <strong>Warning!</strong> Setting access to Everyone results in automatic granting of access to any ledgers or clients created in the future.
+            </div>
 
-      <br>
-      <br>
+            <br>
+            <br>
 
-      <%
-        $associated_ledgers = employee_account.ledgers
+            <%
+              $associated_ledgers = employee_account.ledgers
 
-        def isDisabled()
-          if @employee_account.has_access_to == 'nobody' || @employee_account.has_access_to == 'everyone'
-            return true
-          end
-          return false
-        end
-
-        def employeeHasAssociationWith (ledger_id)
-          if @employee_account.has_access_to == 'nobody'
-            return false
-          elsif @employee_account.has_access_to == 'everyone'
-            return true
-          elsif @employee_account.has_access_to == 'some'
-            $associated_ledgers.each do |ledger|
-              if ledger.id == ledger_id
-                return true
+              def isDisabled()
+                if @employee_account.has_access_to == 'nobody' || @employee_account.has_access_to == 'everyone'
+                  return true
+                end
+                return false
               end
-            end
-          end
-          return false
-        end
-      %>
 
-      <div class="form-actions">
-        <!--TODO: Add confirmation message in both(positioned top and below) the submit buttons. Add -- , data: {confirm: 'This will wipe all previous associations, and re-register new associations.\n Are you sure?'}-->
-        <%= f.button :submit, :disabled => true %>
-        <%= link_to "Cancel", employee_accounts_path %>
+              def employeeHasAssociationWith (ledger_id)
+                if @employee_account.has_access_to == 'nobody'
+                  return false
+                elsif @employee_account.has_access_to == 'everyone'
+                  return true
+                elsif @employee_account.has_access_to == 'some'
+                  $associated_ledgers.each do |ledger|
+                    if ledger.id == ledger_id
+                      return true
+                    end
+                  end
+                end
+                return false
+              end
+            %>
+
+            <div class="form-actions">
+              <!--TODO: Add confirmation message in both(positioned top and below) the submit buttons. Add -- , data: {confirm: 'This will wipe all previous associations, and re-register new associations.\n Are you sure?'}-->
+              <%= f.button :submit, :disabled => true %>
+              <%= link_to "Cancel", employee_accounts_path %>
+            </div>
+
+            <div class="ledger_list">
+              <table class="table table-condensed table-striped">
+                <thead>
+                <tr>
+                  <td>
+                    <%= check_box_tag 'select_all', '', false, :disabled => isDisabled() %>
+                    All
+                  </td>
+                  <th>Ledger Name</th>
+                  <th>Client Code</th>
+                  <th>Ledger Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% ledgers.each do |ledger| %>
+                    <tr>
+                      <td>
+                        <%= check_box_tag 'ledger_associations[]', ledger.id, employeeHasAssociationWith(ledger.id), :disabled => isDisabled() %>
+                      </td>
+                      <td><%= ledger.name.titleize %></td>
+                      <td><%= ledger.client_code.nil? ? 'N/A' : ledger.client_code %></td>
+                      <td><%= ledger.client_code.nil? ? 'Internal' : 'Client' %></td>
+                    </tr>
+                <% end %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="form-actions">
+              <%= f.button :submit, :disabled => true %>
+              <%= link_to "Cancel", employee_accounts_path %>
+            </div>
+
+        <% end %>
       </div>
-
-      <div class="ledger_list">
-        <table class="table table-condensed table-striped">
-          <thead>
-          <tr>
-            <td>
-              <%= check_box_tag 'select_all', '', false, :disabled => isDisabled() %>
-              All
-            </td>
-            <th>Ledger Name</th>
-            <th>Client Code</th>
-            <th>Ledger Type</th>
-          </tr>
-          </thead>
-          <tbody>
-          <% ledgers.each do |ledger| %>
-              <tr>
-                <td>
-                  <%= check_box_tag 'ledger_associations[]', ledger.id, employeeHasAssociationWith(ledger.id), :disabled => isDisabled() %>
-                </td>
-                <td><%= ledger.name.titleize %></td>
-                <td><%= ledger.client_code.nil? ? 'N/A' : ledger.client_code %></td>
-                <td><%= ledger.client_code.nil? ? 'Internal' : 'Client' %></td>
-              </tr>
-          <% end %>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="form-actions">
-        <%= f.button :submit, :disabled => true %>
-        <%= link_to "Cancel", employee_accounts_path %>
-      </div>
-
-  <% end %>
+    </div>
+  </div>
+  <!-- /.tab-content -->
 </div>

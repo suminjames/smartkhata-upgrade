@@ -57,6 +57,9 @@ class EmployeeAccountsController < ApplicationController
     elsif params[:type] == 'menu_access'
       @menu_items = MenuItem.arrange
       render :edit_employee_menu_permission and return
+    elsif params[:type] == 'branch_access'
+      @menu_items = MenuItem.arrange
+      render :edit_employee_branch_permission and return
     end
   end
 
@@ -126,6 +129,19 @@ class EmployeeAccountsController < ApplicationController
         end
       end
       redirect_to edit_employee_account_path(id: params[:id], type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
+    elsif params[:edit_type] == 'branch_access'
+      # get menu ids
+      branch_ids = params[:employee_account][:branch_ids].map(&:to_i) if params[:employee_account][:branch_ids].present?
+      ActiveRecord::Base.transaction do
+        # # delete previously set records
+        # # TODO(SUBAS) remove only the changed ones
+        # # create only the changed ones
+        BranchPermission.delete_previous_permissions_for(@employee_account.user_id)
+        branch_ids.each do |branch_id|
+          BranchPermission.create!(user_id: @employee_account.user_id, branch_id: branch_id)
+        end
+      end
+      redirect_to edit_employee_account_path(id: params[:id], type: 'branch_access'), notice: 'Employee account Branch access was successfully updated.'
     elsif params[:edit_type] == 'create_or_update'
       respond_to do |format|
         if @employee_account.update(employee_account_params)

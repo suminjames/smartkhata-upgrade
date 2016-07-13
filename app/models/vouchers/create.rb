@@ -378,7 +378,8 @@ class Vouchers::Create < Vouchers::Base
     elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account.id)
+      client_account_id = client_account.id if client_account.present?
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account_id )
       # settlement.client_account = client_account
     end
 

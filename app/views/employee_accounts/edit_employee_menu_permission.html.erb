@@ -1,8 +1,9 @@
 <% provide(:section_title, "Edit Employee Access") %>
 <div class="nav-tabs-custom">
   <ul class="nav nav-tabs">
-    <li class="active"><a href="<%= ledgers_path %>">Menu Access</a></li>
-    <li class=""><a href="<%= ledgers_path %>" >Branch Access</a></li>
+    <li class="active"><%= link_to 'Menu Access', edit_employee_account_path(@employee_account, type: 'menu_access') %></li>
+    <li class=""><%= link_to 'Branch Access', edit_employee_account_path(@employee_account, type: 'branch_access') %></li>
+    <li class=""><%= link_to 'Ledger Access', edit_employee_account_path(@employee_account, type: 'ledger_access') %></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab_1">

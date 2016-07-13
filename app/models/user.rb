@@ -43,8 +43,9 @@ class User < ActiveRecord::Base
   has_one :employee_account
 
   has_many :menu_permissions
+  has_many :branch_permissions
   accepts_nested_attributes_for :menu_permissions
-
+  # accepts_nested_attributes_for :branch_permissions
   def set_default_role
     self.role ||= :user
   end
