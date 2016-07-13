@@ -27,7 +27,7 @@ class Vouchers::Create < Vouchers::Base
 
     # needed for error case
     if @voucher.receipt? || @voucher.payment?
-      @ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
+      @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
       @ledger_list_available = Ledger.non_bank_ledgers

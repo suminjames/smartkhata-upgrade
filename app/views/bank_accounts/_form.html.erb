@@ -1,3 +1,4 @@
+<% debugger %>
 <div class="row">
   <div class="col-xs-6">
     <%= simple_form_for(@bank_account) do |f| %>
@@ -6,18 +7,28 @@
         <div class="form-inputs">
           <%= f.association :bank, collection: Bank.order(:name), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank...' %>
           <%= f.input :account_number %>
+          <%= f.input :bank_branch %>
+          <%= f.input :contact_no %>
+          <%= f.input :address %>
           <%= f.input :default_for_receipt %>
           <%= f.input :default_for_payment %>
+          <%= f.input :branch_id, :as => :hidden ,:input_html => {:value => f.object.branch_id  || UserSession.selected_branch_id } %>
 
-          <h3>Ledger Details</h3>
-          <div class="row">
+
+          <h3>Opening Balance</h3>
             <%= f.fields_for :ledger do |p| %>
-                <div class="col-xs-6"><%= p.input :opening_blnc %></div>
-                <div class="col-xs-6">
-                  <label>Type</label><%= p.select :opening_balance_type, options_for_select(Particular.transaction_types) %>
-                </div>
+              <%= p.input :group_id, :as => :hidden ,:input_html => {:value => @group_id } %>
+                <%= p.fields_for :ledger_balances do |lb| %>
+                  <div class="row particular">
+                    <div class="col-xs-5"><%= lb.input :opening_balance, label:false %></div>
+                    <div class="col-xs-2"><%= lb.select :opening_balance_type, options_for_select(Particular.transaction_types) %></div>
+                    <div class="col-xs-4">
+                      <%= lb.input :branch_id, :as => :hidden, :input_html => {:value => lb.object.branch_id  || UserSession.selected_branch_id } %>
+                      <%= lb.collection_select(:branch_id, available_branches.all, :id, :code,{ selected: lb.object.branch_id  || UserSession.selected_branch_id}, {:class => 'form-control ', disabled: true}) %>
+                    </div>
+                  </div>
+                <% end %>
             <% end %>
-          </div>
         </div>
 
         <div class="form-actions">

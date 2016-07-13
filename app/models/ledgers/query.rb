@@ -83,7 +83,7 @@ class Ledgers::Query
     if date_from_ad.present? && date_to_ad.present?
       @ledger.particulars.by_branch_fy_code.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
     else
-      @ledger.particulars.by_branch_fy_code.complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      @ledger.particulars.by_branch_fy_code.complete.where(hide_for_client: false).order('transaction_date ASC','created_at ASC').page(page).per(limit)
     end
   end
 

@@ -68,7 +68,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     # --- 1.1 Add Bank Account- of created bank & existing bank ---
     existing_bank = banks(:one)
-    assert_difference 'BankAccount.count', 2 do
+    assert_difference 'BankAccount.by_branch_id.count', 2 do
       post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, "default_for_receipt"=>"1", "default_for_payment"=>"0",
                                    "ledger_attributes" => { opening_balance: 500, opening_balance_type: 0} }
       @bank_account_receipt = assigns(:bank_account)

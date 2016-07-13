@@ -28,6 +28,19 @@ class Ledger < ActiveRecord::Base
   include ::Models::UpdaterWithFyCode
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial
 
+
+  INTERNALLEDGERS = ["Purchase Commission",
+                     "Sales Commission",
+                     "DP Fee/ Transfer",
+                     "Nepse Purchase",
+                     "Nepse Sales",
+                     "Clearing Account",
+                     "TDS",
+                     "Cash",
+                     "Close Out"].freeze
+
+
+
   has_many :particulars
   has_many :vouchers, :through => :particulars
   belongs_to :group
@@ -42,14 +55,28 @@ class Ledger < ActiveRecord::Base
 
   #TODO(subas) remove updation of closing balance
   validates_presence_of :name
+  validates_presence_of :group_id
   validate :positive_amount, on: :create
   before_create :update_closing_blnc
+  validate :name_from_reserved?
+
+  accepts_nested_attributes_for :ledger_balances
 
   scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
   scope :find_all_client_ledgers, -> { where.not(client_account_id: nil) }
   scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
   scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
+
+
+  #
+  # check if the ledger name clashes with system reserved ledger name
+  #
+  def name_from_reserved?
+    if name.present? && INTERNALLEDGERS.any?{ |s| s.casecmp(name)==0 }
+      errors.add :name, "The name is reserved by system"
+    end
+  end
 
   def update_closing_blnc
     unless self.opening_blnc.blank?
