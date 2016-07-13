@@ -80,6 +80,15 @@ class SmsMessage < ActiveRecord::Base
     ClientAccount.all.order(:name)
   end
 
+  def self.sparrow_send
+    token = 'd1QYg28Hxw80xapxpsFA'
+    from = 'Demo'
+    to = '9851153385'
+    text = 'Hello@%40'
+    url = 'http://api.sparrowsms.com/v2/sms'
+    p (URI.parse(url+'?token=' + token + '&from=' + from + '&to=' + to + '&text='+text))
+  end
+
   # TODO(sarojk): IMPORTANT! Valid message block's length should have been 255, but Miracle has issues and can only send 250 lenth message block currently. Check and change later.
   MAX_MESSAGE_BLOCK_LENGTH = 250
 
