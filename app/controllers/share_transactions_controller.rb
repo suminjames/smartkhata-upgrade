@@ -31,7 +31,7 @@ class ShareTransactionsController < ApplicationController
         send_data pdf.render, filename: "ShareTransactions.pdf", type: 'application/pdf', disposition: "inline"
       end
       format.xlsx do
-        report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific])
+        report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
         if report.generated_successfully?
           send_file(report.path, type: report.type)
         else
