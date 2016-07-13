@@ -5,7 +5,11 @@ class Reports::Excelsheet
   attr_reader :path
   attr_reader :error
 
-  def initialize
+  def initialize(*values)
+    parameters = self.class.instance_method(:initialize).parameters
+    values.each_with_index do |val, i|
+      self.instance_variable_set("@#{parameters[i][1]}", val)
+    end
     @date = ad_to_bs Date.today
     @last_column = self.class::TABLE_HEADER.count-1
     @doc_header_row_count = 0
@@ -64,6 +68,7 @@ class Reports::Excelsheet
     bg_white = {bg_color: "FF"}
     center = {alignment: {horizontal: :center}}
     left = {alignment: {horizontal: :left}}
+    right = {alignment: {horizontal: :right}}
     muted = {fg_color: "808080"}
     center_clear = center.merge bg_white
     plain = bg_white.merge border_right
@@ -73,6 +78,10 @@ class Reports::Excelsheet
 
     doc_header_style = {sz: 20, fg_color: "3c8dbc"}.merge center_clear
     doc_sub_header_style = {sz: 14}.merge center_clear
+
+    float = {num_fmt: 4}
+    int = {num_fmt: 1}
+    total = {b: true}.merge border
 
     @styles = {
       table_header: obj.add_style({b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge center),
@@ -88,13 +97,16 @@ class Reports::Excelsheet
       striped_style: obj.add_style(striped),
       # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
       # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
-      int_format: obj.add_style({num_fmt: 1}.merge border),
-      int_format_striped: obj.add_style({num_fmt: 1}.merge striped),
-      float_format: obj.add_style({num_fmt: 4}.merge border),
-      float_format_striped: obj.add_style({num_fmt: 4}.merge striped),
+      int_format: obj.add_style(int.merge border),
+      int_format_striped: obj.add_style(int.merge striped),
+      float_format: obj.add_style(float.merge border),
+      float_format_striped: obj.add_style(float.merge striped),
       normal_style_muted: obj.add_style(border.merge muted),
       striped_style_muted: obj.add_style(striped.merge muted),
-      broker_info: obj.add_style(left.merge plain)
+      broker_info: obj.add_style(left.merge plain),
+      total_values: obj.add_style(total),
+      total_values_float: obj.add_style(total.merge float),
+      total_keyword: obj.add_style(total.merge right)
     }
 
     # (local_variables-[:obj]).inject(Hash.new){|k,v| k[v] = eval(v.to_s); k}
@@ -102,7 +114,7 @@ class Reports::Excelsheet
 
   def add_document_headings_base(heading, sub_heading)
     # Current tenant info
-    if t = Tenant.find_by(name: :trishakti)
+    if t = @current_tenant
       info_fields = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
       if info_fields.present?
         info_fields.each do |broker_info|

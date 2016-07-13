@@ -1,11 +1,9 @@
 class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
   TABLE_HEADER = ["SN.", "Transaction Date", "Transaction No.", "Company", "Bill No.", "Quantity in", "Quantity out", "Market Rate", "Amount", "Commission"]
 
-  def initialize(share_transactions, params)
-    super()
-    @share_transactions = share_transactions
+  def initialize(share_transactions, params, current_tenant)
+    super(share_transactions, params, current_tenant)
     if params
-      @params = params
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
     end
@@ -102,6 +100,22 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @sheet.add_row [sn, date, contract_num, company, bill_num, q_in, q_out, m_rate, share_amt, comm_amt],
                      style: row_style
     end
+    add_total_row
+  end
+
+  def add_total_row
+    columns_to_sum = [5, 6, 8, 9]
+    alphabets = ('A'..'Z').to_a
+    first_data_row = @doc_header_row_count+2
+    last_data_row = first_data_row + @share_transactions.count - 1
+
+    totalled_cells = []
+    columns_to_sum.each do |col|
+      totalled_cells << "=SUM(#{alphabets[col]}#{first_data_row}:#{alphabets[col]}#{last_data_row})"
+    end
+    # debugger
+    @sheet.add_row totalled_cells.insert(0, 'Total').insert(1, *['']*4).insert(7, ''), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*9)
+    @sheet.merge_cells("A#{last_data_row+1}:#{alphabets[columns_to_sum.min-1]}#{last_data_row+1}")
   end
 
   def set_column_widths
@@ -109,8 +123,13 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     # Fixed width for first column which may be elongated by document headers
     @sheet.column_info.first.width = 6
 
-    # Autowidth not working very well for long company names in Company wise report
-    @sheet.column_info.fourth.width = @isin_info.company.strip.length if @isin_info
+    if @client_account && !@isin_info
+      # Client wise report as well
+      @sheet.column_info.fourth.width = 40
+    elsif @isin_info
+      # Autowidth not working very well for long company names in Company wise report
+      @sheet.column_info.fourth.width = @isin_info.company.strip.length if @isin_info
+    end
     # sheet.column_widths 6, nil, nil, nil
   end
 end

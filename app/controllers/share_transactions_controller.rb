@@ -26,7 +26,7 @@ class ShareTransactionsController < ApplicationController
       format.html
       format.js
       format.xlsx do
-        report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific])
+        report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
         if report.generated_successfully?
           send_file(report.path, type: report.type)
         else

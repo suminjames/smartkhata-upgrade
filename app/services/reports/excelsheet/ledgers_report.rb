@@ -4,11 +4,8 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
 
   TABLE_HEADER = ["Date", "Particulars", "Voucher", "Bill", "Cheque", "Pay/Receipt No", "Transaction Amount", "Balance"]
 
-  def initialize(ledger, particulars, params)
-    super()
-    @ledger = ledger
-    @particulars = particulars
-    @params = params
+  def initialize(ledger, particulars, params, current_tenant)
+    super(ledger, particulars, params, current_tenant)
 
     generate_excelsheet if data_present? #&& data_valid?
     # check params?
@@ -19,16 +16,6 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     data_present_or_set_error(@particulars, "Atleast one particular is needed for exporting!") &&
     data_present_or_set_error(@ledger, "No ledger specified!")
   end
-
-  # def data_valid?
-    #   if @particulars.any?{|p| p.try(:ledger) != @ledger}
-    #     # if one or more particulars doesn't belong to the relevant ledger.
-    #     @error = "Inconsistent or invalid particulars provided!"
-    #     false
-    #   else
-    #     true
-    #   end
-  # end
 
   def prepare_document
     # Adds document headings and returns the filename, before the real data table is inserted.
@@ -121,4 +108,15 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # Fixed width for Particulars
     @sheet.column_info.second.width = 40
   end
+
+  # def data_valid?
+    #   if @particulars.any?{|p| p.try(:ledger) != @ledger}
+    #     # if one or more particulars doesn't belong to the relevant ledger.
+    #     @error = "Inconsistent or invalid particulars provided!"
+    #     false
+    #   else
+    #     true
+    #   end
+  # end
+
 end

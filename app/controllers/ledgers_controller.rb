@@ -101,7 +101,7 @@ class LedgersController < ApplicationController
       # respond_to do |format|
       #   format.xlsx do; end
       # end
-      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params)
+      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
       if report.generated_successfully?
         send_file(report.path, type: report.type)
       else
