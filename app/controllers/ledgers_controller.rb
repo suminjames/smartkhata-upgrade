@@ -131,22 +131,11 @@ class LedgersController < ApplicationController
 
   # Cashbook population here
   def cashbook
-    # @filterrific = initialize_filterrific(
-    #     Ledger,
-    #     params[:filterrific],
-    #     select_options: {
-    #         by_cashbook_ledger_id: Ledger.options_for_cashbook_ledger_select,
-    #     },
-    #     persistence_id: false
-    # ) or return
-    # items_per_page = params[:no_paginate] == 'true' ?  Ledger.cashbook_particulars.count : 20
-    # @cashbook_particulars = @filterrific.find.page(params[:page]).per(items_per_page)
-
     authorize Ledger
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @cashbook_ledgers = Ledger.cashbook_ledgers
-    ledger_query = Ledgers::Query.new(params, @ledger)
+    ledger_query = Ledgers::CashbookQuery.new(params)
 
     @particulars,
         @total_credit,
