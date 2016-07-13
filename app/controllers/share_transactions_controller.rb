@@ -17,14 +17,19 @@ class ShareTransactionsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    # items_per_page = params[:paginate] == 'false' || params[:format] == 'xlsx' ? ShareTransaction.by_date(params[:filterrific][:by_date]).count(:all) : 20
-    # @share_transactions= @filterrific.find.page(params[:page]).per(items_per_page)
 
-    @share_transactions = params[:paginate] == 'false' || params[:format] == 'xlsx' ? @filterrific.find : @filterrific.find.page(params[:page]).per(20)
+    @share_transactions = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? @filterrific.find : @filterrific.find.page(params[:page]).per(20)
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
+    @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
+
     respond_to do |format|
       format.html
       format.js
+      format.pdf do
+        print_in_letter_head = true
+        pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
+        send_data pdf.render, filename: "ShareTransactions.pdf", type: 'application/pdf', disposition: "inline"
+      end
       format.xlsx do
         report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
         if report.generated_successfully?

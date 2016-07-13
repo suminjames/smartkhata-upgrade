@@ -12,9 +12,9 @@
             :by_client_id,                              |
             @filterrific.select_options[:by_client_id], |
             :id,                                        |
-            :name_and_nepse_code,                                      |
-            {include_blank: '- Any -'},                 |
-            {class: 'form-control combobox' })          |
+            :name_and_nepse_code,                 |
+            {include_blank: true},                 |
+            {class: 'form-control combobox filterrific-select min-3', 'data-placeholder': '- Any -' })          |
         .col-xs-2
           %label
             Date
@@ -41,11 +41,9 @@
                 class: 'form-control' )       |
       .row.top-buffer-sm
         .col-xs-3
-          = f.submit 'Search'
-          = link_to(                  |
-                'Reset filters',      |
-                reset_filterrific_url |
-            )                         |
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')                         |
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
         .col-xs-3
           %div.no-paginate
             = check_box_tag 'no_paginate', 'true', params[:no_paginate] == 'true'

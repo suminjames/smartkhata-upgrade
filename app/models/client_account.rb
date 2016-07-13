@@ -195,4 +195,15 @@ class ClientAccount < ActiveRecord::Base
     "#{self.name.titleize} (#{self.nepse_code})"
   end
 
+  def commaed_contact_numbers
+    str = ''
+    str += self.mobile_number + ',' if self.mobile_number.present?
+    str += self.phone + ',' if self.phone.present?
+    str += self.phone_perm if self.phone_perm.present?
+    # strip leading or trailing comma ','
+    str[0]= '' if str[0] == ','
+    str[-1]= '' if str[-1] == ','
+    str
+  end
+
 end
