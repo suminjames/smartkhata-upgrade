@@ -1,3 +1,12 @@
+# == Schema Information
+#
+# Table name: particulars_share_transactions
+#
+#  particular_id        :integer
+#  share_transaction_id :integer
+#  association_type     :integer
+#
+
 class ParticularsShareTransaction < ActiveRecord::Base
   belongs_to :particular
   belongs_to :share_transaction

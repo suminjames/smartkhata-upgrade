@@ -55,10 +55,10 @@ class Ledger < ActiveRecord::Base
 
   #TODO(subas) remove updation of closing balance
   validates_presence_of :name
-  validates_presence_of :group_id
+  # validates_presence_of :group_id
   validate :positive_amount, on: :create
   before_create :update_closing_blnc
-  validate :name_from_reserved?
+  validate :name_from_reserved?, :on => :create
 
   accepts_nested_attributes_for :ledger_balances
 
@@ -127,7 +127,7 @@ class Ledger < ActiveRecord::Base
   #
   def name_from_reserved?
     if name.present? && INTERNALLEDGERS.any?{ |s| s.casecmp(name)==0 }
-      errors.add :name, "The name is reserved by system"
+      errors.add :name, "The name is reserved by system" if Ledger.find_by_name("Close Out").present?
     end
   end
 

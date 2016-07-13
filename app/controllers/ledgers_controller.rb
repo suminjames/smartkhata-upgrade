@@ -130,6 +130,11 @@ class LedgersController < ApplicationController
       break
     end
 
+    unless @ledger.group_id.present?
+      @ledger.errors.add(:group_id, "can't be empty")
+      @valid = false
+    end
+
     if @valid
       @ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
       @success = true if @ledger.save
