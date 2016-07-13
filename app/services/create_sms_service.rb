@@ -8,7 +8,7 @@ end
 
 class CreateSmsService
   include CustomDateModule
-  include CustomDateModule
+  include NumberFormatterModule
 
   def initialize(attrs = {})
     @floorsheet_records = attrs[:floorsheet_records]
@@ -69,11 +69,6 @@ class CreateSmsService
       @transaction_message.save!
       res = true
     end
-  end
-
-  # If exists, strips a number of redundant zeroes after decimal.
-  def strip_redundant_decimal_zeroes(number)
-    number % 1 == 0 ? number.to_i : number
   end
 
   # group by the array from floorsheet

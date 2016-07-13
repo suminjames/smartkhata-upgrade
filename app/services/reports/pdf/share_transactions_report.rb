@@ -6,14 +6,16 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
   def initialize(share_transactions, params, current_tenant, print_in_letter_head)
     @share_transactions = share_transactions
-    @params = params
     @current_tenant = current_tenant
     @print_in_letter_head = print_in_letter_head
 
     @date = ad_to_bs Date.today
 
-    @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
-    @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
+    if params
+      @params = params
+      @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
+      @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
+    end
 
     if @print_in_letter_head
       top_margin = 38.mm
@@ -125,16 +127,16 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         ]
       end
       table_width = page_width - 2
-      column_widths = {0 => table_width * 0.5/12.0,
-                       1 => table_width * 1/12.0,
-                       2 => table_width * 2/12.0,
-                       3 => table_width * 2/12.0,
+      column_widths = {0 => table_width * 0.7/12.0,
+                       1 => table_width * 1.3/12.0,
+                       2 => table_width * 1.8/12.0,
+                       3 => table_width * 1.8/12.0,
                        4 => table_width * 1.3/12.0,
                        5 => table_width * 0.7/12.0,
                        6 => table_width * 0.7/12.0,
                        7 => table_width * 1/12.0,
-                       8 => table_width * 1/12.0,
-                       9 => table_width * 1.5/12.0
+                       8 => table_width * 1.4/12.0,
+                       9 => table_width * 1.3/12.0
       }
       table table_data do |t|
         t.header = true
