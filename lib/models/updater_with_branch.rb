@@ -13,7 +13,7 @@ module Models::UpdaterWithBranch
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
 
-      scope :by_branch_code, -> (branch_code) { where(branch_code: branch_code)}
+      scope :by_branch_id, -> (branch_code) { where(branch_id: branch_code)}
     end
   end
 

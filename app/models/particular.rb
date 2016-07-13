@@ -3,7 +3,7 @@
 # Table name: particulars
 #
 #  id                     :integer          not null, primary key
-#  opening_blnc           :decimal(15, 4)   default("0")
+#  opening_balance        :decimal(15, 4)   default("0")
 #  transaction_type       :integer
 #  ledger_type            :integer          default("0")
 #  cheque_number          :integer
@@ -24,6 +24,10 @@
 #  ledger_id              :integer
 #  voucher_id             :integer
 #  bank_payment_letter_id :integer
+#  opening_balance_org    :decimal(15, 4)   default("0")
+#  running_blnc_org       :decimal(15, 4)   default("0")
+#  hide_for_client        :boolean          default("false")
+#  running_blnc_client    :decimal(15, 4)   default("0")
 #
 
 
@@ -37,24 +41,18 @@ class Particular < ActiveRecord::Base
 
   attr_accessor :running_total
 
-  def self.distance_with_running_total
-    total = 0.0
-    Particular.order(:id).collect do |w|
-      total += w.amount
-      w.running_total = total
-      w
-    end
-  end
-
   # get the particulars with running total
   # records: collection of particular
-  def self.with_running_total(records)
+  def self.with_running_total(records, opening_balance = 0.0)
     total = 0.0
-    records.collect do |w|
-      total += w.amount
+    records.map do |w|
+      amount = w.cr? ? (-1 * w.amount) : w.amount
+      total += (amount + opening_balance)
+      # we need to add the opening blnc only once
+      opening_balance = 0.0
       w.running_total = total
-      w
     end
+    records
   end
 
 

@@ -4,80 +4,80 @@
     <%= hidden_field_tag 'edit_type', 'create_or_update' %>
 
     <!--Form BEGINS-->
-    <div class="col-xs-12">
-      <h3>Employee Information</h3>
-      <!--Incorporate 'from path' in controller-->
-      <%= hidden_field_tag 'from_path', @from_path %>
-      <%= f.input :name, placeholder: 'Name' %>
-      <%= f.input :email, label: 'Email' %>
-      <%= f.input :citizen_passport, label: "Citizen/Birth Certificate", placeholder: "Citizenship/Birth Certificate" %>
-      <div class="row">
-        <div class="col-xs-6">
-          <%= f.input :citizen_passport_date, label: "Citizen/Birth Certificate Issued Date" %>
+    <div class="clearfix">
+      <div class="col-xs-12">
+        <!--Incorporate 'from path' in controller-->
+        <%= hidden_field_tag 'from_path', @from_path %>
+        <%= f.input :name, placeholder: 'Name' %>
+        <%= f.input :email, label: 'Email' %>
+        <%= f.input :citizen_passport, label: "Citizen/Birth Certificate", placeholder: "Citizenship/Birth Certificate" %>
+        <div class="row">
+          <div class="col-xs-6">
+            <%= f.input :citizen_passport_date, label: "Citizen/Birth Certificate Issued Date" %>
+          </div>
+          <div class="col-xs-6">
+            <%= f.input :citizen_passport_district, label: "Citizen/Birth Certificate Issued District" %>
+          </div>
         </div>
-        <div class="col-xs-6">
-          <%= f.input :citizen_passport_district, label: "Citizen/Birth Certificate Issued District" %>
+        <div class="row">
+          <div class="col-xs-6">
+            <%= f.input :pan_no, label: "PAN" %>
+          </div>
+          <div class="col-xs-6">
+            <%= f.input :dob, placeholder: "YYYY-MM-DD" %>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-xs-6">
-          <%= f.input :pan_no, label: "PAN" %>
+        <%= f.input :father_mother, label: "Father/Mother's Name", placeholder: "Father/Mother's Name" %>
+        <%= f.input :granfather_father_inlaw, label: "GrandFather's Name", placeholder: "GrandFather/Father In Law's Name" %>
+        <% # need place for spouse %>
+        <h3>Permanent Address</h3>
+        <%= f.input :address1_perm, label: 'Address line 1' %>
+        <%= f.input :address2_perm, label: 'Address line 2' %>
+        <%= f.input :address3_perm, label: 'Address line 3' %>
+        <div class="row">
+          <div class="col-xs-4">
+            <%= f.input :city_perm, label: 'City' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :state_perm, label: 'State' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :country_perm, label: 'Country' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :phone_perm, label: 'Phone' %>
+          </div>
         </div>
-        <div class="col-xs-6">
-          <%= f.input :dob, placeholder: "YYYY-MM-DD" %>
-        </div>
-      </div>
-      <%= f.input :father_mother, label: "Father/Mother's Name", placeholder: "Father/Mother's Name" %>
-      <%= f.input :granfather_father_inlaw, label: "GrandFather's Name", placeholder: "GrandFather/Father In Law's Name" %>
-      <% # need place for spouse %>
-      <h3>Permanent Address</h3>
-      <%= f.input :address1_perm, label: 'Address line 1' %>
-      <%= f.input :address1_perm, label: 'Address line 2' %>
-      <%= f.input :address1_perm, label: 'Address line 3' %>
-      <div class="row">
-        <div class="col-xs-4">
-          <%= f.input :city_perm, label: 'City' %>
-        </div>
-        <div class="col-xs-4">
-          <%= f.input :state_perm, label: 'State' %>
-        </div>
-        <div class="col-xs-4">
-          <%= f.input :country_perm, label: 'Country' %>
-        </div>
-        <div class="col-xs-4">
-          <%= f.input :phone_perm, label: 'Phone' %>
-        </div>
-      </div>
 
-      <h3>Current address</h3>
-      <%= f.input :address1, label: 'Address line 1' %>
-      <%= f.input :address1, label: 'Address line 2' %>
-      <%= f.input :address1, label: 'Address line 3' %>
-      <div class="row">
-        <div class="col-xs-4">
-          <%= f.input :city, label: 'City' %>
+        <h3>Current address</h3>
+        <%= f.input :address1, label: 'Address line 1' %>
+        <%= f.input :address2, label: 'Address line 2' %>
+        <%= f.input :address3, label: 'Address line 3' %>
+        <div class="row">
+          <div class="col-xs-4">
+            <%= f.input :city, label: 'City' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :state, label: 'State' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :country, label: 'Country' %>
+          </div>
+          <div class="col-xs-4">
+            <%= f.input :phone, label: 'Phone' %>
+          </div>
         </div>
-        <div class="col-xs-4">
-          <%= f.input :state, label: 'State' %>
-        </div>
-        <div class="col-xs-4">
-          <%= f.input :country, label: 'Country' %>
-        </div>
-        <div class="col-xs-4">
-          <%= f.input :phone, label: 'Phone' %>
+        <h3>
+          Bank / Financial Institution Information
+        </h3>
+        <%= f.input :bank_name, label: 'Name' %>
+        <%= f.input :bank_address, label: 'Address' %>
+        <%= f.input :bank_account, label: 'Account No.' %>
+        <div class="form-actions">
+          <%= f.button :submit %>
+          <%= link_to "Cancel", employee_accounts_path, class: 'btn btn-success btn-flat' %>
         </div>
       </div>
-      <h3>
-        Bank / Financial Institution Information
-      </h3>
-      <%= f.input :bank_name, label: 'Name' %>
-      <%= f.input :bank_address, label: 'Address' %>
-      <%= f.input :bank_account, label: 'Account No.' %>
-    </div>
-    <div class="form-actions">
-      <%= f.button :submit %>
-      <%= link_to "Cancel", employee_accounts_path %>
-    </div>
     </div>
     <!--Form ENDS-->
 <% end %>

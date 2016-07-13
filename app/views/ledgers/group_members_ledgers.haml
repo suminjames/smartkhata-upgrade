@@ -5,7 +5,7 @@
       .form-group.col-sm-4
         = select_tag "client_account_id", options_from_collection_for_select(@client_with_group_members, 'id', 'name', params[:client_account_id]), class: 'form-control combobox', include_blank: false, prompt: 'Select a Client Account...'
       .col-sm-4
-        = submit_tag "Search", class: 'btn btn-md btn-primary'
+        = submit_tag "Search", class: 'btn btn-flat btn-primary'
 - elsif @ledgers.size > 0
   = form_tag transfer_group_member_balance_ledgers_path do
     .row
@@ -19,14 +19,14 @@
             %th.col-xs-4.text-right= "Ledger Balance"
           %tbody
             - @ledgers.each do |ledger|
-              %tr{class:  ledger.closing_blnc + margin_of_error_amount < 0 ? 'ledger cr' : 'ledger dr'}
+              %tr{class:  ledger.closing_balance + margin_of_error_amount < 0 ? 'ledger cr' : 'ledger dr'}
                 %td= check_box_tag "ledger_ids[]", ledger.id, false, class: "check-ledger"
                 %td= ledger.name.titleize
                 %td.text-right
                   %span.display-amount
-                    = "#{number_to_currency(ledger.closing_blnc.abs)}"
+                    = "#{number_to_currency(ledger.closing_balance.abs)}"
                   %span.display-type
-                    - if ledger.closing_blnc + margin_of_error_amount < 0
+                    - if ledger.closing_balance + margin_of_error_amount < 0
                       = "cr"
                     - else
                       = "dr"

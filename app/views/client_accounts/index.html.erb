@@ -24,7 +24,7 @@
               <%= hidden_field_tag :search_by, "name" %>
               <%= select_tag "search_term", options_from_collection_for_select(@clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...' %>
             </div>
-            <%= submit_tag "Search", class: 'btn btn-md btn-primary' %>
+            <%= submit_tag "Search", class: 'btn btn-flat btn-primary' %>
         <% end %>
     <% else %>
         <%= form_tag(client_accounts_path, :method => "get", id: "search-form") do %>
@@ -32,7 +32,7 @@
             <div class="col-sm-3">
               <%= text_field_tag :search_term, params[:search_term], placeholder: "Search by BoID", class: "form-control" %>
             </div>
-            <%= submit_tag "Search", class: "btn btn-md btn-primary" %>
+            <%= submit_tag "Search", class: "btn btn-flat btn-primary" %>
         <% end %>
     <% end %>
   </div>
@@ -65,7 +65,10 @@
               <td><%= x.name %></td>
               <td><%= x.mobile_number %><%= "," unless x.mobile_number.blank? %><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
               <td><%= x.email %></td>
-              <td><%= link_to 'edit', edit_client_account_path(x) %></td>
+              <td>
+                <%= link_to 'view', client_account_path(x) %>&nbsp;|&nbsp;
+                <%= link_to 'edit', edit_client_account_path(x) %>
+              </td>
             </tr>
         <% end %>
         </tbody>

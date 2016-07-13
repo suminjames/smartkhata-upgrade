@@ -36,7 +36,7 @@ class CreateBankPaymentLetterService
       @bills.each do |bill|
         client_account = bill.client_account
         client_ledger = client_account.ledger
-        ledger_balance = client_ledger.closing_blnc
+        ledger_balance = client_ledger.closing_balance
         bill_amount = bill.balance_to_pay
         # dont pay the client more than he deserves.
         # pay only if the ledger balance is negative
@@ -53,7 +53,7 @@ class CreateBankPaymentLetterService
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
         # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
-        closing_balance = client_ledger.closing_blnc
+        closing_balance = client_ledger.closing_balance
         particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending)
 
         particulars << particular
@@ -66,7 +66,7 @@ class CreateBankPaymentLetterService
         bill.save!
       end
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
-      closing_balance = bank_ledger.closing_blnc
+      closing_balance = bank_ledger.closing_balance
       Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending)
       @bank_payment_letter.voucher = voucher
     end
