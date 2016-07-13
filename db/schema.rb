@@ -542,7 +542,10 @@ ActiveRecord::Schema.define(version: 20160713101058) do
     t.integer  "ledger_id"
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
+    t.decimal  "opening_balance_org",    precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc_org",       precision: 15, scale: 4, default: 0.0
     t.boolean  "hide_for_client",                                 default: false
+    t.decimal  "running_blnc_client",    precision: 15, scale: 4, default: 0.0
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree

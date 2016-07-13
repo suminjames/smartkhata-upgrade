@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: bank_accounts
+#
+#  id                  :integer          not null, primary key
+#  account_number      :string
+#  bank_name           :string
+#  default_for_payment :boolean
+#  default_for_receipt :boolean
+#  creator_id          :integer
+#  updater_id          :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  bank_id             :integer
+#  branch_id           :integer
+#  bank_branch         :string
+#  address             :text
+#  contact_no          :string
+#
+
 require 'test_helper'
 
 class BankAccountTest < ActiveSupport::TestCase

@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: banks
+#
+#  id         :integer          not null, primary key
+#  name       :string
+#  bank_code  :string
+#  address    :string
+#  contact_no :string
+#  creator_id :integer
+#  updater_id :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
 require 'test_helper'
 
 class BankTest < ActiveSupport::TestCase

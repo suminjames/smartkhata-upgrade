@@ -25,6 +25,14 @@ class LedgerDaily < ActiveRecord::Base
   belongs_to :ledger
   before_save :process_daily_ledger
 
+  def self.opening_balance_of_ledger_dailies(ledger_daily_ids)
+    self.where(id: ledger_daily_ids).sum(:opening_balance).to_f
+  end
+
+  def self.closing_balance_of_ledger_dailies(ledger_daily_ids)
+    self.where(id: ledger_daily_ids).sum(:closing_balance).to_f
+  end
+
   private
   def process_daily_ledger
     self.date_bs ||= ad_to_bs_string(self.date)

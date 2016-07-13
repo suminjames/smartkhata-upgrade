@@ -3,7 +3,7 @@
 # default request_type is get
 #
 ---
-has_changes: false
+has_changes: true
 menus:
 - name: File Section
   code: FS
@@ -133,9 +133,9 @@ menus:
     - name: Trial Balance
       path: "<%= report_trial_balance_index_path %>"
       code: RS_FIR_TRB
-#    - name: Cashbook
-#      path: "<%= ledgers_cashbook_path %>"
-#      code: RS_FIR_CAS
+    - name: Cashbook
+      path: "<%= ledgers_cashbook_path(search_by: 'date')%>"
+      code: RS_FIR_CAS
   - name: Transactions / Orders
     code: RS_TRO
     menu_items:

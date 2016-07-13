@@ -11,6 +11,8 @@
     <%= link_to "Search by Date", ledgers_cashbook_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
     |
     <%= link_to "Search by Date Range", ledgers_cashbook_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range") ? "active-link" : "")} %>
+    |
+    <%= link_to "View All", ledgers_cashbook_path(search_by: 'all'), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
   </h5>
 </div>
 

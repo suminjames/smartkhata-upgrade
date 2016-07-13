@@ -26,8 +26,9 @@ class Ledgers::Query
       page = 0
     end
 
+    # TODO(subas): The following if never executes as the respective view does never send 'all' as params. This 'if' and the fallback 'else' at the bottom do the same thing.
     if @params[:show] == "all"
-      # for pages greater than we need carryover balance
+      # for pages greater than we need 0, carryover balance
       opening_balance =  opening_balance_for_page(opening_balance, page) if  page > 0
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     elsif @params[:search_by] && @params[:search_term]
