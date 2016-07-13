@@ -120,10 +120,12 @@ class ClientAccount < ActiveRecord::Base
 
   # create client ledger
   def create_ledger
+    client_group = Group.find_or_create_by!(name: "Clients")
     if self.nepse_code.present?
       client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
         ledger.name = self.name
         ledger.client_account_id = self.id
+        ledger.group_id = client_group.id
       end
     end
   end

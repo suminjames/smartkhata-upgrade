@@ -17,4 +17,5 @@
 class LedgerBalance < ActiveRecord::Base
   belongs_to :ledger
   include ::Models::UpdaterWithFyCode
+  attr_accessor :opening_balance_type
 end

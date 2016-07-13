@@ -194,7 +194,7 @@ class BillsController < ApplicationController
 
   def sales_payment_process
     @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
-    @bank_account = BankAccount.find_by(id: params[:bank_account_id])
+    @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement )
@@ -243,7 +243,6 @@ class BillsController < ApplicationController
           @processed_bills << bill
         end
       end
-
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
     end

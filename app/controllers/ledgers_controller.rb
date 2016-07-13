@@ -92,6 +92,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/new
   def new
     @ledger = Ledger.new
+    @ledger.ledger_balances << LedgerBalance.new
     authorize @ledger
   end
 
@@ -106,18 +107,45 @@ class LedgersController < ApplicationController
   def create
     @ledger = Ledger.new(ledger_params)
     authorize @ledger
-
+    @valid = false
     @success = false
-    if (@ledger.opening_balance >= 0)
-      @success = true if @ledger.save
-    else
-      flash.now[:error] = "Dont act smart."
+    total_balance = 0.0
+
+    branch_ids = []
+
+    @ledger.ledger_balances.each do |balance|
+      if balance.opening_balance >=0
+        if branch_ids.include?(balance.branch_id)
+          flash.now[:error] = "Please include a entry for one branch"
+          @valid = false
+          break
+        end
+        @valid = true
+        branch_ids << balance.branch_id
+        total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+        next
+      end
+      @valid = false
+      flash.now[:error] = "Please dont include a negative amount"
+      break
     end
+
+    unless @ledger.group_id.present?
+      @ledger.errors.add(:group_id, "can't be empty")
+      @valid = false
+    end
+
+    if @valid
+      @ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
+      @success = true if @ledger.save
+    end
+
     respond_to do |format|
       if @success
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
+        @ledger.ledger_balances = @ledger.ledger_balances[0..-2] if @valid
         format.html { render :new }
         format.json { render json: @ledger.errors, status: :unprocessable_entity }
       end
@@ -250,7 +278,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id)
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id])
   end
 
 
