@@ -27,6 +27,7 @@
               <th>S.No.</th>
               <th><%= check_box_tag '', '', false, class: 'select_all' %></th>
               <th>Client Name</th>
+              <th>Bank Details</th>
               <th>Bill number</th>
               <th>Bill Amount</th>
             </tr>
@@ -35,8 +36,9 @@
             <% @bills.each_with_index do |bill, index| %>
                 <tr>
                   <td><%= index + 1  %></td>
-                  <td><%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]', class: "check-bill"  %></td>
-                  <td><%= bill.client_account.name.titleize %></td>
+                  <td><%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]', class: bill.client_account.bank_account.nil? ? "check-bill no-bank-account" : "check-bill"  %></td>
+                  <td><%= bill.client_account.name_and_nepse_code%></td>
+                  <td><%= client_bank_details(bill.client_account)%></td>
                   <td><%= bill.full_bill_number %></td>
                   <td class="text-right bill-amount"><%= arabic_number(bill.net_amount) %></td>
 

@@ -1,10 +1,10 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_blnc.abs)} #{@ledger.opening_blnc >= 0 ? 'dr' : 'cr'}" %>
-  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_blnc.abs)} #{@ledger.closing_blnc + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance_org >= 0 ? 'dr' : 'cr'}" %>
+  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance_org + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
 
 <% if @ledger.client_account_id.present? %>
-    <% if @ledger.closing_blnc.abs >= 0.01 %>
+    <% if @ledger.closing_balance.abs >= 0.01 %>
         <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
     <% end %>
     <% if @ledger.client_account.bills.find_not_settled.present? %>
@@ -53,9 +53,9 @@
 
 
 <% if @particulars.present? %>
-    <% if @opening_blnc_sorted.present? %>
-        <p><%= "Opening Balance:  #{number_to_currency(@opening_blnc_sorted.abs)} #{@opening_blnc_sorted >= 0 ? 'dr' : 'cr'}" %>
-          | <%= "Closing Balance: #{number_to_currency(@closing_blnc_sorted.abs)} #{@closing_blnc_sorted + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></p>
+    <% if @opening_balance_sorted.present? %>
+        <p><%= "Opening Balance:  #{number_to_currency(@opening_balance_sorted.abs)} #{@opening_balance_sorted >= 0 ? 'dr' : 'cr'}" %>
+          | <%= "Closing Balance: #{number_to_currency(@closing_balance_sorted.abs)} #{@closing_balance_sorted + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></p>
         <p>Debit: <%= number_to_currency(@total_debit) %> | Credit:<%= number_to_currency(@total_credit) %></p>
     <% end %>
 
@@ -90,7 +90,8 @@
           </colgroup>
           <% @particulars.each do |particular| %>
               <tr>
-                <td><%= particular.date_bs %></td>
+                <td><%= ad_to_bs(particular.transaction_date) %></td>
+
                 <td>
                   <% name = particular.get_description %><%= link_to name, voucher_path(particular.voucher), remote: true %></td>
                 <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
@@ -99,7 +100,7 @@
                   <!--TODO incorporate all bills -->
                   <% if particular.bills.count > 0 %>
                       <% particular.bills.each do |bill| %>
-                          <% if bill.client_account_id == @ledger.client_account_id %>
+                          <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
                           <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
                               <% end %>
                       <% end %>
@@ -136,13 +137,13 @@
                   </td>
                   <td class='text-right'>
                     <!-- -0.01 + 0.01 is equal to zero -->
-                    <% if particular.running_blnc + margin_of_error_amount < 0 %>
+                    <% if particular.running_total + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.running_blnc.abs)} cr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} cr" %>
               </span>
                     <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(particular.running_blnc.abs)} dr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} dr" %>
               </span>
                     <% end %>
 

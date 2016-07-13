@@ -19,14 +19,14 @@
             %th.col-xs-4.text-right= "Ledger Balance"
           %tbody
             - @ledgers.each do |ledger|
-              %tr{class:  ledger.closing_blnc + margin_of_error_amount < 0 ? 'ledger cr' : 'ledger dr'}
+              %tr{class:  ledger.closing_balance + margin_of_error_amount < 0 ? 'ledger cr' : 'ledger dr'}
                 %td= check_box_tag "ledger_ids[]", ledger.id, false, class: "check-ledger"
                 %td= ledger.name.titleize
                 %td.text-right
                   %span.display-amount
-                    = "#{number_to_currency(ledger.closing_blnc.abs)}"
+                    = "#{number_to_currency(ledger.closing_balance.abs)}"
                   %span.display-type
-                    - if ledger.closing_blnc + margin_of_error_amount < 0
+                    - if ledger.closing_balance + margin_of_error_amount < 0
                       = "cr"
                     - else
                       = "dr"

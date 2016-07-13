@@ -17,6 +17,7 @@
 #  reviewer_id         :integer          default("0")
 #
 
+
 class BankPaymentLetter < ActiveRecord::Base
   belongs_to :sales_settlement
   belongs_to :branch

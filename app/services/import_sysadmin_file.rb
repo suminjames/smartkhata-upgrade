@@ -1,7 +1,8 @@
 class ImportSysadminFile < ImportFile
   include ApplicationHelper
-  def initialize(file, from_nepse = false)
-    @from_nepse = from_nepse
+  def initialize(file, from_nepse , nepse_boid)
+    @from_nepse = from_nepse || false
+    @nepse_boid = nepse_boid || false
     super(file)
   end
 # process the file
@@ -22,6 +23,18 @@ class ImportSysadminFile < ImportFile
               client_account.phone_perm = hash['Phone']
             end
 
+            client_account.save!
+          end
+        end
+      end
+    elsif @nepse_boid
+      ActiveRecord::Base.transaction do
+        @processed_data.each do |hash|
+          client_account = ClientAccount.find_by(nepse_code:
+                                                     hash['Client Code']
+          )
+          if client_account.present?
+            client_account.boid = hash['BO ID']
             client_account.save!
           end
         end

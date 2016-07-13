@@ -21,5 +21,5 @@
       </div>
 
     </div>
-    <div><%= submit_tag 'Save Entries', class: 'btn btn-primary btn-flat' %></div>
+    <div><%= button_tag 'Save Entries', class: 'btn btn-primary btn-flat', data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Saving Entries..."} %></div>
 <% end %>

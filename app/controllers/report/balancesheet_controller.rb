@@ -4,6 +4,7 @@ class Report::BalancesheetController < ApplicationController
   def index
     drill_level = params[:drill_level].to_i if params[:drill_level].present?
     fy_code = params[:fy_code] if params[:fy_code].present?
+    branch_id = params[:branch_id] if params[:branch_id].present?
 
     @selected_drill_level = drill_level || 1
     @fy_code = get_user_selected_fy_code

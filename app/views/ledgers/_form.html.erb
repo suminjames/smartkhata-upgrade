@@ -20,9 +20,9 @@
     <% if can_edit_balance %>
         <div class="form-inputs row">
           <br>
-          <div class="col-xs-3"><%= f.input :opening_blnc %></div>
+          <div class="col-xs-3"><%= f.input :opening_balance %></div>
           <div class="col-xs-3">
-            <label><strong>Type </strong></label><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %>
+            <label><strong>Type </strong></label><%= f.select :opening_balance_type, options_for_select(Particular.transaction_types) %>
           </div>
         </div>
     <% end %>

@@ -33,6 +33,7 @@
 #
 
 
+
 class User < ActiveRecord::Base
   include MenuPermissionModule
 

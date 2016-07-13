@@ -3,13 +3,6 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
-    # if params[:type] == 'client'
-    #   @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
-    # elsif params[:type] == 'company'
-    #   @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
-    # else
-    #   @cheque_entries = ChequeEntry.unassigned
-    # end
     @filterrific = initialize_filterrific(
         ChequeEntry,
         params[:filterrific],

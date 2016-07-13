@@ -3,7 +3,7 @@ require 'test_helper'
 class BankAccountTest < ActiveSupport::TestCase
   def setup
     @bank = banks(:one)
-    # @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1", ledger_attributes: { opening_blnc: 500, opening_blnc_type: 0})
+    # @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1", ledger_attributes: { opening_balance: 500, opening_balance_type: 0})
     @bank_account = BankAccount.new(bank_id: @bank.id, account_number: 123, default_for_receipt: "1", default_for_payment: "1")
     @bank_account.ledger = Ledger.new
 
@@ -75,7 +75,7 @@ class BankAccountTest < ActiveSupport::TestCase
 
   # ledger_attributes: opening_balance
   test "opening balance should not be negative" do
-    @bank_account.ledger.opening_blnc = -500
+    @bank_account.ledger.opening_balance = -500
     assert_not @bank_account.valid?
   end
 
@@ -168,22 +168,22 @@ class BankAccountTest < ActiveSupport::TestCase
 
   # ledger_attributes: opening_balance_type: boolean field
   test "opening balance type should not be negative" do
-  	@bank_account[:ledger_attributes][:opening_blnc_type] = -1
+  	@bank_account[:ledger_attributes][:opening_balance_type] = -1
   	assert_not @bank_account.valid?
   end
 
   test "opening balance type should not be float" do
-  	@bank_account[:ledger_attributes][:opening_blnc_type] = 1.5
+  	@bank_account[:ledger_attributes][:opening_balance_type] = 1.5
   	assert_not @bank_account.valid?
   end
 
   test "opening balance type should not be any integer greater than 1" do
-  	@bank_account[:ledger_attributes][:opening_blnc_type] = '2'
+  	@bank_account[:ledger_attributes][:opening_balance_type] = '2'
   	assert_not @bank_account.valid?
   end
 
   test "opening balance type should not be string" do
-  	@bank_account[:ledger_attributes][:opening_blnc_type] = 'quux'
+  	@bank_account[:ledger_attributes][:opening_balance_type] = 'quux'
   	assert_not @bank_account.valid?
   end
 =end

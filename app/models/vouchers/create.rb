@@ -223,6 +223,7 @@ class Vouchers::Create < Vouchers::Base
         particular.pending!
 
         ledger = Ledger.find(particular.ledger_id)
+        client_account ||= ledger.client_account
 
         # particular.bill_id = bill_id
         if (particular.cheque_number.present?)
@@ -239,6 +240,8 @@ class Vouchers::Create < Vouchers::Base
             vendor_account_id = vendor_account.id
             cheque_name = vendor_account.name
           end
+
+          client_account_id ||= client_account.id if client_account.present?
 
           begin
             # cheque entry recording
@@ -289,15 +292,15 @@ class Vouchers::Create < Vouchers::Base
         end
 
         unless voucher.is_payment_bank
-          ledger.lock!
-          closing_blnc = ledger.closing_blnc
-          ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
-          particular.opening_blnc = closing_blnc
-          particular.running_blnc = ledger.closing_blnc
-          particular.complete!
-          ledger.save!
+          # ledger.lock!
+          # # closing_balance = ledger.closing_balance
+          # # ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
+          # # particular.opening_balance = closing_balance
+          # # particular.running_blnc = ledger.closing_balance
+          # particular.complete!
+          # ledger.save!
+          Ledgers::ParticularEntry.new.insert_particular(particular)
         end
-
       end
 
       # if voucher settlement type is other than default create only a single settlement.
@@ -307,6 +310,7 @@ class Vouchers::Create < Vouchers::Base
         else
           voucher.beneficiary_name = vendor_account.name
         end
+
         settlement = purchase_sales_settlement(
             voucher,
             description_bills: description_bills,
@@ -349,6 +353,7 @@ class Vouchers::Create < Vouchers::Base
     end
 
     # single settlement for all the transaction exist only for the group leader and vendor accounting
+
     if is_single_settlement
       if client_group_leader_account.present?
         settler_name = client_group_leader_account.name
@@ -368,11 +373,12 @@ class Vouchers::Create < Vouchers::Base
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
+    #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
     elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
-      settlement.client_account = client_account
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account.id)
+      # settlement.client_account = client_account
     end
 
     settlement

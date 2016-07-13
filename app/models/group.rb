@@ -15,6 +15,7 @@
 #
 
 
+
 class Group < ActiveRecord::Base
   include ::Models::Updater
   include FiscalYearModule
@@ -56,8 +57,8 @@ class Group < ActiveRecord::Base
     self_and_descendents_bad.map(&:ledgers).flatten
   end
 
-  def closing_blnc_bad
-    self.descendent_ledgers_bad.sum(&:closing_blnc)
+  def closing_balance_bad
+    self.descendent_ledgers_bad.sum(&:closing_balance)
   end
 
 
@@ -69,7 +70,7 @@ class Group < ActiveRecord::Base
 
     group_ledger = Hash.new
     child_group = Hash.new
-    group_ledger[:balance] = self.closing_blnc(fy_code)
+    group_ledger[:balance] = self.closing_balance(fy_code)
     group_ledger[:ledgers] = []
 
     # dont load all the clients
@@ -99,8 +100,8 @@ class Group < ActiveRecord::Base
     Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
   end
 
-  def closing_blnc(fy_code = get_fy_code)
-    self.descendent_ledgers(fy_code).sum(:closing_blnc)
+  def closing_balance(fy_code = get_fy_code)
+    self.descendent_ledgers(fy_code).to_a.sum(&:closing_balance)
   end
 
   def self.tree_for(instance)

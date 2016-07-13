@@ -31,6 +31,7 @@
 #  updated_at        :datetime         not null
 #
 
+
 class ShareInventory < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 

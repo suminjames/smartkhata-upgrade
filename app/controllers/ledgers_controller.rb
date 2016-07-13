@@ -50,54 +50,21 @@ class LedgersController < ApplicationController
   def show
     authorize @ledger
     @back_path = request.referer || ledgers_path
-    if params[:show] == "all"
-      @particulars = @ledger.particulars.complete.order("id ASC")
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'date_range'
-          # The dates being entered are assumed to be BS dates, not AD dates
-          date_from_bs = search_term['date_from']
-          date_to_bs = search_term['date_to']
-          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-            date_from_ad = bs_to_ad(date_from_bs)
-            date_to_ad = bs_to_ad(date_to_bs)
-            @particulars = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order("id ASC")
-            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
-            first = @particulars.first
-            last = @particulars.last
+    ledger_query = Ledgers::Query.new(params, @ledger)
 
-            @closing_blnc_sorted = last.running_blnc
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
 
-            if first.dr?
-              @opening_blnc_sorted = first.running_blnc - first.amount
-            else
-              @opening_blnc_sorted = first.running_blnc + first.amount
-            end
-
-
-          else
-            @particulars = ''
-            respond_to do |format|
-              flash.now[:error] = 'Invalid date(s)'
-              format.html { render :show }
-              format.json { render json: flash.now[:error], status: :unprocessable_entity }
-            end
-          end
-        else
-          @particulars = ''
+    unless ledger_query.error_message.blank?
+      respond_to do |format|
+        flash.now[:error] = ledger_query.error_message
+        format.html { render :show }
+        format.json { render json: flash.now[:error], status: :unprocessable_entity }
       end
-
-    elsif params[:search_by]
-      @particulars = ''
-    else
-      @particulars = @ledger.particulars.complete.order("id ASC")
     end
-
-    @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
   end
 
   # GET /ledgers/new
@@ -109,7 +76,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1/edit
   def edit
     authorize @ledger
-    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_blnc == 0.0)
+    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
   end
 
   # POST /ledgers
@@ -119,7 +86,7 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     @success = false
-    if (@ledger.opening_blnc >= 0)
+    if (@ledger.opening_balance >= 0)
       @success = true if @ledger.save
     else
       flash.now[:error] = "Dont act smart."
@@ -159,6 +126,45 @@ class LedgersController < ApplicationController
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+
+  # Cashbook population here
+  def cashbook
+    authorize Ledger
+    @back_path = request.referer || ledgers_path
+    @ledger = Ledger.find(8)
+    @cashbook_ledgers = Ledger.cashbook_ledgers
+    ledger_query = Ledgers::CashbookQuery.new(params)
+
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
 
@@ -202,13 +208,12 @@ class LedgersController < ApplicationController
 
       # update each ledgers
       ledger_list.each do |ledger|
-        _closing_balance = ledger.closing_blnc
+        _closing_balance = ledger.closing_balance
         net_balance += _closing_balance
-
-        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description)
+        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
     end
 
     redirect_to group_member_ledgers_path, :flash => {:info => 'Successfully Transferred'} and return
@@ -223,7 +228,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id)
   end
 
 

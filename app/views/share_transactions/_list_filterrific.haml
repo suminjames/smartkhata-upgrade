@@ -22,10 +22,10 @@
               %td.text-center= pagination_count + index
               %td.text-center= ad_to_bs_string(share_transaction.date)
               %td.text-center= share_transaction.contract_no
-              %td.text-center= share_transaction.isin_info.company
+              %td.text-center= share_transaction.isin_info.name_and_code
               %td.text-center= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
-              %td.quantity-in.text-right= arabic_number(share_transaction.quantity) if share_transaction.buying?
-              %td.quantity-out.text-right= arabic_number(share_transaction.quantity) if share_transaction.selling?
+              %td.quantity-in.text-right= arabic_number(share_transaction.quantity).to_i if share_transaction.buying?
+              %td.quantity-out.text-right= arabic_number(share_transaction.quantity).to_i if share_transaction.selling?
               %td.text-right= arabic_number(share_transaction.isin_info.last_price.to_f)
               %td.text-right= arabic_number(share_transaction.share_amount)
               %td.text-right= arabic_number(share_transaction.commission_amount)

@@ -96,9 +96,8 @@ class ImportCloseOut < ImportFile
                   voucher.complete!
                   voucher.save!
 
-                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description)
-                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description)
-
+                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description, session[:user_selected_branch_id], Time.now.to_date)
+                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description, session[:user_selected_branch_id],  Time.now.to_date)
                 end
               else
                 import_error("Please assign a default bank account for sales")
