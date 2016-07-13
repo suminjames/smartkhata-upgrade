@@ -52,16 +52,15 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     ledger_query = Ledgers::Query.new(params, @ledger)
 
-    @particulars,
-        @total_credit,
-        @total_debit,
-        @closing_balance_sorted,
-        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
 
     if params[:format] == 'xlsx'
-      # respond_to do |format|
-      #   format.xlsx do; end
-      # end
+      @particulars,
+          @total_credit,
+          @total_debit,
+          @closing_balance_sorted,
+          @opening_balance_sorted = ledger_query.ledger_with_particulars(true)
+
       report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
       if report.generated_successfully?
         send_file(report.path, type: report.type)
@@ -70,10 +69,17 @@ class LedgersController < ApplicationController
         redirect_to ledgers_path, flash: { error: report.error }
       end
       return
+    else
+      @particulars,
+          @total_credit,
+          @total_debit,
+          @closing_balance_sorted,
+          @opening_balance_sorted = ledger_query.ledger_with_particulars
     end
+
     @download_path_xlsx = ledger_path(@ledger, {format:'xlsx'}.merge(params))
 
-    @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
+    # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
     unless ledger_query.error_message.blank?
       respond_to do |format|
         flash.now[:error] = ledger_query.error_message
