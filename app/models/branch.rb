@@ -10,6 +10,7 @@
 #
 
 
+
 class Branch < ActiveRecord::Base
   validates_presence_of :code, :address
   validates :code, uniqueness: {case_sensitive: false}

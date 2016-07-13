@@ -11,6 +11,7 @@
 #  updated_at   :datetime         not null
 #
 
+
 class MenuPermission < ActiveRecord::Base
   include ::Models::Updater
   belongs_to :menu_item

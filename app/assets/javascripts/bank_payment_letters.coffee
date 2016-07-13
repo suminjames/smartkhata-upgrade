@@ -22,6 +22,7 @@ $(document).ready ->
     $this  = $(this)
     $this.closest('table')
     .find("td input[type='checkbox']")
+    .not(".no-bank-account")
     .prop('checked', this.checked)
 
     bill_amount = get_total_balance()

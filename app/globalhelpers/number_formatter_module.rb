@@ -21,4 +21,10 @@ module NumberFormatterModule
   def arabic_number(decimal)
     decimal.to_f.round(2).to_amount
   end
+
+  # If exists, strips a number of redundant zeroes after decimal.
+  def strip_redundant_decimal_zeroes(number)
+    number % 1 == 0 ? number.to_i : number
+  end
+
 end

@@ -23,6 +23,7 @@
 #  updated_at        :datetime         not null
 #
 
+
 class Closeout < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
   enum closeout_type: [:debit, :credit]

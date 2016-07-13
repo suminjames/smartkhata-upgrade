@@ -30,6 +30,7 @@
 #  running_blnc_client    :decimal(15, 4)   default("0")
 #
 
+
 class Particular < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithBranchFycode
