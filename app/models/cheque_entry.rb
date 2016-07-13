@@ -113,7 +113,7 @@ class ChequeEntry < ActiveRecord::Base
   end
 
   def self.options_for_bank_account_select
-    BankAccount.all.order(:bank_name)
+    BankAccount.by_branch_id.all.order(:bank_name)
   end
 
   def self.options_for_cheque_entry_status

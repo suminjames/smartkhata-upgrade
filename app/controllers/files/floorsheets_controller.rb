@@ -285,14 +285,13 @@ class Files::FloorsheetsController < Files::FilesController
       bill_id = bill.id
       full_bill_number = "#{fy_code}-#{bill.bill_number}"
 
+      client_group = Group.find_or_create_by!(name: "Clients")
       # create client ledger if not exist
       client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
         ledger.name = client_name
         ledger.client_account_id = client.id
+        ledger.group_id = client_group.id
       end
-      # assign the client ledgers to group clients
-      client_group = Group.find_or_create_by!(name: "Clients")
-      client_group.ledgers << client_ledger
 
       # find or create predefined ledgers
       purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")

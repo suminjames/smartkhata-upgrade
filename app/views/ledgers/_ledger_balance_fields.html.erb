@@ -1,0 +1,13 @@
+<div class="row particular">
+  <div class="col-xs-5"><%= f.input :opening_balance, label:false %></div>
+  <div class="col-xs-2"><%= f.select :opening_balance_type, options_for_select(Particular.transaction_types) %></div>
+  <div class="col-xs-4">
+    <%= f.input :branch_id , label: false do %>
+        <%= f.select :branch_id, available_branches.all.map { |r| [r.code, r.id, { class: 'form-control' }] }, selected: f.object.branch_id || UserSession.selected_branch_id, include_blank: false %>
+    <% end %>
+  </div>
+  <div class="col-xs-1">
+    <label><strong>&nbsp; </strong></label>
+    <%= link_to '<i class="fa fa-times" aria-hidden="true"></i>'.html_safe, '#', class: 'removeThisParticular btn btn-danger btn-flat lighter', data: { toggle: "tooltip", placement: "top", title: "Remove"} %>
+  </div>
+</div>

@@ -3,7 +3,7 @@ class BankAccountsController < ApplicationController
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index
-    @bank_accounts = BankAccount.all
+    @bank_accounts = BankAccount.by_branch_id.all
   end
 
   # GET /bank_accounts/1
@@ -13,8 +13,9 @@ class BankAccountsController < ApplicationController
 
   # GET /bank_accounts/new
   def new
-    @bank_account = BankAccount.new
+    @bank_account = BankAccount.by_branch_id.new
     @bank_account.ledger = Ledger.new
+    @bank_account.ledger.ledger_balances << LedgerBalance.new
   end
 
   # GET /bank_accounts/1/edit
@@ -26,6 +27,9 @@ class BankAccountsController < ApplicationController
   def create
 
     @bank_account = BankAccount.new(bank_account_params)
+    # since this group is integral to the software in hand
+    # any error raised here should be thoroughly examined
+    @group_id = Group.find_by(name: "Current Assets").id
 
     @bank = Bank.find_by(id: @bank_account.bank_id)
     if @bank.present?
@@ -33,12 +37,31 @@ class BankAccountsController < ApplicationController
       @bank_account.bank_name = @bank.name
     end
 
+    @valid = false
+    @success = false
+    total_balance = 0.0
+    @bank_account.ledger.ledger_balances.each do |balance|
+      if balance.opening_balance >=0
+        @valid = true
+        total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+        next
+      end
+      @valid = false
+      flash.now[:error] = "Please dont include a negative amount"
+      break
+    end
+
+    if @valid
+      @bank_account.ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
+      @success = true if @bank_account.save
+    end
 
     respond_to do |format|
-      if @bank_account.save
+      if @success
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully created.' }
         format.json { render :show, status: :created, location: @bank_account }
       else
+        @bank_account.ledger.ledger_balances = @bank_account.ledger.ledger_balances[0..-2] if @valid
         format.html { render :new }
         format.json { render json: @bank_account.errors, status: :unprocessable_entity }
       end
@@ -77,8 +100,8 @@ class BankAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
-    params.require(:bank_account).permit(:bank_id, :account_number, :default_for_receipt, :default_for_payment,
-                                         ledger_attributes: [:opening_blnc, :opening_balance_type])
+    params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
+                                         ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type]])
   end
 
   def bank_account_update_params
