@@ -3,7 +3,7 @@ require 'test_helper'
 class LedgerTest < ActiveSupport::TestCase
   def setup
     @ledger = ledgers(:one)
-    @new_ledger = Ledger.new(name: 'foo', opening_blnc: 500)
+    @new_ledger = Ledger.new(name: 'foo', opening_balance: 500)
   end
 
   test "should be valid" do
@@ -15,37 +15,37 @@ class LedgerTest < ActiveSupport::TestCase
     assert @new_ledger.invalid?
   end
 
-  test "opening_blnc should not be negative" do
-    @new_ledger.opening_blnc = -100_000
+  test "opening_balance should not be negative" do
+    @new_ledger.opening_balance = -100_000
     assert @new_ledger.invalid?
   end
 
-  test "should update_closing_blnc for debit" do
-    initial_opening_blnc = @ledger.opening_blnc
-    assert_equal @ledger.closing_blnc.to_f, 0.0
+  test "should update_closing_balance for debit" do
+    initial_opening_balance = @ledger.opening_balance
+    assert_equal @ledger.closing_balance.to_f, 0.0
     @ledger.update_closing_balance
     @ledger.reload
-    assert_equal @ledger.opening_blnc, @ledger.closing_blnc
-    assert_equal initial_opening_blnc, @ledger.closing_blnc
+    assert_equal @ledger.opening_balance, @ledger.closing_balance
+    assert_equal initial_opening_balance, @ledger.closing_balance
   end
 
-  test "should update_closing_blnc for credit" do
-    initial_opening_blnc = @ledger.opening_blnc
-    assert_equal @ledger.closing_blnc.to_f, 0.0
-    @ledger.opening_blnc_type = Particular.transaction_types['cr']
+  test "should update_closing_balance for credit" do
+    initial_opening_balance = @ledger.opening_balance
+    assert_equal @ledger.closing_balance.to_f, 0.0
+    @ledger.opening_balance_type = Particular.transaction_types['cr']
     @ledger.update_closing_balance
     @ledger.reload
-    assert_equal @ledger.opening_blnc,  @ledger.closing_blnc
-    assert_equal -initial_opening_blnc, @ledger.closing_blnc
+    assert_equal @ledger.opening_balance,  @ledger.closing_balance
+    assert_equal -initial_opening_balance, @ledger.closing_balance
   end
 
-  test "should store error if negative opening_blnc" do
+  test "should store error if negative opening_balance" do
     @ledger.positive_amount
     assert @ledger.errors.none?
 
-    @ledger.opening_blnc = -500
+    @ledger.opening_balance = -500
     @ledger.positive_amount
-    assert_equal "can't be negative or blank", @ledger.errors[:opening_blnc][0]
+    assert_equal "can't be negative or blank", @ledger.errors[:opening_balance][0]
   end
 
 # Unable to sign-in

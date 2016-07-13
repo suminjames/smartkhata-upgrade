@@ -80,14 +80,6 @@ class SalesSettlementsController < ApplicationController
   # generate bills for the sale settlement
   def generate_bills
     @sales_settlement = SalesSettlement.find(params[:id])
-    payment_by_bank = params[:payment_letter] == 'yes' ? true : false
-
-    bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    bank_account = BankAccount.find_by(id: bank_account_id)
-    # bank account is integral for creating payment letter
-    if payment_by_bank && bank_account_id.blank?
-      redirect_to sales_settlement_url(id: @sales_settlement.id),  flash: { error: "Please select a bank account or uncheck the option for payment letter" } and return
-    end
 
     # check if the sales settlement is pending
     # return with error message if otherwise

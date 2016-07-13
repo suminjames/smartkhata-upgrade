@@ -89,6 +89,18 @@ class ClientAccount < ActiveRecord::Base
   # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
 
+  # 36 fields present. Validate accordingly!
+  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
+                        :unless => :nepse_code?
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
+  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
+  # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
+  # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
+
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :find_by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
@@ -152,7 +164,7 @@ class ClientAccount < ActiveRecord::Base
 
   def get_group_members_ledgers_with_balance
     ids = self.group_members.pluck(:id)
-    Ledger.where(client_account_id: ids).where('(closing_blnc - 0.01) > ?', '0')
+    Ledger.where(client_account_id: ids).where('(closing_balance - 0.01) > ?', '0')
   end
 
   def get_group_members_ledger_ids
@@ -172,6 +184,11 @@ class ClientAccount < ActiveRecord::Base
       messageable_phone_number = self.phone_perm
     end
     messageable_phone_number
+  end
+
+  # validation helper
+  def any_bank_field_present?
+    bank_name? || bank_address? || bank_account?
   end
 
   def name_and_nepse_code

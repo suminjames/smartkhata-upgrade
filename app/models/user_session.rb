@@ -4,9 +4,10 @@
 
 class UserSession
   class << self
-    attr_reader :user, :selected_fy_code
+    attr_reader :user, :selected_fy_code, :selected_branch_id
     delegate :id, :email, :branch_id, to: :user
     # Stores the current_user for devise using the application_controller
+
     def user=(usr)
       raise 'You must pass a User class' unless usr.is_a?(User)
       @user = usr
@@ -24,9 +25,13 @@ class UserSession
       @selected_fy_code = fy_code
     end
 
-    def branch_id
-      user.branch_id
+    def selected_branch_id=(branch_id)
+      @selected_branch_id = branch_id
     end
+
+    # def branch_id
+    #   user.branch_id
+    # end
 
     def destroy
       @user = nil

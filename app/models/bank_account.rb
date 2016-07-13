@@ -14,9 +14,6 @@
 #  bank_id             :integer
 #
 
-
-
-
 class BankAccount < ActiveRecord::Base
   include ::Models::Updater
   attr_reader :bank_account_name
@@ -28,7 +25,7 @@ class BankAccount < ActiveRecord::Base
   belongs_to :bank
 
   # alphanumeric account number with atleast a single digit
-  validates :account_number, uniqueness: true, format: {with: /\A(?=.*\d)([a-zA-Z0-9]+)\z/, message: 'should be numeric or alphanumeric'}
+  validates :account_number, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}
   validates_presence_of :bank, :account_number
   accepts_nested_attributes_for :ledger
 

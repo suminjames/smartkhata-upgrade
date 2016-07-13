@@ -103,8 +103,8 @@ class NepseChalansController < ApplicationController
       voucher.complete!
       voucher.save!
 
-      process_accounts(bank_ledger, voucher, false, chalan_amount, description)
-      process_accounts(nepse_ledger, voucher, true, chalan_amount, description)
+      process_accounts(bank_ledger, voucher, false, chalan_amount, description, session[:user_selected_branch_id], Time.now.to_date)
+      process_accounts(nepse_ledger, voucher, true, chalan_amount, description, session[:user_selected_branch_id], Time.now.to_date)
 
       @nepse_chalan.voucher = voucher
       @nepse_chalan.share_transactions = share_transactions

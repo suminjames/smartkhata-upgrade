@@ -7,7 +7,7 @@ class BankAccountsControllerTest < ActionController::TestCase
     sign_in users(:user)
     @post_action = lambda { |acc_no|
       post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_receipt"=>"1", "default_for_payment"=>"1",
-                                   "ledger_attributes" => { opening_blnc: 500, opening_blnc_type: 0} }
+                                   "ledger_attributes" => { opening_balance: 500, opening_balance_type: 0} }
     }
     @assert_block_via_get = Proc.new { |action, get_with_id|
       if get_with_id

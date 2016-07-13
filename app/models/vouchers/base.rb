@@ -48,7 +48,7 @@ class Vouchers::Base
     if (clear_ledger || bill_ids.size > 0) && client_account.present?
 
       client_ledger = client_account.ledger
-      ledger_balance = client_ledger.closing_blnc
+      ledger_balance = client_ledger.closing_balance
 
       if clear_ledger
         bills_receive = client_account.bills.requiring_receive
