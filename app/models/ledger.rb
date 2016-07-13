@@ -67,6 +67,59 @@ class Ledger < ActiveRecord::Base
   scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
   scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
+  scope :cash_ledger, -> {where(name: 'Cash')}
+  scope :bank_account_ledgers, lambda {
+    ledger_ids = []
+    BankAccount.all.each do |bank_account|
+      ledger_ids << bank_account.ledger.id
+    end
+    where(id: ledger_ids)
+  }
+
+  scope :cashbook_ledgers, lambda {
+    ledger_ids = []
+    cash_ledger = Ledger.find_by_name('Cash')
+    ledger_ids << cash_ledger.id
+    BankAccount.all.each do |bank_account|
+      ledger_ids << bank_account.ledger.id
+    end
+    where(id: ledger_ids)
+  }
+
+  #   TODO: Wipe filterrific remnants if not implemented (in the future)
+  scope :cashbook_ledgers_particulars, lambda {
+  }
+
+  filterrific(
+      default_filter_params: { sorted_by: 'cashbook_ledgers_desc' },
+      available_filters: [
+          :sorted_by,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id,
+          :by_cashbook_ledger_id,
+      ]
+  )
+
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where(:updated_at => date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
+  }
+
+  scope :by_cashbook_ledger_id, -> (id) { where(id: id).order(id: :desc) }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^cashbook_ledgers/
+        cashbook_ledgers.order(:id)
+      when /^id/
+        order("ledgers.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
 
 
   #
@@ -139,4 +192,8 @@ class Ledger < ActiveRecord::Base
     subtree = self.class.tree_sql_for(self)
     Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
   end
+
+ def self.options_for_cashbook_ledger_select
+   Ledger.cashbook_ledgers
+ end
 end

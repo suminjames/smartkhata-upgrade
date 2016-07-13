@@ -12,6 +12,10 @@
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  bank_id             :integer
+#  branch_id           :integer
+#  bank_branch         :string
+#  address             :text
+#  contact_no          :string
 #
 
 class BankAccount < ActiveRecord::Base

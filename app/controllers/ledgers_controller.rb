@@ -52,12 +52,34 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     ledger_query = Ledgers::Query.new(params, @ledger)
 
-    @particulars,
-        @total_credit,
-        @total_debit,
-        @closing_balance_sorted,
-        @opening_balance_sorted = ledger_query.ledger_with_particulars
 
+
+    if params[:format] == 'xlsx'
+      @particulars,
+          @total_credit,
+          @total_debit,
+          @closing_balance_sorted,
+          @opening_balance_sorted = ledger_query.ledger_with_particulars(true)
+
+      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
+      if report.generated_successfully?
+        send_file(report.path, type: report.type)
+      else
+        # This should be ideally an ajax notification!
+        redirect_to ledgers_path, flash: { error: report.error }
+      end
+      return
+    else
+      @particulars,
+          @total_credit,
+          @total_debit,
+          @closing_balance_sorted,
+          @opening_balance_sorted = ledger_query.ledger_with_particulars
+    end
+
+    @download_path_xlsx = ledger_path(@ledger, {format:'xlsx'}.merge(params))
+
+    # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
     unless ledger_query.error_message.blank?
       respond_to do |format|
         flash.now[:error] = ledger_query.error_message
@@ -149,6 +171,45 @@ class LedgersController < ApplicationController
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+
+  # Cashbook population here
+  def cashbook
+    authorize Ledger
+    @back_path = request.referer || ledgers_path
+    @ledger = Ledger.find(8)
+    @cashbook_ledgers = Ledger.cashbook_ledgers
+    ledger_query = Ledgers::CashbookQuery.new(params)
+
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
 
