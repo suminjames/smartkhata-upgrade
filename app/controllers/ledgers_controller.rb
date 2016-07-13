@@ -97,6 +97,21 @@ class LedgersController < ApplicationController
       @particulars = @ledger.particulars.complete.order("id ASC")
     end
 
+    if params[:format] == 'xlsx'
+      # respond_to do |format|
+      #   format.xlsx do; end
+      # end
+      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params)
+      if report.generated_successfully?
+        send_file(report.path, type: report.type)
+      else
+        # This should be ideally an ajax notification!
+        redirect_to ledgers_path, flash: { error: report.error }
+      end
+      return
+    end
+    @download_path_xlsx = ledger_path(@ledger, {format:'xlsx'}.merge(params))
+
     @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
   end
 

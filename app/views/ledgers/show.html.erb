@@ -24,7 +24,8 @@
     <%= link_to "View all", ledger_path(@ledger), {:class => (is_active_sub_menu_option("") ? "active-link" : "")} %>
   </h5>
 </div>
-
+download Report:
+<%= link_to "as xlsx", @download_path_xlsx %>
 
 <% if params[:search_by] == 'date_range' %>
   <div class="clearfix search-form">
