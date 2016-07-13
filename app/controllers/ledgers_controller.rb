@@ -129,6 +129,56 @@ class LedgersController < ApplicationController
   end
 
 
+  # Cashbook population here
+  def cashbook
+    # @filterrific = initialize_filterrific(
+    #     Ledger,
+    #     params[:filterrific],
+    #     select_options: {
+    #         by_cashbook_ledger_id: Ledger.options_for_cashbook_ledger_select,
+    #     },
+    #     persistence_id: false
+    # ) or return
+    # items_per_page = params[:no_paginate] == 'true' ?  Ledger.cashbook_particulars.count : 20
+    # @cashbook_particulars = @filterrific.find.page(params[:page]).per(items_per_page)
+
+    authorize Ledger
+    @back_path = request.referer || ledgers_path
+    @ledger = Ledger.find(8)
+    @cashbook_ledgers = Ledger.cashbook_ledgers
+    ledger_query = Ledgers::Query.new(params, @ledger)
+
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+  end
+
+
   # Get list of group members
   def group_members_ledgers
     authorize Ledger

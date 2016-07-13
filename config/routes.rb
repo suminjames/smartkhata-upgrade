@@ -72,6 +72,7 @@ Rails.application.routes.draw do
   resources :groups
 
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
+  match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
 
   resources :ledgers do
     collection do

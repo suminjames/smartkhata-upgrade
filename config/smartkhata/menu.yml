@@ -133,6 +133,9 @@ menus:
     - name: Trial Balance
       path: "<%= report_trial_balance_index_path %>"
       code: RS_FIR_TRB
+    - name: Cashbook
+      path: "<%= ledgers_cashbook_path %>"
+      code: RS_FIR_CAS
   - name: Transactions / Orders
     code: RS_TRO
     menu_items:
