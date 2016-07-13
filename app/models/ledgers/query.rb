@@ -17,14 +17,19 @@ class Ledgers::Query
     @opening_balance_sorted = nil
   end
 
-  def ledger_with_particulars
+  def ledger_with_particulars(no_pagination = false)
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
     opening_balance = @ledger.opening_balance
+
+    # no pagination is required for xls file generation
+    if no_pagination
+      page = 0
+    end
 
     if @params[:show] == "all"
       # for pages greater than we need carryover balance
       opening_balance =  opening_balance_for_page(opening_balance, page) if  page > 0
-      @particulars = get_particulars(@params[:page])
+      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     elsif @params[:search_by] && @params[:search_term]
       search_by = @params[:search_by]
       search_term = @params[:search_term]
@@ -39,7 +44,7 @@ class Ledgers::Query
             date_to_ad = bs_to_ad(date_to_bs)
 
             # get the ordered particulars
-            @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad)
+            @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination)
 
             # sum of total credit and debit amount
             @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
@@ -68,7 +73,7 @@ class Ledgers::Query
     elsif !@params[:search_by]
       # for pages greater than we need carryover balance
       opening_balance =  opening_balance_for_page(opening_balance, page) if  page > 0
-      @particulars = get_particulars(@params[:page])
+      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     end
 
     # grab the particulars with running total
@@ -79,12 +84,21 @@ class Ledgers::Query
   #
   # get the particulars based on conditions
   #
-  def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil)
-    if date_from_ad.present? && date_to_ad.present?
-      @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+  def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
+    if no_pagination
+      if date_from_ad.present? && date_to_ad.present?
+        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
+      else
+        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
+      end
     else
-      @ledger.particulars.complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      if date_from_ad.present? && date_to_ad.present?
+        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      else
+        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      end
     end
+
   end
 
   #

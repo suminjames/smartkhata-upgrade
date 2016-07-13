@@ -91,8 +91,8 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       transaction_amt = number_to_currency(p.amount).to_s
       p.cr? ? transaction_amt << " cr" : transaction_amt << " dr"
 
-      balance = number_to_currency(p.running_blnc.abs).to_s
-      p.running_blnc + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
+      balance = number_to_currency(p.running_total.abs).to_s
+      p.running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 
       row_style = index.even? ? normal_style_row : striped_style_row
       @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt, balance],
