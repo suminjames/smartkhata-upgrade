@@ -26,7 +26,7 @@ class ShareTransactionsController < ApplicationController
       format.html
       format.js
       format.pdf do
-        print_in_letter_head = false
+        print_in_letter_head = true
         pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
         send_data pdf.render, filename: "ShareTransactions.pdf", type: 'application/pdf', disposition: "inline"
       end

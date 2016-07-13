@@ -101,17 +101,26 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       table_data = []
       th_data = ["SN.", "Date", "Transaction No.", "Company", "Bill No.", "Qty\nin", "Qty\nout", "Market\nRate", "Amount", "Commission"]
       table_data << th_data
+      total_q_in = 0
+      total_q_out = 0
+      total_share_amt = 0
+      total_comm_amt = 0
       @share_transactions.each_with_index do |st, index|
         sn = index + 1
         date = ad_to_bs_string(st.date)
         contract_num = st.contract_no
         company = st.isin_info.name_and_code
         bill_num = st.bill.present? ? st.bill.full_bill_number : 'N/A'
-        q_in = st.buying? ? arabic_number(st.quantity).to_i : ''
-        q_out = st.selling? ? arabic_number(st.quantity).to_i : ''
-        m_rate = arabic_number(st.isin_info.last_price.to_f)
-        share_amt = arabic_number(st.share_amount.to_f)
+        q_in = st.buying? ? st.quantity.to_i : ''
+        q_out = st.selling? ? st.quantity.to_i : ''
+        m_rate = strip_redundant_decimal_zeroes(st.isin_info.last_price.to_f)
+        share_amt = strip_redundant_decimal_zeroes(st.share_amount.to_f)
         comm_amt = arabic_number(st.commission_amount.to_f)
+
+        total_q_in += q_in.to_i # to_i used to convert empty string value to 0
+        total_q_out += q_out.to_i # to_i used to convert empty string value to 0
+        total_share_amt += share_amt
+        total_comm_amt += comm_amt.to_i
 
         table_data << [
             sn,
@@ -126,6 +135,20 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
             comm_amt
         ]
       end
+      total_row_data = [
+          '',
+          '',
+          '',
+          '',
+          'Total',
+          total_q_in,
+          total_q_out,
+          '',
+          arabic_number(total_share_amt),
+          arabic_number(total_comm_amt)
+      ]
+      table_data << total_row_data
+
       table_width = page_width - 2
       column_widths = {0 => table_width * 0.7/12.0,
                        1 => table_width * 1.3/12.0,
@@ -147,6 +170,8 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         t.row(0).style(:align => :center)
         t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
         t.column_widths = column_widths
+        t.row(-1).size = 9
+        t.row(-1).font_style = :bold
       end
     end
 
