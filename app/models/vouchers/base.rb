@@ -2,6 +2,7 @@ class Vouchers::Base
   include NumberFormatterModule
   include CustomDateModule
   include BillModule
+  include FiscalYearModule
 
   attr_reader :error_message
 

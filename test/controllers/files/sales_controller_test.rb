@@ -13,7 +13,6 @@ class Files::SalesControllerTest < ActionController::TestCase
       get :index
       assert_not assigns(:file_list).empty?
       @controller = sales_controller
-      # debugger
     }
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/csv'

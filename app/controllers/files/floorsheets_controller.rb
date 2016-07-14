@@ -3,6 +3,7 @@ class Files::FloorsheetsController < Files::FilesController
 
   include CommissionModule
   include ShareInventoryModule
+  include FiscalYearModule
 
   @@file_type = FileUpload::file_types[:floorsheet]
   @@file_name_contains = "FLOORSHEET"
@@ -65,7 +66,9 @@ class Files::FloorsheetsController < Files::FilesController
     end
 
     file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
-
+    # fiscal year and date should match
+    file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
+    
     # do not reprocess file if it is already uploaded
     floorsheet_file = FileUpload.find_by(file_type: @@file_type, report_date: @date)
     # raise soft error and return if the file is already uploaded

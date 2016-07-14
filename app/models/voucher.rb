@@ -26,31 +26,41 @@ class Voucher < ActiveRecord::Base
   # include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
 
+  # purchase and sales kept as per the accounting norm
+  # however voucher types will be represented as payment and receive
+  enum voucher_type: [:journal, :payment, :receipt, :contra]
+  enum voucher_status: [:pending, :complete, :rejected]
+
+  ########################################
+  # Callbacks
+
+  before_save :process_voucher
+  after_save :assign_cheque
+
+  ########################################
+  # Relationships
   has_many :particulars
   has_many :share_transactions
   has_many :ledgers, :through => :particulars
   has_many :cheque_entries, :through => :particulars
-
   accepts_nested_attributes_for :particulars
   has_many :settlements
   has_one :nepse_chalan
-
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
   has_many :bill_voucher_associations
   has_many :bills_on_creation, through: :on_creation, source: :bill
   has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
-
   belongs_to :reviewer, class_name: 'User'
 
-  # purchase and sales kept as per the accounting norm
-  # however voucher types will be represented as payment and receive
-  enum voucher_type: [:journal, :payment, :receipt, :contra]
-  enum voucher_status: [:pending, :complete, :rejected]
+  ########################################
+  # Validations
+  # validate :date_valid_for_fy_code?
 
-  before_save :process_voucher
-  after_save :assign_cheque
+  ########################################
+  # scopes
+
 
   def voucher_code
     case self.voucher_type.to_sym
@@ -67,9 +77,13 @@ class Voucher < ActiveRecord::Base
     end
   end
 
+  # def date_valid_for_fy_code?
+  #   errors.add :date, "Fuck you Asshole" unless date_valid_for_fy_code(self.fy_code, self.date)
+  # end
+
   private
   def process_voucher
-    fy_code = get_fy_code
+    fy_code = get_fy_code(self.date)
     # TODO double check the query for enum
     # rails enum and query not working properly
     last_voucher = Voucher.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).last

@@ -56,7 +56,15 @@ class Vouchers::Create < Vouchers::Base
       @error_message = "Invalid Date!"
       return
     end
+
     @voucher.date = date_ad
+    @voucher.fy_code = get_fy_code(date_ad)
+    # check if the user entered date is valid for that fiscal year
+    unless date_valid_for_fy_code( @voucher.date , @voucher.fy_code)
+      @error_message = "Invalid Date for fiscal year!"
+      return
+    end
+
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -221,6 +229,8 @@ class Vouchers::Create < Vouchers::Base
       # end
 
       voucher.particulars.each do |particular|
+        particular.transaction_date = voucher.date
+        particular.date_bs = voucher.date_bs
         particular.pending!
 
         ledger = Ledger.find(particular.ledger_id)
