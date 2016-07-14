@@ -47,15 +47,15 @@ class Ledgers::Query
             @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination)
 
             # sum of total credit and debit amount
-            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
+            @total_credit = @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
+            @total_debit = @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code_default.where('date < ?',date_from_ad).order('date DESC').first
+            previous_day_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code.where('date < ?',date_from_ad).order('date DESC').first
             previous_day_balance = previous_day_ledger_daily.present? ? previous_day_ledger_daily.closing_balance : 0.0
 
             # get the last ledger daily balance for the query date
-            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code_default.where('date <= ?',date_to_ad).order('date DESC').first
+            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code.where('date <= ?',date_to_ad).order('date DESC').first
             last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
             @closing_balance_sorted = last_day_balance
@@ -89,7 +89,7 @@ class Ledgers::Query
       if date_from_ad.present? && date_to_ad.present?
         @ledger.particulars.by_branch_fy_code.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
       else
-        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC')
       end
     else
       if date_from_ad.present? && date_to_ad.present?

@@ -367,7 +367,6 @@ class Vouchers::Create < Vouchers::Base
       settler_name = ledger.name
     end
 
-
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?

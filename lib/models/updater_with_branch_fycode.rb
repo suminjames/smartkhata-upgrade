@@ -40,7 +40,12 @@ module Models::UpdaterWithBranchFycode
   end
 
   def add_branch_fycode
-    self.branch_id ||= UserSession.branch_id
+    self.branch_id ||= get_branch_id_from_session
     self.fy_code ||= get_fy_code
   end
+
+  def get_branch_id_from_session
+    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
+  end
+
 end

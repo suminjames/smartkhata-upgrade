@@ -78,6 +78,8 @@ class Settlement < ActiveRecord::Base
     end
   }
 
+  before_create :assign_settlement_number
+
   def self.options_for_settlement_type_select
     [["Receipt", "receipt"], ["Payment", "payment"]]
   end
@@ -86,4 +88,25 @@ class Settlement < ActiveRecord::Base
     ClientAccount.all.order(:name)
   end
 
+  #
+  # get new settlement number
+  #
+  def self.new_settlement_number(fy_code, branch_id, settlement_type)
+    settlement_type = self.settlement_types[settlement_type]
+    settlement = Settlement.where(fy_code: fy_code, branch_id: branch_id, settlement_type: settlement_type).last
+    debugger
+    if settlement.nil?
+      1
+    else
+      # increment the bill number
+      settlement.settlement_number + 1
+    end
+  end
+
+  def assign_settlement_number
+    fy_code = self.fy_code
+    branch_id = self.branch_id
+    settlement_type = self.settlement_type
+    self.settlement_number = Settlement.new_settlement_number(fy_code, branch_id, settlement_type)
+  end
 end
