@@ -11,8 +11,6 @@
   <h5>
     <%= link_to "Full Report", report_trial_balance_index_path(search_by: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
     |
-    <%= link_to "Last Working Day", report_trial_balance_index_path(search_by: "lwd"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
-    |
     <%= link_to "Search by Date", report_trial_balance_index_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
   </h5>
 </div>
@@ -64,12 +62,12 @@
             <% ledgers.each do |ledger| %>
                 <tr class="ledger-single">
                   <td><%= ledger.name %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.opening_balance) if ledger.opening_balance > 1 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.opening_balance.abs) if ledger.opening_balance < 0 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.dr_amount) %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.cr_amount) %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.closing_balance) if ledger.closing_balance > 1 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.closing_balance.abs) if ledger.closing_balance < 0 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial) if ledger.opening_balance_trial > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial.abs) if ledger.opening_balance_trial < 0 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.dr_amount_trial) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.cr_amount_trial) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial) if ledger.closing_balance_trial > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial.abs) if ledger.closing_balance_trial < 0 %></td>
                 </tr>
             <% end %>
             </tbody>

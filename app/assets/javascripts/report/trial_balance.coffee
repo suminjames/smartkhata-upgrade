@@ -33,19 +33,19 @@ $ ->
     dr_amount = format_number(dr_amount)
     cr_amount = format_number(cr_amount)
 
-    if (opening_balance_dr >= opening_balance_cr)
-      opening_balance_dr = opening_balance_dr - opening_balance_cr
-      opening_balance_cr = 0
-    else
-      opening_balance_cr = opening_balance_cr - opening_balance_dr
-      opening_balance_dr = 0
-
-    if (closing_balance_dr >= closing_balance_cr)
-      closing_balance_dr = closing_balance_dr - closing_balance_cr
-      closing_balance_cr = 0
-    else
-      closing_balance_cr = closing_balance_cr - closing_balance_dr
-      closing_balance_dr = 0
+#    if (opening_balance_dr >= opening_balance_cr)
+#      opening_balance_dr = opening_balance_dr - opening_balance_cr
+#      opening_balance_cr = 0
+#    else
+#      opening_balance_cr = opening_balance_cr - opening_balance_dr
+#      opening_balance_dr = 0
+#
+#    if (closing_balance_dr >= closing_balance_cr)
+#      closing_balance_dr = closing_balance_dr - closing_balance_cr
+#      closing_balance_cr = 0
+#    else
+#      closing_balance_cr = closing_balance_cr - closing_balance_dr
+#      closing_balance_dr = 0
 
     opening_balance_dr = format_number(opening_balance_dr)
     opening_balance_cr = format_number(opening_balance_cr)
@@ -75,19 +75,19 @@ $ ->
   dr_amount = format_number(dr_amount)
   cr_amount = format_number(cr_amount)
 
-  if (opening_balance_dr >= opening_balance_cr)
-    opening_balance_dr = opening_balance_dr - opening_balance_cr
-    opening_balance_cr = 0
-  else
-    opening_balance_cr = opening_balance_cr - opening_balance_dr
-    opening_balance_dr = 0
+#  if (opening_balance_dr >= opening_balance_cr)
+#    opening_balance_dr = opening_balance_dr - opening_balance_cr
+#    opening_balance_cr = 0
+#  else
+#    opening_balance_cr = opening_balance_cr - opening_balance_dr
+#    opening_balance_dr = 0
 
-  if (closing_balance_dr >= closing_balance_cr)
-    closing_balance_dr = closing_balance_dr - closing_balance_cr
-    closing_balance_cr = 0
-  else
-    closing_balance_cr = closing_balance_cr - closing_balance_dr
-    closing_balance_dr = 0
+#  if (closing_balance_dr >= closing_balance_cr)
+#    closing_balance_dr = closing_balance_dr - closing_balance_cr
+#    closing_balance_cr = 0
+#  else
+#    closing_balance_cr = closing_balance_cr - closing_balance_dr
+#    closing_balance_dr = 0
 
   opening_balance_dr = format_number(opening_balance_dr)
   opening_balance_cr = format_number(opening_balance_cr)
