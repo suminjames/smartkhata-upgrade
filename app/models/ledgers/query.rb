@@ -112,10 +112,8 @@ class Ledgers::Query
     if UserSession.selected_branch_id == 0
       additional_condition = "fy_code = #{UserSession.selected_fy_code}"
     else
-      additional_condition = "branch_id = #{UserSession.selected_fy_code} AND fy_code = #{UserSession.selected_fy_code}"
+      additional_condition = "branch_id = #{UserSession.selected_branch_id} AND fy_code = #{UserSession.selected_fy_code}"
     end
-
-
 
     if date_from_ad.present? && date_to_ad.present?
       query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"

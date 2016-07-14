@@ -30,13 +30,44 @@ class Ledgers::ParticularEntry
     opening_balance_org = nil
     opening_balance_cost_center = nil
     fy_code = get_fy_code(particular.transaction_date)
+    accounting_date = particular.transaction_date
 
-    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id)
-    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil)
+    # check if there are records after the entry
+    if accounting_date <= Time.now
+      ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
+      if ledger_activities.size > 0
+        # there are some records after the transaction date
+        future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
+        future_activity_org = ledger_activities.where(branch_id: nil).first
+
+        opening_balance_org = future_activity_org.present? ? future_activity_org.opening_balance : 0.0
+        opening_balance_cost_center = future_activity_cost_center.present? ? future_activity_cost_center.opening_balance : 0.0
+
+        adjustment_amount = debit ? amount : amount * -1
+
+        ledger_activities.each do |d|
+          d.closing_balance += adjustment_amount
+          d.opening_balance += adjustment_amount
+          d.save!
+        end
+      end
+    end
 
     ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
     ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
     amount = particular.amount
+    opening_balance_org ||= ledger_blnc_org.opening_balance
+    opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
+
+    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id) do |l|
+      l.opening_balance = opening_balance_cost_center
+      l.closing_balance = opening_balance_cost_center
+    end
+    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil) do |l|
+      l.opening_balance = opening_balance_org
+      l.closing_balance = opening_balance_org
+    end
+
     if particular.dr?
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -51,13 +82,10 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-
-    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
 
-    daily_report_org.opening_balance ||= opening_balance_org
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
@@ -85,6 +113,7 @@ class Ledgers::ParticularEntry
 
     # when all branch selected fall back to the user's branch id
     branch_id = UserSession.branch_id if branch_id == 0
+    fy_code = voucher.fy_code || UserSession.selected_fy_code
 
     # If the case is for revert transaction
     if particular
@@ -115,20 +144,18 @@ class Ledgers::ParticularEntry
     opening_balance_org = nil
     opening_balance_cost_center = nil
 
-    # daily report to store debit and credit transactions
-    daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
-    daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil)
+
+
 
     # check if there are records after the entry
     if accounting_date <= Time.now
-      ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
+      ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
       if ledger_activities.size > 0
         # there are some records after the transaction date
         future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
         future_activity_org = ledger_activities.where(branch_id: nil).first
-
-        opening_balance_org = future_activity_org.opening_balance
-        opening_balance_cost_center = future_activity_cost_center.opening_balance
+        opening_balance_org = future_activity_org.present? ? future_activity_org.opening_balance : 0.0
+        opening_balance_cost_center = future_activity_cost_center.present? ? future_activity_cost_center.opening_balance : 0.0
 
         adjustment_amount = debit ? amount : amount * -1
 
@@ -148,6 +175,16 @@ class Ledgers::ParticularEntry
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
+    # daily report to store debit and credit transactions
+    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id) do |l|
+      l.opening_balance = opening_balance_cost_center
+      l.closing_balance = opening_balance_cost_center
+    end
+    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil) do |l|
+      l.opening_balance = opening_balance_org
+      l.closing_balance = opening_balance_org
+    end
+
     if debit
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -162,12 +199,12 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
+
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
 
-    daily_report_org.opening_balance ||= opening_balance_org
+
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
