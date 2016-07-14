@@ -156,7 +156,7 @@ class Ledgers::CashbookQuery
     if UserSession.selected_branch_id == 0
       additional_condition = "fy_code = #{UserSession.selected_fy_code}"
     else
-      additional_condition = "branch_id = #{UserSession.selected_fy_code} AND fy_code = #{UserSession.selected_fy_code}"
+      additional_condition = "branch_id = #{UserSession.selected_branch_id} AND fy_code = #{UserSession.selected_fy_code}"
     end
 
     cashbook_ledger_ids_str = @cashbook_ledger_ids*","

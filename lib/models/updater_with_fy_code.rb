@@ -16,7 +16,6 @@ module Models::UpdaterWithFyCode
 
       # default_scope {where(fy_code = UserSession.selected_fy_code)}
       scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
-        debugger
         if branch_id == 0
           where(fy_code: fy_code)
         else

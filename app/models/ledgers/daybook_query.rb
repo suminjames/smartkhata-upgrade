@@ -83,7 +83,6 @@ class Ledgers::DaybookQuery
 
             # get the last day ledger daily balance for the query date
             last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@daybook_ledger_ids, date_to_ad)
-            # debugger
 
             @opening_balance_sorted = previous_day_balance
             @closing_balance_sorted = last_day_balance
