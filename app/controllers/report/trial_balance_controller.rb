@@ -38,7 +38,7 @@ class Report::TrialBalanceController < ApplicationController
               modified_ledger_list = []
               b = balance.descendent_ledgers
               b.each do |ledger|
-                day_ledger = ledger.ledger_dailies.where(date: date_ad, branch_id: nil)
+                day_ledger = ledger.ledger_dailies.by_branch_fy_code_for_balance.where(date: date_ad)
                 if day_ledger.length > 0
                   ledger.opening_blnc = day_ledger.first.opening_balance
                   ledger.closing_blnc = day_ledger.first.closing_balance
