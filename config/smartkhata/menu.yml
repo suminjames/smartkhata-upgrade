@@ -136,6 +136,9 @@ menus:
     - name: Cashbook
       path: "<%= ledgers_cashbook_path(search_by: 'date')%>"
       code: RS_FIR_CAS
+    - name: Daybook
+      path: "<%= ledgers_daybook_path(search_by: 'date')%>"
+      code: RS_FIR_DAY
   - name: Transactions / Orders
     code: RS_TRO
     menu_items:

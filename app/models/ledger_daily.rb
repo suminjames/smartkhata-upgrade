@@ -29,8 +29,15 @@ class LedgerDaily < ActiveRecord::Base
     self.where(id: ledger_daily_ids).sum(:opening_balance).to_f
   end
 
-  def self.closing_balance_of_ledger_dailies(ledger_daily_ids)
-    self.where(id: ledger_daily_ids).sum(:closing_balance).to_f
+  def self.sum_of_closing_balance_of_ledger_dailies_for_ledgers(ledger_ids, date_to_ad)
+    closing_balance_sum = 0.0
+    Ledger.where(id:ledger_ids).each do |ledger|
+      last_day_ledger_daily = ledger.ledger_dailies.by_branch_fy_code_default.where('date <= ?',date_to_ad).order('date DESC, updated_at DESC').first
+      if last_day_ledger_daily.present?
+        closing_balance_sum += last_day_ledger_daily.closing_balance
+      end
+    end
+    closing_balance_sum
   end
 
   private

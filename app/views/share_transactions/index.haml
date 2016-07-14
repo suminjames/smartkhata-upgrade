@@ -53,9 +53,5 @@
                 class: 'form-control' )       |
     = render_filterrific_spinner
 
-Download Report:
-= link_to 'xlsx', @download_path_xlsx
-= link_to 'pdf', @download_path_pdf, :target => "_blank"
-
 = render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
 

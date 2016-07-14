@@ -1,4 +1,4 @@
-class Ledgers::CashbookQuery
+class Ledgers::DaybookQuery
   attr_reader :error_message
   include CustomDateModule
 
@@ -11,13 +11,13 @@ class Ledgers::CashbookQuery
     @error_message = ''
     @closing_balance_sorted = nil
     @opening_balance_sorted = nil
-    @cashbook_ledger_ids = Ledger.cashbook_ledgers.pluck(:id)
+    @daybook_ledger_ids = Ledger.daybook_ledgers.pluck(:id)
   end
 
   def ledger_with_particulars
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
     opening_balance = 0
-    Ledger.cashbook_ledgers.each do |ledger|
+    Ledger.daybook_ledgers.each do |ledger|
       opening_balance += ledger.opening_balance
     end
 
@@ -40,15 +40,15 @@ class Ledgers::CashbookQuery
             @particulars = get_particulars(@params[:page], 20, date_ad, date_ad)
 
             # sum of total credit and debit amount
-            @total_credit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date(date_ad).cr.sum(:amount)
-            @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date(date_ad).dr.sum(:amount)
+            @total_credit = Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.find_by_date(date_ad).cr.sum(:amount)
+            @total_debit = Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.find_by_date(date_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_ledger_dailies = LedgerDaily.where(ledger_id: @cashbook_ledger_ids).by_branch_fy_code_default.where('date < ?', date_ad).order('date DESC')
+            previous_day_ledger_dailies = LedgerDaily.where(ledger_id: @daybook_ledger_ids).by_branch_fy_code_default.where('date < ?', date_ad).order('date DESC')
             previous_day_balance = previous_day_ledger_dailies.present? ? LedgerDaily.closing_balance_of_ledger_dailies(previous_day_ledger_dailies.pluck(:id)) : 0.0
 
             # get the last day ledger daily balance for the query date
-            last_day_ledger_dailies = LedgerDaily.where(ledger_id: @cashbook_ledger_ids).by_branch_fy_code_default.where('date <= ?',date_ad).order('date DESC')
+            last_day_ledger_dailies = LedgerDaily.where(ledger_id: @daybook_ledger_ids).by_branch_fy_code_default.where('date <= ?',date_ad).order('date DESC')
             last_day_balance = last_day_ledger_dailies.present? ? LedgerDaily.closing_balance_of_ledger_dailies(last_day_ledger_dailies.pluck(:id)) : 0.0
 
             @opening_balance_sorted = previous_day_balance
@@ -74,16 +74,16 @@ class Ledgers::CashbookQuery
             @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad)
 
             # sum of total credit and debit amount
-            @total_credit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
+            @total_credit = Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
+            @total_debit = Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_ledger_dailies = LedgerDaily.where(ledger_id: @cashbook_ledger_ids).by_branch_fy_code_default.where('date < ?',date_from_ad).order('date DESC')
+            previous_day_ledger_dailies = LedgerDaily.where(ledger_id: @daybook_ledger_ids).by_branch_fy_code_default.where('date < ?',date_from_ad).order('date DESC')
             previous_day_balance = previous_day_ledger_dailies.present? ? LedgerDaily.closing_balance_of_ledger_dailies(previous_day_ledger_dailies.pluck(:id)) : 0.0
 
             # get the last day ledger daily balance for the query date
-            last_day_ledger_dailies = LedgerDaily.where(ledger_id: @cashbook_ledger_ids).by_branch_fy_code_default.where('date <= ?',date_to_ad).order('date DESC')
-            last_day_balance = last_day_ledger_dailies.present? ? LedgerDaily.closing_balance_of_ledger_dailies(last_day_ledger_dailies.pluck(:id)) : 0.0
+            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@daybook_ledger_ids, date_to_ad)
+            # debugger
 
             @opening_balance_sorted = previous_day_balance
             @closing_balance_sorted = last_day_balance
@@ -112,9 +112,9 @@ class Ledgers::CashbookQuery
   #
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil)
     if date_from_ad.present? && date_to_ad.present?
-      Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
     else
-      Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+      Particular.find_by_ledger_ids(@daybook_ledger_ids).complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
     end
   end
 
@@ -124,11 +124,11 @@ class Ledgers::CashbookQuery
   def opening_balance_for_page(opening_balance, page, date_from_ad = nil, date_to_ad = nil)
     # raw sql can be potentially dangerous and memory leakage point
     # need to make sure this has proper binding
-    cashbook_ledger_ids_str = @cashbook_ledger_ids*","
+    daybook_ledger_ids_str = @daybook_ledger_ids*","
     if date_from_ad.present? && date_to_ad.present?
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id IN (#{cashbook_ledger_ids_str}) AND particular_status = 1 AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id IN (#{daybook_ledger_ids_str}) AND particular_status = 1 AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     else
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id IN (#{cashbook_ledger_ids_str}) AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id IN (#{daybook_ledger_ids_str}) AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     end
     opening_balance += ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
     opening_balance
