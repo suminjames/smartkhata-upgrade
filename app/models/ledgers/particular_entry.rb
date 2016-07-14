@@ -30,10 +30,7 @@ class Ledgers::ParticularEntry
     opening_balance_org = nil
     opening_balance_cost_center = nil
     fy_code = get_fy_code(particular.transaction_date)
-    accounting_date = particular.date
-
-    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id)
-    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil)
+    accounting_date = particular.transaction_date
 
     # check if there are records after the entry
     if accounting_date <= Time.now
@@ -59,6 +56,18 @@ class Ledgers::ParticularEntry
     ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
     ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
     amount = particular.amount
+    opening_balance_org ||= ledger_blnc_org.opening_balance
+    opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
+
+    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id) do |l|
+      l.opening_balance = opening_balance_cost_center
+      l.closing_balance = opening_balance_cost_center
+    end
+    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil) do |l|
+      l.opening_balance = opening_balance_org
+      l.closing_balance = opening_balance_org
+    end
+
     if particular.dr?
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -73,13 +82,10 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-
-    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
 
-    daily_report_org.opening_balance ||= opening_balance_org
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
@@ -138,9 +144,8 @@ class Ledgers::ParticularEntry
     opening_balance_org = nil
     opening_balance_cost_center = nil
 
-    # daily report to store debit and credit transactions
-    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
-    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil)
+
+
 
     # check if there are records after the entry
     if accounting_date <= Time.now
@@ -170,6 +175,16 @@ class Ledgers::ParticularEntry
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
+    # daily report to store debit and credit transactions
+    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id) do |l|
+      l.opening_balance = opening_balance_cost_center
+      l.closing_balance = opening_balance_cost_center
+    end
+    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil) do |l|
+      l.opening_balance = opening_balance_org
+      l.closing_balance = opening_balance_org
+    end
+
     if debit
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -184,12 +199,12 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-    daily_report_cost_center.opening_balance ||= opening_balance_cost_center
+
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
 
-    daily_report_org.opening_balance ||= opening_balance_org
+
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
