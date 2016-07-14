@@ -30,25 +30,25 @@ class BankAccountsController < ApplicationController
     # since this group is integral to the software in hand
     # any error raised here should be thoroughly examined
     @group_id = Group.find_by(name: "Current Assets").id
+    @valid = false
+    @success = false
+    total_balance = 0.0
 
     @bank = Bank.find_by(id: @bank_account.bank_id)
     if @bank.present?
       @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
+      @bank_account.ledger.group_id = @group_id
       @bank_account.bank_name = @bank.name
-    end
-
-    @valid = false
-    @success = false
-    total_balance = 0.0
-    @bank_account.ledger.ledger_balances.each do |balance|
-      if balance.opening_balance >=0
-        @valid = true
-        total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-        next
+      @bank_account.ledger.ledger_balances.each do |balance|
+        if balance.opening_balance >=0
+          @valid = true
+          total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+          next
+        end
+        @valid = false
+        flash.now[:error] = "Please dont include a negative amount"
+        break
       end
-      @valid = false
-      flash.now[:error] = "Please dont include a negative amount"
-      break
     end
 
     if @valid

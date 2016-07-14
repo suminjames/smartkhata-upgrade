@@ -18,4 +18,14 @@ class LedgerBalance < ActiveRecord::Base
   belongs_to :ledger
   include ::Models::UpdaterWithFyCode
   attr_accessor :opening_balance_type
+  before_create :update_closing_balance
+
+  def update_closing_balance
+    unless self.opening_balance.blank?
+      self.opening_balance = self.opening_balance * -1 if self.opening_balance_type.to_i == Particular.transaction_types['cr']
+      self.closing_balance = self.opening_balance
+    else
+      self.opening_balance = 0
+    end
+  end
 end

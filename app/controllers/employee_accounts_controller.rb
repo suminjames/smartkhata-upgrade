@@ -1,5 +1,5 @@
 class EmployeeAccountsController < ApplicationController
-  before_action :set_employee_account, only: [:show, :edit, :update, :destroy]
+  before_action :set_employee_account, only: [:show, :edit, :update, :destroy, :update_employee_access, :employee_access]
 
   # GET /employee_accounts
   # GET /employee_accounts.json
@@ -51,16 +51,6 @@ class EmployeeAccountsController < ApplicationController
   # GET /employee_accounts/1/edit
   def edit
     authorize @employee_account
-    if params[:type] == 'ledger_access'
-      @ledgers = Ledger.all.order(:name)
-      render :edit_employee_ledger_association and return
-    elsif params[:type] == 'menu_access'
-      @menu_items = MenuItem.arrange
-      render :edit_employee_menu_permission and return
-    elsif params[:type] == 'branch_access'
-      @menu_items = MenuItem.arrange
-      render :edit_employee_branch_permission and return
-    end
   end
 
   # POST /employee_accounts
@@ -98,51 +88,7 @@ class EmployeeAccountsController < ApplicationController
   # PATCH/PUT /employee_accounts/1
   # PATCH/PUT /employee_accounts/1.json
   def update
-    # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
-    authorize @employee_account
-    if params[:edit_type] == 'ledger_association'
-      # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
-      ActiveRecord::Base.transaction do
-
-        EmployeeLedgerAssociation.delete_previous_associations_for(params[:id])
-
-        respond_to do |format|
-          if @employee_account.update(employee_account_ledger_association_params)
-            format.html { redirect_to edit_employee_account_path(id: params[:id], type: 'ledger_access'), notice: 'Employee account ledger association was successfully updated.' }
-            format.json { render :show, status: :ok, location: @employee_account }
-          else
-            format.html { render :edit }
-            format.json { render json: @employee_account.errors, status: :unprocessable_entity }
-          end
-        end
-      end
-    elsif params[:edit_type] == 'menu_access'
-      # get menu ids
-      menu_ids = params[:employee_account][:menu_ids].map(&:to_i) if params[:employee_account][:menu_ids].present?
-      ActiveRecord::Base.transaction do
-        # delete previously set records
-        # TODO(SUBAS) remove only the changed ones
-        # create only the changed ones
-        MenuPermission.delete_previous_permissions_for(@employee_account.user_id)
-        menu_ids.each do |menu_id|
-          MenuPermission.create!(user_id: @employee_account.user_id, menu_item_id: menu_id)
-        end
-      end
-      redirect_to edit_employee_account_path(id: params[:id], type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
-    elsif params[:edit_type] == 'branch_access'
-      # get menu ids
-      branch_ids = params[:employee_account][:branch_ids].map(&:to_i) if params[:employee_account][:branch_ids].present?
-      ActiveRecord::Base.transaction do
-        # # delete previously set records
-        # # TODO(SUBAS) remove only the changed ones
-        # # create only the changed ones
-        BranchPermission.delete_previous_permissions_for(@employee_account.user_id)
-        branch_ids.each do |branch_id|
-          BranchPermission.create!(user_id: @employee_account.user_id, branch_id: branch_id)
-        end
-      end
-      redirect_to edit_employee_account_path(id: params[:id], type: 'branch_access'), notice: 'Employee account Branch access was successfully updated.'
-    elsif params[:edit_type] == 'create_or_update'
+    if params[:edit_type] == 'create_or_update'
       respond_to do |format|
         if @employee_account.update(employee_account_params)
           format.html { redirect_to @employee_account, notice: 'Employee account was successfully updated.' }
@@ -156,12 +102,68 @@ class EmployeeAccountsController < ApplicationController
     end
   end
 
-  # POST/update_menu_access
-  def update_menu_access
+  def employee_access
     authorize @employee_account
+    if params[:type] == 'ledger_access'
+      @ledgers = Ledger.all.order(:name)
+      render :edit_employee_ledger_association and return
+    elsif params[:type] == 'branch_access'
+      @menu_items = MenuItem.arrange
+      render :edit_employee_branch_permission and return
+    else
+      @menu_items = MenuItem.arrange
+      render :edit_employee_menu_permission and return
+    end
+  end
 
+  # POST/update_menu_access
+  def update_employee_access
+    # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
+    authorize @employee_account
+    if params[:edit_type] == 'ledger_access'
+      # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
+      ActiveRecord::Base.transaction do
 
+        EmployeeLedgerAssociation.delete_previous_associations_for(params[:id])
 
+        respond_to do |format|
+          if @employee_account.update(employee_account_ledger_association_params)
+            format.html {redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access'), notice: 'Employee account Branch access was successfully updated.'}
+            format.json { render :show, status: :ok, location: @employee_account }
+          else
+            format.html { render :edit }
+            format.json { render json: @employee_account.errors, status: :unprocessable_entity }
+          end
+        end
+      end
+    elsif params[:edit_type] == 'menu_access'
+      # get menu ids
+      menu_ids = []
+      menu_ids = params[:employee_account][:menu_ids].map(&:to_i) if params[:employee_account].present? && params[:employee_account][:menu_ids].present?
+      ActiveRecord::Base.transaction do
+        # delete previously set records
+        # TODO(SUBAS) remove only the changed ones
+        # create only the changed ones
+        MenuPermission.delete_previous_permissions_for(@employee_account.user_id)
+        menu_ids.each do |menu_id|
+          MenuPermission.create!(user_id: @employee_account.user_id, menu_item_id: menu_id)
+        end
+      end
+      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
+    elsif params[:edit_type] == 'branch_access'
+      # get menu ids
+      branch_ids = params[:employee_account][:branch_ids].map(&:to_i) if params[:employee_account][:branch_ids].present?
+      ActiveRecord::Base.transaction do
+        # # delete previously set records
+        # # TODO(SUBAS) remove only the changed ones
+        # # create only the changed ones
+        BranchPermission.delete_previous_permissions_for(@employee_account.user_id)
+        branch_ids.each do |branch_id|
+          BranchPermission.create!(user_id: @employee_account.user_id, branch_id: branch_id)
+        end
+      end
+      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access'), notice: 'Employee account Branch access was successfully updated.'
+    end
   end
 
   # DELETE /employee_accounts/1

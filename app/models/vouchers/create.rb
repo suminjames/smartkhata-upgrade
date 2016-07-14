@@ -60,7 +60,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher.date = date_ad
     @voucher.fy_code = get_fy_code(date_ad)
     # check if the user entered date is valid for that fiscal year
-    unless date_valid_for_fy_code( @voucher.date , @voucher.fy_code)
+    unless date_valid_for_fy_code( @voucher.date , UserSession.selected_fy_code)
       @error_message = "Invalid Date for fiscal year!"
       return
     end

@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: branch_permissions
+#
+#  branch_id  :integer
+#  user_id    :integer
+#  creator_id :integer
+#  updater_id :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
 class BranchPermission < ActiveRecord::Base
   include ::Models::Updater
   belongs_to :branch

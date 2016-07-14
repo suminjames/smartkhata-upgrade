@@ -2,17 +2,17 @@
 <% employee_account = @employee_account; ledgers = @ledgers %>
 <div class="nav-tabs-custom">
   <ul class="nav nav-tabs">
-    <li class=""><%= link_to 'Menu Access', edit_employee_account_path(@employee_account, type: 'menu_access') %></li>
-    <li class=""><%= link_to 'Branch Access', edit_employee_account_path(@employee_account, type: 'branch_access') %></li>
-    <li class="active"><%= link_to 'Ledger Access', edit_employee_account_path(@employee_account, type: 'ledger_access') %></li>
+    <li class=""><%= link_to 'Menu Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access') %></li>
+    <li class=""><%= link_to 'Branch Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access') %></li>
+    <li class="active"><%= link_to 'Ledger Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access') %></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab_1">
       <div id="edit_employee_ledger_association">
-        <%= simple_form_for(@employee_account, :method => 'patch') do |f| %>
+        <%= simple_form_for(@employee_account, url: '/update_employee_access') do |f| %>
             <%= f.error_notification %>
 
-            <%= hidden_field_tag 'edit_type', 'ledger_association' %>
+            <%= hidden_field_tag 'edit_type', 'ledger_access' %>
 
             <%= f.input :name, placeholder: 'Name', disabled: true %>
 

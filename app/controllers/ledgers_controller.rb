@@ -136,6 +136,7 @@ class LedgersController < ApplicationController
     end
 
     if @valid
+      debugger
       @ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
       @success = true if @ledger.save
     end
@@ -146,6 +147,7 @@ class LedgersController < ApplicationController
         format.json { render :show, status: :created, location: @ledger }
       else
         @ledger.ledger_balances = @ledger.ledger_balances[0..-2] if @valid
+        debugger
         format.html { render :new }
         format.json { render json: @ledger.errors, status: :unprocessable_entity }
       end

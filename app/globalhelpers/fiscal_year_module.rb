@@ -22,7 +22,7 @@ module FiscalYearModule
   # Get fy code based on current year
   # TODO modify the method to return based on fiscal years
   def get_fy_code(date = Date.today)
-    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date)
+    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
     return fiscal_year_breakpoint_single[0] if fiscal_year_breakpoint_single.present?
     return
   end
@@ -30,34 +30,41 @@ module FiscalYearModule
   #
   # get specific fy code breakpoint
   #
-  def fiscal_year_breakpoint_single(date)
+  def fiscal_year_breakpoint_single(attrs = {})
+    date = attrs[:date]
+    fy_code = attrs[:fy_code]
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
-      if date >= fiscal[1] && date <= fiscal[2]
-        return fiscal
+      if date.present?
+        if date >= fiscal[1] && date <= fiscal[2]
+          return fiscal
+        end
+      else
+        if fy_code == fiscal[0]
+          return fiscal
+        end
       end
     end
+
     return
   end
 
+  # #
+  # # get specific fy code breakpoint
+  # #
+  # def fiscal_year_breakpoint_single(fy_code)
+  #   fiscal_year_breakpoint = get_fiscal_breakpoint
+  #   fiscal_year_breakpoint.each do |fiscal|
   #
-  # get specific fy code breakpoint
-  #
-  def fiscal_year_breakpoint_single(fy_code)
-    fiscal_year_breakpoint = get_fiscal_breakpoint
-    fiscal_year_breakpoint.each do |fiscal|
-      if fy_code == fiscal[0]
-        return fiscal
-      end
-    end
-    return
-  end
+  #   end
+  #   return
+  # end
 
   #
   # get last day of a fiscal year
   #
   def fiscal_year_last_day(fy_code = UserSession.selected_fy_code)
-    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code)
+    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
     return fiscal_year_breakpoint_single[2] if fiscal_year_breakpoint_single.present?
     return Time.now.to_date
   end

@@ -1,13 +1,13 @@
 <% provide(:section_title, "Edit Employee Access") %>
 <div class="nav-tabs-custom">
   <ul class="nav nav-tabs">
-    <li class=""><%= link_to 'Menu Access', edit_employee_account_path(@employee_account, type: 'menu_access') %></li>
-    <li class="active"><%= link_to 'Branch Access', edit_employee_account_path(@employee_account, type: 'branch_access') %></li>
-    <li class=""><%= link_to 'Ledger Access', edit_employee_account_path(@employee_account, type: 'ledger_access') %></li>
+    <li class=""><%= link_to 'Menu Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access') %></li>
+    <li class="active"><%= link_to 'Branch Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access') %></li>
+    <li class=""><%= link_to 'Ledger Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access') %></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab_1">
-      <%= simple_form_for @employee_account do |f| -%>
+      <%= simple_form_for(@employee_account, url: employee_accounts_update_employee_access_path(id: @employee_account.id ) , method: :post) do |f| %>
           <%= f.input :name, placeholder: 'Name', disabled: true %>
           <%= hidden_field_tag 'edit_type', 'branch_access' %>
           <p>Select the Branch that are available for the user </p>
