@@ -21,14 +21,13 @@ class Ledgers::Query
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
     opening_balance = @ledger.opening_balance
 
-    # no pagination is required for xls file generation
+    # no pagination is required for xls/pdf file generation
     if no_pagination
       page = 0
     end
 
-    # TODO(subas): The following if never executes as the respective view does never send 'all' as params. This 'if' and the fallback 'else' at the bottom do the same thing.
     if @params[:show] == "all"
-      # for pages greater than we need 0, carryover balance
+      # for pages greater than we need carryover balance
       opening_balance =  opening_balance_for_page(opening_balance, page) if  page > 0
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     elsif @params[:search_by] && @params[:search_term]
@@ -88,13 +87,13 @@ class Ledgers::Query
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
     if no_pagination
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.by_branch_fy_code_default.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.by_branch_fy_code.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
       else
-        @ledger.particulars.complete.by_branch_fy_code_default.order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
       end
     else
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.by_branch_fy_code_default.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
       else
         @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC').page(page).per(limit)
       end
@@ -119,7 +118,7 @@ class Ledgers::Query
     if date_from_ad.present? && date_to_ad.present?
       query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     else
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     end
     opening_balance += ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
     opening_balance

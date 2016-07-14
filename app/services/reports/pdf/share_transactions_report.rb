@@ -30,6 +30,23 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     draw
   end
 
+  def self.file_name(params)
+    if params
+      @params = params
+      @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
+      @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
+    end
+    if @client_account && @isin_info
+      @file_name = "ClientCompany_ShareTransactionReport_#{@client_account.nepse_code}_#{@isin_info.isin}_"
+    elsif @client_account
+      @file_name = "ClientWise_ShareTransactionReport_#{@client_account.nepse_code}"
+    elsif @isin_info
+      @file_name = "CompanyWise_ShareTransactionReport_#{@isin_info.isin}"
+    else # full report
+      @file_name = "ShareTransactionReport_#{Date.today}"
+    end
+  end
+
   def draw
     font_size(9) do
       move_down(3)
@@ -82,6 +99,23 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       @file_name = "ShareTransactionReport_#{@date}"
     end
 
+    if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present? }
+      date_info = ""
+      date_info = date_info.prepend "Transaction " if @client_account || @isin_info
+      if @params[:by_date].present?
+        date_info += "Date: #{@params[:by_date]}"
+        document_headings.push(date_info)
+      elsif [:by_date_from, :by_date_to].any? {|x| @params[x].present?}
+        date_from = @params[:by_date_from].present? ? @params[:by_date_from] : '*'
+        date_to = @params[:by_date_to].present? ? @params[:by_date_to] : '*'
+        date_info += "Date Range: #{date_from} to #{date_to}"
+        document_headings.push(date_info)
+      end
+    end
+
+    report_date = ad_to_bs Date.today
+    document_headings.push("Report Date: #{report_date}")
+
     table_data  = []
     document_headings.each do |heading|
       table_data << [
@@ -90,8 +124,8 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     end
     table_width = page_width - 2
     table table_data do |t|
-      t.row(0).font_style = :bold
-      t.row(0).size = 9
+      t.row(0..1).font_style = :bold
+      t.row(0..1).size = 9
       t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
       t.column(0).style(:align => :center)
       t.column_widths = {0 => table_width}
@@ -187,86 +221,6 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
                 :start_count_at => 1
     }
     number_pages string, options
-  end
-
-  def letter_top
-    text "Date: #{@bank_payment_letter.created_at.strftime("%Y-%m-%d")}", :align => :right
-    br
-    text 'The Manager'
-    text "#{@bank_payment_letter.bank_account.bank_name}"
-    text "#{@bank_payment_letter.bank_account.bank.address}"
-    br
-    text 'Dear Sir/Madam,'
-    br
-    text "We hereby authorize you to disburse NRs #{arabic_number(@bank_payment_letter.settlement_amount)} in different accounts of our clients as mentioned in the list below."
-  end
-
-  def letter_bottom
-    text "Please debit our Account No #{@bank_payment_letter.bank_account.account_number} held at your bank against the aforementioned total amount in this letter."
-    br
-    text 'Thank you.'
-    br
-    text 'For Trishakti Securities Public Limited,'
-    br
-    br
-    br
-    text 'Tanka Prasad Gautam'
-    text 'Executive Chairman'
-  end
-
-  def client_accounts_list
-    @bank_payment_letter
-    data = []
-    th_data = ['S.N.',
-               'Client Name',
-               'Nepse Code',
-               'Bank Name',
-               "Bank\nBranch",
-               "Bank\nAccount #",
-               'Bill',
-               "Amount\n(in NRs.)"
-    ]
-    data << th_data
-    @bank_payment_letter.particulars.each_with_index do |p, index|
-
-      bills_str = ''
-      p.bills.each do |bill|
-        if bill.client_account_id == p.ledger.client_account_id
-          bills_str += "#{bill.fy_code}-#{bill.bill_number}\n"
-        end
-      end
-
-      data << [
-          index + 1,
-          p.ledger.client_account.name,
-          p.ledger.client_account.nepse_code,
-          p.ledger.client_account.bank_name,
-          p.ledger.client_account.bank_address,
-          p.ledger.client_account.bank_account,
-          bills_str,
-          arabic_number(p.amount)
-      ]
-
-    end
-    table_width = page_width - 2
-    column_widths = {0 => table_width * 0.5/12.0,
-                     1 => table_width * 2/12.0,
-                     2 => table_width * 1.2/12.0,
-                     3 => table_width * 2.1/12.0,
-                     4 => table_width * 1.6/12.0,
-                     5 => table_width * 1.8/12.0,
-                     6 => table_width * 1.3/12.0,
-                     7 => table_width * 1.5/12.0,
-    }
-    table data do |t|
-      t.header = true
-      t.row(0).font_style = :bold
-      t.row(0).size = 9
-      t.column(0..6).style(:align => :center)
-      t.column(7).style(:align => :right)
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
-      t.column_widths = column_widths
-    end
   end
 
   def company_header

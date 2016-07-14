@@ -22,13 +22,16 @@ class ShareTransactionsController < ApplicationController
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
 
+    @print_path_pdf_in_regular = share_transactions_path({format:'pdf'}.merge params)
+    @print_path_pdf_in_letter_head =share_transactions_path({format:'pdf', print_in_letter_head: 1}.merge params)
+
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        print_in_letter_head = true
+        print_in_letter_head = params[:print_in_letter_head].present? ? true : false
         pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
-        send_data pdf.render, filename: "ShareTransactions.pdf", type: 'application/pdf', disposition: "inline"
+        send_data pdf.render, filename:  Reports::Pdf::ShareTransactionsReport.file_name(params[:filterrific]) + '.pdf', type: 'application/pdf'
       end
       format.xlsx do
         report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
