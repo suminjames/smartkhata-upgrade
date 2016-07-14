@@ -52,6 +52,7 @@ class ApplicationPolicy
   def employee_and_above?
     # admin and sys admin dont have restrictions
     return true if user.admin? || user.sys_admin?
+    debugger
     if user.employee?
       # deny access for the urls
       # TODO(subas) incorporate post / get methods

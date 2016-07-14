@@ -1,18 +1,29 @@
-<% provide(:section_title, "Edit Employee Menu Permission") %>
-
-<%= simple_form_for @employee_account do |f| -%>
-    <%= f.input :name, placeholder: 'Name', disabled: true %>
-    <%= hidden_field_tag 'edit_type', 'menu_access' %>
-    <p>Select the Menu that are available for the user </p>
-    <%= arranged_tree_as_list(@menu_items, {:list_style => :boostrap_list_group, :ul_class => ['menu-permission-list'] }) do |menu_item| %>
-        <% if menu_item['path'].present? %>
-            <%= check_box_tag :menu_ids, menu_item.id, @employee_account.menu_permissions.pluck(:menu_item_id).include?(menu_item.id), :name => 'employee_account[menu_ids][]' -%>
-        <% else %>
-            <%= check_box_tag '', '', false, class: 'select_all' %>
-        <% end %>
-        <%= label_tag :menu_ids, menu_item.name -%>
-    <% end %>
-    <br>
-    <br>
-    <%= submit_tag -%>
-<% end -%>
+<% provide(:section_title, "Edit Employee Access") %>
+<div class="nav-tabs-custom">
+  <ul class="nav nav-tabs">
+    <li class="active"><%= link_to 'Menu Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access') %></li>
+    <li class=""><%= link_to 'Branch Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access') %></li>
+    <li class=""><%= link_to 'Ledger Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access') %></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab_1">
+      <%= simple_form_for(@employee_account, url: employee_accounts_update_employee_access_path(id: @employee_account.id ) , method: :post) do |f| %>
+          <%= f.input :name, placeholder: 'Name', disabled: true %>
+          <%= hidden_field_tag 'edit_type', 'menu_access' %>
+          <p>Select the Menu that are available for the user </p>
+          <%= arranged_tree_as_list(@menu_items, {:list_style => :boostrap_list_group, :ul_class => ['menu-permission-list'] }) do |menu_item| %>
+              <% if menu_item['path'].present? %>
+                  <%= check_box_tag :menu_ids, menu_item.id, @employee_account.menu_permissions.pluck(:menu_item_id).include?(menu_item.id), :name => 'employee_account[menu_ids][]' -%>
+              <% else %>
+                  <%= check_box_tag '', '', false, class: 'select_all' %>
+              <% end %>
+              <%= label_tag :menu_ids, menu_item.name -%>
+          <% end %>
+          <br>
+          <br>
+          <%= submit_tag -%>
+      <% end -%>
+    </div>
+  </div>
+  <!-- /.tab-content -->
+</div>

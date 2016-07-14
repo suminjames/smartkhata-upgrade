@@ -4,6 +4,7 @@ module ApplicationHelper
   include CustomDateModule
   include NumberFormatterModule
   include MenuPermissionModule
+  include BranchPermissionModule
 
   def link_to_add_fields(name, f, association, extra_info = nil)
     new_object = f.object.send(association).klass.new

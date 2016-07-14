@@ -56,11 +56,11 @@
         <td class="text-right" style="padding-right: 40px;">
           <% if ledger.closing_balance + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(ledger.closing_balance.abs)} cr" %>
+                <%= "#{number_to_currency(ledger.closing_balance.abs)} Cr" %>
               </span>
               <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(ledger.closing_balance.abs)} dr" %>
+                <%= "#{number_to_currency(ledger.closing_balance.abs)} Dr" %>
               </span>
               <% end %>
             </td>

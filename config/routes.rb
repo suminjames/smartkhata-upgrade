@@ -20,11 +20,11 @@ Rails.application.routes.draw do
   resources :branches
   resources :closeouts
   resources :share_inventories
-  resources :employee_accounts do
-    collection do
-      post :update_menu_access
-    end
-  end
+
+  match "/employee_accounts/employee_access" => "employee_accounts#employee_access", via: [:get]
+  match "/employee_accounts/update_employee_access" => "employee_accounts#update_employee_access", via: [:post]
+
+  resources :employee_accounts
   resources :banks
   resources :settlements do
     collection do

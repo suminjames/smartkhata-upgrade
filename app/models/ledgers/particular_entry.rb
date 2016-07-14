@@ -1,4 +1,5 @@
 class Ledgers::ParticularEntry
+  include FiscalYearModule
   # create a new particulars
   def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date)
     process(ledger: ledger,
@@ -28,11 +29,13 @@ class Ledgers::ParticularEntry
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
-    daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id)
-    daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil)
+    fy_code = get_fy_code(particular.transaction_date)
 
-    ledger_blnc_org = LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
-    ledger_blnc_cost_center =  LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
+    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id)
+    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil)
+
+    ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
+    ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
     amount = particular.amount
     if particular.dr?
       dr_amount = amount
@@ -64,6 +67,7 @@ class Ledgers::ParticularEntry
 
     # particular.opening_balance = closing_balance
     # particular.running_blnc = ledger.closing_balance
+    particular.fy_code = get_fy_code(particular.transaction_date)
     particular.complete!
     ledger.save!
   end
@@ -188,7 +192,8 @@ class Ledgers::ParticularEntry
         # no option yet for client to segregate reports on the base of cost center
         # not sure if its necessary
         # running_blnc_client: particular_closing_balance_org,
-        branch_id: branch_id
+        branch_id: branch_id,
+        fy_code: get_fy_code(accounting_date)
     )
 
     if particular

@@ -44,7 +44,6 @@ class BankAccount < ActiveRecord::Base
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted
   def change_default
-    debugger
     if self.default_for_payment
       bank_accounts = BankAccount.by_branch_id.where(:default_for_payment => true)
       bank_accounts = BankAccount.by_branch_id.where.not(:id => self.id)

@@ -38,13 +38,16 @@ class User < ActiveRecord::Base
   include MenuPermissionModule
 
   enum role: [:user, :client, :agent, :employee, :admin, :sys_admin]
+  enum office_roles: [:manager]
+
   after_initialize :set_default_role, :if => :new_record?
   has_many :client_accounts
   has_one :employee_account
 
   has_many :menu_permissions
+  has_many :branch_permissions
   accepts_nested_attributes_for :menu_permissions
-
+  # accepts_nested_attributes_for :branch_permissions
   def set_default_role
     self.role ||= :user
   end

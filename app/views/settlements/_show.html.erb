@@ -47,9 +47,9 @@
   <div class="row">
     <div class="col-xs-4">
       <% if settlement.receipt? %>
-          <p>Receipt No: <%= settlement.id %></p>
+          <p>Receipt No: <%= settlement.branch.code %>-<%= settlement.settlement_number %></p>
       <% else %>
-          <p>Payment No: <%= settlement.id %></p>
+          <p>Payment No: <%= settlement.branch.code %>-<%= settlement.settlement_number %></p>
       <% end %>
 
     </div>

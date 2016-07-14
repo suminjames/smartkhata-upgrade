@@ -56,7 +56,15 @@ class Vouchers::Create < Vouchers::Base
       @error_message = "Invalid Date!"
       return
     end
+
     @voucher.date = date_ad
+    @voucher.fy_code = get_fy_code(date_ad)
+    # check if the user entered date is valid for that fiscal year
+    unless date_valid_for_fy_code( @voucher.date , UserSession.selected_fy_code)
+      @error_message = "Invalid Date for fiscal year!"
+      return
+    end
+
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -221,6 +229,8 @@ class Vouchers::Create < Vouchers::Base
       # end
 
       voucher.particulars.each do |particular|
+        particular.transaction_date = voucher.date
+        particular.date_bs = voucher.date_bs
         particular.pending!
 
         ledger = Ledger.find(particular.ledger_id)
@@ -367,7 +377,6 @@ class Vouchers::Create < Vouchers::Base
       settler_name = ledger.name
     end
 
-
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
@@ -378,7 +387,8 @@ class Vouchers::Create < Vouchers::Base
     elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account.id)
+      client_account_id = client_account.id if client_account.present?
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account_id )
       # settlement.client_account = client_account
     end
 

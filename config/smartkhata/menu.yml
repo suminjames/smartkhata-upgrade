@@ -3,7 +3,7 @@
 # default request_type is get
 #
 ---
-has_changes: true
+has_changes: false
 menus:
 - name: File Section
   code: FS
@@ -87,10 +87,10 @@ menus:
       code: AS_BIL_TRM
     - name: Payment Letters
       path: "<%= bank_payment_letters_path %>"
-      code: AS_BIL_TRM
+      code: AS_BIL_PMT
     - name: Sales Bill Payment
       path: "<%= sales_payment_bills_path %>"
-      code: AS_BIL_TRM
+      code: AS_BIL_BPM
   - name: Bank
     code: AS_BAN
     menu_items:
@@ -109,15 +109,31 @@ menus:
     - name: Nepse Chalan
       path: "<%= nepse_chalans_path %>"
       code: AS_NEP_NEC
-- name: Client Register
-  path: "<%= client_accounts_path %>"
-  code: CR
-- name: Employee Register
-  path: "<%= employee_accounts_path %>"
-  code: ER
-- name: Vendor Register
-  path: "<%= vendor_accounts_path %>"
-  code: VR
+- name: Register
+  code: RG
+  sub_menus:
+  - name: Client Register
+    code: RG_CLR
+    menu_items:
+    - name: Clients
+      path: "<%= client_accounts_path %>"
+      code: RG_CLR_CLI
+  - name: Employee Register
+    code: RG_EMR
+    menu_items:
+    - name: Employees
+      path: "<%= employee_accounts_path %>"
+      code: RG_EMR_EMP
+    - name: Edit Employee Permissions
+      path: "<%= employee_accounts_employee_access_path %>"
+      code: RG_EMR_EEP
+      hide_on_main_navigation: true
+  - name: Vendor Register
+    code: RG_VER
+    menu_items:
+    - name: Vendors
+      path: "<%= vendor_accounts_path %>"
+      code: RG_VER_VEN
 - name: Reports
   code: RS
   sub_menus:
@@ -133,12 +149,6 @@ menus:
     - name: Trial Balance
       path: "<%= report_trial_balance_index_path %>"
       code: RS_FIR_TRB
-    - name: Cashbook
-      path: "<%= ledgers_cashbook_path(search_by: 'date')%>"
-      code: RS_FIR_CAS
-    - name: Daybook
-      path: "<%= ledgers_daybook_path(search_by: 'date')%>"
-      code: RS_FIR_DAY
   - name: Transactions / Orders
     code: RS_TRO
     menu_items:

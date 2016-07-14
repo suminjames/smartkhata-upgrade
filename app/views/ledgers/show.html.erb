@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance_org >= 0 ? 'dr' : 'cr'}" %>
-  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance_org + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance >= 0 ? 'Dr' : 'Cr'}" %>
+  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}" %></h4>
 
 <% if @ledger.client_account_id.present? %>
     <% if @ledger.closing_balance.abs >= 0.01 %>
@@ -55,8 +55,8 @@ download Report:
 
 <% if @particulars.present? %>
     <% if @opening_balance_sorted.present? %>
-        <p><%= "Opening Balance:  #{number_to_currency(@opening_balance_sorted.abs)} #{@opening_balance_sorted >= 0 ? 'dr' : 'cr'}" %>
-          | <%= "Closing Balance: #{number_to_currency(@closing_balance_sorted.abs)} #{@closing_balance_sorted + margin_of_error_amount >= 0 ? 'dr' : 'cr'}" %></p>
+        <p><%= "Opening Balance:  #{number_to_currency(@opening_balance_sorted.abs)} #{@opening_balance_sorted >= 0 ? 'Dr' : 'Cr'}" %>
+          | <%= "Closing Balance: #{number_to_currency(@closing_balance_sorted.abs)} #{@closing_balance_sorted + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}" %></p>
         <p>Debit: <%= number_to_currency(@total_debit) %> | Credit:<%= number_to_currency(@total_credit) %></p>
     <% end %>
 
@@ -128,11 +128,11 @@ download Report:
                   <td class='text-right'>
                     <% if particular.cr? %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.amount)} cr" %>
+                <%= "#{number_to_currency(particular.amount)} Dr" %>
               </span>
                     <% else %>
             <span class="debit-amount">
-                <%= "#{number_to_currency(particular.amount)} dr" %>
+                <%= "#{number_to_currency(particular.amount)} Cr" %>
               </span>
                     <% end %>
                   </td>
@@ -140,11 +140,11 @@ download Report:
                     <!-- -0.01 + 0.01 is equal to zero -->
                     <% if particular.running_total + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.running_total.abs)} cr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} Cr" %>
               </span>
                     <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(particular.running_total.abs)} dr" %>
+                <%= "#{number_to_currency(particular.running_total.abs)} Dr" %>
               </span>
                     <% end %>
 
