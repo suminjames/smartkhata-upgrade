@@ -102,13 +102,54 @@ class ClientAccount < ActiveRecord::Base
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
-  scope :find_by_client_id, -> (id) { where(id: id) }
+  scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
+
+  filterrific(
+      default_filter_params: { sorted_by: 'name_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_client_id,
+          :client_filter
+      ]
+  )
+
+  scope :client_filter, lambda {|status|
+    # [
+    #     ["without Mobile Number", "no_mobile_number"],
+    #     ["without any Phone Number", "no_any_phone_number"],
+    #     ["without Email", "no_email"],
+    #     ["without BOID", "no_boid"],
+    #     ["without Nepse Code", "no_nepse_code"]
+    # ]
+    case status
+      when 'no_mobile_number'
+        where(:mobile_number => [nil, '']).order('name asc')
+      when 'no_any_phone_number'
+        where(:mobile_number => [nil, '']).where(:phone_perm => [nil, '']).where(:phone => [nil, '']).order('name asc')
+      when 'no_email'
+        where(:email => [nil, '']).order('name asc')
+      when 'no_boid'
+        where(:boid => [nil, '']).order('name asc')
+      when 'no_nepse_code'
+        where(:nepse_code => [nil, '']).order('name asc')
+    end
+  }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^name/
+        order("client_accounts.name #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
 
   validate :bank_details_present?
 
@@ -206,6 +247,20 @@ class ClientAccount < ActiveRecord::Base
     str[0]= '' if str[0] == ','
     str[-1]= '' if str[-1] == ','
     str
+  end
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  def self.options_for_client_filter
+    [
+        ["without Mobile Number", "no_mobile_number"],
+        ["without any Phone Number", "no_any_phone_number"],
+        ["without Email", "no_email"],
+        ["without BOID", "no_boid"],
+        ["without Nepse Code", "no_nepse_code"]
+    ]
   end
 
 end

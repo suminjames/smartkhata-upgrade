@@ -5,37 +5,36 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts.json
   def index
     authorize ClientAccount
-    #default landing action for '/ledgers'
-    # OPTIMIZE - Refactor
-    if params[:search_by].blank? && params[:show].blank?
-      respond_to do |format|
-        format.html { redirect_to client_accounts_path(search_by: "name") }
-      end
-      return
+    @filterrific = initialize_filterrific(
+        ClientAccount,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select,
+            client_filter: ClientAccount.options_for_client_filter,
+        },
+        persistence_id: false
+    ) or return
+
+    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(20)
+
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
 
-    # Instance variable used by combobox in view to populate name
-    if params[:search_by] == 'name'
-      @clients_for_combobox = ClientAccount.all.order('LOWER(name)')
-    end
-
-    if params[:show] == 'all'
-      @client_accounts =ClientAccount.all.order('LOWER(name)')
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'name'
-          @client_accounts = ClientAccount.find_by_client_id(search_term)
-        when 'boid'
-          @client_accounts = ClientAccount.find_by_boid(search_term)
-        else
-          @client_accounts = []
-      end
-    else
-      @client_accounts = []
-    end
-    @client_accounts = @client_accounts.order(:name).page(params[:page]).per(20) unless @client_accounts.blank?
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /client_accounts/1
