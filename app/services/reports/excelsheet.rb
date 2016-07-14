@@ -11,7 +11,8 @@ class Reports::Excelsheet
       self.instance_variable_set("@#{parameters[i][1]}", val)
     end
     @date = ad_to_bs Date.today
-    @last_column = self.class::TABLE_HEADER.count-1
+    @column_count = self.class::TABLE_HEADER.count
+    @last_column = @column_count-1 #starting from 0
     @doc_header_row_count = 0
   end
 
@@ -54,7 +55,16 @@ class Reports::Excelsheet
       end
     end
     @path = "#{Rails.root}/tmp/#{@file_name}.xlsx"
+
+    # required for numbers?
+    package.use_shared_strings = true
     package.serialize @path
+    # data = package.to_stream() #error error!!
+
+    # @file = Tempfile.new('Excelsheet')
+    # @file.write(data.read)
+    # @file.close
+    # @path = @file.path
   end
 
   def define_styles(obj)
@@ -66,15 +76,21 @@ class Reports::Excelsheet
     border_top_right = {border: {style: :thin, color: "d2d6de", edges: [:top, :right]}} #color: "00"
     bg_striped = {bg_color: "f9f9f9"}
     bg_white = {bg_color: "FF"}
-    center = {alignment: {horizontal: :center}}
+    h_center = {alignment: {horizontal: :center}}
+    v_center = {alignment: {vertical: :center}}
+    complete_center = {alignment: {horizontal: :center, vertical: :center}}
+    v_center_right= {alignment: {horizontal: :right, vertical: :center}}
+    v_center_left= {alignment: {horizontal: :left, vertical: :center}}
     left = {alignment: {horizontal: :left}}
     right = {alignment: {horizontal: :right}}
     muted = {fg_color: "808080"}
-    center_clear = center.merge bg_white
+    center_clear = h_center.merge bg_white
     plain = bg_white.merge border_right
     separator = bg_white.merge border_top_right
-    striped = border.merge bg_striped
     # center_bordered = center.merge border_right
+
+    normal = border.merge v_center
+    striped = normal.merge bg_striped
 
     doc_header_style = {sz: 20, fg_color: "3c8dbc"}.merge center_clear
     doc_sub_header_style = {sz: 14}.merge center_clear
@@ -82,27 +98,43 @@ class Reports::Excelsheet
     float = {num_fmt: 4}
     int = {num_fmt: 1}
     total = {b: true}.merge border
+    wrap = {alignment: {wrap_text: true, vertical: :center}}
+    float_right = float.merge v_center_right
 
     @styles = {
-      table_header: obj.add_style({b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge center),
+      table_header: obj.add_style({b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge complete_center),
 
       # date: [obj.add_style(center_clear)].insert(9, obj.add_style(center_clear.merge border_right)),
-      date: obj.add_style(center_clear.merge border_right),
+      info: obj.add_style(center_clear.merge border_right),
       blank: obj.add_style(plain),
       heading: obj.add_style(doc_header_style.merge border_right),
       sub_heading: obj.add_style(doc_sub_header_style.merge border_right),
       separator: obj.add_style(separator),
 
-      normal_style: obj.add_style(border),
+      normal_style: obj.add_style(normal),
+      normal_style_muted: obj.add_style(normal.merge muted),
+      normal_center: obj.add_style(border.merge complete_center),
+      normal_right: obj.add_style(border.merge v_center_right),
       striped_style: obj.add_style(striped),
+      striped_style_muted: obj.add_style(striped.merge muted),
+      striped_center: obj.add_style(border.merge bg_striped.merge complete_center),
+      striped_right: obj.add_style(border.merge bg_striped.merge v_center_right),
+
+      wrap: obj.add_style(normal.merge wrap),
+      wrap_striped: obj.add_style(striped.merge wrap),
+
       # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
       # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
-      int_format: obj.add_style(int.merge border),
+      int_format: obj.add_style(int.merge normal),
+      int_format_left: obj.add_style(int.merge border.merge v_center_left),
       int_format_striped: obj.add_style(int.merge striped),
-      float_format: obj.add_style(float.merge border),
+      int_format_left_striped: obj.add_style(int.merge border.merge v_center_left.merge bg_striped),
+
+      float_format: obj.add_style(float.merge normal),
       float_format_striped: obj.add_style(float.merge striped),
-      normal_style_muted: obj.add_style(border.merge muted),
-      striped_style_muted: obj.add_style(striped.merge muted),
+      float_format_right: obj.add_style(float_right.merge border),
+      float_format_right_striped: obj.add_style(float_right.merge border.merge bg_striped),
+
       broker_info: obj.add_style(left.merge plain),
       total_values: obj.add_style(total),
       total_values_float: obj.add_style(total.merge float),
@@ -112,14 +144,14 @@ class Reports::Excelsheet
     # (local_variables-[:obj]).inject(Hash.new){|k,v| k[v] = eval(v.to_s); k}
   end
 
-  def add_document_headings_base(heading, sub_heading)
+  def add_document_headings_base(heading, sub_heading, *additional_infos)
     # Current tenant info
     if t = @current_tenant
-      info_fields = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
-      if info_fields.present?
-        info_fields.each do |broker_info|
-          broker_info.prepend "Broker No. " if broker_info == t.broker_code
-          add_header_row(broker_info, :broker_info)
+      broker_info = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
+      if broker_info.present?
+        broker_info.each do |info|
+          info.prepend "Broker No. " if info == t.broker_code
+          add_header_row(info, :broker_info)
         end
         add_separator_row
       end
@@ -131,8 +163,13 @@ class Reports::Excelsheet
     # Additional query info (eg.dates)
     yield if block_given?
 
+    if additional_infos.present?
+      additional_infos.each { |info| add_header_row(info, :info) }
+      add_blank_row
+    end
+
     # Report generated date
-    add_header_row("Report Date: #{@date}", :date)
+    add_header_row("Report Date: #{@date}", :info)
     add_blank_row
   end
 
@@ -161,9 +198,22 @@ class Reports::Excelsheet
 
     last_col_alphabet = ('A'..'Z').to_a[@last_column]
     1.upto(@doc_header_row_count){|n| cell_ranges_to_merge << "A#{n}:#{last_col_alphabet}#{n}"}
-    cell_ranges_to_merge.each do |range|
-      @sheet.merge_cells(range)
-    end
+    cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
+  end
+
+  def file
+    # Returns the report file object
+    File.read(@path)
+  end
+
+  def filename
+    # Returns the complete file name for the report
+    "#{@file_name}.xlsx"
+  end
+
+  def clear
+    # Deletes the temporary report file
+    File.delete(@path) if File.file?(@path)
   end
 
 end
