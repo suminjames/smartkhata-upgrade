@@ -85,12 +85,25 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
     br
     text 'Thank you.'
     br
-    text 'For Trishakti Securities Public Limited,'
+    text "For #{current_tenant.full_name},"
     br
     br
     br
-    text 'Tanka Prasad Gautam'
-    text 'Executive Chairman'
+    # TODO(sarojk): Find a better way to do this so that new tenant won't have problem.
+    case current_tenant.name
+      when 'trishakti'
+        signee_name = 'Tanka Prasad Gautam'
+        designation = 'Executive Chairman'
+      when 'dipshikha'
+        signee_name = 'Bishnu Prasad Ojha'
+        designation = 'Executive Chairman'
+      else
+        signee_name = ''
+        designation = ''
+    end
+    text signee_name
+    text designation
+
   end
 
   def client_accounts_list
