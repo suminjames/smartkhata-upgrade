@@ -1,0 +1,26 @@
+
+-Floorsheet
+    -both sales / purchase record
+-Sales CM
+    -sales payout information
+        -information about the sales payment broker owes to its client
+-Order
+    -is solely for record keeping purposes, and doesn't intermingle with other models.
+
+-Deal Cancel
+    - strictly in purchase case
+    - complement of Closeout
+
+-Closeout
+    - strictly in sales
+    - complement of Deal Cancel
+    - seen in CM report
+
+-As they are complement of each other, the way they occur:
+    -Sell order placed for shares not possessed.
+      -If deal cancel when BrokerA -> Broker B,
+        Broker A has to pay 120% the amount of order
+        -The payment is known as closeout.
+
+
+

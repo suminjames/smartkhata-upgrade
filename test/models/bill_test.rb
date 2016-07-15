@@ -1,3 +1,29 @@
+# == Schema Information
+#
+# Table name: bills
+#
+#  id                         :integer          not null, primary key
+#  bill_number                :integer
+#  client_name                :string
+#  net_amount                 :decimal(15, 4)   default("0")
+#  balance_to_pay             :decimal(15, 4)   default("0")
+#  bill_type                  :integer
+#  status                     :integer          default("0")
+#  special_case               :integer          default("0")
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  fy_code                    :integer
+#  date                       :date
+#  date_bs                    :string
+#  settlement_date            :date
+#  client_account_id          :integer
+#  creator_id                 :integer
+#  updater_id                 :integer
+#  branch_id                  :integer
+#  sales_settlement_id        :integer
+#  settlement_approval_status :integer          default("0")
+#
+
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
 require 'test_helper'
 

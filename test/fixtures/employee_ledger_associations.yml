@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: employee_ledger_associations
+#
+#  id                  :integer          not null, primary key
+#  employee_account_id :integer
+#  ledger_id           :integer
+#  creator_id          :integer
+#  updater_id          :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 # This model initially had no columns defined.  If you add columns to the

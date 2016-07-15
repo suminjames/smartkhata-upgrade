@@ -1,4 +1,28 @@
 %div#filterrific_results
+
+  - if share_transactions
+    %div.bottom-buffer-sm
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+          Download
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'Excelsheet', @download_path_xlsx
+          %li
+            = link_to 'PDF', @download_path_pdf, :target => "_blank"
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-print{"aria-hidden" => "true"}
+          Print
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'in Regular', @print_path_pdf_in_regular
+          %li
+            = link_to 'in Letter-head', @print_path_pdf_in_letter_head
+
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
   %div#share_transaction_list

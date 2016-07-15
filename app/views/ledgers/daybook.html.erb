@@ -1,5 +1,5 @@
 <p id="notice"><%= notice %></p>
-<%= provide(:section_title, "Reports: Cashbook") %>
+<%= provide(:section_title, "Reports: Daybook") %>
 
 <div class="clearfix submenu">
   <%
@@ -8,17 +8,17 @@
     end
   %>
   <h5>
-    <%= link_to "Search by Date", ledgers_cashbook_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
+    <%= link_to "Search by Date", ledgers_daybook_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
     |
-    <%= link_to "Search by Date Range", ledgers_cashbook_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range") ? "active-link" : "")} %>
+    <%= link_to "Search by Date Range", ledgers_daybook_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range") ? "active-link" : "")} %>
     |
-    <%= link_to "View All", ledgers_cashbook_path(search_by: 'all'), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    <%= link_to "View All", ledgers_daybook_path(search_by: 'all'), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
   </h5>
 </div>
 
 <% if params[:search_by] == 'date' %>
     <div class="clearfix search-form">
-      <%= form_tag(ledgers_cashbook_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(ledgers_daybook_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "date" %>
           <%
             text_field_value_1 = params[:search_term]['date'] unless params[:search_term].blank?
@@ -31,7 +31,7 @@
 
 <% if params[:search_by] == 'date_range' %>
   <div class="clearfix search-form">
-      <%= form_tag(ledgers_cashbook_path, :method => "get", id: "search-form") do %>
+      <%= form_tag(ledgers_daybook_path, :method => "get", id: "search-form") do %>
           <%= hidden_field_tag :search_by, "date_range" %>
           <%
             text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
@@ -70,8 +70,13 @@
             <th class="text-center">Particulars</th>
             <th class="text-center">Voucher</th>
             <th class="text-center">Bill</th>
-            <th class="text-center">Settlement/<br>Cheque</th>
-            <th class="text-center">Payment/<br>Receipt No</th>
+            <% if @ledger.name == "Nepse Purchase" %>
+                <th class="text-center">Settlement ID</th>
+            <% else %>
+                <th class="text-center">Cheque</th>
+            <% end %>
+
+            <th class="text-center">Pay / Receipt No</th>
             <th class="text-center">Transaction Amount</th>
             <th class="text-center">Balance</th>
           </tr>

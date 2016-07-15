@@ -14,7 +14,7 @@ class ChequeEntriesController < ApplicationController
         },
         persistence_id: false
     ) or return
-    items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    items_per_page = params[:paginate] == 'false' ? ChequeEntry.all.count : 20
     @cheque_entries = @filterrific.find.page(params[:page]).per(items_per_page)
 
     respond_to do |format|

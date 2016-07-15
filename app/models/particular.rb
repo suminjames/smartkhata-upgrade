@@ -27,7 +27,6 @@
 #  hide_for_client        :boolean          default("false")
 #
 
-
 class Particular < ActiveRecord::Base
   include CustomDateModule
   include FiscalYearModule
@@ -80,8 +79,9 @@ class Particular < ActiveRecord::Base
   scope :find_by_ledger_ids, lambda { |ledger_ids_arr|
     where(ledger_id: ledger_ids_arr)
   }
-  scope :find_by_date_range, -> (date_from, date_to) { where(
-      :transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
+  scope :find_by_date_range, -> (date_from, date_to) { where(:transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
+
+  scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
   before_save :process_particular
 

@@ -21,7 +21,7 @@ class Ledgers::Query
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
     opening_balance = @ledger.opening_balance
 
-    # no pagination is required for xls file generation
+    # no pagination is required for xls/pdf file generation
     if no_pagination
       page = 0
     end
