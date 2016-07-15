@@ -18,6 +18,9 @@
 #  updated_at      :datetime         not null
 #
 
+# Maintains the most up-to-date(for each day) ledger attribute for the given branch_id.
+#  If branch_id is nil, the organisation ledger is being referred. This organisation ledger is already up-to-moment with
+#  its branches' ledger daily attributes.
 class LedgerDaily < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithFyCode

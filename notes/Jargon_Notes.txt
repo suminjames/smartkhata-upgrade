@@ -1,10 +1,16 @@
 
 -Floorsheet
-    -both
+    -both sales / purchase record
+-Sales CM
+    -sales payout information
+        -information about the sales payment broker owes to its client
+-Order
+    -is solely for record keeping purposes, and doesn't intermingle with other models.
 
 -Deal Cancel
     - strictly in purchase case
     - complement of Closeout
+
 -Closeout
     - strictly in sales
     - complement of Deal Cancel
