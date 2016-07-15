@@ -26,7 +26,7 @@
 
 class Bill < ActiveRecord::Base
   include CustomDateModule
-  include FiscalYearModule
+
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
@@ -44,8 +44,6 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
-
-  default_scope {where(fy_code: UserSession.selected_fy_code)}
 
   # scope :for_payment_letter, ->(settlement_id) { includes(:client_account).where(settlement_id: settlement_id).where.not(client_accounts: {bank_account: nil}) }
 
@@ -76,6 +74,8 @@ class Bill < ActiveRecord::Base
   attr_accessor :provisional_base_price
 
   validates_presence_of :client_account
+
+  default_scope {where(fy_code: UserSession.selected_fy_code)}
 
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }

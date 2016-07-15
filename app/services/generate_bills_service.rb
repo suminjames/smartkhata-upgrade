@@ -136,7 +136,7 @@ class GenerateBillsService
           end
 
 
-          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate})"
+          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no})"
           voucher = Voucher.create!(date: transaction.date)
           voucher.share_transactions << transaction
           voucher.desc = description
