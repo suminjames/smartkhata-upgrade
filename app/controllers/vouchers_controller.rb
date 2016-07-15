@@ -2,7 +2,7 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
-
+  layout 'application_custom', only: [:new, :create]
   # GET /vouchers
   # GET /vouchers.json
   def index
@@ -279,7 +279,7 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id])
+    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id])
   end
 
   def set_voucher_general_params

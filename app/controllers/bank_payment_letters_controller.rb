@@ -44,7 +44,13 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @settlement_id = params[:settlement_id]
+    @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
+
+    if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+      redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
+
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
     payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter)

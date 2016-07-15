@@ -47,15 +47,15 @@ class Ledgers::Query
             @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination)
 
             # sum of total credit and debit amount
-            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
+            @total_credit = @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
+            @total_debit = @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code_default.where('date < ?',date_from_ad).order('date DESC').first
+            previous_day_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date < ?',date_from_ad).order('date DESC').first
             previous_day_balance = previous_day_ledger_daily.present? ? previous_day_ledger_daily.closing_balance : 0.0
 
             # get the last ledger daily balance for the query date
-            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code_default.where('date <= ?',date_to_ad).order('date DESC').first
+            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_to_ad).order('date DESC').first
             last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
             @closing_balance_sorted = last_day_balance
@@ -87,15 +87,15 @@ class Ledgers::Query
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
     if no_pagination
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
       else
-        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC')
       end
     else
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
       else
-        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC').page(page).per(limit)
       end
     end
 
@@ -107,10 +107,18 @@ class Ledgers::Query
   def opening_balance_for_page(opening_balance, page, date_from_ad = nil, date_to_ad = nil)
     # raw sql can be potentially dangerous and memory leakage point
     # need to make sure this has proper binding
-    if date_from_ad.present? && date_to_ad.present?
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+
+    additional_condition = ""
+    if UserSession.selected_branch_id == 0
+      additional_condition = "fy_code = #{UserSession.selected_fy_code}"
     else
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+      additional_condition = "branch_id = #{UserSession.selected_branch_id} AND fy_code = #{UserSession.selected_fy_code}"
+    end
+
+    if date_from_ad.present? && date_to_ad.present?
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
+    else
+      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
     end
     opening_balance += ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
     opening_balance

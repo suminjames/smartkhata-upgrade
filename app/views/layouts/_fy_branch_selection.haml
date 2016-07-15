@@ -13,4 +13,4 @@
     .form-group
       -#= label_tag 'branch_id', 'Branch'
       %i.fa.fa-university.fa-lg{'aria-hidden': true}
-      = select_tag 'branch_id', options_from_collection_for_select(available_branches, 'id', 'code', session[:user_selected_branch_id]), prompt: "ALL", class: 'form-control'
+      = select_tag 'branch_id', options_from_collection_for_select(permitted_branches, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control'

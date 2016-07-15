@@ -66,8 +66,7 @@ class Group < ActiveRecord::Base
   # level 1 which is default will return only the balance
   def get_ledger_group(attrs = {})
     level = attrs[:drill_level] || 1
-    fy_code = attrs[:fy_code]
-
+    fy_code = UserSession.selected_fy_code
     group_ledger = Hash.new
     child_group = Hash.new
     group_ledger[:balance] = self.closing_balance(fy_code)
@@ -76,7 +75,7 @@ class Group < ActiveRecord::Base
     # dont load all the clients
     # as client list is too scary can go up too 5k+
     if level > 1 && self.name != 'Clients'
-      group_ledger[:ledgers] = self.ledgers.by_fy_code(fy_code)
+      group_ledger[:ledgers] = self.ledgers
       self.children.each do |child|
         child_group[child.name] = child.get_ledger_group(drill_level: level-1, fy_code: fy_code)
       end
@@ -97,7 +96,7 @@ class Group < ActiveRecord::Base
 
   def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
-    Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
+    Ledger.where("group_id IN (#{subtree})")
   end
 
   def closing_balance(fy_code = get_fy_code)

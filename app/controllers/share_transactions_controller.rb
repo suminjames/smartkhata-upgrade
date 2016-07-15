@@ -225,7 +225,6 @@ class ShareTransactionsController < ApplicationController
   #   # @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
   # end
 
-  # TODO MOVE THIS TO the index controller
   def deal_cancel
     if params[:id].present?
       from_path = params[:from_path] || deal_cancel_share_transactions_path

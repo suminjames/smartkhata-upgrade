@@ -18,8 +18,8 @@ class NepseChalansController < ApplicationController
     @nepse_chalan = NepseChalan.new
     search_by = params[:search_by]
     search_term = params[:search_term]
-    @bank_ledger_list = BankAccount.all.uniq.collect(&:ledger)
-    default_bank_payment = BankAccount.where(:default_for_payment => true).first
+    @bank_ledger_list = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
+    default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
     @default_ledger_id = default_bank_payment.ledger.id if default_bank_payment.present?
 
     case search_by
@@ -69,6 +69,9 @@ class NepseChalansController < ApplicationController
       redirect_to new_nepse_chalan_path, flash: {error: 'Try again'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     share_transactions = ShareTransaction.buying.where(id: selected_transaction_ids)
     if share_transactions.size < 1

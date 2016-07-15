@@ -20,7 +20,7 @@ class SalesSettlementsController < ApplicationController
   def show
     #TODO move this to model
     @share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
-    @receipt_bank_account = BankAccount.where(:default_for_payment => true).first
+    @receipt_bank_account = BankAccount.by_branch_id.where(:default_for_payment => true).first
     if @sales_settlement.complete?
       @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list", page_sizes: [50])
     else

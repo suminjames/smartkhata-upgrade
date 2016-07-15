@@ -81,7 +81,7 @@ class ChequeEntriesController < ApplicationController
   def new
     # @cheque_entry = ChequeEntry.new
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    @bank_accounts = BankAccount.all.order(:bank_name)
+    @bank_accounts = BankAccount.by_branch_id.all.order(:bank_name)
   end
 
   # GET /cheque_entries/1/edit
@@ -113,6 +113,9 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     voucher = @cheque_entry.vouchers.uniq.first
     @bills = voucher.bills.purchase.order(id: :desc)
@@ -167,6 +170,10 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
+
     voucher = @cheque_entry.vouchers.uniq.last
 
     ActiveRecord::Base.transaction do
@@ -213,7 +220,7 @@ class ChequeEntriesController < ApplicationController
   # POST /cheque_entries
   # POST /cheque_entries.json
   def create
-    @bank_accounts = BankAccount.all
+    @bank_accounts = BankAccount.by_branch_id.all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
     @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0

@@ -3,6 +3,7 @@ class Files::FloorsheetsController < Files::FilesController
 
   include CommissionModule
   include ShareInventoryModule
+  include FiscalYearModule
 
   @@file_type = FileUpload::file_types[:floorsheet]
   @@file_name_contains = "FLOORSHEET"
@@ -65,7 +66,9 @@ class Files::FloorsheetsController < Files::FilesController
     end
 
     file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
-
+    # fiscal year and date should match
+    file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
+    
     # do not reprocess file if it is already uploaded
     floorsheet_file = FileUpload.find_by(file_type: @@file_type, report_date: @date)
     # raise soft error and return if the file is already uploaded
@@ -285,14 +288,13 @@ class Files::FloorsheetsController < Files::FilesController
       bill_id = bill.id
       full_bill_number = "#{fy_code}-#{bill.bill_number}"
 
+      client_group = Group.find_or_create_by!(name: "Clients")
       # create client ledger if not exist
       client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
         ledger.name = client_name
         ledger.client_account_id = client.id
+        ledger.group_id = client_group.id
       end
-      # assign the client ledgers to group clients
-      client_group = Group.find_or_create_by!(name: "Clients")
-      client_group.ledgers << client_ledger
 
       # find or create predefined ledgers
       purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
@@ -306,7 +308,7 @@ class Files::FloorsheetsController < Files::FilesController
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
-      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description

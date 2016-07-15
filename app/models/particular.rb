@@ -24,15 +24,13 @@
 #  ledger_id              :integer
 #  voucher_id             :integer
 #  bank_payment_letter_id :integer
-#  opening_balance_org    :decimal(15, 4)   default("0")
-#  running_blnc_org       :decimal(15, 4)   default("0")
 #  hide_for_client        :boolean          default("false")
-#  running_blnc_client    :decimal(15, 4)   default("0")
 #
 
 
 class Particular < ActiveRecord::Base
   include CustomDateModule
+  include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
 
   belongs_to :ledger
@@ -101,6 +99,6 @@ class Particular < ActiveRecord::Base
   def process_particular
     self.transaction_date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.transaction_date)
+    # self.fy_code = get_fy_code(self.transaction_date)
   end
-
 end
