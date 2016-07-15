@@ -37,7 +37,7 @@
 <% if @balance_report.present? %>
     <h2 class="text-center"><%= current_tenant.full_name %></h2>
     <h3 class="text-center">Trial Balance</h3>
-    <h4 class="text-center"> <%= params[:search_term] ? "For the date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
+    <h4 class="text-center"> <%= params[:search_term] ? "As on date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
     <br><br>
     <div class="box-body ledger trial">
       <table class="table">

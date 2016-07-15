@@ -109,9 +109,10 @@ class ImportPayout < ImportFile
             amount_receivable = transaction.share_amount + amount_receivable - transaction.sebo - transaction.commission_amount * chargeable_by_nepse
           end
 
-
+          # this is the case for close out
+          # calculate the charges
           if transaction.closeout_amount > 0
-            transaction.net_amount = (transaction.closeout_amount + amount_receivable) - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
+            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
           else
             transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
           end
