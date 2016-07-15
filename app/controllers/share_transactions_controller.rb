@@ -18,7 +18,9 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-    @share_transactions = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? @filterrific.find : @filterrific.find.page(params[:page]).per(20)
+    items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ShareTransaction.all.count : 20
+    @share_transactions= @filterrific.find.page(params[:page]).per(items_per_page)
+
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
 

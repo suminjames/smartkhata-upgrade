@@ -76,6 +76,7 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_isin_id,
+          :by_transaction_cancel_status
       ]
   )
 
@@ -84,7 +85,6 @@ class ShareTransaction < ActiveRecord::Base
   # before_update :calculate_cgt
   validates :base_price, numericality: true
 
-
   scope :find_by_date, -> (date) { where(
       :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
@@ -92,25 +92,30 @@ class ShareTransaction < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    not_cancelled.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
+    not_cancelled.where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date<= ?', date_ad.end_of_day).order(id: :desc)
+    not_cancelled.where('date<= ?', date_ad.end_of_day).order(id: :desc)
+  }
+  scope :by_transaction_cancel_status, lambda { |status|
+    if status == 'deal_cancel_complete'
+      where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status]).order(id: :desc)
+    end
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
-  scope :by_isin_id, -> (id) { where(isin_info_id: id).order(id: :desc) }
+  scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id).order(id: :desc) }
+  scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("share_transactions.id #{ direction }")
+        not_cancelled.order("share_transactions.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

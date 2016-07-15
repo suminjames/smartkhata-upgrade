@@ -1,5 +1,6 @@
 %p#notice= notice
-- provide(:section_title, "Share Inventory")
+- section_title = params[:filterrific] && params[:filterrific][:by_transaction_cancel_status] ? 'Share Inventory: Cancelled Transaction' : 'Share Inventory'
+- provide(:section_title, section_title)
 
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
   .panel.panel-default.filter-form

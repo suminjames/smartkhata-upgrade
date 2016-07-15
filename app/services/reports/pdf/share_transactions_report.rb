@@ -149,12 +149,12 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         q_out = st.selling? ? st.quantity.to_i : ''
         m_rate = strip_redundant_decimal_zeroes(st.isin_info.last_price.to_f)
         share_amt = strip_redundant_decimal_zeroes(st.share_amount.to_f)
-        comm_amt = arabic_number(st.commission_amount.to_f)
+        comm_amt = st.commission_amount.to_f
 
         total_q_in += q_in.to_i # to_i used to convert empty string value to 0
         total_q_out += q_out.to_i # to_i used to convert empty string value to 0
         total_share_amt += share_amt
-        total_comm_amt += comm_amt.to_i
+        total_comm_amt += comm_amt
 
         table_data << [
             sn,
