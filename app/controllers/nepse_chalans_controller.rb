@@ -69,6 +69,9 @@ class NepseChalansController < ApplicationController
       redirect_to new_nepse_chalan_path, flash: {error: 'Try again'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     share_transactions = ShareTransaction.buying.where(id: selected_transaction_ids)
     if share_transactions.size < 1

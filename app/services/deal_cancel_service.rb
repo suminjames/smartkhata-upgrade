@@ -106,6 +106,7 @@ class DealCancelService
         if bill.blank?
           ActiveRecord::Base.transaction do
             update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+            @share_transaction.quantity = 0
             @share_transaction.transaction_cancel_status = :deal_cancel_complete
             @share_transaction.save!
           end
@@ -131,7 +132,8 @@ class DealCancelService
           # remove the transacted amount from the share inventory
           update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
           # create a new voucher and add the bill reference to it
-          new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), voucher_status: Voucher.voucher_statuses[:complete])
+          date_bs = ad_to_bs_string(@share_transaction.date)
+          new_voucher = Voucher.create!(date: @share_transaction.date, date_bs: date_bs, voucher_status: Voucher.voucher_statuses[:complete])
           new_voucher.bills_on_settlement << bill
 
           description = "Deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{bill.fy_code}-#{bill.bill_number})"
@@ -148,7 +150,7 @@ class DealCancelService
           end
 
           @share_transaction.particulars.update_all(hide_for_client: true)
-
+          @share_transaction.quantity = 0
           @share_transaction.transaction_cancel_status = :deal_cancel_complete
           @share_transaction.save!
 

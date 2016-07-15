@@ -6,7 +6,7 @@ module Models::UpdaterWithBranchFycode
   def self.included(base)
     base.instance_eval do
       before_create :set_creator, :add_branch_fycode
-      before_save :set_updater
+      before_save :set_updater, :add_branch_fycode
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
