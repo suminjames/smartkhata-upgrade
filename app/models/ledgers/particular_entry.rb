@@ -24,78 +24,10 @@ class Ledgers::ParticularEntry
   # update balances
   def insert_particular(particular)
     ledger = Ledger.find(particular.ledger_id)
-    ledger.lock!
-    dr_amount = 0
-    cr_amount = 0
-    opening_balance_org = nil
-    opening_balance_cost_center = nil
     fy_code = get_fy_code(particular.transaction_date)
     accounting_date = particular.transaction_date
-
-    # check if there are records after the entry
-    if accounting_date <= Time.now
-      ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
-      if ledger_activities.size > 0
-        # there are some records after the transaction date
-        future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
-        future_activity_org = ledger_activities.where(branch_id: nil).first
-
-        opening_balance_org = future_activity_org.present? ? future_activity_org.opening_balance : 0.0
-        opening_balance_cost_center = future_activity_cost_center.present? ? future_activity_cost_center.opening_balance : 0.0
-
-        adjustment_amount = debit ? amount : amount * -1
-
-        ledger_activities.each do |d|
-          d.closing_balance += adjustment_amount
-          d.opening_balance += adjustment_amount
-          d.save!
-        end
-      end
-    end
-
-    ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
-    ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: particular.branch_id)
-    amount = particular.amount
-    opening_balance_org ||= ledger_blnc_org.opening_balance
-    opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
-
-    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: particular.branch_id) do |l|
-      l.opening_balance = opening_balance_cost_center
-      l.closing_balance = opening_balance_cost_center
-    end
-    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: particular.transaction_date, branch_id: nil) do |l|
-      l.opening_balance = opening_balance_org
-      l.closing_balance = opening_balance_org
-    end
-
-    if particular.dr?
-      dr_amount = amount
-      ledger_blnc_org.closing_balance += amount
-      ledger_blnc_cost_center.closing_balance += amount
-      daily_report_cost_center.closing_balance += amount
-      daily_report_org.closing_balance += amount
-    else
-      ledger_blnc_org.closing_balance -= amount
-      ledger_blnc_cost_center.closing_balance -= amount
-      daily_report_cost_center.closing_balance -= amount
-      daily_report_org.closing_balance -= amount
-      cr_amount = amount
-    end
-
-    daily_report_cost_center.dr_amount += dr_amount
-    daily_report_cost_center.cr_amount += cr_amount
-    daily_report_cost_center.save!
-
-    daily_report_org.dr_amount += dr_amount
-    daily_report_org.cr_amount += cr_amount
-    daily_report_org.save!
-
-    ledger_blnc_org.save!
-    ledger_blnc_cost_center.save!
-
-    # particular.opening_balance = closing_balance
-    # particular.running_blnc = ledger.closing_balance
-    particular.fy_code = get_fy_code(particular.transaction_date)
+    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id)
+    particular.fy_code = fy_code
     particular.complete!
     ledger.save!
   end
@@ -135,47 +67,84 @@ class Ledgers::ParticularEntry
     # the case for partial reversal not yet implemented
     return false if particular && (amount - adjustment).abs <= 0.01
 
-
-    ledger.lock!
     transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
 
+    calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id)
+
+    new_particular = Particular.create!(
+        transaction_type: transaction_type,
+        ledger_id: ledger.id,
+        name: descr,
+        voucher_id: voucher.id,
+        amount: amount,
+        transaction_date: accounting_date,
+        branch_id: branch_id,
+        fy_code: get_fy_code(accounting_date)
+    )
+
+    if particular
+      cheque_entries_on_receipt = particular.cheque_entries_on_receipt
+      cheque_entries_on_payment = particular.cheque_entries_on_payment
+
+      if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
+        new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
+        new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
+        new_particular.save!
+      end
+    end
+
+    ledger.save!
+    new_particular
+  end
+
+
+  def calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id)
+    ledger.lock!
     dr_amount = 0
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
 
-
-
-
     # check if there are records after the entry
     if accounting_date <= Time.now
+      # get all the ledger dailies for the ledger which is after the accounting date
       ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
+
       if ledger_activities.size > 0
         # there are some records after the transaction date
-        future_activity_cost_center = ledger_activities.where(branch_id: branch_id).first
-        future_activity_org = ledger_activities.where(branch_id: nil).first
-        opening_balance_org = future_activity_org.present? ? future_activity_org.opening_balance : 0.0
-        opening_balance_cost_center = future_activity_cost_center.present? ? future_activity_cost_center.opening_balance : 0.0
+        future_activities_cost_center = ledger_activities.where(branch_id: branch_id)
+        future_activities_org = ledger_activities.where(branch_id: nil)
+
+        # assign if the future dailies are present
+        # if not do nothing .. assign value later
+        opening_balance_org = future_activities_org.first.opening_balance if future_activities_org.first.present?
+        opening_balance_cost_center = future_activities_cost_center.first.opening_balance if future_activities_cost_center.first.present?
 
         adjustment_amount = debit ? amount : amount * -1
 
-        ledger_activities.each do |d|
+        # update the cost center daily balances
+        future_activities_cost_center.each do |d|
           d.closing_balance += adjustment_amount
           d.opening_balance += adjustment_amount
           d.save!
         end
+
+        # update the org level daily balances
+        future_activities_org.each do |d|
+          d.closing_balance += adjustment_amount
+          d.opening_balance += adjustment_amount
+          d.save!
+        end
+
       end
     end
 
+    ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
+    ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: branch_id)
 
-
-    # ledger balance by org and cost center
-    ledger_blnc_org = LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
-    ledger_blnc_cost_center =  LedgerBalance.find_or_create_by!(ledger_id: ledger.id, branch_id: branch_id)
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
-    # daily report to store debit and credit transactions
     daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
@@ -199,130 +168,25 @@ class Ledgers::ParticularEntry
       cr_amount = amount
     end
 
-
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
-
 
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
 
+    ledger_blnc_org.dr_amount += dr_amount
+    ledger_blnc_org.cr_amount += cr_amount
+
+    ledger_blnc_cost_center.dr_amount += dr_amount
+    ledger_blnc_cost_center.cr_amount += cr_amount
+
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 
-    particular_closing_balance = daily_report_cost_center.closing_balance
-    particular_closing_balance_org = daily_report_org.closing_balance
-
-    new_particular = Particular.create!(
-        transaction_type: transaction_type,
-        ledger_id: ledger.id,
-        name: descr,
-        voucher_id: voucher.id,
-        amount: amount,
-        # opening_balance: opening_balance_cost_center,
-        # running_blnc: particular_closing_balance,
-        # opening_balance_org: opening_balance_org,
-        # running_blnc_org: particular_closing_balance_org,
-        transaction_date: accounting_date,
-        # no option yet for client to segregate reports on the base of cost center
-        # not sure if its necessary
-        # running_blnc_client: particular_closing_balance_org,
-        branch_id: branch_id,
-        fy_code: get_fy_code(accounting_date)
-    )
-
-    if particular
-      cheque_entries_on_receipt = particular.cheque_entries_on_receipt
-      cheque_entries_on_payment = particular.cheque_entries_on_payment
-
-      if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
-        new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
-        new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
-        new_particular.save!
-      end
-    end
-
     ledger.save!
-    new_particular
+
+    return daily_report_cost_center.closing_balance, daily_report_org.closing_balance
   end
-
-
-  # def revert(particular, voucher, descr, adjustment = 0.0)
-  #   amount = particular.amount
-  #   branch_id = particular.branch_id
-  #
-  #   # this accounts for the case where whole transaction is cancelled
-  #   # in such case adjustment value is 0
-  #   if (amount - adjustment).abs > 0.01
-  #     transaction_type = particular.cr? ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-  #     ledger = particular.ledger
-  #     amount = particular.amount
-  #
-  #     opening_balance_org = nil
-  #     opening_balance_cost_center = nil
-  #
-  #     # daily report to store debit and credit transactions
-  #     daily_report_cost_center = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id)
-  #     daily_report_org = LedgerDaily.find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil)
-  #
-  #     ledger.lock!
-  #
-  #     particular_opening_balance = daily_report.closing_balance
-  #     particular_opening_balance_org = daily_report_org.closing_balance
-  #
-  #     # in case of client account charge the dp fee.
-  #     if ledger.client_account_id.present?
-  #       amount = amount - adjustment
-  #     end
-  #
-  #     if particular.cr?
-  #       dr_amount = amount
-  #       daily_report.closing_balance += amount
-  #       daily_report_org.closing_balance += amount
-  #     else
-  #       daily_report.closing_balance -= amount
-  #       daily_report_org.closing_balance -= amount
-  #       cr_amount = amount
-  #     end
-  #
-  #     daily_report.opening_balance ||= ledger.opening_balance
-  #     daily_report.dr_amount += dr_amount
-  #     daily_report.cr_amount += cr_amount
-  #     daily_report.save!
-  #
-  #     daily_report_org.opening_balance ||= ledger.opening_balance
-  #     daily_report_org.dr_amount += dr_amount
-  #     daily_report_org.cr_amount += cr_amount
-  #     daily_report_org.save!
-  #
-  #
-  #     particular_closing_balance = daily_report.closing_balance
-  #     particular_closing_balance_org = daily_report_org.closing_balance
-  #
-  #     cheque_entries_on_receipt = particular.cheque_entries_on_receipt
-  #     cheque_entries_on_payment = particular.cheque_entries_on_payment
-  #
-  #     new_particular = Particular.create!(
-  #         transaction_type: transaction_type,
-  #         ledger_id: ledger.id,
-  #         name: descr,
-  #         voucher_id: voucher.id,
-  #         amount: amount,
-  #         opening_balance: particular_opening_balance,
-  #         running_blnc: particular_closing_balance,
-  #         opening_balance_org: particular_opening_balance_org,
-  #         running_blnc_org: particular_closing_balance_org
-  #     )
-  #
-  #     if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
-  #       new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
-  #       new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
-  #       new_particular.save!
-  #     end
-  #
-  #     ledger.save!
-  #   end
-  # end
 end

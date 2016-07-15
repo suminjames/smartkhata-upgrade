@@ -383,6 +383,8 @@ ActiveRecord::Schema.define(version: 20160713172121) do
   create_table "ledger_balances", force: :cascade do |t|
     t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
     t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.integer  "creator_id"
