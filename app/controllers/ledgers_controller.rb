@@ -52,32 +52,29 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     ledger_query = Ledgers::Query.new(params, @ledger)
 
-
-
     if params[:format] == 'xlsx'
-      @particulars,
-          @total_credit,
-          @total_debit,
-          @closing_balance_sorted,
-          @opening_balance_sorted = ledger_query.ledger_with_particulars(true)
-
+      @particulars = ledger_query.ledger_with_particulars(true)[0]
+      @particulars = @particulars.reject &:hide_for_client if params[:for_client] == "1" # no reject! ?
       report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
       if report.generated_successfully?
-        send_file(report.path, type: report.type)
+        # send_file(report.path, type: report.type)
+        send_data(report.file, type: report.type, filename: report.filename)
+        report.clear
       else
         # This should be ideally an ajax notification!
         redirect_to ledgers_path, flash: { error: report.error }
       end
       return
-    else
-      @particulars,
-          @total_credit,
-          @total_debit,
-          @closing_balance_sorted,
-          @opening_balance_sorted = ledger_query.ledger_with_particulars
     end
 
-    @download_path_xlsx = ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
     unless ledger_query.error_message.blank?

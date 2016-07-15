@@ -11,7 +11,8 @@ class Reports::Excelsheet
       self.instance_variable_set("@#{parameters[i][1]}", val)
     end
     @date = ad_to_bs Date.today
-    @last_column = self.class::TABLE_HEADER.count-1
+    @column_count = self.class::TABLE_HEADER.count
+    @last_column = @column_count-1 #starting from 0
     @doc_header_row_count = 0
   end
 
@@ -54,72 +55,98 @@ class Reports::Excelsheet
       end
     end
     @path = "#{Rails.root}/tmp/#{@file_name}.xlsx"
+
+    # required for numbers?
+    package.use_shared_strings = true
     package.serialize @path
+    # data = package.to_stream() #error error!!
+
+    # @file = Tempfile.new('Excelsheet')
+    # @file.write(data.read)
+    # @file.close
+    # @path = @file.path
   end
 
   def define_styles(obj)
     # Defines and adds necessary styles to the workbook styles object & sets their hash to @styles variable.
 
-    # center_bordered = {alignment: {horizontal: :center}, border: {style: :thin, color: "000"}}
     border = {border: {style: :thin, color: "3c8dbc"}}
     border_right = {border: {style: :thin, color: "d2d6de", edges: [:right]}} #color: "808080"
     border_top_right = {border: {style: :thin, color: "d2d6de", edges: [:top, :right]}} #color: "00"
     bg_striped = {bg_color: "f9f9f9"}
     bg_white = {bg_color: "FF"}
-    center = {alignment: {horizontal: :center}}
+    h_center = {alignment: {horizontal: :center}}
+    v_center = {alignment: {vertical: :center}}
+    complete_center = h_center.deep_merge(v_center)
     left = {alignment: {horizontal: :left}}
     right = {alignment: {horizontal: :right}}
     muted = {fg_color: "808080"}
-    center_clear = center.merge bg_white
+    center_clear = h_center.merge bg_white
     plain = bg_white.merge border_right
     separator = bg_white.merge border_top_right
-    striped = border.merge bg_striped
-    # center_bordered = center.merge border_right
+
+    normal = border.merge v_center
+    striped = normal.merge bg_striped
 
     doc_header_style = {sz: 20, fg_color: "3c8dbc"}.merge center_clear
     doc_sub_header_style = {sz: 14}.merge center_clear
+    table_header_style = {b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge(complete_center)
 
-    float = {num_fmt: 4}
-    int = {num_fmt: 1}
+    float = {num_fmt: 4}.merge normal
+    int = {num_fmt: 1}.merge normal
     total = {b: true}.merge border
+    wrap = {alignment: {wrap_text: true, vertical: :center}}
 
-    @styles = {
-      table_header: obj.add_style({b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge center),
+    styles_to_add = {
+      table_header: table_header_style,
 
-      # date: [obj.add_style(center_clear)].insert(9, obj.add_style(center_clear.merge border_right)),
-      date: obj.add_style(center_clear.merge border_right),
-      blank: obj.add_style(plain),
-      heading: obj.add_style(doc_header_style.merge border_right),
-      sub_heading: obj.add_style(doc_sub_header_style.merge border_right),
-      separator: obj.add_style(separator),
+      info: center_clear.merge(border_right),
+      blank: plain,
+      heading: doc_header_style.merge(border_right),
+      sub_heading: doc_sub_header_style.merge(border_right),
+      separator: separator,
 
-      normal_style: obj.add_style(border),
-      striped_style: obj.add_style(striped),
+      normal_style: normal,
+      normal_style_muted: normal.merge(muted),
+      normal_center: normal.deep_merge(h_center),
+      normal_right: normal.deep_merge(right),
+      striped_style: striped,
+      striped_style_muted: striped.merge(muted),
+      striped_center: striped.deep_merge(h_center),
+      striped_right: striped.deep_merge(right),
+
+      wrap: normal.merge(wrap),
+      wrap_striped: striped.merge(wrap),
+
       # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
       # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
-      int_format: obj.add_style(int.merge border),
-      int_format_striped: obj.add_style(int.merge striped),
-      float_format: obj.add_style(float.merge border),
-      float_format_striped: obj.add_style(float.merge striped),
-      normal_style_muted: obj.add_style(border.merge muted),
-      striped_style_muted: obj.add_style(striped.merge muted),
-      broker_info: obj.add_style(left.merge plain),
-      total_values: obj.add_style(total),
-      total_values_float: obj.add_style(total.merge float),
-      total_keyword: obj.add_style(total.merge right)
-    }
 
-    # (local_variables-[:obj]).inject(Hash.new){|k,v| k[v] = eval(v.to_s); k}
+      int_format: int,
+      int_format_striped: int.merge(bg_striped),
+      int_format_left: int.deep_merge(left),
+      int_format_left_striped: int.deep_merge(left).merge(bg_striped),
+
+      float_format: float,
+      float_format_striped: float.merge(bg_striped),
+      float_format_right: float.deep_merge(right),
+      float_format_right_striped: float.deep_merge(right).merge(bg_striped),
+
+      broker_info: left.merge(plain),
+      total_values: total,
+      total_values_float: total.merge(float),
+      total_keyword: total.merge(right)
+    }
+    @styles = styles_to_add.inject(Hash.new){|p,w| p[w[0]] = obj.add_style(w[1]); p}
   end
 
-  def add_document_headings_base(heading, sub_heading)
+  def add_document_headings_base(heading, sub_heading, *additional_infos)
     # Current tenant info
     if t = @current_tenant
-      info_fields = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
-      if info_fields.present?
-        info_fields.each do |broker_info|
-          broker_info.prepend "Broker No. " if broker_info == t.broker_code
-          add_header_row(broker_info, :broker_info)
+      broker_info = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
+      if broker_info.present?
+        broker_info.each do |info|
+          info.prepend "Broker No. " if info == t.broker_code
+          add_header_row(info, :broker_info)
         end
         add_separator_row
       end
@@ -131,8 +158,13 @@ class Reports::Excelsheet
     # Additional query info (eg.dates)
     yield if block_given?
 
+    if additional_infos.present?
+      additional_infos.each { |info| add_header_row(info, :info) }
+      add_blank_row
+    end
+
     # Report generated date
-    add_header_row("Report Date: #{@date}", :date)
+    add_header_row("Report Date: #{@date}", :info)
     add_blank_row
   end
 
@@ -161,9 +193,22 @@ class Reports::Excelsheet
 
     last_col_alphabet = ('A'..'Z').to_a[@last_column]
     1.upto(@doc_header_row_count){|n| cell_ranges_to_merge << "A#{n}:#{last_col_alphabet}#{n}"}
-    cell_ranges_to_merge.each do |range|
-      @sheet.merge_cells(range)
-    end
+    cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
+  end
+
+  def file
+    # Returns the report file object
+    File.read(@path)
+  end
+
+  def filename
+    # Returns the complete file name for the report
+    "#{@file_name}.xlsx"
+  end
+
+  def clear
+    # Deletes the temporary report file if file exists!
+    File.delete(@path) if File.file?(@path)
   end
 
 end

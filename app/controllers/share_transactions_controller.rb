@@ -38,7 +38,9 @@ class ShareTransactionsController < ApplicationController
       format.xlsx do
         report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
         if report.generated_successfully?
-          send_file(report.path, type: report.type)
+          # send_file(report.path, type: report.type)
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
         else
           # This should be ideally an ajax notification!
           # preserve params??

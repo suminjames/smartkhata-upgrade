@@ -30,21 +30,23 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
 
   def prepare_document
     # Adds document headings and returns the filename conditionally, before the real data table is inserted.
-    if @client_account && @isin_info
-      add_document_headings("Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\"")
-      @file_name = "ClientCompany_ShareTransactionReport_#{@client_account.id}_#{@isin_info.id}_#{@date}"
-    elsif @client_account
-      add_document_headings("Client Wise Report", "\"#{@client_account.name.strip}\"")
-      @file_name = "ClientWise_ShareTransactionReport_#{@client_account.id}_#{@date}"
-    elsif @isin_info
-      add_document_headings("Company Wise Report", "\"#{@isin_info.company.strip}\"")
-      @file_name = "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"
+    headings, @file_name = case
+    when @client_account && @isin_info
+      [["Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\""],
+      "ClientCompany_ShareTransactionReport_#{@client_account.id}_#{@isin_info.id}_#{@date}"]
+    when @client_account
+      [["Client Wise Report", "\"#{@client_account.name.strip}\""],
+      "ClientWise_ShareTransactionReport_#{@client_account.id}_#{@date}"]
+    when @isin_info
+      [["Company Wise Report", "\"#{@isin_info.company.strip}\""],
+      "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"]
     else # full report
       sub_heading = "All transactions"
       sub_heading << " of" if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present?}
-      add_document_headings("Share Inventory Report", sub_heading)
-      @file_name = "ShareTransactionReport_#{@date}"
+      [["Share Inventory Report", sub_heading],
+      "ShareTransactionReport_#{@date}"]
     end
+    add_document_headings(*headings)
   end
 
   def add_document_headings(heading, sub_heading)
@@ -55,7 +57,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
         date_info = ""
         add_date_info = lambda {
           date_info.prepend "Transaction " if @client_account || @isin_info
-          add_header_row(date_info, :date)
+          add_header_row(date_info, :info)
         }
         if @params[:by_date].present?
           date_info = "Date: #{@params[:by_date]}"
@@ -73,14 +75,14 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
 
   def populate_data_rows
     # inserts the actual data rows through iteration.
-    normal_style_row = ([@styles[:normal_style]]*4).insert(2, @styles[:int_format]).push(*[@styles[:float_format]]*5)
-    striped_style_row = ([@styles[:striped_style]]*4).insert(2, @styles[:int_format_striped]).push(*[@styles[:float_format_striped]]*5)
+    normal_style_row = [@styles[:normal_center]].push(*[@styles[:normal_style]]*2).insert(2, @styles[:int_format_left]).insert(3, @styles[:wrap]).push(*[@styles[:float_format]]*5)
+    striped_style_row = [@styles[:striped_center]].push(*[@styles[:striped_style]]*2).insert(2, @styles[:int_format_left_striped]).insert(3, @styles[:wrap_striped]).push(*[@styles[:float_format_striped]]*5)
     @share_transactions.each_with_index do |st, index|
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       sn = index + 1
       date = ad_to_bs_string(st.date)
       contract_num = st.contract_no
-      company = st.isin_info.company
+      company = st.isin_info.name_and_code
       if st.bill.present?
         bill_num = st.bill.full_bill_number
         normal_style_row[4] = @styles[:normal_style]
@@ -94,7 +96,6 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       q_out = st.selling? ? st.quantity.to_f : ''
       m_rate = st.isin_info.last_price.to_f
       share_amt = st.share_amount.to_f
-      # comm_amt = arabic_number(st.commission_amount)
       comm_amt = st.commission_amount.to_f
       row_style = index.even? ? normal_style_row : striped_style_row
       @sheet.add_row [sn, date, contract_num, company, bill_num, q_in, q_out, m_rate, share_amt, comm_amt],
@@ -113,7 +114,6 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     columns_to_sum.each do |col|
       totalled_cells << "=SUM(#{alphabets[col]}#{first_data_row}:#{alphabets[col]}#{last_data_row})"
     end
-    # debugger
     @sheet.add_row totalled_cells.insert(0, 'Total').insert(1, *['']*4).insert(7, ''), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*9)
     @sheet.merge_cells("A#{last_data_row+1}:#{alphabets[columns_to_sum.min-1]}#{last_data_row+1}")
   end
