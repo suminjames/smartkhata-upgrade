@@ -25,6 +25,7 @@
 class Voucher < ActiveRecord::Base
   # include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
+  include CustomDateModule
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
