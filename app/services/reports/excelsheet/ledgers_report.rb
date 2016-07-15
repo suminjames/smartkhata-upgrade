@@ -24,9 +24,9 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
   def prepare_document
     # Adds document headings and returns the filename, before the real data table is inserted.
     opening_closing_blnc = \
-      "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance_org >= 0 ? 'dr' : 'cr'}"\
+      "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance >= 0 ? 'Dr' : 'Cr'}"\
       " | "\
-      "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance_org + margin_of_error_amount >= 0 ? 'dr' : 'cr'}"
+      "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}"
     add_document_headings("Ledger", "\"#{@ledger.name.strip.titleize}\"", opening_closing_blnc)
     @file_name = "Ledger_#{@ledger.id}_#{@date}"
   end
