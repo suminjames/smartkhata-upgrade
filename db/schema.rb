@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160713101058) do
+ActiveRecord::Schema.define(version: 20160713172121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -110,6 +110,15 @@ ActiveRecord::Schema.define(version: 20160713101058) do
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
+
+  create_table "branch_permissions", id: false, force: :cascade do |t|
+    t.integer  "branch_id"
+    t.integer  "user_id"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "branches", force: :cascade do |t|
     t.string   "code"
@@ -374,6 +383,8 @@ ActiveRecord::Schema.define(version: 20160713101058) do
   create_table "ledger_balances", force: :cascade do |t|
     t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
     t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.integer  "creator_id"

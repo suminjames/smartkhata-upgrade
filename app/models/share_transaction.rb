@@ -103,14 +103,14 @@ class ShareTransaction < ActiveRecord::Base
     where('date<= ?', date_ad.end_of_day).order(id: :desc)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
+  scope :by_client_id, -> (id) {not_cancelled.where(client_account_id: id).order(id: :desc) }
   scope :by_isin_id, -> (id) { where(isin_info_id: id).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("share_transactions.id #{ direction }")
+        not_cancelled.order("share_transactions.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

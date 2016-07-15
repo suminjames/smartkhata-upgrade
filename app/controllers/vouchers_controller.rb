@@ -2,7 +2,7 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
-
+  layout 'application_custom', only: [:new, :create]
   # GET /vouchers
   # GET /vouchers.json
   def index

@@ -8,6 +8,7 @@ class CreateBankPaymentLetterService
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = 'There was an error'
+    @date = params[:date] || Time.now
   end
 
   def process
@@ -29,7 +30,7 @@ class CreateBankPaymentLetterService
     particulars = []
     net_paid_amount = 0.00
     ActiveRecord::Base.transaction do
-      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+      voucher = Voucher.create!(date: @date)
       voucher.desc = description
       voucher.pending!
       voucher.save!

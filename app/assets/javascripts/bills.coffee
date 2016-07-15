@@ -9,7 +9,6 @@ get_balance = ($this) ->
     return parse_number($parent.find('.bill-amount')) * -1
 
 get_total_balance = () ->
-  debugger
   balance = 0
   $('.check-bill:checked').each ->
     balance += get_balance($(this))
