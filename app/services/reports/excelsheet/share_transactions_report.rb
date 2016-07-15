@@ -30,22 +30,23 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
 
   def prepare_document
     # Adds document headings and returns the filename conditionally, before the real data table is inserted.
-    @file_name = case
+    headings, @file_name = case
     when @client_account && @isin_info
-      add_document_headings("Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\"")
-      "ClientCompany_ShareTransactionReport_#{@client_account.id}_#{@isin_info.id}_#{@date}"
+      [["Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\""],
+      "ClientCompany_ShareTransactionReport_#{@client_account.id}_#{@isin_info.id}_#{@date}"]
     when @client_account
-      add_document_headings("Client Wise Report", "\"#{@client_account.name.strip}\"")
-      "ClientWise_ShareTransactionReport_#{@client_account.id}_#{@date}"
+      [["Client Wise Report", "\"#{@client_account.name.strip}\""],
+      "ClientWise_ShareTransactionReport_#{@client_account.id}_#{@date}"]
     when @isin_info
-      add_document_headings("Company Wise Report", "\"#{@isin_info.company.strip}\"")
-      "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"
+      [["Company Wise Report", "\"#{@isin_info.company.strip}\""],
+      "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"]
     else # full report
       sub_heading = "All transactions"
       sub_heading << " of" if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present?}
-      add_document_headings("Share Inventory Report", sub_heading)
-      "ShareTransactionReport_#{@date}"
+      [["Share Inventory Report", sub_heading],
+      "ShareTransactionReport_#{@date}"]
     end
+    add_document_headings(*headings)
   end
 
   def add_document_headings(heading, sub_heading)

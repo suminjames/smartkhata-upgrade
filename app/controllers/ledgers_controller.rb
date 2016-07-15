@@ -54,6 +54,7 @@ class LedgersController < ApplicationController
 
     if params[:format] == 'xlsx'
       @particulars = ledger_query.ledger_with_particulars(true)[0]
+      @particulars.reject &:hide_for_client if params[:for_client] == "1"
       report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
       if report.generated_successfully?
         # send_file(report.path, type: report.type)
@@ -72,7 +73,8 @@ class LedgersController < ApplicationController
         @closing_balance_sorted,
         @opening_balance_sorted = ledger_query.ledger_with_particulars
 
-    @download_path_xlsx = ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
     unless ledger_query.error_message.blank?

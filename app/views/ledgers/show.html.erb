@@ -25,7 +25,8 @@
   </h5>
 </div>
 download Report:
-<%= link_to "as xlsx", @download_path_xlsx %>
+<%= link_to "as xlsx", @download_path_xlsx %> |
+<%= link_to "client xlsx", @download_path_xlsx_client %>
 
 <% if params[:search_by] == 'date_range' %>
   <div class="clearfix search-form">
