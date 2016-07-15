@@ -55,7 +55,7 @@ class Ledgers::ParticularEntry
       debit = true if particular.cr?
       ledger = particular.ledger
       amount = particular.amount
-
+      accounting_date = voucher.date
       # in case of client account charge the dp fee.
       if ledger.client_account_id.present?
         amount = amount - adjustment

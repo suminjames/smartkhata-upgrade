@@ -25,6 +25,9 @@
 class Settlement < ActiveRecord::Base
   extend CustomDateModule
 
+  default_scope {where(fy_code: UserSession.selected_fy_code)}
+
+
   belongs_to :voucher
   include ::Models::UpdaterWithBranchFycode
 

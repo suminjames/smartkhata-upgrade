@@ -25,6 +25,7 @@
 class Voucher < ActiveRecord::Base
   # include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
+  include CustomDateModule
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
@@ -83,13 +84,14 @@ class Voucher < ActiveRecord::Base
 
   private
   def process_voucher
-
     self.date ||= Time.now
+    self.date_bs ||= ad_to_bs_string(self.date)
     fy_code = get_fy_code(self.date)
     # TODO double check the query for enum
     # rails enum and query not working properly
     last_voucher = Voucher.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).last
     self.voucher_number ||= last_voucher.present? ? last_voucher.voucher_number+1 : 1
+    self.fy_code ||= fy_code
   end
 
   def assign_cheque

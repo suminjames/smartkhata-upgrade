@@ -349,6 +349,7 @@ class Vouchers::Create < Vouchers::Base
     receipt_amount = attrs[:receipt_amount] || 0
     client_group_leader_account = attrs[:client_group_leader_account]
     vendor_account = attrs[:vendor_account]
+    fy_code = attrs[:fy_code] ||= get_fy_code
 
     settler_name = ""
     settlement = nil
@@ -388,7 +389,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account_id )
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
       # settlement.client_account = client_account
     end
 

@@ -113,6 +113,9 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     voucher = @cheque_entry.vouchers.uniq.first
     @bills = voucher.bills.purchase.order(id: :desc)
@@ -165,6 +168,10 @@ class ChequeEntriesController < ApplicationController
     @back_path = request.referer || cheque_entries_path
     if @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced?
       redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
+    end
+
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 
     voucher = @cheque_entry.vouchers.uniq.last

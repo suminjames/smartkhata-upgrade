@@ -2,6 +2,7 @@ class ImportCloseOut < ImportFile
 
   include CommissionModule
   include ShareInventoryModule
+  include FiscalYearModule
 
   def initialize(file, type)
     super(file)
@@ -89,8 +90,10 @@ class ImportCloseOut < ImportFile
                 if default_bank_purchase.ledger.present?
                   # update description
                   description = "Shortage Amount Dr Settled  (#{closeout.shortage_quantity}*#{closeout.scrip_name}@#{closeout.rate}) "
+
+                  date = transaction.date
                   # update ledgers value
-                  voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+                  voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date))
                   voucher.share_transactions << transaction
                   voucher.desc = description
                   voucher.complete!

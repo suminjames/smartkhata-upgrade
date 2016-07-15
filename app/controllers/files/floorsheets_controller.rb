@@ -308,7 +308,7 @@ class Files::FloorsheetsController < Files::FilesController
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
-      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description

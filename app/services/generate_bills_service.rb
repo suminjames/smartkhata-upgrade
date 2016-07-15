@@ -96,7 +96,7 @@ class GenerateBillsService
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
         # update ledgers value
-        voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+        voucher = Voucher.create!(date: transaction.date)
         voucher.bills_on_creation << bill if bill.present?
         voucher.share_transactions << transaction
         voucher.desc = description
@@ -136,8 +136,8 @@ class GenerateBillsService
           end
 
 
-          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate})"
-          voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no})"
+          voucher = Voucher.create!(date: transaction.date)
           voucher.share_transactions << transaction
           voucher.desc = description
 
@@ -170,7 +170,7 @@ class GenerateBillsService
           # not with nepse
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
-            voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+            voucher = Voucher.create!(date: transaction.date)
             voucher.share_transactions << transaction
             voucher.desc = description
 
