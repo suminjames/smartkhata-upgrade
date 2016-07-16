@@ -49,17 +49,6 @@ module FiscalYearModule
     return
   end
 
-  # #
-  # # get specific fy code breakpoint
-  # #
-  # def fiscal_year_breakpoint_single(fy_code)
-  #   fiscal_year_breakpoint = get_fiscal_breakpoint
-  #   fiscal_year_breakpoint.each do |fiscal|
-  #
-  #   end
-  #   return
-  # end
-
   #
   # get last day of a fiscal year
   #

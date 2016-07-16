@@ -51,11 +51,11 @@ class Ledgers::Query
             @total_debit = @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date < ?',date_from_ad).order('date DESC').first
+            previous_day_ledger_daily = @ledger.ledger_dailies.where('date < ?',date_from_ad).order('date DESC').first
             previous_day_balance = previous_day_ledger_daily.present? ? previous_day_ledger_daily.closing_balance : 0.0
 
             # get the last ledger daily balance for the query date
-            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_to_ad).order('date DESC').first
+            last_day_ledger_daily =  @ledger.ledger_dailies.where('date <= ?',date_to_ad).order('date DESC').first
             last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
             @closing_balance_sorted = last_day_balance

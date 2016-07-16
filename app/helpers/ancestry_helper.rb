@@ -1,4 +1,4 @@
-#app/helpers/ancestry_helper.rb
+  #app/helpers/ancestry_helper.rb
 module AncestryHelper
   # arranged as tree expects 3 arguments. The hash from has_ancestry.arrange() method,
   # options, and a render block

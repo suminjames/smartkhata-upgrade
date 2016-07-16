@@ -20,7 +20,7 @@
 
 class LedgerDaily < ActiveRecord::Base
   include CustomDateModule
-  include ::Models::UpdaterWithFyCode
+  include ::Models::UpdaterWithBranchFycodeBalance
 
   belongs_to :ledger
   before_save :process_daily_ledger

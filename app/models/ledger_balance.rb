@@ -18,7 +18,7 @@
 
 class LedgerBalance < ActiveRecord::Base
   belongs_to :ledger
-  include ::Models::UpdaterWithFyCode
+  include ::Models::UpdaterWithBranchFycodeBalance
   attr_accessor :opening_balance_type
   before_create :update_closing_balance
 

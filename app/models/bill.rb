@@ -75,8 +75,6 @@ class Bill < ActiveRecord::Base
 
   validates_presence_of :client_account
 
-  default_scope {where(fy_code: UserSession.selected_fy_code)}
-
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
