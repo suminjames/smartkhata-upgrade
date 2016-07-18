@@ -18,6 +18,7 @@ gem 'prawn-table', '~> 0.2.2'
 gem 'sidekiq'
 gem 'sinatra', '>= 1.3.0', require: false
 gem 'apartment-sidekiq'
+gem 'scout_apm'
 
 group :development, :test do
   gem 'byebug'
