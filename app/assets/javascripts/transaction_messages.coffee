@@ -44,7 +44,8 @@ $(document).on 'page:change', ->
     $(document). on 'click', '.sms#select_all', (event) ->
       $(".sms:input:checkbox").not('.cant-sms').prop('checked', $(this).prop("checked"))
       $(".sms:input:checkbox").not('.cant-sms').attr('disabled', false)
-      
+
+    $(document). off 'click', '#send-sms'
     $(document). on 'click', '#send-sms', (event) ->
       console.log "send sms clicked!"
       params = {transaction_message_ids: selectedTransactionMessagesIdsForSMS}
@@ -72,6 +73,7 @@ $(document).on 'page:change', ->
           $('#send-sms-spinner').addClass 'hidden'
           return
 
+    $(document). off 'click', '#send-email'
     $(document). on 'click', '#send-email', (event) ->
       params = {transaction_message_ids: selectedTransactionMessagesIdsForEmail}
       $.ajax
