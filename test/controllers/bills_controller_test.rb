@@ -4,6 +4,7 @@ require "#{Rails.root}/app/globalhelpers/custom_date_module"
 class BillsControllerTest < ActionController::TestCase
   include CustomDateModule
   setup do
+    # Fix FY-Code issue
     sign_in users(:user)
     @bill = bills(:one)
     @sales_bill = bills(:two)

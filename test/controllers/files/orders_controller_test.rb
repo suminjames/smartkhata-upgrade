@@ -1,8 +1,12 @@
 require 'test_helper'
 
 class Files::OrdersControllerTest < ActionController::TestCase
+  @@file_type = FileUpload::file_types[:orders]
+
   def setup
     sign_in users(:user)
+    # AR::Relation object which can be RELOADED!
+    @file_uploads = FileUpload.where(file_type: @@file_type)
     @assert_block_via_get = lambda { | action, title |
       get action
       assert_response :success
@@ -16,7 +20,7 @@ class Files::OrdersControllerTest < ActionController::TestCase
       post :import, file: fixture_file_upload(fixture_file_path, format)
     }
     @assert_block_via_invalid_post = proc { | error_desc, error_msg |
-      file_path = "invalid_files/undated/Order_report_true_minified__#{error_desc.gsub ' ', '_'}.xls"
+      file_path = "invalid_files/June30/OrderReport2073-03-16__minified__#{error_desc.gsub ' ', '_'}.xls"
       @post_action.call(file_path)
       assert_redirected_to new_files_order_path
       if error_msg
@@ -40,20 +44,22 @@ class Files::OrdersControllerTest < ActionController::TestCase
   # THIS TEST PASSES/FAILS DEPENDING UPON ITS MOOD!
   # ## Usually fails when run in block
   test "should import valid order once" do
-    file_path = 'undated/Order_report_true_minified.xls'
+    # New format Nepse order file
+    file_path = 'undated/OrderReport2073-03-16__minified.xls'
     @post_action.call(file_path)
     assert_response :success, "##### You may ignore this fail if you ran tests in block! # [2 of 2] #####"
     assert_equal "Successfully uploaded and processed the file.", flash[:notice]
     assert_template 'files/orders/import'
-    get :index
-    assert_not assigns(:file_list).empty?
-
+    @file_uploads.reload
+    file_count_after_valid_upload = @file_uploads.count
+    # Can be multiple reports for multiple dates
+    assert file_count_after_valid_upload > 0
     # Same order again
     @post_action.call(file_path)
     assert_not_nil flash[:error]
     # File count unchanged
-    get :index
-    assert_equal 1, assigns(:file_list).count
+    @file_uploads.reload
+    assert_equal file_count_after_valid_upload, @file_uploads.count
   end
 
   test "should not import files with invalid names" do
@@ -74,9 +80,9 @@ class Files::OrdersControllerTest < ActionController::TestCase
   end
 
   test "should not import order with necessary cells blank" do
-    # First catch at row 15!
+    # First catch at row 16!
     @assert_block_via_invalid_post.call('some cells blank',
-                                        "Row 15 is invalid! Please upload a valid file.")
+                                        "Row 16 is invalid! Please upload a valid file.")
   end
 
   test "should not import order with the wrong sum" do

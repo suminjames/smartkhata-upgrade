@@ -12,7 +12,6 @@ Apartment::Tenant.switch!( "trishakti" )
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
-  # fixtures :banks, :bank_accounts, :users, :ledgers, :vouchers, :particulars
 
   # Add more helper methods to be used by all tests here...
 
@@ -38,21 +37,18 @@ class ActiveSupport::TestCase
   end
 
   # Asserts that an (active record) object is invalid when given attribute(s) are set to given (or blank) value(s)
-  def assert_invalid(object, attribute, value='  ')
+  def assert_invalid(record, attribute, value='  ')
     assign_and_assert = lambda { |attr, val|
-      eval "object.#{attr} = \"#{val}\""
-      assert object.invalid?
+      # Dynamic dispatch!
+      record.send("#{attr}=", val)
+      assert record.invalid?
     }
     if attribute.is_a? Array
       # Test multiple attributes with the same value
-      attribute.each do |attr|
-        assign_and_assert.call(attr, value)
-      end
+      attribute.each { |attr| assign_and_assert.call(attr, value) }
     else
       # Test multiple values for a single attribute
-      value.each do |val|
-        assign_and_assert.call(attribute, val)
-      end
+      value.each { |val| assign_and_assert.call(attribute, val) }
     end
   end
 end

@@ -4,10 +4,21 @@ class BankAccountsControllerTest < ActionController::TestCase
   setup do
     @bank_account = bank_accounts(:one)
     @bank = banks(:one)
+    @branch = branches(:one)
+    @group = groups(:one)
     sign_in users(:user)
     @post_action = lambda { |acc_no|
-      post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, "default_for_receipt"=>"1", "default_for_payment"=>"1",
-                                   "ledger_attributes" => { opening_balance: 500, opening_balance_type: 0} }
+      post :create, bank_account: {bank_id: @bank.id, account_number: acc_no, bank_branch: "foo", "default_for_receipt"=>"1", "default_for_payment"=>"1",
+                                   "ledger_attributes"=>
+                                      {"group_id"=> @group.id,
+                                       "ledger_balances_attributes"=>
+                                          [{"opening_balance"=>"9999",
+                                             "opening_balance_type"=>"0",
+                                             "branch_id"=> @branch.id
+                                            }]
+                                      }
+                                  }
+      assigns(:bank_account)
     }
     @assert_block_via_get = Proc.new { |action, get_with_id|
       if get_with_id
@@ -23,18 +34,17 @@ class BankAccountsControllerTest < ActionController::TestCase
       end
     }
     @assert_block_via_patch = lambda { |user_type|
-      # sign_in @user if user_type == 'authenticated'
-      assert_not @bank_account.default_for_receipt
-      patch :update, id: @bank_account, bank_account: { default_for_receipt: "1" }
+      assert @valid_bank_account.default_for_receipt
+      patch :update, id: @valid_bank_account, bank_account: { default_for_receipt: "0" }
       @bank_account.reload
       if user_type == 'authenticated'
-        assert @bank_account.default_for_receipt
+        assert_not @bank_account.default_for_receipt
         redirect_path = bank_account_path(assigns(:bank_account))
       else
-        assert_not @bank_account.default_for_receipt
+        assert @bank_account.default_for_receipt
         redirect_path = new_user_session_path
       end
-        assert_redirected_to redirect_path
+      assert_redirected_to redirect_path
     }
   end
 
@@ -82,6 +92,7 @@ class BankAccountsControllerTest < ActionController::TestCase
 
   # update
   test "should update bank_account" do
+    @valid_bank_account = @post_action.call(123)
     @assert_block_via_patch.call('authenticated')
   end
 

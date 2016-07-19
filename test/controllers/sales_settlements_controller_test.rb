@@ -1,4 +1,4 @@
-=begin
+
 require 'test_helper'
 
 class SalesSettlementsControllerTest < ActionController::TestCase
@@ -72,4 +72,3 @@ class SalesSettlementsControllerTest < ActionController::TestCase
     assert_equal 'It has already been processed', flash['error']
   end
 end
-=end

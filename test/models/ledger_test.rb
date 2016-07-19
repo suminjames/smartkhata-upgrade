@@ -24,12 +24,14 @@
 #  closing_balance_org :decimal(15, 4)   default("0")
 #
 
+# TODO Testings
+# validate :name_from_reserved?, on: :create
 require 'test_helper'
 
 class LedgerTest < ActiveSupport::TestCase
   def setup
     @ledger = ledgers(:one)
-    @new_ledger = Ledger.new(name: 'foo', opening_balance: 500)
+    @new_ledger = Ledger.new(name: 'foo', opening_blnc: 500)
   end
 
   test "should be valid" do
@@ -41,37 +43,44 @@ class LedgerTest < ActiveSupport::TestCase
     assert @new_ledger.invalid?
   end
 
+  # test "should store error if ledger name collides with an internal ledger name" do
+  #   # Need to add a new ledger "Close Out" in fixtures for this test.(Also update relevant tests eg. basic app flow test)
+  #   @new_ledger.name = Ledger::INTERNALLEDGERS[0]
+  #   @new_ledger.name_from_reserved?
+  #   assert @new_ledger.errors.present?
+  # end
+
   test "opening_balance should not be negative" do
-    @new_ledger.opening_balance = -100_000
+    @new_ledger.opening_blnc = -100_000
     assert @new_ledger.invalid?
   end
 
   test "should update_closing_balance for debit" do
     initial_opening_balance = @ledger.opening_balance
-    assert_equal @ledger.closing_balance.to_f, 0.0
-    @ledger.update_closing_balance
+    assert_equal @ledger.closing_blnc.to_f, 0.0
+    @ledger.update_closing_blnc
     @ledger.reload
-    assert_equal @ledger.opening_balance, @ledger.closing_balance
-    assert_equal initial_opening_balance, @ledger.closing_balance
+    assert_equal @ledger.opening_blnc, @ledger.closing_blnc
+    assert_equal initial_opening_balance, @ledger.closing_blnc
   end
 
   test "should update_closing_balance for credit" do
     initial_opening_balance = @ledger.opening_balance
-    assert_equal @ledger.closing_balance.to_f, 0.0
+    assert_equal @ledger.closing_blnc.to_f, 0.0
     @ledger.opening_balance_type = Particular.transaction_types['cr']
-    @ledger.update_closing_balance
+    @ledger.update_closing_blnc
     @ledger.reload
-    assert_equal @ledger.opening_balance,  @ledger.closing_balance
-    assert_equal -initial_opening_balance, @ledger.closing_balance
+    assert_equal @ledger.opening_blnc, @ledger.closing_blnc
+    assert_equal initial_opening_balance, @ledger.closing_blnc
   end
 
   test "should store error if negative opening_balance" do
     @ledger.positive_amount
     assert @ledger.errors.none?
 
-    @ledger.opening_balance = -500
+    @ledger.opening_blnc = -500
     @ledger.positive_amount
-    assert_equal "can't be negative or blank", @ledger.errors[:opening_balance][0]
+    assert_equal "can't be negative or blank", @ledger.errors[:opening_blnc][0]
   end
 
 # Unable to sign-in
