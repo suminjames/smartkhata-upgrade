@@ -74,7 +74,7 @@ class ImportOrder < ImportFile
           order_detail_obj.save!
         end
 
-        # After all rows have beeen succesfully saved, log their dates in FileUpload table.
+        # After all rows have been succesfully saved, log their dates in FileUpload table.
         @date_set.each do |date|
           FileUpload.find_or_create_by!(file_type: FileUpload::file_types[:orders], report_date: date)
         end
