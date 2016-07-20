@@ -1,11 +1,9 @@
 class ImportOrder < ImportFile
   include ApplicationHelper
-  $isin_infos = []
 
 # process the file
   def process
     open_file(@file)
-    @date_set= Set.new
     unless @error_message
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
@@ -13,14 +11,12 @@ class ImportOrder < ImportFile
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
 
-          @date_set.add(Date.parse(hash['ORDER_DATE_TIME'].to_s))
-
-          # Each order_id listed in the excel sheet should be checked for duplicate entry in the database.
-          if is_record_available_in_db(hash['ORDER_ID'])
-            import_error("File upload cancelled! An order with order id " + hash['ORDER_ID'].to_s + " seems to have been previously uploaded! Please double check and upload.")
-            raise ActiveRecord::Rollback
-            break
-          end
+          # # Each order_id listed in the excel sheet should be checked for duplicate entry in the database.
+          # if is_record_available_in_db(hash['ORDER_ID'])
+          #   import_error("File upload cancelled! An order with order id " + hash['ORDER_ID'].to_s + " seems to have been previously uploaded! Please double check and upload.")
+          #   raise ActiveRecord::Rollback
+          #   break
+          # end
 
           # Get isin reference
           # TODO(sarojk): Check if isin is valid and throw error accordingly
@@ -33,13 +29,13 @@ class ImportOrder < ImportFile
 
           # Get order reference
           date = Date.parse(hash['ORDER_DATE_TIME'].to_s)
-          order_obj = Order.where(client_account_id: client_account_id, date: date).first
-          # -If order for a given day doesn't exist, create one.
+          order_obj = Order.where(client_account_id: client_account_id, date: @order_file_date).first
+          # -If order for the day doesn't exist, create one.
           if order_obj.blank?
             order_obj = Order.new()
             order_obj.order_number = get_new_order_number
             order_obj.client_account_id = client_account_id
-            order_obj.fy_code= get_fy_code
+            order_obj.fy_code = get_fy_code
             order_obj.date = @order_file_date
             order_obj.save!
           end
@@ -74,10 +70,8 @@ class ImportOrder < ImportFile
           order_detail_obj.save!
         end
 
-        # After all rows have been succesfully saved, log their dates in FileUpload table.
-        @date_set.each do |date|
-          FileUpload.find_or_create_by!(file_type: FileUpload::file_types[:orders], report_date: date)
-        end
+        # After all rows have been succesfully saved, log order file date in FileUpload table.
+        FileUpload.find_or_create_by!(file_type: FileUpload::file_types[:orders], report_date: @order_file_date)
       end
     end
     @processed_data
