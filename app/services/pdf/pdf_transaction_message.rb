@@ -49,7 +49,7 @@ class Pdf::PdfTransactionMessage < Prawn::Document
   def share_transactions_list
     share_transactions = ShareTransaction.where(client_account_id: @client_account.id, date: @date_ad)
     data = []
-    th_data = ['S.N.', 'Contract No.', 'Type', 'ISIN', 'Quantity', 'Rate', 'Amount']
+    th_data = ['S.N.', 'Contract No.', 'Type', 'Company Code', 'Quantity', 'Rate', 'Amount']
     data << th_data
     share_transactions.each_with_index do |share_transaction, index|
       # TODO(sarojk): Ask subash whether raw_quantity or quanity of share_transaction to be shown?
@@ -66,8 +66,8 @@ class Pdf::PdfTransactionMessage < Prawn::Document
     table_width = page_width - 2
     column_widths = {0 => table_width * 1/12.0,
                      1 => table_width * 3/12.0,
-                     2 => table_width * 1/12.0,
-                     3 => table_width * 1/12.0,
+                     2 => table_width * 0.7/12.0,
+                     3 => table_width * 1.3/12.0,
                      4 => table_width * 2/12.0,
                      5 => table_width * 2/12.0,
                      6 => table_width * 2/12.0,
@@ -109,7 +109,7 @@ class Pdf::PdfTransactionMessage < Prawn::Document
       isin_abbreviation_index_str += isin.isin + ': ' + isin.company + ' | '
     end
     # strip the trailing '| ' and return
-    text '<b><i>ISIN Index</i></b>:', :inline_format => true
+    text '<b><i>Company Code Index</i></b>:', :inline_format => true
     text isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length-2)
   end
 

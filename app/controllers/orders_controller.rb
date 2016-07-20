@@ -68,7 +68,7 @@ class OrdersController < ApplicationController
       @orders = Order.all.includes(:order_details, :client_account).page(params[:page]).per(20)
     end
 
-    # @orders = @orders.page(params[:page]).per(20).decorate if @orders.present?
+    @orders = @orders.page(params[:page]).per(20) if @orders.present?
 
   end
 
