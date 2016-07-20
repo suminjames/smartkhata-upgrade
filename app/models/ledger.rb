@@ -25,7 +25,7 @@
 #
 
 class Ledger < ActiveRecord::Base
-  include ::Models::UpdaterWithFyCode
+  # include ::Models::UpdaterWithFyCode
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial
   attr_reader :closing_balance
 
@@ -125,34 +125,34 @@ class Ledger < ActiveRecord::Base
 
 
   def closing_balance
-    if self.ledger_balances.by_branch_fy_code_for_balance.first.present?
-      self.ledger_balances.by_branch_fy_code_for_balance.first.closing_balance
+    if self.ledger_balances.first.present?
+      self.ledger_balances.first.closing_balance
     else
-      # new_balance = self.ledger_balances.by_branch_fy_code_for_balance.create!
+      # new_balance = self.ledger_balances.create!
       # new_balance.closing_balance
       0.0
     end
   end
 
   def opening_balance
-    if self.ledger_balances.by_branch_fy_code_for_balance.first.present?
-      self.ledger_balances.by_branch_fy_code_for_balance.first.opening_balance
+    if self.ledger_balances.first.present?
+      self.ledger_balances.first.opening_balance
     else
       0.0
     end
   end
 
   def dr_amount
-    if self.ledger_balances.by_branch_fy_code_for_balance.first.present?
-      self.ledger_balances.by_branch_fy_code_for_balance.first.dr_amount
+    if self.ledger_balances.first.present?
+      self.ledger_balances.first.dr_amount
     else
       0.0
     end
   end
 
   def cr_amount
-    if self.ledger_balances.by_branch_fy_code_for_balance.first.present?
-      self.ledger_balances.by_branch_fy_code_for_balance.first.cr_amount
+    if self.ledger_balances.first.present?
+      self.ledger_balances.first.cr_amount
     else
       0.0
     end

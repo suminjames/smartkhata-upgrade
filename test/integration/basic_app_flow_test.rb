@@ -69,11 +69,11 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # --- 1.1 Add Bank Account- of created bank & existing bank ---
     existing_bank = banks(:one)
     assert_difference 'BankAccount.by_branch_id.count', 2 do
-      post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, "default_for_receipt"=>"1", "default_for_payment"=>"0",
-                                   "ledger_attributes" => { opening_balance: 500, opening_balance_type: 0} }
+      post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, bank_branch: "asd", "default_for_receipt"=>"1", "default_for_payment"=>"0",
+                                   "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}]}}
       @bank_account_receipt = assigns(:bank_account)
-      post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, "default_for_receipt"=>"0", "default_for_payment"=>"1",
-                                   "ledger_attributes" => { opening_balance: 0, opening_balance_type: 0} }
+      post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, bank_branch: "asd", "default_for_receipt"=>"1", "default_for_payment"=>"0",
+                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ pening_balance: 500, opening_balance_type: 0}] }}
       @bank_account_payment = assigns(:bank_account)
     end
     assert_redirected_to bank_account_path(@bank_account_payment)
@@ -133,6 +133,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     purchase_bills = Bill.find_by_bill_type('purchase')
     sales_bills =    Bill.find_by_bill_type('sales')
     # verify bills count
+    # This is dependent on fy code
+    # either assign fy code to UserSession.selected_fy_code or change the fy_code of fixture to current day fy_code
     assert_equal @purchase_bills_expected_count, purchase_bills.count
     assert_equal @sales_bills_expected_count, sales_bills.count
     # purchase_bills_starting_id = Bill.first.id

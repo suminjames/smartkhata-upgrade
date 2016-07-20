@@ -35,7 +35,7 @@ one:
   bill_type: 0
   status: 0
   special_case: 0
-  fy_code: 9999
+  fy_code: 7273
   date: '2016-04-13'
   date_bs: '2073-01-01'
   settlement_date: '2016-04-13'
@@ -53,7 +53,7 @@ two:
   bill_type: 1
   status: 0
   special_case: 0
-  fy_code: 9999
+  fy_code: 7273
   date: '2016-04-13'
   date_bs: '2073-01-01'
   settlement_date: '2016-04-13'

@@ -218,8 +218,9 @@ class BillsController < ApplicationController
     authorize Bill
     amount_margin_error = 0.01
 
+    @back_path = request.referer || bills_path
     if @bill_ids.size <= 0
-      @back_path = request.referer || bills_path
+
       redirect_to @back_path, :flash => {:error => 'No Bills were Selected'} and return
     end
 
@@ -227,6 +228,7 @@ class BillsController < ApplicationController
     client_account = ClientAccount.find(@client_account_id)
     client_ledger = client_account.ledger
     ledger_balance = client_ledger.closing_balance
+
     bill_list = get_bills_from_ids(@bill_ids)
     bills_receive = bill_list.requiring_receive
     bills_payment = bill_list.requiring_payment
