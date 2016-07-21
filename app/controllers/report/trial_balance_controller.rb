@@ -37,17 +37,17 @@ class Report::TrialBalanceController < ApplicationController
               modified_ledger_list = []
               b = balance.descendent_ledgers
               b.each do |ledger|
-                if ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_ad).count > 0
+                if ledger.ledger_dailies.where('date <= ?',date_ad).count > 0
 
                   # sum of total credit and debit amount
-                  total_credit = ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_ad).sum(:cr_amount)
-                  total_debit = ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_ad).sum(:dr_amount)
+                  total_credit = ledger.ledger_dailies.where('date <= ?',date_ad).sum(:cr_amount)
+                  total_debit = ledger.ledger_dailies.where('date <= ?',date_ad).sum(:dr_amount)
                   # get the opening balance from the first day
-                  first_day_ledger_daily = ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?',date_ad).order('date ASC').first
+                  first_day_ledger_daily = ledger.ledger_dailies.where('date <= ?',date_ad).order('date ASC').first
                   first_day_opening_balance = first_day_ledger_daily.present? ? first_day_ledger_daily.opening_balance : 0.0
 
                   # get the closing balance from last day
-                  last_day_ledger_daily =  ledger.ledger_dailies.by_branch_fy_code_for_balance.where('date <= ?', date_ad).order('date DESC').first
+                  last_day_ledger_daily =  ledger.ledger_dailies.where('date <= ?', date_ad).order('date DESC').first
                   last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
                   ledger.opening_balance_trial = first_day_opening_balance

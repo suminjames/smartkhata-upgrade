@@ -1,5 +1,5 @@
 # encoding: utf-8
-module Models::UpdaterWithBranchFycode
+module Models::UpdaterWithBranchFycodeBalance
 
   include FiscalYearModule
 
@@ -25,7 +25,7 @@ module Models::UpdaterWithBranchFycode
         end
       end
 
-      # for cases where branch id and fy code is supplies
+      # for non balance records
       scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
         if branch_id == 0
           unscoped.where(fy_code: fy_code)
@@ -53,7 +53,7 @@ module Models::UpdaterWithBranchFycode
   end
 
   def get_branch_id_from_session
-    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
+    UserSession.selected_branch_id == 0 ? nil : UserSession.selected_branch_id
   end
 
 end
