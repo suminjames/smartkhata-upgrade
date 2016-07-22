@@ -6,11 +6,8 @@ class BranchesControllerTest < ActionController::TestCase
     sign_in users(:user)
 
     @assert_block_via_get = Proc.new {|action, instance_var|
-      if [:show, :edit].include? action
-        get action, id: @branch
-      else
-        get action
-      end
+      params = [:show, :edit].include?(action) ? {id: @branch} : {}
+      get action, params
       assert_response :success
       assert_template "branches/#{action}"
       assert_not_nil assigns(instance_var) if instance_var

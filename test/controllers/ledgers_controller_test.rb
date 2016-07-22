@@ -5,6 +5,7 @@ class LedgersControllerTest < ActionController::TestCase
     sign_in users(:user)
     @ledger = ledgers(:one)
     @group = groups(:one)
+    @branch = branches(:one)
     @block_assert = lambda{ |action|
       instance_var = action == :index ? :ledgers : :ledger
       assert_response :success
@@ -27,8 +28,8 @@ class LedgersControllerTest < ActionController::TestCase
 
   test "should create ledger" do
     assert_difference 'Ledger.count', 1 do
-      post :create, ledger: { name: 'foo', group_id: @group.id }
-      # Fix it: No error, no creation! Same in frontend.
+      post :create, ledger: { name: 'foo', group_id: @group.id,
+                              ledger_balances_attributes: [{opening_balance: '100', opening_balance_type: '0', branch_id: @branch.id}] }
     end
     assert_equal "Ledger was successfully created.", flash[:notice]
     assert_redirected_to ledger_path(assigns(:ledger))

@@ -14,7 +14,7 @@ class ClientAccountsControllerTest < ActionController::TestCase
     }
   end
 
-  # trying dynamic methods
+  # Trying dynamic methods (meta programming)
   [:new, :index, :show, :edit].each do |action|
     define_method("test_should_get_#{action}") do
       @block_assert.call(action)

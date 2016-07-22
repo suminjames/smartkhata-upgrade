@@ -4,12 +4,15 @@ require "#{Rails.root}/app/globalhelpers/custom_date_module"
 class BillsControllerTest < ActionController::TestCase
   include CustomDateModule
   setup do
-    # Fix FY-Code issue
     sign_in users(:user)
     @bill = bills(:one)
     @sales_bill = bills(:two)
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
+    # set selected fy_code as in the bill to test
+    UserSession.selected_fy_code = session[:user_selected_fy_code] = @bill.fy_code
+    # UserSession.selected_branch_id = session[:user_selected_branch_id]
+
     @assert_via_get = Proc.new {|action, bill|
       get action, id: bill
       assert_response :success
