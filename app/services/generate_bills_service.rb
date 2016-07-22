@@ -10,14 +10,12 @@ class GenerateBillsService
   def process
     # hash to store unique bill number for   client && isin
     hash_dp = Hash.new
-    # get bill number
-    @bill_number = get_bill_number
-    fy_code = get_fy_code
 
     # Begin Transaction
     ActiveRecord::Base.transaction do
       # only generate bill for the transactions which are not soft deleted
       share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
+
 
       share_transactions.each do |transaction|
         client_code = transaction.client_account_id
@@ -35,6 +33,12 @@ class GenerateBillsService
 
         charges_of_closeout = (transaction.closeout_amount / 6)
 
+        # get the fy_code from sales settlement date
+        fy_code = get_fy_code(transaction.date)
+        # get bill number
+        bill_number = get_bill_number(fy_code)
+
+
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
         # if the transaction has no quantity (after closeout) dont create bill
@@ -49,16 +53,15 @@ class GenerateBillsService
             # find bill by the bill number
             bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
           else
-            hash_dp[custom_key] = @bill_number
+            hash_dp[custom_key] = bill_number
             # create a new bill
-            bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
+            bill = Bill.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
               b.bill_type = Bill.bill_types['sales']
 
               # TODO possible error location check
               b.client_name = transaction.client_account.name if !transaction.client_account.nil?
               b.branch_id = cost_center_id
             end
-            @bill_number += 1
           end
 
           # TODO possible error location

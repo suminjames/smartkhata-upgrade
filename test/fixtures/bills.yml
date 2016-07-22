@@ -42,7 +42,7 @@ one:
   client_account: one
   #  creator_id        :integer
   #  updater_id        :integer
-  #  branch_id         :integer
+  branch_id: 1
 
 #sales
 two:
@@ -58,3 +58,4 @@ two:
   date_bs: '2073-01-01'
   settlement_date: '2016-04-13'
   client_account: two
+  branch_id: 1

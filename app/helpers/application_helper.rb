@@ -33,8 +33,8 @@ module ApplicationHelper
 
   # Get a unique bill number based on fiscal year
   # The returned bill number is an increment (by 1) of the previously stored bill_number.
-  def get_bill_number
-    Bill.new_bill_number(get_fy_code)
+  def get_bill_number(fy_code = get_fy_code)
+    Bill.new_bill_number(fy_code)
   end
 
   # process accounts to make changes on ledgers
