@@ -15,7 +15,7 @@ else
         curl -s http://api.sparrowsms.com/v2/sms/ \
              -F token='d1QYg28Hxw80xapxpsFA' \
              -F from='Demo' \
-             -F to='9823450612,9851153385' \
+             -F to='9851153385' \
              -F text='SMS Test from Trishakti Securities.'
     elif [ "$option" == "-b" ]; then
         printf 'Checking balance...\n'
