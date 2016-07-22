@@ -98,7 +98,6 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     puts "Uploading Floorsheet..."
     # --- 3. Upload Floorsheet of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/May10/BrokerwiseFloorSheetReport 10 May.xls'), 'text/xls')
-    UserSession.selected_fy_code = 7273
     post import_files_floorsheets_path, file: file
     get files_floorsheets_path
     assert_not assigns(:file_list).empty?
