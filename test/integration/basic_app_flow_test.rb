@@ -21,7 +21,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
   def setup
     # To prevent isin company Nil Error in bills#show
     puts "\nFetching companies from NEPSE..."
-    # Rake::Task["fetch_companies"].invoke
+    Rake::Task["fetch_companies"].invoke
     # Rake::Task["update_isin_prices"].invoke
 
     # fix the tenants issue
@@ -46,13 +46,14 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # ledgers in fixtures + bank accounts w/ default for payment + bank accounts w/ default for reciept
     @number_of_ledger_options_expected = 3 + 1 + 1
 
-
     @additional_bank_id = Bank.first.id
     @cash_ledger_id = ledgers(:one).id
 
     # assume default pagination
     @items_in_first_pagination = 20
 
+    # Sample date within the fiscal_year
+    @sample_date = '2073-1-30'
     @date_today = ad_to_bs(Date.today).to_s
     get general_settings_set_fy_path, {fy_code: 7273, branch_id: 1}
 
@@ -105,7 +106,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     ############################################################### SECTION FOUR ###########################################################################
 
-    puts "Uploading Relevant CM05..."
+    puts "Uploading corresponding CM05..."
     # --- 4. Upload CM05 of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/May10/CM0518052016141937.csv'), 'text/csv')
     post import_files_sales_path, file: file
@@ -200,7 +201,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     cheque_num = '8374'
 
     voucher = post_via_redirect_vouchers_path(1, nil, "#{sales_bills_starting_id}", false, first_particular_ledger_id[0], payment_amount, 'cr', cheque_num,
-                                              second_particular_ledger_id[0], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", '2073-3-30', true)
+                                              second_particular_ledger_id[0], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", true)
     assert_equal voucher_path(voucher), path
     assert_equal 'Voucher was successfully created.', flash[:notice]
     # --- 5.1 - On create - incase of payment by bank, payment voucher is created
@@ -219,7 +220,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     # group_leader_ledger_id = css_select('input[name=group_leader_ledger_id]')[0]['value']
     post_via_redirect_vouchers_path(1, nil, "#{sales_bills_starting_id+1}", false, first_particular_ledger_id[1], payment_amount, 'cr', '',
-                                    second_particular_ledger_id[1], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", '2073-3-30', true)
+                                    second_particular_ledger_id[1], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", true)
 
     # --- 5.1 - On create -incase of payment by cash, normal voucher is created
     assert_select 'h4 u', 'PAYMENT'
@@ -255,7 +256,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     cheque_num = '3750'
 
     voucher = post_via_redirect_vouchers_path('2', nil, "#{purchase_bills_starting_id}", false, first_particular_ledger_id[2], payment_amount, 'dr', cheque_num,
-                                              second_particular_ledger_id[2], "Settled for Bill No: #{@bill_number_first_part}-#{purchase_bills_starting_id}", '2073-3-30',true)
+                                              second_particular_ledger_id[2], "Settled for Bill No: #{@bill_number_first_part}-#{purchase_bills_starting_id}", true)
     settlement_ids = voucher.settlements.pluck(:id)
     assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
     # --- 5.2 - On create - receipt should be created with relevant information ---
@@ -275,7 +276,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       assert_response :success
 
 
-      # TODO(Anuj) The below line fails
+      # TODO(dorado) The below line fails
       # particulars_num = ledger_index_to_particulars_count[second_particular_ledger_id.index(ledger_id)]
       # debugger
       # assert_match "Displaying <b>all #{particulars_num}</b> particulars", response.body
@@ -336,32 +337,43 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       "client_account_id"=> client_account_id,
      }
 
-    assert_equal new_voucher_path(bill_ids:bill_ids, client_account_id: client_account_id), request.original_fullpath
-    assert_select 'h2.section-title', text: 'New Payment Voucher'
+    #? if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
+    bills_processed_directly = request.original_fullpath == process_selected_bills_path
+    if !bills_processed_directly
+      # This block is not currently executed!
+      assert_equal new_voucher_path(bill_ids:bill_ids, client_account_id: client_account_id), request.original_fullpath
+      assert_select 'h2.section-title', text: 'New Payment Voucher'
 
-    # scraping!
-    first_particular_ledger_id[3], second_particular_ledger_id[3], payment_amount = scrape_ledger_ids_and_payment_amount
-    cheque_num = '5234'
-    bill_numbers = "#{@bill_number_first_part}-" + bill_ids.join(", #{@bill_number_first_part}-")
+      # scraping!
+      first_particular_ledger_id[3], second_particular_ledger_id[3], payment_amount = scrape_ledger_ids_and_payment_amount
+      cheque_num = '5234'
+      bill_numbers = "#{@bill_number_first_part}-" + bill_ids.join(", #{@bill_number_first_part}-")
 
-    voucher = post_via_redirect_vouchers_path('1', "#{client_account_id}", bill_ids, false, first_particular_ledger_id[3], payment_amount, 'cr', cheque_num,
-                                              second_particular_ledger_id[3], "Settled for Bill No: #{bill_numbers}", true)
-    case voucher.voucher_type
-    when 'payment'
-      assert_equal voucher_path(voucher), path
-      assert_select 'h3', 'Payment voucher Bank'
-      post finalize_payment_vouchers_path, {from_path: vouchers_path, id: "#{voucher.id}", approve: "approve"}
-      assert_equal 'Payment Voucher was successfully approved', flash[:notice]
-    when 'receipt'
-      settlement_ids = voucher.settlements.pluck(:id)
-      assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
-      assert_select 'h4 u', 'RECEIPT'
+      voucher = post_via_redirect_vouchers_path('1', "#{client_account_id}", bill_ids, false, first_particular_ledger_id[3], payment_amount, 'cr', cheque_num,
+                                                second_particular_ledger_id[3], "Settled for Bill No: #{bill_numbers}", true)
+      case voucher.voucher_type
+      when 'payment'
+        assert_equal voucher_path(voucher), path
+        assert_select 'h3', 'Payment voucher Bank'
+        post finalize_payment_vouchers_path, {from_path: vouchers_path, id: "#{voucher.id}", approve: "approve"}
+        assert_equal 'Payment Voucher was successfully approved', flash[:notice]
+      when 'receipt'
+        settlement_ids = voucher.settlements.pluck(:id)
+        assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
+        assert_select 'h4 u', 'RECEIPT'
+      end
+    else
+      # assert_equal process_selected_bills_path, request.original_fullpath
+      assert_select 'h2.section-title', text: 'Bills'
+      assert_match 'Bills Successfully Processed', response.body
     end
     # rest of the select tests already done above
     # fetch the same ledger again
     get ledger_path(ledger.id)
-    assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger',           count: 0}
-    assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills', count: 0}
+    unless bills_processed_directly
+      assert_select('a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger', count: 0})
+    end
+    assert_select 'a[href=?]', client_bills_path(client_account_id),                                           {text: 'Process Selected Bills', count: 0}
 
     puts "Clearing ledger & verifying..."
     # --- 6.2 Clear ledger & verify ---
@@ -372,19 +384,25 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}
     assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills'}
 
+    if bills_processed_directly
+      # Get this dynamically!!!
+      voucher_type = 'payment'
+    else
+      voucher_type = voucher.voucher_type
+    end
     get new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id)
-    assert_select 'h2.section-title', "New #{voucher.voucher_type.capitalize} Voucher"
+    assert_select 'h2.section-title', "New #{voucher_type.capitalize} Voucher"
 
     # scraping!
     first_particular_ledger_id[4], second_particular_ledger_id[4], payment_amount = scrape_ledger_ids_and_payment_amount
     cheque_num = '5344'
-    voucher_type_code, transaction_type_first = case voucher.voucher_type
+    voucher_type_code, transaction_type_first = case voucher_type
     when 'payment' then [1, 'cr']
     when 'receipt' then [2, 'dr']
     end
 
     voucher = post_via_redirect_vouchers_path(voucher_type_code, "#{client_account_id}", nil, true, first_particular_ledger_id[4], payment_amount, transaction_type_first, cheque_num,
-                                              second_particular_ledger_id[4], 'Settled with ledger balance clearance', true, true)
+                                              second_particular_ledger_id[4], 'Settled with ledger balance clearance', true)
     case voucher.voucher_type
     when 'payment'
       assert_equal voucher_path(voucher), path
@@ -423,7 +441,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal 'Voucher was successfully created.', flash[:notice]
     assert_select 'h2.section-title', 'Voucher Details'
 
-    [credited_ledger_name, 'Cash', payment_amount, "Voucher Date: #{@date_today}", "#{@bill_number_first_part}-#{voucher.voucher_number}"].each do |item|
+    [credited_ledger_name, 'Cash', payment_amount, "Voucher Date: #{@sample_date}", "#{@bill_number_first_part}-#{voucher.voucher_number}"].each do |item|
       assert_match item, response.body
     end
 
@@ -440,7 +458,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal voucher_path(voucher), path
     assert_select 'h3', 'Payment voucher Bank'
 
-    [credited_ledger_name, payment_amount, cheque_num, "Voucher Date: #{@date_today}"].each do |item|
+    [credited_ledger_name, payment_amount, cheque_num, "Voucher Date: #{@sample_date}"].each do |item|
       assert_match item, response.body
     end
 
@@ -455,8 +473,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
     assert_select 'h4 u', 'RECEIPT'
 
-    receipt_num = Settlement.find(settlement_ids[0]).id
-    [credited_ledger_name, payment_amount, "Date: #{@date_today}", "Receipt No: #{receipt_num}"].each do |item|
+    # receipt_num = Settlement.find(settlement_ids[0]).id
+    settlement = Settlement.find(settlement_ids[0])
+    receipt_code = "#{settlement.branch.code}-#{settlement.settlement_number}"
+    [credited_ledger_name, payment_amount, "Date: #{@sample_date}", "Receipt No: #{receipt_code}"].each do |item|
       assert_match item, response.body
     end
     puts '"BASIC" app flow Test Successfully completed!!!'
@@ -503,9 +523,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     end
 
     def post_via_redirect_vouchers_path(voucher_type, client_account_id, bill_id, clear_ledger,
-                                        ledger_one_id, payment_amount, transaction_one_type, cheque_num, ledger_two_id, desc, date=@date_today,
+                                        ledger_one_id, payment_amount, transaction_one_type, cheque_num, ledger_two_id, desc,
                                         voucher_settlement_type_default=false, payment_mode_default=false)
       transaction_two_type = transaction_one_type == 'cr'? 'dr':'cr'
+      date = @sample_date
       params =
         {"voucher_type"=> voucher_type,
          # "client_account_id"=> client_account_id,
@@ -545,6 +566,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
         params["payment_mode"] = "default" if payment_mode_default
         post vouchers_path, params
         voucher = assigns(:voucher)
+        debugger unless response.redirect?
         follow_redirect!
         voucher
     end
