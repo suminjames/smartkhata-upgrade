@@ -241,7 +241,6 @@ class BillsController < ApplicationController
 
     @processed_bills = []
     if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
-
       Bill.transaction do
         bill_list.each do |bill|
           bill.balance_to_pay = 0

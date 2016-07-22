@@ -15,7 +15,7 @@ class GeneralSettingsController < ApplicationController
   # set the path to referer only in case of get request.
   # in case of post request path is root path
   def set_return_path
-    session[:return_to] = request.referer
+    session[:return_to] = request.referer || root_path
   end
 
   def return_back

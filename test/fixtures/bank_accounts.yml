@@ -27,7 +27,11 @@
 one:
   bank: one #assign bank
   account_number: 1234
+  bank_branch: "chabahil"
+  branch_id: 1
 
 two:
   bank: two #assign bank
   account_number: 5678
+  bank_branch: "kupondole"
+  branch_id: 1
