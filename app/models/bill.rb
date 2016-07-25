@@ -5,11 +5,11 @@
 #  id                         :integer          not null, primary key
 #  bill_number                :integer
 #  client_name                :string
-#  net_amount                 :decimal(15, 4)   default("0")
-#  balance_to_pay             :decimal(15, 4)   default("0")
+#  net_amount                 :decimal(15, 4)   default(0.0)
+#  balance_to_pay             :decimal(15, 4)   default(0.0)
 #  bill_type                  :integer
-#  status                     :integer          default("0")
-#  special_case               :integer          default("0")
+#  status                     :integer          default(0)
+#  special_case               :integer          default(0)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #  fy_code                    :integer
@@ -21,7 +21,7 @@
 #  updater_id                 :integer
 #  branch_id                  :integer
 #  sales_settlement_id        :integer
-#  settlement_approval_status :integer          default("0")
+#  settlement_approval_status :integer          default(0)
 #
 
 class Bill < ActiveRecord::Base
@@ -188,7 +188,7 @@ class Bill < ActiveRecord::Base
 
   # get new bill number
   def self.new_bill_number(fy_code)
-    bill = Bill.where(fy_code: fy_code).last
+    bill = Bill.unscoped.where(fy_code: fy_code).last
     # initialize the bill with 1 if no bill is present
     if bill.nil?
       1

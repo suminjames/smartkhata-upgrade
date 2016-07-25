@@ -40,7 +40,7 @@ count = 0
       user.password = admin_user_data[:password]
       user.password_confirmation = admin_user_data[:password]
       user.branch_id = branch.id
-      user.confirm!
+      user.confirm
       user.admin!
     end
     puts 'CREATED ADMIN USER: ' << new_user.email

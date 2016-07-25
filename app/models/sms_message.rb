@@ -6,8 +6,8 @@
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  phone                  :string
-#  phone_type             :integer          default("0")
-#  sms_type               :integer          default("0")
+#  phone_type             :integer          default(0)
+#  sms_type               :integer          default(0)
 #  credit_used            :integer
 #  remarks                :integer
 #  transaction_message_id :integer
@@ -16,7 +16,6 @@
 #  fy_code                :integer
 #  branch_id              :integer
 #
-
 
 require 'net/http'
 class SmsMessage < ActiveRecord::Base

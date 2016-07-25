@@ -5,7 +5,7 @@
 #  id                        :integer          not null, primary key
 #  boid                      :string
 #  nepse_code                :string
-#  client_type               :integer          default("0")
+#  client_type               :integer          default(0)
 #  date                      :date
 #  name                      :string
 #  address1                  :string           default(" ")
@@ -50,7 +50,7 @@
 #  company_name              :string
 #  company_address           :string
 #  company_id                :string
-#  invited                   :boolean          default("false")
+#  invited                   :boolean          default(FALSE)
 #  referrer_name             :string
 #  group_leader_id           :integer
 #  creator_id                :integer
@@ -62,7 +62,6 @@
 #  mobile_number             :string
 #  ac_code                   :string
 #
-
 
 # Note:
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched

@@ -13,8 +13,8 @@
 #  scrip_name        :string
 #  quantity          :integer
 #  shortage_quantity :integer
-#  rate              :decimal(15, 4)   default("0")
-#  net_amount        :decimal(15, 4)   default("0")
+#  rate              :decimal(15, 4)   default(0.0)
+#  net_amount        :decimal(15, 4)   default(0.0)
 #  closeout_type     :integer
 #  creator_id        :integer
 #  updater_id        :integer
@@ -22,7 +22,6 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
-
 
 class Closeout < ActiveRecord::Base
   include ::Models::UpdaterWithBranch

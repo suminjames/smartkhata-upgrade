@@ -7,14 +7,12 @@
 #  parent_id         :integer
 #  report            :integer
 #  sub_report        :integer
-#  for_trial_balance :boolean          default("false")
+#  for_trial_balance :boolean          default(FALSE)
 #  creator_id        :integer
 #  updater_id        :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
-
-
 
 class Group < ActiveRecord::Base
   include ::Models::Updater
