@@ -4,6 +4,8 @@ class Files::SalesControllerTest < ActionController::TestCase
   def setup
     # SalesSettlement.all.each.map(&:destroy!) # fixtures
     sign_in users(:user)
+    # setup relevant fycode
+    UserSession.selected_fy_code = session[:user_selected_fy_code] = 7273
     @post_floorsheet_action = Proc.new{ | different_floorsheet |
       sales_controller = @controller
       @controller = Files::FloorsheetsController.new
@@ -130,7 +132,7 @@ class Files::SalesControllerTest < ActionController::TestCase
     @assert_block_via_post.call('invalid', @missing_floorsheet_msg, 1)
   end
   test "should not import invalid sales cm: multiple settlements" do
-    @assert_block_via_post.call('invalid', 'please upload corresponding floorsheet first. missing floorsheet data for transaction number', 2)
+    @assert_block_via_post.call('invalid', 'the file you have uploaded has multiple settlement ids', 2)
   end
   test "should not import invalid sales cm: trade date missing" do
     @assert_block_via_post.call('invalid', 'please upload a correct file. trade date is missing', 3)
