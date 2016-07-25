@@ -11,13 +11,4 @@ class OrderDecorator < ApplicationDecorator
   #     end
   #   end
 
-  def decorate_order_details_to_string
-    str = ''
-    object.order_details.each do |order_detail|
-      str += order_detail.isin_info.isin + '(' + order_detail.quantity.to_s + ')' + '@' + order_detail.price.to_s + ', '
-    end
-    # Remove the trailing comma and space
-    str.slice(0, str.length-2)
-  end
-
 end
