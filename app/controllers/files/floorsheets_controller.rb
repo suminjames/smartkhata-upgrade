@@ -234,8 +234,8 @@ class Files::FloorsheetsController < Files::FilesController
     # bank_deposit: deposit to nepse
     cgt = 0
     amount = share_net_amount
-    commission = get_commission(amount)
-    commission_rate = get_commission_rate(amount)
+    commission = get_commission(amount, settlement_date)
+    commission_rate = get_commission_rate(amount, settlement_date)
     purchase_commission = commission * (0.75)
     nepse = commission * 0.25
     tds = purchase_commission * 0.15
