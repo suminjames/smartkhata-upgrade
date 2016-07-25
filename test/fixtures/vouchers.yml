@@ -28,7 +28,7 @@
 #
 <% (0..3).each do |n| %>
 voucher_<%= n %>:
-  fy_code: 7777
+  fy_code: 7273
   voucher_number: 292<%= n %>
   date: '2070-12-12'
   date_bs: '2013-09-24'
@@ -41,7 +41,7 @@ voucher_<%= n %>:
 <% end %>
 
 voucher_pending:
-  fy_code: 7777
+  fy_code: 7273
   voucher_number: 2930
   date: '2070-12-12'
   date_bs: '2013-09-24'

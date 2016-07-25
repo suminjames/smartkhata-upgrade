@@ -8,9 +8,14 @@ class VouchersControllerTest < ActionController::TestCase
     @approved_cheque = cheque_entries(:two)
     @receipt_code =  Voucher.voucher_types['receipt']
     @payment_code =  Voucher.voucher_types['payment']
+    @additional_bank_id = Bank.first.id
+
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
-    @additional_bank_id = Bank.first.id
+    # set a fixed fy_code to test with relevant date
+    UserSession.selected_fy_code = session[:user_selected_fy_code] = @voucher.fy_code
+    # UserSession.selected_fy_code = session[:user_selected_fy_code] = 7273
+
     @assert_block_via_get = lambda { |action|
       get action, id: @voucher
       assert_response :success
@@ -38,7 +43,7 @@ class VouchersControllerTest < ActionController::TestCase
       params =
        {"voucher_type"=> "#{voucher_code}",
        "voucher"      =>
-         {"date_bs"               => '2072-01-02',
+         {"date_bs"               => '2072-05-02',
          "particulars_attributes" => {},
          },
         "vendor_account_id"       => vendor_accounts(:one).id,
@@ -135,7 +140,7 @@ class VouchersControllerTest < ActionController::TestCase
             # "bill_id"=>"",
             # "clear_ledger"=>"false",
             "voucher" => {
-              "date_bs"                => "2071-3-9",
+              "date_bs"                => "2072-05-02",
               "particulars_attributes" => {
                 "0"=> {
                   "ledger_id"          => ledgers(:two).id,
@@ -160,7 +165,8 @@ class VouchersControllerTest < ActionController::TestCase
       }
       post :create, params
     end
-    assert_equal 'Cheque Number is already taken', flash[:error]
+    # assert_equal 'Cheque Number is already taken', flash[:error]
+    assert_equal 'Cheque Number is invalid', flash[:error]
     assert_response :success
   end
 
@@ -181,6 +187,7 @@ class VouchersControllerTest < ActionController::TestCase
 
   # Updating voucher should not be allowed !?
   test "should update voucher" do
+    # UserSession.selected_fy_code = session[:user_selected_fy_code] = @voucher.fy_code
     assert_not_equal '2073-03-03', @voucher.date_bs
     patch :update, id: @voucher, voucher: { date_bs: '2073-03-03'}
     assert_redirected_to voucher_path(assigns(:voucher))

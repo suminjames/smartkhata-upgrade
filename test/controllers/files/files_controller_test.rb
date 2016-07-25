@@ -8,11 +8,11 @@ class Files::FilesControllerTest < ActionController::TestCase
     cm_file = fixture_file_upload('files/May10/CM0518052016141937.csv')
     floorsheet_file = fixture_file_upload('files/May10/BrokerwiseFloorSheetReport 10 May.xls')
 
-    assert     @controller.is_invalid_file(nil)
-    assert     @controller.is_invalid_file(cm_file, 'Floorsheet')
-    assert_not @controller.is_invalid_file(cm_file)
-    assert_not @controller.is_invalid_file(cm_file, 'CM05')
-    assert_not @controller.is_invalid_file(floorsheet_file, 'Floorsheet')
+    assert @controller.is_invalid_file(nil)
+    assert @controller.is_invalid_file(cm_file, 'Floorsheet')
+    [[cm_file], [cm_file, 'CM05'], [floorsheet_file, 'Floorsheet']].each do |args|
+      assert_not @controller.is_invalid_file(*args)
+    end
   end
 
   # testing file_error method

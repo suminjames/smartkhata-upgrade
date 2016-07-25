@@ -76,8 +76,7 @@ class ClientAccountTest < ActiveSupport::TestCase
   end
 
   test "Necessary fields should not be empty" do
-    empty_attributes = %w(name citizen_passport dob father_mother granfather_father_inlaw address1_perm city_perm state_perm country_perm)
-    assert_invalid @client_account, empty_attributes
+    assert_invalid @client_account, %w(name citizen_passport dob father_mother granfather_father_inlaw address1_perm city_perm state_perm country_perm)
   end
 
   test "DOB should be valid" do
@@ -89,7 +88,6 @@ class ClientAccountTest < ActiveSupport::TestCase
   end
 
   test "Mobile number should be valid" do
-    assert @client_account.valid?
     # Length or format not checked for now
     assert_invalid @client_account, :mobile_number, INVALID_INTEGER_SAMPLES
   end

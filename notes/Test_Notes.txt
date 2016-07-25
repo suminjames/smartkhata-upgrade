@@ -51,13 +51,15 @@ Git.Merge.each::after DO
             Client accounts,
             Employee accounts,
             Ledgers,
-            Vouchers
+            Vouchers,
+            Dashboard
 
     III. Unit Testing [HALTED]
         -Roughly Completed (basic cases):
             Bank,
             Bank account,
             Cheque entry,
+            Bill,
             Branch,
             Client account,
             Employee account,

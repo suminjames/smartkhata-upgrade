@@ -11,7 +11,7 @@ class Files::SalesControllerTest < ActionController::TestCase
       file = fixture_file_upload("files/#{inner_file_path}", 'text/xls')
       post :import, file: file
       get :index
-      assert_not assigns(:file_list).empty?
+      assert assigns(:file_list).present?
       @controller = sales_controller
     }
     @post_action = Proc.new { | test_type, sample_file |
@@ -40,7 +40,6 @@ class Files::SalesControllerTest < ActionController::TestCase
       end
       file = fixture_file_upload("files/#{inner_file_path}", file_type)
       post :import, file: file
-      # debugger
     }
     @block_assert_via_get = lambda { | action |
       get action
@@ -99,6 +98,7 @@ class Files::SalesControllerTest < ActionController::TestCase
 
   # import
   test "should be able to import a file once" do
+    # NEED TO CHANGE THE FISCAL YEAR (Floorsheet)
     @assert_block_via_post.call('valid', false)
     # duplicate import
     @post_action.call('valid')
@@ -106,6 +106,7 @@ class Files::SalesControllerTest < ActionController::TestCase
   end
 
   test "should be able to import several files if distinct ones" do
+    # NEED TO CHANGE THE FISCAL YEAR (Floorsheet)
     @assert_block_via_post.call('valid', false)
     # another import
     @post_action.call('valid again', false)
@@ -129,7 +130,7 @@ class Files::SalesControllerTest < ActionController::TestCase
     @assert_block_via_post.call('invalid', @missing_floorsheet_msg, 1)
   end
   test "should not import invalid sales cm: multiple settlements" do
-    @assert_block_via_post.call('invalid', 'The file you have uploaded has multiple settlement ids', 2)
+    @assert_block_via_post.call('invalid', 'please upload corresponding floorsheet first. missing floorsheet data for transaction number', 2)
   end
   test "should not import invalid sales cm: trade date missing" do
     @assert_block_via_post.call('invalid', 'please upload a correct file. trade date is missing', 3)
