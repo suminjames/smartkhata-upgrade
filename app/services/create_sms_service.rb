@@ -222,6 +222,7 @@ class CreateSmsService
           share_quantity_rate_message += ";bought #{str}"
         end
       end
+
       share_quantity_rate_message[0] = ""
       sms_message = ""
       if has_sales_transaction
