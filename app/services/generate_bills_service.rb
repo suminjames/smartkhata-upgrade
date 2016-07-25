@@ -1,7 +1,7 @@
 # service to create bill and update corressponding ledger for sales transaction
 class GenerateBillsService
   include ApplicationHelper
-
+  include CommissionModule
 
   def initialize(params)
     @sales_settlement = params[:sales_settlement]
@@ -25,8 +25,8 @@ class GenerateBillsService
         custom_key = (client_code.to_s)
         client_account = transaction.client_account
         commission = transaction.commission_amount
-        sales_commission = commission * 0.75
-        tds = commission * 0.75 * 0.15
+        sales_commission = commission * broker_commission_rate(transaction.date)
+        tds = commission * broker_commission_rate(transaction.date) * 0.15
         company_symbol = transaction.isin_info.isin
         share_quantity = transaction.raw_quantity
         shortage_quantity = transaction.raw_quantity - transaction.quantity

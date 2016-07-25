@@ -1,8 +1,7 @@
 module CommissionModule
 
   def get_commission_rate(amount, settlement_date)
-    # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
-    date_of_commission_rate_update = Date.parse('2016-7-25')
+
     if settlement_date >= date_of_commission_rate_update
       case amount
         when 0..2500
@@ -46,4 +45,46 @@ module CommissionModule
       return amount * commission_rate.to_f * 0.01
     end
   end
+
+  #
+  # get broker commission( commission for the broker)
+  #
+  def broker_commission(commission, settlement_date)
+    commission * broker_commission_rate(settlement_date)
+  end
+
+  #
+  #   get nepse commission
+  #
+  def nepse_commission(commission, settlement_date)
+    commission * nepse_commission_rate(settlement_date)
+  end
+
+  #
+  # broker commission rate on total commission charged from client
+  #
+  def broker_commission_rate(settlement_date)
+    if settlement_date >= date_of_commission_rate_update
+      0.8
+    else
+      0.75
+    end
+  end
+
+  #
+  # nepse commission rate on total commission charged from client
+  #
+  def nepse_commission_rate(settlement_date)
+    if settlement_date >= date_of_commission_rate_update
+      0.2
+    else
+      0.25
+    end
+  end
+
+  def date_of_commission_rate_update
+    # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
+    Date.parse('2016-7-25')
+  end
+
 end
