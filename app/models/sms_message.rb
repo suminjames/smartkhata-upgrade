@@ -214,8 +214,8 @@ class SmsMessage < ActiveRecord::Base
   # @params number - a string
   def self.messageable_phone_number?(number)
     number = manipulate_phone_number(number)
-    non_area_code_segment = number.split('977')[1]
-    return non_area_code_segment.present? && non_area_code_segment.length == 10 && non_area_code_segment.starts_with?('984', '985', '986', '980', '981', '974', '975')
+    non_country_code_segment = number[3..-1]
+    return non_country_code_segment.present? && non_country_code_segment.length == 10 && non_country_code_segment.starts_with?('984', '985', '986', '980', '981', '974', '975')
   end
 
   # Valid message block: 255 characters
@@ -243,10 +243,11 @@ class SmsMessage < ActiveRecord::Base
   # TODO(sarojk): Find which provider has prefixes 974, 975?
   def self.get_phone_type(phone)
     phone = self.manipulate_phone_number(phone)
-    non_area_code_segment = phone.split('977')[1]
-    if non_area_code_segment.starts_with?('984', '985', '986')
+    # The phone number after mainpulate_phone_number has country code (977) appended to it.
+    non_country_code_segment = phone[3..-1]
+    if non_country_code_segment.starts_with?('984', '985', '986')
       return SmsMessage.phone_types[:ntc]
-    elsif non_area_code_segment.starts_with?('980', '981')
+    elsif non_country_code_segment.starts_with?('980', '981')
       return SmsMessage.phone_types[:ncell]
     else
       return SmsMessage.phone_types[:undefined_phone_type]
