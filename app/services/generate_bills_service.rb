@@ -51,11 +51,11 @@ class GenerateBillsService
             end
           elsif hash_dp.key?(custom_key)
             # find bill by the bill number
-            bill = Bill.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
+            bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
           else
             hash_dp[custom_key] = bill_number
             # create a new bill
-            bill = Bill.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
+            bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
               b.bill_type = Bill.bill_types['sales']
 
               # TODO possible error location check

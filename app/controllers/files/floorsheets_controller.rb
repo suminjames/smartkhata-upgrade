@@ -75,7 +75,9 @@ class Files::FloorsheetsController < Files::FilesController
 
     settlement_date = Calendar::t_plus_3_trading_days(@date)
     fy_code = get_fy_code(@date)
-    # get bill number
+
+    # get bill number once and increment it on rails code
+    # dont do database query for each creation
     @bill_number = get_bill_number(fy_code)
 
     # loop through 13th row to last row
@@ -219,10 +221,10 @@ class Files::FloorsheetsController < Files::FilesController
       dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buying']
       # group all the share transactions for a client for the day
       if hash_dp.key?(client_name.to_s+'buying')
-        bill = Bill.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buying'], fy_code: fy_code, date: @date, client_account_id: client.id)
+        bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buying'], fy_code: fy_code, date: @date, client_account_id: client.id)
       else
         hash_dp[client_name.to_s+'buying'] = @bill_number
-        bill = Bill.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
+        bill = Bill.unscoped.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
