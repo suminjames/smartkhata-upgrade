@@ -15,6 +15,7 @@
 
 
       <%= form_tag sales_payment_process_bills_path do |f| %>
+        <%= hidden_field_tag :settlement_id, @settlement_id %>
         <div class="panel panel-default">
           <div class="panel-heading">
             Select the bills which need to be paid by cheque

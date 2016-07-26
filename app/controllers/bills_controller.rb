@@ -193,6 +193,7 @@ class BillsController < ApplicationController
   end
 
   def sales_payment_process
+    @settlement_id = params[:settlement_id]
     @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
     @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
