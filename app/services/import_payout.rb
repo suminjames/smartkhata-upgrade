@@ -3,7 +3,8 @@
 class ImportPayout < ImportFile
   # process the file
   include ShareInventoryModule
-
+  include CommissionModule
+  
   def initialize(file)
     super(file)
     @sales_settlement_id = nil
@@ -12,12 +13,7 @@ class ImportPayout < ImportFile
   def process
     # initial constants
     tds_rate = 0.15
-    broker_commission_rate = 0.75
-    nepse_commission_rate = 0.25
-    # nepse charges tds which is payable by the broker
-    # so we need to deduct  the tds while charging the client
-    chargeable_on_sale_rate = broker_commission_rate * (1 - tds_rate)
-    chargeable_by_nepse = nepse_commission_rate + broker_commission_rate * tds_rate
+
 
     open_file(@file)
 
@@ -60,6 +56,13 @@ class ImportPayout < ImportFile
           end
 
           @date = Date.parse(hash['TRADE_DATE'])
+
+          # nepse charges tds which is payable by the broker
+          # so we need to deduct  the tds while charging the client
+          chargeable_on_sale_rate = broker_commission_rate(@date) * (1 - tds_rate)
+          chargeable_by_nepse = nepse_commission_rate(@date) + broker_commission_rate(@date) * tds_rate
+
+
 
           transaction = ShareTransaction.includes(:client_account).find_by(
               contract_no: hash['CONTRACTNO'].to_i,
