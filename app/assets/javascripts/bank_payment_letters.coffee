@@ -11,7 +11,6 @@ get_balance = ($this) ->
     return parse_number($parent.find('.bill-amount')) * -1
 
 get_total_balance = () ->
-  debugger
   balance = 0
   $('.check-bill:checked').each ->
     balance += get_balance($(this))
@@ -22,6 +21,7 @@ $(document).ready ->
     $this  = $(this)
     $this.closest('table')
     .find("td input[type='checkbox']")
+    .not(".no-bank-account")
     .prop('checked', this.checked)
 
     bill_amount = get_total_balance()

@@ -8,24 +8,24 @@
 #  seller                    :integer
 #  raw_quantity              :integer
 #  quantity                  :integer
-#  share_rate                :decimal(10, 4)   default("0")
-#  share_amount              :decimal(15, 4)   default("0")
-#  sebo                      :decimal(15, 4)   default("0")
+#  share_rate                :decimal(10, 4)   default(0.0)
+#  share_amount              :decimal(15, 4)   default(0.0)
+#  sebo                      :decimal(15, 4)   default(0.0)
 #  commission_rate           :string
-#  commission_amount         :decimal(15, 4)   default("0")
-#  dp_fee                    :decimal(15, 4)   default("0")
-#  cgt                       :decimal(15, 4)   default("0")
-#  net_amount                :decimal(15, 4)   default("0")
-#  bank_deposit              :decimal(15, 4)   default("0")
+#  commission_amount         :decimal(15, 4)   default(0.0)
+#  dp_fee                    :decimal(15, 4)   default(0.0)
+#  cgt                       :decimal(15, 4)   default(0.0)
+#  net_amount                :decimal(15, 4)   default(0.0)
+#  bank_deposit              :decimal(15, 4)   default(0.0)
 #  transaction_type          :integer
 #  settlement_id             :decimal(18, )
-#  base_price                :decimal(15, 4)   default("0")
-#  amount_receivable         :decimal(15, 4)   default("0")
-#  closeout_amount           :decimal(15, 4)   default("0")
+#  base_price                :decimal(15, 4)   default(0.0)
+#  amount_receivable         :decimal(15, 4)   default(0.0)
+#  closeout_amount           :decimal(15, 4)   default(0.0)
 #  remarks                   :string
-#  purchase_price            :decimal(15, 4)   default("0")
-#  capital_gain              :decimal(15, 4)   default("0")
-#  adjusted_sell_price       :decimal(15, 4)   default("0")
+#  purchase_price            :decimal(15, 4)   default(0.0)
+#  capital_gain              :decimal(15, 4)   default(0.0)
+#  adjusted_sell_price       :decimal(15, 4)   default(0.0)
 #  date                      :date
 #  deleted_at                :date
 #  created_at                :datetime         not null
@@ -39,7 +39,7 @@
 #  client_account_id         :integer
 #  isin_info_id              :integer
 #  transaction_message_id    :integer
-#  transaction_cancel_status :integer          default("0")
+#  transaction_cancel_status :integer          default(0)
 #
 
 class ShareTransaction < ActiveRecord::Base
@@ -57,9 +57,9 @@ class ShareTransaction < ActiveRecord::Base
   # required in case of payment letter
   # TODO(Subas) Make sure if voucher_id is required for share transactions.
   # they can be taken from particulars... a thought
-  has_many :on_creation, -> { on_creation }, class_name: "ParticularShareTransactions"
-  has_many :on_settlement, -> { on_settlement }, class_name: "ParticularShareTransactions"
-  has_many :on_payment_by_letter, -> { on_payment_by_letter }, class_name: "ParticularShareTransactions"
+  has_many :on_creation, -> { on_creation }, class_name: "ParticularsShareTransaction"
+  has_many :on_settlement, -> { on_settlement }, class_name: "ParticularsShareTransaction"
+  has_many :on_payment_by_letter, -> { on_payment_by_letter }, class_name: "ParticularsShareTransaction"
   has_many :particulars_share_transactions
   has_many :particulars_on_creation, through: :on_creation, source: :particular
   has_many :particulars_on_settlement, through: :on_settlement, source: :particular
@@ -75,6 +75,7 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_isin_id,
+          :by_transaction_cancel_status
       ]
   )
 
@@ -83,7 +84,6 @@ class ShareTransaction < ActiveRecord::Base
   # before_update :calculate_cgt
   validates :base_price, numericality: true
 
-
   scope :find_by_date, -> (date) { where(
       :date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(
@@ -91,25 +91,30 @@ class ShareTransaction < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    not_cancelled.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
+    not_cancelled.where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date<= ?', date_ad.end_of_day).order(id: :desc)
+    not_cancelled.where('date<= ?', date_ad.end_of_day).order(id: :desc)
+  }
+  scope :by_transaction_cancel_status, lambda { |status|
+    if status == 'deal_cancel_complete'
+      where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status]).order(id: :desc)
+    end
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
-  scope :by_isin_id, -> (id) { where(isin_info_id: id).order(id: :desc) }
+  scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id).order(id: :desc) }
+  scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("share_transactions.id #{ direction }")
+        not_cancelled.order("share_transactions.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

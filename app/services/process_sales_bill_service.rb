@@ -8,6 +8,7 @@ class ProcessSalesBillService
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = ""
+    @date = params[:date] || Time.now
   end
 
   def process
@@ -32,7 +33,7 @@ class ProcessSalesBillService
     description_bills = ""
     net_paid_amount = 0.00
     ActiveRecord::Base.transaction do
-      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+      voucher = Voucher.create!(date: @date)
       voucher.pending!
       voucher.save!
 
@@ -51,7 +52,7 @@ class ProcessSalesBillService
         end
         client_account = bill.client_account
         client_ledger = client_account.ledger
-        ledger_balance = client_ledger.closing_blnc
+        ledger_balance = client_ledger.closing_balance
         bill_amount = bill.balance_to_pay
         # dont pay the client more than he deserves.
         # pay only if the ledger balance is negative
@@ -68,7 +69,7 @@ class ProcessSalesBillService
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
         # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
-        closing_balance = client_ledger.closing_blnc
+        closing_balance = client_ledger.closing_balance
         particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending)
 
         particulars << particular
@@ -96,7 +97,7 @@ class ProcessSalesBillService
         voucher.settlements << settlement if settlement.present?
       end
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
-      closing_balance = bank_ledger.closing_blnc
+      closing_balance = bank_ledger.closing_balance
       short_description = "Settlement by bank payment for settlement ID #{@sales_settlement.settlement_id}"
       Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending, ledger_type: :has_bank)
 

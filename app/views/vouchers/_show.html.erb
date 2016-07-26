@@ -52,7 +52,7 @@
         </div>
         <div class="box-body">
           <div style='min-height: 100px'>
-            <% @particulars.each do |particular| %>
+            <% @particulars.order('transaction_type ASC').each do |particular| %>
                 <div class="row">
                   <div class="col-xs-3">
                     <%= particular.ledger.name %>
@@ -145,22 +145,21 @@
         <div class="box-header">
           <div class="row">
             <h3 class="box-title col-xs-6">Ledger Details</h3>
-            <h3 class="box-title col-xs-3">Dr</h3>
-            <h3 class="box-title col-xs-3">Cr</h3>
+            <h3 class="box-title col-xs-3 text-right">Dr</h3>
+            <h3 class="box-title col-xs-3 text-right">Cr</h3>
           </div>
         </div>
         <div class="box-body">
 
-          <% @particulars.each do |particular| %>
+          <% @particulars.order('transaction_type ASC').each do |particular| %>
               <div class="row">
                 <div class="col-xs-6">
                   <%= particular.ledger.name %>
                 </div>
-                <div class="col-xs-6 row">
-                  <div class="col-xs-6"><%= (particular.dr?) ? arabic_number(particular.amount) : "" %></div>
-                  <div class="col-xs-6"><%= (particular.cr?) ? arabic_number(particular.amount) : "" %></div>
 
-                </div>
+                  <div class="col-xs-3 text-right"><%= (particular.dr?) ? arabic_number(particular.amount) : "" %></div>
+                  <div class="col-xs-3 text-right"><%= (particular.cr?) ? arabic_number(particular.amount) : "" %></div>
+
               </div>
               <br>
           <% end %>

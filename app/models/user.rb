@@ -8,7 +8,7 @@
 #  reset_password_token   :string
 #  reset_password_sent_at :datetime
 #  remember_created_at    :datetime
-#  sign_in_count          :integer          default("0"), not null
+#  sign_in_count          :integer          default(0), not null
 #  current_sign_in_at     :datetime
 #  last_sign_in_at        :datetime
 #  current_sign_in_ip     :inet
@@ -28,22 +28,24 @@
 #  invitation_limit       :integer
 #  invited_by_id          :integer
 #  invited_by_type        :string
-#  invitations_count      :integer          default("0")
+#  invitations_count      :integer          default(0)
 #  branch_id              :integer
 #
-
 
 class User < ActiveRecord::Base
   include MenuPermissionModule
 
   enum role: [:user, :client, :agent, :employee, :admin, :sys_admin]
+  enum office_roles: [:manager]
+
   after_initialize :set_default_role, :if => :new_record?
   has_many :client_accounts
   has_one :employee_account
 
   has_many :menu_permissions
+  has_many :branch_permissions
   accepts_nested_attributes_for :menu_permissions
-
+  # accepts_nested_attributes_for :branch_permissions
   def set_default_role
     self.role ||= :user
   end

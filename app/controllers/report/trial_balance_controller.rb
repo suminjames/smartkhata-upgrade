@@ -8,20 +8,19 @@ class Report::TrialBalanceController < ApplicationController
       @balance_report = Hash.new
 
       @balance.each do |balance|
+        modified_ledger_list = []
         @balance_report[balance.name] = balance.descendent_ledgers
-      end
-    elsif params[:search_by] == 'lwd'
-      date = Time.now.to_date
-      file_type = FileUpload::file_types[:floorsheet]
-      fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
-      if (fileupload.present?)
-        date = fileupload.report_date
+        b = balance.descendent_ledgers
+        b.each do |ledger|
+          ledger.opening_balance_trial = ledger.opening_balance
+          ledger.closing_balance_trial = ledger.closing_balance
+          ledger.cr_amount_trial = ledger.cr_amount
+          ledger.dr_amount_trial = ledger.dr_amount
+          modified_ledger_list << ledger
+        end
+        @balance_report[balance.name] = modified_ledger_list
       end
 
-      respond_to do |format|
-        format.html { redirect_to report_trial_balance_index_path(search_by: "date", search_term: ad_to_bs_string(date)) }
-      end
-      return
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -38,12 +37,23 @@ class Report::TrialBalanceController < ApplicationController
               modified_ledger_list = []
               b = balance.descendent_ledgers
               b.each do |ledger|
-                day_ledger = ledger.ledger_dailies.where(date: date_ad)
-                if day_ledger.length > 0
-                  ledger.opening_blnc = day_ledger.first.opening_blnc
-                  ledger.closing_blnc = day_ledger.last.closing_blnc
-                  ledger.cr_amount = day_ledger.sum(:cr_amount)
-                  ledger.dr_amount = day_ledger.sum(:dr_amount)
+                if ledger.ledger_dailies.where('date <= ?',date_ad).count > 0
+
+                  # sum of total credit and debit amount
+                  total_credit = ledger.ledger_dailies.where('date <= ?',date_ad).sum(:cr_amount)
+                  total_debit = ledger.ledger_dailies.where('date <= ?',date_ad).sum(:dr_amount)
+                  # get the opening balance from the first day
+                  first_day_ledger_daily = ledger.ledger_dailies.where('date <= ?',date_ad).order('date ASC').first
+                  first_day_opening_balance = first_day_ledger_daily.present? ? first_day_ledger_daily.opening_balance : 0.0
+
+                  # get the closing balance from last day
+                  last_day_ledger_daily =  ledger.ledger_dailies.where('date <= ?', date_ad).order('date DESC').first
+                  last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
+
+                  ledger.opening_balance_trial = first_day_opening_balance
+                  ledger.closing_balance_trial = last_day_balance
+                  ledger.cr_amount_trial = total_credit
+                  ledger.dr_amount_trial = total_debit
                   modified_ledger_list << ledger
                 end
               end

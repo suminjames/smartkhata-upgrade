@@ -1,17 +1,37 @@
+# == Schema Information
+#
+# Table name: ledger_dailies
+#
+#  id              :integer          not null, primary key
+#  date            :date
+#  dr_amount       :decimal(15, 4)   default("0.0")
+#  cr_amount       :decimal(15, 4)   default("0.0")
+#  opening_balance :decimal(15, 4)   default("0.0")
+#  closing_balance :decimal(15, 4)   default("0.0")
+#  date_bs         :string
+#  fy_code         :integer
+#  creator_id      :integer
+#  updater_id      :integer
+#  ledger_id       :integer
+#  branch_id       :integer
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
   date: 2016-04-18
   dr_amount: 9.99
   cr_amount: 9.99
-  opening_blnc: 9.99
-  closing_blnc: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   date_bs: MyString
 
 two:
   date: 2016-04-18
   dr_amount: 9.99
   cr_amount: 9.99
-  opening_blnc: 9.99
-  closing_blnc: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
   date_bs: MyString

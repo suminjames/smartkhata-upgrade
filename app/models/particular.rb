@@ -3,16 +3,16 @@
 # Table name: particulars
 #
 #  id                     :integer          not null, primary key
-#  opening_blnc           :decimal(15, 4)   default("0")
+#  opening_balance        :decimal(15, 4)   default(0.0)
 #  transaction_type       :integer
-#  ledger_type            :integer          default("0")
+#  ledger_type            :integer          default(0)
 #  cheque_number          :integer
 #  name                   :string
 #  description            :string
-#  amount                 :decimal(15, 4)   default("0")
-#  running_blnc           :decimal(15, 4)   default("0")
+#  amount                 :decimal(15, 4)   default(0.0)
+#  running_blnc           :decimal(15, 4)   default(0.0)
 #  additional_bank_id     :integer
-#  particular_status      :integer          default("1")
+#  particular_status      :integer          default(1)
 #  date_bs                :string
 #  creator_id             :integer
 #  updater_id             :integer
@@ -24,10 +24,12 @@
 #  ledger_id              :integer
 #  voucher_id             :integer
 #  bank_payment_letter_id :integer
+#  hide_for_client        :boolean          default(FALSE)
 #
 
 class Particular < ActiveRecord::Base
   include CustomDateModule
+  include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
 
   belongs_to :ledger
@@ -36,24 +38,18 @@ class Particular < ActiveRecord::Base
 
   attr_accessor :running_total
 
-  def self.distance_with_running_total
-    total = 0.0
-    Particular.order(:id).collect do |w|
-      total += w.amount
-      w.running_total = total
-      w
-    end
-  end
-
   # get the particulars with running total
   # records: collection of particular
-  def self.with_running_total(records)
+  def self.with_running_total(records, opening_balance = 0.0)
     total = 0.0
-    records.collect do |w|
-      total += w.amount
+    records.map do |w|
+      amount = w.cr? ? (-1 * w.amount) : w.amount
+      total += (amount + opening_balance)
+      # we need to add the opening blnc only once
+      opening_balance = 0.0
       w.running_total = total
-      w
     end
+    records
   end
 
 
@@ -80,8 +76,12 @@ class Particular < ActiveRecord::Base
   enum particular_status: [:pending, :complete]
   enum ledger_type: [:general, :has_bank]
 
-  scope :find_by_date_range, -> (date_from, date_to) { where(
-      :transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
+  scope :find_by_ledger_ids, lambda { |ledger_ids_arr|
+    where(ledger_id: ledger_ids_arr)
+  }
+  scope :find_by_date_range, -> (date_from, date_to) { where(:transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
+
+  scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
   before_save :process_particular
 
@@ -99,6 +99,6 @@ class Particular < ActiveRecord::Base
   def process_particular
     self.transaction_date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.transaction_date)
+    # self.fy_code = get_fy_code(self.transaction_date)
   end
-
 end

@@ -5,6 +5,8 @@ class ClientAccountsControllerTest < ActionController::TestCase
     sign_in users(:user)
     @client_account = client_accounts(:one)
     @block_assert = lambda{ |action|
+      params = [:show, :edit].include?(action) ? {id: @client_account} : {}
+      get action, params
       instance_var = action == :index ? :client_accounts : :client_account
       assert_response :success
       assert_template "client_accounts/#{action}"
@@ -12,28 +14,28 @@ class ClientAccountsControllerTest < ActionController::TestCase
     }
   end
 
-  test "should get new" do
-    get :new
-    @block_assert.call(:new)
+  # Trying dynamic methods (meta programming)
+  [:new, :index, :show, :edit].each do |action|
+    define_method("test_should_get_#{action}") do
+      @block_assert.call(action)
+    end
   end
 
-  # Search by certain params maybe?
-  test "should get index" do
-    get :index
-    assert_redirected_to client_accounts_path(search_by: "name")
-    get :index, search_by: 'name'
-    @block_assert.call(:index)
-  end
+  # test "should get new" do
+  #   @block_assert.call(:new)
+  # end
 
-  test "should show client account" do
-    get :show, id: @client_account
-    @block_assert.call(:show)
-  end
+  # test "should get index" do
+  #   @block_assert.call(:index)
+  # end
 
-  test "should get edit" do
-    get :edit, id: @client_account
-    @block_assert.call(:edit)
-  end
+  # test "should show client account" do
+  #   @block_assert.call(:show)
+  # end
+
+  # test "should get edit" do
+  #   @block_assert.call(:edit)
+  # end
 
   test "should create new" do
     assert_difference 'ClientAccount.count', 1 do

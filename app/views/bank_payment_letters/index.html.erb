@@ -1,35 +1,38 @@
 <p id="notice"><%= notice %></p>
 <% provide(:section_title, "Bank Payment Letters") %>
-<%= link_to 'New Bank payment letter', new_bank_payment_letter_path , class: 'btn btn-default'%>
+<%= link_to 'New Bank Payment Letter', new_bank_payment_letter_path , class: 'btn btn-default'%>
 <br><br>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Sales settlement</th>
-      <th>Branch</th>
-      <th>Voucher</th>
-      <th>Bills</th>
-      <th>Created at</th>
-      <th>Status</th>
-      <th colspan="1"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @bank_payment_letters.each do |bank_payment_letter| %>
+<% if @bank_payment_letters.empty? %>
+    <div class="text-center text-muted"> No Payment Letters created yet.</div>
+<%else%>
+  <table class="table table-striped">
+    <thead>
       <tr>
-        <td><%= bank_payment_letter.sales_settlement.settlement_id %></td>
-        <td><%= bank_payment_letter.branch %></td>
-        <td><%= "#{bank_payment_letter.voucher.voucher_code}-#{bank_payment_letter.voucher.voucher_number}" if bank_payment_letter.voucher.present? %></td>
-        <td><%= bank_payment_letter.bills.map(&:full_bill_number).join(',') if bank_payment_letter.voucher.present? %></td>
-        <td><%= bank_payment_letter.created_at.to_date %></td>
-        <td><%= bank_payment_letter.letter_status.titleize %></td>
-        <td><%= link_to 'Show', bank_payment_letter %></td>
+        <th>Sales settlement</th>
+        <th>Branch</th>
+        <th>Voucher</th>
+        <th>Bills</th>
+        <th>Created at</th>
+        <th>Status</th>
+        <th colspan="1"></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody>
+      <% @bank_payment_letters.each do |bank_payment_letter| %>
+        <tr>
+          <td><%= bank_payment_letter.sales_settlement.settlement_id %></td>
+          <td><%= bank_payment_letter.branch %></td>
+          <td><%= "#{bank_payment_letter.voucher.voucher_code}-#{bank_payment_letter.voucher.voucher_number}" if bank_payment_letter.voucher.present? %></td>
+          <td><%= bank_payment_letter.bills.map(&:full_bill_number).join(',') if bank_payment_letter.voucher.present? %></td>
+          <td><%= bank_payment_letter.created_at.to_date %></td>
+          <td><%= bank_payment_letter.letter_status.titleize %></td>
+          <td><%= link_to 'Show', bank_payment_letter %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<%end%>
 
 <br>
 
-<%= link_to 'New Bank payment letter', new_bank_payment_letter_path, class: 'btn btn-default'%>

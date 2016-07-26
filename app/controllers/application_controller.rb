@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
+  # before_action :get_allowed_branch, if: :user_signed_in?
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
@@ -44,14 +45,19 @@ class ApplicationController < ActionController::Base
   def set_user_session
     current_user.current_url_link = request.path
     UserSession.user = current_user
-    UserSession.selected_fy_code ||= get_fy_code
+
+    # session storage for controllers
     session[:user_selected_fy_code] ||= get_fy_code
-    # session[:blocked_path_list] ||= get_blocked_path_list
+    session[:user_selected_branch_id] ||= current_user.branch_id
+
+    # set the session variable for the session
+    UserSession.selected_fy_code = session[:user_selected_fy_code]
+    UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
 
   #   set the default fycode and branch params
   def set_branch_fy_params
     params[:by_fy_code] ||= get_fy_code
-    params[:by_branch_code] ||= current_user.branch_id
+    params[:by_branch] ||= current_user.branch_id
   end
 end

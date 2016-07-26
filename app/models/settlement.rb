@@ -21,8 +21,12 @@
 #  branch_id         :integer
 #
 
+
 class Settlement < ActiveRecord::Base
   extend CustomDateModule
+
+  default_scope {where(fy_code: UserSession.selected_fy_code)}
+
 
   belongs_to :voucher
   include ::Models::UpdaterWithBranchFycode
@@ -40,42 +44,44 @@ class Settlement < ActiveRecord::Base
           :by_date,
           :by_date_from,
           :by_date_to,
-          :by_client_id,
+          :by_client_id
       ]
   )
 
-  scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
+  scope :by_settlement_type, -> (type) { by_branch_fy_code.where(:settlement_type => Settlement.settlement_types[type]) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+    by_branch_fy_code.where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at >= ?', date_ad.beginning_of_day)
+    by_branch_fy_code.where('created_at >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at <= ?', date_ad.end_of_day)
+    by_branch_fy_code.where('created_at <= ?', date_ad.end_of_day)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :by_client_id, -> (id) { by_branch_fy_code.where(client_account_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^name/
-        order("LOWER(settlements.name) #{ direction }")
+        by_branch_fy_code.order("LOWER(settlements.name) #{ direction }")
       when /^amount/
-        order("settlements.amount #{ direction }")
+        by_branch_fy_code.order("settlements.amount #{ direction }")
       when /^type/
-        order("settlements.settlement_type #{ direction }")
+        by_branch_fy_code.order("settlements.settlement_type #{ direction }")
       when /^date/
-        order("settlements.date_bs #{ direction }")
+        by_branch_fy_code.order("settlements.date_bs #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
+
+  before_create :assign_settlement_number
 
   def self.options_for_settlement_type_select
     [["Receipt", "receipt"], ["Payment", "payment"]]
@@ -85,4 +91,24 @@ class Settlement < ActiveRecord::Base
     ClientAccount.all.order(:name)
   end
 
+  #
+  # get new settlement number
+  #
+  def self.new_settlement_number(fy_code, branch_id, settlement_type)
+    settlement_type = self.settlement_types[settlement_type]
+    settlement = Settlement.where(fy_code: fy_code, branch_id: branch_id, settlement_type: settlement_type).last
+    if settlement.nil?
+      1
+    else
+      # increment the bill number
+      settlement.settlement_number + 1
+    end
+  end
+
+  def assign_settlement_number
+    fy_code = self.fy_code
+    branch_id = self.branch_id
+    settlement_type = self.settlement_type
+    self.settlement_number = Settlement.new_settlement_number(fy_code, branch_id, settlement_type)
+  end
 end

@@ -186,7 +186,7 @@ class BillsController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills.for_payment_letter if @sales_settlement.present?
+      @bills = @sales_settlement.bills_for_sales_payment_list if @sales_settlement.present?
       @is_searched = true
       return
     end
@@ -194,10 +194,15 @@ class BillsController < ApplicationController
 
   def sales_payment_process
     @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
-    @bank_account = BankAccount.find_by(id: params[:bank_account_id])
+    @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
-    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement )
+    @back_path = request.referer
+    if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
+
+    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement , date: @sales_settlement.settlement_date)
 
     respond_to do |format|
       if process_sales_bill.process
@@ -213,15 +218,17 @@ class BillsController < ApplicationController
     authorize Bill
     amount_margin_error = 0.01
 
+    @back_path = request.referer || bills_path
     if @bill_ids.size <= 0
-      @back_path = request.referer || bills_path
+
       redirect_to @back_path, :flash => {:error => 'No Bills were Selected'} and return
     end
 
 
     client_account = ClientAccount.find(@client_account_id)
     client_ledger = client_account.ledger
-    ledger_balance = client_ledger.closing_blnc
+    ledger_balance = client_ledger.closing_balance
+
     bill_list = get_bills_from_ids(@bill_ids)
     bills_receive = bill_list.requiring_receive
     bills_payment = bill_list.requiring_payment
@@ -234,7 +241,6 @@ class BillsController < ApplicationController
 
     @processed_bills = []
     if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
-
       Bill.transaction do
         bill_list.each do |bill|
           bill.balance_to_pay = 0
@@ -243,7 +249,6 @@ class BillsController < ApplicationController
           @processed_bills << bill
         end
       end
-
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
     end

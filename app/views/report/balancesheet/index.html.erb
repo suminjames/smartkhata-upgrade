@@ -1,6 +1,6 @@
 <% provide(:section_title, "Reports:Balance Sheet") %>
 <%
-  @date = ad_to_bs_string(Date.today)
+  @date = ad_to_bs_string(fiscal_year_last_day)
 %>
 <%= form_tag(report_balancesheet_index_path, :method => "get", id: "search-form") do %>
 

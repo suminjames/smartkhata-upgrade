@@ -4,6 +4,9 @@
     <div class="navbar-header">
       <a href="<%= root_path %>" class="navbar-brand">
         <b>SmartKhata</b>
+        <% if !Rails.env.production? %>
+          <span class="label label-default">DEV</span>
+        <% end %>
       </a>
     </div>
 

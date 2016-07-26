@@ -2,7 +2,7 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
-
+  layout 'application_custom', only: [:new, :create]
   # GET /vouchers
   # GET /vouchers.json
   def index
@@ -135,7 +135,7 @@ class VouchersController < ApplicationController
   end
 
   # TODO make sure authorization is performed
-
+  # TODO (Subas) move this to Ledgers/particular entry
   def finalize_payment
     success = false
     error_message = "There was some Error"
@@ -147,15 +147,7 @@ class VouchersController < ApplicationController
         if params[:approve]
           Voucher.transaction do
             @voucher.particulars.each do |particular|
-              ledger = Ledger.find(particular.ledger_id)
-              ledger.lock!
-
-              closing_blnc = ledger.closing_blnc
-              ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
-              particular.opening_blnc = closing_blnc
-              particular.running_blnc = ledger.closing_blnc
-              particular.complete!
-              ledger.save!
+              Ledgers::ParticularEntry.new.insert_particular(particular)
             end
 
             @voucher.cheque_entries.uniq.each do |cheque_entry|
@@ -254,9 +246,6 @@ class VouchersController < ApplicationController
         if client_account.present?
           unless bill.present?
             bills = client_account.bills.requiring_receive
-
-            # TODO how to make the below commented line work
-            # amount = bills.sum(&:balance_to_pay)
             amount = bills.sum(:balance_to_pay)
           else
             bills = [bill]
@@ -290,7 +279,7 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id])
+    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id])
   end
 
   def set_voucher_general_params

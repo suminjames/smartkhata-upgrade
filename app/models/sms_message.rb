@@ -6,8 +6,8 @@
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  phone                  :string
-#  phone_type             :integer          default("0")
-#  sms_type               :integer          default("0")
+#  phone_type             :integer          default(0)
+#  sms_type               :integer          default(0)
 #  credit_used            :integer
 #  remarks                :integer
 #  transaction_message_id :integer
@@ -79,6 +79,15 @@ class SmsMessage < ActiveRecord::Base
     ClientAccount.all.order(:name)
   end
 
+  def self.sparrow_send
+    token = 'd1QYg28Hxw80xapxpsFA'
+    from = 'Demo'
+    to = '9851153385'
+    text = 'Hello@%40'
+    url = 'http://api.sparrowsms.com/v2/sms'
+    p (URI.parse(url+'?token=' + token + '&from=' + from + '&to=' + to + '&text='+text))
+  end
+
   # TODO(sarojk): IMPORTANT! Valid message block's length should have been 255, but Miracle has issues and can only send 250 lenth message block currently. Check and change later.
   MAX_MESSAGE_BLOCK_LENGTH = 250
 
@@ -124,7 +133,7 @@ class SmsMessage < ActiveRecord::Base
   def self.send_hello_world
     self.date_time
     self.mobile_number = '9851153385'
-    self.message = 'Hello, from DIT!'
+    self.message = 'Hello, @ from DIT!'
     p self.push_sms
     p self.check_balance
   end

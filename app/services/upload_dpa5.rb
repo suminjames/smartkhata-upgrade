@@ -59,10 +59,12 @@ class UploadDpa5
 
   def extract(data)
     ActiveRecord::Base.transaction do
-      record = ClientAccount.where(boid: data[0]).first
+      # record = ClientAccount.where(boid: data[0], dp_id: data[59])
+      #              .first_or_create
+
       client_type = get_client_type(data[2])
-      # record = ClientAccount.where("REPLACE(name, ' ', '') = ? AND REPLACE(father_mother, ' ', '')= ? AND REPLACE(granfather_father_inlaw, ' ', '') = ?", data[11].tr(' ','').upcase, data[99].tr(' ', '').upcase, data[105].tr(' ', '').upcase).first
-      #
+      record = ClientAccount.where("REPLACE(name, ' ', '') = ? AND REPLACE(father_mother, ' ', '')= ? AND REPLACE(granfather_father_inlaw, ' ', '') = ?", data[11].tr(' ','').upcase, data[99].tr(' ', '').upcase, data[105].tr(' ', '').upcase).first
+
 
 
       if record.present?

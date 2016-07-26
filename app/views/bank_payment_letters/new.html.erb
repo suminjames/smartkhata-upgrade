@@ -27,6 +27,7 @@
               <th>S.No.</th>
               <th><%= check_box_tag '', '', false, class: 'select_all' %></th>
               <th>Client Name</th>
+              <th>Bank Details</th>
               <th>Bill number</th>
               <th>Bill Amount</th>
             </tr>
@@ -35,8 +36,9 @@
             <% @bills.each_with_index do |bill, index| %>
                 <tr>
                   <td><%= index + 1  %></td>
-                  <td><%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]', class: "check-bill"  %></td>
-                  <td><%= bill.client_account.name.titleize %></td>
+                  <td><%= check_box_tag :bill_ids, bill.id, nil, :name => 'bill_ids[]', class: bill.client_account.bank_account.nil? ? "check-bill no-bank-account" : "check-bill"  %></td>
+                  <td><%= bill.client_account.name_and_nepse_code%></td>
+                  <td><%= client_bank_details(bill.client_account)%></td>
                   <td><%= bill.full_bill_number %></td>
                   <td class="text-right bill-amount"><%= arabic_number(bill.net_amount) %></td>
 
@@ -51,15 +53,12 @@
           <h4>Total:<span class="display-amount">0.00</span><span class="display-type hidden">dr</span></h4>
         </div>
 
-        <%= f.association :bank_account, collection: BankAccount.all, label_method: :bank_account_name, selected: BankAccount.default_for_payment, :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank account...' %>
+        <%= f.association :bank_account, collection: BankAccount.by_branch_id.all, label_method: :bank_account_name, selected: BankAccount.by_branch_id.default_for_payment, :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank account...' %>
 
         <div class="form-actions">
           <%= f.button :submit %>
         </div>
       <% end %>
-
-
-
 
 <% elsif @is_searched %>
     <h5> No Matching Records found </h5>

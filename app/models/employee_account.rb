@@ -36,8 +36,8 @@
 #  company_name              :string
 #  company_id                :string
 #  branch_id                 :integer
-#  invited                   :boolean          default("false")
-#  has_access_to             :integer          default("2")
+#  invited                   :boolean          default(FALSE)
+#  has_access_to             :integer          default(2)
 #  creator_id                :integer
 #  updater_id                :integer
 #  user_id                   :integer
@@ -45,15 +45,13 @@
 #  updated_at                :datetime         not null
 #
 
-
-
 class EmployeeAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
   # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
   # TODO(sarojk) Find a better way to implement unique identification
   validates_presence_of :name, :email
-  validates :email, uniqueness: true, format: {with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i}
+  validates :email, uniqueness: true, format: {with: EMAIL_REGEX}
 
   after_create :create_ledger
 
@@ -61,6 +59,7 @@ class EmployeeAccount < ActiveRecord::Base
   has_many :ledgers, through: :employee_ledger_associations
   belongs_to :user
   has_many :menu_permissions, through: :user
+  has_many :branch_permissions, through: :user
 
   # defines employee association with ledgers
   enum has_access_to: [:everyone, :some, :nobody]

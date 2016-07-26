@@ -5,7 +5,7 @@
 #  id                        :integer          not null, primary key
 #  boid                      :string
 #  nepse_code                :string
-#  client_type               :integer          default("0")
+#  client_type               :integer          default(0)
 #  date                      :date
 #  name                      :string
 #  address1                  :string           default(" ")
@@ -50,7 +50,7 @@
 #  company_name              :string
 #  company_address           :string
 #  company_id                :string
-#  invited                   :boolean          default("false")
+#  invited                   :boolean          default(FALSE)
 #  referrer_name             :string
 #  group_leader_id           :integer
 #  creator_id                :integer
@@ -88,14 +88,67 @@ class ClientAccount < ActiveRecord::Base
   # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
 
+  # 36 fields present. Validate accordingly!
+  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
+                        :unless => :nepse_code?
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
+  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
+  # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
+  # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
+
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
-  scope :find_by_client_id, -> (id) { where(id: id) }
+  scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
   enum client_type: [:individual, :corporate]
+
+  filterrific(
+      default_filter_params: { sorted_by: 'name_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_client_id,
+          :client_filter
+      ]
+  )
+
+  scope :client_filter, lambda {|status|
+    # [
+    #     ["without Mobile Number", "no_mobile_number"],
+    #     ["without any Phone Number", "no_any_phone_number"],
+    #     ["without Email", "no_email"],
+    #     ["without BOID", "no_boid"],
+    #     ["without Nepse Code", "no_nepse_code"]
+    # ]
+    case status
+      when 'no_mobile_number'
+        where(:mobile_number => [nil, '']).order('name asc')
+      when 'no_any_phone_number'
+        where(:mobile_number => [nil, '']).where(:phone_perm => [nil, '']).where(:phone => [nil, '']).order('name asc')
+      when 'no_email'
+        where(:email => [nil, '']).order('name asc')
+      when 'no_boid'
+        where(:boid => [nil, '']).order('name asc')
+      when 'no_nepse_code'
+        where(:nepse_code => [nil, '']).order('name asc')
+    end
+  }
+
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^name/
+        order("client_accounts.name #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
 
   validate :bank_details_present?
 
@@ -107,10 +160,12 @@ class ClientAccount < ActiveRecord::Base
 
   # create client ledger
   def create_ledger
+    client_group = Group.find_or_create_by!(name: "Clients")
     if self.nepse_code.present?
       client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
         ledger.name = self.name
         ledger.client_account_id = self.id
+        ledger.group_id = client_group.id
       end
     end
   end
@@ -151,7 +206,7 @@ class ClientAccount < ActiveRecord::Base
 
   def get_group_members_ledgers_with_balance
     ids = self.group_members.pluck(:id)
-    Ledger.where(client_account_id: ids).where('(closing_blnc - 0.01) > ?', '0')
+    Ledger.where(client_account_id: ids).where('(closing_balance - 0.01) > ?', '0')
   end
 
   def get_group_members_ledger_ids
@@ -173,8 +228,38 @@ class ClientAccount < ActiveRecord::Base
     messageable_phone_number
   end
 
+  # validation helper
+  def any_bank_field_present?
+    bank_name? || bank_address? || bank_account?
+  end
+
   def name_and_nepse_code
     "#{self.name.titleize} (#{self.nepse_code})"
+  end
+
+  def commaed_contact_numbers
+    str = ''
+    str += self.mobile_number + ',' if self.mobile_number.present?
+    str += self.phone + ',' if self.phone.present?
+    str += self.phone_perm if self.phone_perm.present?
+    # strip leading or trailing comma ','
+    str[0]= '' if str[0] == ','
+    str[-1]= '' if str[-1] == ','
+    str
+  end
+
+  def self.options_for_client_select
+    ClientAccount.all.order(:name)
+  end
+
+  def self.options_for_client_filter
+    [
+        ["without Mobile Number", "no_mobile_number"],
+        ["without any Phone Number", "no_any_phone_number"],
+        ["without Email", "no_email"],
+        ["without BOID", "no_boid"],
+        ["without Nepse Code", "no_nepse_code"]
+    ]
   end
 
 end

@@ -1,9 +1,8 @@
 = simple_form_for(@client_account) do |f|
   = f.error_notification
 
-  .row
+  .clearfix
     .col-xs-12
-      %h3 Client Information
       = hidden_field_tag 'from_path', @from_path
       = f.input :name, placeholder: "Name"
       = f.input :citizen_passport, label: "Citizen/Birth Certificate",placeholder: "Citizenship/Birth Certificate"
@@ -22,6 +21,7 @@
       = f.input :father_mother , label: "Father/Mother's Name",placeholder: "Father/Mother's Name"
       = f.input :granfather_father_inlaw , label: "GrandFather's Name",placeholder: "GrandFather/Father In Law's Name"
       = f.input :profession_code ,label: "Profession", placeholder: "Profession"
+      = f.input :mobile_number, label: "Mobile Number"
       -# need place for spouse
 
       %h4 If associated to any organisation or company
@@ -46,12 +46,10 @@
           = f.input :phone_perm, label: 'Phone'
         .col-xs-4
           = f.input :email, label: 'Email'
-        .col-xs-4
-          = f.input :mobile_number, label: 'Mobile Number'
 
       %h3 Current address
       = f.input :address1 , label: 'Address line 1'
-      = f.input :address2, label: 'Address line 2'
+      = f.input :address2 , label: 'Address line 2'
       = f.input :address3 , label: 'Address line 3'
       .row
         .col-xs-4
@@ -73,7 +71,7 @@
         .col-xs-6
           .form-group
             %label Client type
-            = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type)
+            = f.select :client_type, options_for_select(ClientAccount.client_types.keys, f.object.client_type), {}, class: 'form-control'
         .col-xs-6
           .form-group
             = f.association :branch, collection: Branch.order(:code),label_method: :code, value_method: :id,:input_html => { :class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a branch...'
@@ -92,3 +90,4 @@
 
       .form-actions
         = f.button :submit
+        = link_to "Cancel", client_accounts_path, class: 'btn btn-success btn-flat'

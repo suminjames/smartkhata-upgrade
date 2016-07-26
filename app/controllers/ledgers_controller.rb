@@ -50,66 +50,53 @@ class LedgersController < ApplicationController
   def show
     authorize @ledger
     @back_path = request.referer || ledgers_path
-    if params[:show] == "all"
-      @particulars = @ledger.particulars.complete.order("id ASC")
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'date_range'
-          # The dates being entered are assumed to be BS dates, not AD dates
-          date_from_bs = search_term['date_from']
-          date_to_bs = search_term['date_to']
-          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-            date_from_ad = bs_to_ad(date_from_bs)
-            date_to_ad = bs_to_ad(date_to_bs)
-            @particulars = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order("id ASC")
-            @total_credit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
-            @total_debit = @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
-            first = @particulars.first
-            last = @particulars.last
+    ledger_query = Ledgers::Query.new(params, @ledger)
 
-            @closing_blnc_sorted = last.running_blnc
-
-            if first.dr?
-              @opening_blnc_sorted = first.running_blnc - first.amount
-            else
-              @opening_blnc_sorted = first.running_blnc + first.amount
-            end
-
-
-          else
-            @particulars = ''
-            respond_to do |format|
-              flash.now[:error] = 'Invalid date(s)'
-              format.html { render :show }
-              format.json { render json: flash.now[:error], status: :unprocessable_entity }
-            end
-          end
-        else
-          @particulars = ''
+    if params[:format] == 'xlsx'
+      @particulars = ledger_query.ledger_with_particulars(true)[0]
+      @particulars = @particulars.reject &:hide_for_client if params[:for_client] == "1" # no reject! ?
+      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
+      if report.generated_successfully?
+        # send_file(report.path, type: report.type)
+        send_data(report.file, type: report.type, filename: report.filename)
+        report.clear
+      else
+        # This should be ideally an ajax notification!
+        redirect_to ledgers_path, flash: { error: report.error }
       end
-
-    elsif params[:search_by]
-      @particulars = ''
-    else
-      @particulars = @ledger.particulars.complete.order("id ASC")
+      return
     end
 
-    @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
+
+    # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
+    unless ledger_query.error_message.blank?
+      respond_to do |format|
+        flash.now[:error] = ledger_query.error_message
+        format.html { render :show }
+        format.json { render json: flash.now[:error], status: :unprocessable_entity }
+      end
+    end
   end
 
   # GET /ledgers/new
   def new
     @ledger = Ledger.new
+    @ledger.ledger_balances << LedgerBalance.new
     authorize @ledger
   end
 
   # GET /ledgers/1/edit
   def edit
     authorize @ledger
-    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_blnc == 0.0)
+    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
   end
 
   # POST /ledgers
@@ -117,18 +104,45 @@ class LedgersController < ApplicationController
   def create
     @ledger = Ledger.new(ledger_params)
     authorize @ledger
-
+    @valid = false
     @success = false
-    if (@ledger.opening_blnc >= 0)
-      @success = true if @ledger.save
-    else
-      flash.now[:error] = "Dont act smart."
+    total_balance = 0.0
+
+    branch_ids = []
+
+    @ledger.ledger_balances.each do |balance|
+      if balance.opening_balance >=0
+        if branch_ids.include?(balance.branch_id)
+          flash.now[:error] = "Please include a entry for one branch"
+          @valid = false
+          break
+        end
+        @valid = true
+        branch_ids << balance.branch_id
+        total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+        next
+      end
+      @valid = false
+      flash.now[:error] = "Please dont include a negative amount"
+      break
     end
+
+    unless @ledger.group_id.present?
+      @ledger.errors.add(:group_id, "can't be empty")
+      @valid = false
+    end
+
+    if @valid
+      @ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
+      @success = true if @ledger.save
+    end
+
     respond_to do |format|
       if @success
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
+        @ledger.ledger_balances = @ledger.ledger_balances[0..-2] if @valid
         format.html { render :new }
         format.json { render json: @ledger.errors, status: :unprocessable_entity }
       end
@@ -158,6 +172,45 @@ class LedgersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+
+  def daybook
+    authorize Ledger
+    @back_path = request.referer || ledgers_path
+    @ledger = Ledger.find(8)
+    @daybook_ledgers = Ledger.daybook_ledgers
+    ledger_query = Ledgers::DaybookQuery.new(params)
+
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def cashbook
+    authorize Ledger
+    @back_path = request.referer || ledgers_path
+    @ledger = Ledger.find(8)
+    @cashbook_ledgers = Ledger.cashbook_ledgers
+    ledger_query = Ledgers::CashbookQuery.new(params)
+
+    @particulars,
+        @total_credit,
+        @total_debit,
+        @closing_balance_sorted,
+        @opening_balance_sorted = ledger_query.ledger_with_particulars
+
+    respond_to do |format|
+      format.html
+      format.js
     end
   end
 
@@ -202,13 +255,12 @@ class LedgersController < ApplicationController
 
       # update each ledgers
       ledger_list.each do |ledger|
-        _closing_balance = ledger.closing_blnc
+        _closing_balance = ledger.closing_balance
         net_balance += _closing_balance
-
-        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description)
+        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
     end
 
     redirect_to group_member_ledgers_path, :flash => {:info => 'Successfully Transferred'} and return
@@ -223,7 +275,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_blnc_type, :vendor_account_id)
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id])
   end
 
 

@@ -3,13 +3,6 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
-    # if params[:type] == 'client'
-    #   @cheque_entries = ChequeEntry.where.not(additional_bank_id: nil)
-    # elsif params[:type] == 'company'
-    #   @cheque_entries = ChequeEntry.where(additional_bank_id: nil).where.not(status: 'unassigned')
-    # else
-    #   @cheque_entries = ChequeEntry.unassigned
-    # end
     @filterrific = initialize_filterrific(
         ChequeEntry,
         params[:filterrific],
@@ -21,7 +14,7 @@ class ChequeEntriesController < ApplicationController
         },
         persistence_id: false
     ) or return
-    items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_date(params[:filterrific][:by_date]).count(:all) : 20
+    items_per_page = params[:paginate] == 'false' ? ChequeEntry.all.count : 20
     @cheque_entries = @filterrific.find.page(params[:page]).per(items_per_page)
 
     respond_to do |format|
@@ -88,7 +81,7 @@ class ChequeEntriesController < ApplicationController
   def new
     # @cheque_entry = ChequeEntry.new
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    @bank_accounts = BankAccount.all.order(:bank_name)
+    @bank_accounts = BankAccount.by_branch_id.all.order(:bank_name)
   end
 
   # GET /cheque_entries/1/edit
@@ -120,6 +113,9 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     voucher = @cheque_entry.vouchers.uniq.first
     @bills = voucher.bills.purchase.order(id: :desc)
@@ -174,6 +170,10 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
     end
 
+    if UserSession.selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
+
     voucher = @cheque_entry.vouchers.uniq.last
 
     ActiveRecord::Base.transaction do
@@ -220,32 +220,29 @@ class ChequeEntriesController < ApplicationController
   # POST /cheque_entries
   # POST /cheque_entries.json
   def create
-    @bank_accounts = BankAccount.all
+    @bank_accounts = BankAccount.by_branch_id.all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
     @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
+    existing_cheque_numbers = ChequeEntry.where(bank_account_id: @bank_account_id).pluck(:cheque_number)
+    has_error = true
 
-    error_message = ""
-    has_error = false
-
-    unless @bank_account_id.present?
-      has_error = true
-      error_message = "Bank Account cant be empty"
+    error_message = case
+    when @bank_account_id.blank?
+      "Bank Account cannot be empty"
+    when @start_cheque_number.blank?
+      "Start Cheque Number cannot be empty"
+    when @start_cheque_number <= 0 || @end_cheque_number <= 0
+      "Cheque numbers cannot be negative"
+    when @start_cheque_number > @end_cheque_number
+      "Last cheque number should be greater than the first"
+    when (@end_cheque_number - @start_cheque_number) > 501
+      "Maximum of 500 cheque entries allowed"
+    when existing_cheque_numbers.any? {|n| n.between? @start_cheque_number, @end_cheque_number }
+      "Cheque number cannot be duplicate for a bank"
+    else
+      has_error = false
     end
-    if @start_cheque_number.blank?
-      has_error = true
-      error_message = "Start Cheque Number cant be empty"
-    elsif @start_cheque_number <= 0 || @end_cheque_number <= 0
-      has_error = true
-      error_message = "Cheque numbers can not be a negative value"
-    elsif @start_cheque_number > @end_cheque_number
-      has_error = true
-      error_message = "Last cheque number should be greater than the first"
-    elsif (@end_cheque_number - @start_cheque_number) > 501
-      has_error = true
-      error_message = "Only 500 cheque entries allowed"
-    end
-
 
     if !has_error
       ActiveRecord::Base.transaction do

@@ -7,13 +7,12 @@
 #  parent_id         :integer
 #  report            :integer
 #  sub_report        :integer
-#  for_trial_balance :boolean          default("false")
+#  for_trial_balance :boolean          default(FALSE)
 #  creator_id        :integer
 #  updater_id        :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
-
 
 class Group < ActiveRecord::Base
   include ::Models::Updater
@@ -56,8 +55,8 @@ class Group < ActiveRecord::Base
     self_and_descendents_bad.map(&:ledgers).flatten
   end
 
-  def closing_blnc_bad
-    self.descendent_ledgers_bad.sum(&:closing_blnc)
+  def closing_balance_bad
+    self.descendent_ledgers_bad.sum(&:closing_balance)
   end
 
 
@@ -65,17 +64,16 @@ class Group < ActiveRecord::Base
   # level 1 which is default will return only the balance
   def get_ledger_group(attrs = {})
     level = attrs[:drill_level] || 1
-    fy_code = attrs[:fy_code]
-
+    fy_code = UserSession.selected_fy_code
     group_ledger = Hash.new
     child_group = Hash.new
-    group_ledger[:balance] = self.closing_blnc(fy_code)
+    group_ledger[:balance] = self.closing_balance(fy_code)
     group_ledger[:ledgers] = []
 
     # dont load all the clients
     # as client list is too scary can go up too 5k+
     if level > 1 && self.name != 'Clients'
-      group_ledger[:ledgers] = self.ledgers.by_fy_code(fy_code)
+      group_ledger[:ledgers] = self.ledgers
       self.children.each do |child|
         child_group[child.name] = child.get_ledger_group(drill_level: level-1, fy_code: fy_code)
       end
@@ -96,11 +94,11 @@ class Group < ActiveRecord::Base
 
   def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
-    Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
+    Ledger.where("group_id IN (#{subtree})")
   end
 
-  def closing_blnc(fy_code = get_fy_code)
-    self.descendent_ledgers(fy_code).sum(:closing_blnc)
+  def closing_balance(fy_code = get_fy_code)
+    self.descendent_ledgers(fy_code).to_a.sum(&:closing_balance)
   end
 
   def self.tree_for(instance)

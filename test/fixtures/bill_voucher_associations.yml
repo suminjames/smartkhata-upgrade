@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: bill_voucher_associations
+#
+#  id               :integer          not null, primary key
+#  association_type :integer
+#  bill_id          :integer
+#  voucher_id       :integer
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 # Commented out to prevent error:

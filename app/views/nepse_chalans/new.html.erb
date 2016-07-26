@@ -9,7 +9,7 @@
     <div class="clearfix">
       <div class="col-sm-2 compact"><%= text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD", class: 'form-control' %></div>
       <div class="col-sm-2 compact"><%= text_field_tag "search_term[date_to]", text_field_value_2, placeholder: "YYYY-MM-DD", class: 'form-control' %></div>
-      <div class="col-sm-2 compact"><%= submit_tag "Search", class: 'btn btn-primary' %></div>
+      <div class="col-sm-2 compact"><%= submit_tag "Search", class: 'btn btn-primary btn-flat' %></div>
     </div>
 <% end %>
 <% if @share_transactions.size > 0 %>
@@ -82,7 +82,7 @@
             </tbody>
           </table>
           <div class="form-actions ">
-            <a href="" class=" btn btn-primary display-chalan-desc">Verify</a>
+            <a href="" class=" btn btn-primary btn-flat display-chalan-desc">Verify</a>
           </div>
         </div>
 
@@ -107,7 +107,7 @@
 
           <div class="form-actions ">
             <%= f.button :submit %>
-            <a href="" class="btn btn-negative cancel-chalan-desc">Cancel</a>
+            <a href="" class="btn btn-success btn-flat cancel-chalan-desc">Cancel</a>
           </div>
         </div>
 

@@ -16,12 +16,13 @@
   %div#cheque_entry_list
     %table.table.table-striped
       %thead
-        %th.text-center
+        %th.col-xs-1.text-center
           = 'All'
           %br
           = check_box_tag 'select_all', '', false, class: 'cheque-entry'
         %th.col-xs-1.text-center= 'Cheque Number'
         %th.col-xs-2.text-center= 'Bank Account'
+        %th.col-xs-2.text-center= 'Client Bank'
         %th.col-xs-1.text-center= 'Date'
         %th.col-xs-2.text-center= 'Beneficiary Name'
         %th.col-xs-1.text-center= 'Amount'
@@ -35,12 +36,13 @@
               %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
+              %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'
               %td.text-center= ad_to_bs_string(cheque_entry.cheque_date) if cheque_entry.cheque_date.present?
               %td.text-center= cheque_entry.beneficiary_name
               %td.text-center= cheque_entry.amount
-              %td.text-center= pretty_enum(cheque_entry.status)
+              %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.status)
               %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
-              %td.text-center= pretty_enum(cheque_entry.print_status)
+              %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
 
     - if !cheque_entries || cheque_entries.empty?
       %div.row.text-center.top-buffer-md

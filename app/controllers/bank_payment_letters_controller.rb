@@ -10,11 +10,12 @@ class BankPaymentLettersController < ApplicationController
   # GET /bank_payment_letters/1
   # GET /bank_payment_letters/1.json
   def show
+    print_in_letter_head = false
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        pdf = Pdf::PdfBankPaymentLetter.new(@bank_payment_letter, current_tenant)
+        pdf = Pdf::PdfBankPaymentLetter.new(@bank_payment_letter, current_tenant, print_in_letter_head)
         send_data pdf.render, filename: "BankPaymentLetter#{@bank_payment_letter.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
@@ -28,7 +29,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills.for_sales_payment if @sales_settlement.present?
+      @bills = @sales_settlement.bills_for_payment_letter_list if @sales_settlement.present?
       @is_searched = true
       return
     end
@@ -43,7 +44,13 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @settlement_id = params[:settlement_id]
+    @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
+
+    if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+      redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
+
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
     payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter)
@@ -84,10 +91,8 @@ class BankPaymentLettersController < ApplicationController
               ledger = Ledger.find(particular.ledger_id)
               ledger.lock!
 
-              closing_blnc = ledger.closing_blnc
-              ledger.closing_blnc = (particular.dr?) ? closing_blnc + particular.amount : closing_blnc - particular.amount
-              particular.opening_blnc = closing_blnc
-              particular.running_blnc = ledger.closing_blnc
+              closing_balance = ledger.closing_balance
+              ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
               particular.complete!
               ledger.save!
             end

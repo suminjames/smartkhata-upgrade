@@ -2,6 +2,7 @@ class ImportCloseOut < ImportFile
 
   include CommissionModule
   include ShareInventoryModule
+  include FiscalYearModule
 
   def initialize(file, type)
     super(file)
@@ -82,23 +83,24 @@ class ImportCloseOut < ImportFile
 
               closeout_amount = commission_amount + dp_fee + closeout.net_amount
               closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
-              default_bank_purchase = BankAccount.where(:default_for_payment => true).first
+              default_bank_purchase = BankAccount.by_branch_id.where(:default_for_payment => true).first
 
 
               if default_bank_purchase.present?
                 if default_bank_purchase.ledger.present?
                   # update description
                   description = "Shortage Amount Dr Settled  (#{closeout.shortage_quantity}*#{closeout.scrip_name}@#{closeout.rate}) "
+
+                  date = transaction.date
                   # update ledgers value
-                  voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+                  voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date))
                   voucher.share_transactions << transaction
                   voucher.desc = description
                   voucher.complete!
                   voucher.save!
 
-                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description)
-                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description)
-
+                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description, session[:user_selected_branch_id], Time.now.to_date)
+                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description, session[:user_selected_branch_id],  Time.now.to_date)
                 end
               else
                 import_error("Please assign a default bank account for sales")

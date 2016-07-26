@@ -1,10 +1,16 @@
 -#the conditions below are redundant, kept for future
-- if can_select_fy_code
-  .fy-selection
-    = form_tag general_settings_set_fy_path, :method => 'get', class: 'fire-on-select form-inline'  do
+
+.fy-selection
+  = form_tag general_settings_set_fy_path, :method => 'get', class: 'fire-on-select form-inline'  do
+    - if can_select_fy_code
       .form-group
-        = label_tag 'fy_code', 'Fiscal Year'
+        -#= label_tag 'fy_code', 'Fiscal Year'
+        %i.fa.fa-calendar.fa-lg{'aria-hidden': true}
         - if can_select_fy_code
           = select_tag 'fy_code', options_for_select(available_fy_codes, session[:user_selected_fy_code]), class: 'form-control'
         - else
           = select_tag 'fy_code', options_for_select(available_fy_codes, get_fy_code), class: 'form-control', :disabled => true
+    .form-group
+      -#= label_tag 'branch_id', 'Branch'
+      %i.fa.fa-university.fa-lg{'aria-hidden': true}
+      = select_tag 'branch_id', options_from_collection_for_select(permitted_branches, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control'

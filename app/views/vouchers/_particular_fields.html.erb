@@ -2,21 +2,21 @@
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
   <% if inverse == true %>
-      <div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name, {:selected => default_ledger_id}, {:class => 'form-control combobox select-ledger'}) %></div>
+      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name, {:selected => default_ledger_id}, {:class => 'form-control combobox select-ledger'}) %></div>
   <% else %>
-      <div class="col-xs-4"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name, {}, {:class => 'form-control combobox select-ledger'}) %></div>
+      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name, {}, {:class => 'form-control combobox select-ledger'}) %></div>
   <% end %>
   <div class="col-xs-2"><%= f.input :amount, label: false %></div>
   <div class="col-xs-1 type-selector">
     <% if (voucher_type == Voucher.voucher_types[:receipt] && inverse == false) || (voucher_type == Voucher.voucher_types[:payment] && inverse == true) %>
         <!--  hidden input to store the transaction type as disabled wont submit data to server -->
         <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "cr"} %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "cr"), {}, {:disabled => true} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "cr"), {}, {class: "form-control", :disabled => true} %>
     <% elsif voucher_type == Voucher.voucher_types[:payment] || (voucher_type == Voucher.voucher_types[:receipt]) %>
         <%= f.input :transaction_type, :as => :hidden, :input_html => {:value => "dr"} %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "dr"), {}, {:disabled => true} %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, "dr"), {}, {class: "form-control", :disabled => true} %>
     <% else %>
-        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type) %>
+        <%= f.select :transaction_type, options_for_select(Particular.transaction_types.keys.to_a, f.object.transaction_type), {}, class: "form-control" %>
     <% end %>
   </div>
   <div class="col-xs-4 padding-zero">
@@ -26,5 +26,11 @@
     </div>
   </div>
 
-  <div class="col-xs-1 padding-zero remove-particular"><%= link_to "Remove", '#', class: 'removeThisParticular btn btn-primary' if voucher_type == Voucher.voucher_types[:receipt] && inverse || inverse == false %></div>
+  <div class="col-xs-2 padding-zero remove-particular">
+    <div class="col-xs-8">
+      <!--<%= select_tag 'branch_id', options_from_collection_for_select(Branch.all, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control' %>-->
+      <%= f.association :branch, collection: available_branches, label_method: :code, value_method: :id, label: false, selected: UserSession.selected_branch_id, include_blank: false, :input_html => {:class => 'form-control',  :autocomplete => 'off'} %>
+    </div>
+    <%= link_to '<i class="fa fa-times" aria-hidden="true"></i>'.html_safe, '#', class: 'removeThisParticular btn btn-danger btn-flat lighter', data: { toggle: "tooltip", placement: "top", title: "Remove"} if voucher_type == Voucher.voucher_types[:receipt] && inverse || inverse == false %>
+  </div>
 </div>

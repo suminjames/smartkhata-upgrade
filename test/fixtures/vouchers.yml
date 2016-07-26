@@ -1,3 +1,25 @@
+# == Schema Information
+#
+# Table name: vouchers
+#
+#  id               :integer          not null, primary key
+#  fy_code          :integer
+#  voucher_number   :integer
+#  date             :date
+#  date_bs          :string
+#  desc             :string
+#  beneficiary_name :string
+#  voucher_type     :integer          default("0")
+#  voucher_status   :integer          default("0")
+#  creator_id       :integer
+#  updater_id       :integer
+#  reviewer_id      :integer
+#  branch_id        :integer
+#  is_payment_bank  :boolean
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 # This model initially had no columns defined.  If you add columns to the
@@ -6,7 +28,7 @@
 #
 <% (0..3).each do |n| %>
 voucher_<%= n %>:
-  fy_code: 7777
+  fy_code: 7273
   voucher_number: 292<%= n %>
   date: '2070-12-12'
   date_bs: '2013-09-24'
@@ -19,7 +41,7 @@ voucher_<%= n %>:
 <% end %>
 
 voucher_pending:
-  fy_code: 7777
+  fy_code: 7273
   voucher_number: 2930
   date: '2070-12-12'
   date_bs: '2013-09-24'

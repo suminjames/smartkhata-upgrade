@@ -13,8 +13,8 @@
 #  scrip_name        :string
 #  quantity          :integer
 #  shortage_quantity :integer
-#  rate              :decimal(15, 4)   default("0")
-#  net_amount        :decimal(15, 4)   default("0")
+#  rate              :decimal(15, 4)   default(0.0)
+#  net_amount        :decimal(15, 4)   default(0.0)
 #  closeout_type     :integer
 #  creator_id        :integer
 #  updater_id        :integer

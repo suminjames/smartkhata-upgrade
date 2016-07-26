@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160705172244) do
+ActiveRecord::Schema.define(version: 20160713172121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +26,10 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.integer  "bank_id"
+    t.integer  "branch_id"
+    t.string   "bank_branch"
+    t.text     "address"
+    t.string   "contact_no"
   end
 
   add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
@@ -106,6 +110,15 @@ ActiveRecord::Schema.define(version: 20160705172244) do
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
+
+  create_table "branch_permissions", id: false, force: :cascade do |t|
+    t.integer  "branch_id"
+    t.integer  "user_id"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "branches", force: :cascade do |t|
     t.string   "code"
@@ -367,20 +380,38 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.datetime "updated_at",                                        null: false
   end
 
+  create_table "ledger_balances", force: :cascade do |t|
+    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
+    t.integer  "fy_code"
+    t.integer  "branch_id"
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "ledger_id"
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
+  end
+
+  add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
+  add_index "ledger_balances", ["fy_code"], name: "index_ledger_balances_on_fy_code", using: :btree
+  add_index "ledger_balances", ["ledger_id"], name: "index_ledger_balances_on_ledger_id", using: :btree
+
   create_table "ledger_dailies", force: :cascade do |t|
     t.date     "date"
-    t.decimal  "dr_amount",    precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",    precision: 15, scale: 4, default: 0.0
-    t.decimal  "opening_blnc", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
     t.string   "date_bs"
     t.integer  "fy_code"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "ledger_id"
     t.integer  "branch_id"
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
   end
 
   add_index "ledger_dailies", ["branch_id"], name: "index_ledger_dailies_on_branch_id", using: :btree
@@ -407,6 +438,8 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.integer  "client_account_id"
     t.integer  "employee_account_id"
     t.integer  "vendor_account_id"
+    t.decimal  "opening_balance_org", precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance_org", precision: 15, scale: 4, default: 0.0
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
@@ -499,7 +532,7 @@ ActiveRecord::Schema.define(version: 20160705172244) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",           precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",        precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                     default: 0
     t.integer  "cheque_number"
@@ -515,11 +548,12 @@ ActiveRecord::Schema.define(version: 20160705172244) do
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.date     "transaction_date"
-    t.datetime "created_at",                                                    null: false
-    t.datetime "updated_at",                                                    null: false
+    t.datetime "created_at",                                                      null: false
+    t.datetime "updated_at",                                                      null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
+    t.boolean  "hide_for_client",                                 default: false
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree
@@ -798,6 +832,7 @@ ActiveRecord::Schema.define(version: 20160705172244) do
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
+  add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "particulars_share_transactions", "particulars"

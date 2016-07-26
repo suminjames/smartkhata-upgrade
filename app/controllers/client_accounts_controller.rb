@@ -4,42 +4,43 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts
   # GET /client_accounts.json
   def index
-    #default landing action for '/ledgers'
-    # OPTIMIZE - Refactor
-    if params[:search_by].blank? && params[:show].blank?
-      respond_to do |format|
-        format.html { redirect_to client_accounts_path(search_by: "name") }
-      end
-      return
+    authorize ClientAccount
+    @filterrific = initialize_filterrific(
+        ClientAccount,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select,
+            client_filter: ClientAccount.options_for_client_filter,
+        },
+        persistence_id: false
+    ) or return
+
+    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(20)
+
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
 
-    # Instance variable used by combobox in view to populate name
-    if params[:search_by] == 'name'
-      @clients_for_combobox = ClientAccount.all.order('LOWER(name)')
-    end
-
-    if params[:show] == 'all'
-      @client_accounts =ClientAccount.all.order('LOWER(name)')
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'name'
-          @client_accounts = ClientAccount.find_by_client_id(search_term)
-        when 'boid'
-          @client_accounts = ClientAccount.find_by_boid(search_term)
-        else
-          @client_accounts = []
-      end
-    else
-      @client_accounts = []
-    end
-    @client_accounts = @client_accounts.order(:name).page(params[:page]).per(20) unless @client_accounts.blank?
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /client_accounts/1
   # GET /client_accounts/1.json
   def show
+    authorize @client_account
   end
 
   # GET /client_accounts/new
@@ -48,10 +49,12 @@ class ClientAccountsController < ApplicationController
     @clients_for_combobox = ClientAccount.all.order(:name)
     @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
     @client_account = ClientAccount.new
+    authorize @client_account
   end
 
   # GET /client_accounts/1/edit
   def edit
+    authorize @client_account
     # Instance variable used by combobox in view to populate names for group leader  and referrer selection
     @clients_for_combobox = ClientAccount.all.order(:name)
     @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
@@ -63,6 +66,7 @@ class ClientAccountsController < ApplicationController
   # POST /client_accounts.json
   def create
     @client_account = ClientAccount.new(client_account_params)
+    authorize @client_account
     respond_to do |format|
       if @client_account.save
         format.html { redirect_to @client_account, notice: 'Client account was successfully created.' }
@@ -77,6 +81,7 @@ class ClientAccountsController < ApplicationController
   # PATCH/PUT /client_accounts/1
   # PATCH/PUT /client_accounts/1.json
   def update
+    authorize @client_account
     from_path = params[:from_path]
 
     respond_to do |format|
@@ -100,6 +105,7 @@ class ClientAccountsController < ApplicationController
   # DELETE /client_accounts/1
   # DELETE /client_accounts/1.json
   def destroy
+    authorize @client_account
     @client_account.destroy
     respond_to do |format|
       format.html { redirect_to client_accounts_url, notice: 'Client account was successfully destroyed.' }

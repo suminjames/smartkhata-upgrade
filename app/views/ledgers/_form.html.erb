@@ -8,7 +8,7 @@
     </div>
     <div class="form-inputs row">
       <div class="col-xs-3">
-        <%= f.input :group_id do %>
+        <%= f.input :group_id, label: '* Group' do %>
             <%= f.collection_select(:group_id, Group.all, :id, :name, {prompt: 'Select a group...'}, {:class => 'form-control combobox'}) %>
         <% end %>
 
@@ -18,13 +18,13 @@
     </div>
 
     <% if can_edit_balance %>
-        <div class="form-inputs row">
-          <br>
-          <div class="col-xs-3"><%= f.input :opening_blnc %></div>
-          <div class="col-xs-3">
-            <label><strong>Type </strong></label><%= f.select :opening_blnc_type, options_for_select(Particular.transaction_types) %>
-          </div>
-        </div>
+        <h4>Opening Balance</h4>
+
+          <%= f.fields_for :ledger_balances do |p| %>
+            <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
+          <% end %>
+          <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
+
     <% end %>
     <br><br>
     <div class="form-actions">

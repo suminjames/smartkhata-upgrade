@@ -22,7 +22,7 @@
             <%= hidden_field_tag :search_by, "name" %>
             <%= select_tag "search_term", options_from_collection_for_select(@employees_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select an employee...' %>
           </div>
-          <%= submit_tag "Search", class: 'btn btn-sm btn-primary' %>
+          <%= submit_tag "Search", class: 'btn btn-flat btn-primary' %>
       <% end %>
   </div>
 <% end %>
@@ -58,9 +58,10 @@
               <!--TODO(sarojk): Width of the table columns is being messed up by the following td's adjustment. Fix it: Table flexible-->
               <td>
                 <%= link_to 'view', employee_account_path(x) %> |
-                <%= link_to 'edit information', edit_employee_account_path(x) %> |
-                <%= link_to 'edit access', edit_employee_account_path(x, type: 'ledger_access') %> |
-                <%= link_to 'menu access', edit_employee_account_path(x, type: 'menu_access') %>
+                <%= link_to 'edit information', edit_employee_account_path(x) %>
+                <% if current_user.admin? || (!current_user.blocked_path_list.include? employee_accounts_employee_access_path) %>
+                    | <%= link_to 'edit access', employee_accounts_employee_access_path(id: x.id, type: 'menu_access')   %>
+                <% end %>
               </td>
             </tr>
         <% end %>

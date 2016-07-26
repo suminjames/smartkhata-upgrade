@@ -20,11 +20,11 @@ Rails.application.routes.draw do
   resources :branches
   resources :closeouts
   resources :share_inventories
-  resources :employee_accounts do
-    collection do
-      post :update_menu_access
-    end
-  end
+
+  match "/employee_accounts/employee_access" => "employee_accounts#employee_access", via: [:get]
+  match "/employee_accounts/update_employee_access" => "employee_accounts#update_employee_access", via: [:post]
+
+  resources :employee_accounts
   resources :banks
   resources :settlements do
     collection do
@@ -72,6 +72,8 @@ Rails.application.routes.draw do
   resources :groups
 
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
+  match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
+  match "/ledgers/daybook" => "ledgers#daybook", via: [:get]
 
   resources :ledgers do
     collection do

@@ -17,12 +17,36 @@ class ShareTransactionsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    items_per_page = params[:paginate] == 'false' ? ShareTransaction.by_date(params[:filterrific][:by_date]).count(:all) : 20
+
+    items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ShareTransaction.all.count : 20
     @share_transactions= @filterrific.find.page(params[:page]).per(items_per_page)
+
+    @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
+    @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
+
+    @print_path_pdf_in_regular = share_transactions_path({format:'pdf'}.merge params)
+    @print_path_pdf_in_letter_head =share_transactions_path({format:'pdf', print_in_letter_head: 1}.merge params)
 
     respond_to do |format|
       format.html
       format.js
+      format.pdf do
+        print_in_letter_head = params[:print_in_letter_head].present? ? true : false
+        pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
+        send_data pdf.render, filename:  Reports::Pdf::ShareTransactionsReport.file_name(params[:filterrific]) + '.pdf', type: 'application/pdf'
+      end
+      format.xlsx do
+        report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)
+        if report.generated_successfully?
+          # send_file(report.path, type: report.type)
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
+        else
+          # This should be ideally an ajax notification!
+          # preserve params??
+          redirect_to share_transactions_path, flash: { error: report.error }
+        end
+      end
     end
 
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
@@ -206,7 +230,6 @@ class ShareTransactionsController < ApplicationController
   #   # @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
   # end
 
-  # TODO MOVE THIS TO the index controller
   def deal_cancel
     if params[:id].present?
       from_path = params[:from_path] || deal_cancel_share_transactions_path
