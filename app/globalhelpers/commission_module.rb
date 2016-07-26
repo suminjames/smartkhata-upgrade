@@ -4,7 +4,7 @@ module CommissionModule
 
     if settlement_date >= date_of_commission_rate_update
       case amount
-        when 0..2500
+        when 0..4166.67
           "flat_25"
         when 2501..50000
           "0.60"
@@ -46,6 +46,15 @@ module CommissionModule
     end
   end
 
+
+  # 
+  # get compliance fee to be paid to dhitopatra board
+  # 
+  def compliance_fee(commission, settlement_date)
+    commission * compliance_fee_rate(settlement_date)
+  end  
+
+
   #
   # get broker commission( commission for the broker)
   #
@@ -60,12 +69,24 @@ module CommissionModule
     commission * nepse_commission_rate(settlement_date)
   end
 
+  # 
+  # get commpliance fee rate
+  # 
+  def compliance_fee_rate(settlement_date)
+    if settlement_date >= date_of_commission_rate_update
+      0.006
+    else
+      0
+    end
+  end
+
+
   #
   # broker commission rate on total commission charged from client
   #
   def broker_commission_rate(settlement_date)
     if settlement_date >= date_of_commission_rate_update
-      0.8
+      0.794
     else
       0.75
     end
@@ -84,7 +105,7 @@ module CommissionModule
 
   def date_of_commission_rate_update
     # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
-    Date.parse('2016-7-25')
+    Date.parse('2016-7-24')
   end
 
 end

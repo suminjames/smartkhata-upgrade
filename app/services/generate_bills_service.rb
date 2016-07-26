@@ -26,6 +26,7 @@ class GenerateBillsService
         client_account = transaction.client_account
         commission = transaction.commission_amount
         sales_commission = commission * broker_commission_rate(transaction.date)
+        compliance_fee = compliance_fee(commission, transaction.date)
         tds = commission * broker_commission_rate(transaction.date) * 0.15
         company_symbol = transaction.isin_info.isin
         share_quantity = transaction.raw_quantity
@@ -79,6 +80,7 @@ class GenerateBillsService
         nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
         tds_ledger = Ledger.find_or_create_by!(name: "TDS")
         dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+        compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
 
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
@@ -107,6 +109,7 @@ class GenerateBillsService
 
           process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
           process_accounts(nepse_ledger, voucher, true, nepse_amount, description)
+          process_accounts(compliance_ledger, voucher, true, compliance_fee, description) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
           process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0
@@ -136,6 +139,7 @@ class GenerateBillsService
         else
           process_accounts(client_ledger, voucher, false, transaction.net_amount, description)
           process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description)
+          process_accounts(compliance_ledger, voucher, true, compliance_fee, description) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description)
           process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description) if transaction.dp_fee > 0

@@ -236,6 +236,7 @@ class Files::FloorsheetsController < Files::FilesController
     amount = share_net_amount
     commission = get_commission(amount, settlement_date)
     commission_rate = get_commission_rate(amount, settlement_date)
+    compliance_fee = compliance_fee(commission, settlement_date)
     purchase_commission = broker_commission(commission, settlement_date)
     nepse = nepse_commission(commission, settlement_date)
 
@@ -245,7 +246,7 @@ class Files::FloorsheetsController < Files::FilesController
 
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + purchase_commission + dp
-    @client_dr = (bank_deposit + purchase_commission - tds + dp) if bank_deposit.present?
+    @client_dr = (bank_deposit + purchase_commission + compliance_fee - tds + dp) if bank_deposit.present?
 
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_by(isin: company_symbol)
@@ -299,6 +300,7 @@ class Files::FloorsheetsController < Files::FilesController
       nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
       tds_ledger = Ledger.find_or_create_by!(name: "TDS")
       dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+      compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
 
 
       # update description
@@ -314,6 +316,7 @@ class Files::FloorsheetsController < Files::FilesController
       #TODO replace bill from particulars with bill from voucher
       process_accounts(client_ledger, voucher, true, @client_dr, description, @date)
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, @date)
+      process_accounts(compliance_ledger, voucher, false, compliance_fee, description, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, @date)
       process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, @date)
       process_accounts(dp_ledger, voucher, false, dp, description, @date) if dp > 0
