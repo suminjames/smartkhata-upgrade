@@ -18,7 +18,8 @@ tenant = Tenant.find_or_create_by!(name: "smartkhata", dp_id: '1010')
 tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
 tenant = Tenant.find_or_create_by!(name: "danphe", dp_id: '1010')
 tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
-@tenants = Tenant.all
+# @tenants = Tenant.all
+@tenants = Tenant.second
 
 @admin_users = [
     {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
