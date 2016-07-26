@@ -234,11 +234,11 @@ class Files::FloorsheetsController < Files::FilesController
     # bank_deposit: deposit to nepse
     cgt = 0
     amount = share_net_amount
-    commission = get_commission(amount, settlement_date)
-    commission_rate = get_commission_rate(amount, settlement_date)
-    compliance_fee = compliance_fee(commission, settlement_date)
-    purchase_commission = broker_commission(commission, settlement_date)
-    nepse = nepse_commission(commission, settlement_date)
+    commission = get_commission(amount, @date)
+    commission_rate = get_commission_rate(amount, @date)
+    compliance_fee = compliance_fee(commission, @date)
+    purchase_commission = broker_commission(commission, @date)
+    nepse = nepse_commission(commission, @date)
 
     tds = purchase_commission * 0.15
     sebon = amount * 0.00015
