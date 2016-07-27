@@ -6,7 +6,7 @@
     end
   %>
   <h5>
-    <%= link_to 'Search by Ledger Name', ledgers_path(search_by: "ledger_name"), {:class => (is_active_sub_menu_option("ledger_name") ? "active-link" : "")} %>
+    <%= link_to 'Search by Ledger Name', ledgers_path(search_by: "ledger_name"), {:data => {:turbolinks => false}, :class => (is_active_sub_menu_option("ledger_name") ? "active-link" : "")} %>
     |
     <%= link_to "All Ledgers", ledgers_path(show: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
     |
