@@ -42,7 +42,7 @@ voucher_<%= n %>:
 
 voucher_pending:
   fy_code: 7273
-  voucher_number: 2930
+  voucher_number: 2910
   date: '2070-12-12'
   date_bs: '2013-09-24'
   voucher_type: 0
