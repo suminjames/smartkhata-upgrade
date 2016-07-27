@@ -225,7 +225,14 @@ class CreateSmsService
 
       share_quantity_rate_message[0] = ""
       sms_message = ""
-      if has_sales_transaction
+
+      # incase of sales transaction @bill comes as nil
+      # so we need to grab the bill
+      if bill_id.present?
+        @bill ||= Bill.unscoped.find(bill_id)
+      end
+
+      if has_sales_transaction && !@bill.present?
         sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}"
       else
         # if bill is present which is true for the case of changing the message
