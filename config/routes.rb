@@ -67,6 +67,7 @@ Rails.application.routes.draw do
       post 'send_sms'
       post 'send_email'
       post 'sent_status'
+      post 'create_multiple'
     end
   end
   resources :groups
