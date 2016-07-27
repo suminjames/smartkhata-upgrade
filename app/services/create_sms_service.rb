@@ -195,7 +195,7 @@ class CreateSmsService
       full_bill_number = info[:full_bill_number]
       transaction_data = v[:data]
 
-      has_sales_transaction = false
+      has_purchase_transaction = false
 
       share_quantity_rate_message = ""
       total = 0.0
@@ -207,7 +207,9 @@ class CreateSmsService
           str += ";#{symbol}"
           symbol_data.each do |rate, rate_data|
             str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
-            total += rate_data[:receivable_from_client].to_f
+            if type_of_transaction == :buy
+              total += rate_data[:receivable_from_client].to_f
+            end
             # merge two arrays
             share_transactions |= rate_data[:share_transactions]
           end
@@ -216,9 +218,9 @@ class CreateSmsService
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
         if type_of_transaction == :sell
-          has_sales_transaction = true
           share_quantity_rate_message += ";sold #{str}"
         else
+          has_purchase_transaction = true
           share_quantity_rate_message += ";bought #{str}"
         end
       end
@@ -226,13 +228,7 @@ class CreateSmsService
       share_quantity_rate_message[0] = ""
       sms_message = ""
 
-      # incase of sales transaction @bill comes as nil
-      # so we need to grab the bill
-      if bill_id.present?
-        @bill ||= Bill.unscoped.find(bill_id)
-      end
-
-      if has_sales_transaction && !@bill.present?
+      if !has_purchase_transaction
         sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}"
       else
         # if bill is present which is true for the case of changing the message
