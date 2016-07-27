@@ -119,6 +119,22 @@ class TransactionMessagesController < ApplicationController
     end
   end
 
+
+  def create_multiple
+    transaction_date = params[:transaction_date]
+    error_msg = "Error creating the transaction message"
+    if transaction_date.present?
+      create_sms_result = CreateSmsService.new(transaction_date: transaction_date, broker_code: current_tenant.broker_code)
+      create_sms_result.create_by_floorsheet_date
+      unless create_sms_result.error.present?
+        redirect_to transaction_messages_path(:no_paginate => true, 'filterrific[by_date]': ad_to_bs(transaction_date)) and return
+      end
+      error_msg = create_sms_result.error
+    end
+
+    redirect_to transaction_messages_path, :flash => { :error => error_msg  }
+  end
+
   # PATCH/PUT /transaction_messages/1
   # PATCH/PUT /transaction_messages/1.json
   def update

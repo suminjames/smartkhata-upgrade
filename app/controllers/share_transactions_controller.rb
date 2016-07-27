@@ -8,6 +8,11 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
+    # this case is for the viewing of transaction by floorsheet date
+    if params[:filterrific].present? &&  params[:filterrific][:by_date].present?
+      @transaction_date = bs_to_ad(params[:filterrific][:by_date])
+    end
+
     @filterrific = initialize_filterrific(
         ShareTransaction,
         params[:filterrific],
@@ -19,7 +24,7 @@ class ShareTransactionsController < ApplicationController
     ) or return
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ShareTransaction.all.count : 20
-    @share_transactions= @filterrific.find.page(params[:page]).per(items_per_page)
+    @share_transactions= @filterrific.find.includes(:isin_info, :bill).page(params[:page]).per(items_per_page)
 
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
