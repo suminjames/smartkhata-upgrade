@@ -139,17 +139,18 @@ class Ledgers::ParticularEntry
       end
     end
 
-    ledger_blnc_org = LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: nil)
-    ledger_blnc_cost_center =  LedgerBalance.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, branch_id: branch_id)
+
+    ledger_blnc_org = LedgerBalance.by_branch_fy_code(0,fy_code).find_or_create_by!(ledger_id: ledger.id)
+    ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
-    daily_report_cost_center = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: branch_id) do |l|
+    daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
     end
-    daily_report_org = LedgerDaily.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, branch_id: nil) do |l|
+    daily_report_org = LedgerDaily.by_branch_fy_code(0,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
     end

@@ -26,3 +26,4 @@ class SalesSettlement < ActiveRecord::Base
     self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
   end
 end
+  
