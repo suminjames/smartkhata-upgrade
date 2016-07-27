@@ -9,6 +9,7 @@ end
 class CreateSmsService
   include CustomDateModule
   include NumberFormatterModule
+  attr_accessor :error
 
   def initialize(attrs = {})
     @floorsheet_records = attrs[:floorsheet_records]
@@ -21,6 +22,7 @@ class CreateSmsService
     # since the amount to receive/ pay is dependent on bill
     # this is required when bill is being changed
     @bill = attrs[:bill]
+    @error = nil
     # floorsheet_records =[
     # 	Contract No.,
     # 	Symbol,
@@ -49,6 +51,22 @@ class CreateSmsService
   def process
     group_floorsheet_records
   end
+
+  # create transaction message by floorsheet date
+  def create_by_floorsheet_date
+    # check if transaction message is created for the floorsheet date
+    count_of_messages = TransactionMessage.where(transaction_date: @transaction_date).count
+    if count_of_messages > 0
+      @error = "The Transaction Messages are already created for the date #{ad_to_bs(@transaction_date)}"
+      return
+    end
+
+    share_transactions = ShareTransaction.where(date: @transaction_date).not_cancelled
+    group_share_transaction_records(share_transactions)
+    transaction_messages =iterate_grouped_transactions(@grouped_records)
+    transaction_messages.each(&:save)
+  end
+
 
   def change_message
     res = false

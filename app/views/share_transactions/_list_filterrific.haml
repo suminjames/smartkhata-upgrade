@@ -22,6 +22,8 @@
             = link_to 'in Regular', @print_path_pdf_in_regular
           %li
             = link_to 'in Letter-head', @print_path_pdf_in_letter_head
+      - if @transaction_date.present?
+        = link_to "Create Transaction Message", create_multiple_transaction_messages_path(transaction_date: @transaction_date), {data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Creating..." } , method: :post, class: "btn btn-sm btn-default"}
 
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
