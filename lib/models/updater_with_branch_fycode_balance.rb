@@ -16,21 +16,22 @@ module Models::UpdaterWithBranchFycodeBalance
       scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
 
-      # scope based on the branch and fycode selection
-      default_scope do
-        if UserSession.selected_branch_id == 0
-          where(fy_code: UserSession.selected_fy_code)
-        else
-          where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-        end
-      end
+      # # scope based on the branch and fycode selection
+      # default_scope do
+      #   if UserSession.selected_branch_id == 0
+      #     where(fy_code: UserSession.selected_fy_code)
+      #   else
+      #     where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+      #   end
+      # end
 
       # for non balance records
+      # TODO(SUBAS) stupid mistake of using scope here
       scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
         if branch_id == 0
-          unscoped.where(fy_code: fy_code)
+          where(fy_code: fy_code)
         else
-          unscoped.where(branch_id: branch_id, fy_code: fy_code)
+          where(branch_id: branch_id, fy_code: fy_code)
         end
       end
 

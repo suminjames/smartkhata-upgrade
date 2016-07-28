@@ -145,7 +145,7 @@ class Files::FloorsheetsController < Files::FilesController
       @raw_data.each do |arr|
         @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
       end
-      create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
+      # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: @@file_type, report_date: @date)
     end
 
@@ -241,10 +241,11 @@ class Files::FloorsheetsController < Files::FilesController
     # bank_deposit: deposit to nepse
     cgt = 0
     amount = share_net_amount
-    commission = get_commission(amount, settlement_date)
-    commission_rate = get_commission_rate(amount, settlement_date)
-    purchase_commission = broker_commission(commission, settlement_date)
-    nepse = nepse_commission(commission, settlement_date)
+    commission = get_commission(amount, @date)
+    commission_rate = get_commission_rate(amount, @date)
+    compliance_fee = compliance_fee(commission, @date)
+    purchase_commission = broker_commission(commission, @date)
+    nepse = nepse_commission(commission, @date)
 
     tds = purchase_commission * 0.15
     sebon = amount * 0.00015
@@ -252,7 +253,7 @@ class Files::FloorsheetsController < Files::FilesController
 
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + purchase_commission + dp
-    @client_dr = (bank_deposit + purchase_commission - tds + dp) if bank_deposit.present?
+    @client_dr = (bank_deposit + purchase_commission + compliance_fee - tds + dp) if bank_deposit.present?
 
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_by(isin: company_symbol)
@@ -305,6 +306,7 @@ class Files::FloorsheetsController < Files::FilesController
       nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
       tds_ledger = Ledger.find_or_create_by!(name: "TDS")
       dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+      compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
 
 
       # update description
@@ -322,6 +324,7 @@ class Files::FloorsheetsController < Files::FilesController
       #TODO replace bill from particulars with bill from voucher
       process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date)
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date)
+      process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date)
       process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, client_branch_id, @date)
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date) if dp > 0

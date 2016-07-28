@@ -9,6 +9,7 @@ end
 class CreateSmsService
   include CustomDateModule
   include NumberFormatterModule
+  attr_accessor :error
 
   def initialize(attrs = {})
     @floorsheet_records = attrs[:floorsheet_records]
@@ -21,6 +22,7 @@ class CreateSmsService
     # since the amount to receive/ pay is dependent on bill
     # this is required when bill is being changed
     @bill = attrs[:bill]
+    @error = nil
     # floorsheet_records =[
     # 	Contract No.,
     # 	Symbol,
@@ -49,6 +51,22 @@ class CreateSmsService
   def process
     group_floorsheet_records
   end
+
+  # create transaction message by floorsheet date
+  def create_by_floorsheet_date
+    # check if transaction message is created for the floorsheet date
+    count_of_messages = TransactionMessage.where(transaction_date: @transaction_date).count
+    if count_of_messages > 0
+      @error = "The Transaction Messages are already created for the date #{ad_to_bs(@transaction_date)}"
+      return
+    end
+
+    share_transactions = ShareTransaction.where(date: @transaction_date).not_cancelled
+    group_share_transaction_records(share_transactions)
+    transaction_messages =iterate_grouped_transactions(@grouped_records)
+    transaction_messages.each(&:save)
+  end
+
 
   def change_message
     res = false
@@ -195,7 +213,7 @@ class CreateSmsService
       full_bill_number = info[:full_bill_number]
       transaction_data = v[:data]
 
-      has_sales_transaction = false
+      has_purchase_transaction = false
 
       share_quantity_rate_message = ""
       total = 0.0
@@ -207,7 +225,9 @@ class CreateSmsService
           str += ";#{symbol}"
           symbol_data.each do |rate, rate_data|
             str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
-            total += rate_data[:receivable_from_client].to_f
+            if type_of_transaction == :buy
+              total += rate_data[:receivable_from_client].to_f
+            end
             # merge two arrays
             share_transactions |= rate_data[:share_transactions]
           end
@@ -216,16 +236,17 @@ class CreateSmsService
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
         if type_of_transaction == :sell
-          has_sales_transaction = true
           share_quantity_rate_message += ";sold #{str}"
         else
+          has_purchase_transaction = true
           share_quantity_rate_message += ";bought #{str}"
         end
       end
 
       share_quantity_rate_message[0] = ""
       sms_message = ""
-      if has_sales_transaction
+
+      if !has_purchase_transaction
         sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}"
       else
         # if bill is present which is true for the case of changing the message

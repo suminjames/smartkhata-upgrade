@@ -1,12 +1,12 @@
 module CommissionModule
 
-  def get_commission_rate(amount, settlement_date)
+  def get_commission_rate(amount, transaction_date)
 
-    if settlement_date >= date_of_commission_rate_update
+    if transaction_date >= date_of_commission_rate_update
       case amount
-        when 0..2500
+        when 0..4166.67
           "flat_25"
-        when 2501..50000
+        when 4166.68..50000
           "0.60"
         when 50001..500000
           "0.55"
@@ -33,8 +33,8 @@ module CommissionModule
     end
   end
 
-  def get_commission(amount, settlement_date)
-    commission_rate = get_commission_rate(amount, settlement_date)
+  def get_commission(amount, transaction_date)
+    commission_rate = get_commission_rate(amount, transaction_date)
     get_commission_by_rate(commission_rate, amount)
   end
 
@@ -46,26 +46,47 @@ module CommissionModule
     end
   end
 
+
+  # 
+  # get compliance fee to be paid to dhitopatra board
+  # 
+  def compliance_fee(commission, transaction_date)
+    commission * compliance_fee_rate(transaction_date)
+  end  
+
+
   #
   # get broker commission( commission for the broker)
   #
-  def broker_commission(commission, settlement_date)
-    commission * broker_commission_rate(settlement_date)
+  def broker_commission(commission, transaction_date)
+    commission * broker_commission_rate(transaction_date)
   end
 
   #
   #   get nepse commission
   #
-  def nepse_commission(commission, settlement_date)
-    commission * nepse_commission_rate(settlement_date)
+  def nepse_commission(commission, transaction_date)
+    commission * nepse_commission_rate(transaction_date)
   end
+
+  # 
+  # get commpliance fee rate
+  # 
+  def compliance_fee_rate(transaction_date)
+    if transaction_date >= date_of_commission_rate_update
+      0.006
+    else
+      0
+    end
+  end
+
 
   #
   # broker commission rate on total commission charged from client
   #
-  def broker_commission_rate(settlement_date)
-    if settlement_date >= date_of_commission_rate_update
-      0.8
+  def broker_commission_rate(transaction_date)
+    if transaction_date >= date_of_commission_rate_update
+      0.794
     else
       0.75
     end
@@ -74,8 +95,8 @@ module CommissionModule
   #
   # nepse commission rate on total commission charged from client
   #
-  def nepse_commission_rate(settlement_date)
-    if settlement_date >= date_of_commission_rate_update
+  def nepse_commission_rate(transaction_date)
+    if transaction_date >= date_of_commission_rate_update
       0.2
     else
       0.25
@@ -84,7 +105,7 @@ module CommissionModule
 
   def date_of_commission_rate_update
     # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
-    Date.parse('2016-7-25')
+    Date.parse('2016-7-24')
   end
 
 end
