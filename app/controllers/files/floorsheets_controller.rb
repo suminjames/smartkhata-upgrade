@@ -114,6 +114,7 @@ class Files::FloorsheetsController < Files::FilesController
         @total_amount_file = 0
         company_symbol = row_data[1]
         client_name = row_data[4]
+        client_nepse_code = row_data[5].upcase
         bank_deposit = row_data[10]
 
       else
@@ -122,6 +123,7 @@ class Files::FloorsheetsController < Files::FilesController
         @total_amount_file = @raw_data.map { |d| d[8].to_f }.reduce(0, :+)
         company_symbol = row_data[7]
         client_name = row_data[12]
+        client_nepse_code = row_data[15].upcase
         bank_deposit = row_data[26]
       end
 
@@ -130,9 +132,9 @@ class Files::FloorsheetsController < Files::FilesController
 
 
       if bank_deposit.nil?
-        hash_dp_count[client_name.to_s+company_symbol.to_s+'selling'] += 1
+        hash_dp_count[client_nepse_code+company_symbol.to_s+'selling'] += 1
       else
-        hash_dp_count[client_name.to_s+company_symbol.to_s+'buying'] += 1
+        hash_dp_count[client_nepse_code+company_symbol.to_s+'buying'] += 1
       end
 
     end
@@ -191,7 +193,7 @@ class Files::FloorsheetsController < Files::FilesController
 
 
     # TODO(Subas) remove this code block to take only the mapped user list
-    client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code.upcase) do |client|
+    client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
       client.name = client_name.titleize
     end
 
@@ -213,17 +215,17 @@ class Files::FloorsheetsController < Files::FilesController
     # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
     if bank_deposit.nil?
-      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'selling']
+      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
       type_of_transaction = ShareTransaction.transaction_types['selling']
     else
       is_purchase = true
       # create or find a bill by the number
-      dp = 25.0 / hash_dp_count[client_name.to_s+company_symbol.to_s+'buying']
+      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
       # group all the share transactions for a client for the day
-      if hash_dp.key?(client_name.to_s+'buying')
-        bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[client_name.to_s+'buying'], fy_code: fy_code, date: @date, client_account_id: client.id)
+      if hash_dp.key?(client_nepse_code+'buying')
+        bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[client_nepse_code+'buying'], fy_code: fy_code, date: @date, client_account_id: client.id)
       else
-        hash_dp[client_name.to_s+'buying'] = @bill_number
+        hash_dp[client_nepse_code+'buying'] = @bill_number
         bill = Bill.unscoped.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name

@@ -1,29 +1,34 @@
 <p id="notice"><%= notice %></p>
+<% provide(:section_title, "Listing Vendor Accounts") %>
 
-<h1>Listing Vendor Accounts</h1>
-<%= link_to 'New Vendor account', new_vendor_account_path %>
-<table class="table">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Address</th>
-    <th>Phone number</th>
-  </tr>
-  </thead>
+<% if @vendor_accounts.present? %>
+  <%= link_to 'New Vendor account', new_vendor_account_path %>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Phone number</th>
+      <th></th>
+      <th></th>
+    </tr>
+    </thead>
 
-  <tbody>
-  <% @vendor_accounts.each do |vendor_account| %>
-      <tr>
-        <td><%= vendor_account.name %></td>
-        <td><%= vendor_account.address %></td>
-        <td><%= vendor_account.phone_number %></td>
-        <td><%= link_to 'Show', vendor_account %></td>
-        <td><%= link_to 'Edit', edit_vendor_account_path(vendor_account) %></td>
-      </tr>
-  <% end %>
-  </tbody>
-</table>
-
-<br>
+    <tbody>
+    <% @vendor_accounts.each do |vendor_account| %>
+        <tr>
+          <td><%= vendor_account.name %></td>
+          <td><%= vendor_account.address %></td>
+          <td><%= vendor_account.phone_number %></td>
+          <td><%= link_to 'Show', vendor_account %></td>
+          <td><%= link_to 'Edit', edit_vendor_account_path(vendor_account) %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <br>
+<% else %>
+  <div>No vendor accounts registered.</div>
+<% end %>
 
 <%= link_to 'New Vendor account', new_vendor_account_path %>
