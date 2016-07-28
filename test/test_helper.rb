@@ -36,7 +36,8 @@ class ActiveSupport::TestCase
     assert obj.include?(exp_substr), msg
   end
 
-  # Asserts that an (active record) object is invalid when given attribute(s) are set to given (or blank) value(s)
+  # Asserts that an (AR) object is invalid when given attribute(s) are set to given (or blank) value(s)
+  # Does not test multiple attributes for multiple values, as that is done through multiple tests
   def assert_invalid(record, attribute, value='  ')
     assign_and_assert = lambda { |attr, val|
       # Dynamic dispatch!
@@ -50,6 +51,17 @@ class ActiveSupport::TestCase
       # Test multiple values for a single attribute
       value.each { |val| assign_and_assert.call(attribute, val) }
     end
+  end
+
+  # Sets the branch and fycode into the session from the given (AR) object
+  def set_fy_code_and_branch_from(record)
+    set_fy_code(record.fy_code)
+    UserSession.selected_branch_id = session[:user_selected_branch_id] = record.branch_id
+  end
+
+  # Sets the given fycode into the session
+  def set_fy_code(fy_code)
+    UserSession.selected_fy_code = session[:user_selected_fy_code] = fy_code
   end
 end
 

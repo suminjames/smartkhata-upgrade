@@ -1,12 +1,13 @@
-=begin
 require 'test_helper'
 
 class TransactionMessagesControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @transaction_message = transaction_messages(:one)
   end
 
   test "should get index" do
+    # debugger
     get :index
     assert_response :success
     assert_not_nil assigns(:transaction_messages)
@@ -41,11 +42,11 @@ class TransactionMessagesControllerTest < ActionController::TestCase
   end
 
   test "should destroy transaction_message" do
+    deletable_transaction_message = transaction_messages(:two)
     assert_difference('TransactionMessage.count', -1) do
-      delete :destroy, id: @transaction_message
+      delete :destroy, id: deletable_transaction_message
     end
 
     assert_redirected_to transaction_messages_path
   end
 end
-=end

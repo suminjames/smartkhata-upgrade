@@ -3,6 +3,7 @@ require 'test_helper'
 
 class ShareTransactionsControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @share_transaction = share_transactions(:one)
   end
 

@@ -6,7 +6,7 @@ class Files::FloorsheetsControllerTest < ActionController::TestCase
     # NEED TO CHANGE THE FISCAL YEAR!!!
     @user = users(:user)
     # setup relevant fycode
-    UserSession.selected_fy_code = session[:user_selected_fy_code] = 7273
+    set_fy_code 7273
     @post_action = Proc.new { | test_type, sample_file |
       file_type = 'text/xls'
       file_path = case test_type

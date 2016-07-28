@@ -1,8 +1,9 @@
-=begin
+
 require 'test_helper'
 
 class VendorAccountsControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @vendor_account = vendor_accounts(:one)
   end
 
@@ -48,4 +49,3 @@ class VendorAccountsControllerTest < ActionController::TestCase
     assert_redirected_to vendor_accounts_path
   end
 end
-=end

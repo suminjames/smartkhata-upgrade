@@ -59,7 +59,7 @@ one:
   cgt: 0.0
   net_amount: 152658.9375
   bank_deposit: 151766.1406
-  transaction_type: 0
+  transaction_type: 0 #buying
   settlement_id: nil
   base_price: 0.0
   amount_receivable: 0.0
@@ -95,7 +95,7 @@ two:
   cgt: 0.0
   net_amount: 668407.0214
   bank_deposit: 665022.15
-  transaction_type: 0
+  transaction_type: 0 #buying
   settlement_id: nil
   base_price: 0.0
   amount_receivable: 0.0
@@ -133,7 +133,6 @@ three:
   cgt: 0.0
   net_amount: 668407.0214
   bank_deposit: 665022.15
-  transaction_type: 0
   settlement_id: nil
   base_price: 0.0
   amount_receivable: 0.0
@@ -152,4 +151,3 @@ three:
   voucher_id: 2
   client_account: two
   isin_info: two
-  transaction_type: 1

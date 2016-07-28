@@ -10,8 +10,7 @@ class BillsControllerTest < ActionController::TestCase
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
     # set selected fy_code as in the bill to test
-    UserSession.selected_fy_code = session[:user_selected_fy_code] = @bill.fy_code
-    # UserSession.selected_branch_id = session[:user_selected_branch_id]
+    set_fy_code_and_branch_from @bill
 
     @assert_via_get = Proc.new {|action, bill|
       get action, id: bill

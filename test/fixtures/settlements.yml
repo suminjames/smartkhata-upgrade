@@ -29,7 +29,11 @@ one:
   date_bs: MyString
   description: MyString
   settlement_type: MyString
-  voucher_id:
+  voucher: voucher_0
+  settlement_number: 9999
+  fy_code: 7273
+  # branch: two #not working?
+  branch_id: 2
 
 two:
   name: MyString
@@ -37,4 +41,6 @@ two:
   date_bs: MyString
   description: MyString
   settlement_type: MyString
-  voucher_id:
+  voucher: voucher_1
+  fy_code: 7273
+  branch: one

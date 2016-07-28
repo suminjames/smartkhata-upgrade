@@ -36,8 +36,8 @@ voucher_<%= n %>:
   #  beneficiary_name :string
   voucher_type: <%= n %>
   voucher_status: 1
-  #  branch_id        :integer
-  #  is_payment_bank  :boolean
+  # branch: two
+  branch_id: 2
 <% end %>
 
 voucher_pending:
@@ -47,3 +47,5 @@ voucher_pending:
   date_bs: '2013-09-24'
   voucher_type: 0
   voucher_status: 0 #pending
+  # branch: two
+  branch_id: 2

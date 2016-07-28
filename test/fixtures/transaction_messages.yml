@@ -25,13 +25,13 @@ one:
   transaction_date: 2016-06-08
   sms_status: 1
   email_status: 1
-  bill_id: 
-  client_account_id: 
+  bill: one
+  client_account: one
 
 two:
   sms_message: MyString
   transaction_date: 2016-06-08
   sms_status: 1
   email_status: 1
-  bill_id: 
-  client_account_id: 
+  bill: two
+  client_account: two

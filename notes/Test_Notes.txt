@@ -1,8 +1,8 @@
 Git.Merge.each::after DO
     Note: Relevant tests often need to evolve with changes in the application code
 
-    I. Integration testing [Roughly Done]
-        a. Basic App flow
+    I. Integration testing
+        a. Basic App flow [Roughly Done]
             1. Add Bank
                 1.1. Add Bank Account
                     -of existing bank
@@ -37,8 +37,8 @@ Git.Merge.each::after DO
             8. Upload Order
                 -re-upload the same order file
 
-    II. Functional testing [HALTED]
-        -Roughly Completed (basic cases):
+    II. Functional testing [Not complete]
+        - Controllers covered: (tests actions, methods)
             Application,
             Banks,
             Bank accounts,
@@ -51,11 +51,15 @@ Git.Merge.each::after DO
             Client accounts,
             Employee accounts,
             Ledgers,
+            Particulars,
             Vouchers,
-            Dashboard
+            Dashboard,
+            Employee ledger association,
+            General settings,
+            Nepse Chalan
 
-    III. Unit Testing [HALTED]
-        -Roughly Completed (basic cases):
+    III. Unit Testing [Not complete]
+        - Models covered: (tests validations. Methods tests for relevant models/methods only. No association tests)
             Bank,
             Bank account,
             Cheque entry,
@@ -63,7 +67,9 @@ Git.Merge.each::after DO
             Branch,
             Client account,
             Employee account,
-            Ledger
+            Ledger,
+            Particular,
+            Group
 
     IV. Interface Testing [?]
         <Section headers, links, relevant texts, menu, ..>

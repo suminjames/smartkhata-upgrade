@@ -1,9 +1,13 @@
-=begin
 require 'test_helper'
 
 class SettlementsControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @settlement = settlements(:one)
+    # provide current tenant
+    @request.host = 'trishakti.lvh.me'
+
+    set_fy_code_and_branch_from @settlement
   end
 
   test "should get index" do
@@ -48,4 +52,3 @@ class SettlementsControllerTest < ActionController::TestCase
     assert_redirected_to settlements_path
   end
 end
-=end

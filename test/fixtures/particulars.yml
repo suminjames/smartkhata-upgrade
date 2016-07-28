@@ -38,6 +38,11 @@
 #
 one:
   amount: 5000
+  fy_code: 7273
+  branch: one
 
-two: {}
+two:
+  amount: 100
+  fy_code: 7273
+  branch: one
 #  column: value

@@ -13,8 +13,7 @@ class VouchersControllerTest < ActionController::TestCase
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
     # set a fixed fy_code to test with relevant date
-    UserSession.selected_fy_code = session[:user_selected_fy_code] = @voucher.fy_code
-    # UserSession.selected_fy_code = session[:user_selected_fy_code] = 7273
+    set_fy_code_and_branch_from @voucher
 
     @assert_block_via_get = lambda { |action|
       get action, id: @voucher
@@ -187,7 +186,6 @@ class VouchersControllerTest < ActionController::TestCase
 
   # Updating voucher should not be allowed !?
   test "should update voucher" do
-    # UserSession.selected_fy_code = session[:user_selected_fy_code] = @voucher.fy_code
     assert_not_equal '2073-03-03', @voucher.date_bs
     patch :update, id: @voucher, voucher: { date_bs: '2073-03-03'}
     assert_redirected_to voucher_path(assigns(:voucher))
@@ -197,8 +195,9 @@ class VouchersControllerTest < ActionController::TestCase
   end
 
   test "should destroy voucher" do
+    deletable_voucher = vouchers(:voucher_2)
     assert_difference 'Voucher.count', -1 do
-      delete :destroy, id: @voucher
+      delete :destroy, id: deletable_voucher
     end
     assert_equal "Voucher was successfully destroyed.", flash[:notice]
     assert_redirected_to vouchers_path
