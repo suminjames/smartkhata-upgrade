@@ -78,6 +78,7 @@ one:
   state_perm: foo-state
   country_perm: foo-country
   nepse_code: 99999
+  email: dedra@example.com
   # mobile_number: '9800000000'
   #  boid                      :string
   #  client_type               :integer          default("0")
@@ -104,7 +105,6 @@ one:
   #  income_code               :string
   #  electronic_dividend       :string
   #  dividend_curr             :string
-  #  email                     :string
   #  father_mother             :string
   #  citizen_passport          :string
   #  granfather_father_inlaw   :string

@@ -184,7 +184,6 @@ class VouchersControllerTest < ActionController::TestCase
     @assert_block_via_get.call(:show)
   end
 
-  # Updating voucher should not be allowed !?
   test "should update voucher" do
     assert_not_equal '2073-03-03', @voucher.date_bs
     patch :update, id: @voucher, voucher: { date_bs: '2073-03-03'}

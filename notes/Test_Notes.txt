@@ -54,9 +54,10 @@ Git.Merge.each::after DO
             Particulars,
             Vouchers,
             Dashboard,
-            Employee ledger association,
+            Employee ledger associations,
             General settings,
-            Nepse Chalan
+            Nepse Chalans,
+            Orders
 
     III. Unit Testing [Not complete]
         - Models covered: (tests validations. Methods tests for relevant models/methods only. No association tests)

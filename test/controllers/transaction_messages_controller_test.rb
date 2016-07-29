@@ -3,7 +3,9 @@ require 'test_helper'
 class TransactionMessagesControllerTest < ActionController::TestCase
   setup do
     sign_in users(:user)
+    @request.host = 'trishakti.lvh.me'
     @transaction_message = transaction_messages(:one)
+    @another_transaction_message = transaction_messages(:two)
   end
 
   test "should get index" do
@@ -22,7 +24,6 @@ class TransactionMessagesControllerTest < ActionController::TestCase
     assert_difference('TransactionMessage.count') do
       post :create, transaction_message: { bill_id: @transaction_message.bill_id, client_account_id: @transaction_message.client_account_id, email_status: @transaction_message.email_status, sms_message: @transaction_message.sms_message, sms_status: @transaction_message.sms_status, transaction_date: @transaction_message.transaction_date }
     end
-
     assert_redirected_to transaction_message_path(assigns(:transaction_message))
   end
 
@@ -46,7 +47,14 @@ class TransactionMessagesControllerTest < ActionController::TestCase
     assert_difference('TransactionMessage.count', -1) do
       delete :destroy, id: deletable_transaction_message
     end
-
     assert_redirected_to transaction_messages_path
   end
+
+  # testing custom methods # send_mail
+  # test "should send email" do
+  #   assert_difference('ActionMailer::Base.deliveries.size', 1) do
+  #     # generates redis (connection refused) error
+  #     post :send_email, transaction_message_ids: [@transaction_message.id, @another_transaction_message.id]
+  #   end
+  # end
 end

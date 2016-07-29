@@ -75,10 +75,11 @@ one:
   creator_id: 1
   updater_id: 1
   branch_id: 1
-  voucher_id: 1
+  voucher: voucher_0
   client_account: one
   isin_info: one
   bill: one
+  transaction_message: one
 
 two:
   contract_no: 201605103284672
@@ -111,10 +112,11 @@ two:
   creator_id: 1
   updater_id: 1
   branch_id: 1
-  voucher_id: 2
+  voucher: voucher_1
   client_account: two
   isin_info: two
   bill: two
+  transaction_message: two
 
 # no bill associated
 three:
