@@ -31,3 +31,33 @@ a.no-hover:hover{
 .refresh-icon {
   cursor: pointer;
 }
+
+.sms-indicator {
+  border-left-style: solid;
+  border-left-width: 0.5em;
+}
+.sms-sent {
+  border-left-color: #0ce291;
+}
+.sms-unsent {
+  border-left-color: yellow;
+}
+.sms-cant-send {
+  border-left-color: red;
+}
+.box-sm {
+  width: 1em;
+  height: 1.2em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #acacac;
+}
+.sms-sent-index{
+  background-color: #0ce291;
+}
+.sms-unsent-index{
+  background-color: yellow;
+}
+.sms-cant-send-index{
+  background-color: red;
+}
