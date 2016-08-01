@@ -13,13 +13,13 @@ else
     if [ "$option" == "-p" ]; then
         printf 'Sending SMS...\n'
         curl -s http://api.sparrowsms.com/v2/sms/ \
-             -F token='d1QYg28Hxw80xapxpsFA' \
+             -F token='Q2qMoJIpim0AgFn34WUz'\
              -F from='Demo' \
              -F to='9851153385' \
-             -F text='SMS Test from Trishakti Securities.'
+             -F text='SMS Test from support@danpheinfotech.com %40.'
     elif [ "$option" == "-b" ]; then
         printf 'Checking balance...\n'
-        curl http://api.sparrowsms.com/v2/credit/?token=d1QYg28Hxw80xapxpsFA
+        curl http://api.sparrowsms.com/v2/credit/?token=Q2qMoJIpim0AgFn34WUz
     else
         printf 'Invalid Option.\n'
     fi

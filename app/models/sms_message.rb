@@ -80,7 +80,7 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.sparrow_send
-    token = 'd1QYg28Hxw80xapxpsFA'
+    token = 'Q2qMoJIpim0AgFn34WUz'
     from = 'Demo'
     to = '9851153385'
     text = 'Hello@%40'
