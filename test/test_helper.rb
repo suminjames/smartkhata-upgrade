@@ -54,14 +54,16 @@ class ActiveSupport::TestCase
   end
 
   # Sets the branch and fycode into the session from the given (AR) object
-  def set_fy_code_and_branch_from(record)
-    set_fy_code(record.fy_code)
-    UserSession.selected_branch_id = session[:user_selected_branch_id] = record.branch_id
+  def set_fy_code_and_branch_from(record, unit_test=false)
+    set_fy_code(record.fy_code, unit_test)
+    UserSession.selected_branch_id = record.branch_id
+    session[:user_selected_branch_id] = record.branch_id unless unit_test
   end
 
   # Sets the given fycode into the session
-  def set_fy_code(fy_code)
-    UserSession.selected_fy_code = session[:user_selected_fy_code] = fy_code
+  def set_fy_code(fy_code, unit_test=false)
+    UserSession.selected_fy_code = fy_code
+    session[:user_selected_fy_code] = fy_code unless unit_test
   end
 end
 

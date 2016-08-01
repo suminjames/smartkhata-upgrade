@@ -75,8 +75,7 @@ class ShareTransactionsControllerTest < ActionController::TestCase
     # fourth step: goto pending deal cancel path
     get :pending_deal_cancel
     ['date.to_s', 'contract_no.to_s', 'client_account.name', 'quantity.to_s'].each do |attr|
-      expected_data = attr.include?('.') ? transaction.send(attr.split('.')[0]).send(attr.split('.')[1]) : transaction.send(attr)
-      # expected_data = transaction.send(attr)
+      expected_data = attr.split('.').inject(transaction, :send)
       assert_match expected_data, response.body
     end
     ['approve', 'reject'].each do |action|
