@@ -66,8 +66,14 @@ class Files::FloorsheetsController < Files::FilesController
 
     file_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
     # fiscal year and date should match
-    file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
-    
+    # file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
+    unless date_valid_for_fy_code(@date)
+      respond_to do |format|
+        flash[:error] = "Please change the fiscal year."
+        format.html { redirect_to action: 'new' and return }
+      end
+    end
+
     # do not reprocess file if it is already uploaded
     floorsheet_file = FileUpload.find_by(file_type: @@file_type, report_date: @date)
     # raise soft error and return if the file is already uploaded

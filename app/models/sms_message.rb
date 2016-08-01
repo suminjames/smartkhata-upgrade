@@ -42,7 +42,7 @@ class SmsMessage < ActiveRecord::Base
       ]
   )
 
-  scope :by_sms_message_type, -> (type) { where(:sms_type=> SmsMessage.sms_types[type]).order(id: :desc) }
+  scope :by_sms_message_type, -> (type) { where(:sms_type => SmsMessage.sms_types[type]).order(id: :desc) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -133,7 +133,7 @@ class SmsMessage < ActiveRecord::Base
   def self.send_hello_world
     self.date_time
     self.mobile_number = '9851153385'
-    self.message = 'Hello, @ from DIT!'
+    self.message = 'Hello, @%40 from support@danpheinfotech.com!'
     p self.push_sms
     p self.check_balance
   end
