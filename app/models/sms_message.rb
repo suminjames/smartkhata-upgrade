@@ -142,7 +142,6 @@ class SmsMessage < ActiveRecord::Base
     self.date_time
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
     self.mobile_number = transaction_message.client_account.messageable_phone_number
-    self.date_time
     sms_message_obj = SmsMessage.new(phone: @mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
     #  -split message to sendable blocks(<=255)
     #  -queue all blocks
@@ -173,7 +172,7 @@ class SmsMessage < ActiveRecord::Base
     end
     if sms_failed
       # If sms has been not been sent before (ie. sms_count == 0), then only set status to sms_unsent.
-      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_un
+      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_unsent
       if transaction_message.sent_sms_count == 0
         transaction_message.sms_unsent!
       else
@@ -183,7 +182,7 @@ class SmsMessage < ActiveRecord::Base
     else
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!
-      sms_message_obj.save
+      sms_message_obj.save!
     end
   end
 
