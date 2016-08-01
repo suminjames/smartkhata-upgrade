@@ -468,8 +468,8 @@ select{
 }
 
 // For links as buttons
-.btn-success{
-  color: white!important;
+.btn-success, .btn-danger{
+  color: white !important;
 }
 
 .lighter{
