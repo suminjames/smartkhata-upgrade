@@ -16,14 +16,6 @@ module Models::UpdaterWithBranchFycode
       scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
 
-      # scope based on the branch and fycode selection
-      default_scope do
-        if UserSession.selected_branch_id == 0
-          where(fy_code: UserSession.selected_fy_code)
-        else
-          where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-        end
-      end
 
       # for cases where branch id and fy code is supplies
       # TODO(subas) Remove this once time comes
