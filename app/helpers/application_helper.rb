@@ -103,7 +103,8 @@ module ApplicationHelper
   # Modify a string by
   # -replacing underscore '_' with space
   # -titleizing
-  def pretty_enum(enum_string = '')
+  def pretty_enum(enum_string)
+    enum_string ||= ''
     str = enum_string.dup
     str.tr!('_', ' ')
     str.titleize
