@@ -144,15 +144,21 @@ $(document).on 'page:change', ->
     updateSmsStatus = (transactionMessage) ->
       smsStatus =  transactionMessage.sms_status
       smsStatusStr = ''
+      smsStatusIndicatorClass = ''
+      possibleSmsStatusIndicatorClasses = 'sms-sent sms-unsent sms-cant-send'
       if smsStatus == 'sms_unsent'
         smsStatusStr = 'No'
+        smsStatusIndicatorClass = 'sms-unsent'
       else if smsStatus == 'sms_queued'
         sentSmsCount = transactionMessage.sent_sms_count
         smsStatusStr = 'Queued' + "<br>" + "<div class='light-text'>" + "count:" + sentSmsCount + '</div >'
+        smsStatusIndicatorClass = 'sms-unsent'
       else if smsStatus == 'sms_sent'
         sentSmsCount = transactionMessage.sent_sms_count
         smsStatusStr = 'Yes' + "<br>" + "<div class='light-text'>" + "count:" + sentSmsCount + '</div >'
+        smsStatusIndicatorClass = 'sms-sent'
       $("#sms_status_" + transactionMessage.id).html(smsStatusStr)
+      $("#sms_status_" + transactionMessage.id).closest('tr').removeClass(possibleSmsStatusIndicatorClasses).addClass(smsStatusIndicatorClass)
 
 
 $ ->
