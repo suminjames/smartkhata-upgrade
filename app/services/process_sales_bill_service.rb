@@ -85,7 +85,7 @@ class ProcessSalesBillService
         description_bills += description
         #  TODO(Subas) This is redundant in Voucher/create class
         cheque_entry.cheque_date = DateTime.now
-        cheque_entry.status = ChequeEntry.statuses[:to_be_printed]
+        cheque_entry.status = ChequeEntry.statuses[:pending_approval]
         cheque_entry.client_account_id = client_account.id
         cheque_entry.beneficiary_name = client_account.name.titleize
         cheque_entry.amount = amount_to_settle

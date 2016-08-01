@@ -3,11 +3,28 @@
 
   - if transaction_messages.present?
     %div.row
-      %div.col-xs-12.top-buffer-sm
+      %div.col-xs-6.top-buffer-sm
         = submit_tag 'Send Email', :type => 'button', class: 'btn btn-default', id: 'send-email'
         = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'send-email-spinner')
         = submit_tag 'Send SMS', :type => 'button', class: 'btn btn-default', id: 'send-sms'
         = image_tag("ajax-loader.gif", class:"spinner-circular hidden ", id: 'send-sms-spinner')
+      %div.col-xs-offset-4.col-xs-2.top-buffer-sm
+        %div.row
+          %div.col-xs-1
+            %div.box-sm.sms-sent-index
+          %div.col-xs-5
+            Sent
+        %div.row
+          %div.col-xs-1
+            %div.box-sm.sms-unsent-index
+          %div.col-xs-5
+            Unsent
+        %div.row
+          %div.col-xs-1
+            %div.box-sm.sms-cant-send-index
+          %div.col-xs-5
+            Unsendable
+
       %div.col-xs-12.top-buffer-sm.text-center
         %div.alert.alert-info.email-queued-warning
           %strong Info!
@@ -36,7 +53,7 @@
       %tbody
         -if transaction_messages
           -transaction_messages.each do |transaction_message|
-            %tr
+            %tr{:class => (sms_status_indicator_class(transaction_message))}
               %td.text-center= check_box_tag transaction_message.id, '', false, class: transaction_message.can_email? ? 'email' : 'email cant-email'
               %td.text-center= check_box_tag transaction_message.id, '', false, class: transaction_message.can_sms? ? 'sms' : 'sms cant-sms'
               %td.text-center
