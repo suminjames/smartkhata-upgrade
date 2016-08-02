@@ -1,4 +1,4 @@
-# == Schema Information
+ # == Schema Information
 #
 # Table name: cheque_entries
 #
@@ -99,6 +99,14 @@ class ChequeEntry < ActiveRecord::Base
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
+
+  # scope based on the branch
+  default_scope do
+    if UserSession.selected_branch_id != 0
+      where(branch_id: UserSession.selected_branch_id)
+    end
+  end
+
 
 
   # TODO (subas) make sure to do the necessary settings

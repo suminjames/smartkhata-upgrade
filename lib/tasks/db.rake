@@ -16,7 +16,12 @@ namespace :db do
         if args.date.present?
             cmd = nil
             with_config do |app, host, db, user|
-              cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/backup/#{args.date}_#{db}.psql"
+              debugger
+              if !ENV['RAILS_ENV'].present?
+                cmd = "pg_restore --verbose --host localhost --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/backup/#{args.date}_#{db}.psql"
+              else
+                cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/backup/#{args.date}_#{db}.psql"
+              end
             end
             Rake::Task["db:drop"].invoke
             Rake::Task["db:create"].invoke

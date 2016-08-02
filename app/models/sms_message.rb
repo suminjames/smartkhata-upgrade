@@ -172,7 +172,7 @@ class SmsMessage < ActiveRecord::Base
     end
     if sms_failed
       # If sms has been not been sent before (ie. sms_count == 0), then only set status to sms_unsent.
-      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_un
+      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_unsent
       if transaction_message.sent_sms_count == 0
         transaction_message.sms_unsent!
       else
