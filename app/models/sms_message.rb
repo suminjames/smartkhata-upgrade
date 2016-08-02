@@ -142,7 +142,6 @@ class SmsMessage < ActiveRecord::Base
     self.date_time
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
     self.mobile_number = transaction_message.client_account.messageable_phone_number
-    self.date_time
     sms_message_obj = SmsMessage.new(phone: @mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
     #  -split message to sendable blocks(<=255)
     #  -queue all blocks
@@ -189,7 +188,20 @@ class SmsMessage < ActiveRecord::Base
 
   # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = msg.gsub(' ', '%20').gsub('@', 'at')
+    @message = self.encode_space(msg)
+    @message = self.replace_at_sign(@message)
+  end
+
+  def self.encode_space(msg)
+    msg.gsub(' ', '%20')
+  end
+
+  def self.decode_space(msg)
+    msg.gsub('%20', ' ')
+  end
+
+  def self.replace_at_sign(msg)
+    msg.gsub('@', 'at')
   end
 
   def self.mobile_number= (number)
@@ -222,6 +234,7 @@ class SmsMessage < ActiveRecord::Base
   # > 160 characters && <= 255 characters = +1 credit
   # When a message with 255+ characters is broken to multiple blocks and sent, the credit required is calculated as below.
   def self.credit_required(message)
+    message = self.decode_space(message)
     credit = 0
     message_length = message.length
     while message_length > 0
