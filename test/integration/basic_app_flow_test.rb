@@ -4,15 +4,11 @@
 #                               currently located at test/fixtures/files/May10/(.xls && .csv)
 #                               Be sure not to edit/remove those files
 
-# Bills fixtures integrity crucial : Currently Assumes a single Bills fixtures present(type 'purchase')
-#                                    with fycode & bill no. hlarge enough to push it at the end of the pagination
-#                                    Tried to make it bill no. 1, but then duplication issue occurs in this test.
-
 # Omitted: group_leader_ledger_id, random: cheque number
 
 # Further work[maybe]:
 #          calculate the bills count dynamically.. making the test work with different test files?
-#          where does the 'fycode' 7273 in bill id come from? Extract it dynamically?
+
 require 'test_helper'
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
 
@@ -24,7 +20,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     Rake::Task["fetch_companies"].invoke
     # Rake::Task["update_isin_prices"].invoke
 
-    # fix the tenants issue
+    # subdomain needed for current_tenant()
     host! 'trishakti.lvh.me'
     # Secure browsing!
     https!
@@ -34,20 +30,20 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal dashboard_index_path, path
     assert_equal 'Signed in successfully.', flash[:notice]
 
-    @purchase_bills_in_fixtures = @sales_bills_in_fixtures = 1
+    # Set relevant fy code and branch id
+    @fy_code = 7273
+    get general_settings_set_fy_path, {fy_code: @fy_code, branch_id: 1}
+
+    @purchase_bills_in_fixtures = Bill.purchase.count
+    @sales_bills_in_fixtures = Bill.sales.count
     # DO calculate these from the test files END
     # bill in (file + fixtures)
     @purchase_bills_expected_count = 51 + @purchase_bills_in_fixtures
     @sales_bills_expected_count = 45 + @sales_bills_in_fixtures
 
-    # where does this come from? (fy-code?)
-    @bill_number_first_part = 7273
-
-    # ledgers in fixtures + bank accounts w/ default for payment + bank accounts w/ default for reciept
-    @number_of_ledger_options_expected = 3 + 1 + 1
-
     @additional_bank_id = Bank.first.id
-    @cash_ledger_id = ledgers(:one).id
+    # Cash ledger expected in fixtures!
+    @cash_ledger_id = Ledger.find_by!(name: "Cash").id
 
     # assume default pagination
     @items_in_first_pagination = 20
@@ -55,8 +51,6 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # Sample date within the fiscal_year
     @sample_date = '2073-1-30'
     @date_today = ad_to_bs(Date.today).to_s
-    get general_settings_set_fy_path, {fy_code: 7273, branch_id: 1}
-
   end
 
   test "the basic flow" do
@@ -77,7 +71,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
                                    "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}]}}
       @bank_account_receipt = assigns(:bank_account)
       post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, bank_branch: "asd", "default_for_receipt"=>"0", "default_for_payment"=>"1",
-                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ pening_balance: 500, opening_balance_type: 0}] }}
+                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}] }}
         @bank_account_payment = assigns(:bank_account)
     end
     assert_redirected_to bank_account_path(@bank_account_payment)
@@ -134,8 +128,8 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'h3', text: 'Bills generated Successfully'
 
-    purchase_bills = Bill.find_by_bill_type('purchase')
-    sales_bills =    Bill.find_by_bill_type('sales')
+    purchase_bills = Bill.purchase
+    sales_bills =    Bill.sales
     # verify bills count
     # This is dependent on fy code
     # either assign fy code to UserSession.selected_fy_code or change the fy_code of fixture to current day fy_code
@@ -144,7 +138,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # purchase_bills_starting_id = Bill.first.id
     # sales_bills_starting_id = purchase_bills_starting_id + @purchase_bills_expected_count
 
-    # .SECOND(): Ignore one purchase & one sales bill in FIXTURES
+    # .SECOND(): Ignore one bill each in FIXTURES
     purchase_bills_starting_id = purchase_bills.second.id
     sales_bills_starting_id    = sales_bills.second.id
 
@@ -161,12 +155,14 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # ! UNABLE TO WORKOUT REGEX !
 
     # check links
-    # assert_select 'a[href^="/vouchers/new?bill_id="][href$="&voucher_type=1"]', {count:20, text: 'Process Bill'}
     sales_bills_ending_count_in_page = sales_bills_starting_id + @items_in_first_pagination - 1
     sales_bills_starting_id.upto(sales_bills_ending_count_in_page) do |bill_id|
       # assert_select 'a[href=?]', new_voucher_full_path(bill_id, 1), text: 'Process Bill' # no more
       assert_select 'a[href=?]', bill_path(bill_id), text: 'View'
     end
+
+    bank_ledgers = Ledger.where.not(bank_account_id: nil).count
+    number_of_ledger_options_expected = bank_ledgers + 1 #cash_ledger
 
     # Payment voucher
     # get new_voucher_path(bill_id: sales_bills_starting_id, voucher_type: 1)
@@ -179,9 +175,9 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal @date_today, date_default_value
     # assert_contains ad_to_bs(Date.today).to_s, form_text
     # assert_select "input[type=text][name='voucher[date_bs]']", text: ad_to_bs(Date.today).to_s
-    assert_select "input[name='voucher[desc]']", value: "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}"
+    assert_select "input[name='voucher[desc]']", value: "Settled for Bill No: #{@fy_code}-#{sales_bills_starting_id}"
     assert_select '.voucher select#voucher_particulars_attributes_0_ledger_id' do
-      assert_select 'option', @number_of_ledger_options_expected
+      assert_select 'option', number_of_ledger_options_expected
       # --- 5.1 - Default credit ledger should default to corresponding bank for sales ---
       assert_select 'option[selected=selected]', {text:"Bank:#{@bank_account_payment.bank_name}(#{@bank_account_payment.account_number})",
                                                   value: @bank_account_payment.id.to_s}
@@ -201,7 +197,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     cheque_num = '8374'
 
     voucher = post_via_redirect_vouchers_path(1, nil, "#{sales_bills_starting_id}", false, first_particular_ledger_id[0], payment_amount, 'cr', cheque_num,
-                                              second_particular_ledger_id[0], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", true)
+                                              second_particular_ledger_id[0], "Settled for Bill No: #{@fy_code}-#{sales_bills_starting_id}", true)
     assert_equal voucher_path(voucher), path
     assert_equal 'Voucher was successfully created.', flash[:notice]
     # --- 5.1 - On create - incase of payment by bank, payment voucher is created
@@ -220,7 +216,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     # group_leader_ledger_id = css_select('input[name=group_leader_ledger_id]')[0]['value']
     post_via_redirect_vouchers_path(1, nil, "#{sales_bills_starting_id+1}", false, first_particular_ledger_id[1], payment_amount, 'cr', '',
-                                    second_particular_ledger_id[1], "Settled for Bill No: #{@bill_number_first_part}-#{sales_bills_starting_id}", true)
+                                    second_particular_ledger_id[1], "Settled for Bill No: #{@fy_code}-#{sales_bills_starting_id}", true)
 
     # --- 5.1 - On create -incase of payment by cash, normal voucher is created
     assert_select 'h4 u', 'PAYMENT'
@@ -229,12 +225,15 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # --- 5. Go to bill list #purchase
     get purchase_bills_path
     assert_match "Displaying bills <b>1&nbsp;-&nbsp;#{@items_in_first_pagination}</b> of <b>#{@purchase_bills_expected_count}</b> in total", response.body
-    # check links
-    purchase_bills_ending_count_in_page = purchase_bills_starting_id + @items_in_first_pagination - 1
 
-    # purchase_bills_starting_id.upto(purchase_bills_ending_count_in_page) do |bill_id|
-    #   assert_select 'a[href=?]', bill_path(bill_id),        text: 'View'
-    # end
+    # check links
+    # The purchase bill from fixture appears first, which is serially followed by other purchase bills.
+    # Thus although the fixture bill is not tested in ledgers, it does affect the bill listing.
+    purchase_bills_actual_starting_id = purchase_bills_starting_id - 1
+    purchase_bills_ending_count_in_page = purchase_bills_actual_starting_id + @items_in_first_pagination - 1
+    purchase_bills_actual_starting_id.upto(purchase_bills_ending_count_in_page) do |bill_id|
+      assert_select 'a[href=?]', bill_path(bill_id),        text: 'View'
+    end
 
     # --- 5.2 Process purchase bills ---
     get new_voucher_full_path(purchase_bills_starting_id, 2)
@@ -242,10 +241,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_select 'h2.section-title', text: 'New Receipt Voucher'
     date_default_value = css_select("form.simple_form.new_voucher input[name='voucher[date_bs]']")[0]['value']
     assert_equal @date_today, date_default_value
-    assert_select "input[name='voucher[desc]']", value: "Settled for Bill No: #{@bill_number_first_part}-#{purchase_bills_starting_id}"
+    assert_select "input[name='voucher[desc]']", value: "Settled for Bill No: #{@fy_code}-#{purchase_bills_starting_id}"
 
     assert_select '.voucher select#voucher_particulars_attributes_0_ledger_id' do
-      assert_select 'option', @number_of_ledger_options_expected
+      assert_select 'option', number_of_ledger_options_expected
       # --- 5.2 - Default debit ledger should default to corresponding bank for sales ---
       assert_select 'option[selected=selected]', {text:"Bank:#{@bank_account_receipt.bank_name}(#{@bank_account_receipt.account_number})",
                                                   value: @bank_account_receipt.id.to_s}
@@ -256,7 +255,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     cheque_num = '3750'
 
     voucher = post_via_redirect_vouchers_path('2', nil, "#{purchase_bills_starting_id}", false, first_particular_ledger_id[2], payment_amount, 'dr', cheque_num,
-                                              second_particular_ledger_id[2], "Settled for Bill No: #{@bill_number_first_part}-#{purchase_bills_starting_id}", true)
+                                              second_particular_ledger_id[2], "Settled for Bill No: #{@fy_code}-#{purchase_bills_starting_id}", true)
     settlement_ids = voucher.settlements.pluck(:id)
     assert_equal show_multiple_settlements_path('settlement_ids'=> settlement_ids), request.original_fullpath
     # --- 5.2 - On create - receipt should be created with relevant information ---
@@ -347,7 +346,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
       # scraping!
       first_particular_ledger_id[3], second_particular_ledger_id[3], payment_amount = scrape_ledger_ids_and_payment_amount
       cheque_num = '5234'
-      bill_numbers = "#{@bill_number_first_part}-" + bill_ids.join(", #{@bill_number_first_part}-")
+      bill_numbers = "#{@fy_code}-" + bill_ids.join(", #{@fy_code}-")
 
       voucher = post_via_redirect_vouchers_path('1', "#{client_account_id}", bill_ids, false, first_particular_ledger_id[3], payment_amount, 'cr', cheque_num,
                                                 second_particular_ledger_id[3], "Settled for Bill No: #{bill_numbers}", true)
@@ -377,7 +376,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
     puts "Clearing ledger & verifying..."
     # --- 6.2 Clear ledger & verify ---
-    # .FOURTH(): Ignore two ledgers in fixtures!
+    # .FOURTH(): Ignore two ledgers in fixtures + one ledger used in the previous step
     ledger = Ledger.find_all_client_ledgers.fourth
     client_account_id = ledger.client_account_id
     get ledger_path(ledger.id)
@@ -441,7 +440,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_equal 'Voucher was successfully created.', flash[:notice]
     assert_select 'h2.section-title', 'Voucher Details'
 
-    [credited_ledger_name, 'Cash', payment_amount, "Voucher Date: #{@sample_date}", "#{@bill_number_first_part}-#{voucher.voucher_number}"].each do |item|
+    [credited_ledger_name, 'Cash', payment_amount, "Voucher Date: #{@sample_date}", "#{@fy_code}-#{voucher.voucher_number}"].each do |item|
       assert_match item, response.body
     end
 
@@ -566,7 +565,6 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
         params["payment_mode"] = "default" if payment_mode_default
         post vouchers_path, params
         voucher = assigns(:voucher)
-        debugger unless response.redirect?
         follow_redirect!
         voucher
     end
