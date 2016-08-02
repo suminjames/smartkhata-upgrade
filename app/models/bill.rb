@@ -97,6 +97,16 @@ class Bill < ActiveRecord::Base
   scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
   scope :for_payment_letter_list, ->{with_balance_cr.requiring_processing}
 
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
+
+
   before_save :process_bill
 
   # Returns total share amount from all child share_transactions

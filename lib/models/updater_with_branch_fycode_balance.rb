@@ -5,8 +5,8 @@ module Models::UpdaterWithBranchFycodeBalance
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator, :add_branch_fycode
-      before_save :set_updater, :add_branch_fycode
+      before_create :set_creator, :add_fy_code
+      before_save :set_updater
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
@@ -14,6 +14,7 @@ module Models::UpdaterWithBranchFycodeBalance
       belongs_to :branch
 
       scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
+      scope :by_fy_code_org, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code, branch_id: nil)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
 
       # # scope based on the branch and fycode selection
@@ -26,10 +27,11 @@ module Models::UpdaterWithBranchFycodeBalance
       # end
 
       # for non balance records
+      # use this for read only
       # TODO(SUBAS) stupid mistake of using scope here
       scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
         if branch_id == 0
-          where(fy_code: fy_code)
+          where(branch_id: nil, fy_code: fy_code)
         else
           where(branch_id: branch_id, fy_code: fy_code)
         end
@@ -48,8 +50,8 @@ module Models::UpdaterWithBranchFycodeBalance
     self.creator_id = UserSession.id
   end
 
-  def add_branch_fycode
-    self.branch_id ||= get_branch_id_from_session
+  def add_fy_code
+    # self.branch_id ||= get_branch_id_from_session
     self.fy_code ||= get_fy_code
   end
 

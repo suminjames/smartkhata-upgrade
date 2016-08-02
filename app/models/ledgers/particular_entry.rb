@@ -108,7 +108,9 @@ class Ledgers::ParticularEntry
     # check if there are records after the entry
     if accounting_date <= Time.now
       # get all the ledger dailies for the ledger which is after the accounting date
-      ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
+      # ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
+      ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
+      adjustment_amount = debit ? amount : amount * -1
 
       if ledger_activities.size > 0
         # there are some records after the transaction date
@@ -120,7 +122,7 @@ class Ledgers::ParticularEntry
         opening_balance_org = future_activities_org.first.opening_balance if future_activities_org.first.present?
         opening_balance_cost_center = future_activities_cost_center.first.opening_balance if future_activities_cost_center.first.present?
 
-        adjustment_amount = debit ? amount : amount * -1
+
 
         # update the cost center daily balances
         future_activities_cost_center.each do |d|
@@ -137,20 +139,41 @@ class Ledgers::ParticularEntry
         end
 
       end
+
+      # make  changes for the opening and closing balances for the next fiscal year
+      # this is possible as the system allows to enter past days entry
+      # only for the case when passed fycode is less than the current fy_code
+      current_fy_code = get_fy_code
+      if fy_code < current_fy_code
+        ledger_blnc_org_current_fy = LedgerBalance.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
+
+        if ledger_blnc_org_current_fy
+          ledger_blnc_org_current_fy.opening_balance += adjustment_amount
+          ledger_blnc_org_current_fy.closing_balance += adjustment_amount
+          ledger_blnc_org_current_fy.save!
+
+
+          ledger_blnc_cost_center_current_fy =  LedgerBalance.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
+          ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
+          ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
+          ledger_blnc_cost_center_current_fy.save!
+        end
+      end
     end
 
 
-    ledger_blnc_org = LedgerBalance.by_branch_fy_code(0,fy_code).find_or_create_by!(ledger_id: ledger.id)
+    ledger_blnc_org = LedgerBalance.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
     ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
+
     daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
     end
-    daily_report_org = LedgerDaily.by_branch_fy_code(0,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
+    daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
     end
