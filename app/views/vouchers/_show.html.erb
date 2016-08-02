@@ -58,21 +58,21 @@
                     <%= particular.ledger.name %>
                   </div>
                   <div class="col-xs-4">
-
-                    <% if @voucher.formatted_description.size > 0 %>
+                    <% if particular.bills.find_by_client_id(particular.ledger.client_account_id).count > 0 %>
                         Being paid to <%= particular.ledger.name %>
                         for
-                        <% @voucher.formatted_description.each do |b| %>
-                            <br>
-                            Bill : <%= link_to "#{b[0]}", show_by_number_bills_path(number: b[0]), remote: true %>
-                            Amount : <%= b[1] %>
+                        <% particular.bills.find_by_client_id(particular.ledger.client_account_id).each do |bill| %>
+                            Bill :<%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %>
+                            Amount : <%= arabic_number(bill.net_amount) %>
                         <% end %>
                     <% else %>
-                        <%= @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{particular.ledger.name}" %>
+                        <% paid_to = particular.cheque_entries.first.beneficiary_name if particular.cheque_entries.first.present? %>
+                        <% paid_to ||= particular.ledger.name %>
+                        <%= @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{paid_to}" %>
                     <% end %>
                   </div>
                   <div class="col-xs-3">
-                    <%= @cheque %>
+                    <%= particular.cheque_entries.first.cheque_number %>
                   </div>
                   <div class="col-xs-2">
                     <%= arabic_number(particular.amount) %>

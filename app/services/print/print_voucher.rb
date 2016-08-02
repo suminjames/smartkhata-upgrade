@@ -93,18 +93,19 @@ class Print::PrintVoucher< Prawn::Document
 
     @particulars.each do |particular|
       particular_desc = ''
-      if @voucher.formatted_description.size > 0
-        particular desc += "Being paid to #{particular.ledger.name} for"
-        @voucher.formatted_description.each do |b|
-          particular_desc += "Bill : #{b[0]} Amount: #{b[1]} | "
+      if particular.bills.find_by_client_id(particular.ledger.client_account_id).count > 0
+        particular_desc += "Being paid to #{particular.ledger.name} for"
+        particular.bills.find_by_client_id(particular.ledger.client_account_id).each do |bill|
+          particular_desc += "Bill : #{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(bill.net_amount)} | "
         end
         # Remove the trailing | and space
         particular_desc = particular_desc[0...-2]
       else
-        particular_desc += @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{particular.ledger.name}"
+        paid_to = particular.cheque_entries.first.beneficiary_name if particular.cheque_entries.first.present?
+        paid_to ||= particular.ledger.name
+        particular_desc += @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{paid_to}"
       end
-
-      data << [particular.ledger.name, particular_desc, @cheque, arabic_number(particular.amount)]
+      data << [particular.ledger.name, particular_desc, particular.cheque_entries.first.cheque_number, arabic_number(particular.amount)]
     end
 
     table_width = page_width - 2
