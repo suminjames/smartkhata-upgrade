@@ -182,7 +182,7 @@ class SmsMessage < ActiveRecord::Base
     else
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!
-      sms_message_obj.save
+      sms_message_obj.save!
     end
   end
 
