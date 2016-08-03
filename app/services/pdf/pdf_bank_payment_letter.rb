@@ -85,12 +85,12 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
     br
     text 'Thank you.'
     br
-    text "For #{current_tenant.full_name},"
+    text "For #{@current_tenant.full_name},"
     br
     br
     br
     # TODO(sarojk): Find a better way to do this so that new tenant won't have problem.
-    case current_tenant.name
+    case @current_tenant.name
       when 'trishakti'
         signee_name = 'Tanka Prasad Gautam'
         designation = 'Executive Chairman'
