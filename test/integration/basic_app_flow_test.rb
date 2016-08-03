@@ -21,18 +21,17 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # Rake::Task["update_isin_prices"].invoke
 
     # subdomain needed for current_tenant()
-    host! 'trishakti.lvh.me'
+    set_host
     # Secure browsing!
     https!
     # login as existing user
-    lalchan = users(:user)
-    post_via_redirect new_user_session_path, 'user[email]' => lalchan.email, 'user[password]' => 'password'
+    log_in
     assert_equal dashboard_index_path, path
     assert_equal 'Signed in successfully.', flash[:notice]
 
     # Set relevant fy code and branch id
     @fy_code = 7273
-    get general_settings_set_fy_path, {fy_code: @fy_code, branch_id: 1}
+    set_fy_code_and_branch
 
     @purchase_bills_in_fixtures = Bill.purchase.count
     @sales_bills_in_fixtures = Bill.sales.count

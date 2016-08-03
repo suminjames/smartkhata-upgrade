@@ -15,7 +15,7 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  # (limited) Invalid data samples to be used by various tests
+  # SAMPLE DATA: Invalid data samples (limited) to be used by various (unit) tests
   INVALID_EMAIL_SAMPLES = ['plainaddress', '%^%#$@#$@#.com', '@example.com', 'email.example.com', 'email@example@example.com',
                            'email@example', 'email@111.222.333.44444', 'email@example..com', 'this\ is"really"not\allowed@example.com',
                            'Joe Smith <email@example.com>', 'email@example.com (Joe Smith)']
@@ -24,6 +24,8 @@ class ActiveSupport::TestCase
 
   INVALID_INTEGER_SAMPLES = ['foo', 'b4r', '3@`/_', '123.45', '.12345', '12345.', '123/45', '123+45', '123*45']
 
+
+  # UNIT/ FUNCTIONAL HELPERS
   # Checks whether a string/array contains a substring. Not case sensitive.
   def assert_contains(exp_substr, obj, msg=nil)
     msg = message(msg) { "Expected #{mu_pp obj} to contain #{mu_pp exp_substr}" }
@@ -64,6 +66,20 @@ class ActiveSupport::TestCase
   def set_fy_code(fy_code, unit_test=false)
     UserSession.selected_fy_code = fy_code
     session[:user_selected_fy_code] = fy_code unless unit_test
+  end
+
+
+  # INTEGRATION HELPERS
+  def log_in(email=users(:user).email, password='password')
+    post_via_redirect new_user_session_path, 'user[email]' => email, 'user[password]' => password
+  end
+
+  def set_fy_code_and_branch(fy_code=7273, branch_id=1)
+    get general_settings_set_fy_path, {fy_code: 7273, branch_id: 1}
+  end
+
+  def set_host(host_name='trishakti.lvh.me')
+    host! host_name
   end
 end
 

@@ -3,7 +3,6 @@ require 'test_helper'
 
 class Files::FloorsheetsControllerTest < ActionController::TestCase
   def setup
-    # NEED TO CHANGE THE FISCAL YEAR!!!
     @user = users(:user)
     # setup relevant fycode
     set_fy_code 7273
