@@ -100,6 +100,14 @@ class ChequeEntry < ActiveRecord::Base
     end
   }
 
+  # scope based on the branch
+  default_scope do
+    if UserSession.selected_branch_id != 0
+      where(branch_id: UserSession.selected_branch_id)
+    end
+  end
+
+
 
   # TODO (subas) make sure to do the necessary settings
   enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
