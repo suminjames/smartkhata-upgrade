@@ -116,6 +116,15 @@ class SmsMessage < ActiveRecord::Base
     self.credit_used = 0
   end
 
+  # Checks sparrow sms's credit
+  def self.credit
+    token = 'Q2qMoJIpim0AgFn34WUz'
+    api_url = "http://api.sparrowsms.com/v2/credit/?token=#{token}"
+    response = Net::HTTP.get_response(URI.parse(api_url)).body
+    # TODO(sarojk): Method Incomplete! Complete it.
+  end
+
+  # Checks miracle's balance
   def self.check_balance
     tag = 'BQ'
     result = Net::HTTP.get_response(URI.parse('http://api.miracleinfo.com.np/sms/smssend.php?'+ 'tag=' + tag + '&ac=' + @access_code + '&u=' + @username + '&p=' + @password)).body
