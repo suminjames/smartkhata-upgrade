@@ -84,6 +84,25 @@ class Ledger < ActiveRecord::Base
   }
 
   #
+  # Ledger name is appended with relevant code.
+  # If ledger is client_account_ledger, append nepse_code.
+  # And likewise...
+  #
+  # A ledger
+  #  belongs_to :group
+  #  belongs_to :bank_account
+  #  belongs_to :client_account
+  #  belongs_to :vendor_account
+  # TODO(sarojk): Incorporate other visual identifiers for bank, vendor, employee, group, etc.
+  def name_and_code
+    if self.client_account.present?
+      self.client_account.name_and_nepse_code
+    else
+      "#{self.name} (**Internal**)"
+    end
+  end
+
+  #
   # check if the ledger name clashes with system reserved ledger name
   #
   def name_from_reserved?
