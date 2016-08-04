@@ -27,7 +27,8 @@ one:
   branch_id: 1
   fy_code: 7273
   transaction_message: one
-# column: value
-#
-two: {}
-#  column: value
+
+two:
+  branch_id: 2
+  fy_code: 7273
+  transaction_message: two

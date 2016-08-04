@@ -100,6 +100,9 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
     # Check the amounts and closing balance are greater than zero
     [dr_amount, closing_balance_cr].each { |v| assert_operator v, :>, 0 }
 
-
+    #
+    # TEST "Create transaction message"
+    # TEST "Send SMS/Bill"
+    #
   end
 end

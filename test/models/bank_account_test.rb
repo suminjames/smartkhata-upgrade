@@ -30,6 +30,7 @@ class BankAccountTest < ActiveSupport::TestCase
     # from the controller- following two variables not tested because they will be overrided if bank exists
     @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
     @bank_account.bank_name = 'Some Bank'
+    set_branch_id(1, true)
   end
 
   test "should be valid" do
@@ -61,11 +62,13 @@ class BankAccountTest < ActiveSupport::TestCase
   test "should change default for payment" do
     a1 = bank_accounts(:one)
     a2 = bank_accounts(:two)
+    # debugger
     accounts = [a1, a2]
     accounts.each {|account| account.update_column(:default_for_payment, true) }
     a1.change_default
     accounts.each {|account| account.reload}
 
+    # debugger
     assert     a1.default_for_payment
     assert_not a2.default_for_payment
   end

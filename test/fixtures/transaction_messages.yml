@@ -35,3 +35,12 @@ two:
   email_status: 1
   bill: two
   client_account: two
+
+# deletable- unrefereced
+three:
+  sms_message: MyString
+  transaction_date: 2016-06-08
+  sms_status: 1
+  email_status: 1
+  bill: one
+  client_account: one

@@ -43,7 +43,7 @@ class TransactionMessagesControllerTest < ActionController::TestCase
   end
 
   test "should destroy transaction_message" do
-    deletable_transaction_message = transaction_messages(:two)
+    deletable_transaction_message = transaction_messages(:three)
     assert_difference('TransactionMessage.count', -1) do
       delete :destroy, id: deletable_transaction_message
     end

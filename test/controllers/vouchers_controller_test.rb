@@ -164,8 +164,8 @@ class VouchersControllerTest < ActionController::TestCase
       }
       post :create, params
     end
-    # assert_equal 'Cheque Number is already taken', flash[:error]
-    assert_equal 'Cheque Number is invalid', flash[:error]
+    assert_equal 'Cheque Number is already taken', flash[:error]
+    # assert_equal 'Cheque Number is invalid', flash[:error]
     assert_response :success
   end
 
