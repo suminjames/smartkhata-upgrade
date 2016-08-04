@@ -73,7 +73,7 @@
                   %span.light-text= "count:#{transaction_message.sent_sms_count}"
                 - else
                   = 'No'
-              %td= ad_to_bs_string(transaction_message.transaction_date)[2..-1]
+              %td.text-center.light-text= ad_to_bs_string(transaction_message.transaction_date)
               %td
                 = transaction_message.client_account.name.titleize
                 %span.light-text
