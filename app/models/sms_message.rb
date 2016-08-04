@@ -188,7 +188,20 @@ class SmsMessage < ActiveRecord::Base
 
   # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = msg.gsub(' ', '%20').gsub('@', 'at')
+    @message = self.encode_space(msg)
+    @message = self.replace_at_sign(@message)
+  end
+
+  def self.encode_space(msg)
+    msg.gsub(' ', '%20')
+  end
+
+  def self.decode_space(msg)
+    msg.gsub('%20', ' ')
+  end
+
+  def self.replace_at_sign(msg)
+    msg.gsub('@', 'at')
   end
 
   def self.mobile_number= (number)
@@ -221,6 +234,7 @@ class SmsMessage < ActiveRecord::Base
   # > 160 characters && <= 255 characters = +1 credit
   # When a message with 255+ characters is broken to multiple blocks and sent, the credit required is calculated as below.
   def self.credit_required(message)
+    message = self.decode_space(message)
     credit = 0
     message_length = message.length
     while message_length > 0
