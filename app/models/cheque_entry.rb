@@ -26,7 +26,7 @@
 
 class ChequeEntry < ActiveRecord::Base
   extend CustomDateModule
-  include ::Models::UpdaterWithBranchFycode
+  include ::Models::UpdaterWithBranch
 
   belongs_to :client_account
   belongs_to :vendor_account
@@ -68,15 +68,15 @@ class ChequeEntry < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(:cheque_date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at>= ?', date_ad.beginning_of_day).order(id: :asc)
+    where('cheque_date >= ?', date_ad.beginning_of_day).order(id: :asc)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('created_at<= ?', date_ad.end_of_day).order(id: :asc)
+    where('cheque_date <= ?', date_ad.end_of_day).order(id: :asc)
   }
 
   scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :asc) }

@@ -7,10 +7,11 @@ class GeneralSettingsControllerTest < ActionController::TestCase
   end
 
   test "should set fy code" do
-    assert [UserSession.selected_fy_code,
-            session[:user_selected_fy_code],
-            UserSession.selected_branch_id,
-            session[:user_selected_branch_id]].all? &:nil?
+    # UserSession gets carried on in bulk tests
+    [ UserSession.selected_fy_code,
+      session[:user_selected_fy_code],
+      UserSession.selected_branch_id,
+      session[:user_selected_branch_id]].each {|s| s = nil}
 
     get :set_fy, {fy_code: 7273, branch_id: 10}
     assert_redirected_to root_path #just a reload

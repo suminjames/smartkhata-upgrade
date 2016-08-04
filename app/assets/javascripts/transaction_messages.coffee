@@ -3,7 +3,7 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 selectedTransactionMessagesIdsForEmail = []
-selectedTransactionMessagesIdsForSMS= []
+selectedTransactionMessagesIdsForSMS = []
 allTransactionMessagesIds = []
 
 transactionMessagesStatusesPoller = undefined
@@ -102,7 +102,7 @@ $(document).on 'page:change', ->
           return
 
     pollForTransactionMessagesStatuses = () ->
-      params = {transaction_message_ids: allTransactionMessagesIds}
+      params = {transaction_message_ids: selectedTransactionMessagesIdsForSMS}
       $.ajax
         url: '/transaction_messages/sent_status'
         type: 'post'

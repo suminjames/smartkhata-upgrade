@@ -12,7 +12,7 @@ class ProcessSalesBillService
   end
 
   def process
-    fy_code = get_fy_code
+    fy_code = get_fy_code(@date)
 
     # bank payment letter cant be created without bills and payment bank account
     if @bills.empty?
@@ -70,7 +70,7 @@ class ProcessSalesBillService
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
         # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
         closing_balance = client_ledger.closing_balance
-        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending)
+        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: @date, particular_status: :pending, fy_code: fy_code)
 
         particulars << particular
         net_paid_amount += amount_to_settle
@@ -99,7 +99,7 @@ class ProcessSalesBillService
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
       closing_balance = bank_ledger.closing_balance
       short_description = "Settlement by bank payment for settlement ID #{@sales_settlement.settlement_id}"
-      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending, ledger_type: :has_bank)
+      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code)
 
       if description_bills.blank?
         @error_message = "Error while processing, Client may have dues"

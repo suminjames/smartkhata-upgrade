@@ -1,8 +1,8 @@
-=begin
 require 'test_helper'
 
 class ShareInventoriesControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @share_inventory = share_inventories(:one)
   end
 
@@ -48,4 +48,3 @@ class ShareInventoriesControllerTest < ActionController::TestCase
     assert_redirected_to share_inventories_path
   end
 end
-=end

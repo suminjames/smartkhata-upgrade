@@ -30,14 +30,12 @@
 #  running_blnc_client    :decimal(15, 4)   default("0")
 #
 
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-# This model initially had no columns defined.  If you add columns to the
-# model remove the '{}' from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
 one:
   amount: 5000
+  fy_code: 7273
+  branch: one
 
-two: {}
-#  column: value
+two:
+  amount: 100
+  fy_code: 7273
+  branch: one
