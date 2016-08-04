@@ -1,0 +1,24 @@
+# == Schema Information
+#
+# Table name: orders
+#
+#  id                :integer          not null, primary key
+#  order_number      :integer
+#  client_account_id :integer
+#  fy_code           :integer
+#  date              :date
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#
+
+one:
+  order_number: 93748
+  client_account: one
+  fy_code: 7273
+  date: 2015-10-30
+
+two:
+  order_number: 48472
+  client_account: two
+  fy_code: 7273
+  date: 2015-11-03

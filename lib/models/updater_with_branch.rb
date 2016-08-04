@@ -32,6 +32,10 @@ module Models::UpdaterWithBranch
   end
 
   def add_branch
-    self.branch_id ||= UserSession.branch_id
+    self.branch_id ||= get_branch_id_from_session
+  end
+
+  def get_branch_id_from_session
+    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
   end
 end

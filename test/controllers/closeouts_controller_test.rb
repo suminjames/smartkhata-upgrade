@@ -1,8 +1,8 @@
-=begin
 require 'test_helper'
 
 class CloseoutsControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @closeout = closeouts(:one)
   end
 
@@ -21,7 +21,6 @@ class CloseoutsControllerTest < ActionController::TestCase
     assert_difference('Closeout.count') do
       post :create, closeout: {  }
     end
-
     assert_redirected_to closeout_path(assigns(:closeout))
   end
 
@@ -44,8 +43,6 @@ class CloseoutsControllerTest < ActionController::TestCase
     assert_difference('Closeout.count', -1) do
       delete :destroy, id: @closeout
     end
-
     assert_redirected_to closeouts_path
   end
 end
-=end

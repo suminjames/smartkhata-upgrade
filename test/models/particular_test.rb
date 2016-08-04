@@ -33,7 +33,16 @@
 require 'test_helper'
 
 class ParticularTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def setup
+    @particular = Particular.new(ledger: ledgers(:one))
+  end
+
+  test "should be valid" do
+    assert @particular.valid?
+  end
+
+  test "ledger should be present" do
+    @particular.ledger = nil
+    assert @particular.invalid?
+  end
 end

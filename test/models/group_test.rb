@@ -17,7 +17,17 @@
 require 'test_helper'
 
 class GroupTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def setup
+    @existing_group = groups(:one)
+    @group = Group.new(name: 'Some uniq name')
+  end
+
+  test "should be valid" do
+    assert @group.valid?
+  end
+
+  test "name should not be duplicate" do
+    @group.name = @existing_group.name
+    assert @group.invalid?
+  end
 end

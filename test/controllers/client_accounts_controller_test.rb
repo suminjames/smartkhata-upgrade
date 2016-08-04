@@ -54,8 +54,9 @@ class ClientAccountsControllerTest < ActionController::TestCase
   end
 
   test "should destroy client account" do
+    deletable_client_account = client_accounts(:three)
     assert_difference 'ClientAccount.count', -1 do
-      post :destroy, id: @client_account
+      post :destroy, id: deletable_client_account
     end
     assert_redirected_to client_accounts_path
   end

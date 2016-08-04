@@ -1,8 +1,9 @@
 Git.Merge.each::after DO
     Note: Relevant tests often need to evolve with changes in the application code
+    Imp:  Advanced test cases are yet to be brainstormed (by corresponding developers) and then coded.
 
-    I. Integration testing [Roughly Done]
-        a. Basic App flow
+    I. Integration testing
+        a. Basic App flow [Roughly Done]
             1. Add Bank
                 1.1. Add Bank Account
                     -of existing bank
@@ -37,33 +38,16 @@ Git.Merge.each::after DO
             8. Upload Order
                 -re-upload the same order file
 
-    II. Functional testing [HALTED]
-        -Roughly Completed (basic cases):
-            Application,
-            Banks,
-            Bank accounts,
-            Cheque entries,
-            Files,
-            Files/ %w(Sales Floorsheet Orders dpa5),
-            Sales settlements,
-            Bills,
-            Branches,
-            Client accounts,
-            Employee accounts,
-            Ledgers,
-            Vouchers,
-            Dashboard
+    II. Functional testing [Primitive cases complete]
+        - Tests default & custom actions
+        - Controllers covered: all
 
-    III. Unit Testing [HALTED]
-        -Roughly Completed (basic cases):
-            Bank,
-            Bank account,
-            Cheque entry,
-            Bill,
-            Branch,
-            Client account,
-            Employee account,
-            Ledger
+    III. Unit Testing [Not complete]
+        - Primirily tests validations. Methods tests for relevant models/methods only. No association tests.
+        - Models covered:
+            Bank, Bank account, Cheque entry, Bill, Branch, Client account, Employee account, Ledger, Particular, Group
+        - Mailers covered:
+            UserMailer
 
     IV. Interface Testing [?]
         <Section headers, links, relevant texts, menu, ..>

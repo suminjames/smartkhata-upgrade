@@ -5,6 +5,8 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     sign_in users(:user)
     @cheque_entry = cheque_entries(:one)
     @bank_account = bank_accounts(:one)
+    set_branch_id 1
+
     @post_action = lambda { | bank_account_id, start_cheque_num, end_cheque_num |
       post :create, { bank_account_id: bank_account_id, start_cheque_number: start_cheque_num, end_cheque_number: end_cheque_num }
     }
@@ -49,7 +51,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
   end
 
   # show
-  test "should show cheque_entry to authenticated users" do
+  test "should show cheque_entry" do
     get :show, id: @cheque_entry
     assert_response :success
     assert_template 'cheque_entries/show'

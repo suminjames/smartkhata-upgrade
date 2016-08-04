@@ -10,6 +10,7 @@
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Do not change/remove the ids: Several tests rely on them!
 
 one:
   code: BR-1
