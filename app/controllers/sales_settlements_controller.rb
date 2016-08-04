@@ -8,9 +8,9 @@ class SalesSettlementsController < ApplicationController
   # GET /sales_settlements.json
   def index
     if params[:pending]
-      @sales_settlements = SalesSettlement.pending
+      @sales_settlements = SalesSettlement.pending.order(settlement_id: :desc)
     else
-      @sales_settlements = SalesSettlement.all
+      @sales_settlements = SalesSettlement.all.order(settlement_id: :desc)
     end
 
   end
