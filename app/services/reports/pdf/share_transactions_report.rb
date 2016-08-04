@@ -146,7 +146,9 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         company = st.isin_info.name_and_code
         bill_num = st.bill.present? ? st.bill.full_bill_number : 'N/A'
         q_in = st.buying? ? st.quantity.to_i : ''
+        q_in_str = st.buying? ? arabic_number_integer(q_in) : ''
         q_out = st.selling? ? st.quantity.to_i : ''
+        q_out_str = st.selling? ? arabic_number_integer(q_out) : ''
         m_rate = strip_redundant_decimal_zeroes(st.isin_info.last_price.to_f)
         share_amt = strip_redundant_decimal_zeroes(st.share_amount.to_f)
         comm_amt = st.commission_amount.to_f
@@ -162,11 +164,11 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
             contract_num,
             company,
             bill_num,
-            q_in,
-            q_out,
-            m_rate,
-            share_amt,
-            comm_amt
+            q_in_str,
+            q_out_str,
+            arabic_number_integer(m_rate),
+            arabic_number_integer(share_amt),
+            arabic_number(comm_amt)
         ]
       end
       total_row_data = [
@@ -175,10 +177,10 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
           '',
           '',
           'Total',
-          total_q_in,
-          total_q_out,
+          arabic_number_integer(total_q_in),
+          arabic_number_integer(total_q_out),
           '',
-          arabic_number(total_share_amt),
+          arabic_number_integer(total_share_amt),
           arabic_number(total_comm_amt)
       ]
       table_data << total_row_data
