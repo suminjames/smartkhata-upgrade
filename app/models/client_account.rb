@@ -214,7 +214,7 @@ class ClientAccount < ActiveRecord::Base
     Ledger.where(client_account_id: ids).pluck(:id)
   end
 
-  # In case both numbers are messageable, 'phone' has higher priority over 'phone_perm'
+  # Priority: mobile_number > phone > phone_perm
   # Returns nil if neither is messageable
   def messageable_phone_number
     messageable_phone_number = nil
