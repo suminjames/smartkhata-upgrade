@@ -1,9 +1,10 @@
-%td= object.isin_info.company
-%td= object.client_account.name
-%td= object.quantity
-%td= object.share_rate
-%td= object.base_price.to_i.round(1)
-%td= object.cgt.round(2)
+%td= object.isin_info.name_and_code
+%td= object.client_account.name_and_nepse_code
+%td= object.selling? ? object.buyer : object.seller
+%td.text-right= object.quantity
+%td.text-right= object.share_rate
+%td.text-right= object.base_price.to_i.round(1)
+%td.text-right= object.cgt.round(2)
 
 %td.actions= smart_listing_item_actions [{name: :edit,    url: edit_share_transaction_path(object)},
 {name: :destroy, url: share_transaction_path(object), confirmation: "Are you sure you want to delete this?"}]

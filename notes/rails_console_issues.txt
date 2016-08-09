@@ -1,0 +1,4 @@
+#.To circumvent issue with fy_code and branch_id
+> UserSession.user = User.first
+> UserSession.selected_fy_code = <fy code here>
+> UserSession.selected_branch_id = <branch id here>

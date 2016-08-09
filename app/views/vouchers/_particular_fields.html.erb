@@ -2,9 +2,9 @@
 <% inverse = extra_info[:inverse] if extra_info[:inverse].present? %>
 <div class="row particular">
   <% if inverse == true %>
-      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name, {:selected => default_ledger_id}, {:class => 'form-control combobox select-ledger'}) %></div>
+      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_financial, :id, :name_and_code, {:selected => default_ledger_id}, {:class => 'form-control combobox select-ledger'}) %></div>
   <% else %>
-      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name, {}, {:class => 'form-control combobox select-ledger'}) %></div>
+      <div class="col-xs-3"><%= f.collection_select(:ledger_id, ledger_list_available, :id, :name_and_code, {}, {:class => 'form-control filterrific-select min-3 select-ledger', include_blank: true, 'data-placeholder': 'Select a ledger...'}) %></div>
   <% end %>
   <div class="col-xs-2"><%= f.input :amount, label: false %></div>
   <div class="col-xs-1 type-selector">

@@ -43,7 +43,9 @@ class BillsController < ApplicationController
         when 'client_name'
           @bills = Bill.find_by_client_id(search_term)
         when 'bill_number'
-          @bills = Bill.find_by_bill_number(search_term)
+          full_bill_number_str = search_term
+          actual_bill_number = Bill.strip_fy_code_from_full_bill_number(full_bill_number_str)
+          @bills = Bill.find_by_bill_number(actual_bill_number)
         when 'bill_status'
           @bills = Bill.find_not_settled
         when 'bill_type'
