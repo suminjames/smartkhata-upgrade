@@ -147,8 +147,8 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.sparrow_test_message
-    to = '9851153385'
-    text = 'p' *  459 + 'q' * 1
+    to = '9779851153385'
+    text = 'Hello World from support@dit'
     api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{to}&text=#{text}"
     credit_before = SmsMessage.sparrow_credit
     response = Net::HTTP.get_response(URI.parse(api_url)).body
@@ -218,18 +218,18 @@ class SmsMessage < ActiveRecord::Base
     # http://stackoverflow.com/questions/754407/what-is-the-best-way-to-chop-a-string-into-chunks-of-a-given-length-in-ruby
     # TODO(sarojk): IMPORTANT! Change 250 to 255 after Miracle solves the issue with max message block length.
     sms_message = transaction_message.sms_message
-    # self.message = sms_message
+    self.message = sms_message
     sms_message_encoded = @message
     valid_message_blocks = sms_message_encoded.scan(/.{1,250}/)
     sms_failed = false
     transaction_message.sms_queued!
     valid_message_blocks.each do |message|
       self.message = message
-      # if !Rails.env.production?
-      #   reply_code = Random.rand(3).to_s
-      # else
-      #   reply_code = self.miracle_push_sms
-      # end
+      if !Rails.env.production?
+        reply_code = Random.rand(3).to_s
+      else
+        reply_code = self.miracle_push_sms
+      end
       if reply_code != '1'
         sms_failed = true
         if transaction_message.sms_message.length >  MIRACLE_MAX_MESSAGE_BLOCK_LENGTH
@@ -265,7 +265,7 @@ class SmsMessage < ActiveRecord::Base
     transaction_message.sms_queued!
 
     if !Rails.env.production?
-      reply_code = Random.rand(3).to_s
+      reply_code = Random.rand(3) + 200
     else
       reply_code = self.sparrow_push_sms
     end
@@ -293,7 +293,7 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.send_bill_sms(transaction_message_id)
-    if self.miracle_credit <= 0.0
+    if self.miracle_credit >= 1.4
       self.miracle_send_bill_sms(transaction_message_id)
     else
       self.sparrow_send_bill_sms(transaction_message_id)
@@ -318,7 +318,7 @@ class SmsMessage < ActiveRecord::Base
     msg.gsub('@', 'at')
   end
 
-  def self._mobile_number= (number)
+  def self.mobile_number= (number)
     @mobile_number = self.manipulate_phone_number(number)
   end
 
