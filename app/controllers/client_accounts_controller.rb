@@ -15,9 +15,20 @@ class ClientAccountsController < ApplicationController
         persistence_id: false
     ) or return
 
-    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(20)
+    items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
+    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(items_per_page)
 
+    @download_path_xlsx = client_accounts_path({format:'xlsx'}.merge params)
+    @download_path_pdf = client_accounts_path({format:'pdf'}.merge params)
 
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Reports::Pdf::ClientAccountsReport.new(@client_accounts, params[:filterrific], current_tenant)
+        send_data pdf.render, filename:  "ClientAccountRegister#{ad_to_bs(Date.today)}.pdf", type: 'application/pdf'
+      end
+    end
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e

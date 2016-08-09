@@ -239,12 +239,12 @@ class ClientAccount < ActiveRecord::Base
 
   def commaed_contact_numbers
     str = ''
-    str += self.mobile_number + ',' if self.mobile_number.present?
-    str += self.phone + ',' if self.phone.present?
+    str += self.mobile_number + ', ' if self.mobile_number.present?
+    str += self.phone + ', ' if self.phone.present?
     str += self.phone_perm if self.phone_perm.present?
     # strip leading or trailing comma ','
-    str[0]= '' if str[0] == ','
-    str[-1]= '' if str[-1] == ','
+    str[0..1]= '' if str[0..1] == ', '
+    str[-1..-2]= '' if str[-1..-2] == ', '
     str
   end
 
@@ -260,6 +260,25 @@ class ClientAccount < ActiveRecord::Base
         ["without BOID", "no_boid"],
         ["without Nepse Code", "no_nepse_code"]
     ]
+  end
+
+  def self.pretty_string_of_filter_identifier(filter_identifier)
+    filter_identifier ||= ''
+    pretty_string = ''
+    arr = [
+        ["without Mobile Number", "no_mobile_number"],
+        ["without any Phone Number", "no_any_phone_number"],
+        ["without Email", "no_email"],
+        ["without BOID", "no_boid"],
+        ["without Nepse Code", "no_nepse_code"]
+    ]
+    arr.each do |sub_arr|
+      if filter_identifier == sub_arr[1]
+        pretty_string = sub_arr[0]
+        return pretty_string
+      end
+    end
+    pretty_string
   end
 
 end
