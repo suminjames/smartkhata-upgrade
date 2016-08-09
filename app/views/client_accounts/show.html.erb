@@ -169,7 +169,7 @@
       </p>
       <p>
         <strong>Group Leader:</strong>
-        <%= @client_account.group_leader_id %>
+        <%= @client_account.group_leader.name_and_nepse_code if @client_account.group_leader.present? %>
       </p>
       <p>
         <strong>Referrer:</strong>

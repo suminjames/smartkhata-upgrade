@@ -8,7 +8,7 @@ class ApplicationControllerTest < ActionController::TestCase
     # All controllers, except the application controller, of course!
     all_controllers = ApplicationController.descendants
     # Incomplete/irrelevant controllers
-    excluded_controllers_main = [DeviseController, AbstractController, Files::FilesController, Files::PurchaseController, PurchasesController]
+    excluded_controllers_main = [DeviseController, AbstractController, Files::FilesController, Files::PurchaseController, PurchasesController, TestController]
 
     # Error in these controllers #new
     excluded_controllers_main += [ShareTransactionsController, MenuItemsController, SmsMessagesController]
@@ -34,7 +34,9 @@ class ApplicationControllerTest < ActionController::TestCase
   # ## This test fails when run in block..
   test "should set user session when logged in" do
     sign_in @user
-    assert_nil UserSession.user, "##### You may ignore this fail if you ran tests in block! # [1 of 2] #####"
+    # assert_nil UserSession.user, "##### You may ignore this fail if you ran tests in block! # [1 of 2] #####"
+    # User session tends to be carried on from previous tests in group tests!
+    UserSession.destroy if UserSession.user
     @controllers_for_authenticated_test.each do |controller|
       @controller = controller.new
       action = controller.action_methods.first

@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+
   include Pundit
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -20,6 +21,7 @@ class ApplicationController < ActionController::Base
   # before_action :get_allowed_branch, if: :user_signed_in?
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
 
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found
@@ -35,6 +37,12 @@ class ApplicationController < ActionController::Base
   end
 
   helper_method :current_tenant
+
+  def fy_code_route_mismatch
+    session[:return_to] = root_path
+    redirect_to root_path
+  end
+
 
   def user_not_authorized
     flash[:alert] = "Access denied."

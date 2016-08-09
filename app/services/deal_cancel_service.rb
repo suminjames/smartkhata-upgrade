@@ -34,7 +34,6 @@ class DealCancelService
 
     voucher = @share_transaction.voucher
     bill = @share_transaction.bill
-
     # dont allow to approve deal cancel after starting settlement process
     if bill.present? && !bill.pending?
       @error_message = "Bill associated with the share transaction is already under process or settled"
@@ -97,7 +96,7 @@ class DealCancelService
         create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
 
       end
-      @info_message = 'Deal cancelled succesfully.'
+      @info_message = 'Deal cancelled successfully.'
       @share_transaction = nil
       return
     else
@@ -110,7 +109,7 @@ class DealCancelService
             @share_transaction.transaction_cancel_status = :deal_cancel_complete
             @share_transaction.save!
           end
-          @info_message = 'Deal cancel approved succesfully.'
+          @info_message = 'Deal cancel approved successfully.'
           @share_transaction = nil
           return
         end
@@ -156,7 +155,7 @@ class DealCancelService
 
           # rewrite the sms message
           create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
-          @info_message = 'Deal cancel approved succesfully.'
+          @info_message = 'Deal cancel approved successfully.'
         end
       else
         @share_transaction.soft_undelete
@@ -199,7 +198,7 @@ class DealCancelService
 
           create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
         end
-        @info_message = 'Deal cancelled Rejected succesfully.'
+        @info_message = 'Deal cancel rejected successfully.'
         @share_transaction = nil
       end
     end

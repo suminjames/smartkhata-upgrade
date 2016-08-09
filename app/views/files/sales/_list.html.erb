@@ -1,3 +1,4 @@
+<br>
 <div class="panel panel-default top-buffer">
   <div class="panel-heading">
     List of files uploaded
@@ -11,14 +12,27 @@
             <th>Settlement Id</th>
             <th>Report Date</th>
             <th>Upload Date</th>
+            <th>Status</th>
           </tr>
           </thead>
           <tbody>
           <% settlements.each do |settlement| %>
               <tr>
                 <td><%= settlement.settlement_id %> </td>
-                <td><%= ad_to_bs_string(settlement.settlement_date) %> </td>
-                <td><%= ad_to_bs_string(settlement.updated_at.to_date) %></td>
+                <td>
+                  <%= "#{ad_to_bs_string(settlement.settlement_date)} BS" %>
+                  <br>
+                  <%= "#{settlement.settlement_date} AD" %>
+                </td>
+                <td>
+                  <%= "#{ad_to_bs_string(settlement.updated_at.to_date)} BS" %>
+                  <br>
+                  <%= "#{settlement.updated_at.to_date} AD" %>
+                </td>
+                <td><%= settlement.complete? ? 'Processed' : 'Pending' %> </td>
+                <td>
+                  <%= link_to 'view', sales_settlement_path(settlement.id)%>
+                </td>
               </tr>
           <% end %>
           </tbody>

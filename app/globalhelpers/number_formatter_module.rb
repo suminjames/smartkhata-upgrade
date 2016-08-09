@@ -22,6 +22,12 @@ module NumberFormatterModule
     decimal.to_f.round(2).to_amount
   end
 
+  # This method is relevant to numbers other than monetary numbers like quantity.
+  # The return string doesn't have decimal value.
+  def arabic_number_integer(decimal)
+    arabic_number(decimal)[0..-4]
+  end
+
   # If exists, strips a number of redundant zeroes after decimal.
   def strip_redundant_decimal_zeroes(number)
     number % 1 == 0 ? number.to_i : number

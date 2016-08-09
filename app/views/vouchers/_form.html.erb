@@ -75,7 +75,7 @@
           <div class="box-body">
             <div class="row client-group">
               <div class="col-xs-3">
-                <%= select_tag "group_leader_ledger_id", options_from_collection_for_select(client_ledger_list, "id", "name", group_leader_ledger_id), {:class => 'form-control combobox select-ledger'} %>
+                <%= select_tag "group_leader_ledger_id", options_from_collection_for_select(client_ledger_list, "id", "name", group_leader_ledger_id), {:class => 'form-control combobox filterrific-select min-3 select-ledger', :style => 'width: 100%'} %>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@
           <div class="box-body">
             <div class="row vendor-group">
               <div class="col-xs-3">
-                <%= select_tag "vendor_account_id", options_from_collection_for_select(vendor_account_list, "id", "name", vendor_account_id), {:class => 'form-control combobox select-ledger'} %>
+                <%= select_tag "vendor_account_id", options_from_collection_for_select(vendor_account_list, "id", "name", vendor_account_id), {:class => 'form-control combobox select-ledger',:style => 'width: 100%'} %>
               </div>
             </div>
           </div>

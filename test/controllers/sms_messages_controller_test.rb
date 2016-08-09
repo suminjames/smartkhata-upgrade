@@ -1,9 +1,11 @@
-=begin
 require 'test_helper'
 
 class SmsMessagesControllerTest < ActionController::TestCase
   setup do
+    sign_in users(:user)
     @sms_message = sms_messages(:one)
+
+    set_fy_code_and_branch_from @sms_message
   end
 
   test "should get index" do
@@ -48,4 +50,3 @@ class SmsMessagesControllerTest < ActionController::TestCase
     assert_redirected_to sms_messages_path
   end
 end
-=end

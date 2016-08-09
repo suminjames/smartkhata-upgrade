@@ -5,7 +5,7 @@ class Files::SalesControllerTest < ActionController::TestCase
     # SalesSettlement.all.each.map(&:destroy!) # fixtures
     sign_in users(:user)
     # setup relevant fycode
-    UserSession.selected_fy_code = session[:user_selected_fy_code] = 7273
+    set_fy_code 7273
     @post_floorsheet_action = Proc.new{ | different_floorsheet |
       sales_controller = @controller
       @controller = Files::FloorsheetsController.new

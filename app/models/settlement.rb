@@ -81,6 +81,16 @@ class Settlement < ActiveRecord::Base
     end
   }
 
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
+
+
   before_create :assign_settlement_number
 
   def self.options_for_settlement_type_select

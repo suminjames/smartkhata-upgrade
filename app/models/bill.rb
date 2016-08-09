@@ -97,6 +97,16 @@ class Bill < ActiveRecord::Base
   scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
   scope :for_payment_letter_list, ->{with_balance_cr.requiring_processing}
 
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
+
+
   before_save :process_bill
 
   # Returns total share amount from all child share_transactions
@@ -201,6 +211,15 @@ class Bill < ActiveRecord::Base
   # get the bill number with fy code prepended
   def full_bill_number
     "#{self.fy_code}-#{self.bill_number}"
+  end
+
+  # Strips pre-pended fy_code from full bill number
+  # Eg: Takes in 7273-1509, returns 1509
+  # Even if no fy_code pre-pended, still returns the actual bill number.
+  def self.strip_fy_code_from_full_bill_number(full_bill_number_str)
+    full_bill_number_str ||= ''
+    hyphen_index = full_bill_number_str.index('-') || -1
+    full_bill_number_str[(hyphen_index + 1)..-1]
   end
 
   def requires_processing?

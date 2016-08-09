@@ -20,17 +20,18 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  fy_code: 1
-  creator_id: 1
-  updater_id: 1
-  sales_settlement_id: 
-  branch_id: 
-  voucher_id: 
+  fy_code: 7273
+  bank_account: one
+  sales_settlement: two
+  # branch_id:
+  # voucher_id:
 
 two:
   fy_code: 1
   creator_id: 1
   updater_id: 1
-  sales_settlement_id: 
-  branch_id: 
-  voucher_id: 
+  sales_settlement: two
+
+  # sales_settlement_id:
+  # branch_id:
+  # voucher_id:

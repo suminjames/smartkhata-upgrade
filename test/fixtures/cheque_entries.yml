@@ -33,6 +33,7 @@
 one:
   cheque_number: 123
   bank_account: one
+  branch_id: 1
   # particulars: one
   # Client account?
   # Additional bank id?
@@ -41,3 +42,4 @@ two:
   cheque_number: 735
   bank_account: one
   status: 4 # approved
+  branch_id: 2

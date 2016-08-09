@@ -3,7 +3,7 @@
 # Table name: nepse_chalans
 #
 #  id                  :integer          not null, primary key
-#  chalan_amount       :decimal(15, 4)   default("0")
+#  chalan_amount       :decimal(15, 4)   default(0.0)
 #  transaction_type    :integer
 #  deposited_date_bs   :string
 #  deposited_date      :date
@@ -17,14 +17,18 @@
 #  branch_id           :integer
 #
 
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+# do not change voucher, fy_code and branch of this fixture(one) or functional test will fail
 one:
   deposited_date_bs: MyString
   deposited_date: 2016-05-26
-  voucher_id: 
+  voucher: voucher_0
+  fy_code: 7273
+  # branch: two
+  branch_id: 2
 
 two:
   deposited_date_bs: MyString
   deposited_date: 2016-05-26
-  voucher_id: 
+  voucher: voucher_1
+  fy_code: 7273
+  branch: two
