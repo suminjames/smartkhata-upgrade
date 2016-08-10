@@ -11,13 +11,12 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # Needed for merging later, as transaction amount will be having two columns
     @transxn_amt_first_col = TABLE_HEADER.index("Transaction Amount")
 
-    generate_excelsheet if data_present? #&& data_valid?
-    # check params?
+    generate_excelsheet if data_present?
   end
 
   def data_present?
     # Checks for the presence of ledger and particulars
-    data_present_or_set_error(@particulars, "Atleast one particular is needed for exporting!") &&
+    # data_present_or_set_error(@particulars, "Atleast one particular is needed for exporting!") &&
     data_present_or_set_error(@ledger, "No ledger specified!")
   end
 
@@ -27,8 +26,10 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance >= 0 ? 'Dr' : 'Cr'}"\
       " | "\
       "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}"
-    add_document_headings("Ledger", "\"#{@ledger.name.strip.titleize}\"", opening_closing_blnc)
-    @file_name = "Ledger_#{@ledger.id}_#{@date}"
+    client = (@params && @params[:for_client] == "1") ? "Client" : ""
+
+    add_document_headings("#{client} Ledger Report", "\"#{@ledger.name.strip.titleize}\"", opening_closing_blnc)
+    @file_name = "#{client}LedgerReport_#{@ledger.id}_#{@date}"
   end
 
   def add_document_headings(heading, sub_heading, opening_closing_blnc)

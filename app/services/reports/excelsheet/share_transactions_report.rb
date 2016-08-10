@@ -8,13 +8,14 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
     end
 
-    generate_excelsheet if data_present? && params_valid?
+    generate_excelsheet if params_valid?
   end
 
-  def data_present?
-    # returns true if atleast one share transaction present
-    data_present_or_set_error(@share_transactions, "Atleast one transaction is needed for exporting!")
-  end
+  # Not needed anymore as this check is run in the view.
+  # def data_present?
+  #   # returns true if atleast one share transaction present
+  #   data_present_or_set_error(@share_transactions, "Atleast one transaction is needed for exporting!")
+  # end
 
   def params_valid?
     # Currently checks only for validity of client/company id.
