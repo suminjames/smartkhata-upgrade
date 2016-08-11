@@ -193,20 +193,31 @@ class SmsMessage < ActiveRecord::Base
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
     self.mobile_number = transaction_message.client_account.messageable_phone_number
     sms_message_obj = SmsMessage.new(phone: @mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
-    sms_failed = false
     self.message = transaction_message.sms_message
+
+
+    # 459 is size of max block sendable via sparrow sms
+    valid_message_blocks = @message.scan(/.{1,459}/)
+    sms_failed = false
     transaction_message.sms_queued!
 
-    if !Rails.env.production?
-      reply_code = Random.rand(3) + 200
-    else
-      reply_code = self.sparrow_push_sms
-    end
+    valid_message_blocks.each do |message|
+      self.message = message
+      if !Rails.env.production?
+        reply_code = Random.rand(2) + 200
+      else
+        reply_code = self.sparrow_push_sms
+      end
 
-    if reply_code != 200
-      sms_failed = true
-    else
-      sms_message_obj.credit_used += self.sparrow_credit_required(@message)
+      if reply_code != 200
+        sms_failed = true
+        if transaction_message.sms_message.length >  SPARROW_MAX_MESSAGE_BLOCK_LENGTH
+          sms_message_obj.remarks = "Not all valid length blocks succesfully sent of this message which is greater than  #{SPARROW_MAX_MESSAGE_BLOCK_LENGTH} characters."
+        end
+        break
+      else
+        sms_message_obj.credit_used += self.sparrow_credit_required(@message)
+      end
     end
 
     if sms_failed
