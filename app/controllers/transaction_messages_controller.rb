@@ -76,7 +76,7 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_sms?
-        SmsMessage.send_bill_sms(transaction_message.id)
+        SmsMessage.sparrow_send_bill_sms(transaction_message.id)
       end
     end
     respond_to do |format|
