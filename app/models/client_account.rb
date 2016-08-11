@@ -244,7 +244,7 @@ class ClientAccount < ActiveRecord::Base
     str += self.phone_perm if self.phone_perm.present?
     # strip leading or trailing comma ','
     str[0..1]= '' if str[0..1] == ', '
-    str[-1..-2]= '' if str[-1..-2] == ', '
+    str[-2..-1]= '' if str[-2..-1] == ', '
     str
   end
 

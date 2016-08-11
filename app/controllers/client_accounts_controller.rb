@@ -28,6 +28,15 @@ class ClientAccountsController < ApplicationController
         pdf = Reports::Pdf::ClientAccountsReport.new(@client_accounts, params[:filterrific], current_tenant)
         send_data pdf.render, filename:  "ClientAccountRegister#{ad_to_bs(Date.today)}.pdf", type: 'application/pdf'
       end
+      format.xlsx do
+        report = Reports::Excelsheet::ClientAccountsReport.new(@client_accounts, params[:filterrific], current_tenant)
+        if report.generated_successfully?
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
+        else
+          redirect_to client_accounts_path, flash: { error: report.error }
+        end
+      end
     end
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
