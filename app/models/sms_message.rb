@@ -156,17 +156,18 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.sparrow_test_message
-    to = '9779851153385'
-    text = 'Hello World from support@dit'
-    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{to}&text=#{text}"
+    self.mobile_number = '9851153385'
+    self.message = 'Saroj bought EBL,100@2900;On 1/23 Bill No7273-79 .Pay Rs 292678.5.BNo 48. sarojk@dandpheit.com'
+    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{@mobile_number}&text=#{CGI.escape(@message)}"
+    p api_url
     credit_before = SmsMessage.sparrow_credit
     response = Net::HTTP.get_response(URI.parse(api_url)).body
     credit_after = SmsMessage.sparrow_credit
     credit_consumed = credit_before.to_i - credit_after.to_i
-    p text
-    p text.length
+    p "Message: #{@message}"
+    p "Message Length: #{@message.length}"
     p "Credit consumed: #{credit_consumed}"
-    p response
+    p "Response: #{response}"
     response_json = JSON.parse(response)
     response_json['response_code']
   end
@@ -183,7 +184,7 @@ class SmsMessage < ActiveRecord::Base
   end
 
   def self.sparrow_push_sms
-    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{@mobile_number}&text=#{@message}"
+    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{@mobile_number}&text=#{CGI.escape(@message)}"
     response = Net::HTTP.get_response(URI.parse(api_url)).body
     response_json = JSON.parse(response)
     response_json['response_code']
