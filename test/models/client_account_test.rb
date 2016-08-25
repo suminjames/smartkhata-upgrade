@@ -67,6 +67,8 @@ require 'test_helper'
 
 class ClientAccountTest < ActiveSupport::TestCase
   def setup
+    # adding nepse code will conflict with the business logic
+    # hence it has been removed and will be tested with a seperate test for nepse code.
     @client_account = ClientAccount.new(name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
                                         address1_perm: 'baz', city_perm: 'qux', state_perm: 'quux', country_perm: 'garply')
   end
@@ -75,7 +77,7 @@ class ClientAccountTest < ActiveSupport::TestCase
     assert @client_account.valid?
   end
 
-  test "Necessary fields should not be empty" do
+  test "necessary fields should not be empty" do
     assert_invalid @client_account, %w(name citizen_passport dob father_mother granfather_father_inlaw address1_perm city_perm state_perm country_perm)
   end
 
@@ -83,15 +85,22 @@ class ClientAccountTest < ActiveSupport::TestCase
     test_date_field :dob
   end
 
-  test "Citizen passport date should be valid" do
+  test "citizen passport date should be valid" do
     test_date_field :citizen_passport_date
   end
 
-  test "Mobile number should be valid" do
+  test "mobile number should be valid" do
     # Length or format not checked for now
     assert_invalid @client_account, :mobile_number, INVALID_INTEGER_SAMPLES
   end
 
+  test "nepse code should be unique" do
+    @client_account.nepse_code = nil
+    assert @client_account.valid?, "nepse code can be nil"
+
+    @client_account.nepse_code = client_accounts(:one).nepse_code
+    assert @client_account.invalid?, "Nepse code should be unique"
+  end
 
   private
     def test_date_field(attr)
