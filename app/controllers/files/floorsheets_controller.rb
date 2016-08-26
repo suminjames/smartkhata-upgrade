@@ -8,6 +8,9 @@ class Files::FloorsheetsController < Files::FilesController
   @@file_type = FileUpload::file_types[:floorsheet]
   @@file_name_contains = "FLOORSHEET"
 
+  # amount above which it has to be settled within brokers.
+  THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
+
   def new
     floorsheets = FileUpload.where(file_type: @@file_type)
     @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
@@ -251,17 +254,24 @@ class Files::FloorsheetsController < Files::FilesController
     amount = share_net_amount
     commission = get_commission(amount, @date)
     commission_rate = get_commission_rate(amount, @date)
-    compliance_fee = compliance_fee(commission, @date)
-    purchase_commission = broker_commission(commission, @date)
+
+    # redundant for now
+    # compliance_fee = compliance_fee(commission, @date)
+    # commission for broker for the transaction
+    broker_purchase_commission = broker_commission(commission, @date)
     nepse = nepse_commission(commission, @date)
 
-    tds = purchase_commission * 0.15
+    tds = broker_purchase_commission * 0.15
+
+    # # since compliance fee is debit from broker purchase commission
+    # # reduce amount of the purchase commission in the system.
+    # purchase_commission = broker_purchase_commission - compliance_fee
     sebon = amount * 0.00015
     bank_deposit = nepse + tds + sebon + amount
 
     # amount to be debited to client account
-    # @client_dr = nepse + sebon + amount + purchase_commission + dp
-    @client_dr = (bank_deposit + purchase_commission + compliance_fee - tds + dp) if bank_deposit.present?
+    # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
+    @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
 
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_by(isin: company_symbol)
@@ -331,12 +341,26 @@ class Files::FloorsheetsController < Files::FilesController
 
       #TODO replace bill from particulars with bill from voucher
       process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date)
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date)
-      process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
+      # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date)
-      process_accounts(purchase_commission_ledger, voucher, false, purchase_commission, description, client_branch_id, @date)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date)
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date) if dp > 0
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date)
 
+    #   special case for nepse incase of a threshold transfer
+    #   settlement is done with the broker itself and not the nepse
+    #   only settlement done is the commission and tds.
+      unless share_net_amount < THRESHOLD_NEPSE_AMOUNT_LIMIT
+        new_description = "Buy Adjustment with Broker #{seller_broking_firm_code} (#{share_quantity}*#{company_symbol}@#{share_rate})"
+        additional_voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
+        additional_voucher.share_transactions << transaction
+        additional_voucher.desc = description
+        clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
+        process_accounts(nepse_ledger, voucher, true, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
+        process_accounts(clearing_ledger, voucher, false, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
+        additional_voucher.complete!
+        additional_voucher.save!
+      end
     end
 
 
