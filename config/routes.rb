@@ -126,6 +126,10 @@ Rails.application.routes.draw do
     resources :sysadmin_trial_balance, only: [:new] do
       collection {post :import}
     end
+
+    resources :sys_admin_tasks, only: [:new] do
+      collection {post :import}
+    end
   end
 
   namespace 'report' do
