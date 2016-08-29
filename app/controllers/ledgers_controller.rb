@@ -17,7 +17,7 @@ class LedgersController < ApplicationController
 
     # Instance variable used by combobox in view to populate name
     if params['search_by'] == 'ledger_name'
-      @ledgers_for_combobox= Ledger.all.order(:name)
+      @ledgers_for_combobox= Ledger.all.includes(:client_account).order(:name)
     end
 
     if params[:show] == "all"
