@@ -37,12 +37,15 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
           _amount = hash['AMOUNT'].to_f
 
           if hash["VOUCHER_CODE"] == 'PVB'
+            voucher.voucher_type = Voucher.voucher_types[:payment]
             process_accounts(client_ledger, voucher, true, _amount, description, branch_id, @date)
             process_accounts(bank_ledger, voucher, false, _amount, description, branch_id, @date)
           elsif hash["VOUCHER_CODE"] == 'RCB'
+            voucher.voucher_type = Voucher.voucher_types[:receipt]
             process_accounts(client_ledger, voucher, false, _amount, description, branch_id, @date)
             process_accounts(bank_ledger, voucher, true, _amount, description, branch_id, @date)
           else
+            voucher.voucher_type = Voucher.voucher_types[:receipt]
             process_accounts(client_ledger, voucher, false, _amount, description, branch_id, @date)
             process_accounts(cash_ledger, voucher, true, _amount, description, branch_id, @date)
           end
