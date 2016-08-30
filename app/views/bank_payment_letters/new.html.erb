@@ -1,13 +1,10 @@
 <% provide(:section_title, "New Bank Payment Letter") %>
 <div class="clearfix search-form">
   <%= form_tag(new_bank_payment_letter_path, :method => "get", id: "search-form") do %>
-      <div class="row">
         <div class="col-xs-4">
           <%= text_field_tag :settlement_id, @settlement_id, :required => true, placeholder: "Search by Settlement ID", :autofocus => true, class: 'form-control' %>
-        </div>
-        <%= submit_tag "Search", class: 'btn btn-sm' %>
       </div>
-
+      <%= submit_tag "Search", class: 'btn btn-flat btn-primary'%>
   <% end %>
 </div>
 

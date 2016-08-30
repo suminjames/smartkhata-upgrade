@@ -221,7 +221,7 @@ class LedgersController < ApplicationController
     if params[:client_account_id]
       @client_account_id = params[:client_account_id].to_i
       @client_account = ClientAccount.find(@client_account_id)
-      @ledgers = @client_account.get_group_members_ledgers_with_balance if @client_account || []
+      @ledgers = (@client_account.get_group_members_ledgers_with_balance if @client_account) || []
     end
     @client_with_group_members = ClientAccount.having_group_members.uniq
   end
