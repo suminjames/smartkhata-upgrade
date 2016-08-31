@@ -84,4 +84,23 @@ class EmployeeAccount < ActiveRecord::Base
     client_group.ledgers << employee_ledger
   end
 
+  #
+  # Searches for employee accounts that have name similar to search_term provided.
+  # Returns an array of hash(not EmployeeAccount objects) containing attributes sufficient to represent employees in combobox.
+  # Attributes include id and name(identifier)
+  #
+  def self.find_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    employee_accounts = EmployeeAccount.where("name ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name)
+    employee_accounts.collect do |employee_account|
+      { :text=> "#{employee_account['name']} (#{employee_account['id']})", :id => "#{employee_account['id']}" }
+    end
+  end
+
+  #
+  # As Employee Accounts don't have a unique identifier except for the id, append id with name.
+  #
+  def name_with_id
+    "#{name} (#{id})"
+  end
 end

@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
   match "/employee_accounts/employee_access" => "employee_accounts#employee_access", via: [:get]
   match "/employee_accounts/update_employee_access" => "employee_accounts#update_employee_access", via: [:post]
+  match "/employee_accounts/combobox_ajax_filter" => "employee_accounts#combobox_ajax_filter", via: [:get]
 
   resources :employee_accounts
   resources :banks
