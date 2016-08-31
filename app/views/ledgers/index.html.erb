@@ -23,7 +23,7 @@
       <%= form_tag(ledgers_path, :method => "get", id: "search-form") do %>
           <div class="col-sm-3">
             <%= hidden_field_tag :search_by, "ledger_name" %>
-            <%= select_tag "search_term", options_from_collection_for_select(@ledgers, 'id', 'name_and_code', params[:search_term]), class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', include_blank: true, 'data-placeholder': 'Select a ledger...' %>
+            <%= select_tag "search_term", options_from_collection_for_select(@selected_ledger_for_combobox_in_arr, 'id', 'name_and_code', params[:search_term]), class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', include_blank: true, 'data-placeholder': 'Select a ledger...' %>
           </div>
           <%= submit_tag "Search", class: 'btn btn-flat btn-primary', tabindex: '1' %>
       <% end %>

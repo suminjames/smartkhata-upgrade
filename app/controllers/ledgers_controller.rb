@@ -35,6 +35,7 @@ class LedgersController < ApplicationController
     else
       @ledgers = []
     end
+    @selected_ledger_for_combobox_in_arr = @ledgers
     # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
     # TODO chain .decorate function
     # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
