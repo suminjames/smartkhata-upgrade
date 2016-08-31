@@ -1,5 +1,6 @@
 <%= simple_form_for(@ledger) do |f| %>
     <%= f.error_notification %>
+    <%= hidden_field_tag 'can_edit_balance', @can_edit_balance %>
     <div class="form-inputs row">
       <div class="col-xs-6">
         <%= f.input :name %>
