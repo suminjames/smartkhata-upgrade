@@ -133,6 +133,22 @@ class ClientAccountsController < ApplicationController
     end
   end
 
+
+  #
+  # Entertains Ajax request made by combobox used in various views to populate clients.
+  #
+  def combobox_ajax_filter
+    search_term = params[:q]
+    client_accounts = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+      client_accounts = ClientAccount.find_similar_to_term search_term
+    end
+    respond_to do |format|
+      format.json { render json: client_accounts, status: :ok }
+    end
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_client_account

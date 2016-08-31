@@ -172,6 +172,9 @@ class LedgersController < ApplicationController
   end
 
 
+  #
+  # Entertains Ajax request made by combobox used in various views to populate ledgers.
+  #
   def combobox_ajax_filter
     search_term = params[:q]
     ledgers = []

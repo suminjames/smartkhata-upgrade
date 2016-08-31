@@ -96,6 +96,8 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   devise_for :users
   resources :users, except: [:new, :create, :edit]
+
+  match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]
   resources :client_accounts
 
   namespace 'files' do

@@ -283,6 +283,20 @@ class ClientAccount < ActiveRecord::Base
   end
 
   #
+  # Searches for client accounts that have name or client_code similar to search_term provided.
+  # Returns an array of hash(not ClientAccount objects) containing attributes sufficient to represent clients in combobox.
+  # Attributes include id and name(identifier)
+  #
+  def self.find_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
+    client_accounts.collect do |client_account|
+      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      { :text=> identifier, :id => client_account['id'].to_s }
+    end
+  end
+
+  #
   # Create dummy data(client accounts and associated ledgers) to test speed improvements, while accessing combobox.
   # Never to be used in production.
   #
