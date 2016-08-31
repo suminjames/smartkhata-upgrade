@@ -17,7 +17,7 @@
             :id,                                        |
             :name_and_nepse_code,                                      |
             {include_blank: true},                 |
-            {class: 'form-control combobox filterrific-select min-3', 'data-placeholder': '- Any -' }) |
+            {class: 'form-control combobox combobox-select min-3', 'data-placeholder': '- Any -' }) |
         .col-xs-3
           %label
             Filter
@@ -25,7 +25,7 @@
             :client_filter,                              |
             @filterrific.select_options[:client_filter], |
             {include_blank: true},                 |
-            {class: 'form-control combobox filterrific-select', 'data-placeholder': '- Any -' }) |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
       .row
         .col-xs-3.top-buffer-sm
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
