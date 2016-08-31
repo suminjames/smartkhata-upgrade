@@ -10,7 +10,7 @@ task :patch_internal_opening_balances, [:tenant] => :environment do |task,args|
           "Bank:Global IME Bank(7501010000706)" => -31970972.63,
           "Cash" => 39.39,
           "Nepse Purchase" => -81098706.09,
-          # "Nepse Sales" => 1,
+          "Nepse Sales" => 1789927.89,
           # "Purchase Commission" => 1,
           # "Sales Commission" => 1,
         }
