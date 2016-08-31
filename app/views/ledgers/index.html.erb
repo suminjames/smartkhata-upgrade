@@ -32,10 +32,9 @@
 
 <%= render 'shared/pagination', collection_to_paginate: @ledgers %>
 
-<% # OPTIMIZE Incorporate search term specific message %>
 <% if !params[:search_by].blank? && !params[:commit].blank? && !@ledgers.present? %>
     <% if params[:search_by] == 'ledger_name' %>
-        <p>There are no ledgers matching the name '<%= params[:search_term] %>'.</p>
+        <p>There are no ledgers matching the search.</p>
     <% end %>
 <% end %>
 
