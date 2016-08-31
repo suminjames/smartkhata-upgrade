@@ -282,4 +282,34 @@ class ClientAccount < ActiveRecord::Base
     pretty_string
   end
 
+  #
+  # Create dummy data(client accounts and associated ledgers) to test speed improvements, while accessing combobox.
+  # Never to be used in production.
+  #
+  def self.populate_dummy_data
+    if !Rails.env.production?
+      10000.times do |i|
+        i = i + 10
+        new_client = ClientAccount.new
+        new_client.name = "Client#{i}"
+        new_client.nepse_code = "NepseCode#{i}"
+        new_client.citizen_passport = i
+        new_client.dob = '1988-12-21'
+        new_client.father_mother = 'Client Father'
+        new_client.granfather_father_inlaw = 'Client Mother'
+        new_client.address1_perm = 'Permanent Address 1'
+        new_client.city_perm = 'Permanent City'
+        new_client.state_perm = 'Permanent State'
+        new_client.country_perm = 'Permanent Country'
+        new_client.save!
+
+        new_ledger = Ledger.new
+        new_ledger.name = new_client.name
+        new_ledger.client_account_id = new_client.id
+        new_ledger.client_code = new_client.nepse_code
+        new_ledger.save!
+      end
+    end
+  end
+
 end

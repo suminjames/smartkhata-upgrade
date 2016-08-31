@@ -34,6 +34,27 @@ $(document).on("ready page:load", function(){
         // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
         minimumInputLength: 3,
     });
+    $('#ledgers_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/ledgers/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
     hideFilterrificSpinner()
 });
 

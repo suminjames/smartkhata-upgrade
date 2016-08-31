@@ -75,6 +75,7 @@ Rails.application.routes.draw do
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
   match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
   match "/ledgers/daybook" => "ledgers#daybook", via: [:get]
+  match "/ledgers/combobox_ajax_filter" => "ledgers#combobox_ajax_filter", via: [:get]
 
   resources :ledgers do
     collection do
