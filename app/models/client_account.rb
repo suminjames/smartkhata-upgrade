@@ -104,7 +104,6 @@ class ClientAccount < ActiveRecord::Base
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
-  scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
@@ -249,8 +248,17 @@ class ClientAccount < ActiveRecord::Base
     str
   end
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
+  def self.existing_referrers_names
+    where.not(referrer_name: '').order(:referrer_name).uniq.pluck(:referrer_name)
+  end
+
+  def self.options_for_client_select(filterrific_params)
+    client_arr = []
+    if filterrific_params.present? && filterrific_params[:by_client_id].present?
+      client_id = filterrific_params[:by_client_id]
+      client_arr = self.by_client_id(client_id)
+    end
+    client_arr
   end
 
   def self.options_for_client_filter
@@ -291,8 +299,7 @@ class ClientAccount < ActiveRecord::Base
     search_term = search_term.present? ? search_term.to_s : ''
     client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
-      identifier = "#{client_account['name']} "
-      identifier += "(#{ledger['client_code']})"
+      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
       { :text=> identifier, :id => client_account['id'].to_s }
     end
   end

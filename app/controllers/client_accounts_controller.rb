@@ -9,11 +9,13 @@ class ClientAccountsController < ApplicationController
         ClientAccount,
         params[:filterrific],
         select_options: {
-            by_client_id: ClientAccount.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             client_filter: ClientAccount.options_for_client_filter,
         },
         persistence_id: false
     ) or return
+
+    @selected_ledger_for_combobox_in_arr = @ledgers
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
     @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(items_per_page)
@@ -65,9 +67,9 @@ class ClientAccountsController < ApplicationController
 
   # GET /client_accounts/new
   def new
-    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
-    @clients_for_combobox = ClientAccount.all.order(:name)
-    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
+    # A (yet to be created) new client account doesn't have group leader. So pass empty array.
+    @group_leader_for_combobox_in_arr = []
+    @referrers_names_for_combobox = ClientAccount.existing_referrers_names
     @client_account = ClientAccount.new
     authorize @client_account
   end
@@ -75,9 +77,8 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts/1/edit
   def edit
     authorize @client_account
-    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
-    @clients_for_combobox = ClientAccount.all.order(:name)
-    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
+    @group_leader_for_combobox_in_arr = @client_account.group_leader.present? ? [@client_account.group_leader] : []
+    @referrers_names_for_combobox = ClientAccount.existing_referrers_names
 
     @from_path = request.referer
   end

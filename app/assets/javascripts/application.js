@@ -114,6 +114,52 @@ $(document).on("ready page:load", function(){
             }
         }
     });
+    $('#client_accounts_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
+    $('#client_accounts_group_leader_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#client_accounts_referrer_name_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        tags: true
+    });
 
     hideFilterrificSpinner()
 });
