@@ -4,10 +4,12 @@ class ImportPayout < ImportFile
   # process the file
   include ShareInventoryModule
   include CommissionModule
-  
+
+  attr_reader :sales_settlement_ids
+
   def initialize(file)
     super(file)
-    @sales_settlement_id = nil
+    @sales_settlement_ids = []
   end
 
   def process
@@ -20,25 +22,41 @@ class ImportPayout < ImportFile
     # inorder to icorporate both row to hash in csv and the hash from roo xls
     # used the "SETT_ID" instead of [:SETT_ID]
     # TODO fix this statement
-    @settlement_id = @processed_data[0]['SETT_ID'] ? @processed_data[0]['SETT_ID'].to_i : @processed_data[0][:SETT_ID].to_i
-    # do not reprocess file if it is already uploaded
-    settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
-    @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
+    # @settlement_id = @processed_data[0]['SETT_ID'] ? @processed_data[0]['SETT_ID'].to_i : @processed_data[0][:SETT_ID].to_i
+    # # do not reprocess file if it is already uploaded
+    # settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
+    # @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
     unless @error_message
       @date = Time.now.to_date
       ActiveRecord::Base.transaction do
+
+        # list of settlement_ids for multiple settlements.
+        settlement_ids = Set.new
+
+
         @processed_data.each do |hash|
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
           # also we can hash.deep_symbolize_keys!
 
+          settlement_id = hash['SETT_ID'].to_i
+          unless settlement_ids.include? settlement_id
+            settlement_cm_file = SalesSettlement.find_by(settlement_id: settlement_id)
 
-          unless hash['SETT_ID'].to_i == @settlement_id
-            import_error("The file you have uploaded has multiple settlement ids")
-            raise ActiveRecord::Rollback
-            break
+            unless settlement_cm_file.nil?
+              import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
+              raise ActiveRecord::Rollback
+              break
+            end
           end
+          settlement_ids.add(settlement_id)
+
+          # unless hash['SETT_ID'].to_i == @settlement_id
+          #   import_error("The file you have uploaded has multiple settlement ids")
+          #   raise ActiveRecord::Rollback
+          #   break
+          # end
 
           # corrupt file check
           unless hash['CONTRACTNO'].present?
@@ -55,7 +73,7 @@ class ImportPayout < ImportFile
             break
           end
 
-          @date = Date.parse(hash['TRADE_DATE'])
+          # @date = Date.parse(hash['TRADE_DATE'])
 
           # nepse charges tds which is payable by the broker
           # so we need to deduct  the tds while charging the client
@@ -125,11 +143,12 @@ class ImportPayout < ImportFile
           transaction.save!
         end
 
-        # convert a string to date
-
-        @sales_settlement_id = SalesSettlement.find_or_create_by!(settlement_id: @settlement_id, settlement_date: @date).id
+        # return list of sales settlement ids
+        # that track the file uploads for different settlement
+        settlement_ids.each do |settlement_id|
+          @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+        end
       end
-
     end
 
 

@@ -27,8 +27,11 @@ class Files::SalesController < Files::FilesController
       return
     end
 
-    @sales_settlement_id = payout_upload.sales_settlement_id
-    redirect_to sales_settlement_path(@sales_settlement_id) and return
+    # sales settlement ids will be 1 if single settlement is uploaded
+    @sales_settlement_id = payout_upload.sales_settlement_ids.first if payout_upload.sales_settlement_ids.size == 1
+
+    redirect_to sales_settlement_path(@sales_settlement_id) and return if @sales_settlement_id.present?
+
   end
 
   # method to calculate the base price
