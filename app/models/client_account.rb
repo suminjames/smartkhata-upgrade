@@ -97,7 +97,7 @@ class ClientAccount < ActiveRecord::Base
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
-  validates_uniqueness_of :nepse_code, :allow_nil => true
+  validates_uniqueness_of :nepse_code, :allow_blank => true
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
@@ -291,7 +291,8 @@ class ClientAccount < ActiveRecord::Base
     search_term = search_term.present? ? search_term.to_s : ''
     client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
-      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      identifier = "#{client_account['name']} "
+      identifier += "(#{ledger['client_code']})"
       { :text=> identifier, :id => client_account['id'].to_s }
     end
   end
