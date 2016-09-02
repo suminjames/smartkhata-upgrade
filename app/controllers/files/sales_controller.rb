@@ -30,7 +30,11 @@ class Files::SalesController < Files::FilesController
     # sales settlement ids will be 1 if single settlement is uploaded
     @sales_settlement_id = payout_upload.sales_settlement_ids.first if payout_upload.sales_settlement_ids.size == 1
 
+    # if single sales settlement redirect to the path where user can edit base price
     redirect_to sales_settlement_path(@sales_settlement_id) and return if @sales_settlement_id.present?
+
+    # else redirect to pending sales settlement
+    redirect_to sales_settlements_path(pending: true) if payout_upload.sales_settlement_ids.size > 1
 
   end
 

@@ -22,7 +22,6 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
           # find the client account with ac_code
           # ac_code is the primary key in mandala for client account and balance mapping
           client_account = ClientAccount.find_by(ac_code: hash["CUSTOMER_CODE"])
-
           next if skip_records(hash, client_account, fy_code)
 
           # find or create client ledger and assign client name to the ledger
@@ -32,24 +31,25 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
 
           description = hash['REMARKS']
           _date = Date.parse(hash["ENTERED_DATE"]).strftime('%Y/%m/%d').to_date
-          voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date))
-          voucher.desc = description
+
+          voucher = nil
           _amount = hash['AMOUNT'].to_f
 
           if hash["VOUCHER_CODE"] == 'PVB'
-            voucher.voucher_type = Voucher.voucher_types[:payment]
-            process_accounts(client_ledger, voucher, true, _amount, description, branch_id, @date)
-            process_accounts(bank_ledger, voucher, false, _amount, description, branch_id, @date)
+            voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:payment])
+            process_accounts(client_ledger, voucher, true, _amount, description, branch_id, _date)
+            process_accounts(bank_ledger, voucher, false, _amount, description, branch_id, _date)
           elsif hash["VOUCHER_CODE"] == 'RCB'
-            voucher.voucher_type = Voucher.voucher_types[:receipt]
-            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, @date)
-            process_accounts(bank_ledger, voucher, true, _amount, description, branch_id, @date)
+            voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:receipt])
+            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, _date)
+            process_accounts(bank_ledger, voucher, true, _amount, description, branch_id, _date)
           else
-            voucher.voucher_type = Voucher.voucher_types[:receipt]
-            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, @date)
-            process_accounts(cash_ledger, voucher, true, _amount, description, branch_id, @date)
+            voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:receipt])
+            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, _date)
+            process_accounts(cash_ledger, voucher, true, _amount, description, branch_id, _date)
           end
 
+          voucher.desc = description
           voucher.complete!
           voucher.save!
         end

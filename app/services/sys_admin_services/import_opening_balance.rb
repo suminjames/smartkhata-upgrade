@@ -16,6 +16,7 @@ class SysAdminServices::ImportOpeningBalance  < ImportFile
 
 
         @processed_data.each do |hash|
+
           # take only the data that is greater than or equal to threshold of current fiscal year
           if hash["AC_CODE"].nil? || Date.parse(hash["BALANCE_DATE"]).strftime('%Y/%m/%d').to_date < fiscal_year_first_day(fy_code)
             next
