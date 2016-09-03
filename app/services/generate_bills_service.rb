@@ -19,8 +19,9 @@ class GenerateBillsService
 
       share_transactions.each do |transaction|
         client_code = transaction.client_account_id
-        # create a custom key to hold the similar isin transaction per user in a same bill
-        custom_key = (client_code.to_s)
+        # create a custom key to hold the similar isin transactionp per day per user in a same bill
+        custom_key = ("#{client_code.to_s}-#{transaction.date.to_s}")
+
         client_account = transaction.client_account
         cost_center_id = client_account.branch_id
         commission = transaction.commission_amount

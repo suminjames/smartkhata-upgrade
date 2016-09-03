@@ -45,9 +45,10 @@ class ImportPayout < ImportFile
             settlement_cm_file = SalesSettlement.find_by(settlement_id: settlement_id)
 
             unless settlement_cm_file.nil?
-              import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
-              raise ActiveRecord::Rollback
-              break
+              # import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
+              # raise ActiveRecord::Rollback
+              # break
+              next
             end
           end
           settlement_ids.add(settlement_id)
@@ -75,10 +76,6 @@ class ImportPayout < ImportFile
 
           # @date = Date.parse(hash['TRADE_DATE'])
 
-          # nepse charges tds which is payable by the broker
-          # so we need to deduct  the tds while charging the client
-          chargeable_on_sale_rate = broker_commission_rate(@date) * (1 - tds_rate)
-          chargeable_by_nepse = nepse_commission_rate(@date) + broker_commission_rate(@date) * tds_rate
 
 
 
@@ -89,11 +86,18 @@ class ImportPayout < ImportFile
 
 
           if transaction.nil?
-            # abort(hash['CONTRACTNO'])
+            abort(hash['CONTRACTNO'])
             import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
             raise ActiveRecord::Rollback
             break
           end
+
+
+          # nepse charges tds which is payable by the broker
+          # so we need to deduct  the tds while charging the client
+          chargeable_on_sale_rate = broker_commission_rate(transaction.date) * (1 - tds_rate)
+          chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(@date) * tds_rate
+
 
 
           amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f

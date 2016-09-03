@@ -112,10 +112,14 @@ namespace :smartkhata_data do
     if args.tenant.present?
       Apartment::Tenant.switch!(args.tenant)
       UserSession.user= User.first
+      UserSession.selected_branch_id = 1
+      UserSession.selected_fy_code = 7374
+
       @sales_settlements = SalesSettlement.all
 
       puts "Generating sales bills .."
       @sales_settlements.each do |s|
+        puts "Generating bills for settlement: #{s.settlement_id}"
         GenerateBillsService.new(sales_settlement: s).process if s.pending?
       end
       puts "Task completed "
