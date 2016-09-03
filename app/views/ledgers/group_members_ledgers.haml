@@ -3,9 +3,9 @@
   = form_tag group_member_ledgers_path,:method => "get", :enforce_utf8 => false do
     .row
       .form-group.col-sm-4
-        = select_tag "client_account_id", options_from_collection_for_select(@client_with_group_members, 'id', 'name', params[:client_account_id]), class: 'form-control combobox', include_blank: false, prompt: 'Select a Client Account...'
+        = select_tag "client_account_id", options_from_collection_for_select(@client_with_group_members, 'id', 'name', params[:client_account_id]), class: 'form-control combobox filterrific-select min-3', include_blank: true, prompt: 'Select a Client Account...'
       .col-sm-4
-        = submit_tag "Search", class: 'btn btn-flat btn-primary'
+        = submit_tag "Search", class: 'btn btn-flat btn-primary', tabindex: '1'
 - elsif @ledgers.size > 0
   = form_tag transfer_group_member_balance_ledgers_path do
     .row

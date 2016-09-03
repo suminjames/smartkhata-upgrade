@@ -44,7 +44,7 @@ class ActiveSupport::TestCase
     assign_and_assert = lambda { |attr, val|
       # Dynamic dispatch!
       record.send("#{attr}=", val)
-      assert record.invalid?
+      assert record.invalid?, "#{record} should be invalid when #{attr} equals '#{val}'"
     }
     if attribute.is_a? Array
       # Test multiple attributes with the same value

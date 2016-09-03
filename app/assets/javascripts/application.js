@@ -26,12 +26,10 @@
 $(document).on("ready page:load", function(){
     $('.filterrific-select').select2({
         theme: 'bootstrap',
-        tags: true,
         allowClear: true
     });
     $('.filterrific-select.min-3').select2({
         theme: 'bootstrap',
-        tags: true,
         allowClear: true,
         // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
         minimumInputLength: 3,

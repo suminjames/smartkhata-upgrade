@@ -204,7 +204,7 @@ class Files::FloorsheetsController < Files::FilesController
     end
 
 
-
+    # # client information should be available before file upload
     # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase)
     # if client.nil?
     #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
