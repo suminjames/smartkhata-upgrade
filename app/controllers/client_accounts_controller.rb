@@ -67,9 +67,6 @@ class ClientAccountsController < ApplicationController
 
   # GET /client_accounts/new
   def new
-    # A (yet to be created) new client account doesn't have group leader. So pass empty array.
-    @group_leader_for_combobox_in_arr = []
-    @referrers_names_for_combobox = ClientAccount.existing_referrers_names
     @client_account = ClientAccount.new
     authorize @client_account
   end
@@ -77,9 +74,6 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts/1/edit
   def edit
     authorize @client_account
-    @group_leader_for_combobox_in_arr = @client_account.group_leader.present? ? [@client_account.group_leader] : []
-    @referrers_names_for_combobox = ClientAccount.existing_referrers_names
-
     @from_path = request.referer
   end
 
