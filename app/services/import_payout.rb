@@ -61,7 +61,6 @@ class ImportPayout < ImportFile
 
           # corrupt file check
           unless hash['CONTRACTNO'].present?
-            puts hash
             import_error("The file you have uploaded has missing contract number")
             raise ActiveRecord::Rollback
             break
@@ -86,7 +85,6 @@ class ImportPayout < ImportFile
 
 
           if transaction.nil?
-            abort(hash['CONTRACTNO'])
             import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
             raise ActiveRecord::Rollback
             break
