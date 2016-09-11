@@ -94,8 +94,8 @@ class ProcessSalesBillService
         cheque_entry.save!
         particular.cheque_entries_on_payment << cheque_entry
         particular.save!
-        #   TODO(Subas) This is redundant in Voucher/create class
-        settlement = purchase_sales_settlement(voucher, ledger: client_account.ledger, particular: particular, client_account: client_account, description_bills: description)
+
+        settlement = purchase_sales_settlement(voucher, ledger: client_account.ledger, particular: particular, client_account: client_account, settlement_description: description)
         voucher.settlements << settlement if settlement.present?
       end
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
@@ -128,50 +128,19 @@ class ProcessSalesBillService
     client_account = attrs[:client_account]
     settlement_description = attrs[:settlement_description]
     particular = attrs[:particular]
-    is_single_settlement = attrs[:is_single_settlement] || false
-    receipt_amount = attrs[:receipt_amount] || 0
-    client_group_leader_account = attrs[:client_group_leader_account]
-    vendor_account = attrs[:vendor_account]
+    settlement_amount =  particular.amount
 
-    settler_name = ""
     settlement = nil
     settlement_description ||= voucher.desc
 
-    # incase of multiple settlement or default take the amount from particular
-    if !is_single_settlement
-      if voucher.receipt?
-        receipt_amount += (particular.cr?) ? particular.amount : 0
-      elsif voucher.payment?
-        receipt_amount += (particular.dr?) ? particular.amount : 0
-      end
-    end
-
-    # single settlement for all the transaction exist only for the group leader and vendor accounting
-    if is_single_settlement
-      if client_group_leader_account.present?
-        settler_name = client_group_leader_account.name
-      else
-        settler_name = vendor_account.name
-      end
-    elsif client_account.present?
+    if client_account.present?
       settler_name = client_account.name
     else
       settler_name = ledger.name
     end
 
-
-    if is_single_settlement
-      settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
-      settlement.client_account = client_group_leader_account
-      settlement.vendor_account = vendor_account
-    elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
-      settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
-      settlement.client_account = client_account
-    end
+    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
+    settlement.client_account = client_account
 
     settlement
   end
