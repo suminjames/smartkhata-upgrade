@@ -121,14 +121,45 @@ class Ledger < ActiveRecord::Base
   end
 
   def update_custom(params)
+    valid = false
     self.name = params[:name]
     self.group_id = params[:group_id]
     self.vendor_account_id= params[:vendor_account_id]
-    unless params[:opening_blnc].nil?
-      self.opening_blnc = params[:opening_blnc_type].to_i == Particular.transaction_types['cr'] ? params[:opening_blnc].to_f * -1 : params[:opening_blnc].to_f.abs
-      self.closing_blnc = self.opening_blnc
+
+    if params[:ledger_balances_attributes]
+      ledger_balances = []
+      branch_ids = []
+      total_balance = 0.0
+
+      params[:ledger_balances_attributes].values.each do |balance|
+        ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
+        self.association(:ledger_balances).add_to_target(ledger_balance)
+      end
+
+      self.ledger_balances.each do |balance|
+        if balance.opening_balance >=0
+          if branch_ids.include?(balance.branch_id)
+            balance.errors.add(:branch_id, "cant have multiple entry")
+            valid = false
+            break
+          end
+          valid = true
+          branch_ids << balance.branch_id
+          total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+          next
+        end
+        valid = false
+        balance.errors.add(:opening_balance, "cant be a negative amount")
+        break
+      end
+
+      if valid
+        self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
+        self.save
+      else
+        false
+      end
     end
-    self.save!
   end
 
   # get the particulars with running balance

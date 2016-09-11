@@ -20,9 +20,11 @@
               <tr>
                 <td><%= settlement.settlement_id %> </td>
                 <td>
-                  <%= "#{ad_to_bs_string(settlement.settlement_date)} BS" %>
-                  <br>
-                  <%= "#{settlement.settlement_date} AD" %>
+                  <% if settlement.settlement_date %>
+                      <%= "#{ad_to_bs_string(settlement.settlement_date)} BS" %>
+                      <br>
+                      <%= "#{settlement.settlement_date} AD" %>
+                  <% end %>
                 </td>
                 <td>
                   <%= "#{ad_to_bs_string(settlement.updated_at.to_date)} BS" %>

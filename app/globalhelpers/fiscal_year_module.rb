@@ -50,6 +50,15 @@ module FiscalYearModule
   end
 
   #
+  # get first day of a fiscal year
+  #
+  def fiscal_year_first_day(fy_code = UserSession.selected_fy_code)
+    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
+    return fiscal_year_breakpoint_single[1] if fiscal_year_breakpoint_single.present?
+    return Time.now.to_date
+  end
+
+  #
   # get last day of a fiscal year
   #
   def fiscal_year_last_day(fy_code = UserSession.selected_fy_code)
