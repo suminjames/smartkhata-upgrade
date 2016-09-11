@@ -112,7 +112,7 @@ $(document).on 'click', '.add_fields', (event) ->
     theme: "bootstrap",
     selectOnClose: true
   })
-  $('.filterrific-select.min-3').select2({
+  $('.combobox-select.min-3').select2({
     theme: 'bootstrap',
     tags: true,
     allowClear: true,

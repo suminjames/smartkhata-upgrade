@@ -14,10 +14,7 @@ class EmployeeAccountsController < ApplicationController
       return
     end
 
-    # Instance variable used by combobox in view to populate name
-    if params[:search_by] == 'name'
-      @employees_for_combobox = EmployeeAccount.all.order(:name)
-    end
+    @selected_employee_for_combobox_in_arr = []
 
     if params[:show] == 'all'
       @employee_accounts = EmployeeAccount.all
@@ -27,6 +24,7 @@ class EmployeeAccountsController < ApplicationController
       case search_by
         when 'name'
           @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
+          @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
         else
           @employee_accounts = []
       end
@@ -174,6 +172,21 @@ class EmployeeAccountsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to employee_accounts_url, notice: 'Employee account was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  #
+  # Entertains Ajax request made by combobox used in various views to populate employees.
+  #
+  def combobox_ajax_filter
+    search_term = params[:q]
+    employee_accounts = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+      employee_accounts = EmployeeAccount.find_similar_to_term search_term
+    end
+    respond_to do |format|
+      format.json { render json: employee_accounts, status: :ok }
     end
   end
 

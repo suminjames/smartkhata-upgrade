@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
   match "/employee_accounts/employee_access" => "employee_accounts#employee_access", via: [:get]
   match "/employee_accounts/update_employee_access" => "employee_accounts#update_employee_access", via: [:post]
+  match "/employee_accounts/combobox_ajax_filter" => "employee_accounts#combobox_ajax_filter", via: [:get]
 
   resources :employee_accounts
   resources :banks
@@ -75,6 +76,7 @@ Rails.application.routes.draw do
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
   match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
   match "/ledgers/daybook" => "ledgers#daybook", via: [:get]
+  match "/ledgers/combobox_ajax_filter" => "ledgers#combobox_ajax_filter", via: [:get]
 
   resources :ledgers do
     collection do
@@ -95,6 +97,8 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   devise_for :users
   resources :users, except: [:new, :create, :edit]
+
+  match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]
   resources :client_accounts
 
   namespace 'files' do

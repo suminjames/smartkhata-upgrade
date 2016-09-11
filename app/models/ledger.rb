@@ -84,25 +84,6 @@ class Ledger < ActiveRecord::Base
   }
 
   #
-  # Ledger name is appended with relevant code.
-  # If ledger is client_account_ledger, append nepse_code.
-  # And likewise...
-  #
-  # A ledger
-  #  belongs_to :group
-  #  belongs_to :bank_account
-  #  belongs_to :client_account
-  #  belongs_to :vendor_account
-  # TODO(sarojk): Incorporate other visual identifiers for bank, vendor, employee, group, etc.
-  def name_and_code
-    if self.client_account.present?
-      self.client_account.name_and_nepse_code
-    else
-      "#{self.name} (**Internal**)"
-    end
-  end
-
-  #
   # check if the ledger name clashes with system reserved ledger name
   #
   def name_from_reserved?
@@ -220,4 +201,51 @@ class Ledger < ActiveRecord::Base
     subtree = self.class.tree_sql_for(self)
     Ledger.by_fy_code(fy_code).where("group_id IN (#{subtree})")
   end
+
+  #
+  # Ledger name is appended with relevant code.
+  # If ledger is client_account_ledger, append nepse_code.
+  # And likewise...
+  #
+  # A ledger
+  #  belongs_to :group
+  #  belongs_to :bank_account
+  #  belongs_to :client_account
+  #  belongs_to :vendor_account
+  # TODO(sarojk): Incorporate other visual identifiers for bank, vendor, employee, group, etc.
+  def name_and_code
+    if self.client_account.present?
+      "#{self.name} (#{self.client_code})"
+    else
+      "#{self.name} (**Internal**)"
+    end
+  end
+
+
+  #
+  # Searches for ledgers that have name or client_code similar to search_term provided.
+  # Returns an array of hash(not Ledger objects) containing attributes sufficient to represent ledgers in combobox.
+  # Attributes include id and name(identifier)
+  #
+  def self.find_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    ledgers = Ledger.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    ledgers.collect do |ledger|
+      identifier = "#{ledger['name']} "
+      if ledger['client_account_id'].present?
+        identifier += "(#{ledger['client_code']})"
+      elsif ledger['bank_account_id'].present?
+        identifier += '(**Bank Account**)'
+      elsif ledger['employee_account_id'].present?
+        identifier += '(**Employee**)'
+      elsif ledger['vendor_account_id'].present?
+        identifier += "(**Vendor**)"
+      else
+        # Internal Ledger
+        identifier += "(**Internal**)"
+      end
+      { :text=> identifier, :id => ledger['id'].to_s }
+    end
+  end
+
 end

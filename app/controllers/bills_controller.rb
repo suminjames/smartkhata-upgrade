@@ -20,11 +20,7 @@ class BillsController < ApplicationController
       return
     end
 
-    # Instance variable used by combobox in view to populate name
-    if params[:search_by] == 'client_name'
-      @clients_for_combobox = ClientAccount.all.order(:name)
-    end
-
+    @selected_client_for_combobox_in_arr = []
     # Populate (and route when needed) as per the params
     if params[:search_by] == 'all_bills'
       @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])
@@ -41,6 +37,8 @@ class BillsController < ApplicationController
           @bills = client_account.get_all_related_bills.decorate
           render :select_bills_for_settlement and return
         when 'client_name'
+          client_account = ClientAccount.find_by_id(search_term)
+          @selected_client_for_combobox_in_arr = [client_account] if client_account
           @bills = Bill.find_by_client_id(search_term)
         when 'bill_number'
           full_bill_number_str = search_term

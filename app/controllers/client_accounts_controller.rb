@@ -9,11 +9,13 @@ class ClientAccountsController < ApplicationController
         ClientAccount,
         params[:filterrific],
         select_options: {
-            by_client_id: ClientAccount.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             client_filter: ClientAccount.options_for_client_filter,
         },
         persistence_id: false
     ) or return
+
+    @selected_ledger_for_combobox_in_arr = @ledgers
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
     @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(items_per_page)
@@ -65,9 +67,6 @@ class ClientAccountsController < ApplicationController
 
   # GET /client_accounts/new
   def new
-    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
-    @clients_for_combobox = ClientAccount.all.order(:name)
-    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
     @client_account = ClientAccount.new
     authorize @client_account
   end
@@ -75,10 +74,6 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts/1/edit
   def edit
     authorize @client_account
-    # Instance variable used by combobox in view to populate names for group leader  and referrer selection
-    @clients_for_combobox = ClientAccount.all.order(:name)
-    @referrers_names_for_combobox = ClientAccount.get_existing_referrers_names
-
     @from_path = request.referer
   end
 
@@ -130,6 +125,22 @@ class ClientAccountsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to client_accounts_url, notice: 'Client account was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+
+  #
+  # Entertains Ajax request made by combobox used in various views to populate clients.
+  #
+  def combobox_ajax_filter
+    search_term = params[:q]
+    client_accounts = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+      client_accounts = ClientAccount.find_similar_to_term search_term
+    end
+    respond_to do |format|
+      format.json { render json: client_accounts, status: :ok }
     end
   end
 

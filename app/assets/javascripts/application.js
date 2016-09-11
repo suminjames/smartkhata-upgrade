@@ -24,16 +24,143 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
-    $('.filterrific-select').select2({
+    $('.combobox-select').select2({
         theme: 'bootstrap',
         allowClear: true
     });
-    $('.filterrific-select.min-3').select2({
+    $('.combobox-select.min-3').select2({
         theme: 'bootstrap',
         allowClear: true,
         // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
         minimumInputLength: 3,
     });
+    $('#ledgers_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/ledgers/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#bills_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#employee_accounts_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/employee_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#orders_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#client_accounts_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
+    $('#client_accounts_group_leader_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+    $('#client_accounts_referrer_name_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        tags: true
+    });
+
     hideFilterrificSpinner()
 });
 
