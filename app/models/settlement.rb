@@ -32,6 +32,7 @@ class Settlement < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
 
   enum settlement_type: [:receipt, :payment]
+  enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
 
   belongs_to :client_account
   belongs_to :vendor_account
