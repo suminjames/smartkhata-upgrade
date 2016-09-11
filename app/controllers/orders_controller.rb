@@ -11,10 +11,7 @@ class OrdersController < ApplicationController
       return
     end
 
-    # Instance variable used by combobox in view to populate name
-    if params[:search_by] == 'client_name'
-      @clients_for_combobox = ClientAccount.all.order(:name)
-    end
+    @selected_client_for_combobox_in_arr = []
 
     # Empty @orders if none of the following conditions is matched
     @orders = []
@@ -23,6 +20,8 @@ class OrdersController < ApplicationController
 
       if params[:search_by] == 'client_name'
         @orders = Order.order(:id).find_by_client_id(params[:search_term])
+        client_account = ClientAccount.find_by_id(params[:search_term])
+        @selected_client_for_combobox_in_arr = [client_account] if client_account
       end
 
       if params[:search_by] == 'order_number'

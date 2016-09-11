@@ -12,43 +12,43 @@
     =link_to "Search by Date Range",  orders_path(search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range")? "active-link" : "")}
     /Sub-menu ENDS
 
-    /Search form BEGINS
-    %div.clearfix.search-form
+/Search form BEGINS
+%div.clearfix.search-form
 
-    -if params[:search_by] == 'client_name'
-      = form_tag(orders_path, :method => "get", id: "search-form") do
-        %div.col-sm-3
-          = hidden_field_tag :search_by, "client_name"
-          = select_tag "search_term", options_from_collection_for_select(clients_for_combobox, 'id', 'name', params[:search_term]), class: 'form-control combobox', include_blank: false, prompt: 'Select a client...'
-        = submit_tag "Search", class: 'btn btn-sm'
+  -if params[:search_by] == 'client_name'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      %div.col-sm-3
+        = hidden_field_tag :search_by, "client_name"
+        = select_tag "search_term", options_from_collection_for_select(selected_client_for_combobox_in_arr, 'id', 'name_and_nepse_code', params[:search_term]), class: 'form-control combobox combobox-select min-3', id: 'orders_index_combobox', include_blank: true, 'data-placeholder': 'Select a client...'
+      = submit_tag "Search", class: 'btn btn-flat btn-primary', tabindex: '1'
 
-    -if params[:search_by] == 'order_number'
-      = form_tag(orders_path, :method => "get", id: "search-form") do
-        = hidden_field_tag :search_by, "order_number"
-        = text_field_tag :search_term, params[:search_term], placeholder: "Search by Order Number", :autofocus => true
-        = submit_tag "Search"
+  -if params[:search_by] == 'order_number'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "order_number"
+      = text_field_tag :search_term, params[:search_term], placeholder: "Search by Order Number", :autofocus => true
+      = submit_tag "Search"
 
-    -if params[:search_by] == 'date'
-      = form_tag(orders_path, :method => "get", id: "search-form") do
-        = hidden_field_tag :search_by, "date"
-        = text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD"
-        = submit_tag "Search"
+  -if params[:search_by] == 'date'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "date"
+      = text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD"
+      = submit_tag "Search"
 
-    -if params[:search_by] == 'date_range'
-      = form_tag(orders_path, :method => "get", id: "search-form") do
-        = hidden_field_tag :search_by, "date_range"
-        - text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
-        -text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
-        = text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD"
-        = text_field_tag "search_term[date_to]", text_field_value_2, placeholder:  "YYYY-MM-DD"
-        = submit_tag "Search"
+  -if params[:search_by] == 'date_range'
+    = form_tag(orders_path, :method => "get", id: "search-form") do
+      = hidden_field_tag :search_by, "date_range"
+      - text_field_value_1 = params[:search_term]['date_from'] unless params[:search_term].blank?
+      -text_field_value_2 = params[:search_term]['date_to'] unless params[:search_term].blank?
+      = text_field_tag "search_term[date_from]", text_field_value_1, placeholder: "YYYY-MM-DD"
+      = text_field_tag "search_term[date_to]", text_field_value_2, placeholder:  "YYYY-MM-DD"
+      = submit_tag "Search"
 
 /Search form ENDS
 
 /Search term specific message BEGINS
 - if params[:commit].present? && orders.blank?
   -if params[:search_by] == 'client_name' || params[:search_by] == 'order_number'
-    %p There are no orders matching the term '#{params[:search_term]}'.
+    %p There are no orders matching the search.
   -if params[:search_by] == 'date'
     %p There are no orders matching the date '#{params[:search_term]}'.
   -if params[:search_by] == 'date_range'

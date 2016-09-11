@@ -231,6 +231,9 @@ GEM
     pdf-core (0.6.1)
     pg (0.18.4)
     pkg-config (1.1.7)
+    pluck_to_hash (1.0.0)
+      activerecord (>= 4.0.2)
+      activesupport (>= 4.0.2)
     prawn (2.1.0)
       pdf-core (~> 0.6.1)
       ttfunk (~> 1.4.0)
@@ -423,6 +426,7 @@ DEPENDENCIES
   minitest-reporters (~> 1.1, >= 1.1.8)
   nepali_calendar
   pg
+  pluck_to_hash
   prawn
   prawn-table (~> 0.2.2)
   puma

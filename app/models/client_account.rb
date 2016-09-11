@@ -97,14 +97,13 @@ class ClientAccount < ActiveRecord::Base
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
-  validates_uniqueness_of :nepse_code, :allow_nil => true
+  validates_uniqueness_of :nepse_code, :allow_blank => true
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
   scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
-  scope :get_existing_referrers_names, -> { where.not(referrer_name: '').select(:referrer_name).distinct }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
@@ -249,8 +248,17 @@ class ClientAccount < ActiveRecord::Base
     str
   end
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
+  def self.existing_referrers_names
+    where.not(referrer_name: '').order(:referrer_name).uniq.pluck(:referrer_name)
+  end
+
+  def self.options_for_client_select(filterrific_params)
+    client_arr = []
+    if filterrific_params.present? && filterrific_params[:by_client_id].present?
+      client_id = filterrific_params[:by_client_id]
+      client_arr = self.by_client_id(client_id)
+    end
+    client_arr
   end
 
   def self.options_for_client_filter
@@ -280,6 +288,50 @@ class ClientAccount < ActiveRecord::Base
       end
     end
     pretty_string
+  end
+
+  #
+  # Searches for client accounts that have name or client_code similar to search_term provided.
+  # Returns an array of hash(not ClientAccount objects) containing attributes sufficient to represent clients in combobox.
+  # Attributes include id and name(identifier)
+  #
+  def self.find_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
+    client_accounts.collect do |client_account|
+      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      { :text=> identifier, :id => client_account['id'].to_s }
+    end
+  end
+
+  #
+  # Create dummy data(client accounts and associated ledgers) to test speed improvements, while accessing combobox.
+  # Never to be used in production.
+  #
+  def self.populate_dummy_data
+    if !Rails.env.production?
+      10000.times do |i|
+        i = i + 10
+        new_client = ClientAccount.new
+        new_client.name = "Client#{i}"
+        new_client.nepse_code = "NepseCode#{i}"
+        new_client.citizen_passport = i
+        new_client.dob = '1988-12-21'
+        new_client.father_mother = 'Client Father'
+        new_client.granfather_father_inlaw = 'Client Mother'
+        new_client.address1_perm = 'Permanent Address 1'
+        new_client.city_perm = 'Permanent City'
+        new_client.state_perm = 'Permanent State'
+        new_client.country_perm = 'Permanent Country'
+        new_client.save!
+
+        new_ledger = Ledger.new
+        new_ledger.name = new_client.name
+        new_ledger.client_account_id = new_client.id
+        new_ledger.client_code = new_client.nepse_code
+        new_ledger.save!
+      end
+    end
   end
 
 end

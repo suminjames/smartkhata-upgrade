@@ -14,7 +14,8 @@ class GenerateBillsService
     # Begin Transaction
     ActiveRecord::Base.transaction do
       # only generate bill for the transactions which are not soft deleted
-      share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil)
+      share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil).includes([:client_account, :isin_info])
+
 
 
       share_transactions.each do |transaction|

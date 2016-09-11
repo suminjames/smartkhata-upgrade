@@ -14,12 +14,7 @@ class LedgersController < ApplicationController
       end
       return
     end
-
-    # Instance variable used by combobox in view to populate name
-    if params['search_by'] == 'ledger_name'
-      @ledgers_for_combobox= Ledger.all.includes(:client_account).order(:name)
-    end
-
+    
     if params[:show] == "all"
       @ledgers = Ledger.all.includes(:client_account).order(:name).page(params[:page]).per(20)
     elsif params[:show] == "all_client"
@@ -31,7 +26,7 @@ class LedgersController < ApplicationController
       search_term = params[:search_term]
       case search_by
         when 'ledger_name'
-          ledger_id= search_term
+          ledger_id = search_term
           @ledgers = Ledger.find_by_ledger_id(ledger_id).includes(:client_account).order(:name).page(params[:page]).per(20)
         else
           # If no matches for case  'search_by', return empty @ledgers
@@ -40,6 +35,7 @@ class LedgersController < ApplicationController
     else
       @ledgers = []
     end
+    @selected_ledger_for_combobox_in_arr = @ledgers
     # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
     # TODO chain .decorate function
     # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
@@ -177,6 +173,21 @@ class LedgersController < ApplicationController
     end
   end
 
+
+  #
+  # Entertains Ajax request made by combobox used in various views to populate ledgers.
+  #
+  def combobox_ajax_filter
+    search_term = params[:q]
+    ledgers = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+      ledgers = Ledger.find_similar_to_term search_term
+    end
+    respond_to do |format|
+      format.json { render json: ledgers, status: :ok }
+    end
+  end
 
   def daybook
     authorize Ledger

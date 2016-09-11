@@ -80,13 +80,32 @@
           = f.input :boid, label: 'BoId'
         .col-xs-6
           = f.input :nepse_code, label: 'Nepse Code'
-
       .row
+        :ruby
+          action = params[:action]
+          # The following logic is to accommodate preserving of inputs in combobox in page redirection.
+          # As combobox -- at places(including this) -- has ajax implemented, this workaround is apparently necessary.
+          if action == 'new'
+            group_leader = nil
+          elsif action == 'create'
+            group_leader_id = params.dig(:client_account, :group_leader_id)
+          elsif action == 'edit'
+            group_leader_id = @client_account.group_leader.try(:id)
+          elsif action == 'update'
+            group_leader_id = params.dig(:client_account, :group_leader_id)
+          end
+          group_leader = ClientAccount.find_by_id(group_leader_id)
+          group_leader_for_combobox_in_arr =  group_leader.present? ? [group_leader] : []
+          referrers_names_for_combobox = ClientAccount.existing_referrers_names
+          if action == 'create' || action == 'update'
+            # Preserve typed referrer name in combobox during 'new' or 'edit' view
+            referrers_names_for_combobox  << params.dig(:client_account, :referrer_name)
+          end
+
         .col-xs-6
-          = f.input :group_leader_id, :collection => clients_for_combobox, :label_method => :name_and_nepse_code, :value_method => :id, :label => "Group Leader", input_html: { class: 'form-control combobox filterrific-select min-3', include_blank: true, 'data-placeholder': 'Select a group leader..'}
+          = f.input :group_leader_id, :collection => group_leader_for_combobox_in_arr, :label_method => :name_and_nepse_code, :value_method => :id, :label => "Group Leader", input_html: { class: 'form-control combobox combobox-select min-3', id: 'client_accounts_group_leader_combobox', include_blank: true, 'data-placeholder': 'Select a group leader..' }
         .col-xs-6
-          -#= f.input :referrer_name, :collection => referrers_names_for_combobox,:label_method => :name, :value_method => :name, :label => "Referrer" ,:include_blank => false, input_html: { class: 'form-control combobox'}
-          = f.input :referrer_name, label: 'Referrer'
+          = f.input :referrer_name, :collection => referrers_names_for_combobox, :label => "Referrer", input_html: { class: 'form-control combobox combobox-select ', id: 'client_accounts_referrer_name_combobox', include_blank: true, 'data-placeholder': 'Enter new or select existing...'}
 
       .form-actions
         = f.button :submit
