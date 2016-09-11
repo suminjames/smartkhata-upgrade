@@ -30,7 +30,7 @@ class Bill < ActiveRecord::Base
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
-  # has_many :share_transactions, -> { where deleted_at: nil} #return all that are not cancelled (and therefore not have a deleted_at record)
+
   has_many :share_transactions
   belongs_to :client_account
   has_many :isin_infos, through: :share_transactions
@@ -96,6 +96,7 @@ class Bill < ActiveRecord::Base
 
   scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
   scope :for_payment_letter_list, ->{with_balance_cr.requiring_processing}
+
 
   # scope based on the branch and fycode selection
   default_scope do

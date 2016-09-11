@@ -17,7 +17,7 @@ class LedgersController < ApplicationController
 
     # Instance variable used by combobox in view to populate name
     if params['search_by'] == 'ledger_name'
-      @ledgers_for_combobox= Ledger.all.order(:name)
+      @ledgers_for_combobox= Ledger.all.includes(:client_account).order(:name)
     end
 
     if params[:show] == "all"
@@ -97,6 +97,7 @@ class LedgersController < ApplicationController
   def edit
     authorize @ledger
     @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
+    # @can_edit_balance = false
   end
 
   # POST /ledgers
@@ -152,6 +153,7 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1
   # PATCH/PUT /ledgers/1.json
   def update
+    @can_edit_balance = params[:can_edit_balance]
     authorize @ledger
     respond_to do |format|
       if @ledger.update_custom(ledger_params)
