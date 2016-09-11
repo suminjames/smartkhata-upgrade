@@ -54,17 +54,19 @@ class ProcessSalesBillService
         client_ledger = client_account.ledger
         ledger_balance = client_ledger.closing_balance
         bill_amount = bill.balance_to_pay
-        # dont pay the client more than he deserves.
-        # pay only if the ledger balance is negative
-        # for now we are not dealing with the positive amount
-        next if ledger_balance + margin_of_error_amount >= 0
-
-        # when the ledger amount is greater or equal to bill
-        if (ledger_balance.abs - bill_amount) + margin_of_error_amount >= 0
-          amount_to_settle = bill_amount
-        else
-          amount_to_settle = ledger_balance.abs
-        end
+        #
+        # # dont pay the client more than he deserves.
+        # # pay only if the ledger balance is negative
+        # # for now we are not dealing with the positive amount
+        # next if ledger_balance + margin_of_error_amount >= 0
+        #
+        # # when the ledger amount is greater or equal to bill
+        # if (ledger_balance.abs - bill_amount) + margin_of_error_amount >= 0
+        #   amount_to_settle = bill_amount
+        # else
+        #   amount_to_settle = ledger_balance.abs
+        # end
+        amount_to_settle = bill_amount
 
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
@@ -81,7 +83,7 @@ class ProcessSalesBillService
         bill.settlement_approval_status = :pending_approval
         bill.save!
 
-        description = "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(amount_to_settle)}   Date: #{bill.date_bs}"
+        description = "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(amount_to_settle)}   Date: #{bill.date_bs}  \n"
         description_bills += description
         #  TODO(Subas) This is redundant in Voucher/create class
         cheque_entry.cheque_date = DateTime.now
