@@ -16,7 +16,6 @@ namespace :db do
         if args.date.present?
             cmd = nil
             with_config do |app, host, db, user|
-              # debugger
               if !ENV['RAILS_ENV'].present?
                 cmd = "pg_restore --verbose --host localhost --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/backup/#{args.date}_#{db}.psql"
               else

@@ -86,7 +86,7 @@ module CommissionModule
   #
   def broker_commission_rate(transaction_date)
     if transaction_date >= date_of_commission_rate_update
-      0.794
+      0.8
     else
       0.75
     end

@@ -20,13 +20,14 @@ class GenerateBillsService
 
       share_transactions.each do |transaction|
         client_code = transaction.client_account_id
-        # create a custom key to hold the similar isin transaction per user in a same bill
-        custom_key = (client_code.to_s)
+        # create a custom key to hold the similar isin transactionp per day per user in a same bill
+        custom_key = ("#{client_code.to_s}-#{transaction.date.to_s}")
+
         client_account = transaction.client_account
         cost_center_id = client_account.branch_id
         commission = transaction.commission_amount
         sales_commission = commission * broker_commission_rate(transaction.date)
-        compliance_fee = compliance_fee(commission, transaction.date)
+        # compliance_fee = compliance_fee(commission, transaction.date)
         tds = commission * broker_commission_rate(transaction.date) * 0.15
         company_symbol = transaction.isin_info.isin
         share_quantity = transaction.quantity
@@ -97,7 +98,7 @@ class GenerateBillsService
         nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
         tds_ledger = Ledger.find_or_create_by!(name: "TDS")
         dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-        compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
+        # compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
 
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
@@ -136,7 +137,7 @@ class GenerateBillsService
             # Note all the commision amount is paid by client here
             process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, transaction.date)
             process_accounts(nepse_ledger, voucher, true, nepse_adjustment, description, cost_center_id, transaction.date)
-            process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
+            # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
             process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, transaction.date)
             process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, transaction.date)
             process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, transaction.date) if transaction.dp_fee > 0
@@ -167,7 +168,7 @@ class GenerateBillsService
         else
           process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, transaction.date)
           process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, transaction.date)
-          process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
+          # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, transaction.date)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, transaction.date)
           process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, transaction.date) if transaction.dp_fee > 0

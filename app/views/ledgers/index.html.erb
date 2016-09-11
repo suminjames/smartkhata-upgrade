@@ -50,7 +50,7 @@
     <% if @ledgers
       @ledgers.each do |ledger| %>
       <tr>
-        <td><%= ledger.name_and_code %></td>
+        <td><%= ledger.name %></td>
         <td class="text-right" style="padding-right: 40px;">
           <% if ledger.closing_balance + margin_of_error_amount < 0 %>
               <span class="credit-amount">

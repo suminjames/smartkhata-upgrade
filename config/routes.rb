@@ -83,7 +83,7 @@ Rails.application.routes.draw do
       post 'transfer_group_member_balance'
     end
   end
-  resources :orders
+  resources :orders, :only => [:show, :index]
 
   match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
   resources :vouchers do
@@ -130,13 +130,17 @@ Rails.application.routes.draw do
     resources :sysadmin_trial_balance, only: [:new] do
       collection {post :import}
     end
+
+    resources :sys_admin_tasks, only: [:new] do
+      collection {post :import}
+    end
   end
 
   namespace 'report' do
     resources :balancesheet
     resources :profitandloss
     resources :trial_balance
-    resources :threshold_transactions
+    resources :threshold_transactions, only: [:index]
   end
 
   get "/test" => "test#index"

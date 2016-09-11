@@ -17,9 +17,8 @@ module Models::UpdaterWithBranchFycode
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
 
 
-      # for cases where branch id and fy code is supplies
-      # TODO(subas) Remove this once time comes
-      # too many uses.. unscoped has potentially many demerits
+
+      # TODO(subas) Remove this once time comes kept here because subas had little time to analyze its effects
 
       scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
         # if branch_id == 0
