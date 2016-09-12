@@ -19,11 +19,15 @@ class SalesSettlement < ActiveRecord::Base
 
 
   def bills_for_payment_letter_list
-    self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
+    # self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
+    self.bills.to_a.select {|bill| bill.requires_processing?}
   end
 
+  # since trishakti wants to create cheque for all
   def bills_for_sales_payment_list
-    self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
+    # self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
+    self.bills.to_a.select {|bill| bill.requires_processing?}
+    # self.bills.to_a
   end
 end
   

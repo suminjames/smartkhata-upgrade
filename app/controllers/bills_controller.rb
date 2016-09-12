@@ -199,9 +199,9 @@ class BillsController < ApplicationController
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     @back_path = request.referer
-    if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
-      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
-    end
+    # if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+    #   redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    # end
 
     process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement , date: @sales_settlement.settlement_date)
 

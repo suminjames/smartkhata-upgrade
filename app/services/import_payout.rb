@@ -4,15 +4,19 @@ class ImportPayout < ImportFile
   # process the file
   include ShareInventoryModule
   include CommissionModule
+  include CustomDateModule
+  include FiscalYearModule
 
   attr_reader :sales_settlement_ids
 
-  def initialize(file)
+  def initialize(file, settlement_date = nil)
     super(file)
     @sales_settlement_ids = []
+    @sales_settlement_date_bs = settlement_date
+    @sales_settlement_date = nil
   end
 
-  def process
+  def process(multiple_settlement_ids_allowed = false)
     # initial constants
     tds_rate = 0.15
 
@@ -27,8 +31,24 @@ class ImportPayout < ImportFile
     # settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
     # @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
+    @error_message ||= "Please Enter a valid date" if @sales_settlement_date_bs.nil? && !multiple_settlement_ids_allowed
+
     unless @error_message
-      @date = Time.now.to_date
+      # Check the validity for the entered settlement date
+      # byepass this if multiple settlement is allowed
+      unless multiple_settlement_ids_allowed
+        begin
+          @sales_settlement_date = bs_to_ad(@sales_settlement_date_bs)
+          unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
+             @error_message = "Date is invalid for selected fiscal year"
+          end
+        rescue
+          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
+        end
+        return if @error_message
+      end
+
+      # @date = Time.now.to_date
       ActiveRecord::Base.transaction do
 
         # list of settlement_ids for multiple settlements.
@@ -43,21 +63,19 @@ class ImportPayout < ImportFile
           settlement_id = hash['SETT_ID'].to_i
           unless settlement_ids.include? settlement_id
             settlement_cm_file = SalesSettlement.find_by(settlement_id: settlement_id)
-
             unless settlement_cm_file.nil?
-              # import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
-              # raise ActiveRecord::Rollback
-              # break
-              next
+              import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
+              raise ActiveRecord::Rollback
+              break
             end
           end
           settlement_ids.add(settlement_id)
 
-          # unless hash['SETT_ID'].to_i == @settlement_id
-          #   import_error("The file you have uploaded has multiple settlement ids")
-          #   raise ActiveRecord::Rollback
-          #   break
-          # end
+          unless settlement_ids.size == 1 && !multiple_settlement_ids_allowed
+            import_error("The file you have uploaded has multiple settlement ids")
+            raise ActiveRecord::Rollback
+            break
+          end
 
           # corrupt file check
           unless hash['CONTRACTNO'].present?
@@ -94,7 +112,7 @@ class ImportPayout < ImportFile
           # nepse charges tds which is payable by the broker
           # so we need to deduct  the tds while charging the client
           chargeable_on_sale_rate = broker_commission_rate(transaction.date) * (1 - tds_rate)
-          chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(@date) * tds_rate
+          chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(transaction.date) * tds_rate
 
 
 
@@ -148,7 +166,12 @@ class ImportPayout < ImportFile
         # return list of sales settlement ids
         # that track the file uploads for different settlement
         settlement_ids.each do |settlement_id|
-          @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+          if multiple_settlement_ids_allowed
+            @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+          else
+            @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @sales_settlement_date).id
+          end
+
         end
       end
     end
