@@ -1,10 +1,21 @@
 <% provide(:section_title, "Upload Sales CM file") %>
-<p class="text-muted"> Note: Upload file should be in csv format </p>
+
 <div>
   <%= form_tag import_files_sales_path, multipart: true do %>
+      <label for="settlment_date">Settlement Date (BS)</label>
+      <div class="row">
+        <div class="col-sm-2">
+
+          <div class="form-group">
+            <%= text_field_tag :settlement_date, nil, placeholder: "YYYY-MM-DD", :autofocus => true, class: 'form-control'  %>
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <%= file_field_tag :file %>
       </div>
+      <p class="text-muted"> Note: Upload file should be in csv format </p>
       <div class="form-group">
         <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
       </div>

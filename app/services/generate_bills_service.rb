@@ -15,7 +15,7 @@ class GenerateBillsService
     ActiveRecord::Base.transaction do
       # only generate bill for the transactions which are not soft deleted
       share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil).includes([:client_account, :isin_info])
-
+      settlement_date = @sales_settlement.settlement_date
 
 
       share_transactions.each do |transaction|
@@ -36,10 +36,15 @@ class GenerateBillsService
 
         charges_of_closeout = (transaction.closeout_amount / 6)
 
+        # default date is T+3 of transaction date
+        settlement_date ||= Calendar::t_plus_3_trading_days(transaction.date)
+
         # get the fy_code from sales settlement date
-        fy_code = get_fy_code(transaction.date)
+        fy_code = get_fy_code(settlement_date)
         # get bill number
         bill_number = get_bill_number(fy_code)
+
+
 
 
         # check if the hash has value ( bill number) assigned to the custom key
@@ -54,11 +59,11 @@ class GenerateBillsService
             end
           elsif hash_dp.key?(custom_key)
             # find bill by the bill number
-            bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id)
+            bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id)
           else
             hash_dp[custom_key] = bill_number
             # create a new bill
-            bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: transaction.date, client_account_id: transaction.client_account_id) do |b|
+            bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id) do |b|
               b.bill_type = Bill.bill_types['sales']
 
               # TODO possible error location check
@@ -103,7 +108,7 @@ class GenerateBillsService
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
         # update ledgers value
-        voucher = Voucher.create!(date: transaction.date)
+        voucher = Voucher.create!(date: settlement_date)
         voucher.bills_on_creation << bill if bill.present?
         voucher.share_transactions << transaction
         voucher.desc = description
@@ -135,16 +140,16 @@ class GenerateBillsService
             nepse_adjustment = transaction.amount_receivable + charges_of_closeout
 
             # Note all the commision amount is paid by client here
-            process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, transaction.date)
-            process_accounts(nepse_ledger, voucher, true, nepse_adjustment, description, cost_center_id, transaction.date)
-            # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
-            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, transaction.date)
-            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, transaction.date)
-            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, transaction.date) if transaction.dp_fee > 0
+            process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, settlement_date)
+            process_accounts(nepse_ledger, voucher, true, nepse_adjustment, description, cost_center_id, settlement_date)
+            # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
+            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
+            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
+            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
           end
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no})"
-          voucher = Voucher.create!(date: transaction.date)
+          voucher = Voucher.create!(date: settlement_date)
           voucher.share_transactions << transaction
           voucher.desc = description
 
@@ -152,40 +157,40 @@ class GenerateBillsService
 
           # closeout credit to nepse
           if transaction.quantity > 0
-            process_accounts(nepse_ledger, voucher, false, charges_of_closeout, description, cost_center_id, transaction.date)
-            process_accounts(closeout_ledger, voucher, true, charges_of_closeout, description, cost_center_id, transaction.date)
+            process_accounts(nepse_ledger, voucher, false, charges_of_closeout, description, cost_center_id, settlement_date)
+            process_accounts(closeout_ledger, voucher, true, charges_of_closeout, description, cost_center_id, settlement_date)
           else
-            process_accounts(closeout_ledger, voucher, true, transaction.net_amount.abs, description, cost_center_id, transaction.date)
-            process_accounts(nepse_ledger, voucher, false, transaction.amount_receivable.abs, description, cost_center_id, transaction.date)
-            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, transaction.date)
-            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, transaction.date)
-            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, transaction.date) if transaction.dp_fee > 0
+            process_accounts(closeout_ledger, voucher, true, transaction.net_amount.abs, description, cost_center_id, settlement_date)
+            process_accounts(nepse_ledger, voucher, false, transaction.amount_receivable.abs, description, cost_center_id, settlement_date)
+            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
+            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
+            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
           end
 
           voucher.complete!
           voucher.save!
 
         else
-          process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, transaction.date)
-          process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, transaction.date)
-          # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, transaction.date) if compliance_fee > 0
-          process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, transaction.date)
-          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, transaction.date)
-          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, transaction.date) if transaction.dp_fee > 0
+          process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, settlement_date)
+          process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, settlement_date)
+          # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
+          process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
+          process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
 
           # in case of sales transaction greater than 5000000 it has to be settled seperately
           # not with nepse
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
-            voucher = Voucher.create!(date: transaction.date)
+            voucher = Voucher.create!(date: settlement_date)
             voucher.share_transactions << transaction
             voucher.desc = description
 
             clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
             # credit nepse
             net_adjustment_amount = transaction.share_amount
-            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description, cost_center_id, transaction.date)
-            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description, cost_center_id, transaction.date)
+            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description, cost_center_id, settlement_date)
+            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description, cost_center_id, settlement_date)
             voucher.complete!
             voucher.save!
           end
