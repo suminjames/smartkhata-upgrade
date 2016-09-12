@@ -236,6 +236,7 @@ $(document).on("click", ".btnPrintMultipleSettlementsPDF", function (event) {
 });
 
 $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
+    console.log('Print Yo!')
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
     // Update 'print_status' of cheque entry before printing the cheque entry pdf
