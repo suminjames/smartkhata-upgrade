@@ -222,7 +222,21 @@ class ChequeEntriesController < ApplicationController
     end
   end
 
-  def print_bills_associated_with_cheque_entries
+  def settlements_associated_with_cheque_entries
+    cheque_entry_ids = params[:cheque_entry_ids]
+    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    settlement_ids = []
+    cheque_entries.each do |cheque_entry|
+      voucher_id = cheque_entry.particulars.first.voucher_id
+      settlement = Settlement.where(voucher_id: voucher_id, client_account_id: cheque_entry.client_account_id).first
+      settlement_ids << settlement.try(:id) if settlement.present? && settlement.client_account_id == cheque_entry.client_account_id
+    end
+    respond_to do |format|
+      format.json { render json: {status: status, settlement_ids: settlement_ids}, status: :ok }
+    end
+  end
+
+  def bills_associated_with_cheque_entries
     cheque_entry_ids = params[:cheque_entry_ids]
     cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
     # FIX(sarojk): Doesn't look into second particulars, only first.

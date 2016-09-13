@@ -284,6 +284,11 @@ a {
   cursor: pointer;
 }
 
+.btn-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 .spinner-circular {
   display: inline
 }

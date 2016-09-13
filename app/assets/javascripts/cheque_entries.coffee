@@ -27,36 +27,55 @@ $(document).on 'page:change', ->
       window.open("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, '_blank')
 
     $(document).on 'click', ".btnPrintBillsAssociatedWithChequesPDF" , (event) ->
-      cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
-      event.stopImmediatePropagation()
-      $.ajax
-        url: '/cheque_entries/print_bills_associated_with_cheque_entries'
-        data: cheque_entries_ids_argument
-        dataType: 'json'
-        error: (jqXHR, textStatus, errorThrown) ->
-          console.log("There was some error!")
-        success: (data, textStatus, jqXHR) ->
-          console.log("Ajax Success!")
-          associated_bill_ids = data.bill_ids || []
-          bill_ids_arg = $.param({bill_ids: associated_bill_ids})
-          loadAndPrint('/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
-          return
+      if selectedChequeEntriesIds.length > 0
+        cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
+        event.stopImmediatePropagation()
+        $.ajax
+          url: '/cheque_entries/bills_associated_with_cheque_entries'
+          data: cheque_entries_ids_argument
+          dataType: 'json'
+          error: (jqXHR, textStatus, errorThrown) ->
+            console.log("There was some error!")
+          success: (data, textStatus, jqXHR) ->
+            console.log("Ajax Success!")
+            associated_bill_ids = data.bill_ids || []
+            bill_ids_arg = $.param({bill_ids: associated_bill_ids})
+            loadAndPrint('/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
+            return
 
+    $(document).on 'click', ".btnPrintSettlementsAssociatedWithChequesPDF" , (event) ->
+      if selectedChequeEntriesIds.length > 0
+        cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
+        event.stopImmediatePropagation()
+        $.ajax
+          url: '/cheque_entries/settlements_associated_with_cheque_entries'
+          data: cheque_entries_ids_argument
+          dataType: 'json'
+          error: (jqXHR, textStatus, errorThrown) ->
+            console.log("There was some error!")
+          success: (data, textStatus, jqXHR) ->
+            console.log("Ajax Success!")
+            console.log("MAjax Success!")
+            settlement_ids_arr = data.settlement_ids || []
+            settlement_ids_arg = $.param({settlement_ids: settlement_ids_arr})
+            loadAndPrint("/settlements/show_multiple.pdf?" + settlement_ids_arg, 'iframe-for-settlements-pdf-print', 'settlements-print-spinner');
+            return
 
 
     $(document).on 'click', ".btnPrintChequeEntriesPDF", (event) ->
-      cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
-      event.stopImmediatePropagation()
-      $.ajax
-        url: '/cheque_entries/update_print_status'
-        data: cheque_entries_ids_argument
-        dataType: 'json'
-        error: (jqXHR, textStatus, errorThrown) ->
-          console.log("There was some error!")
-        success: (data, textStatus, jqXHR) ->
-          reflectPrintStatusChange(data.cheque_entries)
-          loadAndPrint("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner')
-          return
+      if selectedChequeEntriesIds.length > 0
+        cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
+        event.stopImmediatePropagation()
+        $.ajax
+          url: '/cheque_entries/update_print_status'
+          data: cheque_entries_ids_argument
+          dataType: 'json'
+          error: (jqXHR, textStatus, errorThrown) ->
+            console.log("There was some error!")
+          success: (data, textStatus, jqXHR) ->
+            reflectPrintStatusChange(data.cheque_entries)
+            loadAndPrint("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner')
+            return
 
 
     reflectPrintStatusChange = (chequeEntries) ->

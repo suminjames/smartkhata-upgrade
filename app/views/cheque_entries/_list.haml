@@ -16,6 +16,12 @@
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'bills-print-spinner'
           %iframe.hidden-iframe#iframe-for-bill-pdf-print
         |
+        %div.btnPrintPDF.btnPrintSettlementsAssociatedWithChequesPDF
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print Associated Settlements of Selected Cheques'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlements-print-spinner'
+          %iframe.hidden-iframe#iframe-for-settlements-pdf-print
+        |
         %div.btnPrintPDF.btnViewChequeEntriesPDF
           %span.glyphicon.glyphicon-eye-open
           %span= 'View Selected Cheques'
