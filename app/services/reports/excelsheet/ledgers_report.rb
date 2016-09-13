@@ -99,13 +99,22 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
         cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})"
       end
 
-      settlements = ""
+      settlements = ''
       if p.voucher.settlements.size > 0
-        settlement_count = p.voucher.settlements.size
-        p.voucher.settlements.each_with_index do |settlement, settlement_index|
-          settlements << settlement.id.to_s
-          settlements << ", " unless settlement_index == settlement_count-1
+        # The select & loop style makes the loop run twice
+        # filtered_settlements = p.voucher.settlements.select{ |s|
+        #   s.has_single_cheque? && @ledger.client_account_id == s.client_account_id || !s.has_single_cheque?
+        # }
+
+        p.voucher.settlements.each do |settlement|
+          # if settlement.has_single_cheque? && @ledger.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?
+          # simplified version of the redundant view logic (shown above)--
+          if @ledger.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?
+            settlements << "#{settlement.id}, "
+          end
         end
+        # Strip the excess comma at the end, if any!
+        settlements.chomp! ", "
       end
 
       transaction_amt = p.amount
