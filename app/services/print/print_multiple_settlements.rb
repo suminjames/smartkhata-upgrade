@@ -67,8 +67,10 @@ class Print::PrintMultipleSettlements < Prawn::Document
     if @settlement.voucher.cheque_entries.present?
       text 'By Cheque:'
       @settlement.voucher.cheque_entries.uniq.each do |cheque|
-        bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
-        text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+        if @settlement.has_single_cheque? && cheque.client_account_id == @settlement.client_account_id || !@settlement.has_single_cheque?
+          bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+          text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+        end
       end
     end
   end
