@@ -235,15 +235,16 @@ $(document).on("click", ".btnPrintMultipleSettlementsPDF", function (event) {
     loadAndPrint("/settlements/show_multiple.pdf?" + settlement_ids_argument, 'iframe-for-multiple-settlements-pdf-print', 'multiple-settlements-print-spinner');
 });
 
+// Currently used by cheque_entry#show.
 $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
     console.log('Print Yo!')
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
     // Update 'print_status' of cheque entry before printing the cheque entry pdf
     $.ajax({
-        url: "/cheque_entries/update_print",
+        url: "/cheque_entries/update_print_status",
         data: {
-            cheque_id: cheque_entry_id
+            cheque_entry_ids: [cheque_entry_id]
         },
         dataType: "json",
         error: function (jqXHR, textStatus, errorThrown) {

@@ -23,7 +23,7 @@ class BillsController < ApplicationController
     @selected_client_for_combobox_in_arr = []
     # Populate (and route when needed) as per the params
     if params[:search_by] == 'all_bills'
-      @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info])
+      @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info]).page(params[:page]).per(20)
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
@@ -39,7 +39,7 @@ class BillsController < ApplicationController
         when 'client_name'
           client_account = ClientAccount.find_by_id(search_term)
           @selected_client_for_combobox_in_arr = [client_account] if client_account
-          @bills = Bill.find_by_client_id(search_term)
+          @bills = Bill.find_by_client_id(search_term).page(params[:page]).per(20)
         when 'bill_number'
           full_bill_number_str = search_term
           actual_bill_number = Bill.strip_fy_code_from_full_bill_number(full_bill_number_str)
@@ -114,6 +114,20 @@ class BillsController < ApplicationController
         send_data pdf.render, filename: "Bill_#{@bill.fy_code}_#{@bill.bill_number}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
+  end
+
+  def show_multiple
+    bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
+    bills = Bill.where(id: bill_ids).decorate
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Print::PrintMultipleBills.new(bills, current_tenant, 'for_print')
+        send_data pdf.render, filename: "MultipleBills.pdf", type: 'application/pdf', disposition: "inline"
+      end
+    end
+
   end
 
   # GET /bills/new
@@ -253,9 +267,6 @@ class BillsController < ApplicationController
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
     end
-  end
-
-  def print
   end
 
   # Entertains ajax requests.

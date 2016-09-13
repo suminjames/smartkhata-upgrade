@@ -2,27 +2,6 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-$ ->
-  $(document).on 'click', '#btnPrintCheque', (event) ->
-    event.stopImmediatePropagation();
-    $this = $(this)
-    $.ajax
-      url: "/cheque_entries/update_print"
-      data:
-        cheque_id: $this.data('cheque-id')
-      dataType: "json"
-      error: (jqXHR, textStatus, errorThrown) ->
-        $this.find('cheque-print-error').html('There was some Errror')
-      success: (data, textStatus, jqXHR) ->
-
-#        if data.message.trim() != ""
-#          $this.find('.cheque-print-error').html(data['message'])
-#        else
-        printElement($('.printThis')[0])
-        window.print()
-
-
-        
 selectedChequeEntriesIds= []
 allChequeEntriesIds= []
 
@@ -46,18 +25,44 @@ $(document).on 'page:change', ->
     $(document).on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
       window.open("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, '_blank')
-      
+
+    $(document).on 'click', ".btnPrintBillsAssociatedWithChequesPDF" , (event) ->
+      cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
+      event.stopImmediatePropagation()
+      $.ajax
+        url: '/cheque_entries/print_bills_associated_with_cheque_entries'
+        data: cheque_entries_ids_argument
+        dataType: 'json'
+        error: (jqXHR, textStatus, errorThrown) ->
+          console.log("There was some error!")
+        success: (data, textStatus, jqXHR) ->
+          console.log("Ajax Success!")
+          associated_bill_ids = data.bill_ids || []
+          bill_ids_arg = $.param({bill_ids: associated_bill_ids})
+          loadAndPrint('/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
+          return
+
+
+
     $(document).on 'click', ".btnPrintChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
       event.stopImmediatePropagation()
       $.ajax
         url: '/cheque_entries/update_print_status'
-        data: cheque_id: cheque_entry_id
+        data: cheque_entries_ids_argument
         dataType: 'json'
         error: (jqXHR, textStatus, errorThrown) ->
-          $this.find('cheque-print-error').html 'There was some Errror'
+          console.log("There was some error!")
         success: (data, textStatus, jqXHR) ->
-          loadAndPrint '/cheque_entries/' + cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print', 'cheque-entry-print-spinner'
+          reflectPrintStatusChange(data.cheque_entries)
+          loadAndPrint("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner')
           return
-      loadAndPrint("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner');
-    
+
+
+    reflectPrintStatusChange = (chequeEntries) ->
+      for chequeEntry in chequeEntries
+        id = chequeEntry.id
+        print_status = chequeEntry.print_status
+        $("#cheque_entry_" + id + " .print-status").html("Printed") if print_status == 1
+
+

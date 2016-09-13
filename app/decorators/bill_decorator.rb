@@ -192,7 +192,7 @@ class BillDecorator < ApplicationDecorator
     end
     isin_abbreviation_index_str = ''
     unique_isins.each do |isin|
-      isin_abbreviation_index_str += isin.isin + ': ' + isin.company + ' | '
+      isin_abbreviation_index_str += "#{isin.isin}: #{isin.company} | "
     end
     # strip the trailing '| ' and return
     isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length-2)

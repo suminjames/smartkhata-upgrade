@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     collection do
       get :get_cheque_number
       get :update_print_status
+      get :print_bills_associated_with_cheque_entries
       get :bounce
       get :represent
       get :show_multiple
@@ -57,7 +58,7 @@ Rails.application.routes.draw do
   resources :bills do
     collection do
       get 'show_by_number'
-      get 'print'
+      get 'show_multiple'
       post 'process_selected'
       get 'sales_payment'
       post 'sales_payment_process'
