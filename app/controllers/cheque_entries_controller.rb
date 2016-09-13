@@ -94,7 +94,7 @@ class ChequeEntriesController < ApplicationController
 
     if @bank_account_id.present?
       ledger = Ledger.find_by(id: @bank_account_id)
-      cheque_entry = ChequeEntry.unassigned.where(bank_account_id: ledger.bank_account_id).first
+      cheque_entry = ChequeEntry.next_available_serial_cheque(ledger.bank_account_id)
     end
 
 
