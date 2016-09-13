@@ -263,6 +263,35 @@ namespace :smartkhata_data do
     end
   end
 
+  desc "Upload mandala sales payout"
+  task :import_cm05, [:tenant] => :environment do |task,args|
+    if args.tenant.present?
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.user= User.first
+      UserSession.selected_branch_id = 1
+      UserSession.selected_fy_code = 7374
+
+      file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'CM0501092016150833.csv')
+      # puts file
+      # puts "Uploading account balance.."
+      #
+      file_upload_param = ActionDispatch::Http::UploadedFile.new(
+          tempfile: File.new(file),
+          filename: file.to_s
+      )
+
+      file_upload = SysAdminServices::ImportPayout.new(file_upload_param)
+      file_upload.process(true)
+      file_upload.processed_data
+      puts file_upload.error_message
+      puts "Task completed " unless file_upload.error_message
+
+      Apartment::Tenant.switch!('public')
+    else
+      puts 'Please pass a tenant to the task'
+    end
+  end
+
   desc "Uploads all floorsheet"
   task :upload_floorsheets, [:tenant] => :environment do |task,args|
     if args.tenant.present?

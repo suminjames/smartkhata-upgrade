@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160727123010) do
+ActiveRecord::Schema.define(version: 20160911160831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -532,7 +532,7 @@ ActiveRecord::Schema.define(version: 20160727123010) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_balance",        precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",           precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                     default: 0
     t.integer  "cheque_number"
@@ -599,9 +599,10 @@ ActiveRecord::Schema.define(version: 20160727123010) do
     t.integer  "updater_id"
     t.string   "receiver_name"
     t.integer  "voucher_id"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
     t.integer  "branch_id"
+    t.integer  "settlement_by_cheque_type", default: 0
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
