@@ -1,4 +1,4 @@
-<% provide(:section_title, "Upload Close out #{@closeout_type == 'debit' ? 'Debit' : 'Credit' } file") %>
+<% provide(:section_title, "Upload Closeout #{@closeout_type == 'debit' ? 'Debit' : 'Credit' } File") %>
 <div>
   <%= form_tag import_files_closeouts_path, multipart: true do %>
       <%= hidden_field_tag 'type', @closeout_type %>

@@ -1,3 +1,5 @@
+<% provide(:section_title, "FloorSheet Listing") %>
+
 <% if !@file_list.blank? %>
 
     <%= render 'shared/pagination', collection_to_paginate: @file_list %>

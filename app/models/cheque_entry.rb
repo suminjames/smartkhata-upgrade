@@ -1,5 +1,6 @@
  # == Schema Information
-#
+
+ #
 # Table name: cheque_entries
 #
 #  id                 :integer          not null, primary key
