@@ -91,7 +91,7 @@ class ChequeEntriesController < ApplicationController
   # TODO fix this hack
   def get_cheque_number
     @bank_account_ledger_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    
+
     if @bank_account_ledger_id.present?
       ledger = Ledger.find_by(id: @bank_account_ledger_id)
       cheque_entry = ChequeEntry.next_available_serial_cheque(ledger.bank_account_id)
