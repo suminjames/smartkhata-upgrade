@@ -1,5 +1,6 @@
  # == Schema Information
-#
+
+ #
 # Table name: cheque_entries
 #
 #  id                 :integer          not null, primary key
@@ -49,7 +50,7 @@ class ChequeEntry < ActiveRecord::Base
 
   # validate foreign key: ensures that the bank account exists
   validates :bank_account, presence: true
-  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id], message: "should be unique"},
+  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id,:cheque_issued_type], message: "should be unique"},
             numericality: {only_integer: true, greater_than: 0}
 
   filterrific(
@@ -147,4 +148,12 @@ class ChequeEntry < ActiveRecord::Base
     return false
   end
 
+  def self.next_available_serial_cheque(bank_account_id)
+    last_cheque = ChequeEntry.where(bank_account_id: bank_account_id).where.not(status: "unassigned").last
+    if last_cheque.present?
+      self.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).first
+    else
+      self.unassigned.where(bank_account_id: bank_account_id).first
+    end
+  end
 end

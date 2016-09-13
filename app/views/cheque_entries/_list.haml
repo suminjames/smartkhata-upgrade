@@ -6,12 +6,19 @@
       %div.col-xs-12
         %div.btnPrintPDF.btnPrintChequeEntriesPDF
           %span.glyphicon.glyphicon-print.print-icon
-          %span= 'Print Selected'
+          %span= 'Print Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
           %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
+        |
+        %div.btnPrintPDF.btnPrintBillsAssociatedWithChequesPDF
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print Associated Bills of Selected Cheques'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'bills-print-spinner'
+          %iframe.hidden-iframe#iframe-for-bill-pdf-print
+        |
         %div.btnPrintPDF.btnViewChequeEntriesPDF
           %span.glyphicon.glyphicon-eye-open
-          %span= 'View Selected'
+          %span= 'View Selected Cheques'
 
   %div#cheque_entry_list
     %table.table.table-striped
@@ -32,7 +39,7 @@
       %tbody
         -if cheque_entries
           -cheque_entries.each do |cheque_entry|
-            %tr
+            %tr{:id => "cheque_entry_#{cheque_entry.id}"}
               %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
@@ -42,7 +49,7 @@
               %td.text-center= cheque_entry.amount
               %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.status)
               %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
-              %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
+              %td.text-center.print-status= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
 
     - if !cheque_entries || cheque_entries.empty?
       %div.row.text-center.top-buffer-md

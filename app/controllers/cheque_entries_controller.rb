@@ -200,20 +200,39 @@ class ChequeEntriesController < ApplicationController
   end
 
   # GET
-  def update_print
+  def update_print_status
     status = false
     message = ""
-
-    cheque = ChequeEntry.find_by(id: params[:cheque_id].to_i) if params[:cheque_id].present?
-    if cheque.to_be_printed?
-      cheque.printed!
-      status = true
-    else
-      message = "Cheque is already Printed" if cheque.printed?
+    cheque_entry_ids = params[:cheque_entry_ids]
+    cheque_entry_ids.each do |cheque_entry_id|
+      cheque = ChequeEntry.find_by_id(cheque_entry_id)
+      if cheque.to_be_printed?
+        cheque.printed!
+        status = true
+      else
+        message = "Cheque is already Printed" if cheque.printed?
+      end
     end
 
+    cheque_entries = ChequeEntry.where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
+
+
     respond_to do |format|
-      format.json { render json: {status: status, message: message}, status: :ok }
+      format.json { render json: {status: status, message: message, cheque_entries: cheque_entries}, status: :ok }
+    end
+  end
+
+  def print_bills_associated_with_cheque_entries
+    cheque_entry_ids = params[:cheque_entry_ids]
+    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    # FIX(sarojk): Doesn't look into second particulars, only first.
+    bill_ids = []
+    cheque_entries.each do |cheque_entry|
+      bill_ids.concat cheque_entry.particulars.first.bills.where(client_account_id: cheque_entry.client_account_id).pluck(:id)
+    end
+    bill_ids.uniq!
+    respond_to do |format|
+      format.json { render json: {status: status, bill_ids: bill_ids}, status: :ok }
     end
   end
 
