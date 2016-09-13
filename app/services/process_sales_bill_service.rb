@@ -9,10 +9,13 @@ class ProcessSalesBillService
     @bills = Bill.where(id: bill_ids)
     @error_message = ""
     @date = params[:date] || Time.now
+    @cheque_number = params[:cheque_number]
   end
 
   def process
     fy_code = get_fy_code(@date)
+    manual_cheque = false
+
 
     # bank payment letter cant be created without bills and payment bank account
     if @bills.empty?
@@ -32,6 +35,21 @@ class ProcessSalesBillService
     description = ""
     description_bills = ""
     net_paid_amount = 0.00
+
+    # TODO (saroj) move to cheque entry
+    if @cheque_number.present?
+      initial_cheque = ChequeEntry.unassigned.where(cheque_number: @cheque_number).first
+      manual_cheque = true
+      unless initial_cheque.present?
+        @error_message = "The Cheque Number is not valid"
+        return false
+      end
+    else
+      @error_message = "Please enter a cheque number"
+      return false
+    end
+
+
     ActiveRecord::Base.transaction do
       voucher = Voucher.create!(date: @date)
       voucher.pending!
@@ -45,7 +63,17 @@ class ProcessSalesBillService
 
       @bills.each do |bill|
         bank_account = @bank_account
-        cheque_entry = ChequeEntry.unassigned.where(bank_account_id: bank_account.id).first
+
+        # assign the manual cheque for the first one.
+        if manual_cheque
+          cheque_entry = initial_cheque
+          manual_cheque = false
+        else
+          @cheque_number += 1
+          cheque_entry = ChequeEntry.where(bank_account_id: bank_account.id, cheque_number: @cheque_number).first
+        end
+
+
         if cheque_entry.blank?
           @error_message = "Insufficient Cheque Numbers"
           raise ActiveRecord::Rollback
@@ -91,6 +119,7 @@ class ProcessSalesBillService
         cheque_entry.client_account_id = client_account.id
         cheque_entry.beneficiary_name = client_account.name.titleize
         cheque_entry.amount = amount_to_settle
+
         cheque_entry.save!
         particular.cheque_entries_on_payment << cheque_entry
         particular.save!

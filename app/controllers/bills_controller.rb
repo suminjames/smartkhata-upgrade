@@ -184,6 +184,11 @@ class BillsController < ApplicationController
     @settlement_id = params[:settlement_id]
     if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
+      bank_account = BankAccount.by_branch_id.default_for_payment
+
+      cheque_entry = ChequeEntry.next_available_serial_cheque(bank_account.id) if bank_account.present?
+      @cheque_number = cheque_entry.cheque_number if cheque_entry.present?
+
       @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
       @bills = @sales_settlement.bills_for_sales_payment_list if @sales_settlement.present?
@@ -194,6 +199,7 @@ class BillsController < ApplicationController
 
   def sales_payment_process
     @settlement_id = params[:settlement_id]
+    @cheque_number = params[:cheque_number].to_i
     @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
     @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
@@ -203,7 +209,7 @@ class BillsController < ApplicationController
     #   redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
     # end
 
-    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement , date: @sales_settlement.settlement_date)
+    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement , date: @sales_settlement.settlement_date, cheque_number: @cheque_number)
 
     respond_to do |format|
       if process_sales_bill.process
