@@ -7,7 +7,7 @@ class ChequeEntriesController < ApplicationController
         ChequeEntry,
         params[:filterrific],
         select_options: {
-            by_client_id: ChequeEntry.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_bank_account_id: ChequeEntry.options_for_bank_account_select,
             by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status,
             by_cheque_issued_type: ChequeEntry.options_for_cheque_issued_type
@@ -15,7 +15,7 @@ class ChequeEntriesController < ApplicationController
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? ChequeEntry.all.count : 20
-    @cheque_entries = @filterrific.find.includes(:bank_account).page(params[:page]).per(items_per_page)
+    @cheque_entries = @filterrific.find.order(id: :asc).includes(:bank_account).page(params[:page]).per(items_per_page)
 
     respond_to do |format|
       format.html
@@ -55,8 +55,6 @@ class ChequeEntriesController < ApplicationController
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
 
     respond_to do |format|
-      format.html
-      format.js
       format.pdf do
         pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
@@ -65,8 +63,11 @@ class ChequeEntriesController < ApplicationController
   end
 
   def show_multiple
-    @cheque_entry_ids = params[:cheque_entry_ids].map(&:to_i) if params[:cheque_entry_ids].present?
-    @cheque_entries = ChequeEntry.where(id: @cheque_entry_ids)
+    @cheque_entry_ids = params[:cheque_entry_ids].present? ? params[:cheque_entry_ids].map(&:to_i) : []
+    # The incoming params will have sorted ids.
+    # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
+    @cheque_entry_ids.sort!
+    @cheque_entries = ChequeEntry.where(id: @cheque_entry_ids).includes(:bank_account)
     respond_to do |format|
       format.html
       format.js

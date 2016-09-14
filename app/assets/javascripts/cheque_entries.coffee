@@ -3,18 +3,16 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 selectedChequeEntriesIds= []
-allChequeEntriesIds= []
-
 
 $(document).on 'page:change', ->
   if $('#cheque_entry_list').length > 0
     console.log("doc loaded!")
     
-    # Store all cheque entries' ids in the DOM(window) right now.
-    allChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox").not('.cheque-entry#select_all').map(function(){return this.id}).get();`
-
     $(document).on 'change', 'input:checkbox', (event)->
       selectedChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox:checked").not('.cheque-entry#select_all').map(function(){return this.id}).get();`
+      # The dom is parsed top to bottom, hence, the selectedChequeEntriesIds maintain a sort order.
+      # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
+      selectedChequeEntriesIds = selectedChequeEntriesIds.sort()
       console.log selectedChequeEntriesIds
 
     $(document).on 'click', '.cheque-entry#select_all', (event) ->

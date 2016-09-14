@@ -53,6 +53,18 @@ class ChequeEntry < ActiveRecord::Base
   validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id,:cheque_issued_type], message: "should be unique"},
             numericality: {only_integer: true, greater_than: 0}
 
+  # TODO (subas) make sure to do the necessary settings
+  enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
+  enum print_status: [:to_be_printed, :printed]
+  enum cheque_issued_type: [:payment, :receipt]
+
+  # scope based on the branch
+  default_scope do
+    if UserSession.selected_branch_id != 0
+      where(branch_id: UserSession.selected_branch_id)
+    end
+  end
+
   filterrific(
       default_filter_params: { sorted_by: 'id_asc' },
       available_filters: [
@@ -73,23 +85,22 @@ class ChequeEntry < ActiveRecord::Base
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('cheque_date >= ?', date_ad.beginning_of_day).order(id: :asc)
+    where('cheque_date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('cheque_date <= ?', date_ad.end_of_day).order(id: :asc)
+    where('cheque_date <= ?', date_ad.end_of_day)
   }
-
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :asc) }
-  scope :by_bank_account_id, -> (id) { where(bank_account_id: id).order(id: :asc) }
+  scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :by_bank_account_id, -> (id) { where(bank_account_id: id) }
   scope :by_cheque_entry_status, lambda {|status|
     if status == 'assigned'
-      where.not(:status => ChequeEntry.statuses['unassigned']).order(id: :asc)
+      where.not(:status => ChequeEntry.statuses['unassigned'])
     else
-      where(:status => ChequeEntry.statuses[status]).order(id: :asc)
+      where(:status => ChequeEntry.statuses[status])
     end
   }
-  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]).order(id: :asc) }
+  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
@@ -101,23 +112,6 @@ class ChequeEntry < ActiveRecord::Base
     end
   }
 
-  # scope based on the branch
-  default_scope do
-    if UserSession.selected_branch_id != 0
-      where(branch_id: UserSession.selected_branch_id)
-    end
-  end
-
-
-
-  # TODO (subas) make sure to do the necessary settings
-  enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
-  enum print_status: [:to_be_printed, :printed]
-  enum cheque_issued_type: [:payment, :receipt]
-
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
-  end
 
   def self.options_for_bank_account_select
     BankAccount.by_branch_id.all.order(:bank_name)
