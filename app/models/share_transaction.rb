@@ -166,10 +166,6 @@ class ShareTransaction < ActiveRecord::Base
     self.deleted_at.present?
   end
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
-  end
-
   def self.options_for_isin_select
     IsinInfo.all.order(:isin)
   end

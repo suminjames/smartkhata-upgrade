@@ -17,7 +17,7 @@ class ShareTransactionsController < ApplicationController
         ShareTransaction,
         params[:filterrific],
         select_options: {
-            by_client_id: ShareTransaction.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_isin_id: ShareTransaction.options_for_isin_select
         },
         persistence_id: false
