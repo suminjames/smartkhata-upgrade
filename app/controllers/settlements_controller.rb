@@ -16,7 +16,7 @@ class SettlementsController < ApplicationController
         Settlement,
         params[:filterrific],
         select_options: {
-            by_client_id: Settlement.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_settlement_type: Settlement.options_for_settlement_type_select
         },
         persistence_id: false
