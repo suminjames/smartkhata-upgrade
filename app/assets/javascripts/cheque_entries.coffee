@@ -19,8 +19,8 @@ $(document).on 'page:change', ->
 
     $(document).on 'click', '.cheque-entry#select_all', (event) ->
       console.log 'all'
-      $(".cheque-entry:input:checkbox").not('.cant-print').prop('checked', $(this).prop("checked"))
-      $(".cheque-entry:input:checkbox").not('.cant-print').attr('disabled', false)
+      $(".cheque-entry:input:checkbox").not('.cant-print-cheque').prop('checked', $(this).prop("checked"))
+      $(".cheque-entry:input:checkbox").not('.cant-print-cheque').attr('disabled', false)
 
     $(document).on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
@@ -84,4 +84,10 @@ $(document).on 'page:change', ->
         print_status = chequeEntry.print_status
         $("#cheque_entry_" + id + " .print-status").html("Printed") if print_status == 1
 
-
+# PseudoCode overview:
+# if can_print? || is_receipt?
+#   enable checkbox
+# printCheque
+#   print can_print only
+# printAssociatedBills, printAssociatedSettlements
+#   print can_print and also receipt

@@ -46,7 +46,7 @@
         -if cheque_entries
           -cheque_entries.each do |cheque_entry|
             %tr{:id => "cheque_entry_#{cheque_entry.id}"}
-              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print_cheque? ? 'cheque-entry' : cheque_entry.receipt? ? 'cheque-entry cant-print-cheque receipt' : 'cheque-entry cant-print-cheque'
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
               %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'

@@ -143,7 +143,7 @@ class ChequeEntry < ActiveRecord::Base
     ]
   end
 
-  def can_print?
+  def can_print_cheque?
     return true if self.payment? && !self.unassigned?
     return false
   end
