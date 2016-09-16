@@ -293,3 +293,17 @@ $(window).scroll(function() {
 $(document).on("click", ".back-to-top", function (event) {
   $('body,html').animate({ scrollTop: 0 }, 700);
 });
+
+
+// Checks if two array (contents) are equal
+// Excerpted from : http://stackoverflow.com/questions/4025893/how-to-check-identical-array-in-most-efficient-way
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}

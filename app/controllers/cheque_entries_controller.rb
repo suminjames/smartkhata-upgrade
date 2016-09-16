@@ -15,7 +15,7 @@ class ChequeEntriesController < ApplicationController
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? ChequeEntry.all.count : 20
-    @cheque_entries = @filterrific.find.order(id: :asc).includes(:bank_account).page(params[:page]).per(items_per_page)
+    @cheque_entries = @filterrific.find.order(cheque_number: :asc).includes(:bank_account, :additional_bank).page(params[:page]).per(items_per_page)
 
     respond_to do |format|
       format.html

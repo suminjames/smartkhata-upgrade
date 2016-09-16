@@ -4,28 +4,39 @@
   - if cheque_entries.present?
     %div.row.top-buffer-sm
       %div.col-xs-12
-        %div.btnPrintPDF.btnPrintChequeEntriesPDF
+        %div.btnPrintPDF.btnPrintChequeEntriesPDF.btn-disabled
           %span.glyphicon.glyphicon-print.print-icon
           %span= 'Print Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
           %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
         |
-        %div.btnPrintPDF.btnPrintBillsAssociatedWithChequesPDF
+        %div.btnPrintPDF.btnPrintBillsAssociatedWithChequesPDF.btn-disabled
           %span.glyphicon.glyphicon-print.print-icon
           %span= 'Print Associated Bills of Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'bills-print-spinner'
           %iframe.hidden-iframe#iframe-for-bill-pdf-print
         |
-        %div.btnPrintPDF.btnPrintSettlementsAssociatedWithChequesPDF
+        %div.btnPrintPDF.btnPrintSettlementsAssociatedWithChequesPDF.btn-disabled
           %span.glyphicon.glyphicon-print.print-icon
           %span= 'Print Associated Settlements of Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlements-print-spinner'
           %iframe.hidden-iframe#iframe-for-settlements-pdf-print
         |
-        %div.btnPrintPDF.btnViewChequeEntriesPDF
+        %div.btnPrintPDF.btnViewChequeEntriesPDF.btn-disabled
           %span.glyphicon.glyphicon-eye-open
           %span= 'View Selected Cheques'
 
+    %div.alert.alert-info.alert-custom-gray.receipt-cheque-selected-warning.text-center
+      %strong Notice!
+      Unprintable Cheque Entries have been selected!
+      %br
+      Unprintable cheque entries include:
+      %br
+      \- receipt cheque entries
+      %br
+      \- void cheque entries
+      %br
+      \- already printed cheque entries.
   %div#cheque_entry_list
     %table.table.table-striped
       %thead
@@ -46,7 +57,15 @@
         -if cheque_entries
           -cheque_entries.each do |cheque_entry|
             %tr{:id => "cheque_entry_#{cheque_entry.id}"}
-              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print_cheque? ? 'cheque-entry' : cheque_entry.receipt? ? 'cheque-entry cant-print-cheque receipt' : 'cheque-entry cant-print-cheque'
+              :ruby
+                check_box_classes = []
+                check_box_classes << 'cheque-entry'
+                check_box_classes << 'unprintable-cheque' if !cheque_entry.can_print_cheque?
+                check_box_classes << 'receipt-cheque' if cheque_entry.receipt?
+                check_box_classes << 'payment-cheque' if cheque_entry.payment?
+                check_box_classes << 'unassigned' if cheque_entry.unassigned?
+                check_box_classes_str = check_box_classes.join(" ")
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: check_box_classes_str
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
               %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'

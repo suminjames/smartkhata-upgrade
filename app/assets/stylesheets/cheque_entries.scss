@@ -146,6 +146,10 @@ span.date {
   }
 }
 
-input[type="checkbox"].cheque-entry.cant-print-cheque {
+input[type="checkbox"].cheque-entry.unprintable-cheque {
+  //display: none
+}
+
+.receipt-cheque-selected-warning {
   display: none
 }

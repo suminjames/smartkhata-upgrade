@@ -25,6 +25,7 @@
 #  fy_code            :integer
 #
 
+
 class ChequeEntry < ActiveRecord::Base
   extend CustomDateModule
   include ::Models::UpdaterWithBranch
@@ -137,9 +138,17 @@ class ChequeEntry < ActiveRecord::Base
     ]
   end
 
+  #
+  # A cheque can be printed only if it is
+  #  -payment
+  #  -assigned
+  #
   def can_print_cheque?
-    return true if self.payment? && !self.unassigned?
-    return false
+    if self.receipt? || self.printed? || self.unassigned?|| self.void?
+      return false
+    else
+      return true
+    end
   end
 
   def self.next_available_serial_cheque(bank_account_id)
