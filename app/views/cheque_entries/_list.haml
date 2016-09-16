@@ -26,6 +26,23 @@
           %span.glyphicon.glyphicon-eye-open
           %span= 'View Selected Cheques'
 
+      %div.col-xs-offset-10.col-xs-2.top-buffer-sm
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-printed-index
+          %div.col-xs-8
+            Already Printed
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-not-printed-index
+          %div.col-xs-8
+            Can Print
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-unprintable-index
+          %div.col-xs-8
+            Can't Print
+
     %div.alert.alert-info.alert-custom-gray.receipt-cheque-selected-warning.text-center
       %strong Notice!
       Unprintable Cheque Entries have been selected!
@@ -54,18 +71,10 @@
         %th.col-xs-1.text-center= 'Type'
         %th.col-xs-1.text-center= 'Printed'
       %tbody
-        -if cheque_entries
+        -if cheque_entries.present?
           -cheque_entries.each do |cheque_entry|
-            %tr{:id => "cheque_entry_#{cheque_entry.id}"}
-              :ruby
-                check_box_classes = []
-                check_box_classes << 'cheque-entry'
-                check_box_classes << 'unprintable-cheque' if !cheque_entry.can_print_cheque?
-                check_box_classes << 'receipt-cheque' if cheque_entry.receipt?
-                check_box_classes << 'payment-cheque' if cheque_entry.payment?
-                check_box_classes << 'unassigned' if cheque_entry.unassigned?
-                check_box_classes_str = check_box_classes.join(" ")
-              %td.text-center= check_box_tag cheque_entry.id, '', false, class: check_box_classes_str
+            %tr{:id => "cheque_entry_#{cheque_entry.id}", :class => cheque_entry.formatted_status_indicator_class}
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.formatted_check_box_class
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
               %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'
