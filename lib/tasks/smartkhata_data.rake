@@ -18,6 +18,7 @@ namespace :smartkhata_data do
     if args.tenant.present?
       tenant = args.tenant
       Rake::Task["smartkhata_data:clear_unwanted_old_data"].invoke(tenant)
+      Rake::Task["smartkhata_data:upload_banks"].invoke(tenant)
       Rake::Task["smartkhata_data:import_opening_balance"].invoke(tenant)
       Rake::Task["patch_internal_opening_balances"].invoke(tenant)
       Rake::Task["smartkhata_data:upload_floorsheets"].invoke(tenant)
@@ -169,7 +170,7 @@ namespace :smartkhata_data do
 
       file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'receipt_payment.csv')
       # puts file
-      # puts "Uploading account balance.."
+      puts "Uploading payment receipts.."
       #
       file_upload_param = ActionDispatch::Http::UploadedFile.new(
           tempfile: File.new(file),
@@ -292,43 +293,30 @@ namespace :smartkhata_data do
     end
   end
 
-  desc "Uploads all floorsheet"
-  task :upload_floorsheets, [:tenant] => :environment do |task,args|
+  desc "Upload bank codes"
+  task :upload_banks, [:tenant] => :environment do |task, args|
     if args.tenant.present?
       Apartment::Tenant.switch!(args.tenant)
       UserSession.user= User.first
       UserSession.selected_fy_code= 7374
       UserSession.selected_branch_id = 1
 
-      puts "uploading floorsheets"
+      puts "uploading banks"
+      filename = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant,'bank_parameter.csv')
 
-      month = 4;
-      day = 2;
+      count = 0
+      CSV.foreach(filename, :headers => true) do |row|
 
-      end_month = 6;
-      max_days = 32;
-
-      while month <= end_month  do
-        while day <= max_days do
-          file_name = "BrokerwiseFloorSheetReport2073-#{month.to_s.rjust(2, '0')}-#{day.to_s.rjust(2, '0')}.xls"
-          file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant,'floorsheets', file_name)
-          if File.exist? file
-
-            floorsheet_upload = FilesImportServices::ImportFloorsheet.new(file)
-            floorsheet_upload.process
-            #
-            puts floorsheet_upload.error_message
-            puts "Total count for #{file_name} : #{floorsheet_upload.processed_data.size}"
-          end
-          day += 1
+        Bank.find_or_create_by!(bank_code: row['BANK_CODE']) do |b|
+          b.name = row["BANK_NAME"]
+          count += 1
         end
-        # reinitialize the day
-        day = 1
-        month +=1
+
       end
+      puts "#{count} Banks entered"
+
     else
       puts 'Please pass a tenant to the task'
     end
   end
-
 end

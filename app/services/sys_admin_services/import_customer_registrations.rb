@@ -15,7 +15,10 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
           # look for the clients with the nepse code and update the account code for the same
           # the following case is valid when we have clients present in the database
           client_account = ClientAccount.find_by(nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
+
           if client_account
+            # skip if client_account has same ac code
+            next if client_account.ac_code == hash['AC_CODE']
             client_account.ac_code = hash['AC_CODE']
           else
             client_account = ClientAccount.new(ac_code: hash["AC_CODE"], nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
@@ -32,8 +35,8 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
           # inconclusive dates from the file
           # mandala doesnt enforce it so can find bs date in dob column and vice versa
 
-          # client_account.dob = hash["DOB"] || hash["DOB_BS"]
-          # client_account.citizen_passport_date = hash["CTZNP_ISSUED_DATE_BS"].gsub('/','-') #validation requires date in format yyyy-mm-dd
+          client_account.dob ||= hash["DOB"] || hash["DOB_BS"]
+          client_account.citizen_passport_date ||= hash["CTZNP_ISSUED_DATE_BS"].gsub('/','-') #validation requires date in format yyyy-mm-dd
           client_account.citizen_passport_district = hash["CTZNP_ISSUED_DISTRICT_CODE"]
           client_account.husband_spouse = hash["HUSBAND_WIFE_NAME"]
           client_account.profession_code = hash["OCCUPATION"]
@@ -46,8 +49,20 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
           client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{ hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
           client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{ hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
 
+          client_account.citizen_passport_date = client_account.citizen_passport_date.gsub('/','-')
+          client_account.dob = client_account.dob.gsub('/','-')
 
-          client_account.save!
+
+          # some issues due to invalid dates in database
+          begin
+           client_account.save!
+          rescue
+            client_account.mobile_number = nil
+            client_account.citizen_passport_date = nil
+            client_account.dob = nil
+            client_account.save!
+          end
+
 
         end
       end
