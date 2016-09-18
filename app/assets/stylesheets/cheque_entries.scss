@@ -146,6 +146,39 @@ span.date {
   }
 }
 
-input[type="checkbox"].cheque-entry.cant-print {
+input[type="checkbox"].cheque-entry.unprintable-cheque {
+  //display: none
+}
+
+input[type="checkbox"].cheque-entry.unassigned-cheque {
   display: none
+}
+
+.receipt-cheque-selected-warning {
+  display: none
+}
+
+
+.cheque-entry-indicator {
+  border-left-style: solid;
+  border-left-width: 0.5em;
+}
+.cheque-entry-printed {
+  border-left-color: #0ce291;
+}
+.cheque-entry-not-printed {
+  border-left-color: yellow;
+}
+.cheque-entry-unprintable {
+  border-left-color: red;
+}
+
+.cheque-entry-printed-index {
+  background-color: #0ce291;
+}
+.cheque-entry-not-printed-index {
+  background-color: yellow;
+}
+.cheque-entry-unprintable-index {
+  background-color: red;
 }

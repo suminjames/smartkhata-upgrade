@@ -76,10 +76,6 @@ class TransactionMessage < ActiveRecord::Base
     end
   }
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
-  end
-
   def self.latest_transaction_date
     self.maximum("transaction_date")
   end

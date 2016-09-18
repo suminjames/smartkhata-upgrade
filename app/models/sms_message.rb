@@ -151,10 +151,6 @@ class SmsMessage < ActiveRecord::Base
     [["Transaction Message", "transaction_message_sms"], ["Undefined", "undefined_sms_type"]]
   end
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
-  end
-
   def self.sparrow_test_message
     self.mobile_number = '9851153385'
     self.message = 'Saroj bought EBL,100@2900;On 1/23 Bill No7273-79 .Pay Rs 292678.5.BNo 48. sarojk@dandpheit.com'

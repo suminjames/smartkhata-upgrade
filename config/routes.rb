@@ -36,7 +36,8 @@ Rails.application.routes.draw do
     collection do
       get :get_cheque_number
       get :update_print_status
-      get :print_bills_associated_with_cheque_entries
+      get :bills_associated_with_cheque_entries
+      get :settlements_associated_with_cheque_entries
       get :bounce
       get :represent
       get :show_multiple

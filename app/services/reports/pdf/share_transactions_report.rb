@@ -133,7 +133,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
     def share_transactions_list
       table_data = []
-      th_data = ["SN.", "Date", "Transaction No.", "Company", "Bill No.", "Qty\nin", "Qty\nout", "Market\nRate", "Amount", "Commission"]
+      th_data = ["SN.", "Date", "Transaction No.", "Company", "Client", "Bill No.", "Qty\nin", "Qty\nout", "Market\nRate", "Amount", "Commission"]
       table_data << th_data
       total_q_in = 0
       total_q_out = 0
@@ -144,6 +144,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         date = ad_to_bs_string(st.date)
         contract_num = st.contract_no
         company = st.isin_info.name_and_code
+        client_name = st.client_account.name
         bill_num = st.bill.present? ? st.bill.full_bill_number : 'N/A'
         q_in = st.buying? ? st.quantity.to_i : ''
         q_in_str = st.buying? ? arabic_number_integer(q_in) : ''
@@ -163,6 +164,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
             date,
             contract_num,
             company,
+            client_name,
             bill_num,
             q_in_str,
             q_out_str,
@@ -172,6 +174,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         ]
       end
       total_row_data = [
+          '',
           '',
           '',
           '',
@@ -187,15 +190,16 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
       table_width = page_width - 2
       column_widths = {0 => table_width * 0.7/12.0,
-                       1 => table_width * 1.3/12.0,
+                       1 => table_width * 1.2/12.0,
                        2 => table_width * 1.8/12.0,
-                       3 => table_width * 1.8/12.0,
-                       4 => table_width * 1.3/12.0,
-                       5 => table_width * 0.7/12.0,
+                       3 => table_width * 1.1/12.0,
+                       4 => table_width * 1.1/12.0,
+                       5 => table_width * 1.2/12.0,
                        6 => table_width * 0.7/12.0,
-                       7 => table_width * 1/12.0,
-                       8 => table_width * 1.4/12.0,
-                       9 => table_width * 1.3/12.0
+                       7 => table_width * 0.7/12.0,
+                       8 => table_width * 0.8/12.0,
+                       9 => table_width * 1.4/12.0,
+                       10 => table_width * 1.3/12.0
       }
       table table_data do |t|
         t.header = true
