@@ -3,6 +3,14 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
+    # default landing action for '/cheque_entries'
+    if params[:filterrific].blank?
+      respond_to do |format|
+        format.html { redirect_to cheque_entries_path('filterrific[by_cheque_entry_status]':'assigned') }
+      end
+      return
+    end
+
     @filterrific = initialize_filterrific(
         ChequeEntry,
         params[:filterrific],
@@ -55,6 +63,7 @@ class ChequeEntriesController < ApplicationController
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
 
     respond_to do |format|
+      format.html
       format.pdf do
         pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
@@ -332,6 +341,6 @@ class ChequeEntriesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def cheque_entry_params
-    params.require(:cheque_entry).permit(:date_bs, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
+    params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
   end
 end

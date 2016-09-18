@@ -150,6 +150,10 @@ input[type="checkbox"].cheque-entry.unprintable-cheque {
   //display: none
 }
 
+input[type="checkbox"].cheque-entry.unassigned-cheque {
+  display: none
+}
+
 .receipt-cheque-selected-warning {
   display: none
 }

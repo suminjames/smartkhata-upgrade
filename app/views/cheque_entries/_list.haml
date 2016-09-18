@@ -70,6 +70,7 @@
         %th.col-xs-1.text-center= 'Status'
         %th.col-xs-1.text-center= 'Type'
         %th.col-xs-1.text-center= 'Printed'
+        %th.col-xs-1.text-center= 'Action'
       %tbody
         -if cheque_entries.present?
           -cheque_entries.each do |cheque_entry|
@@ -84,6 +85,8 @@
               %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.status)
               %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
               %td.text-center.print-status= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
+              %td.text-center= link_to 'Edit', edit_cheque_entry_path(cheque_entry)
+
 
     - if !cheque_entries || cheque_entries.empty?
       %div.row.text-center.top-buffer-md

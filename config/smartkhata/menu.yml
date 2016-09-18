@@ -101,7 +101,7 @@ menus:
       path: "<%= bank_accounts_path %>"
       code: AS_BAN_BAA
     - name: Cheque Entries
-      path: "<%= cheque_entries_path('filterrific[by_cheque_entry_status]':'assigned') %>"
+      path: "<%= cheque_entries_path %>"
       code: AS_BAN_CHE
   - name: Nepse
     code: AS_NEP

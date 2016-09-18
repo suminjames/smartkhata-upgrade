@@ -23,7 +23,7 @@ class ChequeEntryDecorator < ApplicationDecorator
     check_box_classes << 'unprintable-cheque' if !cheque_entry.can_print_cheque?
     check_box_classes << 'receipt-cheque' if cheque_entry.receipt?
     check_box_classes << 'payment-cheque' if cheque_entry.payment?
-    check_box_classes << 'unassigned' if cheque_entry.unassigned?
+    check_box_classes << 'unassigned-cheque' if cheque_entry.unassigned?
     check_box_classes.join(" ")
   end
 

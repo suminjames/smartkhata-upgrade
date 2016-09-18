@@ -10,11 +10,11 @@ $(document).on 'page:change', ->
     console.log("doc loaded!")
 
     # Store all cheque entries' ids in the DOM(window) right now.
-    allChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox").not('.cheque-entry#select_all').map(function(){return this.id}).get();`
+    allChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox").not('.cheque-entry#select_all').not('.cheque-entry.unassigned-cheque').map(function(){return this.id}).get();`
     allChequeEntriesIds = allChequeEntriesIds.sort()
 
     $(document).on 'change', 'input:checkbox', (event)->
-      selectedChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox:checked").not('.cheque-entry#select_all').map(function(){return this.id}).get();`
+      selectedChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox:checked").not('.cheque-entry#select_all').not('.cheque-entry.unassigned-cheque').map(function(){return this.id}).get();`
       # The dom is parsed top to bottom, hence, the selectedChequeEntriesIds maintain a sort order.
       # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
       selectedChequeEntriesIds = selectedChequeEntriesIds.sort()
@@ -23,8 +23,8 @@ $(document).on 'page:change', ->
 
     $(document).on 'click', '.cheque-entry#select_all', (event) ->
       console.log 'all'
-      $(".cheque-entry:input:checkbox").prop('checked', $(this).prop("checked"))
-      $(".cheque-entry:input:checkbox").attr('disabled', false)
+      $(".cheque-entry:input:checkbox").not('.cheque-entry.unassigned-cheque').prop('checked', $(this).prop("checked"))
+      $(".cheque-entry:input:checkbox").not('.cheque-entry.unassigned-cheque').attr('disabled', false)
 
     $(document).on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
@@ -75,7 +75,10 @@ $(document).on 'page:change', ->
       for chequeEntry in chequeEntries
         id = chequeEntry.id
         print_status = chequeEntry.print_status
-        $("#cheque_entry_" + id + " .print-status").html("Printed") if print_status == 1
+        if print_status == 1
+          $("#cheque_entry_" + id + " .print-status").html("Printed")
+          $("#cheque_entry_" + id).removeClass('cheque-entry-not-printed').addClass('cheque-entry-printed')
+        setButtonsActivenesses()
 
     setButtonsActivenesses= ->
       toggleAllButtons()
@@ -130,18 +133,19 @@ $(document).on 'page:change', ->
       atLeastOnceIsSelectedOfClass '.cheque-entry.receipt-cheque'
 
     isAnyUnassignedChequeSelected = ->
-      atLeastOnceIsSelectedOfClass '.cheque-entry.unassigned'
+      atLeastOnceIsSelectedOfClass '.cheque-entry.unassigned-cheque'
 
     # Checks to see if atleast one of checkboxes  with the passed in klass(es) is checked/selected.
     # params klass - string with class(es). Eg. '.class-a' or '.class-x.class-y'
     atLeastOnceIsSelectedOfClass = (klass) ->
       atleastOneIsSelected = false
       $(klass).each ->
-        if $(this).is(':checked')
-          atleastOneIsSelected = true
-          # Stop .each from processing any more items
-          return false
-        return
+        if $(this).hasClass('unassigned') == false
+          if $(this).is(':checked')
+            atleastOneIsSelected = true
+            # Stop .each from processing any more items
+            return false
+          return
       return atleastOneIsSelected
 
 

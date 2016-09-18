@@ -28,6 +28,7 @@
 
 class ChequeEntry < ActiveRecord::Base
   extend CustomDateModule
+  include CustomDateModule
   include ::Models::UpdaterWithBranch
 
   belongs_to :client_account

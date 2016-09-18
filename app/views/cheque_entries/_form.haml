@@ -1,0 +1,12 @@
+= simple_form_for(cheque_entry) do |f|
+  = f.error_notification
+
+  .clearfix
+    .col-xs-12
+      =f.input :beneficiary_name, placeholder: "Beneficiary Name"
+      =f.input :cheque_number      , disabled: true, placeholder: "Cheque Number"
+      =f.input :cheque_date        , placeholder: "Cheque Date"
+      =f.input :amount             , disabled: true, placeholder: "Amount"
+    .form-actions
+      = f.button :submit
+      = link_to "Cancel", cheque_entries_path, class: 'btn btn-danger btn-flat'

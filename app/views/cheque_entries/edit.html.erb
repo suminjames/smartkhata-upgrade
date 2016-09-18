@@ -1,6 +1,4 @@
-<h1>Editing Cheque Entry</h1>
+<% provide(:section_title, "Edit Cheque Entry") %>
+<%= render(partial: 'cheque_entries/form', locals: { cheque_entry: @cheque_entry} ) %>
 
-<%= render 'form' %>
-
-<%= link_to 'Show', @cheque_entry %> |
 <%= link_to 'Back', cheque_entries_path %>
