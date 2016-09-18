@@ -103,7 +103,7 @@ $(document).on 'page:change', ->
 
     setViewChequeEntriesButtonActiveness = ->
       target = $('.btnViewChequeEntriesPDF')
-      if isAnyUnprintableChequeSelected()
+      if isAnyUnassignedChequeSelected()
         target.addClass 'btn-disabled'
         $('.receipt-cheque-selected-warning').show()
       else
