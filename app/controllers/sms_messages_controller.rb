@@ -8,12 +8,12 @@ class SmsMessagesController < ApplicationController
         SmsMessage,
         params[:filterrific],
         select_options: {
-            by_client_id: Settlement.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_sms_message_type: SmsMessage.options_for_sms_message_type_select
         },
         persistence_id: false
     ) or return
-    @sms_messages= @filterrific.find.page(params[:page]).per(20)
+    @sms_messages= @filterrific.find.includes(transaction_message: :client_account).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html

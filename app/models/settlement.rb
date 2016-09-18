@@ -98,10 +98,6 @@ class Settlement < ActiveRecord::Base
     [["Receipt", "receipt"], ["Payment", "payment"]]
   end
 
-  def self.options_for_client_select
-    ClientAccount.all.order(:name)
-  end
-
   #
   # get new settlement number
   #
