@@ -14,7 +14,7 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
 
   def prepare_document
     # Conditionally adds document headings and sets the filename
-    headings = ["Settlement Report"]
+    headings = ["Payment/Receipt Report"]
     @file_name = "SettlementReport"
     if @client_account
       headings << "\"#{@client_account.name.strip}\""
