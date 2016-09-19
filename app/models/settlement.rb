@@ -24,6 +24,7 @@
 
 class Settlement < ActiveRecord::Base
   include CustomDateModule
+  extend CustomDateModule
   include ::Models::UpdaterWithBranchFycode
 
   before_create :assign_settlement_number
@@ -63,7 +64,7 @@ class Settlement < ActiveRecord::Base
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where(:created_at => date_ad.beginning_of_day..date_ad.end_of_day)
+    by_branch_fy_code.where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
