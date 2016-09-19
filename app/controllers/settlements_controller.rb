@@ -21,7 +21,8 @@ class SettlementsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @settlements= @filterrific.find.page(params[:page]).per(20)
+    # Note: Don't show void vouchers.
+    @settlements= @filterrific.find.not_rejected.includes(:voucher).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html
