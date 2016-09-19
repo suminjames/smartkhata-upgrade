@@ -91,6 +91,7 @@ class Settlement < ActiveRecord::Base
     end
   end
 
+  scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
   before_create :assign_settlement_number
 

@@ -3,7 +3,6 @@ class OrdersController < ApplicationController
   helper_method :is_active_sub_menu_option
 
   def index
-    # Trying to implement filterrific
     @filterrific = initialize_filterrific(
         Order,
         params[:filterrific],
