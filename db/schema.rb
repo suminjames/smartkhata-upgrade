@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160919084308) do
+ActiveRecord::Schema.define(version: 20160919095358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -145,13 +145,13 @@ ActiveRecord::Schema.define(version: 20160919084308) do
 
   create_table "cheque_entries", force: :cascade do |t|
     t.string   "beneficiary_name"
-    t.integer  "cheque_number"
+    t.integer  "cheque_number",      limit: 8
     t.integer  "additional_bank_id"
-    t.integer  "status",                                      default: 0
-    t.integer  "print_status",                                default: 0
-    t.integer  "cheque_issued_type",                          default: 0
+    t.integer  "status",                                                default: 0
+    t.integer  "print_status",                                          default: 0
+    t.integer  "cheque_issued_type",                                    default: 0
     t.date     "cheque_date"
-    t.decimal  "amount",             precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount",                       precision: 15, scale: 4, default: 0.0
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
     t.integer  "vendor_account_id"
@@ -160,8 +160,8 @@ ActiveRecord::Schema.define(version: 20160919084308) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
-    t.datetime "created_at",                                                null: false
-    t.datetime "updated_at",                                                null: false
+    t.datetime "created_at",                                                          null: false
+    t.datetime "updated_at",                                                          null: false
     t.integer  "fy_code"
   end
 
