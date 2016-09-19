@@ -21,10 +21,18 @@ class SettlementsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @settlements= @filterrific.find.page(params[:page]).per(20)
+    items_per_page = ['xlsx', 'pdf'].include?(params[:format]) ? Settlement.count : 20
+    @settlements= @filterrific.find.page(params[:page]).per(items_per_page)
+
+    @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
 
     respond_to do |format|
       format.html
+      format.xlsx do
+        report = Reports::Excelsheet::SettlementsReport.new(@settlements, params[:filterrific], current_tenant)
+        send_data report.file, type: report.type, filename: report.filename
+        report.clear
+      end
       format.js
     end
 
