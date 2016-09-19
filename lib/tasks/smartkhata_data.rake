@@ -272,7 +272,8 @@ namespace :smartkhata_data do
       UserSession.selected_branch_id = 1
       UserSession.selected_fy_code = 7374
 
-      file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'CM0501092016150833.csv')
+      file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'CM0516092016130422.csv')
+      # file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'CM0501092016150833.csv')
       # puts file
       # puts "Uploading account balance.."
       #
