@@ -272,7 +272,7 @@ class Vouchers::Create < Vouchers::Base
             if particular.additional_bank_id.present?
               cheque_entry.status = ChequeEntry.statuses[:pending_clearance]
             else
-              cheque_entry.status = ChequeEntry.statuses[:to_be_printed]
+              cheque_entry.status = ChequeEntry.statuses[:pending_approval]
             end
             cheque_entry.beneficiary_name = cheque_name
             cheque_entry.client_account_id = client_account_id

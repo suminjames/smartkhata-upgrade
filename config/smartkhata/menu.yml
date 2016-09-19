@@ -170,6 +170,9 @@ menus:
     - name: Payment
       path: "<%= settlements_path('filterrific[by_settlement_type]':'payment') %>"
       code: RS_SET_PAY
+    - name: All
+      path: "<%= settlements_path %>"
+      code: RS_SET_ALL
   - name: SMS
     code: RS_SMS
     menu_items:
