@@ -1,4 +1,19 @@
 <div id="filterrific_results">
+  <% if @settlements.present? %>
+    <div class="bottom-buffer-sm">
+      <div class="btn-group">
+        <button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true", data-toggle="dropdown" type="button">
+          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"> </span>
+          Download
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><%= link_to 'Excelsheet', @download_path_xlsx %></li>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
   <%= render 'shared/pagination', collection_to_paginate: settlements %>
   <table class="table">
     <thead>
