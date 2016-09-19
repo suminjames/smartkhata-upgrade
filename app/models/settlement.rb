@@ -23,19 +23,29 @@
 
 
 class Settlement < ActiveRecord::Base
-  extend CustomDateModule
+  include CustomDateModule
+  include ::Models::UpdaterWithBranchFycode
 
-  default_scope {where(fy_code: UserSession.selected_fy_code)}
-
+  before_create :assign_settlement_number
+  before_save :add_date_from_date_bs
 
   belongs_to :voucher
-  include ::Models::UpdaterWithBranchFycode
+  belongs_to :client_account
+  belongs_to :vendor_account
 
   enum settlement_type: [:receipt, :payment]
   enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
 
-  belongs_to :client_account
-  belongs_to :vendor_account
+  # default_scope {where(fy_code: UserSession.selected_fy_code)}
+
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
 
   filterrific(
       default_filter_params: {sorted_by: 'name_desc'},
@@ -82,18 +92,13 @@ class Settlement < ActiveRecord::Base
     end
   }
 
-  # scope based on the branch and fycode selection
-  default_scope do
-    if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-    end
-  end
 
   scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
-  before_create :assign_settlement_number
+
+  def add_date_from_date_bs
+    self.date = bs_to_ad(self.date_bs)
+  end
 
   def self.options_for_settlement_type_select
     [["Receipt", "receipt"], ["Payment", "payment"]]

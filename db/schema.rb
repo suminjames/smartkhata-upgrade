@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160911160831) do
+ActiveRecord::Schema.define(version: 20160919084308) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -603,6 +603,7 @@ ActiveRecord::Schema.define(version: 20160911160831) do
     t.datetime "updated_at",                            null: false
     t.integer  "branch_id"
     t.integer  "settlement_by_cheque_type", default: 0
+    t.date     "date"
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
