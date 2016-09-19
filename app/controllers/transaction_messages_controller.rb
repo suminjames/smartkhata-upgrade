@@ -8,12 +8,12 @@ class TransactionMessagesController < ApplicationController
         TransactionMessage,
         params[:filterrific],
         select_options: {
-            by_client_id: TransactionMessage.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
         },
         persistence_id: false
     ) or return
     items_per_page = params[:no_paginate] == 'true' ?  TransactionMessage.all.count : 20
-    @transaction_messages = @filterrific.find.page(params[:page]).per(items_per_page).decorate
+    @transaction_messages = @filterrific.find.includes(:bill, :client_account).page(params[:page]).per(items_per_page).decorate
 
     respond_to do |format|
       format.html

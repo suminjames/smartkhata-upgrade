@@ -284,6 +284,11 @@ a {
   cursor: pointer;
 }
 
+.btn-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 .spinner-circular {
   display: inline
 }
@@ -481,4 +486,11 @@ select{
 
 .break-word {
   word-break: break-word;
+}
+
+// suppress style of .alert and .alert-info
+.alert-custom-gray {
+  color: #635D5D !important;
+  background-color: #dee7ef !important;
+  border-color: white !important;
 }

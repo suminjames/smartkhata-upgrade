@@ -4,22 +4,56 @@
   - if cheque_entries.present?
     %div.row.top-buffer-sm
       %div.col-xs-12
-        %div.btnPrintPDF.btnPrintChequeEntriesPDF
+        %div.btnPrintPDF.btnPrintChequeEntriesPDF.btn-disabled
           %span.glyphicon.glyphicon-print.print-icon
           %span= 'Print Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entries-print-spinner'
           %iframe.hidden-iframe#iframe-for-cheque-entries-pdf-print
         |
-        %div.btnPrintPDF.btnPrintBillsAssociatedWithChequesPDF
+        %div.btnPrintPDF.btnPrintBillsAssociatedWithChequesPDF.btn-disabled
           %span.glyphicon.glyphicon-print.print-icon
           %span= 'Print Associated Bills of Selected Cheques'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'bills-print-spinner'
           %iframe.hidden-iframe#iframe-for-bill-pdf-print
         |
-        %div.btnPrintPDF.btnViewChequeEntriesPDF
+        %div.btnPrintPDF.btnPrintSettlementsAssociatedWithChequesPDF.btn-disabled
+          %span.glyphicon.glyphicon-print.print-icon
+          %span= 'Print Associated Settlements of Selected Cheques'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlements-print-spinner'
+          %iframe.hidden-iframe#iframe-for-settlements-pdf-print
+        |
+        %div.btnPrintPDF.btnViewChequeEntriesPDF.btn-disabled
           %span.glyphicon.glyphicon-eye-open
           %span= 'View Selected Cheques'
 
+      %div.col-xs-offset-10.col-xs-2.top-buffer-sm
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-printed-index
+          %div.col-xs-8
+            Already Printed
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-not-printed-index
+          %div.col-xs-8
+            Can Print
+        %div.row
+          %div.col-xs-2
+            %div.box-sm.cheque-entry-unprintable-index
+          %div.col-xs-8
+            Can't Print
+
+    %div.alert.alert-info.alert-custom-gray.receipt-cheque-selected-warning.text-center
+      %strong Notice!
+      Unprintable Cheque Entries have been selected!
+      %br
+      Unprintable cheque entries include:
+      %br
+      \- receipt cheque entries
+      %br
+      \- void cheque entries
+      %br
+      \- already printed cheque entries.
   %div#cheque_entry_list
     %table.table.table-striped
       %thead
@@ -36,11 +70,12 @@
         %th.col-xs-1.text-center= 'Status'
         %th.col-xs-1.text-center= 'Type'
         %th.col-xs-1.text-center= 'Printed'
+        %th.col-xs-1.text-center= 'Action'
       %tbody
-        -if cheque_entries
+        -if cheque_entries.present?
           -cheque_entries.each do |cheque_entry|
-            %tr{:id => "cheque_entry_#{cheque_entry.id}"}
-              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.can_print? ? 'cheque-entry' : 'cheque-entry cant-print'
+            %tr{:id => "cheque_entry_#{cheque_entry.id}", :class => cheque_entry.formatted_status_indicator_class}
+              %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.formatted_check_box_class
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
               %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'
@@ -50,6 +85,10 @@
               %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.status)
               %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
               %td.text-center.print-status= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
+              %td.text-center
+                = link_to 'Show', cheque_entry_path(cheque_entry)
+                = link_to 'Edit', edit_cheque_entry_path(cheque_entry)
+
 
     - if !cheque_entries || cheque_entries.empty?
       %div.row.text-center.top-buffer-md

@@ -51,7 +51,7 @@
         %th.col-xs-1.text-center= 'Bill'
         %th.col-xs-4.text-center= 'SMS Message'
       %tbody
-        -if transaction_messages
+        -if transaction_messages.present?
           -transaction_messages.each do |transaction_message|
             %tr{:class => (sms_status_indicator_class(transaction_message))}
               %td.text-center= check_box_tag transaction_message.id, '', false, class: transaction_message.can_email? ? 'email' : 'email cant-email'

@@ -17,14 +17,14 @@ class ShareTransactionsController < ApplicationController
         ShareTransaction,
         params[:filterrific],
         select_options: {
-            by_client_id: ShareTransaction.options_for_client_select,
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_isin_id: ShareTransaction.options_for_isin_select
         },
         persistence_id: false
     ) or return
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ShareTransaction.all.count : 20
-    @share_transactions= @filterrific.find.includes(:isin_info, :bill).page(params[:page]).per(items_per_page)
+    @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).page(params[:page]).per(items_per_page)
 
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
