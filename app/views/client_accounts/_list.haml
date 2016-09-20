@@ -26,7 +26,7 @@
         %th.col-xs-2= 'Email'
         %th.col-xs-1
       %tbody
-        -if client_accounts
+        -if client_accounts.present?
           -pagination_count = kaminari_serial_number(params[:page], client_accounts.count)
           -client_accounts.each_with_index do |client_account, index|
             %tr
@@ -41,7 +41,7 @@
                 &nbsp;|&nbsp;
                 = link_to 'edit', edit_client_account_path(client_account)
 
-    - if !client_accounts || client_accounts.empty?
+    - if client_accounts.empty?
       %div.row.text-center.top-buffer-md
         There are no matching client accounts.
 
