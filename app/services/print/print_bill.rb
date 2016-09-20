@@ -103,7 +103,7 @@ class Print::PrintBill < Prawn::Document
         ["NEPSE Code:", @bill.client.nepse_code, "", @bill.formatted_client_phones['secondary']]
     ]
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.35, 2 => table_width * 0.20, 3 => table_width * 0.30}
+    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.52, 2 => table_width * 0.13, 3 => table_width * 0.20}
     table data do |t|
       t.header = true
       t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0], :align => :left}
@@ -198,22 +198,23 @@ class Print::PrintBill < Prawn::Document
                          6 => table_width * 0.13,
                          7 => table_width * 0.11}
       else # if @bill.bill_type == 'sales'
-        column_widths = {0 => table_width * 0.25,
+        column_widths = {0 => table_width * 0.22,
                          1 => table_width * 0.17,
-                         2 => table_width * 0.07,
+                         2 => table_width * 0.08,
                          3 => table_width * 0.07,
                          4 => table_width * 0.07,
                          5 => table_width * 0.10,
-                         6 => table_width * 0.09,
-                         7 => table_width * 0.09,
+                         6 => table_width * 0.10,
+                         7 => table_width * 0.10,
                          8 => table_width * 0.09}
       end
       table data do |t|
         t.header = true
         t.row(0).font_style = :bold
-        t.cell_style = {:size => 8, :padding => [2, 2, 2, 2], :align => :center}
+        t.cell_style = {:border_width => 0.1, :size => 8, :padding => [1, 2, 1, 1], :align => :center}
         t.width = table_width
         t.column_widths = column_widths
+        t.style(t.row(1..-1).columns(3..-1), :align => :right)
       end
     end
   end

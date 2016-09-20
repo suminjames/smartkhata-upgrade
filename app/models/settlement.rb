@@ -68,11 +68,11 @@ class Settlement < ActiveRecord::Base
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('created_at >= ?', date_ad.beginning_of_day)
+    by_branch_fy_code.where('settlements.date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('created_at <= ?', date_ad.end_of_day)
+    by_branch_fy_code.where('settlements.date <= ?', date_ad.end_of_day)
   }
 
   scope :by_client_id, -> (id) { by_branch_fy_code.where(client_account_id: id) }
