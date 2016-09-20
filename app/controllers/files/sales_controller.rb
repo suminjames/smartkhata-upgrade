@@ -4,11 +4,11 @@ class Files::SalesController < Files::FilesController
   @@file_name_contains = "CM05"
 
   def index
-    @settlements= SalesSettlement.order("settlement_date desc").page(params[:page]).per(20)
+    @settlements= SalesSettlement.order("settlement_id desc").page(params[:page]).per(20)
   end
 
   def new
-    settlements = SalesSettlement.order("settlement_date desc")
+    settlements = SalesSettlement.order("settlement_id desc")
     @settlements = settlements.page(params[:page]).per(Files::PREVIEW_LIMIT)
     @list_incomplete = settlements.count > Files::PREVIEW_LIMIT
   end
