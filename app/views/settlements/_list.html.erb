@@ -35,12 +35,6 @@
       if settlements.present?
         pagination_count = kaminari_serial_number(params[:page], settlements.count)
         settlements.each_with_index do |settlement, index|
-          cheque_number = nil
-          bank_name = nil
-          # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
-          # Put 'N/A' for non_bank payment/receipt which don't have cheque_entry associated
-          cheque_number ||= 'N/A'
-          bank_name ||= 'N/A'
     %>
             <tr>
               <td><%= pagination_count + index %></td>
