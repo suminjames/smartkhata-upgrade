@@ -24,13 +24,16 @@ class SettlementsController < ApplicationController
 
     items_per_page = 20
     # Note: Don't show void vouchers.
+    # In case of cheque creation during voucher client_account_id is not assigned to the cheques
+    # to compensate that or condition is inserted
+
     if ['xlsx', 'pdf'].include?(params[:format])
       # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).decorate
-      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).where('settlements.client_account_id = cheque_entries.client_account_id').order('cheque_entries.cheque_number asc').references(:cheque_entries).decorate
+      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order('cheque_entries.cheque_number asc').references(:cheque_entries).decorate
     else
       # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).page(params[:page]).per(items_per_page).decorate
-      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).where('settlements.client_account_id = cheque_entries.client_account_id').order('cheque_entries.cheque_number asc').references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
-      
+      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order('cheque_entries.cheque_number asc').references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
+
     end
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
