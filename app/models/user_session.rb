@@ -33,6 +33,16 @@ class UserSession
     #   user.branch_id
     # end
 
+    #
+    # Sets rails console
+    #
+    def set_console(tenant = 'trishakti', fy_code = 7374, selected_branch_id = 1)
+      Apartment::Tenant.switch!(tenant)
+      UserSession.user = User.first
+      UserSession.selected_fy_code = 7374
+      UserSession.selected_branch_id = 1
+    end
+
     def destroy
       @user = nil
     end

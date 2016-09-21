@@ -56,6 +56,10 @@ class ChequeEntry < ActiveRecord::Base
             numericality: {only_integer: true, greater_than: 0}
 
   # TODO (subas) make sure to do the necessary settings
+  #
+  #  pending_approval for payment
+  #  pending_clearance for receipt
+  #
   enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
   enum print_status: [:to_be_printed, :printed]
   enum cheque_issued_type: [:payment, :receipt]

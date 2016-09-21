@@ -39,3 +39,46 @@ task :patch_internal_opening_balances, [:tenant] => :environment do |task,args|
     puts 'Please pass a tenant to the task'
   end
 end
+
+
+task :patch_ledger_dailies, [:tenant] => :environment do |task, args|
+  Apartment::Tenant.switch!(args.tenant)
+  UserSession.user= User.first
+  UserSession.selected_fy_code= 7374
+  UserSession.selected_branch_id = 1
+
+  Ledger.all.each do |ledger|
+    all_cost_center_dailies = ledger.ledger_dailies.where(branch_id: nil).order('date ASC')
+    branch_cost_center_dailies = ledger.ledger_dailies.where(branch_id: 1).order('date ASC')
+    opening_balance = 0
+    closing_balance = 0
+    all_cost_center_dailies.each do |daily|
+      if opening_balance == 0
+        opening_balance = daily.opening_balance
+        closing_balance = daily.closing_balance
+      else
+        opening_balance = closing_balance
+        daily.opening_balance = opening_balance
+        closing_balance = opening_balance + daily.dr_amount - daily.cr_amount
+        daily.closing_balance = closing_balance
+        daily.save!
+      end
+    end
+
+    opening_balance = 0
+    closing_balance = 0
+    branch_cost_center_dailies.each do |daily|
+      if opening_balance == 0
+        opening_balance = daily.opening_balance
+        closing_balance = daily.closing_balance
+      else
+        opening_balance = closing_balance
+        daily.opening_balance = opening_balance
+        closing_balance = opening_balance + daily.dr_amount - daily.cr_amount
+        daily.closing_balance = closing_balance
+        daily.save!
+      end
+    end
+  end
+  Apartment::Tenant.switch!('public')
+end

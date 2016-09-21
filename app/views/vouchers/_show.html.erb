@@ -52,6 +52,7 @@
         </div>
         <div class="box-body">
           <div style='min-height: 100px'>
+            <% total_particular_amount = 0  %>
             <% @particulars.order('transaction_type ASC').each do |particular| %>
                 <div class="row">
                   <div class="col-xs-3">
@@ -79,7 +80,17 @@
                   </div>
                 </div>
                 <br>
+                <% total_particular_amount += particular.amount  %>
             <% end %>
+            <hr class="grey-hr">
+            <div class="row">
+              <strong>
+                <em>
+                  <div class="col-xs-3 col-xs-offset-7 text-right">Total Amount</div>
+                  <div class="col-xs-2 text-left"><%= arabic_number(total_particular_amount) %></div>
+                </em>
+              </strong>
+            </div>
           </div>
 
           <br>
@@ -117,6 +128,7 @@
       <% end %>
 
   <% else #if !@voucher.is_payment_bank  %>
+      <!--This logic for ledger to ledger transfer (using JVR).-->
       <div>
         <strong>
           <%= current_tenant.full_name %><br>
@@ -150,15 +162,14 @@
           </div>
         </div>
         <div class="box-body">
-
           <% @particulars.order('transaction_type ASC').each do |particular| %>
               <div class="row">
                 <div class="col-xs-6">
                   <%= particular.ledger.name %>
                 </div>
 
-                  <div class="col-xs-3 text-right"><%= (particular.dr?) ? arabic_number(particular.amount) : "" %></div>
-                  <div class="col-xs-3 text-right"><%= (particular.cr?) ? arabic_number(particular.amount) : "" %></div>
+                <div class="col-xs-3 text-right"><%= (particular.dr?) ? arabic_number(particular.amount) : "" %></div>
+                <div class="col-xs-3 text-right"><%= (particular.cr?) ? arabic_number(particular.amount) : "" %></div>
 
               </div>
               <br>

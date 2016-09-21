@@ -49,7 +49,7 @@ class Settlement < ActiveRecord::Base
   end
 
   filterrific(
-      default_filter_params: {sorted_by: 'name_desc'},
+      default_filter_params: {sorted_by: 'id'},
       available_filters: [
           :sorted_by,
           :by_settlement_type,
@@ -68,11 +68,11 @@ class Settlement < ActiveRecord::Base
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('created_at >= ?', date_ad.beginning_of_day)
+    by_branch_fy_code.where('settlements.date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('created_at <= ?', date_ad.end_of_day)
+    by_branch_fy_code.where('settlements.date <= ?', date_ad.end_of_day)
   }
 
   scope :by_client_id, -> (id) { by_branch_fy_code.where(client_account_id: id) }
@@ -80,14 +80,8 @@ class Settlement < ActiveRecord::Base
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
-      when /^name/
-        by_branch_fy_code.order("LOWER(settlements.name) #{ direction }")
-      when /^amount/
-        by_branch_fy_code.order("settlements.amount #{ direction }")
-      when /^type/
-        by_branch_fy_code.order("settlements.settlement_type #{ direction }")
-      when /^date/
-        by_branch_fy_code.order("settlements.date_bs #{ direction }")
+      when /^id/
+        by_branch_fy_code.order("settlements.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

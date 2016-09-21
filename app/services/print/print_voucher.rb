@@ -91,6 +91,7 @@ class Print::PrintVoucher< Prawn::Document
         ["Account Head", "Particular", "Cheque Number", "Amount"]
     ]
 
+    total_particular_amount = 0
     @particulars.each do |particular|
       particular_desc = ''
       if particular.bills.find_by_client_id(particular.ledger.client_account_id).count > 0
@@ -106,18 +107,23 @@ class Print::PrintVoucher< Prawn::Document
         particular_desc += @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{paid_to}"
       end
       data << [particular.ledger.name, particular_desc, particular.cheque_entries.first.cheque_number, arabic_number(particular.amount)]
+      total_particular_amount += particular.amount
     end
+    total_row = [{:content => 'Total Amount', :colspan => 3}, arabic_number(total_particular_amount)]
+    data << total_row
 
     table_width = page_width - 2
     column_widths = {0 => table_width * 3/12.0, 1 => table_width * 4/12.0, 2 => table_width * 3/12.0, 3 => table_width * 2/12.0}
     table data do |t|
       t.header = true
-      t.cell_style = {:border_width => 1, :padding => [1, 2, 1, 2], :align => :left}
-      t.row(0).font_style = :bold
-      t.columns(0..-1).borders = [:left]
-      t.columns(-1).borders = [:left, :right]
-      t.rows(0).borders = [:top, :bottom, :left, :right]
-      t.rows(-1).borders = [:bottom, :left, :right]
+      t.cell_style = {:border_width => 0.1, :padding => [2, 2, 2, 2], :align => :left}
+      t.style(t.columns(0..-1).rows(0..-1), :borders => [:top, :bottom, :left, :right])
+      t.style(t.row(0), :align => :center, :font_style => :bold)
+      t.style(t.row(0).column(3), :align => :center)
+      t.row(-1).font_style = :bold_italic
+      t.columns(2).style(:align => :center)
+      t.columns(3).style(:align => :right)
+      t.rows(-1).style(:align => :right)
       t.column_widths = column_widths
     end
   end

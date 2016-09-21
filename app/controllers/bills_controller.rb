@@ -95,7 +95,7 @@ class BillsController < ApplicationController
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.find(params[:id]).decorate
+    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id]).decorate
     authorize @bill
     @has_voucher_pending_approval = false
 
@@ -118,7 +118,7 @@ class BillsController < ApplicationController
 
   def show_multiple
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    bills = Bill.where(id: bill_ids).decorate
+    bills = Bill.includes(:share_transactions => :isin_info).where(id: bill_ids).decorate
     respond_to do |format|
       format.html
       format.js

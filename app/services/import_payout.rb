@@ -71,7 +71,7 @@ class ImportPayout < ImportFile
           end
           settlement_ids.add(settlement_id)
 
-          unless settlement_ids.size == 1 && !multiple_settlement_ids_allowed
+          unless settlement_ids.size == 1 || multiple_settlement_ids_allowed
             import_error("The file you have uploaded has multiple settlement ids")
             raise ActiveRecord::Rollback
             break

@@ -280,6 +280,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     bill_id = nil
     bill_number = nil
+    full_bill_number = nil
+
     if type_of_transaction == ShareTransaction.transaction_types['buying']
       bill.share_transactions << transaction
       bill.net_amount += transaction.net_amount
