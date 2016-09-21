@@ -10,7 +10,8 @@ class VouchersController < ApplicationController
   end
 
   def pending_vouchers
-    @vouchers = Voucher.pending.order("id ASC").decorate
+    # @vouchers = Voucher.pending.includes(:particulars).order("id ASC").references(:particulars).decorate
+    @vouchers = Voucher.pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
     render :index
   end
 
