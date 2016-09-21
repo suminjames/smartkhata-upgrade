@@ -234,7 +234,10 @@ class Vouchers::Create < Vouchers::Base
         particular.pending!
 
         ledger = Ledger.find(particular.ledger_id)
-        client_account ||= ledger.client_account
+        # if client account is present which is true for the case where a single settlment is desired
+        #  one customer pays on the behalf of his related ones
+        # in default case create settlement for only the client account that is shown in particulars.
+        the_client_account =  client_account ? client_account : ledger.client_account
 
         # particular.bill_id = bill_id
         if (particular.cheque_number.present?)
@@ -252,7 +255,7 @@ class Vouchers::Create < Vouchers::Base
             cheque_name = vendor_account.name
           end
 
-          client_account_id ||= client_account.id if client_account.present?
+          client_account_id ||= the_client_account.id if the_client_account.present?
 
           begin
             # cheque entry recording
@@ -298,7 +301,7 @@ class Vouchers::Create < Vouchers::Base
         end
 
         if is_payment_receipt && voucher_settlement_type == 'default'
-          settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: client_account, description_bills: description_bills)
+          settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills)
           voucher.settlements << settlement if settlement.present?
         end
 
