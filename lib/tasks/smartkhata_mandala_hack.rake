@@ -101,70 +101,82 @@ namespace :smartkhata_mandala_hack do
         end
       end
 
-      # ActiveRecord::Base.transaction do
-      #   client_vouchers.each do |voucher, particulars|
-      #
-      #     # create a jvr
-      #     description = particulars.first['PARTICULARS']
-      #     voucher_date = Date.parse(particulars.first['VOUCHER_DATE'])
-      #
-      #     if description.blank? || voucher_date.blank?
-      #       raise ActiveRecord::Rollback
-      #       break
-      #     end
-      #
-      #     client_branch_id = 1
-      #
-      #     voucher = Voucher.create!(date: voucher_date, date_bs: ad_to_bs_string(voucher_date))
-      #     voucher.desc = description
-      #     voucher.complete!
-      #     voucher.save!
-      #
-      #     particulars.each do |row|
-      #       client_account = ClientAccount.find_by(ac_code: row["AC_CODE"].to_i)
-      #       client_account ||= ClientAccount.find_by(nepse_code: row["NEPSE_CUSTOMER_CODE"])
-      #       ledger = nil
-      #
-      #       is_debit = row['TRANSACTION_TYPE'] == 'DR' ? true : false
-      #       amount = row['NRS_AMOUNT'].to_f
-      #
-      #       if client_account.nil?
-      #         unless arr.keys.include? row['AC_CODE']
-      #           unless client_arr.keys.include? row['AC_CODE']
-      #             client_accounts = ClientAccount.where('name ilike ?', row['AC_NAME'].strip)
-      #             if client_accounts.size == 1
-      #               client_arr[row['AC_CODE']] = client_accounts.first.nepse_code
-      #               ledger = client_accounts.first.ledger
-      #             else
-      #               puts "#{row['AC_NAME']}  #{row['AC_CODE']}"
-      #             end
-      #           else
-      #             client_account = ClientAccount.find_by(nepse_code: client_arr[row["AC_CODE"]])
-      #             ledger = client_account.ledger
-      #           end
-      #         else
-      #           ledger = Ledger.find_by_name(arr[row['AC_CODE']])
-      #         end
-      #       else
-      #         ledger = client_account.ledger
-      #       end
-      #
-      #       if ledger.nil?
-      #         puts "no ledger found for #{row['AC_NAME']}"
-      #         raise ActiveRecord::Rollback
-      #         break
-      #       end
-      #
-      #       if is_valid_for_ledger_entry(ledger, row)
-      #         process_accounts(ledger, voucher, is_debit, amount, description, client_branch_id, voucher_date)
-      #       else
-      #         raise ActiveRecord::Rollback
-      #         break
-      #       end
-      #
-      #     end
-      #   end
-      # end
+      CSV.open("voucher_pending.csv", 'w') do |writer|
+        header = %w(VOUCHER_DATE VOUCHER_NO	VOUCHER_CODE	AC_CODE	SUB_CODE	PARTICULARS	CURRENCY_CODE	AMOUNT	CONVERSION_RATE	NRS_AMOUNT	TRANSACTION_TYPE	COST_REVENUE_CODE	INVOICE_NO	VOU_PERIOD	AGAINST_AC_CODE	AGAINST_SUB_CODE	CHEQUE_NO	SERIAL_NO	FISCAL_YEAR	AC_NAME	NEPSE_CUSTOMER_CODE)
+        writer << header
+        writer << ['*********']
+        non_client_vouchers.each do |voucher, particulars|
+          particulars.each do |row|
+            writer << row
+          end
+          writer << ['*********']
+        end
+      end
+
+      ActiveRecord::Base.transaction do
+        client_vouchers.each do |voucher, particulars|
+
+          # create a jvr
+          description = particulars.first['PARTICULARS']
+          voucher_date = Date.parse(particulars.first['VOUCHER_DATE'])
+
+          if description.blank? || voucher_date.blank?
+            raise ActiveRecord::Rollback
+            break
+          end
+
+          client_branch_id = 1
+
+          voucher = Voucher.create!(date: voucher_date, date_bs: ad_to_bs_string(voucher_date))
+          voucher.desc = description
+          voucher.complete!
+          voucher.save!
+
+          particulars.each do |row|
+            client_account = ClientAccount.find_by(ac_code: row["AC_CODE"].to_i)
+            client_account ||= ClientAccount.find_by(nepse_code: row["NEPSE_CUSTOMER_CODE"])
+            ledger = nil
+
+            is_debit = row['TRANSACTION_TYPE'] == 'DR' ? true : false
+            amount = row['NRS_AMOUNT'].to_f
+
+            if client_account.nil?
+              unless arr.keys.include? row['AC_CODE']
+                unless client_arr.keys.include? row['AC_CODE']
+                  client_accounts = ClientAccount.where('name ilike ?', row['AC_NAME'].strip)
+                  if client_accounts.size == 1
+                    client_arr[row['AC_CODE']] = client_accounts.first.nepse_code
+                    ledger = client_accounts.first.ledger
+                  else
+                    puts "#{row['AC_NAME']}  #{row['AC_CODE']}"
+                  end
+                else
+                  client_account = ClientAccount.find_by(nepse_code: client_arr[row["AC_CODE"]])
+                  ledger = client_account.ledger
+                end
+              else
+                ledger = Ledger.find_by_name(arr[row['AC_CODE']])
+              end
+            else
+              ledger = client_account.ledger
+            end
+
+            if ledger.nil?
+              puts "no ledger found for #{row['AC_NAME']}"
+              raise ActiveRecord::Rollback
+              break
+            end
+
+            if is_valid_for_ledger_entry(ledger, row)
+              process_accounts(ledger, voucher, is_debit, amount, description, client_branch_id, voucher_date)
+            else
+              raise ActiveRecord::Rollback
+              break
+            end
+
+          end
+        end
+      end
 
 
       puts "#{vouchers.size} vouchers need to be inserted"
