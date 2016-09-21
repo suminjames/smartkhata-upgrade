@@ -255,7 +255,6 @@ class Vouchers::Create < Vouchers::Base
             cheque_name = vendor_account.name
           end
 
-          debugger
           client_account_id ||= the_client_account.id if the_client_account.present?
 
           begin
