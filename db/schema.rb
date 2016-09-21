@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160919095358) do
+ActiveRecord::Schema.define(version: 20160921025322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -532,28 +532,28 @@ ActiveRecord::Schema.define(version: 20160919095358) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",           precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
-    t.integer  "ledger_type",                                     default: 0
-    t.integer  "cheque_number"
+    t.integer  "ledger_type",                                               default: 0
+    t.integer  "cheque_number",          limit: 8
     t.string   "name"
     t.string   "description"
-    t.decimal  "amount",                 precision: 15, scale: 4, default: 0.0
-    t.decimal  "running_blnc",           precision: 15, scale: 4, default: 0.0
+    t.decimal  "amount",                           precision: 15, scale: 4, default: 0.0
+    t.decimal  "running_blnc",                     precision: 15, scale: 4, default: 0.0
     t.integer  "additional_bank_id"
-    t.integer  "particular_status",                               default: 1
+    t.integer  "particular_status",                                         default: 1
     t.string   "date_bs"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.date     "transaction_date"
-    t.datetime "created_at",                                                      null: false
-    t.datetime "updated_at",                                                      null: false
+    t.datetime "created_at",                                                                null: false
+    t.datetime "updated_at",                                                                null: false
     t.integer  "ledger_id"
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
-    t.boolean  "hide_for_client",                                 default: false
+    t.boolean  "hide_for_client",                                           default: false
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree

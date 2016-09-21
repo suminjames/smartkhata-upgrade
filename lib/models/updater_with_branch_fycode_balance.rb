@@ -40,6 +40,7 @@ module Models::UpdaterWithBranchFycodeBalance
     end
   end
 
+
   private
 
   def set_updater
