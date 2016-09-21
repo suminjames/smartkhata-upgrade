@@ -34,7 +34,7 @@ class BillsController < ApplicationController
           @client_account_id = search_term.to_i
           client_account= ClientAccount.find(@client_account_id)
           # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
-          @bills = client_account.get_all_related_bills.decorate
+          @bills = client_account.get_all_related_bills.order(date: :asc).decorate
           render :select_bills_for_settlement and return
         when 'client_name'
           client_account = ClientAccount.find_by_id(search_term)
