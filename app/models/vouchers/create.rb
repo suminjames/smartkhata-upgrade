@@ -367,6 +367,15 @@ class Vouchers::Create < Vouchers::Base
       end
     end
 
+    # in case of payment the settlement date has to be today itself as cheque is created on that day
+    # in case of receipt however it can be voucher date
+    if voucher.payment?
+      settlement_date_bs = ad_to_bs(DateTime.now)
+    else
+      settlement_date_bs = voucher.date_bs
+    end
+
+
     # single settlement for all the transaction exist only for the group leader and vendor accounting
 
     if is_single_settlement
@@ -384,7 +393,7 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
@@ -392,7 +401,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
       # settlement.client_account = client_account
     end
 

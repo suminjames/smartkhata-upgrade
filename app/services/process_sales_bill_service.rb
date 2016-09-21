@@ -162,15 +162,22 @@ class ProcessSalesBillService
     settlement = nil
     settlement_description ||= voucher.desc
 
+    # in case of payment the settlement date has to be today itself as cheque is created on that day
+    # in case of receipt however it can be voucher date
+    if voucher.payment?
+      settlement_date_bs = ad_to_bs(DateTime.now)
+    else
+      settlement_date_bs = voucher.date_bs
+    end
+
     if client_account.present?
       settler_name = client_account.name
     else
       settler_name = ledger.name
     end
 
-    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: voucher.date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
+    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
     settlement.client_account = client_account
-
     settlement
   end
 
