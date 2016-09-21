@@ -91,6 +91,19 @@ class Settlement < ActiveRecord::Base
   scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
 
+  def cheque_entries
+    cheque_entries = []
+    # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
+    if self.voucher.cheque_entries.present?
+      self.voucher.cheque_entries.uniq.each do |cheque|
+        if self.has_single_cheque? && cheque.client_account_id == self.client_account_id || !self.has_single_cheque?
+          cheque_entries << cheque
+        end
+      end
+    end
+    cheque_entries
+  end
+
   def add_date_from_date_bs
     self.date = bs_to_ad(self.date_bs)
   end
