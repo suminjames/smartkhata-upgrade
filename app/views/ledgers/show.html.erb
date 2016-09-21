@@ -75,8 +75,8 @@
     <% end %>
 
     <div class="box box-warning">
-      <div class="box-body ledger ledger-single">
-        <table class="table">
+      <div class="box-body ledger ledger-single ">
+        <table class="table with-dr-cr">
           <tr>
             <th class="text-center">Date</th>
             <th class="text-center">Particulars</th>
@@ -89,7 +89,7 @@
             <% end %>
 
             <th class="text-center">Pay / Receipt No</th>
-            <th class="text-center">Transaction Amount</th>
+            <th class="text-center" colspan="2">Transaction Amount</th>
             <th class="text-center">Balance</th>
           </tr>
           <colgroup>
@@ -143,15 +143,18 @@
                 </td>
                   <td class='text-right'>
                     <% if particular.dr? %>
-              <span class="credit-amount">
-                <%= "#{number_to_currency(particular.amount)} Dr" %>
-              </span>
-                    <% else %>
-            <span class="debit-amount">
-                <%= "#{number_to_currency(particular.amount)} Cr" %>
-              </span>
+                    <span class="debit-amount">
+                        <%= "#{number_to_currency(particular.amount)} Dr" %>
+                      </span>
                     <% end %>
                   </td>
+                <td class='text-right'>
+                  <% if particular.cr? %>
+                      <span class="credit-amount">
+                        <%= "#{number_to_currency(particular.amount)} Cr" %>
+                      </span>
+                  <% end %>
+                </td>
                   <td class='text-right'>
                     <!-- -0.01 + 0.01 is equal to zero -->
                     <% if particular.running_total + margin_of_error_amount < 0 %>

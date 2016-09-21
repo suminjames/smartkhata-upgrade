@@ -73,6 +73,45 @@ $table-row-hover-bg: rgba(60, 141, 188, 0.3);
         width: 12.5%;
       }
     }
+
+    &.with-dr-cr colgroup {
+      // TODO: Find if 'no of shares', 'share rate' and 'base price' can be in decimals
+      // Transaction No
+      .col-1 {
+        width: 8%;
+      }
+      // No of Shares
+      .col-2 {
+        width: 22%;
+      }
+      // Company Name
+      .col-3 {
+        width: 9%;
+      }
+      // Share Rate
+      .col-4 {
+        width: 9%;
+      }
+      // Base Price
+      .col-5 {
+        width: 9%;
+      }
+      // Amount
+      .col-6 {
+        width: 9%;
+      }
+      // Commission
+      .col-7 {
+        width: 11%;
+      }
+      // Commission Amount
+      .col-8 {
+        width: 11%;
+      }
+      .col-9 {
+        width:11%;
+      }
+    }
   }
 }
 
