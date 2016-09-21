@@ -38,14 +38,6 @@
           cheque_number = nil
           bank_name = nil
           # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
-          if settlement.voucher.cheque_entries.present?
-            settlement.voucher.cheque_entries.uniq.each do |cheque|
-              if settlement.has_single_cheque? && cheque.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?
-                cheque_number = cheque.cheque_number
-                bank_name = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
-              end
-            end
-          end
           # Put 'N/A' for non_bank payment/receipt which don't have cheque_entry associated
           cheque_number ||= 'N/A'
           bank_name ||= 'N/A'
@@ -54,8 +46,8 @@
               <td><%= pagination_count + index %></td>
               <td><%= settlement.name %></td>
               <td class="text-right"><%= arabic_number(settlement.amount) %></td>
-              <td><%= bank_name%></td>
-              <td><%= cheque_number %></td>
+              <td><%= settlement.formatted_cheque_numbers_and_bank_names[:bank_names].html_safe %></td>
+              <td><%= settlement.formatted_cheque_numbers_and_bank_names[:cheque_numbers].html_safe %></td>
               <td><%= settlement.date_bs %></td>
               <td><%= settlement.description %></td>
               <td><%= pretty_enum(settlement.settlement_type) %></td>
