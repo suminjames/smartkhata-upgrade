@@ -25,9 +25,9 @@ class SettlementsController < ApplicationController
     items_per_page = 20
     # Note: Don't show void vouchers.
     if ['xlsx', 'pdf'].include?(params[:format])
-      @settlements = @filterrific.find.not_rejected.includes(:voucher)
+      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).decorate
     else
-      @settlements = @filterrific.find.not_rejected.includes(:voucher).page(params[:page]).per(items_per_page)
+      @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)

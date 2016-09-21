@@ -21,8 +21,8 @@
   </div>
   <div class="col-xs-4 padding-zero">
     <div class="col-xs-6 cheque-container"><%= f.number_field :cheque_number, placeholder: 'Cheque number', class: 'form-control cheque' %></div>
-    <div class="col-xs-6 cheque-container bank">
-      <%= f.collection_select(:additional_bank_id, Bank.all, :id, :bank_code, {}, {:class => 'form-control combobox '}) %>
+    <div class="col-xs-6 cheque-container bank block-display">
+      <%= f.collection_select(:additional_bank_id, Bank.all, :id, :name, {}, {:class => 'form-control combobox '}) %>
     </div>
   </div>
 

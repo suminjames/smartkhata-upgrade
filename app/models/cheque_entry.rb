@@ -41,7 +41,7 @@ class ChequeEntry < ActiveRecord::Base
   # a cheque can pay/recieve for multiple particulars.
   has_many :payments, -> { payment }, class_name: "ChequeEntryParticularAssociation"
   has_many :receipts, -> { receipt }, class_name: "ChequeEntryParticularAssociation"
-  has_many :cheque_entry_particular_associations
+  has_many :cheque_entry_particular_associations, dependent: :destroy
 
   has_many :particulars_on_payment, through: :payments, source: :particular
   has_many :particulars_on_receipt, through: :receipts, source: :particular
@@ -159,7 +159,7 @@ class ChequeEntry < ActiveRecord::Base
   def self.next_available_serial_cheque(bank_account_id)
     last_cheque = ChequeEntry.where(bank_account_id: bank_account_id).where.not(status: "unassigned").order(:cheque_number).last
     if last_cheque.present?
-      self.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).first
+      self.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).order(:cheque_number).first
     else
       self.unassigned.where(bank_account_id: bank_account_id).first
     end
