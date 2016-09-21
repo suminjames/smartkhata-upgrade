@@ -167,9 +167,21 @@ class VouchersController < ApplicationController
           voucher_amount = 0.0
 
           ActiveRecord::Base.transaction do
-
+            # If cheque_entry not printed, it can/should be resuable.
+            # Therefore, delete the cheque_entry and create a new cheque_entry with same cheque_number such that it is unassigned.
             @voucher.cheque_entries.uniq.each do |cheque_entry|
-              cheque_entry.void!
+              if cheque_entry.printed?
+                cheque_entry.void!
+              else
+                replacement_cheque_entry = ChequeEntry.new()
+                replacement_cheque_entry.cheque_number = cheque_entry.cheque_number
+                replacement_cheque_entry.bank_account_id= cheque_entry.bank_account_id
+                replacement_cheque_entry.branch_id = cheque_entry.branch_id
+                replacement_cheque_entry.fy_code= cheque_entry.fy_code
+                # The destroy will also delete cheque_entry_particular_associations via model callbacks
+                cheque_entry.destroy!
+                replacement_cheque_entry.save!
+              end
               voucher_amount += cheque_entry.amount
             end
 
@@ -192,9 +204,9 @@ class VouchersController < ApplicationController
 
             processed_bills.each(&:save)
 
-            @voucher.cheque_entries.uniq.each do |cheque_entry|
-              cheque_entry.void!
-            end
+            # @voucher.cheque_entries.uniq.each do |cheque_entry|
+            #   cheque_entry.void!
+            # end
 
             @voucher.rejected!
             success = true if @voucher.save!
