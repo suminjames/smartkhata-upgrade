@@ -4,6 +4,7 @@
   <tr>
     <th>Date</th>
     <th>Voucher Number</th>
+    <th>Cheque Number</th>
     <th>Voucher Description</th>
     <th>Linked Ledgers</th>
   </tr>
@@ -14,6 +15,7 @@
       <tr>
         <td><%= voucher.date_bs %></td>
         <td><%= "#{voucher.voucher_code}-#{voucher.voucher_number}" %></td>
+        <td><%= voucher.particulars.has_bank.first.cheque_number %></td>
         <td><%= voucher.desc %></td>
         <td><%= voucher.formatted_linked_ledgers %></td>
         <td><%= link_to 'Show', voucher %></td>
