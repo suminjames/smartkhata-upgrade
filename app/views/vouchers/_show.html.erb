@@ -53,7 +53,7 @@
         <div class="box-body">
           <div style='min-height: 100px'>
             <% total_particular_amount = 0  %>
-            <% @particulars.order('transaction_type ASC').each do |particular| %>
+            <% @particulars.each do |particular| %>
                 <div class="row">
                   <div class="col-xs-3">
                     <%= particular.ledger.name %>

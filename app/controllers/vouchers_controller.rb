@@ -29,6 +29,7 @@ class VouchersController < ApplicationController
       @cheque = @particular_with_bank.cheque_number
       @particulars = @particulars.general
     end
+    @particulars = @particulars.includes(:ledger, :voucher, :cheque_entries).order("cheque_entries.cheque_number ASC").references(:cheque_entries)
     respond_to do |format|
       format.html
       format.js
