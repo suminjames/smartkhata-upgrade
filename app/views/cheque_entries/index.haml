@@ -8,7 +8,7 @@
   .panel.panel-default.filter-form
     .panel-body
       .row
-        .col-xs-2
+        .col-xs-3
           %label
             Client
           = f.collection_select(                        |
@@ -43,32 +43,35 @@
             :by_cheque_issued_type,                              |
             @filterrific.select_options[:by_cheque_issued_type], |
             {include_blank: true},                 |
-            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -'})     |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -'}) |
         .col-xs-2
+          %label
+            Cheque Number
+          = f.text_field(                 |
+            :by_cheque_number,                     |
+            :placeholder => '- Any -', |
+            class: 'form-control' )       |
+      .row.top-buffer-sm
+        .col-xs-2.top-buffer-md
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+        .col-xs-2.col-xs-offset-3
           %label
             Date
           %br
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' )       |
-        .col-xs-2.text-center
+            class: 'form-control' ) |
+        .col-xs-4.text-center
           %label
             Date Range
-          %div
-            = f.text_field(                 |
-              :by_date_from,                |
-              :placeholder => 'YYYY-MM-DD', |
-              class: 'form-control' )       |
-          .top-buffer-sm
-            = f.text_field(                 |
-              :by_date_to,                  |
-              :placeholder => 'YYYY-MM-DD', |
-              class: 'form-control' )       |
-      %div
-        = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
-        = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
-        = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+          .row
+            .col-xs-6
+              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+            .col-xs-6
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
     = render_filterrific_spinner
 
 

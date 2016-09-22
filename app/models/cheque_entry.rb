@@ -81,7 +81,8 @@ class ChequeEntry < ActiveRecord::Base
           :by_client_id,
           :by_bank_account_id,
           :by_cheque_entry_status,
-          :by_cheque_issued_type
+          :by_cheque_issued_type,
+          :by_cheque_number
       ]
   )
 
@@ -107,6 +108,8 @@ class ChequeEntry < ActiveRecord::Base
     end
   }
   scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]) }
+  scope :by_cheque_number, ->(cheque_number) {where(:cheque_number => cheque_number)}
+
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
