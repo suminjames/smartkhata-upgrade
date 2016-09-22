@@ -1,7 +1,6 @@
 <!--This is a generic pagination snippet. -->
 <!--Pass variable to be paginated assigning it to 'collection_to_paginate' while rendering partial .-->
 <!--Example: render 'shared/pagination', collection_to_paginate: @bills -->
-
 <% unless collection_to_paginate.blank? %>
   <div class="text-center">
     <%= paginate collection_to_paginate, :theme => 'twitter-bootstrap-3' %>

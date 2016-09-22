@@ -33,7 +33,7 @@
     <tbody>
     <%
       if settlements.present?
-        pagination_count = kaminari_serial_number(params[:page], settlements.count)
+        pagination_count = kaminari_serial_number(params[:page], settlements.limit_value)
         settlements.each_with_index do |settlement, index|
     %>
             <tr>
