@@ -45,7 +45,7 @@
         %th.text-center= 'Comission'
       %tbody
         -if share_transactions
-          -pagination_count = kaminari_serial_number(params[:page], share_transactions.count)
+          -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
           -share_transactions.each_with_index do |share_transaction, index|
             %tr
               %td.text-center= pagination_count + index
