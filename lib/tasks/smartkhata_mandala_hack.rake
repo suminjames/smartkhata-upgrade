@@ -189,4 +189,89 @@ namespace :smartkhata_mandala_hack do
       puts 'Please pass a tenant to the task'
     end
   end
+
+  task :match_data => :environment do
+
+    mandala = Hash.new
+    CSV.foreach('mandala.csv', :headers => false) do |row|
+      # puts "#{row[2]} , #{row[0]}"
+
+      unless mandala.keys.include? row[0]
+        mandala[row[0]] = row
+      else
+        "redundant #{row[2]}"
+      end
+    end
+
+    smartkhata = Hash.new
+    CSV.foreach('smartkhata.csv', :headers => false) do |row|
+      if mandala.keys.include? row[0]
+        new_cheque = mandala[row[0]][2]
+        row << new_cheque
+        smartkhata[row[0]] = row
+        puts row
+      else
+        "redundant #{row[0]}"
+      end
+    end
+
+    CSV.open("cheque_new.csv", 'w') do |writer|
+      smartkhata.each do |voucher, row|
+        writer << row
+      end
+    end
+  end
+
+  task :match_cheques , [:tenant] => :environment do |task, args|
+    if args.tenant.present?
+      tenant = args.tenant
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.user= User.first
+      UserSession.selected_fy_code= 7374
+      UserSession.selected_branch_id = 1
+
+      counta = 0
+      countb = 0
+      mandala = Hash.new
+      CSV.foreach('cheque_new.csv', :headers => false) do |row|
+        if  row[2] != row[6]
+          unless mandala.keys.include? row[2]
+            mandala[row[2]] = row[6]
+          else
+            "redundant #{row[2]}"
+          end
+        end
+
+      end
+      puts mandala
+
+      new_dummy_cheque = Hash.new
+      new_dummy_placeholder = 1010100
+
+      ActiveRecord::Base.transaction do
+
+        mandala.each do |old,new|
+          cheque_number = new_dummy_cheque[old] || old
+          c = ChequeEntry.find_by_cheque_number(cheque_number)
+          n = ChequeEntry.find_by_cheque_number(new)
+
+          new_dummy_placeholder += 1
+          if n.present?
+            new_dummy_cheque[new] = new_dummy_placeholder
+            n.cheque_number = new_dummy_placeholder
+            n.save!
+          end
+
+          c.cheque_number = new
+          c.save!
+        end
+      end
+
+      puts mandala.size
+
+    else
+      puts "invalid"
+    end
+  end
+
 end
