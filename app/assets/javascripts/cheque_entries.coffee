@@ -47,6 +47,29 @@ $(document).on 'page:change', ->
             loadAndPrint('/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
             return
 
+    $(document).on 'click', ".btnMarkChequeEntriesUnprinted" , (event) ->
+      if selectedChequeEntriesIds.length > 0
+        cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
+        event.stopImmediatePropagation()
+        $.ajax
+          url: '/cheque_entries/make_cheque_entries_unprinted'
+          data: cheque_entries_ids_argument
+          dataType: 'json'
+          beforeSend: () ->
+            spinnerId = 'bills-mark-as-unprinted-spinner'
+            $('#' + spinnerId).removeClass('hidden')
+          error: (jqXHR, textStatus, errorThrown) ->
+            console.log("There was some error!")
+          success: (data, textStatus, jqXHR) ->
+            console.log("Mark Uprinted!")
+            console.log("Ajax Success!")
+            reflectPrintStatusChange(data.cheque_entries)
+            return
+          complete: () ->
+            spinnerId = 'bills-mark-as-unprinted-spinner'
+            $('#' + spinnerId).addClass('hidden')
+
+
     $(document).on 'click', ".btnPrintSettlementsAssociatedWithChequesPDF" , (event) ->
       if selectedChequeEntriesIds.length > 0
         cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
@@ -78,7 +101,11 @@ $(document).on 'page:change', ->
         if print_status == 1
           $("#cheque_entry_" + id + " .print-status").html("Printed")
           $("#cheque_entry_" + id).removeClass('cheque-entry-not-printed').addClass('cheque-entry-printed')
-        setButtonsActivenesses()
+        if print_status == 0
+          $("#cheque_entry_" + id + " .print-status").html("To Be Printed")
+          $("#cheque_entry_" + id).addClass('cheque-entry-not-printed').removeClass('cheque-entry-printed')
+      console.log 'Print Status Reflected'
+      setButtonsActivenesses()
 
     setButtonsActivenesses= ->
       toggleAllButtons()
@@ -186,5 +213,7 @@ $(document).on 'page:change', ->
         error: (jqXHR, textStatus, errorThrown) ->
           console.log("There was some error!")
         success: (data, textStatus, jqXHR) ->
+          console.log 'Update Print Status'
+          console.log 'Ajax Success!'
           reflectPrintStatusChange(data.cheque_entries)
           return
