@@ -27,7 +27,7 @@
         %th.col-xs-1
       %tbody
         -if client_accounts.present?
-          -pagination_count = kaminari_serial_number(params[:page], client_accounts.count)
+          -pagination_count = kaminari_serial_number(params[:page], client_accounts.limit_value)
           -client_accounts.each_with_index do |client_account, index|
             %tr
               %td= pagination_count + index
