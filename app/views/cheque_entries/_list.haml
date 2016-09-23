@@ -22,6 +22,11 @@
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlements-print-spinner'
           %iframe.hidden-iframe#iframe-for-settlements-pdf-print
         |
+        %div.btnPrintPDF.btnMarkChequeEntriesUnprinted.btn-disabled
+          %span.glyphicon.glyphicon-transfer
+          %span= 'Mark Selected Cheques as Unprinted'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'bills-mark-as-unprinted-spinner'
+        |
         %div.btnPrintPDF.btnViewChequeEntriesPDF.btn-disabled
           %span.glyphicon.glyphicon-eye-open
           %span= 'View Selected Cheques'

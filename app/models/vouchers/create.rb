@@ -271,6 +271,12 @@ class Vouchers::Create < Vouchers::Base
               raise ActiveRecord::Rollback
             end
 
+            # If cheque_entry is printed, reject the new voucher creation (with the cheque entry)
+            if cheque_entry.printed?
+              voucher.settlements = []
+              error_message = "Cheque Number provided is already taken. Therefore, a new cheque number has automatically been assigned."
+              raise ActiveRecord::Rollback
+            end
 
             if particular.additional_bank_id.present?
               cheque_entry.status = ChequeEntry.statuses[:pending_clearance]

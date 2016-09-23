@@ -223,10 +223,7 @@ class ChequeEntriesController < ApplicationController
         message = "Cheque is already Printed" if cheque.printed?
       end
     end
-
     cheque_entries = ChequeEntry.where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
-
-
     respond_to do |format|
       format.json { render json: {status: status, message: message, cheque_entries: cheque_entries}, status: :ok }
     end
@@ -257,6 +254,21 @@ class ChequeEntriesController < ApplicationController
     bill_ids.uniq!
     respond_to do |format|
       format.json { render json: {status: status, bill_ids: bill_ids}, status: :ok }
+    end
+  end
+
+  def make_cheque_entries_unprinted
+    status = true
+    cheque_entry_ids = params[:cheque_entry_ids]
+    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    cheque_entries.each do |cheque_entry|
+      unless cheque_entry.to_be_printed!
+        status = false
+      end
+    end
+    cheque_entries = ChequeEntry.where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
+    respond_to do |format|
+      format.json { render json: {status: status, cheque_entries: cheque_entries}, status: :ok }
     end
   end
 
