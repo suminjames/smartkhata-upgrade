@@ -73,7 +73,7 @@
                     <% end %>
                   </div>
                   <div class="col-xs-3">
-                    <%= particular.cheque_entries.first.cheque_number %>
+                    <%= particular.cheque_entries.try(:first).try(:cheque_number) %>
                   </div>
                   <div class="col-xs-2">
                     <%= arabic_number(particular.amount) %>
