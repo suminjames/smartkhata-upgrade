@@ -9,87 +9,127 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
-    # authorize Bill
-    # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
-    @process_selected_bills = false
-    #default landing action for '/bills'
-    if params[:show].blank? && params[:search_by].blank?
-      respond_to do |format|
-        format.html { redirect_to bills_path(search_by: "client_name") }
-      end
-      return
+    @filterrific = initialize_filterrific(
+        Bill,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_bill_type: Bill.options_for_bill_type_select,
+            by_bill_status: Bill.options_for_bill_status_select,
+        },
+        persistence_id: false
+    ) or return
+    @bills = @filterrific.find.page(params[:page]).per(20).decorate
+
+    respond_to do |format|
+      format.html
+      format.js
     end
 
-    @selected_client_for_combobox_in_arr = []
-    # Populate (and route when needed) as per the params
-    if params[:search_by] == 'all_bills'
-      @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info]).page(params[:page]).per(20)
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'client_id'
-          # render a new page for bills selection
-          @process_selected_bills = true
-          @client_account_id = search_term.to_i
-          client_account= ClientAccount.find(@client_account_id)
-          # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
-          @bills = client_account.get_all_related_bills.order(date: :asc).decorate
-          render :select_bills_for_settlement and return
-        when 'client_name'
-          client_account = ClientAccount.find_by_id(search_term)
-          @selected_client_for_combobox_in_arr = [client_account] if client_account
-          @bills = Bill.find_by_client_id(search_term).page(params[:page]).per(20)
-        when 'bill_number'
-          full_bill_number_str = search_term
-          actual_bill_number = Bill.strip_fy_code_from_full_bill_number(full_bill_number_str)
-          @bills = Bill.find_by_bill_number(actual_bill_number)
-        when 'bill_status'
-          @bills = Bill.find_not_settled
-        when 'bill_type'
-          type = search_term
-          @bills = Bill.find_by_bill_type(type)
-        when 'date'
-          # The date being entered are assumed to be BS date, not AD date
-          date_bs = search_term
-          if parsable_date? date_bs
-            date_ad = bs_to_ad(date_bs)
-            @bills = Bill.find_by_date(date_ad)
-          else
-            @bills = ''
-            respond_to do |format|
-              format.html { render :index }
-              flash.now[:error] = 'Invalid date'
-              format.json { render json: flash.now[:error], status: :unprocessable_entity }
-            end
-          end
-        when 'date_range'
-          # The dates being entered are assumed to be BS dates, not AD dates
-          date_from_bs = search_term['date_from']
-          date_to_bs = search_term['date_to']
-          # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-            date_from_ad = bs_to_ad(date_from_bs)
-            date_to_ad = bs_to_ad(date_to_bs)
-            @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
-          else
-            @bills = ''
-            respond_to do |format|
-              flash.now[:error] = 'Invalid date(s)'
-              format.html { render :index }
-              format.json { render json: flash.now[:error], status: :unprocessable_entity }
-            end
-          end
-        else
-          # If no matches for case 'search_by', return empty @bills
-          @bills = ''
-      end
-    else
-      @bills = ''
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
-    # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
-    @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+
   end
+
+  # GET /bills
+  # GET /bills.json
+  # def index
+  #   # authorize Bill
+  #   # TODO -fix index page load error which is trigerred when no floorsheet files have been uploaded
+  #   @process_selected_bills = false
+  #   #default landing action for '/bills'
+  #   if params[:show].blank? && params[:search_by].blank?
+  #     respond_to do |format|
+  #       format.html { redirect_to bills_path(search_by: "client_name") }
+  #     end
+  #     return
+  #   end
+  #
+  #   @selected_client_for_combobox_in_arr = []
+  #   # Populate (and route when needed) as per the params
+  #   if params[:search_by] == 'all_bills'
+  #     @bills = Bill.includes(:share_transactions => :isin_info).select("share_transactions.*, isin_infos.*  ").references([:share_transactions, :isin_info]).page(params[:page]).per(20)
+  #   elsif params[:search_by] && params[:search_term]
+  #     search_by = params[:search_by]
+  #     search_term = params[:search_term]
+  #     case search_by
+  #       when 'client_id'
+  #         # render a new page for bills selection
+  #         @process_selected_bills = true
+  #         @client_account_id = search_term.to_i
+  #         client_account= ClientAccount.find(@client_account_id)
+  #         # @bills = Bill.find_not_settled_by_client_account_id(search_term).decorate
+  #         @bills = client_account.get_all_related_bills.order(date: :asc).decorate
+  #         render :select_bills_for_settlement and return
+  #       when 'client_name'
+  #         client_account = ClientAccount.find_by_id(search_term)
+  #         @selected_client_for_combobox_in_arr = [client_account] if client_account
+  #         @bills = Bill.find_by_client_id(search_term).page(params[:page]).per(20)
+  #       when 'bill_number'
+  #         full_bill_number_str = search_term
+  #         actual_bill_number = Bill.strip_fy_code_from_full_bill_number(full_bill_number_str)
+  #         @bills = Bill.find_by_bill_number(actual_bill_number)
+  #       when 'bill_status'
+  #         @bills = Bill.find_not_settled
+  #       when 'bill_type'
+  #         type = search_term
+  #         @bills = Bill.find_by_bill_type(type)
+  #       when 'date'
+  #         # The date being entered are assumed to be BS date, not AD date
+  #         date_bs = search_term
+  #         if parsable_date? date_bs
+  #           date_ad = bs_to_ad(date_bs)
+  #           @bills = Bill.find_by_date(date_ad)
+  #         else
+  #           @bills = ''
+  #           respond_to do |format|
+  #             format.html { render :index }
+  #             flash.now[:error] = 'Invalid date'
+  #             format.json { render json: flash.now[:error], status: :unprocessable_entity }
+  #           end
+  #         end
+  #       when 'date_range'
+  #         # The dates being entered are assumed to be BS dates, not AD dates
+  #         date_from_bs = search_term['date_from']
+  #         date_to_bs = search_term['date_to']
+  #         # OPTIMIZE: Notify front-end of the particular date(s) invalidity
+  #         if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+  #           date_from_ad = bs_to_ad(date_from_bs)
+  #           date_to_ad = bs_to_ad(date_to_bs)
+  #           @bills = Bill.find_by_date_range(date_from_ad, date_to_ad)
+  #         else
+  #           @bills = ''
+  #           respond_to do |format|
+  #             flash.now[:error] = 'Invalid date(s)'
+  #             format.html { render :index }
+  #             format.json { render json: flash.now[:error], status: :unprocessable_entity }
+  #           end
+  #         end
+  #       else
+  #         # If no matches for case 'search_by', return empty @bills
+  #         @bills = ''
+  #     end
+  #   else
+  #     @bills = ''
+  #   end
+  #   # Order bills as per bill_number and not updated_at(which is the metric for default ordering)
+  #   @bills = @bills.order(:bill_number).page(params[:page]).per(20).decorate unless @bills.blank?
+  # end
 
   # GET /bills/1
   # GET /bills/1.json
