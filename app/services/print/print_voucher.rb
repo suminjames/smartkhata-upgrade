@@ -94,9 +94,9 @@ class Print::PrintVoucher< Prawn::Document
     total_particular_amount = 0
     @particulars.each do |particular|
       particular_desc = ''
-      if particular.bills.find_by_client_id(particular.ledger.client_account_id).count > 0
+      if particular.bills.by_client_id(particular.ledger.client_account_id).count > 0
         particular_desc += "Being paid to #{particular.ledger.name} for"
-        particular.bills.find_by_client_id(particular.ledger.client_account_id).each do |bill|
+        particular.bills.by_client_id(particular.ledger.client_account_id).each do |bill|
           particular_desc += "Bill : #{bill.fy_code}-#{bill.bill_number} Amount: #{arabic_number(bill.net_amount)} | "
         end
         # Remove the trailing | and space

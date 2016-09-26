@@ -1,0 +1,66 @@
+%p#notice= notice
+- provide(:section_title, "Bills")
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Client
+          = f.collection_select(                        |
+            :by_client_id,                              |
+            @filterrific.select_options[:by_client_id], |
+            :id,                                        |
+            :name_and_nepse_code,                 |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-3
+          %label
+            Type
+          = f.select(                        |
+            :by_bill_type,                              |
+            @filterrific.select_options[:by_bill_type], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+        .col-xs-3
+          %label
+            Status
+          = f.select(                        |
+            :by_bill_status,                              |
+            @filterrific.select_options[:by_bill_status], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+        .col-xs-2
+          %label
+            Bill Number
+          %br
+          = f.text_field(                 |
+            :by_bill_number,                     |
+            :placeholder => '', |
+            class: 'form-control' ) |
+      .row.top-buffer-sm
+        .col-xs-2.top-buffer-md
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+        .col-xs-2.col-xs-offset-3
+          %label
+            Date
+          %br
+          = f.text_field(                 |
+            :by_date,                     |
+            :placeholder => 'YYYY-MM-DD', |
+            class: 'form-control' ) |
+        .col-xs-4.text-center
+          %label
+            Date Range
+          .row
+            .col-xs-6
+              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+            .col-xs-6
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+    = render_filterrific_spinner
+
+
+= render(partial: 'bills/list', locals: { bills: @bills} )

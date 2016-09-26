@@ -59,10 +59,10 @@
                     <%= particular.ledger.name %>
                   </div>
                   <div class="col-xs-4">
-                    <% if particular.bills.find_by_client_id(particular.ledger.client_account_id).count > 0 %>
+                    <% if particular.bills.by_client_id(particular.ledger.client_account_id).count > 0 %>
                         Being paid to <%= particular.ledger.name %>
                         for
-                        <% particular.bills.find_by_client_id(particular.ledger.client_account_id).each do |bill| %>
+                        <% particular.bills.by_client_id(particular.ledger.client_account_id).each do |bill| %>
                             Bill :<%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %>
                             Amount : <%= arabic_number(bill.net_amount) %>
                         <% end %>
