@@ -13,13 +13,14 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
   include ApplicationHelper
 
-  def initialize(cheque_entries, current_tenant)
+  def initialize(cheque_entry_ids, current_tenant)
     super(:page_size => [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
     @current_tenant = current_tenant
 
-    cheque_entries.each_with_index do |cheque_entry, index|
-      @cheque_entry = cheque_entry
+    index = 0
+    cheque_entry_ids.each do |cheque_entry_id|
+      @cheque_entry = ChequeEntry.find(cheque_entry_id)
 
       # Code borrowed from ChequeEntry#show action BEGINS
       # Important! Future changes to the aforementioned action should also be reflected (manually) here.
@@ -38,9 +39,10 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
       draw
 
-      if index != cheque_entries.length - 1
+      if index != cheque_entry_ids.count - 1
         start_new_page
       end
+      index += 1
     end
 
   end
@@ -68,9 +70,10 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
     font_size(9) do
       # Left (to the perforation) side of the cheque
-      text_box date.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 1.6.cm], :width => 2.6.cm
-      text_box beneficiary_name, :at => [cheque_left + 0.9.cm, cheque_top - 2.1.cm], :width => 2.6.cm
-      text_box amount_in_number.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 4.7.cm], :width => 2.6.cm
+      text_box date.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 1.6.cm], :width => 2.6.cm
+      text_box beneficiary_name, :at => [cheque_left + 0.8.cm, cheque_top - 2.1.cm], :width => 2.6.cm
+      text_box amount_in_number.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 4.7.cm], :width => 2.6.cm
+      text_box amount_in_number.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 4.7.cm], :width => 2.6.cm
       # Right (to the perforation) side of the cheque
       text_box ac_payee_note, :at => [cheque_left + 11.2.cm, cheque_top - 1.1.cm]
       text_box date.to_s, :at => [cheque_left + 17.9.cm, cheque_top - 1.0.cm]

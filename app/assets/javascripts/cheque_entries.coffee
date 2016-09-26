@@ -26,7 +26,7 @@ $(document).on 'page:change', ->
       $(".cheque-entry:input:checkbox").not('.cheque-entry.unassigned-cheque').prop('checked', $(this).prop("checked"))
       $(".cheque-entry:input:checkbox").not('.cheque-entry.unassigned-cheque').attr('disabled', false)
 
-    $(document).on 'click', ".btnViewChequeEntriesPDF", (event) ->
+    $(document).off('click', '.btnViewChequeEntriesPDF').on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
       window.open("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, '_blank')
 
