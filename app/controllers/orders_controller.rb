@@ -38,69 +38,6 @@ class OrdersController < ApplicationController
     # There is an issue with the persisted param_set. Reset it.
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
-
-
-=begin
-    # Old filterrific implementation
-    @selected_client_for_combobox_in_arr = []
-
-    # Empty @orders if none of the following conditions is matched
-    @orders = []
-
-    if params[:search_term].present?
-
-      if params[:search_by] == 'client_name'
-        @orders = Order.order(:id).find_by_client_id(params[:search_term])
-        client_account = ClientAccount.find_by_id(params[:search_term])
-        @selected_client_for_combobox_in_arr = [client_account] if client_account
-      end
-
-      if params[:search_by] == 'order_number'
-        @orders = Order.order(:id).find_by_order_number(params[:search_term])
-      end
-
-      if params[:search_by] == 'date'
-        # The date being entered are assumed to be BS date, not AD date
-        date_bs = params[:search_term]
-        if parsable_date? date_bs
-          date_ad = bs_to_ad(date_bs)
-          @orders = Order.find_by_date(date_ad)
-        else
-          respond_to do |format|
-            format.html { render :index }
-            flash.now[:error] = 'Invalid date'
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
-          end
-        end
-      end
-
-      if params[:search_by] == 'date_range'
-        # The dates being entered are assumed to be BS dates, not AD dates
-        date_from_bs = params['search_term']['date_from']
-        date_to_bs = params['search_term']['date_to']
-        # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-        if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-          date_from_ad = bs_to_ad(date_from_bs)
-          date_to_ad = bs_to_ad(date_to_bs)
-          @orders = Order.find_by_date_range(date_from_ad, date_to_ad)
-        else
-          respond_to do |format|
-            flash.now[:error] = 'Invalid date(s)'
-            format.html { render :index }
-            format.json { render json: flash.now[:error], status: :unprocessable_entity }
-          end
-        end
-      end
-
-    end
-
-    if params[:search_by] == 'all_orders'
-      @orders = Order.all.includes(:order_details, :client_account).page(params[:page]).per(20)
-    end
-
-    @orders = @orders.page(params[:page]).per(20) if @orders.present?
-=end
-
   end
 
   def show

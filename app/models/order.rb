@@ -21,11 +21,6 @@ class Order < ActiveRecord::Base
   # TODO(sarojk): Implement find by OrderSegment, OrderCondition, OrderState?
   scope :find_by_order_type, -> (type) { where(order_type: order_types[:"#{type}"]) }
 
-  # TODO(sarojk): Implement multi-name search
-  scope :find_by_client_name, -> (name) { includes(:client_account).where("client_accounts.name ILIKE ?", "%#{name}%").references(:client_accounts) }
-
-  scope :find_by_client_id, -> (id) { includes(:client_account).where("client_accounts.id = ?", id).references(:client_accounts) }
-
   scope :find_by_order_number, -> (number) { where("order_number" => "#{number}") }
 
   scope :find_by_date, -> (date) { where(

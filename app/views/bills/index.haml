@@ -5,7 +5,7 @@
   .panel.panel-default.filter-form
     .panel-body
       .row
-        .col-xs-2
+        .col-xs-3
           %label
             Client
           = f.collection_select(                        |
@@ -15,24 +15,36 @@
             :name_and_nepse_code,                 |
             {include_blank: true},                 |
             {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
-        .col-xs-2
+        .col-xs-3
           %label
             Type
           = f.select(                        |
-            :client_filter,                              |
+            :by_bill_type,                              |
             @filterrific.select_options[:by_bill_type], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+        .col-xs-3
+          %label
+            Status
+          = f.select(                        |
+            :by_bill_status,                              |
+            @filterrific.select_options[:by_bill_status], |
             {include_blank: true},                 |
             {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
-            Status
-          = f.select(                        |
-            :client_filter,                              |
-            @filterrific.select_options[:by_bill_status], |
-            {include_blank: true},                 |
-            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
-
-        .col-xs-2
+            Bill Number
+          %br
+          = f.text_field(                 |
+            :by_bill_number,                     |
+            :placeholder => '', |
+            class: 'form-control' ) |
+      .row.top-buffer-sm
+        .col-xs-2.top-buffer-md
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+        .col-xs-2.col-xs-offset-3
           %label
             Date
           %br
@@ -40,31 +52,14 @@
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
             class: 'form-control' ) |
-        .col-xs-4
-          .clearfix
-            .text-center
-              %label
-                Date Range
-          .clearfix
+        .col-xs-4.text-center
+          %label
+            Date Range
+          .row
             .col-xs-6
-              = f.text_field(                 |
-                :by_date_from,                |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' ) |
+              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
             .col-xs-6
-              = f.text_field(                 |
-                :by_date_to,                  |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' ) |
-      .row.top-buffer-sm
-        .col-xs-3
-          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
-          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
-          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
-        .col-xs-3
-          %div.no-paginate
-            = check_box_tag 'no_paginate', 'true', params[:no_paginate] == 'true'
-            Show in single page
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
     = render_filterrific_spinner
 
 

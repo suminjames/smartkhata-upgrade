@@ -101,7 +101,6 @@ class ClientAccount < ActiveRecord::Base
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
-  scope :find_by_client_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
   scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   # for future reference only .. delete if you feel you know things well enough

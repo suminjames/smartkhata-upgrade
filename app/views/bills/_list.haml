@@ -17,8 +17,8 @@
         %th.col-xs-2= 'Companies<br>Transacted'.html_safe
         %th.col-xs-1= 'Net<br>Bill<br>Amount'.html_safe
       %tbody
-        -if bills
-          -pagination_count = kaminari_serial_number(params[:page], bills.count)
+        -if bills.present?
+          -pagination_count = kaminari_serial_number(params[:page], bills.limit_value)
           -bills.each_with_index do |bill, index|
             %tr
               %td= pagination_count + index
@@ -31,7 +31,7 @@
               %td.text-right= bill.formatted_net_bill_amount
               %td= link_to 'view', bill_path(bill)
 
-    - if !bills || bills.empty?
+    - if bills.blank?
       %div.row.text-center.top-buffer-md
         There are no matching bills.
 
