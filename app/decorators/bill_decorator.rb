@@ -18,10 +18,11 @@ class BillDecorator < ApplicationDecorator
       # Initialization of values which undergo mutation in the loop below
       transaction_row[:contract_no] = []
       transaction_row[:raw_quantity] = 0
-      transaction_row[:raw_quantity_description] = ''
+      transaction_row[:raw_quantity_description] = '('
       transaction_row[:share_amount] = 0
       transaction_row[:commission_amount] = 0
       transaction_row[:capital_gain] = 0
+      transaction_row[:is_ungrouped] = false
 
       # st_array[0] holds key; loop over st_array[1].
       st_array[1].each do |st|
@@ -36,6 +37,11 @@ class BillDecorator < ApplicationDecorator
         transaction_row[:commission_amount] += st.commission_amount
         transaction_row[:capital_gain] += st.cgt
         transaction_row[:type] = st.transaction_type
+        # For share_transactions which can't be grouped (and are therefore single), raw_quantity_description is unnecessary
+        if st_array[1].count < 2
+          transaction_row[:is_ungrouped] = true
+          transaction_row[:raw_quantity_description] = ''
+        end
       end
 
       # Relevant formatting of the values
@@ -43,7 +49,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:contract_no] = get_concatenated_string_with_similarity(transaction_row[:contract_no])
       # transaction_row[:contract_no] = transaction_row[:contract_no][0...-2] # strip the trailing ', '
       transaction_row[:raw_quantity] = transaction_row[:raw_quantity]
-      transaction_row[:raw_quantity_description] = transaction_row[:raw_quantity_description][0...-2] # strip the trailing ', '
+      transaction_row[:raw_quantity_description] =  transaction_row[:raw_quantity_description][0...-2] + ')' if !transaction_row[:is_ungrouped] # strip the trailing ', ' and add trailing ')' as required
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
       transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]

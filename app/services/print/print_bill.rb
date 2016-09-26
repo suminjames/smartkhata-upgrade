@@ -171,7 +171,7 @@ class Print::PrintBill < Prawn::Document
       @bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
         row_data = [
             formatted_share_transaction[:contract_no],
-            formatted_share_transaction[:raw_quantity].to_s + "(" + formatted_share_transaction[:raw_quantity_description] + ")",
+            "#{formatted_share_transaction[:raw_quantity]}#{formatted_share_transaction[:raw_quantity_description]}",
             formatted_share_transaction[:isin],
             formatted_share_transaction[:share_rate],
             formatted_share_transaction[:base_price],
