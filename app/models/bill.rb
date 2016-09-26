@@ -45,6 +45,15 @@ class Bill < ActiveRecord::Base
   has_many :vouchers, through: :bill_voucher_associations
 
 
+  attr_accessor :provisional_base_price
+
+  # validations
+  validates_presence_of :client_account
+
+  # callbacks
+  before_save :process_bill
+
+
   # verify this with views everytime before changing
   # bill index
   # bill show
@@ -68,10 +77,6 @@ class Bill < ActiveRecord::Base
   # #  - none : regular
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
   enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
-
-  attr_accessor :provisional_base_price
-
-  validates_presence_of :client_account
 
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
@@ -107,8 +112,24 @@ class Bill < ActiveRecord::Base
     end
   end
 
+  filterrific(
+      default_filter_params: { sorted_by: 'id_desc' },
+      available_filters: [
+          :sorted_by
+      ]
+  )
 
-  before_save :process_bill
+  # TODO(sarojk): Implement other sort options too.
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        by_branch_fy_code.order("bills.id #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
+
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
@@ -227,6 +248,21 @@ class Bill < ActiveRecord::Base
    self.pending? || self.partial?
   end
 
+  def self.options_for_bill_type_select
+    [
+        ["Purchase", "purchase"],
+        ["Sales", "sales"]
+    ]
+  end
+
+  def self.options_for_bill_status_select
+    [
+        ['Pending', 'pending'],
+        ['Partial', 'partial'],
+        ['Settled', 'settled'],
+        ['Provisional', 'provisional']
+    ]
+  end
 
   private
   def process_bill
