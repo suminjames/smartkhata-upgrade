@@ -29,7 +29,7 @@ class BillsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @bills = @filterrific.find.order(date: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+    @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
 
     respond_to do |format|
       format.html

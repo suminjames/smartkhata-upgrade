@@ -128,7 +128,7 @@ class Bill < ActiveRecord::Base
 
 
   filterrific(
-      default_filter_params: { sorted_by: 'date_asc' },
+      default_filter_params: { sorted_by: 'bill_number_asc' },
       available_filters: [
           :sorted_by,
           :by_client_id,
@@ -145,8 +145,8 @@ class Bill < ActiveRecord::Base
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
-      when /^date/
-        by_branch_fy_code.order("bills.date #{ direction }")
+      when /^bill_number/
+        by_branch_fy_code.order("bills.bill_number #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
