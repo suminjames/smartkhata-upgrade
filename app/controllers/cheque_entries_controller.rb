@@ -76,12 +76,11 @@ class ChequeEntriesController < ApplicationController
     # The incoming params will have sorted ids.
     # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
     @cheque_entry_ids.sort!
-    @cheque_entries = ChequeEntry.where(id: @cheque_entry_ids).includes(:bank_account)
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        pdf = Print::PrintMultipleChequeEntries.new(@cheque_entries, current_tenant)
+        pdf = Print::PrintMultipleChequeEntries.new(@cheque_entry_ids, current_tenant)
         send_data pdf.render, filename: "MultipleChequeEntries#{@cheque_entry_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
