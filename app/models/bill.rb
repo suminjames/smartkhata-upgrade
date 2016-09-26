@@ -25,6 +25,7 @@
 #
 
 class Bill < ActiveRecord::Base
+  extend CustomDateModule
   include CustomDateModule
 
   # added the updater and creater user tracking
@@ -43,6 +44,15 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_creation, through: :on_creation, source: :voucher
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
+
+
+  attr_accessor :provisional_base_price
+
+  # validations
+  validates_presence_of :client_account
+
+  # callbacks
+  before_save :process_bill
 
 
   # verify this with views everytime before changing
@@ -69,21 +79,22 @@ class Bill < ActiveRecord::Base
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
   enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
 
-  attr_accessor :provisional_base_price
 
-  validates_presence_of :client_account
-
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
-  scope :find_by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
-
-
-  #  TODO: Implement multi-name search
-  scope :find_by_client_name, -> (name) { where("client_name ILIKE ?", "%#{name}%").order(:status) }
-  scope :find_by_bill_number, -> (number) { where("bill_number" => "#{number}") }
+  scope :by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
+  scope :by_bill_status, -> (status) { where(:status => Bill.statuses[status]) }
   scope :find_by_date, -> (date) { where(:date => date.beginning_of_day..date.end_of_day) }
   scope :find_by_date_range, -> (date_from, date_to) { where(:date => date_from.beginning_of_day..date_to.end_of_day) }
-  scope :find_by_client_id, -> (id) { where(client_account_id: id).order(:status) }
+  scope :by_client_id, -> (id) { where(client_account_id: id) }
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
   scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
 
@@ -97,18 +108,50 @@ class Bill < ActiveRecord::Base
   scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
   scope :for_payment_letter_list, ->{with_balance_cr.requiring_processing}
 
+  # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
+  scope :by_bill_number, lambda { |number|
+      actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
+      where("bill_number" => "#{actual_bill_number}")
+  }
+  scope :by_date, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('date >= ?', date_ad.beginning_of_day)
+  }
+  scope :by_date_to, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    where('date <= ?', date_ad.end_of_day)
+  }
 
-  # scope based on the branch and fycode selection
-  default_scope do
-    if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+
+  filterrific(
+      default_filter_params: { sorted_by: 'date_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_client_id,
+          :by_bill_number,
+          :by_bill_type,
+          :by_bill_status,
+          :by_date,
+          :by_date_from,
+          :by_date_to
+      ]
+  )
+
+  # TODO(sarojk): Implement other sort options too.
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^date/
+        by_branch_fy_code.order("bills.date #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
-  end
+  }
 
-
-  before_save :process_bill
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
@@ -217,8 +260,9 @@ class Bill < ActiveRecord::Base
   # Strips pre-pended fy_code from full bill number
   # Eg: Takes in 7273-1509, returns 1509
   # Even if no fy_code pre-pended, still returns the actual bill number.
-  def self.strip_fy_code_from_full_bill_number(full_bill_number_str)
-    full_bill_number_str ||= ''
+  def self.strip_fy_code_from_full_bill_number(full_bill_number)
+    full_bill_number ||= ''
+    full_bill_number_str = full_bill_number.to_s
     hyphen_index = full_bill_number_str.index('-') || -1
     full_bill_number_str[(hyphen_index + 1)..-1]
   end
@@ -227,6 +271,21 @@ class Bill < ActiveRecord::Base
    self.pending? || self.partial?
   end
 
+  def self.options_for_bill_type_select
+    [
+        ["Purchase", "purchase"],
+        ["Sales", "sales"]
+    ]
+  end
+
+  def self.options_for_bill_status_select
+    [
+        ['Pending', 'pending'],
+        ['Partial', 'partial'],
+        ['Settled', 'settled'],
+        ['Provisional', 'provisional']
+    ]
+  end
 
   private
   def process_bill

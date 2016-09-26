@@ -95,7 +95,7 @@
                 = link_to 'Edit', edit_cheque_entry_path(cheque_entry)
 
 
-    - if !cheque_entries || cheque_entries.empty?
+    - if cheque_entries.blank?
       %div.row.text-center.top-buffer-md
         There are no matching cheque entries.
 
