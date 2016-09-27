@@ -30,7 +30,7 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      @ledger_list_available = Ledger.non_bank_ledgers
+      # @ledger_list_available = Ledger.non_bank_ledgers
     end
 
     # assign all ledgers if ledger_list_available is not present

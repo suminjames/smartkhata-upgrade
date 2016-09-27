@@ -26,7 +26,7 @@ class Vouchers::Setup < Vouchers::Base
       default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
       default_bank_receive = BankAccount.by_branch_id.where(:default_for_receipt => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
-      ledger_list_available = Ledger.non_bank_ledgers
+      # ledger_list_available = Ledger.non_bank_ledgers
 
       ledger_list_financial << cash_ledger
 
