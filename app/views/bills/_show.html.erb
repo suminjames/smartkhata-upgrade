@@ -139,8 +139,8 @@ Note:
             <!-- <th>Transaction No</th> -->
             <td><%= formatted_share_transaction[:contract_no] %></td>
             <!-- <th>No of Shares</th> -->
-            <td><%= formatted_share_transaction[:raw_quantity] %>
-              (<%= formatted_share_transaction[:raw_quantity_description] %>)
+            <td>
+              <%= "#{formatted_share_transaction[:raw_quantity]}#{formatted_share_transaction[:raw_quantity_description]}" %>
             </td>
             <!-- <th>Company Name</th> -->
             <td><%= formatted_share_transaction[:isin] %></td>
