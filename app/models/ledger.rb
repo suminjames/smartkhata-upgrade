@@ -214,7 +214,8 @@ class Ledger < ActiveRecord::Base
   #  belongs_to :vendor_account
   # TODO(sarojk): Incorporate other visual identifiers for bank, vendor, employee, group, etc.
   def name_and_code
-    "#{self.name} (#{self.client_code})"
+    # "#{self.name} (#{self.client_code})"
+    self.client_code.present? ? "#{self.name} (#{self.client_code})" : "#{self.name}"
     # if self.client_account.present?
     #   "#{self.name} (#{self.client_code})"
     # else
