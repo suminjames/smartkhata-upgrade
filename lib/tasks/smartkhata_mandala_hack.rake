@@ -279,4 +279,58 @@ namespace :smartkhata_mandala_hack do
     end
   end
 
+  desc "Used to change the date of settlements to match the cheque entry dates"
+  task :match_settlement_date_with_cheque_entry_date_in_db, [:tenant] => :environment do |task, args|
+    extend CustomDateModule
+    # Get array of cheque_entries whose associated settlements' dates are to be changed.
+    # Get array of associated settlements
+    # Loop through the settlement, and change the date to match that of cheque_entry
+    if args.tenant.present?
+      tenant = args.tenant
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.user= User.first
+      UserSession.selected_fy_code= 7374
+      UserSession.selected_branch_id = 1
+
+      cheque_number_column = 0
+      count = 0
+      cheque_entry_numbers = []
+      CSV.foreach('match_settlement_date_with_cheque_entry_date.csv', :headers => false) do |row|
+        cheque_entry_numbers << row[cheque_number_column]
+        count += 1
+      end
+      mismatched_date_count = 0
+      settlement_not_found_count = 0
+      ActiveRecord::Base.transaction do
+        cheque_entry_numbers.each do |cheque_number|
+          cheque_entry = ChequeEntry.find_by_cheque_number(cheque_number)
+          voucher_id = cheque_entry.particulars.first.voucher_id
+          settlement = Settlement.where(voucher_id: voucher_id, client_account_id: cheque_entry.client_account_id).first
+          if settlement.present?
+            if settlement.date != cheque_entry.cheque_date
+              puts "Date mismatch between settlement with id: #{settlement.id} dated #{settlement.date_bs} and cheque_entry with id: #{cheque_entry.id} dated #{ad_to_bs(cheque_entry.cheque_date)}"
+              puts " Matching..."
+              puts
+              cheque_entry_cheque_date_bs = ad_to_bs(cheque_entry.cheque_date)
+              settlement.date_bs = cheque_entry_cheque_date_bs
+              settlement.save!
+              mismatched_date_count += 1
+            end
+          else
+            settlement_not_found_count += 1
+            p "Settlement for cheque_entry with id #{cheque_entry.id} NOT FOUND"
+          end
+        end
+        puts
+        puts "SUMMARY:"
+        puts " Total records processed: #{cheque_entry_numbers.count}"
+        puts " Total mismatched records corrected: #{mismatched_date_count}"
+        puts " Total settlements NOT FOUND for given cheque_entries: #{settlement_not_found_count}"
+        puts " Please view the log above for more."
+      end
+    else
+      puts "Invalid argument!"
+    end
+  end
+
 end
