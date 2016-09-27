@@ -162,13 +162,17 @@ class ProcessSalesBillService
     settlement = nil
     settlement_description ||= voucher.desc
 
-    # in case of payment the settlement date has to be today itself as cheque is created on that day
-    # in case of receipt however it can be voucher date
-    if voucher.payment?
-      settlement_date_bs = ad_to_bs(DateTime.now)
-    else
-      settlement_date_bs = voucher.date_bs
-    end
+    # IMPORTANT!
+    # Currently, the method is only called while processing sales settlement (payments).
+    # However, in the future, if need arises to merge (or accomodate) this method with
+    # voucher creation, make sure to seggregate the cases (by passing in paramaters to
+    # this function), and treat them accordingly in order to create settlement on the
+    # same date as cheque entry creation which is the same date.
+
+    # For future reference:
+    # In case of payment, the settlement date has to be today itself as cheque is created on that day
+    # In case of receipt, however it can be voucher date
+    settlement_date_bs = ad_to_bs(DateTime.now)
 
     if client_account.present?
       settler_name = client_account.name
