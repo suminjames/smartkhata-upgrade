@@ -21,13 +21,24 @@ class VouchersController < ApplicationController
     @from_path = request.referer || pending_vouchers_vouchers_path
     full_view = params[:full] || false
     @particulars = @voucher.particulars
+    # this case is for payment by bank and should not affect others
     if @voucher.is_payment_bank && !full_view
       @from_path = vouchers_path if @from_path.match(/new/)
       # TODO remove this hack
-      @particular_with_bank = @particulars.has_bank.first
+      @particulars_with_bank = @particulars.has_bank
+      # allow single payment by a cheque
+      # no two payment can be made in a single voucher
+      @particular_with_bank = @particulars.has_bank.cr.first
       @bank_account = @particular_with_bank.ledger.bank_account
       @cheque = @particular_with_bank.cheque_number
-      @particulars = @particulars.general
+
+      # hack to show only the particulars with dr incase of more than one cheque entry in receipt
+      if @particulars_with_bank.dr.size > 0
+        @particulars = @particulars.has_bank.dr
+      else
+        @particulars = @particulars.general
+      end
+
     end
     @particulars = @particulars.includes(:ledger, :voucher, :cheque_entries).order("cheque_entries.cheque_number ASC").references(:cheque_entries)
     respond_to do |format|
@@ -67,7 +78,9 @@ class VouchersController < ApplicationController
                                             bill_ids: @bill_ids,
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
-                                            vendor_account_id: @vendor_account_id)
+                                            vendor_account_id: @vendor_account_id,
+                                            tenant_full_name: current_tenant.full_name
+    )
 
 
     # abort("Message goes here")
