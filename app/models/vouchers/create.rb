@@ -10,6 +10,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher_settlement_type = attrs[:voucher_settlement_type]
     @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
+    @current_tenant_full_name = attrs[:tenant_full_name]
   end
 
   def process
@@ -30,7 +31,7 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      @ledger_list_available = Ledger.non_bank_ledgers
+      # @ledger_list_available = Ledger.non_bank_ledgers
     end
 
     # assign all ledgers if ledger_list_available is not present
@@ -256,6 +257,7 @@ class Vouchers::Create < Vouchers::Base
           end
 
           client_account_id ||= the_client_account.id if the_client_account.present?
+          cheque_name ||= @current_tenant_full_name
 
           begin
             # cheque entry recording

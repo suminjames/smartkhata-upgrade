@@ -50,6 +50,9 @@ class ProcessSalesBillService
     end
 
 
+    # Voucher chahi aajai create hunu parcha.
+    @date = DateTime.now
+
     ActiveRecord::Base.transaction do
       voucher = Voucher.create!(date: @date)
       voucher.pending!

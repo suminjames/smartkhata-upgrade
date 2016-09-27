@@ -94,11 +94,16 @@ class Settlement < ActiveRecord::Base
 
   def cheque_entries
     cheque_entries = []
+    cheque_numbers = Set.new
     # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
     if self.voucher.cheque_entries.present?
       self.voucher.cheque_entries.uniq.each do |cheque|
         if self.has_single_cheque? && cheque.client_account_id == self.client_account_id || !self.has_single_cheque?
-          cheque_entries << cheque
+          # in some rare cases when same account is receiving and paying
+          # duplicate records are being seen
+
+          cheque_entries << cheque unless cheque_numbers.include? cheque.cheque_number
+          cheque_numbers.add cheque.cheque_number
         end
       end
     end
