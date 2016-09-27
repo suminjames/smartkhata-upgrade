@@ -20,11 +20,11 @@ class Files::SysadminClientNepseMappingController < Files::FilesController
     @file = params[:file]
     @from_nepse = params[:from_nepse]
     @nepse_boid = params[:nepse_boid]
-
+    @boid_nepse = params[:boid_nepse]
 
     # file_error("Please Upload a valid file") and return if (is_invalid_file(@file))
 
-    file_upload = ImportSysadminFile.new(@file, @from_nepse, @nepse_boid)
+    file_upload = ImportSysadminFile.new(@file, @from_nepse, @nepse_boid, @boid_nepse)
     file_upload.process
 
     if file_upload.error_message

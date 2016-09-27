@@ -34,7 +34,7 @@ class Files::SysAdminTasksController < Files::FilesController
   end
 
   def allowed_files
-    %w(opening_balance payments_receipts customer_registrations).freeze
+    %w(opening_balance payments_receipts customer_registrations bo_details).freeze
   end
 
 

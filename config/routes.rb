@@ -128,6 +128,7 @@ Rails.application.routes.draw do
         post :import
         get 'nepse_phone'
         get 'nepse_boid'
+        get 'boid_nepse'
       end
     end
     resources :sysadmin_trial_balance, only: [:new] do
