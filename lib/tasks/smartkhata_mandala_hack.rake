@@ -1,4 +1,4 @@
-# hack to fix data in smarthata in reference to mandala
+# hack to fix data in smartkhata in reference to mandala
 namespace :smartkhata_mandala_hack do
 
   # Steps:
@@ -190,28 +190,31 @@ namespace :smartkhata_mandala_hack do
     end
   end
 
-  task :match_data => :environment do
+  task :match_cheque_data_in_csv => :environment do
 
     mandala = Hash.new
+    mandala_name_column =  1
+    mandala_cheque_number_column = 2
     CSV.foreach('mandala.csv', :headers => false) do |row|
-      # puts "#{row[2]} , #{row[0]}"
-
-      unless mandala.keys.include? row[0]
-        mandala[row[0]] = row
+      # puts "#{row[mandala_cheque_number_column]} , #{row[mandala_name_column]}"
+      unless mandala.keys.include? row[mandala_name_column]
+        mandala[row[mandala_name_column]] = row
       else
-        "redundant #{row[2]}"
+        "**redundant/duplicate #{row[mandala_cheque_number_column]}"
       end
     end
 
     smartkhata = Hash.new
+    smartkhata_name_column =  1
+    smartkhata_cheque_number_column = 2
     CSV.foreach('smartkhata.csv', :headers => false) do |row|
-      if mandala.keys.include? row[0]
-        new_cheque = mandala[row[0]][2]
+      if mandala.keys.include? row[smartkhata_name_column]
+        new_cheque = mandala[row[smartkhata_name_column]][mandala_cheque_number_column]
         row << new_cheque
-        smartkhata[row[0]] = row
+        smartkhata[row[smartkhata_name_column]] = row
         puts row
       else
-        "redundant #{row[0]}"
+        "**redundant/duplicate #{row[smartkhata_name_column]}"
       end
     end
 
@@ -222,7 +225,7 @@ namespace :smartkhata_mandala_hack do
     end
   end
 
-  task :match_cheques , [:tenant] => :environment do |task, args|
+  task :match_cheque_data_in_db , [:tenant] => :environment do |task, args|
     if args.tenant.present?
       tenant = args.tenant
       Apartment::Tenant.switch!(args.tenant)
@@ -232,13 +235,15 @@ namespace :smartkhata_mandala_hack do
 
       counta = 0
       countb = 0
+      cheque_number_column_x =  4
+      cheque_number_column_y =  8
       mandala = Hash.new
       CSV.foreach('cheque_new.csv', :headers => false) do |row|
-        if  row[2] != row[6]
-          unless mandala.keys.include? row[2]
-            mandala[row[2]] = row[6]
+        if  row[cheque_number_column_x] != row[cheque_number_column_y]
+          unless mandala.keys.include? row[cheque_number_column_x]
+            mandala[row[cheque_number_column_x]] = row[cheque_number_column_y]
           else
-            "redundant #{row[2]}"
+            "redundant #{row[cheque_number_column_x]}"
           end
         end
 
