@@ -157,6 +157,13 @@ class VouchersController < ApplicationController
             end
 
             @voucher.reviewer_id = UserSession.user_id
+
+            # The date of voucher should be the date when cheque entry was created.
+            # If cheque_entries not present (highly unlikely), use today's date.
+            cheque_creation_date = @voucher.try(:cheque_entries).try(:first).present? ? @voucher.cheque_entries.first.cheque_date : Date.today
+            @voucher.date = cheque_creation_date
+            @voucher.date_bs = ad_to_bs(cheque_creation_date)
+
             @voucher.complete!
             @voucher.save!
             success = true
