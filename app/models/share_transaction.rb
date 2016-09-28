@@ -67,7 +67,7 @@ class ShareTransaction < ActiveRecord::Base
   has_many :particulars, through: :particulars_share_transactions
 
   filterrific(
-      default_filter_params: { sorted_by: 'id_desc' },
+      default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [
           :sorted_by,
           :by_date,
@@ -95,26 +95,28 @@ class ShareTransaction < ActiveRecord::Base
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date>= ?', date_ad.beginning_of_day).order(id: :desc)
+    not_cancelled.where('date>= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date<= ?', date_ad.end_of_day).order(id: :desc)
+    not_cancelled.where('date<= ?', date_ad.end_of_day)
   }
   scope :by_transaction_cancel_status, lambda { |status|
     if status == 'deal_cancel_complete'
-      where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status]).order(id: :desc)
+      where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status])
     end
   }
 
-  scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id).order(id: :desc) }
-  scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id).order(id: :desc) }
+  scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
+  scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
         not_cancelled.order("share_transactions.id #{ direction }")
+      when /^date/
+        not_cancelled.order("share_transactions.date #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
