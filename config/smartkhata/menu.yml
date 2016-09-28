@@ -3,7 +3,7 @@
 # default request_type is get
 #
 ---
-has_changes: true
+has_changes: false
 menus:
 - name: File Section
   code: FS
@@ -159,7 +159,8 @@ menus:
       path: "<%= orders_path(show: 'report')%>"
       code: RS_TRO_ORD
     - name: Cancelled Transactions
-      path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete') %>"
+      path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete')
+        %>"
       code: RS_TRO_CAT
   - name: Settlements
     code: RS_SET
@@ -179,3 +180,12 @@ menus:
     - name: SMS History
       path: "<%= sms_messages_path()%>"
       code: RS_SMS_HIS
+- name: Administration
+  code: ADS
+  sub_menus:
+  - name: Roles Management
+    code: ADS_RLM
+    menu_items:
+    - name: View User Roles
+      path: "<%= user_access_roles_path %>"
+      code: ADS_RLM_ARP

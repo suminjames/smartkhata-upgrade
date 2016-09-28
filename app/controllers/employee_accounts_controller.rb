@@ -135,17 +135,11 @@ class EmployeeAccountsController < ApplicationController
         end
       end
     elsif params[:edit_type] == 'menu_access'
-      # get menu ids
-      menu_ids = []
-      menu_ids = params[:employee_account][:menu_ids].map(&:to_i) if params[:employee_account].present? && params[:employee_account][:menu_ids].present?
+      user_role_id = params[:employee_account][:user_access_role_id] || nil
       ActiveRecord::Base.transaction do
-        # delete previously set records
-        # TODO(SUBAS) remove only the changed ones
-        # create only the changed ones
-        MenuPermission.delete_previous_permissions_for(@employee_account.user_id)
-        menu_ids.each do |menu_id|
-          MenuPermission.create!(user_id: @employee_account.user_id, menu_item_id: menu_id)
-        end
+        u = @employee_account.user
+        u.user_access_role_id = user_role_id
+        u.save!
       end
       redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
     elsif params[:edit_type] == 'branch_access'

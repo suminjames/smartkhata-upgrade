@@ -1,3 +1,4 @@
+
 # == Schema Information
 #
 # Table name: employee_accounts
@@ -47,7 +48,7 @@
 
 class EmployeeAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
-
+  attr_accessor :user_access_role_id
   # An assumption that name of an Employee Account will always be unique is made. This is unlike Client Account whose uniqueness is nepse_code(or client_code in Ledger).
   # TODO(sarojk) Find a better way to implement unique identification
   validates_presence_of :name, :email
@@ -58,7 +59,7 @@ class EmployeeAccount < ActiveRecord::Base
   has_many :employee_ledger_associations
   has_many :ledgers, through: :employee_ledger_associations
   belongs_to :user
-  has_many :menu_permissions, through: :user
+  has_one :user_access_role, through: :user
   has_many :branch_permissions, through: :user
 
   # defines employee association with ledgers
@@ -97,6 +98,9 @@ class EmployeeAccount < ActiveRecord::Base
     end
   end
 
+  def user_access_role_id
+    self.user_access_role.id if self.user_access_role.present?
+  end
   #
   # As Employee Accounts don't have a unique identifier except for the id, append id with name.
   #

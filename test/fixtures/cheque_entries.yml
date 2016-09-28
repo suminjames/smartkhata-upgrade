@@ -6,11 +6,11 @@
 #  beneficiary_name   :string
 #  cheque_number      :integer
 #  additional_bank_id :integer
-#  status             :integer          default("0")
-#  print_status       :integer          default("0")
-#  cheque_issued_type :integer          default("0")
+#  status             :integer          default(0)
+#  print_status       :integer          default(0)
+#  cheque_issued_type :integer          default(0)
 #  cheque_date        :date
-#  amount             :decimal(15, 4)   default("0.0")
+#  amount             :decimal(15, 4)   default(0.0)
 #  bank_account_id    :integer
 #  client_account_id  :integer
 #  vendor_account_id  :integer
