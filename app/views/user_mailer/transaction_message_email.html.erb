@@ -12,6 +12,9 @@
   Dear <%= client.name %> (<%= client.nepse_code %>),
 </p>
 <p>
+  <%= @transaction_message.sms_message  %>
+</p>
+<p>
   Please find the file in attachment to see your transactions dated <%= @transaction_message.transaction_date %>.
 </p>
 <p>
