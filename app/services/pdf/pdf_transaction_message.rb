@@ -65,8 +65,8 @@ class Pdf::PdfTransactionMessage < Prawn::Document
     end
     table_width = page_width - 2
     column_widths = {0 => table_width * 1/12.0,
-                     1 => table_width * 3/12.0,
-                     2 => table_width * 0.7/12.0,
+                     1 => table_width * 2/12.0,
+                     2 => table_width * 1/12.0,
                      3 => table_width * 1.3/12.0,
                      4 => table_width * 2/12.0,
                      5 => table_width * 2/12.0,
@@ -106,7 +106,7 @@ class Pdf::PdfTransactionMessage < Prawn::Document
     end
     isin_abbreviation_index_str = ''
     unique_isins.each do |isin|
-      isin_abbreviation_index_str += isin.isin + ': ' + isin.company + ' | '
+      isin_abbreviation_index_str += "#{isin.isin}: #{isin.company.present? ? isin.company : 'N/A'} | "
     end
     # strip the trailing '| ' and return
     text '<b><i>Company Code Index</i></b>:', :inline_format => true

@@ -10,7 +10,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher_settlement_type = attrs[:voucher_settlement_type]
     @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
-    @current_tenant_full_name = attrs[:tenant_full_name]
+    # @current_tenant_full_name = attrs[:tenant_full_name]
   end
 
   def process
@@ -257,7 +257,7 @@ class Vouchers::Create < Vouchers::Base
           end
 
           client_account_id ||= the_client_account.id if the_client_account.present?
-          cheque_name ||= @current_tenant_full_name
+          # cheque_name ||= @current_tenant_full_name
 
           begin
             # cheque entry recording
