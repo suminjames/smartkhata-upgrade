@@ -31,9 +31,18 @@ class Settlement < ActiveRecord::Base
   before_create :assign_settlement_number
   before_save :add_date_from_date_bs
 
-  belongs_to :voucher
   belongs_to :client_account
   belongs_to :vendor_account
+
+  has_and_belongs_to_many :particulars
+  has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
+  has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
+  has_many :particular_settlement_associations
+
+  has_many :debited_particulars, through: :for_dr, source: :particular
+  has_many :credited_particulars, through: :for_cr, source: :particular
+  has_many :particulars, through: :particular_settlement_associations
+
 
   enum settlement_type: [:receipt, :payment]
   enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]

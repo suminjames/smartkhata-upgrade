@@ -9,6 +9,9 @@ Some information about the cheque entry implementation:
 - if voucher has multiple particulars, the beneficiary name is (assigned) as the first person.
 
 
+-multiple settlements only when voucher type is payment/receipt, and settlement type is default.
+-single settlement when voucher type is payment/receipt, and settlement type is not default
+
 - cases
     -sales bill payment
         -single cr

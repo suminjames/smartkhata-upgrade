@@ -36,6 +36,15 @@ class Particular < ActiveRecord::Base
   belongs_to :voucher
   delegate :bills, :to => :voucher, :allow_nil => true
 
+  has_and_belongs_to_many :settlements
+  has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
+  has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
+  has_many :particular_settlement_associations
+
+  has_many :debit_settlements, through: :for_dr, source: :settlement
+  has_many :credit_settlements, through: :for_cr, source: :settlement
+  has_many :settlements, through: :particular_settlement_associations
+
   attr_accessor :running_total
 
   # get the particulars with running total
