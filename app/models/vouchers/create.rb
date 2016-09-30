@@ -269,14 +269,14 @@ class Vouchers::Create < Vouchers::Base
             # if the cheque received from client is already entered to system reject it
             if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
               voucher.settlements = []
-              error_message = "Cheque Number is already taken"
+              error_message = "Cheque number is already taken"
               raise ActiveRecord::Rollback
             end
 
             # If cheque_entry is printed, reject the new voucher creation (with the cheque entry)
             if cheque_entry.printed?
               voucher.settlements = []
-              error_message = "Cheque Number provided is already taken. Therefore, a new cheque number has automatically been assigned."
+              error_message = "Cheque number provided is already taken. Therefore, a new cheque number has automatically been assigned."
               raise ActiveRecord::Rollback
             end
 

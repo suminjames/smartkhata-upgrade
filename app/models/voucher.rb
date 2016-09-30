@@ -92,12 +92,15 @@ class Voucher < ActiveRecord::Base
     self.fy_code = fy_code
   end
 
+  #
+  # If this voucher is payment, assign the cheques to debited particular(s) of the voucher.
+  # If this voucher is receipt, assign the cheques to credited particular(s) of the voucher.
+  #
   def assign_cheque
 
     if self.payment?
       cheque_entries = self.cheque_entries.payment.uniq
       particulars = self.particulars.dr
-
       particulars.each do |particular|
         if particular.cheque_entries_on_payment.size <= 0
           particular.cheque_entries_on_payment << cheque_entries
@@ -105,8 +108,28 @@ class Voucher < ActiveRecord::Base
         end
       end
       cheque_entries.each do |cheque|
-        cheque.beneficiary_name ||= particulars.first.ledger.name
+        if particulars.first.has_bank?
+          beneficiary_name = UserSession.tenant.full_name
+        else
+          beneficiary_name = particulars.first.ledger.name
+        end
+        cheque.beneficiary_name ||= beneficiary_name
         cheque.save!
+      end
+      # Check to see if transaction between internal banks.
+      # If so, add beneficiary names to both as current tenant's full name.
+      cr_particulars = self.particulars.cr
+      if particulars.first.has_bank? && cr_particulars.first.has_bank?
+        cheque_entries = self.cheque_entries.receipt.uniq
+        cheque_entries.each do |cheque|
+          if cr_particulars.first.has_bank?
+            beneficiary_name = UserSession.tenant.full_name
+          else
+            beneficiary_name = cr_particulars.first.ledger.name
+          end
+          cheque.beneficiary_name ||= beneficiary_name
+          cheque.save!
+        end
       end
     elsif self.receipt?
       cheque_entries = self.cheque_entries.receipt.uniq
@@ -119,7 +142,12 @@ class Voucher < ActiveRecord::Base
       end
 
       cheque_entries.each do |cheque|
-        cheque.beneficiary_name ||= particulars.first.ledger.name
+        if particulars.first.has_bank?
+          beneficiary_name = UserSession.tenant.full_name
+        else
+          beneficiary_name = particulars.first.ledger.name
+        end
+        cheque.beneficiary_name ||= beneficiary_name
         cheque.save!
       end
 

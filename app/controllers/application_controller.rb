@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
   def set_user_session
     current_user.current_url_link = request.path
     UserSession.user = current_user
-
+    UserSession.tenant = current_tenant
     # session storage for controllers
     session[:user_selected_fy_code] ||= get_fy_code
     session[:user_selected_branch_id] ||= current_user.branch_id

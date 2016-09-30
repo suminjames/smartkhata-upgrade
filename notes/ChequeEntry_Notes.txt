@@ -1,0 +1,40 @@
+
+NOTE! Be cautious of active-record callbacks, which aren't very apparent while skimming the code.
+
+Some information about the cheque entry implementation:
+- voucher has a callback after_save that assigns cheque
+- if (internal) bank to bank transfer,
+    -the beneficiary name is supposed to be the tenant's full name.
+    -it is considered as payment
+- if voucher has multiple particulars, the beneficiary name is (assigned) as the first person.
+
+
+- cases
+    -sales bill payment
+        -single cr
+        -multiple dr (with cheque)
+
+    -payment voucher
+        -default
+            -single cr (cheque/cash)
+            -single dr (if cheque)
+            -can have multiple dr(if cash)
+        -client
+            -single cr (cheque/cash)
+            -can have multiple dr
+                -receiver can be separate person from those which ledgers are hit
+        -vendor
+            -similar to client
+
+    -receipt
+        -default
+            -multiple dr (cheque/cash)
+            -multiple cr
+        -client
+            -multiple dr (cheque/cash)
+            -can have multiple cr
+                -payer can be separate person from those which ledgers are hit
+        -vendor
+            -similar to client
+    -voucher
+
