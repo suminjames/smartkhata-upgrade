@@ -9,6 +9,7 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+    authorize Bill
     # Check if 'Process Selected Bill', and render accordingly.
     if params['search_by'] == 'client_id'
       @process_selected_bills = true
@@ -160,6 +161,8 @@ class BillsController < ApplicationController
   end
 
   def sales_payment
+    authorize Bill
+
     @settlement_id = params[:settlement_id]
     if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
@@ -177,6 +180,8 @@ class BillsController < ApplicationController
   end
 
   def sales_payment_process
+    authorize Bill
+
     @settlement_id = params[:settlement_id]
     @cheque_number = params[:cheque_number].to_i
     @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])

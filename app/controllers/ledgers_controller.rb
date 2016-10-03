@@ -178,6 +178,8 @@ class LedgersController < ApplicationController
   # Entertains Ajax request made by combobox used in various views to populate ledgers.
   #
   def combobox_ajax_filter
+    authorize Ledger
+
     search_term = params[:q]
     ledgers = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
