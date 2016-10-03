@@ -83,6 +83,24 @@ class LedgerTest < ActiveSupport::TestCase
     assert_equal "can't be negative or blank", @ledger.errors[:opening_blnc][0]
   end
 
+  # testing filterrific method
+  test "options_for_ledger_select should return appropriate values" do
+    params_to_test = [
+      nil, #initial state
+      {"reset_filterrific"=>"true"}, #when resetting param
+      {},
+      {"by_ledger_id"=>99999, "by_ledger_type"=>""} #imaginary id
+    ]
+
+    # note: assert_empty will fail if nil returned
+    params_to_test.each do |param|
+      assert_empty Ledger.options_for_ledger_select(param), 'return value not empty when the argument is "#{param.inspect}"'
+    end
+
+    # usual hash
+    refute_empty Ledger.options_for_ledger_select({"by_ledger_id"=>@ledger.id, "by_ledger_type"=>""})
+  end
+
 # Unable to sign-in
 # "You may have encountered a bug in the Ruby interpreter or extension libraries."
 # (After some hyper error stack > 3000 lines)
