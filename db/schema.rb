@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160921025322) do
+ActiveRecord::Schema.define(version: 20160930120323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -531,6 +531,17 @@ ActiveRecord::Schema.define(version: 20160921025322) do
 
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
+  create_table "particular_settlement_associations", id: false, force: :cascade do |t|
+    t.integer  "association_type"
+    t.integer  "particular_id"
+    t.integer  "settlement_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "particular_settlement_associations", ["particular_id"], name: "index_particular_settlement_associations_on_particular_id", using: :btree
+  add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
+
   create_table "particulars", force: :cascade do |t|
     t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
@@ -837,6 +848,8 @@ ActiveRecord::Schema.define(version: 20160921025322) do
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
+  add_foreign_key "particular_settlement_associations", "particulars"
+  add_foreign_key "particular_settlement_associations", "settlements"
   add_foreign_key "particulars_share_transactions", "particulars"
   add_foreign_key "particulars_share_transactions", "share_transactions"
   add_foreign_key "settlements", "vouchers"

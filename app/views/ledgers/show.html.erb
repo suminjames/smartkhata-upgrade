@@ -112,7 +112,6 @@
                 <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
 
                 <td>
-                  <!--TODO incorporate all bills -->
                   <% if particular.bills.count > 0 %>
                       <% particular.bills.each do |bill| %>
                           <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
@@ -133,11 +132,9 @@
                   <% end %>
                 </td>
                 <td>
-                  <% if particular.voucher.settlements.size > 0 %>
-                      <% particular.voucher.settlements.each do |settlement| %>
-                          <% if settlement.has_single_cheque? && @ledger.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?  %>
-                            <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
-                          <% end %>
+                  <% if particular.settlements.size > 0 %>
+                      <% particular.settlements.each do |settlement| %>
+                          <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
                       <% end %>
                   <% end %>
                 </td>

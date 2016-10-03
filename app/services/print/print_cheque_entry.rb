@@ -37,6 +37,7 @@ class Print::PrintChequeEntry < Prawn::Document
     ac_payee_note = 'A/C Payee'
     date = @cheque_date.strftime("%d-%m-%Y")
     beneficiary_name = @beneficiary_name
+    cheque_number = @cheque_entry.cheque_number
     amount_in_number = @cheque_entry.amount
     amount_in_word = arabic_word(amount_in_number) +' only'
     amount_in_number = arabic_number(amount_in_number)
@@ -50,6 +51,7 @@ class Print::PrintChequeEntry < Prawn::Document
       text_box date.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 1.6.cm], :width => 2.6.cm
       text_box beneficiary_name, :at => [cheque_left + 0.9.cm, cheque_top - 2.1.cm], :width => 2.6.cm
       text_box amount_in_number.to_s, :at => [cheque_left + 0.9.cm, cheque_top - 4.7.cm], :width => 2.6.cm
+      text_box cheque_number.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 7.cm], :width => 2.6.cm
       # Right (to the perforation) side of the cheque
       text_box ac_payee_note, :at => [cheque_left + 11.2.cm, cheque_top - 1.1.cm]
       text_box date.to_s, :at => [cheque_left + 17.9.cm, cheque_top - 1.0.cm]

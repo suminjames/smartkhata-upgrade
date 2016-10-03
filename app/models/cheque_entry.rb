@@ -47,6 +47,8 @@ class ChequeEntry < ActiveRecord::Base
   has_many :particulars_on_receipt, through: :receipts, source: :particular
   has_many :particulars, through: :cheque_entry_particular_associations
 
+  has_many :settlements, through: :particulars
+
 
   has_many :vouchers, through: :particulars
 

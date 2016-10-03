@@ -64,6 +64,7 @@ class ChequeEntriesController < ApplicationController
 
     respond_to do |format|
       format.html
+      format.js
       format.pdf do
         pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
@@ -233,9 +234,10 @@ class ChequeEntriesController < ApplicationController
     cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
     settlement_ids = []
     cheque_entries.each do |cheque_entry|
-      voucher_id = cheque_entry.particulars.first.voucher_id
-      settlement = Settlement.where(voucher_id: voucher_id, client_account_id: cheque_entry.client_account_id).first
-      settlement_ids << settlement.try(:id) if settlement.present? && settlement.client_account_id == cheque_entry.client_account_id
+      settlements = cheque_entry.settlements
+      settlements.each do |settlement|
+        settlement_ids << settlement.id
+      end
     end
     respond_to do |format|
       format.json { render json: {status: status, settlement_ids: settlement_ids}, status: :ok }
