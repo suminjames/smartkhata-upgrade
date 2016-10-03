@@ -17,8 +17,7 @@ class SettlementDecorator < ApplicationDecorator
   def formatted_cheque_numbers_and_bank_names(strip: true)
     cheque_numbers = []
     bank_names = []
-    object.cheque_entries.each do |cheque_entry|
-
+    object.associated_cheque_entries.each do |cheque_entry|
       bank_name = cheque_entry.receipt? ? cheque_entry.additional_bank.name : cheque_entry.bank_account.bank_name
       # strip the bank name
       cutoff_length = strip ? 20 : 100

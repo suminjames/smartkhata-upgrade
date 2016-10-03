@@ -357,19 +357,19 @@ class Vouchers::Create < Vouchers::Base
             vendor_account: vendor_account,
             receipt_amount: receipt_amount
         )
-        voucher.particulars.dr.each do |p|
+        voucher.particulars.select{|x| x.dr?}.each do |p|
           p.debit_settlements << settlement
         end
-        voucher.particulars.cr.each do |p|
+        voucher.particulars.select{|x| x.cr?}.each do |p|
           p.credit_settlements << settlement
         end
       elsif is_payment_receipt
         if voucher.payment?
-          voucher.particulars.cr.each do |p|
+          voucher.particulars.select{|x| x.cr?}.each do |p|
             p.credit_settlements << settlements
           end
         else
-          voucher.particulars.dr.each do |p|
+          voucher.particulars.select{|x| x.dr?}.each do |p|
             p.debit_settlements << settlements
           end
         end

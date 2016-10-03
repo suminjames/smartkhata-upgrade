@@ -25,7 +25,7 @@ class SettlementsController < ApplicationController
     if ['xlsx', 'pdf'].include?(params[:format])
       @settlements = @filterrific.find.not_rejected.includes(:particulars => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).decorate
     else
-      @settlements = @filterrific.find.includes(:particulars => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
+      @settlements = @filterrific.find.not_rejected.includes(:debited_particulars => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).order('cheque_entries.cheque_number asc').references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
 
 
