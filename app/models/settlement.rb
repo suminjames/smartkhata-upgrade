@@ -105,15 +105,15 @@ class Settlement < ActiveRecord::Base
   # Old implementation! Delete when successful migration to new implementation.
   # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
-  scope :not_rejected, -> { joins( :particulars => [:voucher]).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
+  scope :not_rejected, -> { joins( :particulars => [:voucher]).where(vouchers: {voucher_status: Voucher.voucher_statuses[:complete]}) }
 
 
   def associated_cheque_entries
-    cheque_entries_arr = []
+    cheque_entries_arr = Set.new
     associated_particulars = self.payment? ? self.debited_particulars : self.credited_particulars
     associated_particulars.each do |particular|
       particular.cheque_entries.each do |cheque_entry|
-        cheque_entries_arr << cheque_entry
+        cheque_entries_arr.add(cheque_entry)
       end
     end
     cheque_entries_arr

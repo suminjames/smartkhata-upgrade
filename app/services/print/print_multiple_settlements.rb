@@ -64,9 +64,9 @@ class Print::PrintMultipleSettlements < Prawn::Document
 
     move_down(1)
 
-    if @settlement.cheque_entries.size > 0
+    if @settlement.associated_cheque_entries.size > 0
       text 'By Cheque:'
-      @settlement.cheque_entries.each do |cheque|
+      @settlement.associated_cheque_entries.each do |cheque|
         bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
         text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
       end
