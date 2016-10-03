@@ -5,7 +5,7 @@ class Files::Dpa5Controller < ApplicationController
   @@file_type = FileUpload::file_types[:dpa5]
 
   def new
-    # authorize self
+    authorize self
     dpa5_files = FileUpload.where(file_type: @@file_type)
     @file_list = dpa5_files.order("report_date desc").limit(Files::PREVIEW_LIMIT)
     @list_incomplete = dpa5_files.count > Files::PREVIEW_LIMIT
@@ -17,7 +17,7 @@ class Files::Dpa5Controller < ApplicationController
   end
 
   def import
-    # authorize self
+    authorize self
     @file = params[:file];
     if @file == nil
       flash.now[:error] = "Please Upload a valid file"
@@ -37,7 +37,7 @@ class Files::Dpa5Controller < ApplicationController
   end
 
   def index
-    # authorize self
+    authorize self
     @file_list = FileUpload.where(file_type: @@file_type)
                      .order("report_date DESC")
   end

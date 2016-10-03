@@ -1,6 +1,8 @@
 class ApplicationPolicy
   attr_reader :user, :record
 
+  include Rails.application.routes.url_helpers
+
   def initialize(user, record)
     @user = user
     @record = record
@@ -49,12 +51,17 @@ class ApplicationPolicy
   #
   # authorization for employee and above requires the permitted actions for a user
   #
-  def employee_and_above?
+  def employee_and_above?(link=nil)
     # admin and sys admin dont have restrictions
     return true if user.admin? || user.sys_admin?
     if user.employee?
       # deny access for the urls
-      return true if !user.blocked_path_list.include? user.current_url_link
+      if link
+        return true if !user.blocked_path_list.include? link
+      else
+        return true if !user.blocked_path_list.include? user.current_url_link
+      end
+
     end
     return false
   end

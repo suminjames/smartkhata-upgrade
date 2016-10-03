@@ -1,0 +1,32 @@
+<%= simple_form_for(@user_access_role) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs row">
+    <div class="col-sm-4">
+      <%= f.input :role_name %>
+    </div>
+
+  </div>
+    <div class="form-inputs row">
+      <div class="col-sm-4">
+        <%= f.input :description %>
+      </div>
+
+    </div>
+    <br><br>
+  <div>
+    <% hidden_field_tag 'user_access_role[menu_item_ids][]', nil %>
+    <p>Select the Menu that are available for the user </p>
+    <%= arranged_tree_as_list(@menu_items, {:list_style => :boostrap_list_group, :ul_class => ['menu-permission-list'] }) do |menu_item| %>
+        <% if menu_item['path'].present? %>
+            <%= check_box_tag 'user_access_role[menu_item_ids][]', menu_item.id, @user_access_role.menu_item_ids.include?(menu_item.id), id: dom_id(menu_item) %>
+        <% else %>
+            <%= check_box_tag '', '', false, class: 'select_all',id: dom_id(menu_item) %>
+        <% end %>
+        <%= label_tag dom_id(menu_item), menu_item.name -%>
+    <% end %>
+  </div>
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>
