@@ -45,12 +45,12 @@ class Settlement < ActiveRecord::Base
   has_many :credited_particulars, through: :for_cr, source: :particular
   has_many :particulars, through: :particular_settlement_associations
 
-
-  # Father of all hacks :)
-  # careful with the mapping between the type i.e settlement and cr dr of association
-  has_many :for_cheque, -> (object) { object.settlement_type == "receipt" ? cr : dr }, class_name: "ParticularSettlementAssociation"
-  has_many :cheque_particulars, through: :for_cheque, source: :particular
-  has_many :cheque_entries, through: :cheque_particulars
+  #
+  # # Father of all hacks :)
+  # # careful with the mapping between the type i.e settlement and cr dr of association
+  # has_many :for_cheque, -> { settlement_type == "receipt" ? cr : dr }, class_name: "ParticularSettlementAssociation"
+  # has_many :cheque_particulars, through: :debited_particulars, source: :particular
+  has_many :cheque_entries, through: :debited_particulars
 
 
 
