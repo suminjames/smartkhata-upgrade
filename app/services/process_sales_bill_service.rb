@@ -54,10 +54,8 @@ class ProcessSalesBillService
     @date = DateTime.now
 
     ActiveRecord::Base.transaction do
-      voucher = Voucher.create!(date: @date, voucher_type: Voucher.voucher_types[:payment], voucher_status: Voucher.voucher_statuses[:pending])
-      # voucher.payment!
-      # voucher.pending!
-      # voucher.save!
+      voucher = Voucher.create!(date: @date, voucher_type: Voucher.voucher_types[:payment])
+      voucher.pending!
 
       bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
       if bills_have_pending_deal_cancel
