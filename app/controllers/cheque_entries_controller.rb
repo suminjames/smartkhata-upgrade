@@ -143,7 +143,6 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, :flash => {:error => 'The Cheque cant be Bounced.'} and return
     else
       reject(:bounce, @back_path, @back_path)
-      redirect_to @back_path
     end
   end
 
@@ -154,6 +153,7 @@ class ChequeEntriesController < ApplicationController
   # params
   #   -reject_type : is one of the values {:void, :bounce}
   #
+  #  IMPORTANT! Rejecting ChequeEntry with vouchers with more than one cheque entries should now affect only the associated particulars of the cheque_entry and settlement.
   def reject (reject_type, success_redirect_path, error_redirect_path)
     if UserSession.selected_fy_code != get_fy_code
       redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
@@ -164,6 +164,10 @@ class ChequeEntriesController < ApplicationController
     reject_type_verbs[:bounce] = 'bounced'
 
     voucher = @cheque_entry.vouchers.uniq.first
+
+    if voucher.cheque_entries.uniq.size > 1
+      redirect_to @back_path, :flash => {:error => 'Please make a manual reverse entry to reverse this cheque. And, mark this cheque as accordingly!'} and return
+    end
 
     if @cheque_entry.payment?
       @bills = voucher.bills.purchase.order(id: :desc)
@@ -218,6 +222,7 @@ class ChequeEntriesController < ApplicationController
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
 
     flash.now[:notice] = "Cheque #{reject_type_verbs[:reject_type]}recorded succesfully."
+    redirect_to @back_path
     # render :show
   end
 

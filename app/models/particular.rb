@@ -73,9 +73,7 @@ class Particular < ActiveRecord::Base
 
   validates_presence_of :ledger_id
   enum transaction_type: [:dr, :cr]
-  # In view, only show complete and reversed(strike-through'ed).
-  # TODO(sarojk): Currently, rejected (voucher's) particulars stay in pending. In future, make it rejected.
-  enum particular_status: [:pending, :complete, :rejected, :reversed]
+  enum particular_status: [:pending, :complete]
   enum ledger_type: [:general, :has_bank]
 
   scope :find_by_ledger_ids, lambda { |ledger_ids_arr|
