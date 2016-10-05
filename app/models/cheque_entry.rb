@@ -146,11 +146,6 @@ class ChequeEntry < ActiveRecord::Base
     ]
   end
 
-  #
-  # A cheque can be printed only if it is
-  #  -payment
-  #  -assigned
-  #
   def can_print_cheque?
     if self.receipt? || self.printed? || self.unassigned?|| self.void?
       return false

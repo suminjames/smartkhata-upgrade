@@ -28,7 +28,7 @@ class Voucher < ActiveRecord::Base
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
   enum voucher_type: [:journal, :payment, :receipt, :contra]
-  enum voucher_status: [:pending, :complete, :rejected]
+  enum voucher_status: [:pending, :complete, :rejected, :reversed]
 
   ########################################
   # Callbacks
