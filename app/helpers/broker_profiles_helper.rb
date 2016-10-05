@@ -1,0 +1,2 @@
+module BrokerProfilesHelper
+end
