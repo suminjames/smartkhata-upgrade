@@ -14,7 +14,7 @@
 class Branch < ActiveRecord::Base
   validates_presence_of :code, :address
   validates :code, uniqueness: {case_sensitive: false}
-
+  include Auditable
   def code=(val)
     write_attribute :code, val.upcase
   end

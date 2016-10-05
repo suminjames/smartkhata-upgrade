@@ -24,6 +24,7 @@
 #
 
 class Settlement < ActiveRecord::Base
+  include Auditable
   include CustomDateModule
   extend CustomDateModule
   include ::Models::UpdaterWithBranchFycode

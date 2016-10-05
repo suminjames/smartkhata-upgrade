@@ -68,6 +68,8 @@
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
+  include Auditable
+
   include ::Models::UpdaterWithBranch
 
   after_create :create_ledger

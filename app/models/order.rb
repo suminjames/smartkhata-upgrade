@@ -14,6 +14,7 @@
 
 
 class Order < ActiveRecord::Base
+  include Auditable
   extend CustomDateModule
   belongs_to :client_account
   has_many :order_details

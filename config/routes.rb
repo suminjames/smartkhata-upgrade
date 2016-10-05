@@ -146,6 +146,10 @@ Rails.application.routes.draw do
     resources :threshold_transactions, only: [:index]
   end
 
+  namespace 'reports' do
+    resources :audit_trails, only: [:index]
+  end
+
   get "/test" => "test#index"
 
   require 'sidekiq/web'
