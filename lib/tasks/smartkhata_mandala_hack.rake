@@ -458,7 +458,7 @@ namespace :smartkhata_mandala_hack do
             ledger = nil
 
             description = row['PARTICULARS']
-            description += "(cheque: #{row['CHEQUE_NO']}" if row['CHEQUE_NO'].present?
+            description += "( by cheque: #{row['CHEQUE_NO']})" if row['CHEQUE_NO'].present?
 
             is_debit = row['TRANSACTION_TYPE'] == 'DR' ? true : false
             amount = row['NRS_AMOUNT'].to_f
