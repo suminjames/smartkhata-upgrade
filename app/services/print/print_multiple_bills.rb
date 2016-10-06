@@ -105,11 +105,11 @@ class Print::PrintMultipleBills < Prawn::Document
 
   def customer_details_row
     data =[
-        ["Customer:", @bill.formatted_client_name, "Contact No.:", @bill.formatted_client_phones['secondary']],
-        ["NEPSE Code:", @bill.client.nepse_code, "", @bill.formatted_client_phones['secondary']]
+        ["Customer:", @bill.formatted_client_name, "Contact No.:", @bill.formatted_client_phones_first_row],
+        ["NEPSE Code:", @bill.client.nepse_code, "", @bill.formatted_client_phones_second_row]
     ]
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.35, 2 => table_width * 0.20, 3 => table_width * 0.30}
+    column_widths = {0 => table_width * 0.15, 1 => table_width * 0.42, 2 => table_width * 0.13, 3 => table_width * 0.30}
     table data do |t|
       t.header = true
       t.cell_style = {:border_width => 0, :padding => [0, 2, 0, 0], :align => :left}
