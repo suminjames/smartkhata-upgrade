@@ -367,7 +367,7 @@ namespace :smartkhata_mandala_hack do
       UserSession.selected_branch_id = 1
 
       puts "uploading pvr rcv"
-      filename = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant,'voucher_pv_rc.csv')
+      filename = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant,'voucher_pv_rcv_filtered.csv')
 
       count = 0
 
@@ -507,6 +507,41 @@ namespace :smartkhata_mandala_hack do
       end
       # puts client_arr
       # puts "#{count} clients need your attention"
+      Apartment::Tenant.switch!('public')
+    else
+      puts 'Please pass a tenant to the task'
+    end
+  end
+
+
+  desc "Reverse mandala payment receipt"
+  task :revert_payment_receipts, [:tenant] => :environment do |task,args|
+    if args.tenant.present?
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.user= User.first
+      UserSession.selected_branch_id = 1
+      UserSession.selected_fy_code = 7374
+
+      file = Rails.root.join('test_files', 'smartkhata_data_upload', args.tenant, 'receipt_payment_slip_filtered.csv')
+
+      # puts file
+
+      puts "Reversing payment receipts.."
+      #
+      file_upload_param = ActionDispatch::Http::UploadedFile.new(
+          tempfile: File.new(file),
+          filename: file.to_s
+      )
+
+      file_upload = SysAdminServices::ImportPaymentsReceipts.new(file_upload_param)
+
+      reverse = args.reverse.present? ? args.reverse : false
+
+      file_upload.process(true)
+      file_upload.processed_data
+      puts file_upload.error_message
+      puts "Task completed " unless file_upload.error_message
+
       Apartment::Tenant.switch!('public')
     else
       puts 'Please pass a tenant to the task'
