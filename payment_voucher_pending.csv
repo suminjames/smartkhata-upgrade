@@ -1,0 +1,152 @@
+VOUCHER_DATE,VOUCHER_NO,VOUCHER_CODE,AC_CODE,SUB_CODE,PARTICULARS,CURRENCY_CODE,AMOUNT,CONVERSION_RATE,NRS_AMOUNT,TRANSACTION_TYPE,COST_REVENUE_CODE,INVOICE_NO,VOU_PERIOD,AGAINST_AC_CODE,AGAINST_SUB_CODE,CHEQUE_NO,SERIAL_NO,FISCAL_YEAR,AC_NAME,NEPSE_CUSTOMER_CODE
+*********
+18-JUL-16,7374-00045,RCB,20419,"",RN 55 Being chq no 4942577 received from Cheque Purchase,NRS,,,5000000,CR,"","","","","",KBL 4942577,"",2073/2074,Cheque Purchase,""
+18-JUL-16,7374-00045,RCB,20419,"",RN 55 Being chq no 4942579 received from Cheque Purchase,NRS,,,13300000,CR,"","","","","",KBL 4942579,"",2073/2074,Cheque Purchase,""
+18-JUL-16,7374-00045,RCB,20419,"",RN 55 Being chq no 4942582 received from Cheque Purchase,NRS,,,1200000,CR,"","","","","",KBL 4942582,"",2073/2074,Cheque Purchase,""
+18-JUL-16,7374-00045,RCB,20419,"",RN 55 Being chq no 6112822 received from Cheque Purchase,NRS,,,1300000,CR,"","","","","",NICA 6112822,"",2073/2074,Cheque Purchase,""
+*********
+20-JUL-16,7374-00079,RCB,20419,"",RN 109 Being chq no 4942575 received from Cheque Purchase,NRS,,,5000000,CR,"","","","","",KBL 4942575,"",2073/2074,Cheque Purchase,""
+20-JUL-16,7374-00079,RCB,20419,"",RN 109 Being chq no 4942574 received from Cheque Purchase,NRS,,,5000000,CR,"","","","","",KBL 4942574,"",2073/2074,Cheque Purchase,""
+20-JUL-16,7374-00079,RCB,20419,"",RN 109 Being chq no 4942581 received from Cheque Purchase,NRS,,,8100000,CR,"","","","","",KBL 4942581,"",2073/2074,Cheque Purchase,""
+20-JUL-16,7374-00079,RCB,20419,"",RN 109 Being chq no 4942578 received from Cheque Purchase,NRS,,,3000000,CR,"","","","","",KBL 4942578,"",2073/2074,Cheque Purchase,""
+20-JUL-16,7374-00079,RCB,20419,"",RN 109 Being chq no 4942573 received from Cheque Purchase,NRS,,,7000000,CR,"","","","","",KBL 4942573,"",2073/2074,Cheque Purchase,""
+*********
+22-JUL-16,7374-00157,RCB,20419,"",RN 172 Being chq no 5460000011 received from Cheque Purchase,NRS,,,20000000,CR,"","","","","",GFL 5460000011,"",2073/2074,Cheque Purchase,""
+22-JUL-16,7374-00157,RCB,20419,"",RN 172 Being chq no 4942576 received from Cheque Purchase,NRS,,,2000000,CR,"","","","","",KBL 4942576,"",2073/2074,Cheque Purchase,""
+*********
+24-JUL-16,7374-00244,RCB,10301-4402,"",RN 209 Being chq no 14909881 received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,2000000,CR,"","","","","",GBIME 14909881,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+24-JUL-16,7374-00244,RCB,10301-4402,"",RN 209 Being chq no 14909882 received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,3000000,CR,"","","","","",GBIME 14909882,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+24-JUL-16,7374-00033,RCP,10301-4402,"",RN 210 Being cash received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,2500000,CR,"","","","","","","",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+24-JUL-16,7374-00216,RCB,20419,"",RN 203 Being chq no 8360000007 received from Cheque Purchase,NRS,,,10000000,CR,"","","","","",GFL 8360000007,"",2073/2074,Cheque Purchase,""
+24-JUL-16,7374-00216,RCB,20419,"",RN 203 Being chq no 1760000002 received from Cheque Purchase,NRS,,,5000000,CR,"","","","","",GFL 1760000002,"",2073/2074,Cheque Purchase,""
+24-JUL-16,7374-00216,RCB,20419,"",RN 203 Being chq no 2460000012 received from Cheque Purchase,NRS,,,4000000,CR,"","","","","",GFL 2460000012,"",2073/2074,Cheque Purchase,""
+*********
+26-JUL-16,7374-00161,PVB,10301-4402,"",SN 129 Being cheque no 15115917 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,5000000,DR,"","","","","",15115917,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+26-JUL-16,7374-00162,PVB,10301-4402,"",SN 130 Being cheque no 15115918 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,2500000,DR,"","","","","",15115918,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+27-JUL-16,7374-00191,PVB,10301-4402,"",SN 157 Being cheque no 15115946 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,12575.35,DR,"","","","","",15115946,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+27-JUL-16,7374-00215,PVB,10301-6132,"",SN 181 Being cheque no 15115971 paid to Ramesh Prasad Shrestha,NRS,,,150000,DR,"","","","","",15115971,"",2073/2074,RAMESH PRASAD SHRESTHA,""
+*********
+28-JUL-16,7374-00228,PVB,20422,"",SN 193 Being cheque no 15115983 paid to Nepse Operating Account,NRS,,,3000000,DR,"","","","","",15115983,"",2073/2074,NEPSE OPERATING ACCOUNT,""
+*********
+28-JUL-16,7374-00302,RCB,20419,"",RN 312 Being chq no 836000007 received from Cheque Purchase,NRS,,,10000000,CR,"","","","","",GFL 836000007,"",2073/2074,Cheque Purchase,""
+28-JUL-16,7374-00302,RCB,20419,"",RN 312 Being chq no 5460000011 received from Cheque Purchase,NRS,,,20000000,CR,"","","","","",GFL 5460000011,"",2073/2074,Cheque Purchase,""
+*********
+28-JUL-16,7374-00327,RCB,20419,"",RN 352 Being chq no 4942576 received from Cheque Purchase,NRS,,,2000000,CR,"","","","","",KBL 4942576,"",2073/2074,Cheque Purchase,""
+28-JUL-16,7374-00327,RCB,20419,"",RN 352 Being chq no 2460000012 received from Cheque Purchase,NRS,,,4000000,CR,"","","","","",GFL 2460000012,"",2073/2074,Cheque Purchase,""
+*********
+29-JUL-16,7374-00240,PVB,103020100001,"",SN 205 Being cheque no 15115995 paid to Civil Bank Ltd -Current,NRS,,,1000000,DR,"","","","","",15115995,1,2073/2074,CIVIL BANK LTD -CURRENT,""
+*********
+31-JUL-16,7374-00257,PVB,10301-4630,"","SN 221 Being cheque no 15144014 paid to Gita Maharjan for Bill No. , 7273-17461",NRS,,,22586.94,DR,"","","","","",15144014,"",2073/2074,GITA MAHARJAN,GM172162
+31-JUL-16,7374-00257,PVB,10301-9051,"","SN 221 Being cheque no 15144014 paid to Shyam Krishna Dangol for Bill No. , 7273-17463",NRS,,,23060.88,DR,"","","","","",15144014,"",2073/2074,SHYAM KRISHNA DANGOL,SD160819
+31-JUL-16,7374-00257,PVB,10301-9053,"","SN 221 Being cheque no 15144014 paid to Daisy Dangol for Bill No. , 7273-17462",NRS,,,22902.9,DR,"","","","","",15144014,"",2073/2074,DAISY DANGOL,DD160677
+31-JUL-16,7374-00257,PVB,10301-9072,"","SN 221 Being cheque no 15144014 paid to Tika Bahadur Khadka for Bill No. , 7273-17459",NRS,,,22270.98,DR,"","","","","",15144014,"",2073/2074,TIKA BAHADUR KHADKA,TK160655
+31-JUL-16,7374-00257,PVB,10301-3182,"","SN 221 Being cheque no 15144014 paid to Binod Rajthala for Bill No. , 7273-17464",NRS,,,23060.88,DR,"","","","","",15144014,"",2073/2074,BINOD RAJTHALA,BR072207
+31-JUL-16,7374-00257,PVB,10301-708,"","SN 221 Being cheque no 15144014 paid to Raju Rajthala for Bill No. , 7273-17458",NRS,,,22270.98,DR,"","","","","",15144014,"",2073/2074,RAJU RAJTHALA,RR075411
+31-JUL-16,7374-00257,PVB,10301-7467,"","SN 221 Being cheque no 15144014 paid to Saagar Joshi for Bill No. , 7374-625",NRS,,,43339.12,DR,"","","","","",15144014,"",2073/2074,SAAGAR JOSHI,SJ075415
+31-JUL-16,7374-00257,PVB,10301-7468,"","SN 221 Being cheque no 15144014 paid to Manju Sakhakarmi for Bill No. , 7273-17457",NRS,,,15863.44,DR,"","","","","",15144014,"",2073/2074,MANJU SAKHAKARMI,MS075398
+31-JUL-16,7374-00257,PVB,10301-5098,"","SN 221 Being cheque no 15144014 paid to Vishal Joshi for Bill No. , 7172-5439, 7172-5708, 7374-1198, 7374-1190, 7374-1199",NRS,,,24181.58,DR,"","","","","",15144014,"",2073/2074,VISHAL JOSHI,VJ075163
+31-JUL-16,7374-00257,PVB,10301-5098,"","SN 221 Being cheque no 15144014 paid to Vishal Joshi for Bill No. , 7172-5439, 7172-5708, 7374-1198, 7374-1190, 7374-1199",NRS,,,48621.78,DR,"","","","","",15144014,"",2073/2074,VISHAL JOSHI,VJ075163
+31-JUL-16,7374-00257,PVB,10301-5098,"","SN 221 Being cheque no 15144014 paid to Vishal Joshi for Bill No. , 7172-5439, 7172-5708, 7374-1198, 7374-1190, 7374-1199",NRS,,,92423.84,DR,"","","","","",15144014,"",2073/2074,VISHAL JOSHI,VJ075163
+31-JUL-16,7374-00257,PVB,10301-5100,"","SN 221 Being cheque no 15144014 paid to Krishna Devi Joshi for Bill No. , 7374-598",NRS,,,30827.53,DR,"","","","","",15144014,"",2073/2074,KRISHNA DEVI JOSHI,KJ160909
+31-JUL-16,7374-00257,PVB,10301-5103,"","SN 221 Being cheque no 15144014 paid to Dinesh Maharjan1 for Bill No. , 7273-17460",NRS,,,22534.28,DR,"","","","","",15144014,"",2073/2074,DINESH MAHARJAN1,""
+*********
+31-JUL-16,7374-00298,RCB,20419,"",RN 412 Being chq no 1760000002 received from Cheque Purchase,NRS,,,3000000,CR,"","","","","",GFL 1760000002,"",2073/2074,Cheque Purchase,""
+*********
+31-JUL-16,7374-00347,RCB,20419,"",RN 374 Being chq no 9165 received from Cheque Purchase,NRS,,,1200000,CR,"","","","","",GFL 9165,"",2073/2074,Cheque Purchase,""
+*********
+31-JUL-16,7374-00341,RCB,20419,"",RN 368 Being chq no 836000007 received from Cheque Purchase,NRS,,,10000000,CR,"","","","","",GFL 836000007,"",2073/2074,Cheque Purchase,""
+31-JUL-16,7374-00341,RCB,20419,"",RN 368 Being chq no 546000011 received from Cheque Purchase,NRS,,,20000000,CR,"","","","","",GFL 546000011,"",2073/2074,Cheque Purchase,""
+*********
+01-AUG-16,7374-00293,PVB,10301-7073,"","SN 257 Being cheque no 15144050 paid to Prakrity Shrestha for Bill No. , 7374-922",NRS,,,91987.36,DR,"","","","","",15144050,"",2073/2074,PRAKRITY SHRESTHA,""
+*********
+05-AUG-16,7374-00080,RCP,10301-4402,"",RN 585 Being cash received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,6050000,CR,"","","","","","","",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+05-AUG-16,7374-00080,RCP,10301-4402,"",RN 585 Being cash received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,2950000,CR,"","","","","","","",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+05-AUG-16,7374-00407,PVB,10301-4402,"",SN 365 Being cheque no 15144162 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,9000000,DR,"","","","","",15144162,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+07-AUG-16,7374-00424,PVB,10301-1802,"",SN 382 Being cheque no 15144179 paid to Kalpana Dhakal,NRS,,,24900.76,DR,"","","","","",15144179,"",2073/2074,KALPANA DHAKAL,""
+07-AUG-16,7374-00424,PVB,10301-7675,"",SN 382 Being cheque no 15144179 paid to Thakur Prasad Bhattrai,NRS,,,24900.76,DR,"","","","","",15144179,"",2073/2074,THAKUR PRASAD BHATTRAI,TB086517
+*********
+09-AUG-16,7374-00488,PVB,10301-4402,"",SN 429 Being cheque no 15144229 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd. Paid int. of 90 lakh @ 24% for 4 days deducting TDS 15% received on 2073.04.21,NRS,,,20120.55,DR,"","","","","",15144229,1,2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+11-AUG-16,7374-00712,RCB,10301-1802,"",RN 743 Being chq no 5204538 received from Kalpana Dhakal 2073-04-26,NRS,,,55841,CR,"","","","","",KBL 5204538,2,2073/2074,KALPANA DHAKAL,""
+11-AUG-16,7374-00712,RCB,10301-7675,"","RN 743 Being chq no 5204538 received from Thakur Prasad Bhattrai for Bill No. , 7374-2695 2073-04-26",NRS,,,255963,CR,"","","","","",KBL 5204538,1,2073/2074,THAKUR PRASAD BHATTRAI,TB086517
+*********
+14-AUG-16,7374-00127,RCP,20422,"",RN 803 Being cash received from Nepse Operating Account,NRS,,,3000000,CR,"","","","","","","",2073/2074,NEPSE OPERATING ACCOUNT,""
+*********
+17-AUG-16,7374-00925,RCB,201000000009,"",RN 922 Being chq no 366865 received from Tank Prasad Gautam(Current),NRS,,,5500000,CR,"","","","","",VBBL 366865,"",2073/2074,TANK PRASAD GAUTAM(CURRENT),""
+*********
+17-AUG-16,7374-00638,PVB,10301-4402,"",SN 583 Being cheque no 15144387 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,10000000,DR,"","","","","",15144387,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+17-AUG-16,7374-00887,RCB,10301-4402,"",RN 949 Being chq no 820861 received from Riddhi Siddhi Multi-Purpose Co-Operative Ltd.,NRS,,,10000000,CR,"","","","","",APEX 820861,"",2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+21-AUG-16,7374-00678,PVB,10301-7716,"",SN 623 Being cheque no 15144430 paid to Bhoj Raj Paudel,NRS,,,19770.54,DR,"","","","","",15144430,"",2073/2074,BHOJ RAJ PAUDEL,""
+21-AUG-16,7374-00678,PVB,10301-8956,"","SN 623 Being cheque no 15144430 paid to Manoj Khatri for Bill No. , 7374-3310",NRS,,,19377.13,DR,"","","","","",15144430,"",2073/2074,MANOJ KHATRI,MK152966
+21-AUG-16,7374-00678,PVB,10301-10563,"","SN 623 Being cheque no 15144430 paid to Mahesh Acharya for Bill No. , 7374-3322",NRS,,,11916.13,DR,"","","","","",15144430,"",2073/2074,MAHESH ACHARYA,MA254994
+21-AUG-16,7374-00678,PVB,10301-10560,"","SN 623 Being cheque no 15144430 paid to Ramesh Bhusal for Bill No. , 7374-3441",NRS,,,19377.77,DR,"","","","","",15144430,"",2073/2074,RAMESH BHUSAL,RB254990
+21-AUG-16,7374-00678,PVB,10301-10186,"","SN 623 Being cheque no 15144430 paid to Sandip Gautam for Bill No. , 7374-3312",NRS,,,11916.13,DR,"","","","","",15144430,"",2073/2074,SANDIP GAUTAM,SG227809
+*********
+31-AUG-16,7374-01170,RCB,201000000009,"",RN 1246 Being chq no 366872 received from Tank Prasad Gautam(Current),NRS,,,5000000,CR,"","","","","",VBBL 366872,"",2073/2074,TANK PRASAD GAUTAM(CURRENT),""
+*********
+04-SEP-16,7374-00942,PVB,10301-4402,"",SN 877 Being cheque no 15177193 paid to Riddhi Siddhi Multi-Purpose Co-Operative Ltd. Paid of 1 crore @ 24 % for 18 days deducting TDS 15% received on 2073-05-01,NRS,,,100602.74,DR,"","","","","",15177193,1,2073/2074,RIDDHI SIDDHI MULTI-PURPOSE CO-OPERATIVE LTD.,""
+*********
+05-SEP-16,7374-00946,PVB,103020100001,"",SN 881 Being cheque no 15177198 paid to Civil Bank Ltd -Current,NRS,,,1000000,DR,"","","","","",15177198,"",2073/2074,CIVIL BANK LTD -CURRENT,""
+*********
+06-SEP-16,7374-00990,PVB,103020100001,"",SN 925 Being cheque no 15177244 paid to Civil Bank Ltd -Current,NRS,,,100000,DR,"","","","","",15177244,"",2073/2074,CIVIL BANK LTD -CURRENT,""
+*********
+07-SEP-16,7374-01000,PVB,20422,"",SN 935 Being cheque no 15177254 paid to Nepse Operating Account,NRS,,,1000000,DR,"","","","","",15177254,"",2073/2074,NEPSE OPERATING ACCOUNT,""
+*********
+07-SEP-16,7374-01013,PVB,201000000009,"",SN 946 Being cheque no 15177266 paid to Tank Prasad Gautam(Current),NRS,,,2500000,DR,"","","","","",15177266,"",2073/2074,TANK PRASAD GAUTAM(CURRENT),""
+07-SEP-16,7374-01013,PVB,201000000009,"",SN 946 Being cheque no 15177265 paid to Tank Prasad Gautam(Current),NRS,,,2500000,DR,"","","","","",15177265,"",2073/2074,TANK PRASAD GAUTAM(CURRENT),""
+*********
+14-SEP-16,7374-01208,PVB,10301-6132,"",SN 1141 Being cheque no 15177469 paid to Ramesh Prasad Shrestha,NRS,,,1000000,DR,"","","","","",15177469,"",2073/2074,RAMESH PRASAD SHRESTHA,""
+*********
+15-SEP-16,7374-01229,PVB,10301-1811,"","SN 1162 Being cheque no 15177491 paid to Tikaram Bhattarai for Bill No. , 7374-5494",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,TIKARAM BHATTARAI,""
+15-SEP-16,7374-01229,PVB,10301-1541,"","SN 1162 Being cheque no 15177491 paid to Ganga Debi Adhikari for Bill No. , 7374-5483",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,GANGA DEBI ADHIKARI,""
+15-SEP-16,7374-01229,PVB,10301-1542,"","SN 1162 Being cheque no 15177491 paid to Sushila Debi Dhakal for Bill No. , 7374-5484",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,SUSHILA DEBI DHAKAL,""
+15-SEP-16,7374-01229,PVB,10301-1544,"","SN 1162 Being cheque no 15177491 paid to Gyanu Dhakal for Bill No. , 7374-5485",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,GYANU DHAKAL,""
+15-SEP-16,7374-01229,PVB,10301-1545,"","SN 1162 Being cheque no 15177491 paid to Dipendra Dhakal for Bill No. , 7374-4301",NRS,,,17653.14,DR,"","","","","",15177491,"",2073/2074,DIPENDRA DHAKAL,D140
+15-SEP-16,7374-01229,PVB,10301-10726,"","SN 1162 Being cheque no 15177491 paid to Hari Pd Baral for Bill No. , 7374-5480",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,HARI PD BARAL,H69
+15-SEP-16,7374-01229,PVB,10301-990,"","SN 1162 Being cheque no 15177491 paid to Indira Devi Dhakal for Bill No. , 7374-5522",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,INDIRA DEVI DHAKAL,""
+15-SEP-16,7374-01229,PVB,10301-7302,"","SN 1162 Being cheque no 15177491 paid to Bhumi Pd Bhattarai for Bill No. , 7374-5501",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,BHUMI PD BHATTARAI,""
+15-SEP-16,7374-01229,PVB,10301-959,"","SN 1162 Being cheque no 15177491 paid to Goma Neupane for Bill No. , 7374-4320",NRS,,,18076.11,DR,"","","","","",15177491,"",2073/2074,GOMA NEUPANE,G87
+15-SEP-16,7374-01229,PVB,10301-962,"","SN 1162 Being cheque no 15177491 paid to Ganga Neupane for Bill No. , 7374-4326",NRS,,,17970.37,DR,"","","","","",15177491,"",2073/2074,GANGA NEUPANE,""
+15-SEP-16,7374-01229,PVB,10301-966,"","SN 1162 Being cheque no 15177491 paid to Mitra Prasad Bhattarai for Bill No. , 7374-5512",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,MITRA PRASAD BHATTARAI,""
+15-SEP-16,7374-01229,PVB,10301-1795,"","SN 1162 Being cheque no 15177491 paid to Ushadip Bhattarai for Bill No. , 7374-5486",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,USHADIP BHATTARAI,""
+15-SEP-16,7374-01229,PVB,10301-1801,"","SN 1162 Being cheque no 15177491 paid to Man Maya Bhattarai for Bill No. , 7374-5487",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,MAN MAYA BHATTARAI,""
+15-SEP-16,7374-01229,PVB,10301-1802,"","SN 1162 Being cheque no 15177491 paid to Kalpana Dhakal for Bill No. , 7374-5488",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,KALPANA DHAKAL,""
+15-SEP-16,7374-01229,PVB,10301-1805,"","SN 1162 Being cheque no 15177491 paid to Tika Kumari Dhungana for Bill No. , 7374-5489",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,TIKA KUMARI DHUNGANA,""
+15-SEP-16,7374-01229,PVB,10301-1806,"","SN 1162 Being cheque no 15177491 paid to Dilliram Acharya for Bill No. , 7374-5490",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,DILLIRAM ACHARYA,""
+15-SEP-16,7374-01229,PVB,10301-1807,"","SN 1162 Being cheque no 15177491 paid to Yog Pd Dhakal for Bill No. , 7374-5491",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,YOG PD DHAKAL,""
+15-SEP-16,7374-01229,PVB,10301-1810,"","SN 1162 Being cheque no 15177491 paid to Tanka Maya Dhungana for Bill No. , 7374-5493",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,TANKA MAYA DHUNGANA,""
+15-SEP-16,7374-01229,PVB,10301-9254,"","SN 1162 Being cheque no 15177491 paid to Pramod Chimoriya for Bill No. , 7374-5506",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,PRAMOD CHIMORIYA,PC170295
+15-SEP-16,7374-01229,PVB,10301-9256,"","SN 1162 Being cheque no 15177491 paid to Padam Kumari Biswokarma for Bill No. , 7374-5507",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,PADAM KUMARI BISWOKARMA,PB170286
+15-SEP-16,7374-01229,PVB,10301-9257,"","SN 1162 Being cheque no 15177491 paid to Samjhana Limbu for Bill No. , 7374-5508",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,SAMJHANA LIMBU,SL170280
+15-SEP-16,7374-01229,PVB,10301-9258,"","SN 1162 Being cheque no 15177491 paid to Manju Limbu for Bill No. , 7374-5509",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,MANJU LIMBU,ML170274
+15-SEP-16,7374-01229,PVB,10301-9259,"","SN 1162 Being cheque no 15177491 paid to Ujel Man Rai for Bill No. , 7374-5510",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,UJEL MAN RAI,UR170269
+15-SEP-16,7374-01229,PVB,10301-9222,"","SN 1162 Being cheque no 15177491 paid to Kiran  Karki for Bill No. , 7374-5504",NRS,,,17811.75,DR,"","","","","",15177491,"",2073/2074,KIRAN  KARKI,KK170264
+15-SEP-16,7374-01229,PVB,10301-10705,"","SN 1162 Being cheque no 15177491 paid to Yashoda Devi Dhakal for Bill No. , 7374-4324",NRS,,,17970.37,DR,"","","","","",15177491,"",2073/2074,YASHODA DEVI DHAKAL,Y15
+*********
+15-SEP-16,7374-01228,PVB,10301-1889,"","SN 1161 Being cheque no 15177490 paid to Bhagirath Poudel for Bill No. , 7374-5815",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,BHAGIRATH POUDEL,""
+15-SEP-16,7374-01228,PVB,10301-1541,"","SN 1161 Being cheque no 15177490 paid to Ganga Debi Adhikari for Bill No. , 7374-5808",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,GANGA DEBI ADHIKARI,""
+15-SEP-16,7374-01228,PVB,10301-1545,"","SN 1161 Being cheque no 15177490 paid to Dipendra Dhakal for Bill No. , 7374-5819",NRS,,,27004.27,DR,"","","","","",15177490,"",2073/2074,DIPENDRA DHAKAL,D140
+15-SEP-16,7374-01228,PVB,10301-10566,"","SN 1161 Being cheque no 15177490 paid to Khag Pd Dhakal for Bill No. , 7374-5802",NRS,,,27004.27,DR,"","","","","",15177490,"",2073/2074,KHAG PD DHAKAL,K211
+15-SEP-16,7374-01228,PVB,10301-974,"","SN 1161 Being cheque no 15177490 paid to Punyawoti Niroula for Bill No. , 7374-5804",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,PUNYAWOTI NIROULA,""
+15-SEP-16,7374-01228,PVB,10301-990,"","SN 1161 Being cheque no 15177490 paid to Indira Devi Dhakal for Bill No. , 7374-5821",NRS,,,26979.71,DR,"","","","","",15177490,"",2073/2074,INDIRA DEVI DHAKAL,""
+15-SEP-16,7374-01228,PVB,10301-965,"","SN 1161 Being cheque no 15177490 paid to Hari Maya Paudel for Bill No. , 7374-5803",NRS,,,27004.27,DR,"","","","","",15177490,"",2073/2074,HARI MAYA PAUDEL,H37
+15-SEP-16,7374-01228,PVB,10301-966,"","SN 1161 Being cheque no 15177490 paid to Mitra Prasad Bhattarai for Bill No. , 7374-5807",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,MITRA PRASAD BHATTARAI,""
+15-SEP-16,7374-01228,PVB,10301-1802,"","SN 1161 Being cheque no 15177490 paid to Kalpana Dhakal for Bill No. , 7374-5805",NRS,,,26832.44,DR,"","","","","",15177490,"",2073/2074,KALPANA DHAKAL,""
+15-SEP-16,7374-01228,PVB,10301-1804,"","SN 1161 Being cheque no 15177490 paid to Goma Devi Acharya for Bill No. , 7374-5806",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,GOMA DEVI ACHARYA,""
+15-SEP-16,7374-01228,PVB,10301-9254,"","SN 1161 Being cheque no 15177490 paid to Pramod Chimoriya for Bill No. , 7374-5613",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,PRAMOD CHIMORIYA,PC170295
+15-SEP-16,7374-01228,PVB,10301-9256,"","SN 1161 Being cheque no 15177490 paid to Padam Kumari Biswokarma for Bill No. , 7374-5812",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,PADAM KUMARI BISWOKARMA,PB170286
+15-SEP-16,7374-01228,PVB,10301-9257,"","SN 1161 Being cheque no 15177490 paid to Samjhana Limbu for Bill No. , 7374-5809",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,SAMJHANA LIMBU,SL170280
+15-SEP-16,7374-01228,PVB,10301-9259,"","SN 1161 Being cheque no 15177490 paid to Ujel Man Rai for Bill No. , 7374-5814",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,UJEL MAN RAI,UR170269
+15-SEP-16,7374-01228,PVB,10301-9271,"","SN 1161 Being cheque no 15177490 paid to Nabina Bohora for Bill No. , 7374-5810",NRS,,,26881.53,DR,"","","","","",15177490,"",2073/2074,NABINA BOHORA,NB170303
+15-SEP-16,7374-01228,PVB,10301-9273,"","SN 1161 Being cheque no 15177490 paid to Rupa Khatri for Bill No. , 7374-5811",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,RUPA KHATRI,RK170324
+15-SEP-16,7374-01228,PVB,10301-9222,"","SN 1161 Being cheque no 15177490 paid to Kiran  Karki for Bill No. , 7374-5813",NRS,,,26906.08,DR,"","","","","",15177490,"",2073/2074,KIRAN  KARKI,KK170264
+*********
