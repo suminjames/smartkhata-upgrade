@@ -42,6 +42,8 @@ body {
 .box-body.content-area {
   min-height: 500px;
   // padding: 25px;
+  p#notice:empty{ display: none } //eliminate unnecessary space
+  form .panel{ margin-bottom: 4px } //make spacing uniform (default 20)
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) { /*safari and chrome*/
