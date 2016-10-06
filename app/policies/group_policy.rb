@@ -1,26 +1,7 @@
-class UserPolicy
+class GroupPolicy < ApplicationPolicy
   attr_reader :current_user, :model
 
-  def initialize(current_user, model)
-    @current_user = current_user
-    @user = model
-  end
+  permit_conditional_access_to_employee_and_above :index, :show, :new
 
-  def index?
-    @current_user.admin?
-  end
-
-  def show?
-    @current_user.admin? or @current_user == @user
-  end
-
-  def update?
-    @current_user.admin?
-  end
-
-  def destroy?
-    return false if @current_user == @user
-    @current_user.admin?
-  end
-
+  permit_custom_access :employee_and_above, new_group_path, [:create, :edit, :update, :destroy]
 end

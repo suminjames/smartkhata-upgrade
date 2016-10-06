@@ -1,10 +1,12 @@
 class ClientAccountsController < ApplicationController
   before_action :set_client_account, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @client_account}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize ClientAccount}, only: [:index, :new, :create, :combobox_ajax_filter]
+
   # GET /client_accounts
   # GET /client_accounts.json
   def index
-    authorize ClientAccount
     @filterrific = initialize_filterrific(
         ClientAccount,
         params[:filterrific],
@@ -62,7 +64,6 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts/1
   # GET /client_accounts/1.json
   def show
-    authorize @client_account
   end
 
   # GET /client_accounts/new
@@ -73,7 +74,6 @@ class ClientAccountsController < ApplicationController
 
   # GET /client_accounts/1/edit
   def edit
-    authorize @client_account
     @from_path = request.referer
   end
 
@@ -96,7 +96,6 @@ class ClientAccountsController < ApplicationController
   # PATCH/PUT /client_accounts/1
   # PATCH/PUT /client_accounts/1.json
   def update
-    authorize @client_account
     from_path = params[:from_path]
 
     respond_to do |format|
@@ -120,7 +119,6 @@ class ClientAccountsController < ApplicationController
   # DELETE /client_accounts/1
   # DELETE /client_accounts/1.json
   def destroy
-    authorize @client_account
     @client_account.destroy
     respond_to do |format|
       format.html { redirect_to client_accounts_url, notice: 'Client account was successfully destroyed.' }

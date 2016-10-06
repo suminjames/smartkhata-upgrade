@@ -1,5 +1,6 @@
 #TODO: Bill status should be (be default) in pending
 class Files::FloorsheetsController < Files::FilesController
+  before_action -> {authorize self}
 
   include CommissionModule
   include ShareInventoryModule
@@ -12,7 +13,6 @@ class Files::FloorsheetsController < Files::FilesController
   THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
 
   def new
-    authorize self
     floorsheets = FileUpload.where(file_type: @@file_type)
     @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
     @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
@@ -24,12 +24,10 @@ class Files::FloorsheetsController < Files::FilesController
   end
 
   def index
-    authorize self
     @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date DESC")
   end
 
   def import
-    authorize self
     # TODO(subas): Catch invalid files where 1) all the 'data rows' are missing 2) File is 'blank'
     #              (Refer to floorsheet controller test for more info)
     #              (Sample files: test/fixtures/files/invalid_files)

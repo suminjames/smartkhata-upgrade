@@ -2,6 +2,10 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
+
+  before_action :authorize_voucher, only: [:index, :pending_vouchers, :new, :create, :finalize_payment, :set_bill_client]
+  before_action :authorize_single_voucher, only: [:show, :edit, :update, :destroy]
+
   layout 'application_custom', only: [:new, :create]
   # GET /vouchers
   # GET /vouchers.json
@@ -304,6 +308,14 @@ class VouchersController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_voucher
     @voucher = Voucher.find(params[:id]).decorate
+  end
+
+  def authorize_voucher
+    authorize Voucher
+  end
+
+  def authorize_single_voucher
+    authorize @voucher
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

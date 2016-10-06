@@ -13,8 +13,10 @@
     <%= link_to "All Internal Ledgers", ledgers_path(show: "all_internal"), {:class => (is_active_sub_menu_option("all_internal") ? "active-link" : "")} %>
     |
     <%= link_to "All Client Ledgers", ledgers_path(show: "all_client"), {:class => (is_active_sub_menu_option("all_client") ? "active-link" : "")} %>
-    |
-    <%= link_to 'New Ledger', new_ledger_path %>
+    <% if is_authorized_to_access? new_ledger_path %>
+      |
+      <%= link_to 'New Ledger', new_ledger_path %>
+    <% end %>
   </h5>
 </div>
 

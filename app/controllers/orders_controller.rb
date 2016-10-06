@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-
+  before_action -> {authorize Order}
   helper_method :is_active_sub_menu_option
 
   def index

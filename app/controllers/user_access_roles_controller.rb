@@ -1,6 +1,9 @@
 class UserAccessRolesController < ApplicationController
   before_action :set_user_access_role, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @user_access_role}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize UserAccessRole}, only: [:index, :new, :create]
+
   # GET /user_access_roles
   # GET /user_access_roles.json
   def index

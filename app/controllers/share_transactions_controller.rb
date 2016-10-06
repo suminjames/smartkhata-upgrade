@@ -1,6 +1,9 @@
 class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel]
+
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
   include ShareInventoryModule

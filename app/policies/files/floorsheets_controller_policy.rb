@@ -1,20 +1,11 @@
 class Files::FloorsheetsControllerPolicy < ApplicationPolicy
-	attr_reader :current_user, :ctlr
+  attr_reader :current_user, :ctlr
 
-  def initialize(current_user, ctlr)
-    @current_user = current_user
+  def initialize(user, ctlr)
+    @user = user
     @ctlr = ctlr
   end
 
-  def new?
-    @current_user.admin? or @current_user.manager? or @current_user.supervisor?
-  end
-
-  def import?
-    @current_user.admin? or @current_user.manager? or @current_user.supervisor?
-  end
-
-  def index?
-    @current_user.admin? or @current_user.manager? or @current_user.supervisor?
-  end
+  permit_conditional_access_to_employee_and_above :new
+  permit_custom_access :employee_and_above, new_files_floorsheet_path, [:index, :import]
 end

@@ -22,5 +22,6 @@
 </table>
 
 <br>
-
-<%= link_to 'New User access role', new_user_access_role_path %>
+<% if is_authorized_to_access? new_user_access_role_path %>
+  <%= link_to 'New User access role', new_user_access_role_path %>
+<% end %>

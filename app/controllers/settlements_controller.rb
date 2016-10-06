@@ -1,6 +1,9 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @settlement}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize Settlement}, only: [:index, :new, :create, :show_multiple]
+
   # # has_scope
   # has_scope :by_settlement_type, only: :index
   # has_scope :by_client_id, only: :index

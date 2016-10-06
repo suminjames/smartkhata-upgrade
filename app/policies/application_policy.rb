@@ -1,7 +1,9 @@
 class ApplicationPolicy
   attr_reader :user, :record
 
-  include Rails.application.routes.url_helpers
+  class << self
+    include Rails.application.routes.url_helpers
+  end
 
   def initialize(user, record)
     @user = user
@@ -40,6 +42,7 @@ class ApplicationPolicy
     Pundit.policy_scope!(user, record.class)
   end
 
+  # Methods to check single user designation with ease
   def sys_admin?
     user.sys_admin?
   end
@@ -48,31 +51,51 @@ class ApplicationPolicy
     user.admin?
   end
 
-  #
-  # authorization for employee and above requires the permitted actions for a user
-  #
-  def employee_and_above?(link=nil)
-    # admin and sys admin dont have restrictions
-    return true if user.admin? || user.sys_admin?
-    if user.employee?
-      # deny access for the urls
-      if link
-        return true if !user.blocked_path_list.include? link
-      else
-        return true if !user.blocked_path_list.include? user.current_url_link
-      end
+  def employee?
+    user.employee?
+  end
 
-    end
-    return false
+  def client?
+    user.client?
+  end
+
+  # blacklisting: the current implementation
+  def authorized_to_access?(link)
+    !user.blocked_path_list.include?(link)
+  end
+
+
+  #
+  # authorization for <designation> and above requires the permitted actions for a user
+  #
+  # admin and sys admin dont have restrictions
+
+  def path_authorized_to_employee_and_above?(link=user.current_url_link)
+    admin_and_above? || (employee? && authorized_to_access?(link))
+  end
+
+  def path_authorized_to_client_and_above?(link=user.current_url_link)
+    admin_and_above? || ((employee? || client?) && authorized_to_access?(link))
+  end
+
+
+  # Methods to check user designation groups
+  def admin_and_above?
+    admin? || sys_admin?
+  end
+
+  def employee_and_above?
+    employee? || admin_and_above?
   end
 
   def client_and_above?
-    user.client? || user.employee? || admin?
+    client? || employee_and_above?
   end
 
   def client_or_agent?
-    user.client? || user.agent?
+    client? || agent?
   end
+
 
   class Scope
     attr_reader :user, :scope
@@ -89,42 +112,76 @@ class ApplicationPolicy
 
   private
 
-  def self.permit_access_to_sysadmin(*actions)
+  # not yet used
+  # def self.permit_unconditional_access_to_sysadmin(*actions)
+  #   actions.each do |action|
+  #     define_method("#{action}?") do
+  #       sys_admin?
+  #     end
+  #   end
+  # end
+
+  def self.permit_unconditional_access_to_admin_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
-        sys_admin?
+        admin_and_above?
       end
     end
   end
 
-  def self.permit_access_to_admin(*actions)
+  # conditional means it also checks whether the user is authorized to access the link, besides user designation.
+  def self.permit_conditional_access_to_employee_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
-        admin?
+        path_authorized_to_employee_and_above?
       end
     end
   end
 
-  def self.permit_access_to_employee_and_above(*actions)
+  def self.permit_conditional_access_to_client_and_above(*actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        path_authorized_to_client_and_above?
+      end
+    end
+  end
+
+  # not yet used
+  # def self.permit_conditional_access_to_client_or_agent(*actions)
+  #   actions.each do |action|
+  #     define_method("#{action}?") do
+  #       # need to define method:
+  #       path_authorized_to_client_or_agent?
+  #     end
+  #   end
+  # end
+
+  def self.permit_custom_access(privilege, path, actions)
+    actions.each do |action|
+      define_method("#{action}?") do
+        privilege = privilege.to_s
+
+        # mapping privilege text to original method
+        # when :employee_and_above => path_authorized_to_employee_and_above?()
+        if privilege == 'employee_and_above'
+          privilege.prepend "path_authorized_to_"
+        end
+        # other CONDITIONAL privilege methods not implemented/used yet: map to default methods
+
+        self.send("#{privilege}?", path)
+      end
+    end
+  end
+
+  # For controllers (& related actions) that are not included in the User Access Role menu
+  def self.permit_unconditional_access_to_employee_and_above(param)
+    # param can be a controller(usual case) or actions array
+    # fetch actions if controller passed
+    actions = (param < ApplicationController) ? param.instance_methods(false) : param
+
     actions.each do |action|
       define_method("#{action}?") do
         employee_and_above?
-      end
-    end
-  end
-
-  def self.permit_access_to_client_and_above(*actions)
-    actions.each do |action|
-      define_method("#{action}?") do
-        client_and_above?
-      end
-    end
-  end
-
-  def self.permit_access_to_client_or_agent(*actions)
-    actions.each do |action|
-      define_method("#{action}?") do
-        client_or_agent?
       end
     end
   end
