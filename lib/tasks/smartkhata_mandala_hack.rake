@@ -448,7 +448,7 @@ namespace :smartkhata_mandala_hack do
             voucher = Voucher.create!(date: voucher_date, date_bs: ad_to_bs_string(voucher_date), voucher_type: Voucher.voucher_types[:receipt])
             is_cash = true
           end
-
+          voucher.complete!
 
 
           particulars.each do |row|
