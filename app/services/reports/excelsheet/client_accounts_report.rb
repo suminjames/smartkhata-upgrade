@@ -35,7 +35,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       extra_infos << "single_"
     end
     if @params && @params[:client_filter].present?
-      sub_headings << "filter: #{@params[:client_filter].gsub('_', ' ')}"
+      sub_headings << "filter: #{@params[:client_filter].sub('no', 'without').gsub('_', ' ')}"
       extra_infos << "filtered_"
     end
     sub_headings << "All clients" if sub_headings.empty?
@@ -46,14 +46,15 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
 
   def populate_data_rows
     # inserts the actual data rows through iteration.
-    normal_style_row = [@styles[:normal_center], *[@styles[:wrap]]*2].insert(2, *[@styles[:normal_style]]*3)
-    striped_style_row = [@styles[:striped_center], *[@styles[:wrap_striped]]*2].insert(2, *[@styles[:striped_style]]*3)
+    normal_style_row = [@styles[:normal_center], @styles[:wrap], @styles[:normal_left], @styles[:int_format], @styles[:normal_left], @styles[:wrap]]
+    striped_style_row = [@styles[:striped_center], @styles[:wrap_striped], @styles[:striped_left], @styles[:int_format_striped], @styles[:striped_left], @styles[:wrap_striped]]
+    # debugger
     @client_accounts.each_with_index do |c, index|
       sn = index + 1
       name = c.name.titleize
       nepse = c.nepse_code
       boid = c.boid
-      contract_nums =  c.commaed_contact_numbers
+      contract_nums = c.commaed_contact_numbers
       email = c.email
 
       row_style = index.even? ? normal_style_row : striped_style_row
