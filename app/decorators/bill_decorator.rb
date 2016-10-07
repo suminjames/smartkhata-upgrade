@@ -129,7 +129,19 @@ class BillDecorator < ApplicationDecorator
   def formatted_client_phones
     phone_1 = client.phone.blank? ? 'N/A' : client.phone
     phone_2 = client.phone_perm.blank? ? 'N/A' : client.phone_perm
-    {"primary" => phone_1, "secondary" => phone_2}
+    phone_3 = client.mobile_number.blank? ? 'N/A' : client.mobile_number
+    {"primary" => phone_1, "secondary" => phone_2, "mobile" => phone_3}
+  end
+
+  def formatted_client_phones_first_row
+    "#{formatted_client_phones['mobile']}"
+  end
+
+  def formatted_client_phones_second_row
+    arr = [formatted_client_phones['primary'],formatted_client_phones['secondary'] ]
+    str = arr.select{|e| e != 'N/A'}.join ", "
+    str = 'N/A' if str.empty?
+    str
   end
 
 
