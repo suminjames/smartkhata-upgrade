@@ -1,0 +1,37 @@
+%p#notice= notice
+- provide(:section_title, "Ledgers")
+
+%div.bottom-buffer-sm
+  = link_to 'New Ledger', new_ledger_path
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Ledger Name
+          = f.collection_select(                        |
+            :by_ledger_id,                              |
+            @filterrific.select_options[:by_ledger_id], |
+            :id,                                        |
+            :name,                                      |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-2
+          %label
+            Ledger Type
+          = f.select(                          |
+            :by_ledger_type,                              |
+            @filterrific.select_options[:by_ledger_type], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+      .row.top-buffer-sm
+        .col-xs-2
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+    = render_filterrific_spinner
+
+= render(partial: 'ledgers/list', locals: { ledgers: @ledgers })
+

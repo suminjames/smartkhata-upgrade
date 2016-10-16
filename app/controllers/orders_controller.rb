@@ -7,15 +7,13 @@ class OrdersController < ApplicationController
         Order,
         params[:filterrific],
         select_options: {
-            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            # by_order_number: Order.options_for_bank_account_select, # text field
-            # by_client_id: Order.options_for_client_select,
+          by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
         },
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? Order.count : 20
     @orders = @filterrific.find.includes(:client_account, [order_details: :isin_info]).page(params[:page]).per(items_per_page)
-    # debugger
+
     respond_to do |format|
       format.html
       format.js

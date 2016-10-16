@@ -1,0 +1,34 @@
+%div#filterrific_results
+
+  - if ledgers.present?
+    = render 'shared/pagination', collection_to_paginate: ledgers
+    %table.table.ledger-list
+      %thead
+        %tr
+      %tbody
+        - ledgers.each do |ledger|
+          %tr
+            %td
+              = ledger.name
+            %td.text-right{style: "padding-right: 40px;"}
+              - amt = number_to_currency(ledger.closing_balance.abs)
+              - if ledger.closing_balance + margin_of_error_amount < 0
+                %span.credit-amount
+                  = "#{amt} Cr"
+              - else
+                %span.debit-amount
+                  = "#{amt} Dr"
+            %td
+              = link_to 'Show', ledger
+              - if ledger.client_account_id.present?
+                - if ledger.closing_balance.abs >= 0.01
+                  |
+                  = link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id)
+                - if ledger.client_account.bills.find_not_settled.present?
+                  |
+                  = link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: ledger.client_account_id)
+    = render 'shared/pagination', collection_to_paginate: ledgers
+
+  - else
+    %div.row.text-center.text-muted.top-buffer-md
+      There are no matching ledgers.
