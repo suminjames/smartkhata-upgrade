@@ -43,7 +43,7 @@ class Print::PrintChequeEntry < Prawn::Document
 
     # Dimensions
     cheque_top = page_height - 0.8.cm
-    cheque_left = -1.2.cm
+    cheque_left = -1.1.cm
 
     font_size(9) do
       # Left (to the perforation) side of the cheque
