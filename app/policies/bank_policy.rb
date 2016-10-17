@@ -1,3 +1,6 @@
 class BankPolicy < ApplicationPolicy
-  permit_access_to_employee_and_above :index, :show, :process_selected, :new
+  # the only action in menu
+  permit_conditional_access_to_employee_and_above :index
+
+  permit_custom_access :employee_and_above, banks_path, [:new, :show, :create, :update, :edit, :destroy]
 end

@@ -47,6 +47,9 @@ div {
   display: table;
 }
 
+// prevent div overflow in forgot password box
+#new_user #error_explanation{width: 100%;}
+
 #error_explanation {
   width: 450px;
   border: 2px solid red;

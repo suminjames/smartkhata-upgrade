@@ -1,5 +1,6 @@
 #TODO: Bill status should be (be default) in pending
 class Files::FloorsheetsController < Files::FilesController
+  before_action -> {authorize self}
 
   include CommissionModule
   include ShareInventoryModule

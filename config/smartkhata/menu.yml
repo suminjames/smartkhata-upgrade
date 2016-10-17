@@ -23,12 +23,6 @@ menus:
     - name: Order
       path: "<%= new_files_order_path %>"
       code: FS_UPL_ORD
-    - name: CloseOut Debit
-      path: "<%= new_files_closeout_path(type: 'debit')  %>"
-      code: FS_UPL_CLD
-    - name: CloseOut Credit
-      path: "<%= new_files_closeout_path(type: 'credit') %>"
-      code: FS_UPL_CLC
   - name: Pending
     code: FS_PND
     menu_items:
@@ -180,3 +174,15 @@ menus:
     - name: SMS History
       path: "<%= sms_messages_path()%>"
       code: RS_SMS_HIS
+- name: Administration
+  code: ADS
+  sub_menus:
+  - name: Roles Management
+    code: ADS_RLM
+    menu_items:
+    - name: View User Roles
+      path: "<%= user_access_roles_path %>"
+      code: ADS_RLM_ARP
+    - name: Create User Role
+      path: "<%= new_user_access_role_path %>"
+      code: ADS_RLM_CUR

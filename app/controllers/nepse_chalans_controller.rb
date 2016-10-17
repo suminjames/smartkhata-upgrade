@@ -1,6 +1,9 @@
 class NepseChalansController < ApplicationController
   before_action :set_nepse_chalan, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @nepse_chalan}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize NepseChalan}, only: [:index, :new, :create]
+
   # GET /nepse_chalans
   # GET /nepse_chalans.json
   def index

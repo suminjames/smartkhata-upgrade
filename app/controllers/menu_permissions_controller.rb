@@ -1,6 +1,9 @@
 class MenuPermissionsController < ApplicationController
   before_action :set_menu_permission, only: [:show, :edit, :update, :destroy]
 
+  before_action :authorize_menu_permission, only: [:index, :new, :create]
+  before_action :authorize_single_menu_permission, only: [:show, :edit, :update, :destroy]
+
   # GET /menu_permissions
   # GET /menu_permissions.json
   def index
@@ -14,7 +17,6 @@ class MenuPermissionsController < ApplicationController
 
   # GET /menu_permissions/new
   def new
-    authorize MenuPermission
     @menu_permission = MenuPermission.new
     @users =  EmployeeAccount.all
   end
@@ -67,6 +69,14 @@ class MenuPermissionsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_menu_permission
     @menu_permission = MenuPermission.find(params[:id])
+  end
+
+  def authorize_menu_permission
+    authorize MenuPermission
+  end
+
+  def authorize_single_menu_permission
+    authorize @menu_permission
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

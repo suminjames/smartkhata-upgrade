@@ -1,5 +1,9 @@
 class ChequeEntriesController < ApplicationController
   before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent]
+
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce, :represent]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce, :represent]
+
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index

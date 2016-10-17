@@ -1,4 +1,5 @@
 class Files::CloseoutsController < Files::FilesController
+  before_action -> {authorize self}
 
   def new
     @closeout_type = params[:type] == 'debit' ? 'debit' : 'credit'

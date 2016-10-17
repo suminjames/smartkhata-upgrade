@@ -64,6 +64,7 @@ class ProcessSalesBillService
         raise ActiveRecord::Rollback
       end
 
+      settlements = []
       @bills.each do |bill|
         bank_account = @bank_account
 
@@ -128,12 +129,15 @@ class ProcessSalesBillService
         particular.save!
 
         settlement = purchase_sales_settlement(voucher, ledger: client_account.ledger, particular: particular, client_account: client_account, settlement_description: description)
-        voucher.settlements << settlement if settlement.present?
+        # voucher.settlements << settlement if settlement.present?
+        particular.cr_settlements << settlement
+        settlements << setttlement
       end
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
       closing_balance = bank_ledger.closing_balance
       short_description = "Settlement by bank payment for settlement ID #{@sales_settlement.settlement_id}"
-      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code)
+      p = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code)
+      particular.cr_settlements << settlement
 
       if description_bills.blank?
         @error_message = "Error while processing, Client may have dues"
@@ -183,7 +187,7 @@ class ProcessSalesBillService
       settler_name = ledger.name
     end
 
-    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
+      settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
     settlement.client_account = client_account
     settlement
   end

@@ -1,6 +1,9 @@
 class CloseoutsController < ApplicationController
   before_action :set_closeout, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @closeout}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize Closeout}, only: [:index, :new, :create]
+
   # GET /closeouts
   # GET /closeouts.json
   def index

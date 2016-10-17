@@ -1,4 +1,5 @@
 class GeneralSettingsController < ApplicationController
+  before_action -> {authorize self}
   before_action :set_return_path
 
   def set_fy

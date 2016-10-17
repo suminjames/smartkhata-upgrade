@@ -2,23 +2,25 @@
 #
 # Table name: settlements
 #
-#  id                :integer          not null, primary key
-#  name              :string
-#  amount            :decimal(, )
-#  date_bs           :string
-#  description       :string
-#  settlement_type   :integer
-#  fy_code           :integer
-#  settlement_number :integer
-#  client_account_id :integer
-#  vendor_account_id :integer
-#  creator_id        :integer
-#  updater_id        :integer
-#  receiver_name     :string
-#  voucher_id        :integer
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  branch_id         :integer
+#  id                        :integer          not null, primary key
+#  name                      :string
+#  amount                    :decimal(, )
+#  date_bs                   :string
+#  description               :string
+#  settlement_type           :integer
+#  fy_code                   :integer
+#  settlement_number         :integer
+#  client_account_id         :integer
+#  vendor_account_id         :integer
+#  creator_id                :integer
+#  updater_id                :integer
+#  receiver_name             :string
+#  voucher_id                :integer
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  branch_id                 :integer
+#  settlement_by_cheque_type :integer          default(0)
+#  date                      :date
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
