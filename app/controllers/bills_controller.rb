@@ -2,6 +2,9 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number]
+  # also :authorize_single_bill(s) when implemented
+
   # layout 'application_custom', only: [:index]
 
   include BillModule
@@ -201,7 +204,6 @@ class BillsController < ApplicationController
   end
 
   def process_selected
-    authorize Bill
     amount_margin_error = 0.01
 
     @back_path = request.referer || bills_path
@@ -242,7 +244,6 @@ class BillsController < ApplicationController
 
   # Entertains ajax requests.
   def show_by_number
-    authorize Bill
     @bill_number = params[:number]
     @bill = nil
     if @bill_number
@@ -266,11 +267,14 @@ class BillsController < ApplicationController
     @bill = Bill.find_by_id!(params[:id]).decorate
   end
 
+  def authorize_bill
+    authorize Bill
+  end
+
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
     params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
   end
-
 
   def set_selected_bills_settlement_params
     # get parameters for voucher types and assign it as journal if not available

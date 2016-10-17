@@ -1,4 +1,7 @@
 <% provide(:section_title, "New Ledger") %>
 <%= render 'form', can_edit_balance: true %>
 
-<%= link_to 'All Ledgers', ledgers_path %>
+<% if is_authorized_to_access? ledgers_path %>
+  <%= link_to 'All Ledgers', ledgers_path %>
+<% end %>
+

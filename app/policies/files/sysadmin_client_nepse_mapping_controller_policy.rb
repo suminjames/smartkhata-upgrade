@@ -1,3 +1,4 @@
 class Files::SysadminClientNepseMappingControllerPolicy < ApplicationPolicy
-  permit_access_to_admin :new, :import, :index, :nepse_phone, :nepse_boid
+  # no controller actions in menu
+  permit_unconditional_access_to_admin_and_above :new, :import, :index, :nepse_phone, :nepse_boid, :get_base_price
 end

@@ -1,6 +1,9 @@
 class VendorAccountsController < ApplicationController
   before_action :set_vendor_account, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @vendor_account}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize VendorAccount}, only: [:index, :new, :create]
+
   # GET /vendor_accounts
   # GET /vendor_accounts.json
   def index

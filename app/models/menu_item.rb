@@ -40,8 +40,8 @@ class MenuItem < ActiveRecord::Base
   validates_uniqueness_of :code
 
   # TODO(subas) optimize this code block
-  def self.black_listed_paths_for_user(user_id)
-    permitted_ids = MenuPermission.where(user_id: user_id).pluck(:menu_item_id)
+  def self.black_listed_paths_for_user(user_access_role_id)
+    permitted_ids = MenuPermission.where(user_access_role_id: user_access_role_id).pluck(:menu_item_id)
     MenuItem.where.not(id: permitted_ids).pluck(:path).to_a
   end
 end

@@ -1,6 +1,9 @@
 class MenuItemsController < ApplicationController
   before_action :set_menu_item, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @menu_item}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize MenuItem}, only: [:index, :new, :create]
+
   # GET /menu_items
   # GET /menu_items.json
   def index

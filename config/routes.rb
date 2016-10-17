@@ -1,8 +1,5 @@
 Rails.application.routes.draw do
-  resources :broker_profiles
-  resources :broker_profiles
-  resources :broker_profiles
-  resources :broker_profiles
+  resources :user_access_roles
   resources :bank_payment_letters do
     collection do
       get 'pending_letters'
@@ -132,7 +129,6 @@ Rails.application.routes.draw do
         post :import
         get 'nepse_phone'
         get 'nepse_boid'
-        get 'boid_nepse'
       end
     end
     resources :sysadmin_trial_balance, only: [:new] do
@@ -149,14 +145,6 @@ Rails.application.routes.draw do
     resources :profitandloss
     resources :trial_balance
     resources :threshold_transactions, only: [:index]
-  end
-
-  namespace 'reports' do
-    resources :audit_trails, only: [:index]
-  end
-
-  namespace 'master_setup' do
-    resources :broker_profiles
   end
 
   get "/test" => "test#index"

@@ -16,33 +16,40 @@
       <div class="icon">
         <i class="ion ion-person-add"></i>
       </div>
-      <a href="<%= client_accounts_path %>" class="small-box-footer">
-        More info <i class="fa fa-arrow-circle-right"></i>
-      </a>
+      <% #if policy(ClientAccount).index? %>
+      <% if is_authorized_to_access? client_accounts_path %>
+        <a href="<%= client_accounts_path %>" class="small-box-footer">
+          More info <i class="fa fa-arrow-circle-right"></i>
+        </a>
+      <% else %>
+        <span class="small-box-footer">&nbsp;</span>
+      <% end %>
     </div>
   </div>
-  <div class="col-xs-4">
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <% if @amount > 0 %>
-            <div class="row box-equivalent">
-              <h3><%= number_to_currency(@amount) %></h3>
-              <p>Net Loss</p>
-            </div>
-        <% else %>
-            <h3><%= number_to_currency(@amount.abs) %></h3>
-            <p>Net Profit</p>
-        <% end %>
+  <% if admin_and_above? %>
+    <div class="col-xs-4">
+      <div class="small-box bg-saroj">
+        <div class="inner">
+          <% if @amount > 0 %>
+              <div class="row box-equivalent">
+                <h3><%= number_to_currency(@amount) %></h3>
+                <p>Net Loss</p>
+              </div>
+          <% else %>
+              <h3><%= number_to_currency(@amount.abs) %></h3>
+              <p>Net Profit</p>
+          <% end %>
+        </div>
+        <div class="icon">
+          <!-- <i class="ion ion-stats-bars"></i> -->
+          <i class="ion ion-cash"></i>
+        </div>
+        <a href="<%= report_profitandloss_index_path %>" class="small-box-footer">
+          More info <i class="fa fa-arrow-circle-right"></i>
+        </a>
       </div>
-      <div class="icon">
-        <!-- <i class="ion ion-stats-bars"></i> -->
-        <i class="ion ion-cash"></i>
-      </div>
-      <a href="<%= report_profitandloss_index_path %>" class="small-box-footer">
-        More info <i class="fa fa-arrow-circle-right"></i>
-      </a>
     </div>
-  </div>
+  <% end %>
 
   <div class="col-xs-4">
     <!-- small box -->
@@ -54,9 +61,13 @@
       <div class="icon">
         <i class="ion ion-arrow-graph-up-right"></i>
       </div>
-      <a href="<%= share_transactions_path %>" class="small-box-footer">
-        More info <i class="fa fa-arrow-circle-right"></i>
-      </a>
+      <% if is_authorized_to_access? share_transactions_path %>
+        <a href="<%= share_transactions_path %>" class="small-box-footer">
+          More info <i class="fa fa-arrow-circle-right"></i>
+        </a>
+      <% else %>
+        <span class="small-box-footer">&nbsp;</span>
+      <% end %>
     </div>
   </div>
 
@@ -72,27 +83,32 @@
         <!-- <i class="ion ion-cash"></i> -->
         <img src="<%= image_url('bill_icon.png') %>" class="bill-image">
       </div>
-      <a href="<%= bills_path %>" class="small-box-footer">
-        More info <i class="fa fa-arrow-circle-right"></i>
-      </a>
+      <% if is_authorized_to_access? bills_path %>
+        <a href="<%= bills_path %>" class="small-box-footer">
+          More info <i class="fa fa-arrow-circle-right"></i>
+        </a>
+      <% else %>
+        <span class="small-box-footer">&nbsp;</span>
+      <% end %>
     </div>
   </div>
 
-  <div class="col-xs-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <h3><%= @pending_voucher_approve_count %></h3>
+  <% if admin_and_above? %>
+    <div class="col-xs-4">
+      <!-- small box -->
+      <div class="small-box bg-saroj">
+        <div class="inner">
+          <h3><%= @pending_voucher_approve_count %></h3>
 
-        <p>Vouchers need Approval</p>
+          <p>Vouchers need Approval</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-document-text"></i>
+        </div>
+        <a href="<%= vouchers_path %>" class="small-box-footer">
+          More info <i class="fa fa-arrow-circle-right"></i>
+        </a>
       </div>
-      <div class="icon">
-        <i class="ion ion-document-text"></i>
-      </div>
-      <a href="<%= vouchers_path %>" class="small-box-footer">
-        More info <i class="fa fa-arrow-circle-right"></i>
-      </a>
     </div>
-  </div>
-
+  <% end %>
 </div>

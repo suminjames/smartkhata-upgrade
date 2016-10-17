@@ -1,6 +1,9 @@
 class ParticularsController < ApplicationController
   before_action :set_particular, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @particular}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize Particular}, only: [:index, :new, :create]
+
   # GET /particulars
   # GET /particulars.json
   def index

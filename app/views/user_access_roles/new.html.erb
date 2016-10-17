@@ -1,0 +1,6 @@
+<% provide(:section_title, "New User Access Role") %>
+<%= render 'form' %>
+
+<% if is_authorized_to_access? user_access_roles_path %>
+  <%= link_to 'Back', user_access_roles_path %>
+<% end %>

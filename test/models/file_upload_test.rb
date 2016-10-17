@@ -5,7 +5,7 @@
 #  id          :integer          not null, primary key
 #  file_type   :integer
 #  report_date :date
-#  ignore      :boolean          default("false")
+#  ignore      :boolean          default(FALSE)
 #  creator_id  :integer
 #  updater_id  :integer
 #  branch_id   :integer

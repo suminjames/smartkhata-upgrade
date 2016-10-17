@@ -1,5 +1,8 @@
 class SalesSettlementsController < ApplicationController
   before_action :set_sales_settlement, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize @sales_settlement}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize SalesSettlement}, only: [:index, :new, :create, :generate_bills]
+
   # helper for smart listing
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
