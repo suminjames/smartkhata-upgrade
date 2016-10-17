@@ -161,7 +161,7 @@ namespace :smartkhata_data do
   end
 
   desc "Upload mandala payment receipt"
-  task :import_payment_receipts, [:tenant] => :environment do |task,args|
+  task :import_payment_receipts, [:tenant, :reverse] => :environment do |task,args|
     if args.tenant.present?
       Apartment::Tenant.switch!(args.tenant)
       UserSession.user= User.first
@@ -178,7 +178,10 @@ namespace :smartkhata_data do
       )
 
       file_upload = SysAdminServices::ImportPaymentsReceipts.new(file_upload_param)
-      file_upload.process
+
+      reverse = args.reverse.present? ? args.reverse : false
+      
+      file_upload.process(reverse)
       file_upload.processed_data
       puts file_upload.error_message
       puts "Task completed " unless file_upload.error_message

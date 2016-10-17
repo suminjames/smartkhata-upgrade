@@ -1,0 +1,25 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  broker_name: MyString
+  broker_number: MyString
+  address: MyString
+  dp_code: 1
+  phone_number: MyString
+  fax_number: MyString
+  email: MyString
+  pan_number: MyString
+  profile_type: 1
+  locale: 1
+
+two:
+  broker_name: MyString
+  broker_number: MyString
+  address: MyString
+  dp_code: 1
+  phone_number: MyString
+  fax_number: MyString
+  email: MyString
+  pan_number: MyString
+  profile_type: 1
+  locale: 1

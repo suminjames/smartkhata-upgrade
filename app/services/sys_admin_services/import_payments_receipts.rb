@@ -3,7 +3,7 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
 
   VOUCHER_CODES = %w(PVB RCB RCP)
   # process the file
-  def process
+  def process(reverse = false)
     open_file(@file)
     unless @error_message
       ActiveRecord::Base.transaction do
@@ -30,23 +30,29 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
           end
 
           description = hash['REMARKS']
+
           _date = Date.parse(hash["ENTERED_DATE"]).strftime('%Y/%m/%d').to_date
 
           voucher = nil
           _amount = hash['AMOUNT'].to_f
+          description = "reverse entry of amount #{_amount} : #{description}"
+
+          debit_particular = reverse ? false : true
+
+          puts "making entry for #{client_account.name}"
 
           if hash["VOUCHER_CODE"] == 'PVB'
             voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:payment])
-            process_accounts(client_ledger, voucher, true, _amount, description, branch_id, _date)
-            process_accounts(bank_ledger, voucher, false, _amount, description, branch_id, _date)
+            process_accounts(client_ledger, voucher, debit_particular, _amount, description, branch_id, _date)
+            process_accounts(bank_ledger, voucher, !debit_particular, _amount, description, branch_id, _date)
           elsif hash["VOUCHER_CODE"] == 'RCB'
             voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:receipt])
-            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, _date)
-            process_accounts(bank_ledger, voucher, true, _amount, description, branch_id, _date)
+            process_accounts(client_ledger, voucher, !debit_particular, _amount, description, branch_id, _date)
+            process_accounts(bank_ledger, voucher, debit_particular, _amount, description, branch_id, _date)
           else
             voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:receipt])
-            process_accounts(client_ledger, voucher, false, _amount, description, branch_id, _date)
-            process_accounts(cash_ledger, voucher, true, _amount, description, branch_id, _date)
+            process_accounts(client_ledger, voucher, !debit_particular, _amount, description, branch_id, _date)
+            process_accounts(cash_ledger, voucher, debit_particular, _amount, description, branch_id, _date)
           end
 
           voucher.desc = description

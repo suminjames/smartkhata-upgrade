@@ -9,8 +9,10 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions.json
   def index
     # this case is for the viewing of transaction by floorsheet date
-    if params[:filterrific].present? &&  params[:filterrific][:by_date].present?
-      @transaction_date = bs_to_ad(params[:filterrific][:by_date])
+    bs_date = params.dig(:filterrific, :by_date)
+    if bs_date.present? && is_valid_bs_date?(bs_date)
+      # this instance variable used in view to generate 'create transaction messages' button
+      @transaction_date = bs_to_ad(bs_date)
     end
 
     @filterrific = initialize_filterrific(
@@ -23,8 +25,17 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-    items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ShareTransaction.all.count : 20
-    @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).page(params[:page]).per(items_per_page)
+    items_per_page = 20
+    if params[:paginate] == 'false'
+      if ['xlsx', 'pdf'].include?(params[:format])
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+      else
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
+      end
+    else
+      @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+    end
 
     @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
@@ -59,7 +70,7 @@ class ShareTransactionsController < ApplicationController
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = 'One of the search options provided is invalid.'
+      flash.now[:error] = e.message
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
@@ -73,167 +84,6 @@ class ShareTransactionsController < ApplicationController
     redirect_to(reset_filterrific_url(format: :html)) and return
 
   end
-  # GET /share_transactions
-  # GET /share_transactions.json
-  # def index
-  #   # default landing action for '/share_transactions'
-  #   if params[:show].blank? && params[:search_by].blank?
-  #     respond_to do |format|
-  #       format.html { redirect_to share_transactions_path(search_by: "client") }
-  #     end
-  #     return
-  #   end
-  #
-  #   # Instance variable used by combobox in view to populate name
-  #   if params[:search_by] == 'client'
-  #     @clients = ClientAccount.all.order(:name)
-  #   end
-  #   # Instance variable used by combobox in view to populate name
-  #   if params[:search_by] == 'company'
-  #     @companies = IsinInfo.all.order(:isin)
-  #   end
-  #
-  #   # Populate (and route when needed) as per the params
-  #   if params[:search_by] == "cancelled"
-  #     @share_transactions = ShareTransaction.cancelled.order(:isin_info_id)
-  #     #  last floorsheet upload date
-  #   elsif params[:search_by] == 'last_working_day'
-  #     #TODO(sarojk): Implement a better way to find the last working day. Maybe something in application helper?
-  #     date = Time.now.to_date
-  #     file_type = FileUpload::file_types[:floorsheet]
-  #     fileupload = FileUpload.where(file_type: file_type).order("report_date desc").limit(1).first;
-  #     if (fileupload.present?)
-  #       date = fileupload.report_date
-  #     end
-  #
-  #     respond_to do |format|
-  #       format.html { redirect_to share_transactions_path(show: 'all', type: 'last_working_day', filter_by: 'date', date: ad_to_bs_string(date)), commit: 'Search' }
-  #     end
-  #     #   to get only the floor sheet details no menus
-  #     #   TODO (incorporate this to show like the others share transaction details)
-  #   elsif params[:search_by] == 'floorsheet_date'
-  #     date_ad = params[:report_date].to_date if params[:report_date].present?
-  #     @share_transactions = ShareTransaction.find_by_date(date_ad).order(:isin_info_id)
-  #     @total_amount = ShareTransaction.find_by_date(date_ad).sum(:share_amount)
-  #     render 'floorsheet_data' and return
-  #   elsif params[:show] == 'all'
-  #     if params[:filter_by] == 'date' && params[:date].present?
-  #       date_bs = params[:date]
-  #       if parsable_date? date_bs
-  #         date_ad = bs_to_ad(date_bs)
-  #         @share_transactions = ShareTransaction.not_cancelled.find_by_date(date_ad).order(:isin_info_id)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
-  #       # The dates being entered are assumed to be BS dates, not AD dates
-  #       date_from_bs = params[:date][:from]
-  #       date_to_bs = params[:date][:to]
-  #       # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-  #       if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-  #         date_from_ad = bs_to_ad(date_from_bs)
-  #         date_to_ad = bs_to_ad(date_to_bs)
-  #         @share_transactions = ShareTransaction.not_cancelled.find_by_date_range(date_from_ad, date_to_ad).order(:isin_info_id)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     else
-  #       @share_transactions = ShareTransaction.not_cancelled.order(:isin_info_id)
-  #     end
-  #   elsif params[:search_by] == 'client' && params[:search_term]
-  #     client_account_id = params[:search_term].to_i
-  #     # @share_transactions to be returned if none of the following conditions are met
-  #     @share_transactions = ShareTransaction.not_cancelled.where(client_account_id: client_account_id).order(:isin_info_id)
-  #     if params[:filter_by] == 'date' && params[:date].present?
-  #       date_bs = params[:date]
-  #       if parsable_date? date_bs
-  #         date_ad = bs_to_ad(date_bs)
-  #         @share_transactions = @share_transactions.find_by_date(date_ad)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
-  #       # The dates being entered are assumed to be BS dates, not AD dates
-  #       date_from_bs = params[:date][:from]
-  #       date_to_bs = params[:date][:to]
-  #       # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-  #       if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-  #         date_from_ad = bs_to_ad(date_from_bs)
-  #         date_to_ad = bs_to_ad(date_to_bs)
-  #         @share_transactions = @share_transactions.find_by_date_range(date_from_ad, date_to_ad)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     end
-  #     if params[:group_by] == 'company'
-  #       @share_transactions = @share_transactions.includes(:isin_info).select("isin_infos.*").order("isin_infos.company").references(:isin_infos)
-  #     end
-  #   elsif params[:search_by] == 'company' && params[:search_term]
-  #     isin_info_id = params[:search_term].to_i
-  #     # @share_transactions to be returned if none of the following conditions are met
-  #     @share_transactions = ShareTransaction.not_cancelled.where(isin_info_id: isin_info_id).order(:isin_info_id)
-  #
-  #     if params[:filter_by] == 'date' && params[:date].present?
-  #       date_bs = params[:date]
-  #       if parsable_date? date_bs
-  #         date_ad = bs_to_ad(date_bs)
-  #         @share_transactions = @share_transactions.find_by_date(date_ad)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     elsif params[:filter_by] == 'date_range' && params[:date].present? && params[:date][:from].present? && params[:date][:to].present?
-  #       # The dates being entered are assumed to be BS dates, not AD dates
-  #       date_from_bs = params[:date][:from]
-  #       date_to_bs = params[:date][:to]
-  #       # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-  #       if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
-  #         date_from_ad = bs_to_ad(date_from_bs)
-  #         date_to_ad = bs_to_ad(date_to_bs)
-  #         @share_transactions = @share_transactions.find_by_date_range(date_from_ad, date_to_ad)
-  #       else
-  #         @share_transactions = ''
-  #         respond_to do |format|
-  #           format.html { render :index }
-  #           flash.now[:error] = 'Invalid date'
-  #           format.json { render json: flash.now[:error], status: :unprocessable_entity }
-  #         end
-  #       end
-  #     end
-  #     if params[:group_by] == 'client'
-  #       @share_transactions = @share_transactions.includes(:client_account).select("client_accounts.*").order("client_accounts.name").references(:client_accounts)
-  #     end
-  #   else
-  #     # Return empty if none of the above arguments (of params) is met
-  #     @share_transactions = []
-  #   end
-  #   @share_transactions = @share_transactions.page(params[:page]).per(20) unless @share_transactions.blank?
-  #   # @share_transactions = @share_transactions.order(:isin_info_id) unless @share_transactions.blank?
-  # end
 
   def deal_cancel
     if params[:id].present?

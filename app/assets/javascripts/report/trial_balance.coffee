@@ -6,6 +6,9 @@
 @parse_number = (data) ->
   return get_num_val(Number($(data).text().replace(/,/g, '')))
 
+@parse_number_from_string = (data) ->
+  return get_num_val(Number(data.replace(/,/g, '')))
+
 @format_number = (data) ->
   return data.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,")
 
