@@ -42,6 +42,7 @@ Rails.application.routes.draw do
       get :bounce
       get :represent
       get :show_multiple
+      get :make_void
     end
 
   end
