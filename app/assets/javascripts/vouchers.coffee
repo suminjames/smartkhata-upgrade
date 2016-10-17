@@ -99,8 +99,10 @@ $ ->
 
 $ ->
   $('form').on 'click', '.removeThisParticular', (event) ->
+
     $(this).closest('div.row.particular').remove()
     event.preventDefault()
+
 
 $(document).on 'click', '.add_fields', (event) ->
   time = new Date().getTime()
@@ -122,6 +124,30 @@ $(document).on 'click', '.add_fields', (event) ->
   fix_autocomplete()
   manage_cheque_all_select()
 
+
+$(document).on 'change', '.voucher_particulars_amount input', (event) ->
+  display_balance_total($(this))
+
+$(document).on 'change', '.type-selector select', (event) ->
+  display_balance_total($(this))
+
+
+display_balance_total = ($this) ->
+  $voucher_element = $this.closest('.voucher .box .box-body')
+  total_block = $voucher_element.find('.total-display')
+  if total_block.length < 1
+    $voucher_element.append("<br/></br><div class='total-display'></div>")
+    total_block = $voucher_element.find('.total-display')
+
+  cr_amount = 0
+  dr_amount = 0
+  $voucher_element.find('.row.particular').each ->
+    amount = parse_number_from_string($(this).find('.voucher_particulars_amount input').val())
+    if $(this).find('.type-selector select').val() == 'cr'
+      cr_amount += amount
+    else
+      dr_amount += amount
+  total_block.html('Debit:' + Math.round(dr_amount * 100) / 100 + ' Credit: ' + Math.round(cr_amount * 100)/ 100 + ' Difference :' + Math.round((Math.abs(dr_amount - cr_amount)) * 100) / 100 )
 
 #  show hide sections based on selection
 manage_group_vendor_entry = ($this) ->

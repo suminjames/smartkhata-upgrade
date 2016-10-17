@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  resources :broker_profiles
+  resources :broker_profiles
+  resources :broker_profiles
+  resources :broker_profiles
   resources :bank_payment_letters do
     collection do
       get 'pending_letters'
@@ -148,6 +152,10 @@ Rails.application.routes.draw do
 
   namespace 'reports' do
     resources :audit_trails, only: [:index]
+  end
+
+  namespace 'master_setup' do
+    resources :broker_profiles
   end
 
   get "/test" => "test#index"

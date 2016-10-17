@@ -39,6 +39,8 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
 
           debit_particular = reverse ? false : true
 
+          puts "making entry for #{client_account.name}"
+
           if hash["VOUCHER_CODE"] == 'PVB'
             voucher = Voucher.create!(date: _date, date_bs: ad_to_bs_string(_date), voucher_type: Voucher.voucher_types[:payment])
             process_accounts(client_ledger, voucher, debit_particular, _amount, description, branch_id, _date)

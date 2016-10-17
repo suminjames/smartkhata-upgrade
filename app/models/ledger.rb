@@ -84,6 +84,43 @@ class Ledger < ActiveRecord::Base
     self.all
   }
 
+  filterrific(
+      default_filter_params: { sorted_by: 'name_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_ledger_id,
+          :by_ledger_type,
+      ]
+  )
+  # scopes for filterrific
+  scope :sorted_by, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^name/
+        order("ledgers.name #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
+  scope :by_ledger_type, -> (type) {
+    if type == 'client'
+      where.not(client_account_id: nil)
+    else
+      where(client_account_id: nil)
+    end
+  }
+  scope :by_ledger_id, -> (id) { where(id: id) }
+
+  # class methods for filterrific
+  def self.options_for_ledger_type
+    ['client', 'internal']
+  end
+
+  def self.options_for_ledger_select(filterrific_params)
+    ledger_id = filterrific_params.try(:dig, 'by_ledger_id') and where(id: ledger_id) or []
+  end
+
+
   #
   # check if the ledger name clashes with system reserved ledger name
   #
