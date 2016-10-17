@@ -1,6 +1,9 @@
 class ShareInventoriesController < ApplicationController
   before_action :set_share_inventory, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @share_inventory}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize ShareInventory}, only: [:index, :new, :create]
+
   # GET /share_inventories
   # GET /share_inventories.json
   def index

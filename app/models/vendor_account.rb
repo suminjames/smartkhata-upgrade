@@ -16,6 +16,7 @@
 
 
 class VendorAccount < ActiveRecord::Base
+  include Auditable
   include ::Models::UpdaterWithBranch
   has_many :ledgers
   has_many :cheque_entries

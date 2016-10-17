@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :user_access_roles
   resources :bank_payment_letters do
     collection do
       get 'pending_letters'

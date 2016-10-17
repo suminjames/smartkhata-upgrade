@@ -1,10 +1,12 @@
 class EmployeeAccountsController < ApplicationController
   before_action :set_employee_account, only: [:show, :edit, :update, :destroy, :update_employee_access, :employee_access]
 
+  before_action -> {authorize @employee_account}, only: [:show, :edit, :update, :destroy, :update_employee_access, :employee_access]
+  before_action -> {authorize EmployeeAccount}, only: [:index, :new, :create, :combobox_ajax_filter]
+
   # GET /employee_accounts
   # GET /employee_accounts.json
   def index
-    authorize EmployeeAccount
     #default landing action for '/ledgers'
     # OPTIMIZE - Refactor
     if params[:search_by].blank? && params[:show].blank?
@@ -37,7 +39,6 @@ class EmployeeAccountsController < ApplicationController
   # GET /employee_accounts/1
   # GET /employee_accounts/1.json
   def show
-    authorize @employee_account
   end
 
   # GET /employee_accounts/new
@@ -48,7 +49,6 @@ class EmployeeAccountsController < ApplicationController
 
   # GET /employee_accounts/1/edit
   def edit
-    authorize @employee_account
   end
 
   # POST /employee_accounts
@@ -101,7 +101,6 @@ class EmployeeAccountsController < ApplicationController
   end
 
   def employee_access
-    authorize @employee_account
     if params[:type] == 'ledger_access'
       @ledgers = Ledger.all.order(:name)
       render :edit_employee_ledger_association and return
@@ -117,7 +116,6 @@ class EmployeeAccountsController < ApplicationController
   # POST/update_menu_access
   def update_employee_access
     # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
-    authorize @employee_account
     if params[:edit_type] == 'ledger_access'
       # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
       ActiveRecord::Base.transaction do
@@ -135,17 +133,11 @@ class EmployeeAccountsController < ApplicationController
         end
       end
     elsif params[:edit_type] == 'menu_access'
-      # get menu ids
-      menu_ids = []
-      menu_ids = params[:employee_account][:menu_ids].map(&:to_i) if params[:employee_account].present? && params[:employee_account][:menu_ids].present?
+      user_role_id = params[:employee_account][:user_access_role_id] || nil
       ActiveRecord::Base.transaction do
-        # delete previously set records
-        # TODO(SUBAS) remove only the changed ones
-        # create only the changed ones
-        MenuPermission.delete_previous_permissions_for(@employee_account.user_id)
-        menu_ids.each do |menu_id|
-          MenuPermission.create!(user_id: @employee_account.user_id, menu_item_id: menu_id)
-        end
+        u = @employee_account.user
+        u.user_access_role_id = user_role_id
+        u.save!
       end
       redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
     elsif params[:edit_type] == 'branch_access'
@@ -167,7 +159,6 @@ class EmployeeAccountsController < ApplicationController
   # DELETE /employee_accounts/1
   # DELETE /employee_accounts/1.json
   def destroy
-    authorize @employee_account
     @employee_account.destroy
     respond_to do |format|
       format.html { redirect_to employee_accounts_url, notice: 'Employee account was successfully destroyed.' }
@@ -195,6 +186,14 @@ class EmployeeAccountsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_employee_account
     @employee_account = EmployeeAccount.find(params[:id])
+  end
+
+  def authorize_employee_account
+    authorize EmployeeAccount
+  end
+
+  def authorize_single_employee_account
+    authorize @employee_account
   end
 
   def employee_account_menu_params

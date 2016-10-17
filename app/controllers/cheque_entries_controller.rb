@@ -1,5 +1,8 @@
 class ChequeEntriesController < ApplicationController
   before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent, :make_void]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce, :represent]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce, :represent]
+
   # GET /cheque_entries
   # GET /cheque_entries.json
   def index
@@ -113,26 +116,6 @@ class ChequeEntriesController < ApplicationController
     respond_to do |format|
       format.html { render plain: cheque_number.to_s }
       format.json { render json: cheque_number, status: :ok }
-    end
-  end
-
-  #
-  # Make the cheque_entry Void.
-  # - Change status of cheque_entry to void
-  # - Reverse the voucher entry associated with the cheque_entry
-  #   - reverse settlement
-  # Notes:
-  # - Receipt cheque and Payment cheque can both be void
-  # - Receipt cheque can only be bounced and represented
-  # - Void cheque can't be represented
-  #
-  def make_void
-    @back_path = request.referer || @cheque_entry
-    if @cheque_entry.printed? || @cheque_entry.bounced? || @cheque_entry.void?
-      redirect_to @back_path, :flash => {:error => 'The cheque entry can not be made void. It is either printed, voided or bounced already.'} and return
-    else
-      reject(:void, @back_path, @back_path)
-      redirect_to @back_path
     end
   end
 

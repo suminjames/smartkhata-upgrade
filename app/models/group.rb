@@ -15,6 +15,8 @@
 #
 
 class Group < ActiveRecord::Base
+  include Auditable
+
   include ::Models::Updater
   include FiscalYearModule
 

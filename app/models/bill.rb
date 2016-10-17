@@ -25,6 +25,9 @@
 #
 
 class Bill < ActiveRecord::Base
+
+  include Auditable
+
   extend CustomDateModule
   include CustomDateModule
 

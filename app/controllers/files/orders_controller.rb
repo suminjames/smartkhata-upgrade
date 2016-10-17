@@ -1,4 +1,5 @@
 class Files::OrdersController < Files::FilesController
+  before_action -> {authorize self}
   helper_method :is_active_sub_menu_option
 
   @@file_type = FileUpload::file_types[:orders]

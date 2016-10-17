@@ -19,6 +19,7 @@
 
 require 'net/http'
 class SmsMessage < ActiveRecord::Base
+  include Auditable
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranchFycode

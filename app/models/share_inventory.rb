@@ -32,6 +32,7 @@
 #
 
 class ShareInventory < ActiveRecord::Base
+  include Auditable
   include ::Models::UpdaterWithBranch
 
 

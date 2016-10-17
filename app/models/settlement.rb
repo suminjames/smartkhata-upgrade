@@ -27,7 +27,7 @@ class Settlement < ActiveRecord::Base
   class << self
     include CustomDateModule
   end
-
+  include Auditable
   include ::Models::UpdaterWithBranchFycode
 
   before_create :assign_settlement_number

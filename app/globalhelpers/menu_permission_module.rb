@@ -30,8 +30,8 @@ module MenuPermissionModule
   # user id should be passed because this method is also being called from user model
   # and model dont have access to current_user helper
   #
-  def get_blocked_path_list(user_id = current_user.id)
-    MenuItem.black_listed_paths_for_user(user_id)
+  def get_blocked_path_list(user_access_role_id = current_user.user_access_role_id)
+    MenuItem.black_listed_paths_for_user(user_access_role_id)
   end
 
   #

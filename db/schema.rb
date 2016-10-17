@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160930120323) do
+ActiveRecord::Schema.define(version: 20160928044427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -469,15 +469,15 @@ ActiveRecord::Schema.define(version: 20160930120323) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "menu_item_id"
-    t.integer  "user_id"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.integer  "user_access_role_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
 
   add_index "menu_permissions", ["creator_id"], name: "index_menu_permissions_on_creator_id", using: :btree
   add_index "menu_permissions", ["menu_item_id"], name: "index_menu_permissions_on_menu_item_id", using: :btree
   add_index "menu_permissions", ["updater_id"], name: "index_menu_permissions_on_updater_id", using: :btree
-  add_index "menu_permissions", ["user_id"], name: "index_menu_permissions_on_user_id", using: :btree
+  add_index "menu_permissions", ["user_access_role_id"], name: "index_menu_permissions_on_user_access_role_id", using: :btree
 
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0
@@ -762,6 +762,14 @@ ActiveRecord::Schema.define(version: 20160930120323) do
   add_index "transaction_messages", ["bill_id"], name: "index_transaction_messages_on_bill_id", using: :btree
   add_index "transaction_messages", ["client_account_id"], name: "index_transaction_messages_on_client_account_id", using: :btree
 
+  create_table "user_access_roles", force: :cascade do |t|
+    t.integer  "role_type",   default: 0
+    t.string   "role_name"
+    t.text     "description"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -790,6 +798,7 @@ ActiveRecord::Schema.define(version: 20160930120323) do
     t.string   "invited_by_type"
     t.integer  "invitations_count",      default: 0
     t.integer  "branch_id"
+    t.integer  "user_access_role_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

@@ -28,6 +28,7 @@
 #
 
 class Particular < ActiveRecord::Base
+  include Auditable
   include CustomDateModule
   include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode

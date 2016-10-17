@@ -27,6 +27,8 @@
 
 
 class ChequeEntry < ActiveRecord::Base
+  include Auditable
+
   extend CustomDateModule
   include CustomDateModule
   include ::Models::UpdaterWithBranch

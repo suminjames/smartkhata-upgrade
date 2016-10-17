@@ -5,14 +5,14 @@
 #  id                  :integer          not null, primary key
 #  name                :string
 #  client_code         :string
-#  opening_blnc        :decimal(15, 4)   default("0.0")
-#  closing_blnc        :decimal(15, 4)   default("0.0")
+#  opening_blnc        :decimal(15, 4)   default(0.0)
+#  closing_blnc        :decimal(15, 4)   default(0.0)
 #  creator_id          :integer
 #  updater_id          :integer
 #  fy_code             :integer
 #  branch_id           :integer
-#  dr_amount           :decimal(15, 4)   default("0.0"), not null
-#  cr_amount           :decimal(15, 4)   default("0.0"), not null
+#  dr_amount           :decimal(15, 4)   default(0.0), not null
+#  cr_amount           :decimal(15, 4)   default(0.0), not null
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  group_id            :integer
@@ -20,8 +20,8 @@
 #  client_account_id   :integer
 #  employee_account_id :integer
 #  vendor_account_id   :integer
-#  opening_balance_org :decimal(15, 4)   default("0")
-#  closing_balance_org :decimal(15, 4)   default("0")
+#  opening_balance_org :decimal(15, 4)   default(0.0)
+#  closing_balance_org :decimal(15, 4)   default(0.0)
 #
 
 # TODO Testings
@@ -81,6 +81,24 @@ class LedgerTest < ActiveSupport::TestCase
     @ledger.opening_blnc = -500
     @ledger.positive_amount
     assert_equal "can't be negative or blank", @ledger.errors[:opening_blnc][0]
+  end
+
+  # testing filterrific method
+  test "options_for_ledger_select should return appropriate values" do
+    params_to_test = [
+      nil, #initial state
+      {"reset_filterrific"=>"true"}, #when resetting param
+      {},
+      {"by_ledger_id"=>99999, "by_ledger_type"=>""} #imaginary id
+    ]
+
+    # note: assert_empty will fail if nil returned
+    params_to_test.each do |param|
+      assert_empty Ledger.options_for_ledger_select(param), 'return value not empty when the argument is "#{param.inspect}"'
+    end
+
+    # usual hash
+    refute_empty Ledger.options_for_ledger_select({"by_ledger_id"=>@ledger.id, "by_ledger_type"=>""})
   end
 
 # Unable to sign-in

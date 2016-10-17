@@ -1,6 +1,9 @@
 class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel]
+
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
   include ShareInventoryModule
@@ -9,8 +12,10 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions.json
   def index
     # this case is for the viewing of transaction by floorsheet date
-    if params[:filterrific].present? &&  params[:filterrific][:by_date].present?
-      @transaction_date = bs_to_ad(params[:filterrific][:by_date])
+    bs_date = params.dig(:filterrific, :by_date)
+    if bs_date.present? && is_valid_bs_date?(bs_date)
+      # this instance variable used in view to generate 'create transaction messages' button
+      @transaction_date = bs_to_ad(bs_date)
     end
 
     @filterrific = initialize_filterrific(
@@ -24,8 +29,13 @@ class ShareTransactionsController < ApplicationController
     ) or return
 
     items_per_page = 20
-    if params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format])
-      @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+    if params[:paginate] == 'false'
+      if ['xlsx', 'pdf'].include?(params[:format])
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+      else
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
+      end
     else
       @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
     end
@@ -63,7 +73,7 @@ class ShareTransactionsController < ApplicationController
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = 'One of the search options provided is invalid.'
+      flash.now[:error] = e.message
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end

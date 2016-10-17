@@ -1,6 +1,9 @@
 class SmsMessagesController < ApplicationController
   before_action :set_sms_message, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @sms_message}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize SmsMessage}, only: [:index, :new, :create]
+
   # GET /sms_messages
   # GET /sms_messages.json
   def index

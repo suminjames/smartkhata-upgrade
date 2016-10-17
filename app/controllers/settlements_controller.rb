@@ -1,6 +1,9 @@
 class SettlementsController < ApplicationController
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @settlement}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize Settlement}, only: [:index, :new, :create, :show_multiple]
+
   # GET /settlements
   # GET /settlements.json
   def index

@@ -2,11 +2,38 @@ class LedgersController < ApplicationController
   before_action :set_ledger, only: [:show, :edit, :update, :destroy]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
+  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance]
+  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
+
   # GET /ledgers
   # GET /ledgers.json
   def index
-    authorize Ledger
     #default landing action for '/ledgers'
+      @filterrific = initialize_filterrific(
+          Ledger,
+          params[:filterrific],
+          select_options: {
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
+          },
+          persistence_id: false
+      ) or return
+      items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
+      @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
+      respond_to do |format|
+        format.html
+        format.js
+      end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+    rescue ActiveRecord::RecordNotFound => e
+      # There is an issue with the persisted param_set. Reset it.
+      puts "Had to reset filterrific params: #{ e.message }"
+      redirect_to(reset_filterrific_url(format: :html)) and return
+
+=begin
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
@@ -14,7 +41,7 @@ class LedgersController < ApplicationController
       end
       return
     end
-    
+
     if params[:show] == "all"
       @ledgers = Ledger.all.includes(:client_account).order(:name).page(params[:page]).per(20)
     elsif params[:show] == "all_client"
@@ -36,6 +63,7 @@ class LedgersController < ApplicationController
       @ledgers = []
     end
     @selected_ledger_for_combobox_in_arr = @ledgers
+=end
     # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
     # TODO chain .decorate function
     # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
@@ -44,7 +72,6 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
-    authorize @ledger
     @back_path = request.referer || ledgers_path
     ledger_query = Ledgers::Query.new(params, @ledger)
 
@@ -91,7 +118,6 @@ class LedgersController < ApplicationController
 
   # GET /ledgers/1/edit
   def edit
-    authorize @ledger
     @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
     # @can_edit_balance = false
   end
@@ -150,7 +176,6 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1.json
   def update
     @can_edit_balance = params[:can_edit_balance]
-    authorize @ledger
     respond_to do |format|
       if @ledger.update_custom(ledger_params)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
@@ -165,7 +190,6 @@ class LedgersController < ApplicationController
   # DELETE /ledgers/1
   # DELETE /ledgers/1.json
   def destroy
-    authorize @ledger
     @ledger.destroy
     respond_to do |format|
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
@@ -190,7 +214,6 @@ class LedgersController < ApplicationController
   end
 
   def daybook
-    authorize Ledger
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @daybook_ledgers = Ledger.daybook_ledgers
@@ -209,7 +232,6 @@ class LedgersController < ApplicationController
   end
 
   def cashbook
-    authorize Ledger
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @cashbook_ledgers = Ledger.cashbook_ledgers
@@ -230,7 +252,6 @@ class LedgersController < ApplicationController
 
   # Get list of group members
   def group_members_ledgers
-    authorize Ledger
     if params[:client_account_id]
       @client_account_id = params[:client_account_id].to_i
       @client_account = ClientAccount.find(@client_account_id)
@@ -240,7 +261,6 @@ class LedgersController < ApplicationController
   end
 
   def transfer_group_member_balance
-    authorize Ledger
     client_account = ClientAccount.find(@client_account_id)
     @back_path = request.referer || group_member_ledgers_path
 

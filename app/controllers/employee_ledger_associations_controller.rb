@@ -1,6 +1,9 @@
 class EmployeeLedgerAssociationsController < ApplicationController
   before_action :set_employee_ledger_association, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @employee_ledger_association}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize EmployeeLedgerAssociation}, only: [:index, :new, :create]
+
   # GET /employee_ledger_associations
   # GET /employee_ledger_associations.json
   def index
