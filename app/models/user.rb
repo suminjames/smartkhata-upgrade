@@ -34,6 +34,8 @@
 #
 
 class User < ActiveRecord::Base
+  include Auditable
+
   include MenuPermissionModule
 
   enum role: [:user, :client, :agent, :employee, :admin, :sys_admin]

@@ -22,6 +22,7 @@
 
 
 class OrderDetail < ActiveRecord::Base
+  include Auditable
   belongs_to :isin_info
 
   enum state: [:cancelled, :executed, :queued]

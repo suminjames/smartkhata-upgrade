@@ -79,7 +79,7 @@
             cheque_amount = arabic_number(cheque.amount)
         %>
             <br>
-            <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque.cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %>
+            <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %>
             <% bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
         <%
           end

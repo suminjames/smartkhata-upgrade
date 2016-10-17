@@ -43,6 +43,7 @@
 #
 
 class ShareTransaction < ActiveRecord::Base
+  include Auditable
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch

@@ -33,6 +33,17 @@ module CustomDateModule
     return @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
   end
 
+  # Checks whether or not a date_bs is valid
+  def is_valid_bs_date? (bs_date)
+    begin
+      bs_to_ad(bs_date)
+    rescue RuntimeError
+      # handle invalid date
+      return false
+    end
+    return true
+  end
+
   # Checks if a date is parsable. This is different from checking if the date is valid.
   # For instance: 2012-02-31 is a parsable date format but not a valid date.
   # params date - is primarily a string (but can also a date object)

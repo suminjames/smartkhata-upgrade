@@ -9,6 +9,31 @@ class LedgersController < ApplicationController
   # GET /ledgers.json
   def index
     #default landing action for '/ledgers'
+      @filterrific = initialize_filterrific(
+          Ledger,
+          params[:filterrific],
+          select_options: {
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
+          },
+          persistence_id: false
+      ) or return
+      items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
+      @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
+      respond_to do |format|
+        format.html
+        format.js
+      end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+    rescue ActiveRecord::RecordNotFound => e
+      # There is an issue with the persisted param_set. Reset it.
+      puts "Had to reset filterrific params: #{ e.message }"
+      redirect_to(reset_filterrific_url(format: :html)) and return
+
+=begin
     # OPTIMIZE - Refactor
     if params[:show].blank? && params[:search_by].blank?
       respond_to do |format|
@@ -38,6 +63,7 @@ class LedgersController < ApplicationController
       @ledgers = []
     end
     @selected_ledger_for_combobox_in_arr = @ledgers
+=end
     # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
     # TODO chain .decorate function
     # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
