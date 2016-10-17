@@ -49,6 +49,8 @@ class ChequeEntry < ActiveRecord::Base
   has_many :particulars_on_receipt, through: :receipts, source: :particular
   has_many :particulars, through: :cheque_entry_particular_associations
 
+  has_many :settlements, through: :particulars
+
 
   has_many :vouchers, through: :particulars
 
@@ -148,11 +150,6 @@ class ChequeEntry < ActiveRecord::Base
     ]
   end
 
-  #
-  # A cheque can be printed only if it is
-  #  -payment
-  #  -assigned
-  #
   def can_print_cheque?
     if self.receipt? || self.printed? || self.unassigned?|| self.void?
       return false

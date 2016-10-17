@@ -24,17 +24,35 @@
 #
 
 class Settlement < ActiveRecord::Base
+  class << self
+    include CustomDateModule
+  end
   include Auditable
-  include CustomDateModule
-  extend CustomDateModule
   include ::Models::UpdaterWithBranchFycode
 
   before_create :assign_settlement_number
   before_save :add_date_from_date_bs
 
-  belongs_to :voucher
   belongs_to :client_account
   belongs_to :vendor_account
+
+  has_and_belongs_to_many :particulars
+  has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
+  has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
+  has_many :particular_settlement_associations
+
+  has_many :debited_particulars, through: :for_dr, source: :particular
+  has_many :credited_particulars, through: :for_cr, source: :particular
+  has_many :particulars, through: :particular_settlement_associations
+
+  #
+  # # Father of all hacks :)
+  # # careful with the mapping between the type i.e settlement and cr dr of association
+  # has_many :for_cheque, -> { settlement_type == "receipt" ? cr : dr }, class_name: "ParticularSettlementAssociation"
+  # has_many :cheque_particulars, through: :debited_particulars, source: :particular
+  has_many :cheque_entries, through: :debited_particulars
+
+
 
   enum settlement_type: [:receipt, :payment]
   enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
@@ -90,29 +108,45 @@ class Settlement < ActiveRecord::Base
   }
 
 
-  scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
+  # Old implementation! Delete when successful migration to new implementation.
+  # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
+
+  scope :not_rejected, -> { joins( :particulars => [:voucher]).where(vouchers: {voucher_status: Voucher.voucher_statuses[:complete]}) }
 
 
-  def cheque_entries
-    cheque_entries = []
-    cheque_numbers = Set.new
-    # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
-    if self.voucher.cheque_entries.present?
-      self.voucher.cheque_entries.uniq.each do |cheque|
-        if self.has_single_cheque? && cheque.client_account_id == self.client_account_id || !self.has_single_cheque?
-          # in some rare cases when same account is receiving and paying
-          # duplicate records are being seen
+  # TODO(sarojk): IMPORTANT! Older model implementation. Delete after migration and no hiccups.
+  # def associated_cheque_entries
+  #   cheque_entries_arr = Set.new
+  #   associated_particulars = self.payment? ? self.debited_particulars : self.credited_particulars
+  #   associated_particulars.each do |particular|
+  #     particular.cheque_entries.each do |cheque_entry|
+  #       cheque_entries_arr.add(cheque_entry)
+  #     end
+  #   end
+  #   cheque_entries_arr
+  # end
 
-          cheque_entries << cheque unless cheque_numbers.include? cheque.cheque_number
-          cheque_numbers.add cheque.cheque_number
-        end
-      end
-    end
-    cheque_entries
-  end
+  # TODO(sarojk): IMPORTANT! Older model implementation. Delete after migration and no hiccups.
+  # def cheque_entries
+  #   cheque_entries = []
+  #   cheque_numbers = Set.new
+  #   # The following (nested) if logic has been borrowed from Subas's code in settlements#show view.
+  #   if self.voucher.cheque_entries.present?
+  #     self.voucher.cheque_entries.uniq.each do |cheque|
+  #       if self.has_single_cheque? && cheque.client_account_id == self.client_account_id || !self.has_single_cheque?
+  #         # in some rare cases when same account is receiving and paying
+  #         # duplicate records are being seen
+  #
+  #         cheque_entries << cheque unless cheque_numbers.include? cheque.cheque_number
+  #         cheque_numbers.add cheque.cheque_number
+  #       end
+  #     end
+  #   end
+  #   cheque_entries
+  # end
 
   def add_date_from_date_bs
-    self.date = bs_to_ad(self.date_bs)
+    self.date = self.class.bs_to_ad(self.date_bs)
   end
 
   def self.options_for_settlement_type_select

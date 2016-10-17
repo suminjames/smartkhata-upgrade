@@ -214,11 +214,15 @@ class Vouchers::Create < Vouchers::Base
     error_message = nil
     res = false
     settlement = nil
+    settlements = []
 
     Voucher.transaction do
       # @receipt = nil
+      # Processed_bills are the bills that are in the scope of this voucher.
       processed_bills.each(&:save)
+      # bills that were created earlier and are about to get settled through this voucher.
       voucher.bills_on_settlement << processed_bills
+
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
       # voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
 
@@ -232,6 +236,7 @@ class Vouchers::Create < Vouchers::Base
       voucher.particulars.each do |particular|
         particular.transaction_date = voucher.date
         particular.date_bs = voucher.date_bs
+        # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
 
         ledger = Ledger.find(particular.ledger_id)
@@ -269,14 +274,14 @@ class Vouchers::Create < Vouchers::Base
             # if the cheque received from client is already entered to system reject it
             if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
               voucher.settlements = []
-              error_message = "Cheque Number is already taken"
+              error_message = "Cheque number is already taken"
               raise ActiveRecord::Rollback
             end
 
             # If cheque_entry is printed, reject the new voucher creation (with the cheque entry)
             if cheque_entry.printed?
               voucher.settlements = []
-              error_message = "Cheque Number provided is already taken. Therefore, a new cheque number has automatically been assigned."
+              error_message = "Cheque number provided is already taken. Therefore, a new cheque number has automatically been assigned."
               raise ActiveRecord::Rollback
             end
 
@@ -310,9 +315,20 @@ class Vouchers::Create < Vouchers::Base
 
         if is_payment_receipt && voucher_settlement_type == 'default'
           settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills)
-          voucher.settlements << settlement if settlement.present?
+          # TODO()
+          # voucher.settlements << settlement if settlement.present?
+          # particular.settlements << settlement if settlement.present?
+          # TODO(sarojk): Verify if settlement is created for payment and credit
+          if voucher.payment?
+            particular.debit_settlements << settlement if settlement.present?
+          else
+            particular.credit_settlements << settlement if settlement.present?
+          end
+          settlements << settlement if settlement.present?
         end
 
+        # In case of payment by bank, it has to be approved.  For others, make final entry to the db.
+        # It affects balances, etc.
         unless voucher.is_payment_bank
           # ledger.lock!
           # # closing_balance = ledger.closing_balance
@@ -341,7 +357,22 @@ class Vouchers::Create < Vouchers::Base
             vendor_account: vendor_account,
             receipt_amount: receipt_amount
         )
-        voucher.settlements << settlement if settlement.present?
+        voucher.particulars.select{|x| x.dr?}.each do |p|
+          p.debit_settlements << settlement
+        end
+        voucher.particulars.select{|x| x.cr?}.each do |p|
+          p.credit_settlements << settlement
+        end
+      elsif is_payment_receipt
+        if voucher.payment?
+          voucher.particulars.select{|x| x.cr?}.each do |p|
+            p.credit_settlements << settlements
+          end
+        else
+          voucher.particulars.select{|x| x.dr?}.each do |p|
+            p.debit_settlements << settlements
+          end
+        end
       end
 
       # mark the voucher as settled if it is not payment bank

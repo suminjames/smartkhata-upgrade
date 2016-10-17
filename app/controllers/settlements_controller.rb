@@ -24,14 +24,13 @@ class SettlementsController < ApplicationController
 
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
+    # TODO(sarojk): Due to new implmentation of model associations, where conditions below are probably redundant. Get rid of them as necessary after migration.
     if ['xlsx', 'pdf'].include?(params[:format])
-      # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).decorate
-      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).decorate
+      @settlements = @filterrific.find.not_rejected.includes(:particulars => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).decorate
     else
-      # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).page(params[:page]).per(items_per_page).decorate
-      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
-
+      @settlements = @filterrific.find.not_rejected.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
+
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
     respond_to do |format|
