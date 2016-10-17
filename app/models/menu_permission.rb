@@ -13,6 +13,7 @@
 
 
 class MenuPermission < ActiveRecord::Base
+  include Auditable
   include ::Models::Updater
   belongs_to :menu_item
 

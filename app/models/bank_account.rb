@@ -19,6 +19,7 @@
 #
 
 class BankAccount < ActiveRecord::Base
+  include Auditable
   include ::Models::UpdaterWithBranch
   attr_reader :bank_account_name
   # attr_accessor :opening_balance, :opening_balance_type

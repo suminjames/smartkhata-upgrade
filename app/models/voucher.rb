@@ -21,6 +21,7 @@
 #
 
 class Voucher < ActiveRecord::Base
+  include Auditable
   # include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule

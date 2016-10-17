@@ -1,0 +1,26 @@
+%p#notice= notice
+- provide(:section_title, "Audit Trail")
+%div#audit_trail_list
+  %table.table.table-striped
+    %thead
+      %th.col-xs-1= 'S.N.'
+      %th.col-xs-1= 'User'
+      %th.col-xs-2= 'Action'
+      %th.col-xs-1= 'Changed Type'
+      %th.col-xs-1= 'Remote IP'
+      %th.col-xs-1= "Details"
+    %tbody
+      -if @audit_trails.size > 0
+        -pagination_count = kaminari_serial_number(params[:page], @audit_trails.limit_value)
+        -@audit_trails.each_with_index do |audit_trail, index|
+          %tr
+            %td= pagination_count + index
+            %td= audit_trail.user.try(:name) ? audit_trail.user.try(:name) : "SYSTEM"
+            %td= audit_trail.action
+            %td= audit_trail.auditable_type
+            %td= audit_trail.remote_address
+            %td= audit_trail.detailed_info.gsub(/\n/, '<br/>').html_safe
+  - if @audit_trails.size == 0
+    %div.row.text-center.top-buffer-md
+      There are no matching bills.
+= render 'shared/pagination', collection_to_paginate: @audit_trails

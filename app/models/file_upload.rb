@@ -14,6 +14,7 @@
 #
 
 class FileUpload < ActiveRecord::Base
+  include Auditable
   include ::Models::UpdaterWithBranch
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword

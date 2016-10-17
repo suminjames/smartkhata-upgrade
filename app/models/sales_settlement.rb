@@ -13,6 +13,7 @@
 #
 
 class SalesSettlement < ActiveRecord::Base
+  include Auditable
   enum status: [:pending, :complete]
   include ::Models::Updater
   has_many :bills

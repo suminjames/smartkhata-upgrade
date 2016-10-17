@@ -82,3 +82,5 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
+
+gem "audited", "~> 4.3"

@@ -151,6 +151,10 @@ Rails.application.routes.draw do
     resources :threshold_transactions, only: [:index]
   end
 
+  namespace 'reports' do
+    resources :audit_trails, only: [:index]
+  end
+
   namespace 'master_setup' do
     resources :broker_profiles
   end
