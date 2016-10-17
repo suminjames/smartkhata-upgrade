@@ -119,6 +119,26 @@ class ChequeEntriesController < ApplicationController
     end
   end
 
+  #
+  # Make the cheque_entry Void.
+  # - Change status of cheque_entry to void
+  # - Reverse the voucher entry associated with the cheque_entry
+  #   - reverse settlement
+  # Notes:
+  # - Receipt cheque and Payment cheque can both be void
+  # - Receipt cheque can only be bounced and represented
+  # - Void cheque can't be represented
+  #
+  def make_void
+    @back_path = request.referer || @cheque_entry
+    if @cheque_entry.printed? || @cheque_entry.bounced? || @cheque_entry.void?
+      redirect_to @back_path, :flash => {:error => 'The cheque entry can not be made void. It is either printed, voided or bounced already.'} and return
+    else
+      reject(:void, @back_path, @back_path)
+      redirect_to @back_path
+    end
+  end
+
   # GET /cheque_entries/bounce
   def bounce
     @back_path = request.referer || cheque_entries_path
