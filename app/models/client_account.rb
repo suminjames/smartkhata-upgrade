@@ -70,7 +70,9 @@
 class ClientAccount < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
-  after_create :create_ledger
+  attr_accessor :skip_validation_for_file
+
+  # after_create :create_ledger
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator, class_name: 'User'
@@ -89,10 +91,11 @@ class ClientAccount < ActiveRecord::Base
   belongs_to :branch
 
   # 36 fields present. Validate accordingly!
-  validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :unless => :nepse_code?
-  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_presence_of :name, :unless => :nepse_code?
+  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm, unless: :skip_validation_for_file
+
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_file
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_file
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
@@ -148,6 +151,10 @@ class ClientAccount < ActiveRecord::Base
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
+
+  def skip_or_nepse_code_present?
+    nepse_code? || skip_validation_for_file
+  end
 
   validate :bank_details_present?
 
