@@ -164,7 +164,7 @@ class ChequeEntriesController < ApplicationController
         end
 
         @cheque_entry.void!
-        new_voucher.commplete!
+        new_voucher.complete!
 
       end
     else
