@@ -21,13 +21,15 @@ class SettlementsController < ApplicationController
 
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
-    if ['xlsx', 'pdf'].include?(params[:format])
-      # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).decorate
-      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).decorate
-    else
-      # @settlements = @filterrific.find.not_rejected.includes(voucher: :cheque_entries).page(params[:page]).per(items_per_page).decorate
-      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
+    void_int = ChequeEntry.statuses[:void]
+    bounced_int = ChequeEntry.statuses[:bounced]
 
+    if ['xlsx', 'pdf'].include?(params[:format])
+      # @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).decorate
+      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where("(cheque_entries.status IS NULL OR (cheque_entries.status != :void_int AND cheque_entries.status != :bounced_int)) AND (settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL)", :void_int => void_int, :bounced_int => bounced_int).order(order_parameter).references(:cheque_entries).decorate
+    else
+      # @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where('settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL').order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
+      @settlements = @filterrific.find.not_rejected.includes(:voucher => {:cheque_entries => [{:bank_account => :bank}, :additional_bank]}).where("(cheque_entries.status IS NULL OR (cheque_entries.status != :void_int AND cheque_entries.status != :bounced_int)) AND (settlements.client_account_id = cheque_entries.client_account_id OR cheque_entries.client_account_id is NULL)", :void_int => void_int, :bounced_int => bounced_int).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
