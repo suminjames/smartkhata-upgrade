@@ -11,10 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160928044427) do
+ActiveRecord::Schema.define(version: 20161006110708) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "audits", force: :cascade do |t|
+    t.integer  "auditable_id"
+    t.string   "auditable_type"
+    t.integer  "associated_id"
+    t.string   "associated_type"
+    t.integer  "user_id"
+    t.string   "user_type"
+    t.string   "username"
+    t.string   "action"
+    t.text     "audited_changes"
+    t.integer  "version",         default: 0
+    t.string   "comment"
+    t.string   "remote_address"
+    t.string   "request_uuid"
+    t.datetime "created_at"
+  end
+
+  add_index "audits", ["associated_id", "associated_type"], name: "associated_index", using: :btree
+  add_index "audits", ["auditable_id", "auditable_type"], name: "auditable_index", using: :btree
+  add_index "audits", ["created_at"], name: "index_audits_on_created_at", using: :btree
+  add_index "audits", ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
+  add_index "audits", ["user_id", "user_type"], name: "user_index", using: :btree
 
   create_table "bank_accounts", force: :cascade do |t|
     t.string   "account_number"
@@ -126,6 +149,23 @@ ActiveRecord::Schema.define(version: 20160928044427) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "broker_profiles", force: :cascade do |t|
+    t.string   "broker_name"
+    t.string   "broker_number"
+    t.string   "address"
+    t.integer  "dp_code"
+    t.string   "phone_number"
+    t.string   "fax_number"
+    t.string   "email"
+    t.string   "pan_number"
+    t.integer  "profile_type"
+    t.integer  "locale"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "broker_profiles", ["profile_type"], name: "index_broker_profiles_on_profile_type", using: :btree
 
   create_table "calendars", force: :cascade do |t|
     t.text     "bs_date",                        null: false
@@ -276,6 +316,22 @@ ActiveRecord::Schema.define(version: 20160928044427) do
   add_index "closeouts", ["branch_id"], name: "index_closeouts_on_branch_id", using: :btree
   add_index "closeouts", ["creator_id"], name: "index_closeouts_on_creator_id", using: :btree
   add_index "closeouts", ["updater_id"], name: "index_closeouts_on_updater_id", using: :btree
+
+  create_table "dp_wise_transactions", force: :cascade do |t|
+    t.decimal  "settlement_id",  precision: 18
+    t.decimal  "cm_id",          precision: 18
+    t.string   "client_code"
+    t.decimal  "boid",           precision: 18
+    t.integer  "typee",                         default: 0
+    t.decimal  "qty_expected",   precision: 18
+    t.decimal  "qty_actual",     precision: 18
+    t.decimal  "qty_difference", precision: 18
+    t.integer  "isin_info_id"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+  end
+
+  add_index "dp_wise_transactions", ["isin_info_id"], name: "index_dp_wise_transactions_on_isin_info_id", using: :btree
 
   create_table "employee_accounts", force: :cascade do |t|
     t.string   "name"

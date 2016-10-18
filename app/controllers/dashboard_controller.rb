@@ -33,8 +33,21 @@ class DashboardController < ApplicationController
 
     @pending_voucher_approve_count = Voucher.pending.count
 
-    @custom_url_list = [
-        {url: "asf", name: "create ledger"}
-    ]
+    # @custom_url_list = [
+    #     {url: "asf", name: "create ledger"}
+    # ]
   end
+
+  def client_index
+    authorize :dashboard, :index?
+
+    client_id  = 2078
+    @client_account = ClientAccount.find_by_id(client_id)
+    @client_info_hash = {}
+    @client_info_hash[:pending_bills_count] = @client_account.bills.pending.size
+    @client_info_hash[:pending_bills_path] = @client_account.pending_bills_path
+    @client_info_hash[:ledger_closing_balance] = @client_account.ledger_closing_balance
+    @client_info_hash[:share_inventory] = @client_account.share_inventory
+  end
+
 end

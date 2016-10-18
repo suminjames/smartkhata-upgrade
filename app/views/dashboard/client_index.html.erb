@@ -1,0 +1,72 @@
+<%= provide(:section_title, "Client Dashboard") %>
+
+<div class="row">
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%= @client_account.name.titleize %></h3>
+        <p>Account Information</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-person"></i>
+      </div>
+      <% if is_authorized_to_access? client_accounts_path %>
+          <a href="<%= client_account_path(@client_account.id) %>" class="small-box-footer">
+            More info <i class="fa fa-arrow-circle-right"></i>
+          </a>
+      <% else %>
+          <span class="small-box-footer">&nbsp;</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <h3><%= @client_info_hash[:pending_bills_count]%></h3>
+        <p>Pending Bills</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-document-text"></i>
+      </div>
+      <% if is_authorized_to_access? bills_path %>
+          <a href="<%= @client_info_hash[:pending_bills_path] %>" class="small-box-footer">
+            More info <i class="fa fa-arrow-circle-right"></i>
+          </a>
+      <% else %>
+          <span class="small-box-footer">&nbsp;</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="col-xs-4">
+    <!-- small box -->
+    <div class="small-box bg-saroj">
+      <div class="inner">
+        <%
+          balance = @client_info_hash[:ledger_closing_balance].abs
+          balance_type = ''
+          if balance > 0
+            balance_type = 'Dr'
+          elsif balance < 0
+            balance_type = 'Cr'
+          elsif balance == 0
+            balance_type = ''
+          end
+        %>
+        <h3> NRs. <%= "#{arabic_number(balance)} #{balance_type}" %></h3>
+        <p>Outstanding Balance</p>
+      </div>
+      <div class="icon">
+        <i class="ion ion-cash"></i>
+      </div>
+      <p>
+        &nbsp;
+      </p>
+    </div>
+  </div>
+
+</div>

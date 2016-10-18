@@ -40,8 +40,8 @@ class ShareTransactionsController < ApplicationController
       @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
     end
 
-    @download_path_xlsx = share_transactions_path({format:'xlsx'}.merge params)
-    @download_path_pdf = share_transactions_path({format:'pdf'}.merge params)
+    @download_path_xlsx = share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    @download_path_pdf = share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
 
     @print_path_pdf_in_regular = share_transactions_path({format:'pdf'}.merge params)
     @print_path_pdf_in_letter_head =share_transactions_path({format:'pdf', print_in_letter_head: 1}.merge params)
