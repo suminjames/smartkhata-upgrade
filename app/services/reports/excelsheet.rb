@@ -74,6 +74,7 @@ class Reports::Excelsheet
     border_right = {border: {style: :thin, color: "d2d6de", edges: [:right]}} #color: "808080"
     border_top_right = {border: {style: :thin, color: "d2d6de", edges: [:top, :right]}} #color: "00"
     bg_striped = {bg_color: "f9f9f9"}
+    bg_grey = {bg_color: "d3d3d3"}
     bg_white = {bg_color: "FF"}
     h_center = {alignment: {horizontal: :center}}
     v_center = {alignment: {vertical: :center}}
@@ -95,6 +96,7 @@ class Reports::Excelsheet
     float = {num_fmt: 4}.merge normal
     int = {num_fmt: 1}.merge normal
     total = {b: true}.merge border
+    # total_distinct = {b: true}.merge(border).merge(bg_grey)
     wrap = {alignment: {wrap_text: true, vertical: :center}}
 
     styles_to_add = {
@@ -134,12 +136,50 @@ class Reports::Excelsheet
       broker_info: left.merge(plain),
       total_values: total,
       total_values_float: total.merge(float),
-      total_keyword: total.merge(right)
+      total_keyword: total.merge(right),
     }
+
+    # the hook for injecting additional child-specific styles
+    if defined? additional_styles
+      # provide predefined style helpers
+      # note: the keys of the helper array below (& thus related styles) are used by child classes, thus should not be changed haphazardly!
+      style_helpers = {
+        border: border,
+        border_right: border_right,
+        border_top_right: border_top_right,
+        bg_striped: bg_striped,
+        bg_grey: bg_grey,
+        bg_white: bg_white,
+        h_center: h_center,
+        v_center: v_center,
+        complete_center: complete_center,
+        left: left,
+        right: right,
+        muted: muted,
+        center_clear: center_clear,
+        plain: plain,
+        separator: separator,
+        normal: normal,
+        striped: striped,
+        doc_header_style: doc_header_style,
+        doc_sub_header_style: doc_sub_header_style,
+        table_header_style: table_header_style,
+        float: float,
+        int: int,
+        total: total,
+        wrap: wrap
+      }
+      # debugger
+
+      # merge the additional styles hash returned
+      styles_to_add.merge!(additional_styles(style_helpers))
+    end
+
+
     @styles = styles_to_add.inject(Hash.new){|p,w| p[w[0]] = obj.add_style(w[1]); p}
   end
 
-  def add_document_headings_base(heading, sub_heading, *additional_infos)
+  def add_document_headings_base(heading, sub_heading=nil, *additional_infos)
     # Current tenant info
     if t = @current_tenant
       broker_info = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
@@ -153,7 +193,7 @@ class Reports::Excelsheet
     end
     add_header_row(heading, :heading)
     add_blank_row
-    add_header_row(sub_heading, :sub_heading)
+    add_header_row(sub_heading, :sub_heading) if sub_heading
 
     # Additional query info (eg.dates)
     yield if block_given?
