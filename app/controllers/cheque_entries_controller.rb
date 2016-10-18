@@ -303,7 +303,7 @@ class ChequeEntriesController < ApplicationController
       redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 
-    voucher = @cheque_entry.vouchers.order(id: :asc).uniq.  last
+    voucher = @cheque_entry.vouchers.order(id: :asc).uniq.last
 
     ActiveRecord::Base.transaction do
       # create a new voucher and add the bill reference to it
