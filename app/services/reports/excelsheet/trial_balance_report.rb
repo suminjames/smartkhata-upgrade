@@ -9,6 +9,10 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
     generate_excelsheet if data_present?
   end
 
+  def data_present?
+    data_present_or_set_error(@balance_report, "No Data To export!")
+  end
+
   def additional_styles(style_helpers)
     # the hook for injecting additional styles: should return a hash
     total_distinct = style_helpers[:total].merge(style_helpers[:bg_grey])
@@ -18,10 +22,6 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
       total_values_distinct: total_distinct.merge(style_helpers[:float]).deep_merge(style_helpers[:right]),
       table_sub_header: {sz: 14}.merge(style_helpers[:normal])
     }
-  end
-
-  def data_present?
-    data_present_or_set_error(@balance_report, "No Data To export!")
   end
 
   def prepare_document
@@ -53,7 +53,6 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
     @balance_report.each do |group, ledgers|
       # sub content header row
       @sheet.add_row [group, *['']*6], style: @styles[:table_sub_header], height: 30
-      # debugger
       @sheet.merge_cells "#{@sheet.rows.last.cells.first.r}:#{@sheet.rows.last.cells.last.r}" # r:alphanumeric cell reference
 
       # initialize total values
@@ -79,7 +78,6 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
         total_net_credit += net_credit
         total_closing_blnc_cr += closing_blnc_cr.to_f
         total_closing_blnc_dr += closing_blnc_dr.to_f
-        # debugger
       end
 
       # sub content total row
@@ -104,7 +102,6 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
 
     # Fixed width for first column which may be elongated by document headers
     @sheet.column_info.first.width = 30
-    # @sheet.column_widths 12, 40, nil, nil, nil, nil, 15, 15
   end
 
 end

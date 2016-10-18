@@ -96,7 +96,6 @@ class Reports::Excelsheet
     float = {num_fmt: 4}.merge normal
     int = {num_fmt: 1}.merge normal
     total = {b: true}.merge border
-    # total_distinct = {b: true}.merge(border).merge(bg_grey)
     wrap = {alignment: {wrap_text: true, vertical: :center}}
 
     styles_to_add = {
@@ -120,9 +119,6 @@ class Reports::Excelsheet
       wrap: normal.merge(wrap),
       wrap_striped: striped.merge(wrap),
 
-      # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
-      # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
-
       int_format: int,
       int_format_striped: int.merge(bg_striped),
       int_format_left: int.deep_merge(left),
@@ -137,6 +133,9 @@ class Reports::Excelsheet
       total_values: total,
       total_values_float: total.merge(float),
       total_keyword: total.merge(right),
+
+      # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
+      # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
     }
 
     # the hook for injecting additional child-specific styles
@@ -169,12 +168,10 @@ class Reports::Excelsheet
         total: total,
         wrap: wrap
       }
-      # debugger
 
       # merge the additional styles hash returned
       styles_to_add.merge!(additional_styles(style_helpers))
     end
-
 
     @styles = styles_to_add.inject(Hash.new){|p,w| p[w[0]] = obj.add_style(w[1]); p}
   end
