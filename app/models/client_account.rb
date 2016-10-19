@@ -266,9 +266,10 @@ class ClientAccount < ActiveRecord::Base
     Rails.application.routes.url_helpers.bills_path("filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
   end
 
-  def share_inventory
-    self
+  def share_inventory_path
+    Rails.application.routes.url_helpers.share_transactions_path("filterrific[by_client_id]":"#{self.id}")
   end
+
 
   def ledger_closing_balance
     self.ledger.closing_balance

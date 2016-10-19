@@ -40,14 +40,14 @@ class DashboardController < ApplicationController
 
   def client_index
     authorize :dashboard, :index?
-
     client_id  = 2078
     @client_account = ClientAccount.find_by_id(client_id)
     @client_info_hash = {}
     @client_info_hash[:pending_bills_count] = @client_account.bills.pending.size
     @client_info_hash[:pending_bills_path] = @client_account.pending_bills_path
     @client_info_hash[:ledger_closing_balance] = @client_account.ledger_closing_balance
-    @client_info_hash[:share_inventory] = @client_account.share_inventory
+    @client_info_hash[:grouped_share_inventories] = ShareInventory.group_by_isin_for_client(@client_account.id)
+    @client_info_hash[:share_inventory_path] = @client_account.share_inventory_path
   end
 
 end
