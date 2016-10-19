@@ -9,7 +9,7 @@
 
 
 tenant = Tenant.find_or_create_by!(name: "dipshikha", dp_id: '11000')
-tenant.update(full_name: 'Dipshikha Dhitopatra Karobar Company Pvt. Ltd.', address: 'Anamnagar, Kathmandu', phone_number: '977-1-4444444', fax_number: '977-1-4444444', pan_number: '55555555', broker_code: '38')
+tenant.update(full_name: 'Dipshikha Dhitopatra Karobar Company Pvt. Ltd.', address: 'Anamnagar, Kathmandu', phone_number: '977-1-4102532', fax_number: '977-1-4444444', pan_number: '55555555', broker_code: '38')
 tenant = Tenant.find_or_create_by!(name: "trishakti", dp_id: '11400')
 tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '48')
 # tenant = Tenant.find_or_create_by!(name: "public", dp_id: '11400')
