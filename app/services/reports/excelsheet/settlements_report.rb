@@ -92,6 +92,6 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
     # @sheet.column_info.first.width = 5
 
     # problems with auto width
-    @sheet.column_widths 6, nil, nil, 25, 18
+    @sheet.column_widths 6, nil, nil, 25, 18, nil, 55
   end
 end
