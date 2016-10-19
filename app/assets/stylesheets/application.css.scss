@@ -26,8 +26,10 @@ body {
 }
 
 .container {
-  width: 1170px;
-  max-width: none !important;
+  min-width: 1170px;
+  //max-width: none !important;
+  max-width: 1366px;
+  width: 100%;
 }
 
 .navbar-header {

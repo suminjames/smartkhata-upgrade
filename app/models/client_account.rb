@@ -72,7 +72,7 @@ class ClientAccount < ActiveRecord::Base
 
   include ::Models::UpdaterWithBranch
 
-  attr_accessor :skip_validation_for_file
+  attr_accessor :skip_validation_for_system
 
   # after_create :create_ledger
 
@@ -94,10 +94,10 @@ class ClientAccount < ActiveRecord::Base
 
   # 36 fields present. Validate accordingly!
   validates_presence_of :name, :unless => :nepse_code?
-  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm, unless: :skip_validation_for_file
+  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm, unless: :skip_validation_for_system
 
-  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_file
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_file
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
@@ -141,6 +141,10 @@ class ClientAccount < ActiveRecord::Base
         where(:boid => [nil, '']).order('name asc')
       when 'no_nepse_code'
         where(:nepse_code => [nil, '']).order('name asc')
+      when 'with_boid'
+        where.not(:boid => [nil, '']).order('name asc')
+      when 'with_nepse_code'
+        where.not(:nepse_code => [nil, '']).order('name asc')
     end
   }
 
@@ -155,7 +159,7 @@ class ClientAccount < ActiveRecord::Base
   }
 
   def skip_or_nepse_code_present?
-    nepse_code? || skip_validation_for_file
+    nepse_code? || skip_validation_for_system
   end
 
   validate :bank_details_present?
@@ -281,20 +285,17 @@ class ClientAccount < ActiveRecord::Base
         ["without any Phone Number", "no_any_phone_number"],
         ["without Email", "no_email"],
         ["without BOID", "no_boid"],
-        ["without Nepse Code", "no_nepse_code"]
+        ["without Nepse Code", "no_nepse_code"],
+        ["with BOID", "with_boid"]
     ]
   end
 
   def self.pretty_string_of_filter_identifier(filter_identifier)
     filter_identifier ||= ''
     pretty_string = ''
-    arr = [
-        ["without Mobile Number", "no_mobile_number"],
-        ["without any Phone Number", "no_any_phone_number"],
-        ["without Email", "no_email"],
-        ["without BOID", "no_boid"],
-        ["without Nepse Code", "no_nepse_code"]
-    ]
+
+    arr = self.options_for_client_filter
+
     arr.each do |sub_arr|
       if filter_identifier == sub_arr[1]
         pretty_string = sub_arr[0]
@@ -346,6 +347,16 @@ class ClientAccount < ActiveRecord::Base
         new_ledger.save!
       end
     end
+  end
+
+
+
+  def can_be_invited_by_email?
+    user_id.blank? && email.present?
+  end
+
+  def can_assign_username?
+    user_id.blank? && boid.present?
   end
 
 end

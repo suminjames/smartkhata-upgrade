@@ -112,6 +112,10 @@ menus:
     - name: Clients
       path: "<%= client_accounts_path %>"
       code: RG_CLR_CLI
+    - name: Invite Clients
+      path: "<%= client_accounts_path(invite: true) %>"
+      code: RG_CLR_CIN
+      hide_on_main_navigation: true
   - name: Employee Register
     code: RG_EMR
     menu_items:

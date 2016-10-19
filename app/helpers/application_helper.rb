@@ -125,4 +125,17 @@ module ApplicationHelper
   def admin_and_above?
     current_user.admin? || current_user.sys_admin?
   end
+
+  def can_invite_users?
+    is_authorized_to_access?(client_accounts_path(invite: true))
+  end
+
+  def get_user_name_from_boid(boid)
+    new_boid = boid[-8,8]
+    new_boid.sub!(/^[0]+/,'')
+    unless new_boid.length >= 4
+      new_boid = boid[-4,4]
+    end
+    new_boid
+  end
 end

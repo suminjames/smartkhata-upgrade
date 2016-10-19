@@ -49,7 +49,7 @@ class ImportSysadminFile < ImportFile
             )
             if client_account.present?
               client_account.nepse_code = hash['Client Code']
-              client_account.skip_validation_for_file = true
+              client_account.skip_validation_for_system = true
               client_account.save!
             else
               puts 'wtf'
