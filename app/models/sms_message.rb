@@ -233,9 +233,8 @@ class SmsMessage < ActiveRecord::Base
     end
   end
 
-  # Encodes the message specifically encoding the (white)space
   def self.message= (msg)
-    @message = self.replace_at_sign(msg)
+    @message = msg
   end
 
   def self.replace_at_sign(msg)
