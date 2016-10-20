@@ -56,6 +56,7 @@ class Ledger < ActiveRecord::Base
 
   #TODO(subas) remove updation of closing balance
   validates_presence_of :name
+  # TODO(subas/saroj) look for uncommenting this.
   # validates_presence_of :group_id
   validate :positive_amount, on: :create
   before_create :update_closing_blnc
@@ -119,7 +120,6 @@ class Ledger < ActiveRecord::Base
     ledger_id = filterrific_params.try(:dig, 'by_ledger_id') and where(id: ledger_id) or []
   end
 
-
   #
   # check if the ledger name clashes with system reserved ledger name
   #
@@ -138,6 +138,48 @@ class Ledger < ActiveRecord::Base
     end
   end
 
+  # def update_custom(params)
+  #   valid = false
+  #   self.name = params[:name]
+  #   self.group_id = params[:group_id]
+  #   self.vendor_account_id= params[:vendor_account_id]
+  #
+  #   if params[:ledger_balances_attributes]
+  #     ledger_balances = []
+  #     branch_ids = []
+  #     total_balance = 0.0
+  #
+  #     params[:ledger_balances_attributes].values.each do |balance|
+  #       ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
+  #       self.association(:ledger_balances).add_to_target(ledger_balance)
+  #     end
+  #
+  #     self.ledger_balances.each do |balance|
+  #       if balance.opening_balance >=0
+  #         if branch_ids.include?(balance.branch_id)
+  #           balance.errors.add(:branch_id, "cant have multiple entry")
+  #           valid = false
+  #           break
+  #         end
+  #         valid = true
+  #         branch_ids << balance.branch_id
+  #         total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+  #         next
+  #       end
+  #       valid = false
+  #       balance.errors.add(:opening_balance, "cant be a negative amount")
+  #       break
+  #     end
+  #
+  #     if valid
+  #       self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
+  #       self.save
+  #     else
+  #       false
+  #     end
+  #   end
+  # end
+
   def update_custom(params)
     valid = true
     self.name = params[:name]
@@ -147,13 +189,13 @@ class Ledger < ActiveRecord::Base
     # TODO(sarojk): Remove this hack.
     # The following validations should have been trigerred while performing self.save. However, to avoid breaking of things at the moment, validations are done here.
 
-    if self.name.blank?
-      self.errors.add(:name, "can't be blank")
+    if self.group_id.blank?
+      self.errors.add(:group_id, "can't be blank")
       valid = false
     end
 
-    if self.group_id.blank?
-      self.errors.add(:group_id, "can't be blank")
+    if self.name.blank?
+      self.errors.add(:name, "can't be blank")
       valid = false
     end
 
@@ -164,8 +206,11 @@ class Ledger < ActiveRecord::Base
       # Associate passed in ledger_balances to this ledger object, but do not commit to db, yet!
       # 'add_to_target' ensures its not committed to db.
       params[:ledger_balances_attributes].values.each do |balance|
-        ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
-        self.association(:ledger_balances).add_to_target(ledger_balance)
+        # For some reasons, empty hashes of ledger balances is being sent from dom even when ledger balances are removed using the remove button. Check for their presence.
+        if balance.present?
+          ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
+          self.association(:ledger_balances).add_to_target(ledger_balance)
+        end
       end
 
       self.ledger_balances.each do |balance|
@@ -176,7 +221,6 @@ class Ledger < ActiveRecord::Base
             valid = false
             break
           end
-          valid = valid && true
           branch_ids << balance.branch_id
           total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
           next
