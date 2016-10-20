@@ -100,7 +100,7 @@ Rails.application.routes.draw do
   end
   resources :particulars
   root to: 'visitors#index'
-  devise_for :users
+  devise_for :users, :controllers => { :invitations => 'users/invitations' }
   resources :users, except: [:new, :create, :edit]
 
   match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]

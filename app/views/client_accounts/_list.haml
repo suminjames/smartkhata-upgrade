@@ -16,30 +16,46 @@
   = render 'shared/pagination', collection_to_paginate: client_accounts
 
   %div#client_account_list
-    %table.table.table-striped
-      %thead
-        %th.col-xs-1= 'S.N.'
-        %th.col-xs-2= 'Name'
-        %th.col-xs-1= 'Nepse Code'
-        %th.col-xs-2= 'BOID'
-        %th.col-xs-2= 'Phone'
-        %th.col-xs-2= 'Email'
-        %th.col-xs-1
-      %tbody
-        -if client_accounts.present?
-          -pagination_count = kaminari_serial_number(params[:page], client_accounts.limit_value)
-          -client_accounts.each_with_index do |client_account, index|
-            %tr
-              %td= pagination_count + index
-              %td= client_account.name.titleize
-              %td= client_account.nepse_code
-              %td= client_account.boid
-              %td= client_account.commaed_contact_numbers
-              %td= client_account.email
-              %td
-                = link_to 'view', client_account_path(client_account)
-                &nbsp;|&nbsp;
-                = link_to 'edit', edit_client_account_path(client_account)
+    = form_tag user_invitation_path do
+      = hidden_field_tag 'from_path', @from_path
+      %br
+      = submit_tag "Create / Invite Selected", class: 'btn btn-xs btn-primary btn-flat'
+      %br
+      %br
+      %table.table.table-striped
+        %thead
+          %th.col-xs-1= 'S.N.'
+          %th.col-xs-1
+            %span.col-sm-6
+              = check_box_tag 'select_all', '', false, class: 'email-all'
+              %i.fa.fa-envelope{'aria-hidden': "true"}
+            %span.col-sm-6
+              = check_box_tag 'select_all', '', false, class: 'user-all'
+              %i.fa.fa-user{'aria-hidden': "true"}
+          %th.col-xs-2= 'Name'
+          %th.col-xs-1= 'Nepse Code'
+          %th.col-xs-2= 'BOID'
+          %th.col-xs-2= 'Phone'
+          %th.col-xs-2= 'Email'
+          %th.col-xs-1
+        %tbody
+          -if client_accounts.present?
+            -pagination_count = kaminari_serial_number(params[:page], client_accounts.limit_value)
+            -client_accounts.each_with_index do |client_account, index|
+              %tr
+                %td= pagination_count + index
+                %td
+                  %span.col-sm-6.for-email= check_box_tag "ids_for_invite[]", client_account.id, false, class: 'email' if client_account.can_be_invited_by_email?
+                  %span.col-sm-6.for-user= check_box_tag "ids_for_create[]", client_account.id, false, class: 'username cant-invite' if client_account.can_assign_username?
+                %td= client_account.name.titleize
+                %td= client_account.nepse_code
+                %td= client_account.boid
+                %td= client_account.commaed_contact_numbers
+                %td= client_account.email
+                %td
+                  = link_to 'view', client_account_path(client_account)
+                  &nbsp;|&nbsp;
+                  = link_to 'edit', edit_client_account_path(client_account)
 
     - if client_accounts.empty?
       %div.row.text-center.top-buffer-md
