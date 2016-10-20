@@ -20,11 +20,10 @@
 
     <% if can_edit_balance %>
         <h4>Opening Balance</h4>
-
-          <%= f.fields_for :ledger_balances do |p| %>
+        <%= f.fields_for :ledger_balances do |p| %>
             <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
-          <% end %>
-          <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
+        <% end %>
+        <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
 
     <% end %>
     <br><br>
