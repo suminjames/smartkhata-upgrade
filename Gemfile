@@ -81,3 +81,4 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
+gem 'simplecov', :require => false, :group => :test
