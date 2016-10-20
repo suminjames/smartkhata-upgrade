@@ -1,5 +1,9 @@
 module NumberFormatterModule
 
+  # Note:
+  # Apparently, floats that end have pattern ****.645 don't round off (for precision 2 ) as expected.
+
+
   # Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
   def arabic_word(decimal)
     # Calling arabic number to get the number and wording consistent with rounding off issues.
