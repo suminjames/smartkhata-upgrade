@@ -30,41 +30,6 @@ class LedgersController < ApplicationController
       # There is an issue with the persisted param_set. Reset it.
       puts "Had to reset filterrific params: #{ e.message }"
       redirect_to(reset_filterrific_url(format: :html)) and return
-
-=begin
-    # OPTIMIZE - Refactor
-    if params[:show].blank? && params[:search_by].blank?
-      respond_to do |format|
-        format.html { redirect_to ledgers_path(search_by: "ledger_name") }
-      end
-      return
-    end
-
-    if params[:show] == "all"
-      @ledgers = Ledger.all.includes(:client_account).order(:name).page(params[:page]).per(20)
-    elsif params[:show] == "all_client"
-      @ledgers = Ledger.find_all_client_ledgers.includes(:client_account).order(:name).page(params[:page]).per(20)
-    elsif params[:show] == "all_internal"
-      @ledgers = Ledger.find_all_internal_ledgers.includes(:client_account).order(:name).page(params[:page]).per(20)
-    elsif params[:search_by] && params[:search_term]
-      search_by = params[:search_by]
-      search_term = params[:search_term]
-      case search_by
-        when 'ledger_name'
-          ledger_id = search_term
-          @ledgers = Ledger.find_by_ledger_id(ledger_id).includes(:client_account).order(:name).page(params[:page]).per(20)
-        else
-          # If no matches for case  'search_by', return empty @ledgers
-          @ledgers = []
-      end
-    else
-      @ledgers = []
-    end
-    @selected_ledger_for_combobox_in_arr = @ledgers
-=end
-    # Order ledgers as per ledger_name and not updated_at(which is the metric for default ordering)
-    # TODO chain .decorate function
-    # @ledgers = @ledgers.includes(:client_account).order(:name).page(params[:page]).per(20) unless @ledgers.blank?
   end
 
   # GET /ledgers/1
@@ -175,7 +140,7 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1
   # PATCH/PUT /ledgers/1.json
   def update
-    @can_edit_balance = params[:can_edit_balance]
+    @can_edit_balance = params[:can_edit_balance] == "false" ? false : true
     authorize @ledger
     respond_to do |format|
       if @ledger.update_custom(ledger_params)
