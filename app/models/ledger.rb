@@ -139,40 +139,60 @@ class Ledger < ActiveRecord::Base
   end
 
   def update_custom(params)
-    valid = false
+    valid = true
     self.name = params[:name]
     self.group_id = params[:group_id]
     self.vendor_account_id= params[:vendor_account_id]
 
+    # TODO(sarojk): Remove this hack.
+    # The following validations should have been trigerred while performing self.save. However, to avoid breaking of things at the moment, validations are done here.
+
+    if self.name.blank?
+      self.errors.add(:name, "can't be blank")
+      valid = false
+    end
+
+    if self.group_id.blank?
+      self.errors.add(:group_id, "can't be blank")
+      valid = false
+    end
+
     if params[:ledger_balances_attributes]
-      ledger_balances = []
       branch_ids = []
       total_balance = 0.0
 
+      # Associate passed in ledger_balances to this ledger object, but do not commit to db, yet!
+      # 'add_to_target' ensures its not committed to db.
       params[:ledger_balances_attributes].values.each do |balance|
         ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
         self.association(:ledger_balances).add_to_target(ledger_balance)
       end
 
       self.ledger_balances.each do |balance|
-        if balance.opening_balance >=0
+        if balance.opening_balance >= 0
+          # Multiple balances entries for same branch is invalid.
           if branch_ids.include?(balance.branch_id)
-            balance.errors.add(:branch_id, "cant have multiple entry")
+            balance.errors.add(:branch_id, "can't have multiple entries for same branch")
             valid = false
             break
           end
-          valid = true
+          valid = valid && true
           branch_ids << balance.branch_id
           total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
           next
+        else
+          valid = false
+          balance.errors.add(:opening_balance, "can't be a negative amount")
+          break
         end
-        valid = false
-        balance.errors.add(:opening_balance, "cant be a negative amount")
-        break
       end
 
       if valid
         self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
+        self.save
+      end
+    else # in the case when there is no ledger_balances passed in.
+      if valid
         self.save
       else
         false
