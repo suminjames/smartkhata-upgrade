@@ -3,6 +3,7 @@ class Report::TrialBalanceController < ApplicationController
   layout 'application_custom', only: [:index]
 
   def index
+    @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params))
 
     if params[:search_by] == 'all'
       @balance = Group.trial_balance
@@ -69,5 +70,19 @@ class Report::TrialBalanceController < ApplicationController
           end
       end
     end
+
+    if params[:format] == 'xlsx'
+      report = Reports::Excelsheet::TrialBalanceReport.new(@balance_report, params, current_tenant)
+      # if report.generated_successfully?
+      #   # send_file(report.path, type: report.type)
+      #   send_data(report.file, type: report.type, filename: report.filename)
+      #   report.clear
+      # else
+      #   # This should be ideally an ajax notification!
+      #   redirect_to ledgers_path, flash: { error: report.error }
+      # end
+      return
+    end
+
   end
 end
