@@ -1,5 +1,9 @@
 module NumberFormatterModule
 
+  # Note:
+  # Apparently, floats that end have pattern ****.645 don't round off (for precision 2 ) as expected.
+
+
   # Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
   def arabic_word(decimal)
     # Calling arabic number to get the number and wording consistent with rounding off issues.
@@ -35,24 +39,24 @@ module NumberFormatterModule
     number % 1 == 0 ? number.to_i : number
   end
 
-  # For testing  through console only.
-  def test_rounding
-    divisor = 1000.0
-    # number = 136584645
-    number = 0
-    range_diff = 1000000000
-    (0..(number + range_diff)).each do |i|
-      if (i.to_s)[-3..-1] == '645'
-        j = i / divisor
-        x = j.round(2)
-        if (x.to_s)[-2..-1] == '64'
-          p i
-          p j
-          p x
-          p "*" * 10
-        end
-      end
-    end
-  end
+  # # For testing  through console only.
+  # def test_rounding
+  #   divisor = 1000.0
+  #   # number = 136584645
+  #   number = 0
+  #   range_diff = 1000000000
+  #   (0..(number + range_diff)).each do |i|
+  #     if (i.to_s)[-3..-1] == '645'
+  #       j = i / divisor
+  #       x = j.round(2)
+  #       if (x.to_s)[-2..-1] == '64'
+  #         p i
+  #         p j
+  #         p x
+  #         p "*" * 10
+  #       end
+  #     end
+  #   end
+  # end
 
 end

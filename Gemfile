@@ -82,5 +82,9 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
+<<<<<<< HEAD
 
 gem "audited", "~> 4.3"
+=======
+gem 'simplecov', :require => false, :group => :test
+>>>>>>> alpha

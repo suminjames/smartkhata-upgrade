@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       get :bills_associated_with_cheque_entries
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
+      get :make_void
       get :bounce
       get :represent
       get :show_multiple
