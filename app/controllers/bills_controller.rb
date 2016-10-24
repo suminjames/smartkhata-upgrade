@@ -32,11 +32,26 @@ class BillsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+
+    if ['xlsx', 'pdf'].include? params[:format]
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).decorate
+    else
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+    end
+
+    @download_path_xlsx = bills_path({format:'xlsx'}.merge params)
+    @download_path_pdf = bills_path({format:'pdf'}.merge params)
 
     respond_to do |format|
       format.html
       format.js
+      format.xlsx do
+        report = Reports::Excelsheet::BillsReport.new(@bills, params[:filterrific], current_tenant)
+        send_data report.file, type: report.type, filename: report.filename
+        report.clear
+      end
+      # format.pdf do
+      # end
     end
 
 
