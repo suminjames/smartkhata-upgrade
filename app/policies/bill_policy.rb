@@ -4,6 +4,7 @@ class BillPolicy < ApplicationPolicy
   permit_conditional_access_to_employee_and_above :new, :sales_payment
 
   permit_custom_access :employee_and_above, new_bill_path, [:create, :update, :edit, :destroy]
+  permit_custom_access :employee_and_above, ageing_analysis_bills_path, [:ageing_analysis, :show]
 
   permit_custom_access :employee_and_above, sales_payment_bills_path, [:sales_payment_process]
   # unless you can see ledgers you can not process selected bills

@@ -1,0 +1,42 @@
+%p#notice= notice
+- provide(:section_title, "Bills")
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Client
+          = f.collection_select(                        |
+            :by_client_id,                              |
+            @filterrific.select_options[:by_client_id], |
+            :id,                                        |
+            :name_and_nepse_code,                 |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-3
+          %label
+            Status
+          = f.select(                        |
+            :by_bill_status,                              |
+            @filterrific.select_options[:by_bill_status], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+        .col-xs-2
+          %label
+            Age
+          = f.select(                        |
+            :by_bill_age,                              |
+            @filterrific.select_options[:by_bill_age], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+      .row.top-buffer-sm
+        .col-xs-2
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+    = render_filterrific_spinner
+
+
+= render(partial: 'bills/list_ageing_analysis', locals: { bills: @bills} )
