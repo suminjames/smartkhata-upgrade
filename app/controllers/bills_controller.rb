@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number]
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number, :ageing_analysis]
   # also :authorize_single_bill(s) when implemented
 
   # layout 'application_custom', only: [:index]
@@ -74,6 +74,47 @@ class BillsController < ApplicationController
     redirect_to(reset_filterrific_url(format: :html)) and return
 
   end
+
+  def ageing_analysis
+    @filterrific = initialize_filterrific(
+        # Show only purchase and unsettled bills. Used for ageing analysis report.
+        Bill.by_branch_fy_code.find_not_settled.purchase,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_bill_status: Bill.options_for_bill_status_select_for_ageing_analysis,
+            by_bill_age: Bill.options_for_bill_age_select
+        },
+        persistence_id: false
+    ) or return
+    @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+
+  end
+
   # GET /bills/1
   # GET /bills/1.json
   def show
@@ -290,6 +331,7 @@ class BillsController < ApplicationController
   def bill_params
     params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
   end
+
 
   def set_selected_bills_settlement_params
     # get parameters for voucher types and assign it as journal if not available
