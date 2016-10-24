@@ -252,7 +252,7 @@ class Bill < ActiveRecord::Base
 
   # Returns the age of purchase bill in days.
   def age
-    age = -1
+    age = nil
     if self.purchase?
       age = (Date.today - self.settlement_date).to_i
     end
