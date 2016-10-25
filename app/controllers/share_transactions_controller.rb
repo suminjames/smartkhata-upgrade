@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -115,6 +115,21 @@ class ShareTransactionsController < ApplicationController
       @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
+  end
+
+  def capital_gain_report
+    @filterrific = initialize_filterrific(
+        ShareTransaction,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        },
+        persistence_id: false
+    ) or return
+
+    client_id = params.dig(:filterrific, :by_client_id)
+    @share_transactions = ShareTransaction.capital_gain_transactions_by_client_id(client_id).page(params[:page]).per(20)
+
   end
 
   def pending_deal_cancel

@@ -111,6 +111,11 @@ class ShareTransaction < ActiveRecord::Base
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
+  # Used to generate capital gain report
+  scope :capital_gain_transactions_by_client_id, lambda{ |id|
+    selling.not_cancelled.where(client_account_id: id)
+  }
+
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
