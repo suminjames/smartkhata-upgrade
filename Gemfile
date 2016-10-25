@@ -56,6 +56,7 @@ group :development do
   gem "awesome_print"
   gem 'capistrano3-puma'
   gem 'rails_best_practices'
+  gem 'rails-erd'
 end
 group :production do
   gem 'puma'
@@ -82,9 +83,5 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
-<<<<<<< HEAD
-
 gem "audited", "~> 4.3"
-=======
 gem 'simplecov', :require => false, :group => :test
->>>>>>> alpha

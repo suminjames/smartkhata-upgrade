@@ -17,9 +17,8 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
-  particular: one
-  cheque_entry: one
-  association_type: 0
+  particular_id: 1
+  cheque_entry_id: 1
 
 # column: value
 #
