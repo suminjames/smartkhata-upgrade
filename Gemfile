@@ -62,6 +62,10 @@ group :production do
   gem 'puma'
 end
 
+group :development, :test do
+  gem 'factory_girl_rails'
+end
+
 # Converts array that is returned during ActiveRecord pluck to hash
 gem 'pluck_to_hash'
 
