@@ -119,7 +119,7 @@ class ShareTransactionsController < ApplicationController
 
   def capital_gain_report
     @filterrific = initialize_filterrific(
-        ShareTransaction,
+        ShareTransaction.selling,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -127,8 +127,7 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-    client_id = params.dig(:filterrific, :by_client_id)
-    @share_transactions = ShareTransaction.capital_gain_transactions_by_client_id(client_id).includes(:isin_info, :bill, :client_account).decorate
+    @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
 
     @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf'}.merge params)
