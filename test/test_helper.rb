@@ -10,6 +10,8 @@ Apartment::Tenant.create( "trishakti" ) rescue nil
 Apartment::Tenant.switch!( "trishakti" )
 
 class ActiveSupport::TestCase
+
+  include FactoryGirl::Syntax::Methods
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
