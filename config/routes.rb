@@ -57,6 +57,7 @@ Rails.application.routes.draw do
     collection do
       get 'deal_cancel'
       get 'pending_deal_cancel'
+      get 'capital_gain_report'
     end
   end
   resources :bills do

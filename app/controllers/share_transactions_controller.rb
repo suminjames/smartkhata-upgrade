@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -115,6 +115,49 @@ class ShareTransactionsController < ApplicationController
       @is_searched = true
       @share_transaction = ShareTransaction.not_cancelled.find_by(contract_no: params[:contract_no], transaction_type: transaction_type)
     end
+  end
+
+  def capital_gain_report
+    @filterrific = initialize_filterrific(
+        ShareTransaction.selling,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        },
+        persistence_id: false
+    ) or return
+
+    @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
+
+    @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
+    @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf'}.merge params)
+
+    respond_to do |format|
+      format.html
+      format.js
+      # format.xlsx do
+      # end
+      format.pdf do
+        pdf = Reports::Pdf::CustomerCapitalGainReport.new(@share_transactions, current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
+        send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf'
+      end
+    end
+
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   def pending_deal_cancel

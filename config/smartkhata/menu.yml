@@ -184,6 +184,9 @@ menus:
     - name: Bill Ageing Analysis
       path: "<%= ageing_analysis_bills_path %>"
       code: RS_MIS_BIL
+    - name: Capital Gain Report
+      path: "<%= capital_gain_report_share_transactions_path %>"
+      code: RS_MIS_CAP
 - name: Administration
   code: ADS
   sub_menus:
