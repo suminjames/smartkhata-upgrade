@@ -2,7 +2,7 @@ class Reports::Excelsheet
   # To be used as a base class for individual excelsheet report generators!
   include CustomDateModule
 
-  attr_reader :path
+  # attr_reader :path
   attr_reader :error
 
   def initialize(*values)
@@ -16,25 +16,38 @@ class Reports::Excelsheet
     @doc_header_row_count = 0
   end
 
-  def type
-    # Excelsheet File type needed for send_file
-    "application/vnd.ms-excel"
-  end
-
+  # external methods (called usually from controllers)
   def generated_successfully?
     # Returns true if no error
     @error.nil?
   end
 
-  def data_present_or_set_error(data, err_msg=nil)
-    # Returns true if data supplied is not empty
-    err_msg ||= "No data to generate report!"
-    if data.present?
-      true
-    else
-      @error = err_msg
-      false
-    end
+  def file
+    # Returns the report file object
+    File.read(@path)
+  end
+
+  def type
+    # Excelsheet File type needed for send_file
+    "application/vnd.ms-excel"
+  end
+
+  def filename
+    # Returns the complete file name for the report
+    "#{@file_name}.xlsx"
+  end
+
+  def clear
+    # Deletes the temporary report file- if it exists!
+    File.delete(@path) if File.file?(@path)
+  end
+
+  # internal methods
+  private
+
+  def data_present_or_set_error(data, err_msg="No data to generate report!")
+    # Returns true if data is supplied, else sets error & returns false
+    !(@error = data.present? ? nil : err_msg)
   end
 
   def generate_excelsheet
@@ -70,13 +83,12 @@ class Reports::Excelsheet
   def define_styles(obj)
     # Defines and adds necessary styles to the workbook styles object & sets their hash to @styles variable.
 
-    # predefining style helpers
     border = {border: {style: :thin, color: "3c8dbc"}}
     border_right = {border: {style: :thin, color: "d2d6de", edges: [:right]}} #color: "808080"
     border_top_right = {border: {style: :thin, color: "d2d6de", edges: [:top, :right]}} #color: "00"
     bg_striped = {bg_color: "f9f9f9"}
-    bg_grey = {bg_color: "d3d3d3"}
     bg_white = {bg_color: "FF"}
+    bg_grey = {bg_color: "d3d3d3"}
     h_center = {alignment: {horizontal: :center}}
     v_center = {alignment: {vertical: :center}}
     complete_center = h_center.deep_merge(v_center)
@@ -94,8 +106,11 @@ class Reports::Excelsheet
     doc_sub_header_style = {sz: 14}.merge center_clear
     table_header_style = {b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge(complete_center)
 
+    # num_fmt: 5..8 : dollar
+    # num_fmt: 9..10 : percentage
     float = {num_fmt: 4}.merge normal
     int = {num_fmt: 1}.merge normal
+    int_with_commas = {num_fmt: 3}.merge normal
     total = {b: true}.merge border
     wrap = {alignment: {wrap_text: true, vertical: :center}}
 
@@ -113,19 +128,25 @@ class Reports::Excelsheet
         normal_style: normal,
         normal_style_muted: normal.merge(muted),
         normal_center: normal.deep_merge(h_center),
+        normal_left: normal.deep_merge(left),
         normal_right: normal.deep_merge(right),
         striped_style: striped,
         striped_style_muted: striped.merge(muted),
         striped_center: striped.deep_merge(h_center),
+        striped_left: striped.deep_merge(left),
         striped_right: striped.deep_merge(right),
 
         wrap: normal.merge(wrap),
         wrap_striped: striped.merge(wrap),
 
+
         int_format: int,
         int_format_striped: int.merge(bg_striped),
         int_format_left: int.deep_merge(left),
         int_format_left_striped: int.deep_merge(left).merge(bg_striped),
+
+        int_with_commas: int_with_commas,
+        int_with_commas_striped: int_with_commas.merge(bg_striped),
 
         float_format: float,
         float_format_striped: float.merge(bg_striped),
@@ -135,7 +156,7 @@ class Reports::Excelsheet
         broker_info: left.merge(plain),
         total_values: total,
         total_values_float: total.merge(float),
-        total_keyword: total.merge(right),
+        total_keyword: total.merge(right)
 
         # date_format: obj.add_style({format_code: 'YYYY-MM-DD'}.merge border)
         # date_format_striped: obj.add_style({format_code: 'YYYY-MM-DD'}.merge striped)
@@ -179,11 +200,6 @@ class Reports::Excelsheet
     @styles = styles_to_add.inject(Hash.new){|p,w| p[w[0]] = obj.add_style(w[1]); p}
   end
 
-  # Adds document headings as provided
-  # Params:
-  # +sub_heading_present+:: whether to present the first 'additional info' as a sub-heading (i.e with larger font)
-  # +additional_infos_come_after_custom_block+:: whether to display the additional_infos before or after the custom block provided
-  #
   def add_document_headings_base(heading, *additional_infos, sub_heading_present: true, additional_infos_come_after_custom_block: true)
     # Current tenant info
     if t = @current_tenant
@@ -220,7 +236,7 @@ class Reports::Excelsheet
   end
 
   def add_header_row(text, style)
-    # Adds a header row with in relevant manner
+    # Adds a header row and updates the counter
     @sheet.add_row [text].insert(@last_column, ''), style: @styles[style]
     @doc_header_row_count += 1
   end
@@ -245,21 +261,6 @@ class Reports::Excelsheet
     last_col_alphabet = ('A'..'Z').to_a[@last_column]
     1.upto(@doc_header_row_count){|n| cell_ranges_to_merge << "A#{n}:#{last_col_alphabet}#{n}"}
     cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
-  end
-
-  def file
-    # Returns the report file object
-    File.read(@path)
-  end
-
-  def filename
-    # Returns the complete file name for the report
-    "#{@file_name}.xlsx"
-  end
-
-  def clear
-    # Deletes the temporary report file if file exists!
-    File.delete(@path) if File.file?(@path)
   end
 
 end
