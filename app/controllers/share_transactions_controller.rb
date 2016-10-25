@@ -140,7 +140,7 @@ class ShareTransactionsController < ApplicationController
       # end
       format.pdf do
         pdf = Reports::Pdf::CustomerCapitalGainReport.new(@share_transactions, current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
-        send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf', disposition: :inline
+        send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf'
       end
     end
 
