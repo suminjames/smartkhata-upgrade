@@ -49,23 +49,3 @@ voucher_pending:
   voucher_status: 0 #pending
   # branch: two
   branch_id: 2
-
-
-# simple jvr with 1 dr and  1 cr
-one:
-  fy_code: 7374
-  date_bs: '2073-09-24'
-  voucher_type: 0
-  voucher_status: 1
-  # branch: two
-  branch_id: 1
-
-# payment voucher with 1 dr and 1 cr
-two:
-  fy_code: 7374
-  date_bs: '2073-09-24'
-  voucher_type: 1 #payment
-  voucher_status: 1
-  # branch: two
-  branch_id: 1
-  is_payment_bank: true # make sure the particulars have cheque entries

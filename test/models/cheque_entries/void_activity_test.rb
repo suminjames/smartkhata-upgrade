@@ -13,14 +13,18 @@ class ChequeEntries::VoidActivityTest < ActiveSupport::TestCase
   end
 
   test "should return cheque entry" do
+    @cheque_entry = create(:cheque_entry)
 
-    @cheque_entry = cheque_entries(:one)
-    @particular = particulars(:three)
-    @cheq = cheque_entry_particular_associations(:one)
+    # @cheque_entry = cheque_entries(:one)
+    # @particular = particulars(:three)
+
+    # @cheq = cheque_entry_particular_associations(:one)
+    # debugger
+    assert_equal 2, @cheque_entry.particulars.size
+
     debugger
-    # assert_equal 2, @cheque_entry.particulars.size
-    assert_equal 2, @cheque_entry.particulars_on_payment.size
-    assert_equal 0, @cheque_entry.particulars_on_receipt.size
+    # assert_equal 2, @cheque_entry.particulars_on_payment.size
+    # assert_equal 0, @cheque_entry.particulars_on_receipt.size
     # modified_cheque_entry = ChequeEntries::VoidActivity.new(@cheque_entry).process
     # assert_kind_of ChequeEntry, modified_cheque_entry.cheque_entry
 

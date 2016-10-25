@@ -24,7 +24,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
       processed_bills = []
 
       @bills.each do |bill|
-        if cheque_amount + margin_of_error_amount < bill.net_amount
+        if cheque_amount + @margin_of_error_amount < bill.net_amount
           bill.balance_to_pay = cheque_amount
           bill.status = Bill.statuses[:partial]
           processed_bills << bill
@@ -49,6 +49,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
           reverse_accounts(particular, new_voucher, description)
         end
 
+        voucher.reversed!
         @cheque_entry.void!
         new_voucher.complete!
 
@@ -97,16 +98,6 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         @cheque_entry.void!
         new_voucher.complete!
       end
-
     end
-
-    if @cheque_entry.additional_bank_id.present?
-      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = current_tenant.full_name
-    else
-      @bank = @cheque_entry.bank_account.bank
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
-    end
-    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
   end
 end
