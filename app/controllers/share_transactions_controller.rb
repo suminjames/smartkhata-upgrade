@@ -32,7 +32,6 @@ class ShareTransactionsController < ApplicationController
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
         @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
-        debugger
       else
         @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
         @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
