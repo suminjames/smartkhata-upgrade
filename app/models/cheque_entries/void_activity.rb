@@ -1,8 +1,8 @@
 class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
   def can_activity_be_done?
-
-    if @cheque_entry.represented? || @cheque_entry.bounced? || @cheque_entry.void? || @cheque_entry.receipt?
+    # only approved cheque can be made void
+    unless @cheque_entry.approved? && @cheque_entry.payment?
       @error_message = "The Cheque cant be made Void."
       return false
     end
@@ -17,6 +17,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
     # only case where such happens is during sales bill payment
     is_multi_cheque_voucher = false
     is_multi_cheque_voucher = true if voucher.cheque_entries.uniq.count != 1
+
 
     unless is_multi_cheque_voucher
       @bills = voucher.bills.sales.order(id: :desc)
@@ -45,14 +46,16 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         new_voucher.bills_on_settlement = processed_bills
 
         description = "Cheque number #{@cheque_entry.cheque_number} void"
+
         voucher.particulars.each do |particular|
           reverse_accounts(particular, new_voucher, description)
         end
 
-        voucher.reversed!
+
         @cheque_entry.void!
         new_voucher.complete!
-
+        # since it is a single cheque voucher it can be reversed
+        voucher.reversed!
       end
     else
       particular = @cheque_entry.particulars.first
@@ -94,6 +97,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now)
         bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now)
         bank_particular.cheque_entries_on_receipt << @cheque_entry
+
 
         @cheque_entry.void!
         new_voucher.complete!

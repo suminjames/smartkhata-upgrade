@@ -1,6 +1,6 @@
 class ChequeEntries::RejectionActivity < ChequeEntries::Activity
-  def initialize(cheque_entry, current_tenant)
-    super(cheque_entry, current_tenant)
+  def initialize(cheque_entry, current_tenant_full_name)
+    super(cheque_entry, current_tenant_full_name)
     @is_associate_voucher_multi_chequed =  false
     @bills = []
     @particulars = []

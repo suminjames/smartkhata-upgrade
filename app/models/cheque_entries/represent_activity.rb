@@ -1,7 +1,8 @@
 class ChequeEntries::RepresentActivity < ChequeEntries::Activity
 
   def can_activity_be_done?
-    if @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced?
+
+    if @cheque_entry.payment? || ( @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced? )
       @error_message = "The Cheque cant be represented."
       return false
     end

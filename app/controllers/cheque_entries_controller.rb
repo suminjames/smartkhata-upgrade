@@ -148,7 +148,7 @@ class ChequeEntriesController < ApplicationController
 #       reject(:bounce, @back_path, @back_path)
 
   def make_void
-    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, current_tenant)
+    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
       redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
@@ -158,7 +158,7 @@ class ChequeEntriesController < ApplicationController
   end
   # GET /cheque_entries/bounce
   def bounce
-    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, current_tenant)
+    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
       redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
@@ -169,7 +169,7 @@ class ChequeEntriesController < ApplicationController
 
   def represent
     @back_path = request.referer || cheque_entries_path
-    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, current_tenant)
+    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
       redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return

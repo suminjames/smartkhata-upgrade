@@ -1,7 +1,7 @@
 class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
   def can_activity_be_done?
-    if @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced?
+    if @cheque_entry.payment? || ( @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced? )
       @error_message = "The cheque can not be Bounced."
       return false
     end
@@ -47,6 +47,8 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
       @cheque_entry.bounced!
       new_voucher.complete!
+      voucher.reversed!
+
     end
   end
 end

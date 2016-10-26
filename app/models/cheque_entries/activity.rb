@@ -4,13 +4,13 @@ class ChequeEntries::Activity
 
   attr_accessor :cheque_entry, :error_message
 
-  def initialize(cheque_entry, current_tenant)
+  def initialize(cheque_entry, current_tenant_full_name)
     @cheque_entry = cheque_entry
     @error_message = nil
     @bank = nil
     @name = nil
     @cheque_date = nil
-    @current_tenant = current_tenant
+    @current_tenant_full_name = current_tenant_full_name
     @margin_of_error_amount = 0.01
   end
 
@@ -39,7 +39,7 @@ class ChequeEntries::Activity
   def get_bank_name_and_date
     if @cheque_entry.additional_bank_id.present?
       @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = @current_tenant.full_name
+      @name = @current_tenant_full_name
     else
       @bank = @cheque_entry.bank_account.bank
       @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
