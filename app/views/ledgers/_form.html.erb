@@ -10,7 +10,7 @@
     <div class="form-inputs row">
       <div class="col-xs-3">
         <%= f.input :group_id, label: '* Group' do %>
-            <%= f.collection_select(:group_id, Group.all, :id, :name, {prompt: 'Select a group...'}, {:class => 'form-control combobox'}) %>
+            <%= f.collection_select(:group_id, Group.all.order(:name), :id, :name, {prompt: 'Select a group...'}, {:class => 'form-control combobox'}) %>
         <% end %>
 
         <%= f.association :vendor_account, collection: VendorAccount.order(:name), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a Vendor...' %>
@@ -20,16 +20,16 @@
 
     <% if can_edit_balance %>
         <h4>Opening Balance</h4>
-
-          <%= f.fields_for :ledger_balances do |p| %>
+        <%= f.fields_for :ledger_balances do |p| %>
             <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
-          <% end %>
-          <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
+        <% end %>
+        <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
 
     <% end %>
     <br><br>
     <div class="form-actions">
       <%= f.button :submit %>
+      <%= link_to "Cancel", @ledger, class: 'btn btn-danger btn-flat' %>
     </div>
     <br><br>
 <% end %>
