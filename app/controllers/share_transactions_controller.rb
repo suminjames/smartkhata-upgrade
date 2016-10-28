@@ -29,15 +29,39 @@ class ShareTransactionsController < ApplicationController
     ) or return
 
     items_per_page = 20
+    # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        if params[:group_by_company] == "true"
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, date ASC, contract_no ASC')
+        else
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        end
       else
         @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        # Needed for pagination to work
         @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
-      @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+      if params[:group_by_company] == "true"
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        # This hash maps isin_info_ids(keys) with their respective counts(values)
+        # Notice the ommision of pagination the query below. This is to have an overall cardinality of the current search scope.
+        # Eg: {2=>5, 29=>6, 98=>1, 103=>2, 111=>4, 133=>8, 145=>5, 209=>1, 219=>1, 444=>4}
+        @grouped_isins_cardinality_hash = @filterrific.find.order(:isin_info_id).group(:isin_info_id).count(:isin_info_id)
+        # This hash maps isin_info_ids(keys) with their respective end positions(values) while the isins are serially queued.
+        # This is crucial in finding when to insert the total quantity flow row of an isin, when share transactions are grouped by company
+        # Eg: {2=>5, 29=>11, 98=>12, 103=>14, 111=>18, 133=>26, 145=>31, 209=>32, 219=>33, 444=>37}
+        # @grouped_isins_serialized_position_hash = Hash.new(0)
+        @grouped_isins_serialized_position_hash = Hash.new(0)
+        sum = 0
+        @grouped_isins_cardinality_hash.each do |isin, value|
+          sum = sum + value
+          @grouped_isins_serialized_position_hash[isin] = sum
+        end
+      else
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+      end
     end
 
     @download_path_xlsx = share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
@@ -45,6 +69,10 @@ class ShareTransactionsController < ApplicationController
 
     @print_path_pdf_in_regular = share_transactions_path({format:'pdf'}.merge params)
     @print_path_pdf_in_letter_head =share_transactions_path({format:'pdf', print_in_letter_head: 1}.merge params)
+
+    if params[:filterrific] && params[:group_by_company].present?
+      params[:filterrific][:group_by_company] = params[:group_by_company]
+    end
 
     respond_to do |format|
       format.html

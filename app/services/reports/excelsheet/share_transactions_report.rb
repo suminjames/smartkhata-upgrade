@@ -6,6 +6,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     if params
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
+      @group_by_company = params[:group_by_company] == 'true'
     end
 
     generate_excelsheet if params_valid?
@@ -78,6 +79,11 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center]].push(*[@styles[:normal_style]]*2).insert(2, @styles[:int_format_left]).insert(3, @styles[:wrap]).push(*[@styles[:float_format]]*5)
     striped_style_row = [@styles[:striped_center]].push(*[@styles[:striped_style]]*2).insert(2, @styles[:int_format_left_striped]).insert(3, @styles[:wrap_striped]).push(*[@styles[:float_format_striped]]*5)
+
+    isin_total_style_row = [@styles[:total_values]] * 10
+    isin_balances = Hash.new(0)
+
+    @actual_row_index_count = 0
     @share_transactions.each_with_index do |st, index|
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       sn = index + 1
@@ -98,9 +104,38 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       m_rate = st.isin_info.last_price.to_f
       share_amt = st.share_amount.to_f
       comm_amt = st.commission_amount.to_f
-      row_style = index.even? ? normal_style_row : striped_style_row
+      row_style = @actual_row_index_count.even? ? normal_style_row : striped_style_row
       @sheet.add_row [sn, date, contract_num, company, bill_num, q_in, q_out, m_rate, share_amt, comm_amt],
                      style: row_style
+      @actual_row_index_count += 1
+
+      if @group_by_company
+        isin_balances[:total_in_sum] += st.quantity if st.buying?
+        isin_balances[:total_out_sum] += st.quantity if st.selling?
+      end
+
+      # Logic for adding total row for groups of companies in the listing.
+      break_group = false
+      break_group = @group_by_company && ( (@share_transactions.size - 1) == index || st.isin_info_id != @share_transactions[index + 1].isin_info_id )
+      if break_group
+        isin_balances[:balance_sum] = isin_balances[:total_in_sum] - isin_balances[:total_out_sum]
+        grouped_isin_total_row = [
+            "",
+            "",
+            "",
+            "Company: #{st.isin_info.isin}",
+            "Total",
+            "In:#{isin_balances[:total_in_sum].to_i}",
+            "Out:#{isin_balances[:total_out_sum].to_i}",
+            "Qty Balance:\n#{isin_balances[:balance_sum].to_i}",
+            "",
+            ""
+        ]
+        row_style = isin_total_style_row
+        @sheet.add_row grouped_isin_total_row, style: row_style
+        @actual_row_index_count += 1
+        isin_balances = Hash.new(0)
+      end
     end
     add_total_row
   end
@@ -109,7 +144,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     columns_to_sum = [5, 6, 8, 9]
     alphabets = ('A'..'Z').to_a
     first_data_row = @doc_header_row_count+2
-    last_data_row = first_data_row + @share_transactions.count - 1
+    last_data_row = first_data_row + @actual_row_index_count - 1
 
     totalled_cells = []
     columns_to_sum.each do |col|
