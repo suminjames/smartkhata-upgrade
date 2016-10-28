@@ -5,5 +5,7 @@ class ChequeEntryPolicy < ApplicationPolicy
   permit_custom_access :employee_and_above, cheque_entries_path, [:new, :show, :show_multiple, :create, :update, :edit, :destroy]
   permit_custom_access :employee_and_above, cheque_entries_path, [:get_cheque_number, :bounce, :represent, :update_print_status,
                                                                   :settlements_associated_with_cheque_entries,
-                                                                  :bills_associated_with_cheque_entries, :make_cheque_entries_unprinted]
+                                                                  :bills_associated_with_cheque_entries, :make_cheque_entries_unprinted,
+                                                                  :make_void
+  ]
 end

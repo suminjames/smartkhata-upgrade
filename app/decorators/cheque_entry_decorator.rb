@@ -27,4 +27,19 @@ class ChequeEntryDecorator < ApplicationDecorator
     check_box_classes.join(" ")
   end
 
+  #
+  # For time being, pending_clearance need not be shown in the view.
+  # pending_clearance will be used later to verify and record bank reconciliation.
+  #
+  def formatted_status
+    cheque_entry = object
+    status = ''
+    if cheque_entry.receipt? && cheque_entry.pending_clearance?
+      status = 'N/A'
+    else
+      status = h.pretty_enum(cheque_entry.status)
+    end
+    status
+  end
+
 end

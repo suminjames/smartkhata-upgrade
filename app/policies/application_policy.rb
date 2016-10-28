@@ -156,6 +156,9 @@ class ApplicationPolicy
   #   end
   # end
 
+  #
+  # If the `privilege` passed in has access to the given `path`, provide `privilege` with access to passed `actions`
+  #
   def self.permit_custom_access(privilege, path, actions)
     actions.each do |action|
       define_method("#{action}?") do

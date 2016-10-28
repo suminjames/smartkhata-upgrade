@@ -15,6 +15,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       @params = params
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
+      @group_by_company = params[:group_by_company] == 'true'
     end
 
     if @print_in_letter_head
@@ -133,24 +134,26 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
     def share_transactions_list
       table_data = []
-      th_data = ["SN.", "Date", "Transaction No.", "Company", "Client", "Bill No.", "Qty\nin", "Qty\nout", "Market\nRate", "Amount", "Commission"]
+      th_data = ["SN.", "Date", "Transaction No.", "Company", "Client", "Bill No.", "Qty\nin", "Qty\nout", "Rate", "Amount", "Commission"]
       table_data << th_data
       total_q_in = 0
       total_q_out = 0
       total_share_amt = 0
       total_comm_amt = 0
+      isin_balances = Hash.new(0)
+      grouped_isin_total_rows = []
       @share_transactions.each_with_index do |st, index|
         sn = index + 1
         date = ad_to_bs_string(st.date)
         contract_num = st.contract_no
         company = st.isin_info.name_and_code
-        client_name = st.client_account.name
+        client_name = st.client_account.name_and_nepse_code
         bill_num = st.bill.present? ? st.bill.full_bill_number : 'N/A'
         q_in = st.buying? ? st.quantity.to_i : ''
         q_in_str = st.buying? ? arabic_number_integer(q_in) : ''
         q_out = st.selling? ? st.quantity.to_i : ''
         q_out_str = st.selling? ? arabic_number_integer(q_out) : ''
-        m_rate = strip_redundant_decimal_zeroes(st.isin_info.last_price.to_f)
+        m_rate = strip_redundant_decimal_zeroes(st.share_rate.to_f)
         share_amt = strip_redundant_decimal_zeroes(st.share_amount.to_f)
         comm_amt = st.commission_amount.to_f
 
@@ -172,16 +175,41 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
             arabic_number_integer(share_amt),
             arabic_number(comm_amt)
         ]
+
+        if @group_by_company
+          isin_balances[:total_in_sum] += st.quantity if st.buying?
+          isin_balances[:total_out_sum] += st.quantity if st.selling?
+        end
+
+        # Logic for adding total row for groups of companies in the listing.
+        break_group = false
+        break_group = @group_by_company && ( (@share_transactions.size - 1) == index || st.isin_info_id != @share_transactions[index + 1].isin_info_id )
+        if break_group
+          isin_balances[:floorsheet_blnc_sum] = isin_balances[:total_in_sum] - isin_balances[:total_out_sum]
+          grouped_isin_total_row = [
+             {:content => "Company: #{st.isin_info.isin}", :colspan => 5},
+             "Total",
+             "In:\n#{isin_balances[:total_in_sum].to_i}",
+             "Out:\n#{isin_balances[:total_out_sum].to_i}",
+             "Qty\nBlnc:\n#{isin_balances[:floorsheet_blnc_sum].to_i}",
+             "",
+             ""
+          ]
+          table_data << grouped_isin_total_row
+          grouped_isin_total_rows << (index + 2 + grouped_isin_total_rows.size)
+          isin_balances = Hash.new(0)
+        end
       end
+
       total_row_data = [
           '',
           '',
           '',
           '',
           '',
-          'Total',
-          arabic_number_integer(total_q_in),
-          arabic_number_integer(total_q_out),
+          'Grand Total',
+          total_q_in,
+          total_q_out,
           '',
           arabic_number_integer(total_share_amt),
           arabic_number(total_comm_amt)
@@ -206,12 +234,15 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         t.row(0).font_style = :bold
         t.row(0).size = 9
         t.column(0..6).style(:align => :center)
-        t.column(5..9).style(:align => :right)
+        t.column(5..-1).style(:align => :right)
         t.row(0).style(:align => :center)
         t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
         t.column_widths = column_widths
         t.row(-1).size = 9
         t.row(-1).font_style = :bold
+        grouped_isin_total_rows.each do |row_number|
+          t.row(row_number).font_style = :bold_italic
+        end
       end
     end
 

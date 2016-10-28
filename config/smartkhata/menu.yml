@@ -3,7 +3,7 @@
 # default request_type is get
 #
 ---
-has_changes: false
+has_changes: true
 menus:
 - name: File Section
   code: FS
@@ -112,6 +112,10 @@ menus:
     - name: Clients
       path: "<%= client_accounts_path %>"
       code: RG_CLR_CLI
+    - name: Invite Clients
+      path: "<%= client_accounts_path(invite: true) %>"
+      code: RG_CLR_CIN
+      hide_on_main_navigation: true
   - name: Employee Register
     code: RG_EMR
     menu_items:
@@ -174,6 +178,15 @@ menus:
     - name: SMS History
       path: "<%= sms_messages_path()%>"
       code: RS_SMS_HIS
+  - name: Miscellaneous
+    code: RS_MIS
+    menu_items:
+    - name: Bill Ageing Analysis
+      path: "<%= ageing_analysis_bills_path %>"
+      code: RS_MIS_BIL
+    - name: Capital Gain Report
+      path: "<%= capital_gain_report_share_transactions_path %>"
+      code: RS_MIS_CAP
 - name: Administration
   code: ADS
   sub_menus:

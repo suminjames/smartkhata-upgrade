@@ -1,6 +1,6 @@
 class ChequeEntriesController < ApplicationController
   before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent, :make_void]
-  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce, :represent]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce, :represent, :make_void]
   before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce, :represent]
 
   # GET /cheque_entries
@@ -119,207 +119,63 @@ class ChequeEntriesController < ApplicationController
     end
   end
 
-  #
-  # Make the cheque_entry Void.
-  # - Change status of cheque_entry to void
-  # - Reverse the voucher entry associated with the cheque_entry
-  #   - reverse settlement
-  # Notes:
-  # - Receipt cheque and Payment cheque can both be void
-  # - Receipt cheque can only be bounced and represented
-  # - Void cheque can't be represented
-  #
-  def make_void
-    @back_path = request.referer || @cheque_entry
-    if @cheque_entry.printed? || @cheque_entry.bounced? || @cheque_entry.void?
-      redirect_to @back_path, :flash => {:error => 'The cheque entry can not be made void. It is either printed, voided or bounced already.'} and return
-    else
-      reject(:void, @back_path, @back_path)
-      redirect_to @back_path
-    end
-  end
+#   #
+#   # Make the cheque_entry Void.
+#   # - Change status of cheque_entry to void
+#   # - Reverse the voucher entry associated with the cheque_entry
+#   #   - reverse settlement
+#   # Notes:
+#   # - Receipt cheque and Payment cheque can both be void
+#   # - Receipt cheque can only be bounced and represented
+#   # - Void cheque can't be represented
+#   #
+#   def make_void
+#     @back_path = request.referer || @cheque_entry
+#     if @cheque_entry.printed? || @cheque_entry.bounced? || @cheque_entry.void?
+#       redirect_to @back_path, :flash => {:error => 'The cheque entry can not be made void. It is either printed, voided or bounced already.'} and return
+#     else
+#       reject(:void, @back_path, @back_path)
+#       redirect_to @back_path
+#     end
+#   end
+#
+#   # GET /cheque_entries/bounce
+#   def bounce
+#     @back_path = request.referer || cheque_entries_path
+#     if @cheque_entry.payment? || @cheque_entry.bounced?
+#       redirect_to @back_path, :flash => {:error => 'The Cheque cant be Bounced.'} and return
+#     else
+#       reject(:bounce, @back_path, @back_path)
 
+  def make_void
+    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity.process
+    if cheque_activity.error_message.present?
+      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
+    end
+    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque void recorded succesfully'} and return
+  end
   # GET /cheque_entries/bounce
   def bounce
-    @back_path = request.referer || cheque_entries_path
-    if @cheque_entry.payment? || @cheque_entry.bounced?
-      redirect_to @back_path, :flash => {:error => 'The Cheque cant be Bounced.'} and return
-    else
-      reject(:bounce, @back_path, @back_path)
+    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity.process
+    if cheque_activity.error_message.present?
+      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
     end
+    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque bounced succesfully'} and return
   end
 
-  #
-  # This is called by both make_void and bounce methods, as both share similar functionality of reversing
-  #  the voucher and settlement.
-  #
-  # params
-  #   -reject_type : is one of the values {:void, :bounce}
-  #
-  #  IMPORTANT! Rejecting ChequeEntry with vouchers with more than one cheque entries should now affect only the associated particulars of the cheque_entry and settlement.
-  def reject (reject_type, success_redirect_path, error_redirect_path)
-    if UserSession.selected_fy_code != get_fy_code
-      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
-    end
-
-    reject_type_verbs = {}
-    reject_type_verbs[:void] = 'voided'
-    reject_type_verbs[:bounce] = 'bounced'
-
-    voucher = @cheque_entry.vouchers.uniq.first
-
-    if voucher.cheque_entries.uniq.size > 1
-      redirect_to @back_path, :flash => {:error => 'Please make a manual reverse entry to reverse this cheque. And, mark this cheque as accordingly!'} and return
-    end
-
-    if @cheque_entry.payment?
-      @bills = voucher.bills.purchase.order(id: :desc)
-    else # if @cheque_entry.receipt?
-      @bills = voucher.bills.sales.order(id: :desc)
-    end
-
-    cheque_amount = @cheque_entry.amount
-    processed_bills = []
-
-    @bills.each do |bill|
-      if cheque_amount + margin_of_error_amount < bill.net_amount
-        bill.balance_to_pay = cheque_amount
-        bill.status = Bill.statuses[:partial]
-        processed_bills << bill
-        break
-      else
-        bill.balance_to_pay = bill.net_amount
-        bill.status = Bill.statuses[:pending]
-        cheque_amount -= bill.net_amount
-        processed_bills << bill
-      end
-    end
-
-    ActiveRecord::Base.transaction do
-      processed_bills.each(&:save)
-
-      # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
-      new_voucher.bills_on_settlement = processed_bills
-
-      description = "Cheque number #{@cheque_entry.cheque_number} #{reject_type_verbs[:reject_type]}"
-      voucher.particulars.each do |particular|
-        reverse_accounts(particular, new_voucher, description)
-      end
-      voucher.reversed!
-
-      if reject_type == :void
-        @cheque_entry.void!
-      elsif reject_type == :bounce
-        @cheque_entry.bounced!
-      end
-    end
-
-    if @cheque_entry.additional_bank_id.present?
-      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = current_tenant.full_name
-    else
-      @bank = @cheque_entry.bank_account.bank
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
-    end
-    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
-
-    flash.now[:notice] = "Cheque #{reject_type_verbs[:reject_type]}recorded succesfully."
-    redirect_to @back_path
-    # render :show
-  end
-
-  # # GET /cheque_entries/bounce
-  # def bounce
-  #   @back_path = request.referer || cheque_entries_path
-  #   if @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced?
-  #     redirect_to @back_path, flash: {:error => 'The Cheque cant be Bounced.'} and return
-  #   end
-  #
-  #   if UserSession.selected_fy_code != get_fy_code
-  #     redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
-  #   end
-  #
-  #   voucher = @cheque_entry.vouchers.uniq.first
-  #   @bills = voucher.bills.purchase.order(id: :desc)
-  #   cheque_amount = @cheque_entry.amount
-  #   processed_bills = []
-  #
-  #   @bills.each do |bill|
-  #     if cheque_amount + margin_of_error_amount < bill.net_amount
-  #       bill.balance_to_pay = cheque_amount
-  #       bill.status = Bill.statuses[:partial]
-  #       processed_bills << bill
-  #       break
-  #     else
-  #       bill.balance_to_pay = bill.net_amount
-  #       bill.status = Bill.statuses[:pending]
-  #       cheque_amount -= bill.net_amount
-  #       processed_bills << bill
-  #     end
-  #   end
-  #
-  #   ActiveRecord::Base.transaction do
-  #     processed_bills.each(&:save)
-  #
-  #     # create a new voucher and add the bill reference to it
-  #     new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
-  #     new_voucher.bills_on_settlement = processed_bills
-  #
-  #     description = "Cheque number #{@cheque_entry.cheque_number} bounced"
-  #     voucher.particulars.each do |particular|
-  #       reverse_accounts(particular, new_voucher, description)
-  #     end
-  #
-  #     @cheque_entry.bounced!
-  #   end
-  #
-  #   if @cheque_entry.additional_bank_id.present?
-  #     @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-  #     @name = current_tenant.full_name
-  #   else
-  #     @bank = @cheque_entry.bank_account.bank
-  #     @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
-  #   end
-  #   @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
-  #   flash.now[:notice] = 'Cheque bounce recorded succesfully.'
-  #   render :show
-  # end
-
-  # GET /cheque_entries/represent
   def represent
     @back_path = request.referer || cheque_entries_path
-    if @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced?
-      redirect_to @back_path, flash: {:error => 'The Cheque cant be represented.'} and return
+    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity.process
+    if cheque_activity.error_message.present?
+      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
     end
-
-    if UserSession.selected_fy_code != get_fy_code
-      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
-    end
-
-    voucher = @cheque_entry.vouchers.uniq.last
-
-    ActiveRecord::Base.transaction do
-      # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
-      description = "Cheque number #{@cheque_entry.cheque_number} represented"
-      voucher.particulars.each do |particular|
-        reverse_accounts(particular, new_voucher, description)
-      end
-
-      @cheque_entry.represented!
-    end
-
-    if @cheque_entry.additional_bank_id.present?
-      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = current_tenant.full_name
-    else
-      @bank = @cheque_entry.bank_account.bank
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
-    end
-    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
-    flash.now[:notice] = 'Cheque Represent recorded succesfully.'
-    render :show
+    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque Represent recorded succesfully'} and return
   end
 
   # GET

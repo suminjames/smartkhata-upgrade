@@ -62,7 +62,7 @@ class UploadDpa5
 
       record = ClientAccount.where(boid: data[0], dp_id: data[59])
                    .first_or_create do |account|
-        account.skip_validation_for_file= true
+        account.skip_validation_for_system= true
       end
 
       client_type = get_client_type(data[2])

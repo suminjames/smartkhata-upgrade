@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161005103826) do
+ActiveRecord::Schema.define(version: 20161025064840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -215,11 +215,9 @@ ActiveRecord::Schema.define(version: 20161005103826) do
   add_index "cheque_entries", ["voucher_id"], name: "index_cheque_entries_on_voucher_id", using: :btree
 
   create_table "cheque_entry_particular_associations", force: :cascade do |t|
-    t.integer  "association_type"
-    t.integer  "cheque_entry_id"
-    t.integer  "particular_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.integer "association_type"
+    t.integer "cheque_entry_id"
+    t.integer "particular_id"
   end
 
   add_index "cheque_entry_particular_associations", ["cheque_entry_id"], name: "index_cheque_entry_particular_associations_on_cheque_entry_id", using: :btree
@@ -572,11 +570,9 @@ ActiveRecord::Schema.define(version: 20161005103826) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particular_settlement_associations", id: false, force: :cascade do |t|
-    t.integer  "association_type", default: 0
-    t.integer  "particular_id"
-    t.integer  "settlement_id"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.integer "association_type", default: 0
+    t.integer "particular_id"
+    t.integer "settlement_id"
   end
 
   add_index "particular_settlement_associations", ["particular_id"], name: "index_particular_settlement_associations_on_particular_id", using: :btree
@@ -811,18 +807,18 @@ ActiveRecord::Schema.define(version: 20161005103826) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
+    t.string   "email",                  default: ""
+    t.string   "encrypted_password",     default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",          default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
     t.inet     "last_sign_in_ip"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.string   "name"
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
@@ -839,6 +835,8 @@ ActiveRecord::Schema.define(version: 20161005103826) do
     t.integer  "invitations_count",      default: 0
     t.integer  "branch_id"
     t.integer  "user_access_role_id"
+    t.string   "username"
+    t.boolean  "pass_changed",           default: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -846,6 +844,7 @@ ActiveRecord::Schema.define(version: 20161005103826) do
   add_index "users", ["invitations_count"], name: "index_users_on_invitations_count", using: :btree
   add_index "users", ["invited_by_id"], name: "index_users_on_invited_by_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+  add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
   create_table "vendor_accounts", force: :cascade do |t|
     t.string   "name"

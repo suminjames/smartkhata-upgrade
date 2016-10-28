@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       get :bills_associated_with_cheque_entries
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
+      get :make_void
       get :bounce
       get :represent
       get :show_multiple
@@ -58,6 +59,7 @@ Rails.application.routes.draw do
     collection do
       get 'deal_cancel'
       get 'pending_deal_cancel'
+      get 'capital_gain_report'
     end
   end
   resources :bills do
@@ -67,6 +69,7 @@ Rails.application.routes.draw do
       post 'process_selected'
       get 'sales_payment'
       post 'sales_payment_process'
+      get 'ageing_analysis'
     end
   end
   resources :transaction_messages do
@@ -101,7 +104,7 @@ Rails.application.routes.draw do
   end
   resources :particulars
   root to: 'visitors#index'
-  devise_for :users
+  devise_for :users, :controllers => { :invitations => 'users/invitations' }
   resources :users, except: [:new, :create, :edit]
 
   match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]

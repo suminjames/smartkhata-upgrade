@@ -27,12 +27,44 @@
 #  hide_for_client        :boolean          default(FALSE)
 #
 
+#simple particulars ie 2 particulars per voucher the least that is possible
 one:
   amount: 5000
-  fy_code: 7273
+  fy_code: 7374
   branch: one
+  voucher: one
+  transaction_type: 0
 
 two:
-  amount: 100
-  fy_code: 7273
+  amount: 5000
+  fy_code: 7374
   branch: one
+  voucher: one
+  transaction_type: 1
+
+# simple payment voucher particulars i.e. 1 dr and 1 cr with cheque entries
+three:
+  id: 1
+  amount: 3000
+  fy_code: 7374
+  branch: one
+  voucher: two
+  transaction_type: 0
+
+four:
+  id: 2
+  amount: 5000
+  fy_code: 7374
+  branch: one
+  voucher: two
+  transaction_type: 1
+
+
+
+
+six:
+  amount: 2000
+  fy_code: 7374
+  branch: one
+  voucher: two
+  transaction_type: 0

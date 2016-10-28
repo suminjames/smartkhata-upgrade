@@ -60,4 +60,6 @@ module CustomDateModule
     end
     return true
   end
+
+  module_function :ad_to_bs, :ad_to_bs_string
 end
