@@ -51,7 +51,14 @@
               = f.text_field(                 |
                 :by_date_to,                  |
                 :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' )       |
+                class: 'form-control' ) |
+        -if params[:paginate] != 'false'
+          .col-xs-2.text-center
+            %label
+              Group By
+            %br
+            = check_box_tag :group_by_company, "true", params[:group_by_company] == 'true'
+            Company
     = render_filterrific_spinner
 
 = render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
