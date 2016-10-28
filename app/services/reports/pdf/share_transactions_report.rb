@@ -134,7 +134,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
     def share_transactions_list
       table_data = []
-      th_data = ["SN.", "Date", "Transaction No.", "Company", "Client", "Bill No.", "Qty\nin", "Qty\nout", "Market\nRate", "Amount", "Commission"]
+      th_data = ["SN.", "Date", "Transaction No.", "Company", "Client", "Bill No.", "Qty\nin", "Qty\nout", "Rate", "Amount", "Commission"]
       table_data << th_data
       total_q_in = 0
       total_q_out = 0
@@ -153,7 +153,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         q_in_str = st.buying? ? arabic_number_integer(q_in) : ''
         q_out = st.selling? ? st.quantity.to_i : ''
         q_out_str = st.selling? ? arabic_number_integer(q_out) : ''
-        m_rate = strip_redundant_decimal_zeroes(st.isin_info.last_price.to_f)
+        m_rate = strip_redundant_decimal_zeroes(st.share_rate.to_f)
         share_amt = strip_redundant_decimal_zeroes(st.share_amount.to_f)
         comm_amt = st.commission_amount.to_f
 
@@ -234,7 +234,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         t.row(0).font_style = :bold
         t.row(0).size = 9
         t.column(0..6).style(:align => :center)
-        t.column(5..9).style(:align => :right)
+        t.column(5..-1).style(:align => :right)
         t.row(0).style(:align => :center)
         t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
         t.column_widths = column_widths

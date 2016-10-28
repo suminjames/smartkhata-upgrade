@@ -87,7 +87,7 @@
               %td.text-center= ad_to_bs_string(cheque_entry.cheque_date) if cheque_entry.cheque_date.present?
               %td.text-center= cheque_entry.beneficiary_name
               %td.text-center= arabic_number(cheque_entry.amount)
-              %td.text-center= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.status)
+              %td.text-center= cheque_entry.formatted_status
               %td.text-center= pretty_enum(cheque_entry.cheque_issued_type)
               %td.text-center.print-status= cheque_entry.receipt? ? 'N/A' : pretty_enum(cheque_entry.print_status)
               %td.text-center

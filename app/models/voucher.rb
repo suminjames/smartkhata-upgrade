@@ -89,7 +89,7 @@ class Voucher < ActiveRecord::Base
     # TODO double check the query for enum
     # rails enum and query not working properly
     last_voucher = Voucher.unscoped.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).last
-    self.voucher_number ||= last_voucher.present? ? last_voucher.voucher_number+1 : 1
+    self.voucher_number ||= last_voucher.present? ? ( last_voucher.voucher_number + 1 ): 1
     self.fy_code = fy_code
   end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019111355) do
+ActiveRecord::Schema.define(version: 20161025064840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -215,11 +215,9 @@ ActiveRecord::Schema.define(version: 20161019111355) do
   add_index "cheque_entries", ["voucher_id"], name: "index_cheque_entries_on_voucher_id", using: :btree
 
   create_table "cheque_entry_particular_associations", force: :cascade do |t|
-    t.integer  "association_type"
-    t.integer  "cheque_entry_id"
-    t.integer  "particular_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.integer "association_type"
+    t.integer "cheque_entry_id"
+    t.integer "particular_id"
   end
 
   add_index "cheque_entry_particular_associations", ["cheque_entry_id"], name: "index_cheque_entry_particular_associations_on_cheque_entry_id", using: :btree
@@ -572,11 +570,9 @@ ActiveRecord::Schema.define(version: 20161019111355) do
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
   create_table "particular_settlement_associations", id: false, force: :cascade do |t|
-    t.integer  "association_type", default: 0
-    t.integer  "particular_id"
-    t.integer  "settlement_id"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.integer "association_type", default: 0
+    t.integer "particular_id"
+    t.integer "settlement_id"
   end
 
   add_index "particular_settlement_associations", ["particular_id"], name: "index_particular_settlement_associations_on_particular_id", using: :btree

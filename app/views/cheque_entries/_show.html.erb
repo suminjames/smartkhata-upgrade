@@ -10,6 +10,7 @@
   <iframe class='hidden-iframe' id='iframe-for-cheque-entry-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
+
 </div>
 
 
@@ -50,5 +51,6 @@
   </div>
 </div>
 
-<%= link_to "Make Void", make_void_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' %>
-<%= link_to "Make Bounced", bounce_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' %>
+<%= link_to "Make Void", make_void_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat'  if @cheque_entry.payment? && !@cheque_entry.void? %>
+<%= link_to "Make Bounced", bounce_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && !@cheque_entry.bounced? %>
+<%= link_to "Represent", represent_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && @cheque_entry.bounced? %>
