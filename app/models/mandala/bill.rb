@@ -1,3 +1,3 @@
 class Mandala::Bill < ActiveRecord::Base
-  self.table_name = "mandala_bill"
+  self.table_name = "bill"
 end

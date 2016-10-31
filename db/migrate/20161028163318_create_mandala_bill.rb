@@ -1,6 +1,6 @@
 class CreateMandalaBill < ActiveRecord::Migration
   def change
-    create_table :mandala_bill do |t|
+    create_table :bill do |t|
       t.string :bill_no
       t.date :bill_date
       t.string :bill_type

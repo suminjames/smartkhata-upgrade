@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161030163435) do
+ActiveRecord::Schema.define(version: 20161031073815) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -578,6 +578,83 @@ ActiveRecord::Schema.define(version: 20161030163435) do
     t.string "skype_id"
   end
 
+  create_table "daily_certificate", force: :cascade do |t|
+    t.integer "transaction_no",                limit: 8
+    t.integer "certificate_no",                limit: 8
+    t.integer "kitta_no_from",                 limit: 8
+    t.integer "kitta_no_to",                   limit: 8
+    t.string  "share_holder"
+    t.integer "total",                         limit: 8
+    t.date    "name_transfer_date"
+    t.date    "name_transfer_receipt_date"
+    t.date    "client_certificate_issue_date"
+    t.string  "fiscal_year"
+    t.string  "transaction_type"
+  end
+
+  create_table "daily_transaction", force: :cascade do |t|
+    t.integer "transaction_no",           limit: 8
+    t.integer "job_no"
+    t.string  "share_code"
+    t.integer "quantity",                 limit: 8
+    t.integer "rate"
+    t.integer "customer_code"
+    t.integer "broker_no"
+    t.integer "broker_job_no"
+    t.integer "self_broker_no"
+    t.date    "transaction_date"
+    t.date    "settlement_date"
+    t.string  "transaction_type"
+    t.integer "base_price"
+    t.string  "transaction_bs_date"
+    t.string  "settlement_bs_date"
+    t.string  "company_code"
+    t.integer "seller_customer_code"
+    t.string  "buyer_bill_no"
+    t.string  "seller_bill_no"
+    t.date    "deposited_date"
+    t.string  "receipt_date"
+    t.string  "client_account_no"
+    t.string  "cash_account_no"
+    t.string  "remarks"
+    t.string  "cancel_tag"
+    t.string  "chalan_no"
+    t.string  "buyer_order_no"
+    t.string  "seller_order_no"
+    t.string  "broker_transaction"
+    t.string  "other_broker_transaction"
+    t.string  "fiscal_year"
+    t.date    "base_price_date"
+    t.string  "transaction_status"
+    t.decimal "nepse_commission",                   precision: 15, scale: 4
+    t.decimal "sebo_commission",                    precision: 15, scale: 4
+    t.decimal "tds",                                precision: 15, scale: 4
+    t.decimal "capital_gain",                       precision: 15, scale: 4
+    t.decimal "capital_gain_tax",                   precision: 15, scale: 4
+    t.decimal "adjusted_purchase_price",            precision: 15, scale: 4
+    t.string  "payout_tag"
+    t.integer "closeout_quantity"
+    t.decimal "closeout_amount",                    precision: 15, scale: 4
+    t.string  "closeout_tag"
+    t.decimal "receivable_amount",                  precision: 15, scale: 4
+    t.integer "settlement_id",            limit: 8
+    t.string  "voucher_no"
+    t.string  "voucher_code"
+    t.string  "closeout_voucher_tag"
+    t.string  "closeout_voucher_no"
+  end
+
+  create_table "daily_transaction_no", force: :cascade do |t|
+    t.integer "transaction_no", limit: 8
+    t.string  "fiscal_year"
+  end
+
+  create_table "district_para", force: :cascade do |t|
+    t.string "zone_code"
+    t.string "district_code"
+    t.string "district_name"
+  end
+
   create_table "employee_accounts", force: :cascade do |t|
     t.string   "name"
     t.string   "address1",                  default: " "
@@ -655,6 +732,18 @@ ActiveRecord::Schema.define(version: 20161030163435) do
   add_index "file_uploads", ["creator_id"], name: "index_file_uploads_on_creator_id", using: :btree
   add_index "file_uploads", ["updater_id"], name: "index_file_uploads_on_updater_id", using: :btree
 
+  create_table "fiscal_year_para", force: :cascade do |t|
+    t.string "fiscal_year"
+    t.date   "fy_start_date"
+    t.date   "fy_end_date"
+    t.string "entered_by"
+    t.date   "entered_date"
+    t.string "year_end"
+    t.string "status"
+    t.string "fy_start_date_bs"
+    t.string "fy_end_date_bs"
+  end
+
   create_table "groups", force: :cascade do |t|
     t.string   "name"
     t.integer  "parent_id"
@@ -679,6 +768,35 @@ ActiveRecord::Schema.define(version: 20161030163435) do
     t.decimal  "last_price", precision: 10, scale: 4, default: 0.0
     t.datetime "created_at",                                        null: false
     t.datetime "updated_at",                                        null: false
+  end
+
+  create_table "ledger", force: :cascade do |t|
+    t.string  "transaction_id"
+    t.string  "ac_code"
+    t.string  "sub_code"
+    t.string  "voucher_code"
+    t.string  "voucher_no"
+    t.string  "serial_no"
+    t.string  "particulars"
+    t.decimal "amount",                     precision: 15, scale: 4
+    t.decimal "nrs_amount",                 precision: 15, scale: 4
+    t.string  "transaction_type"
+    t.date    "transaction_date"
+    t.string  "effective_transaction_date"
+    t.string  "bs_date"
+    t.string  "book_code"
+    t.string  "internal_no"
+    t.string  "currency_code"
+    t.decimal "conversion_rate",            precision: 15, scale: 4
+    t.string  "cost_revenue_code"
+    t.string  "record_deleted"
+    t.string  "cheque_no"
+    t.string  "invoice_no"
+    t.string  "vou_period"
+    t.string  "against_ac_code"
+    t.string  "against_sub_code"
+    t.string  "fiscal_year"
+    t.string  "bill_no"
   end
 
   create_table "ledger_balances", force: :cascade do |t|
@@ -811,6 +929,16 @@ ActiveRecord::Schema.define(version: 20161030163435) do
   add_index "menu_permissions", ["updater_id"], name: "index_menu_permissions_on_updater_id", using: :btree
   add_index "menu_permissions", ["user_access_role_id"], name: "index_menu_permissions_on_user_access_role_id", using: :btree
 
+  create_table "mobile_message", force: :cascade do |t|
+    t.string "customer_code"
+    t.string "mobile_no"
+    t.date   "transaction_date"
+    t.date   "message_date"
+    t.string "bill_no"
+    t.string "message"
+    t.string "message_type"
+  end
+
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
@@ -863,6 +991,26 @@ ActiveRecord::Schema.define(version: 20161030163435) do
 
   add_index "orders", ["client_account_id"], name: "index_orders_on_client_account_id", using: :btree
 
+  create_table "organisation_parameter", force: :cascade do |t|
+    t.string  "org_name"
+    t.string  "org_address"
+    t.string  "contact_person"
+    t.integer "broker_no"
+    t.string  "off_tel_no"
+    t.string  "res_tel_no"
+    t.string  "fax"
+    t.string  "mobile"
+    t.decimal "max_limit",       precision: 15, scale: 4
+    t.string  "transaction_no"
+    t.string  "job_no"
+    t.string  "cash_deposit"
+    t.string  "bank_guarantee"
+    t.string  "pan_no"
+    t.string  "email"
+    t.string  "org_name_nepali"
+    t.string  "org_logo"
+  end
+
   create_table "particular_settlement_associations", id: false, force: :cascade do |t|
     t.integer  "association_type", default: 0
     t.integer  "particular_id"
@@ -914,6 +1062,25 @@ ActiveRecord::Schema.define(version: 20161030163435) do
 
   add_index "particulars_share_transactions", ["particular_id"], name: "index_particulars_share_transactions_on_particular_id", using: :btree
   add_index "particulars_share_transactions", ["share_transaction_id"], name: "index_particulars_share_transactions_on_share_transaction_id", using: :btree
+
+  create_table "payout_upload", force: :cascade do |t|
+    t.integer "transaction_no",          limit: 8
+    t.string  "transaction_type"
+    t.date    "transaction_date"
+    t.string  "company_code"
+    t.integer "quantity"
+    t.integer "rate"
+    t.decimal "nepse_commission",                  precision: 15, scale: 4
+    t.decimal "sebo_commission",                   precision: 15, scale: 4
+    t.decimal "tds",                               precision: 15, scale: 4
+    t.decimal "capital_gain",                      precision: 15, scale: 4
+    t.decimal "capital_gain_tax",                  precision: 15, scale: 4
+    t.decimal "adjusted_purchase_price",           precision: 15, scale: 4
+    t.decimal "closeout_amount",                   precision: 15, scale: 4
+    t.integer "closeout_quantity"
+    t.integer "settlement_id",           limit: 8
+    t.decimal "receivable_amount",                 precision: 15, scale: 4
+  end
 
   create_table "sales_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18

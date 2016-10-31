@@ -24,9 +24,17 @@ namespace :mandala do
         # "company_parameter",
         # "customer_child_info",
         # "customer_ledger"
-        "customer_registration",
-        "customer_registration_detail",
-
+        # "customer_registration",
+        # "customer_registration_detail",
+        # "daily_certificate",
+        # "daily_transaction_no",
+        # "daily_transaction",
+        # "district_para",
+        # "fiscal_year_para",
+        # "ledger",
+        # "mobile_message",
+        # "organisation_parameter",
+        "payout_upload",
       ]
 
       mandala_files.each do |file_name|
