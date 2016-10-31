@@ -11,10 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019111355) do
+ActiveRecord::Schema.define(version: 20161030163435) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "account_balance", force: :cascade do |t|
+    t.string  "ac_code"
+    t.string  "sub_code"
+    t.decimal "balance_amount",     precision: 15, scale: 4
+    t.date    "balance_date"
+    t.string  "fiscal_year"
+    t.string  "balance_type"
+    t.decimal "nrs_balance_amount", precision: 15, scale: 4
+    t.string  "closed_by"
+    t.date    "closed_date"
+  end
+
+  create_table "agm", force: :cascade do |t|
+    t.string "company_code"
+    t.date   "agm_date"
+    t.date   "book_close_date"
+    t.string "agm_place"
+    t.float  "divident_pct"
+    t.float  "bonus_pct"
+    t.float  "right_share"
+    t.string "fiscal_year"
+  end
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id"
@@ -59,6 +82,20 @@ ActiveRecord::Schema.define(version: 20161019111355) do
   add_index "bank_accounts", ["creator_id"], name: "index_bank_accounts_on_creator_id", using: :btree
   add_index "bank_accounts", ["updater_id"], name: "index_bank_accounts_on_updater_id", using: :btree
 
+  create_table "bank_code", force: :cascade do |t|
+    t.string "bank_code"
+    t.string "bank_name"
+    t.string "ac_code"
+    t.string "remarks"
+  end
+
+  create_table "bank_parameter", force: :cascade do |t|
+    t.string "bank_code"
+    t.string "bank_name"
+    t.string "ac_code"
+    t.string "remarks"
+  end
+
   create_table "bank_payment_letters", force: :cascade do |t|
     t.decimal  "settlement_amount",             precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
@@ -92,6 +129,31 @@ ActiveRecord::Schema.define(version: 20161019111355) do
 
   add_index "banks", ["creator_id"], name: "index_banks_on_creator_id", using: :btree
   add_index "banks", ["updater_id"], name: "index_banks_on_updater_id", using: :btree
+
+  create_table "bill_detail", force: :cascade do |t|
+    t.string  "bill_no"
+    t.integer "no_of_shares"
+    t.string  "company_code"
+    t.integer "rate_per_share"
+    t.decimal "amount",                          precision: 15, scale: 4
+    t.decimal "commission_rate",                 precision: 15, scale: 4
+    t.decimal "commission_amount",               precision: 15, scale: 4
+    t.string  "budget_code"
+    t.string  "item_name"
+    t.integer "item_rate"
+    t.integer "transaction_no",        limit: 8
+    t.string  "share_code"
+    t.decimal "capital_gain",                    precision: 15, scale: 4
+    t.integer "name_transfer_rate"
+    t.integer "base_price"
+    t.decimal "mutual_capital_gain",             precision: 15, scale: 4
+    t.string  "fiscal_year"
+    t.decimal "transaction_fee",                 precision: 15, scale: 4
+    t.string  "transaction_type"
+    t.decimal "demat_rate",                      precision: 15, scale: 4
+    t.integer "no_of_shortage_shares"
+    t.decimal "close_out_amount",                precision: 15, scale: 4
+  end
 
   create_table "bill_voucher_associations", force: :cascade do |t|
     t.integer  "association_type"
@@ -150,6 +212,17 @@ ActiveRecord::Schema.define(version: 20161019111355) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "broker_parameter", force: :cascade do |t|
+    t.string  "org_name"
+    t.string  "org_address"
+    t.string  "contact_person"
+    t.integer "broker_no"
+    t.string  "off_tel_no"
+    t.string  "res_tel_no"
+    t.string  "fax"
+    t.string  "mobile"
+  end
+
   create_table "broker_profiles", force: :cascade do |t|
     t.string   "broker_name"
     t.string   "broker_number"
@@ -167,6 +240,26 @@ ActiveRecord::Schema.define(version: 20161019111355) do
 
   add_index "broker_profiles", ["profile_type"], name: "index_broker_profiles_on_profile_type", using: :btree
 
+  create_table "buy_settlement", force: :cascade do |t|
+    t.integer "transaction_no",   limit: 8
+    t.string  "transaction_type"
+    t.date    "transaction_date"
+    t.string  "company_code"
+    t.integer "quantity"
+    t.integer "rate"
+    t.decimal "nepse_commission",           precision: 15, scale: 4
+    t.decimal "sebo_commission",            precision: 15, scale: 4
+    t.decimal "tds",                        precision: 15, scale: 4
+    t.integer "settlement_id",    limit: 8
+  end
+
+  create_table "calendar_parameter", force: :cascade do |t|
+    t.date   "ad_date"
+    t.string "bs_date"
+    t.string "holiday_tag"
+    t.string "day"
+  end
+
   create_table "calendars", force: :cascade do |t|
     t.text     "bs_date",                        null: false
     t.date     "ad_date",                        null: false
@@ -182,6 +275,33 @@ ActiveRecord::Schema.define(version: 20161019111355) do
 
   add_index "calendars", ["creator_id"], name: "index_calendars_on_creator_id", using: :btree
   add_index "calendars", ["updater_id"], name: "index_calendars_on_updater_id", using: :btree
+
+  create_table "capital_gain_detail", force: :cascade do |t|
+    t.string  "group_code"
+    t.integer "capital_gain_pct"
+    t.date    "effective_from"
+    t.date    "effective_to"
+  end
+
+  create_table "capital_gain_para", force: :cascade do |t|
+    t.string "group_code"
+    t.string "group_name"
+    t.string "remarks"
+  end
+
+  create_table "chart_of_account", force: :cascade do |t|
+    t.string "ac_code"
+    t.string "sub_code"
+    t.string "ac_name"
+    t.string "account_type"
+    t.string "currency_code"
+    t.string "control_account"
+    t.string "sub_ledger"
+    t.string "reporting_group"
+    t.string "mgr_ac_code"
+    t.string "mgr_sub_code"
+    t.string "fiscal_year"
+  end
 
   create_table "cheque_entries", force: :cascade do |t|
     t.string   "beneficiary_name"
@@ -316,6 +436,147 @@ ActiveRecord::Schema.define(version: 20161019111355) do
   add_index "closeouts", ["branch_id"], name: "index_closeouts_on_branch_id", using: :btree
   add_index "closeouts", ["creator_id"], name: "index_closeouts_on_creator_id", using: :btree
   add_index "closeouts", ["updater_id"], name: "index_closeouts_on_updater_id", using: :btree
+
+  create_table "commission", force: :cascade do |t|
+    t.string "un_id"
+    t.date   "effective_date_from"
+    t.date   "effective_date_to"
+  end
+
+  create_table "commission_rate", force: :cascade do |t|
+    t.string  "un_id"
+    t.integer "amount_below",      limit: 8
+    t.integer "amount_above",      limit: 8
+    t.float   "rate"
+    t.decimal "commission_amount",           precision: 15, scale: 4
+  end
+
+  create_table "company_parameter", force: :cascade do |t|
+    t.string "company_code"
+    t.string "nepse_code"
+    t.string "company_name"
+    t.string "sector_code"
+    t.date   "listing_date"
+    t.date   "incorpyear"
+    t.string "company_address"
+    t.string "listing_bs_date"
+    t.string "no_of_share",     limit: 8
+    t.string "demat"
+  end
+
+  create_table "company_parameter_list", force: :cascade do |t|
+    t.string  "company_code"
+    t.string  "share_code"
+    t.integer "no_of_shares",     limit: 8
+    t.integer "share_no_from",    limit: 8
+    t.integer "share_no_to",      limit: 8
+    t.integer "par_value_share"
+    t.integer "paid_value_share"
+  end
+
+  create_table "customer_child_info", force: :cascade do |t|
+    t.string "customer_code"
+    t.string "child_name"
+    t.string "relation"
+    t.date   "child_dob"
+    t.string "child_dob_bs"
+    t.string "child_birth_reg_no"
+    t.string "issued_place"
+  end
+
+  create_table "customer_ledger", force: :cascade do |t|
+    t.string  "customer_code"
+    t.string  "bill_no"
+    t.date    "settlement_date"
+    t.string  "particulars"
+    t.string  "entered_by"
+    t.date    "entered_date"
+    t.string  "fiscal_year"
+    t.date    "transaction_date"
+    t.decimal "dr_amount",        precision: 15, scale: 4
+    t.decimal "cr_amount",        precision: 15, scale: 4
+    t.string  "remarks"
+    t.string  "transaction_id"
+    t.integer "slip_no"
+    t.string  "slip_type"
+    t.string  "bill_type"
+    t.string  "settlement_tag"
+  end
+
+  create_table "customer_registration", force: :cascade do |t|
+    t.integer "customer_code"
+    t.string  "customer_name"
+    t.string  "fathers_name"
+    t.string  "g_father_name"
+    t.string  "citizenship_no"
+    t.string  "tel_no"
+    t.string  "fax"
+    t.string  "email"
+    t.string  "contact_person"
+    t.string  "customer_address"
+    t.string  "mgr_ac_code"
+    t.string  "ac_code"
+    t.string  "group_tag"
+    t.string  "group_code"
+    t.date    "dob"
+    t.string  "dob_bs"
+    t.string  "birth_reg_no"
+    t.string  "birth_reg_issued_date"
+    t.string  "ctznp_issued_date"
+    t.string  "ctznp_issued_date_bs"
+    t.string  "ctznp_issued_district_code"
+    t.string  "pan_no"
+    t.string  "husband_wife_name"
+    t.string  "occupation"
+    t.string  "organization_name"
+    t.string  "organization_address"
+    t.string  "idcard_no"
+    t.string  "mobile_no"
+    t.string  "skype_id"
+    t.string  "temp_district_code"
+    t.string  "temp_vdc_mp_smp"
+    t.string  "temp_vdc_mp_smp_name"
+    t.string  "temp_tole"
+    t.string  "temp_ward_no"
+    t.string  "temp_block_no"
+    t.string  "per_district_code"
+    t.string  "per_vdc_mp_smp"
+    t.string  "per_vdc_mp_smp_name"
+    t.string  "per_tole"
+    t.string  "per_ward_no"
+    t.string  "per_block_no"
+    t.string  "per_tel_no"
+    t.string  "per_fax_no"
+    t.string  "financial_institution_name"
+    t.string  "financial_institution_address"
+    t.string  "account_no"
+    t.string  "company_reg_no"
+    t.date    "company_reg_date"
+    t.string  "company_reg_date_bs"
+    t.string  "business_sector"
+    t.string  "referred_client_code"
+    t.string  "entered_by"
+    t.string  "entered_bs_date"
+    t.string  "nepse_customer_code"
+    t.string  "demat_ac_no"
+    t.string  "company_code"
+    t.string  "mutual_fund"
+  end
+
+  create_table "customer_registration_detail", force: :cascade do |t|
+    t.string "customer_code"
+    t.string "group_code"
+    t.string "group_name"
+    t.string "director_name"
+    t.string "designation"
+    t.string "vdc_mp_smp"
+    t.string "vdc_mp_smp_name"
+    t.string "tole"
+    t.string "ward_no"
+    t.string "phone_no"
+    t.string "email"
+    t.string "skype_id"
+  end
 
   create_table "employee_accounts", force: :cascade do |t|
     t.string   "name"
@@ -491,6 +752,37 @@ ActiveRecord::Schema.define(version: 20161019111355) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
+
+  create_table "mandala_bill", force: :cascade do |t|
+    t.string  "bill_no"
+    t.date    "bill_date"
+    t.string  "bill_type"
+    t.date    "clearance_date"
+    t.string  "customer_code"
+    t.string  "bill_bs_date"
+    t.string  "clearance_bs_date"
+    t.string  "vendor_id"
+    t.string  "bill_status"
+    t.string  "voucher_no"
+    t.string  "voucher_code"
+    t.string  "bill_transaction_type"
+    t.string  "chalan_no"
+    t.string  "chalan_form_no"
+    t.string  "group_code"
+    t.date    "transaction_date"
+    t.string  "cust_type"
+    t.string  "cr_customer_code"
+    t.string  "bill_reverse"
+    t.string  "mutual_tag"
+    t.string  "mutual_no"
+    t.string  "fiscal_year"
+    t.decimal "transaction_fee",       precision: 15, scale: 4
+    t.string  "settlement_tag"
+    t.decimal "net_rev_amt",           precision: 15, scale: 4
+    t.decimal "net_pay_amt",           precision: 15, scale: 4
+    t.decimal "total_demat_amount",    precision: 15, scale: 4
+    t.decimal "total_nt_amount",       precision: 15, scale: 4
+  end
 
   create_table "menu_items", force: :cascade do |t|
     t.string   "name"
