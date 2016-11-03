@@ -34,21 +34,41 @@ namespace :mandala do
         # "ledger",
         # "mobile_message",
         # "organisation_parameter",
-        "payout_upload",
+        # "payout_upload",
+        # "receipt_payment_detail",
+        # "receipt_payment_slip",
+        # "sector_parameter",
+        # "share_parameter",
+        # "share_receipt_detail",
+        # "supplier_bill_detail",
+        # "supplier_bill",
+        # "supplier_ledger",
+        # "supplier",
+        # "system_para",
+        # "tax_para",
+        "temp_daily_transaction",
       ]
 
+      total_time_for_execution = 0
       mandala_files.each do |file_name|
         file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name}.csv")
         "Mandala::#{file_name.classify}".constantize.delete_all
 
-        # count = 0
-        CSV.foreach(file, :headers => true, :header_converters => [:downcase]) do |row|
-          # break if count > 100
-          # count = count + 1
-          puts "entering data for #{row[0]}"
-          "Mandala::#{file_name.classify}".constantize.create!(row.to_hash)
+
+        bench = Benchmark.measure do
+          CSV.foreach(file, :headers => true, :header_converters => [:downcase]) do |row|
+            # break if count > 100
+            # count = count + 1
+            puts "entering data for #{row[0]}"
+            "Mandala::#{file_name.classify}".constantize.create!(row.to_hash)
+          end
         end
+        puts "  #{file_name} --> #{bench}"
+        # count = 0
+        total_time_for_execution += bench.total
       end
+      puts "Total time elapsed --> #{ total_time_for_execution}"
+
     else
       puts 'Please pass a tenant to the task'
     end
