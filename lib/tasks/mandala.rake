@@ -6,6 +6,7 @@ namespace :mandala do
       tenant = args.tenant
       Apartment::Tenant.switch!(args.tenant)
 
+      # below are the list of tables in mandala
       mandala_files = [
         "account_balance",
         "agm",
