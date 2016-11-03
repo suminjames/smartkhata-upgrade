@@ -1,113 +1,120 @@
 <%= provide(:section_title, "Client Dashboard") %>
 
-<div class="row">
+<% @clients_info_arr.each_with_index do |client_info_hash, index|
+  client_account = client_info_hash[:client_account]
+%>
+    <div class="row">
 
-  <div class="col-xs-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <h3><%= @client_account.name.titleize %></h3>
-        <p>Account Information</p>
+      <div class="col-xs-4">
+        <!-- small box -->
+        <div class="small-box bg-saroj">
+          <div class="inner">
+            <h3><%= client_account.name.titleize %></h3>
+            <p>Account Information</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-person"></i>
+          </div>
+          <% if is_authorized_to_access? client_accounts_path %>
+              <a href="<%= client_account_path(client_account.id) %>" class="small-box-footer">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </a>
+          <% else %>
+              <span class="small-box-footer">&nbsp;</span>
+          <% end %>
+        </div>
       </div>
-      <div class="icon">
-        <i class="ion ion-person"></i>
+
+      <div class="col-xs-2">
+        <!-- small box -->
+        <div class="small-box bg-saroj">
+          <div class="inner">
+            <h3><%= client_info_hash[:pending_bills_count]%></h3>
+            <p>Pending Bills</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-document-text"></i>
+          </div>
+          <% if is_authorized_to_access? bills_path %>
+              <a href="<%= client_info_hash[:pending_bills_path] %>" class="small-box-footer">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </a>
+          <% else %>
+              <span class="small-box-footer">&nbsp;</span>
+          <% end %>
+        </div>
       </div>
-      <% if is_authorized_to_access? client_accounts_path %>
-          <a href="<%= client_account_path(@client_account.id) %>" class="small-box-footer">
-            More info <i class="fa fa-arrow-circle-right"></i>
-          </a>
-      <% else %>
-          <span class="small-box-footer">&nbsp;</span>
-      <% end %>
+
+      <div class="col-xs-4">
+        <!-- small box -->
+        <div class="small-box bg-saroj">
+          <div class="inner">
+            <%
+              balance = client_info_hash[:ledger_closing_balance].abs
+              balance_type = ''
+              if balance > 0
+                balance_type = 'Dr'
+              elsif balance < 0
+                balance_type = 'Cr'
+              elsif balance == 0
+                balance_type = ''
+              end
+            %>
+            <h3> NRs. <%= "#{arabic_number(balance)} #{balance_type}" %></h3>
+            <p>Outstanding Balance</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-cash"></i>
+          </div>
+          <p>
+            &nbsp;
+          </p>
+        </div>
+      </div>
+
+      <div class="col-xs-2">
+        <!-- small box -->
+        <div class="small-box bg-saroj">
+          <div class="inner">
+            <%
+              grouped_share_inventories = client_info_hash[:grouped_share_inventories]
+              # only show top 3 with positive totals
+              grouped_share_inventories = grouped_share_inventories.select {|e| e.total > 0}
+              grouped_share_inventories = grouped_share_inventories[0..2]
+
+              if grouped_share_inventories.size == 0
+            %>
+                <h3>
+                  --
+                </h3>
+            <%
+
+              end
+              grouped_share_inventories.each do |share_inventory|
+            %>
+                <h3>
+                  <%= "#{share_inventory.isin}(#{share_inventory.total.to_i})" %>
+                </h3>
+            <%
+              end
+            %>
+            <p>Share Inventory Overview</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-arrow-graph-up-right"></i>
+          </div>
+          <% if is_authorized_to_access? bills_path %>
+              <a href="<%= client_info_hash[:share_inventory_path] %>" class="small-box-footer">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </a>
+          <% else %>
+              <span class="small-box-footer">&nbsp;</span>
+          <% end %>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div class="col-xs-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <h3><%= @client_info_hash[:pending_bills_count]%></h3>
-        <p>Pending Bills</p>
-      </div>
-      <div class="icon">
-        <i class="ion ion-document-text"></i>
-      </div>
-      <% if is_authorized_to_access? bills_path %>
-          <a href="<%= @client_info_hash[:pending_bills_path] %>" class="small-box-footer">
-            More info <i class="fa fa-arrow-circle-right"></i>
-          </a>
-      <% else %>
-          <span class="small-box-footer">&nbsp;</span>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="col-xs-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <%
-          balance = @client_info_hash[:ledger_closing_balance].abs
-          balance_type = ''
-          if balance > 0
-            balance_type = 'Dr'
-          elsif balance < 0
-            balance_type = 'Cr'
-          elsif balance == 0
-            balance_type = ''
-          end
-        %>
-        <h3> NRs. <%= "#{arabic_number(balance)} #{balance_type}" %></h3>
-        <p>Outstanding Balance</p>
-      </div>
-      <div class="icon">
-        <i class="ion ion-cash"></i>
-      </div>
-      <p>
-        &nbsp;
-      </p>
-    </div>
-  </div>
-
-  <div class="col-xs-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <%
-          grouped_share_inventories = @client_info_hash[:grouped_share_inventories]
-          # only show top 3 with positive totals
-          grouped_share_inventories = grouped_share_inventories.select {|e| e.total > 0}
-          grouped_share_inventories = grouped_share_inventories[0..2]
-
-          if grouped_share_inventories.size == 0
-        %>
-            <h3>
-              --
-            </h3>
-        <%
-
-          end
-          grouped_share_inventories.each do |share_inventory|
-        %>
-            <h3>
-              <%= "#{share_inventory.isin}(#{share_inventory.total.to_i})" %>
-            </h3>
-        <%
-          end
-        %>
-        <p>Share Inventory Overview</p>
-      </div>
-      <div class="icon">
-        <i class="ion ion-arrow-graph-up-right"></i>
-      </div>
-      <% if is_authorized_to_access? bills_path %>
-          <a href="<%= @client_info_hash[:share_inventory_path] %>" class="small-box-footer">
-            More info <i class="fa fa-arrow-circle-right"></i>
-          </a>
-      <% else %>
-          <span class="small-box-footer">&nbsp;</span>
-      <% end %>
-    </div>
-  </div>
-
-</div>
+    <!--Separator between multiple associated clients' information rows-->
+    <% if index != @clients_info_arr.length - 1 %>
+        <hr>
+    <% end %>
+<% end %>
