@@ -7,66 +7,80 @@ namespace :mandala do
       Apartment::Tenant.switch!(args.tenant)
 
       mandala_files = [
-        # "account_balance",
-        # "agm",
-        # "bank_parameter",
-        # "bill",
-        # "bill_detail",
-        # 'broker_parameter',
-        # 'buy_settlement',
-        # 'calendar_parameter',
-        # 'capital_gain_detail',
-        # "capital_gain_para",
-        # "chart_of_account",
-        # "commission_rate",
-        # "commission",
-        # "company_parameter_list",
-        # "company_parameter",
-        # "customer_child_info",
-        # "customer_ledger"
-        # "customer_registration",
-        # "customer_registration_detail",
-        # "daily_certificate",
-        # "daily_transaction_no",
-        # "daily_transaction",
-        # "district_para",
-        # "fiscal_year_para",
-        # "ledger",
-        # "mobile_message",
-        # "organisation_parameter",
-        # "payout_upload",
-        # "receipt_payment_detail",
-        # "receipt_payment_slip",
-        # "sector_parameter",
-        # "share_parameter",
-        # "share_receipt_detail",
-        # "supplier_bill_detail",
-        # "supplier_bill",
-        # "supplier_ledger",
-        # "supplier",
-        # "system_para",
-        # "tax_para",
+        "account_balance",
+        "agm",
+        "bank_parameter",
+        "bill",
+        "bill_detail",
+        'broker_parameter',
+        'buy_settlement',
+        'calendar_parameter',
+        'capital_gain_detail',
+        "capital_gain_para",
+        "chart_of_account",
+        "commission_rate",
+        "commission",
+        "company_parameter_list",
+        "company_parameter",
+        "customer_child_info",
+        "customer_ledger",
+        "customer_registration",
+        "customer_registration_detail",
+        "daily_certificate",
+        "daily_transaction_no",
+        "daily_transaction",
+        "district_para",
+        "fiscal_year_para",
+        "ledger",
+        "mobile_message",
+        "organisation_parameter",
+        "payout_upload",
+        "receipt_payment_detail",
+        "receipt_payment_slip",
+        "sector_parameter",
+        "share_parameter",
+        "share_receipt_detail",
+        "supplier_bill_detail",
+        "supplier_bill",
+        "supplier_ledger",
+        "supplier",
+        "system_para",
+        "tax_para",
         "temp_daily_transaction",
+        "temp_name_transfer",
+        "voucher_detail",
+        "voucher_number_configuration",
+        "voucher_particulars",
+        "voucher_parameter",
+        "voucher_transaction",
+        "voucher_user",
+        "voucher",
+        "zone_para",
+
       ]
 
       total_time_for_execution = 0
-      mandala_files.each do |file_name|
-        file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name}.csv")
-        "Mandala::#{file_name.classify}".constantize.delete_all
 
+      ActiveRecord::Base.transaction do
+        mandala_files.each do |file_name|
+          file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name}.csv")
+          "Mandala::#{file_name.classify}".constantize.delete_all
 
-        bench = Benchmark.measure do
-          CSV.foreach(file, :headers => true, :header_converters => [:downcase]) do |row|
-            # break if count > 100
-            # count = count + 1
-            puts "entering data for #{row[0]}"
-            "Mandala::#{file_name.classify}".constantize.create!(row.to_hash)
+          # count = 0
+          bench = Benchmark.measure do
+            CSV.foreach(file, :headers => true, :header_converters => [:downcase]) do |row|
+              # break if count > 100
+              # count = count + 1
+              # puts "entering data for #{row[0]}"
+              "Mandala::#{file_name.classify}".constantize.create!(row.to_hash)
+            end
           end
+          puts "  #{file_name} --> #{bench}"
+
+          total_time_for_execution += bench.total
         end
-        puts "  #{file_name} --> #{bench}"
-        # count = 0
-        total_time_for_execution += bench.total
       end
+
       puts "Total time elapsed --> #{ total_time_for_execution}"
 
     else

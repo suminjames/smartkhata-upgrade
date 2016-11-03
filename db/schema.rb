@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161101144507) do
+ActiveRecord::Schema.define(version: 20161103080445) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1208,6 +1208,15 @@ ActiveRecord::Schema.define(version: 20161101144507) do
     t.string "share_description"
   end
 
+  create_table "share_receipt", force: :cascade do |t|
+    t.string "receipt_no"
+    t.date   "received_date"
+    t.string "customer_code"
+    t.string "received_by"
+    t.string "fiscal_year"
+    t.string "remarks"
+  end
+
   create_table "share_receipt_detail", force: :cascade do |t|
     t.string  "receipt_no"
     t.string  "company_code"
@@ -1396,6 +1405,11 @@ ActiveRecord::Schema.define(version: 20161101144507) do
     t.string  "nepse_code"
   end
 
+  create_table "temp_name_transfer", force: :cascade do |t|
+    t.integer "transaction_no", limit: 8
+    t.integer "quantity"
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.string   "name"
     t.string   "dp_id"
@@ -1491,6 +1505,105 @@ ActiveRecord::Schema.define(version: 20161101144507) do
   add_index "vendor_accounts", ["creator_id"], name: "index_vendor_accounts_on_creator_id", using: :btree
   add_index "vendor_accounts", ["updater_id"], name: "index_vendor_accounts_on_updater_id", using: :btree
 
+  create_table "voucher", force: :cascade do |t|
+    t.string  "voucher_no"
+    t.string  "voucher_code"
+    t.string  "serial_no"
+    t.string  "voucher_date"
+    t.string  "bs_date"
+    t.string  "dr_ac_code"
+    t.string  "dr_sub_code"
+    t.string  "cr_ac_code"
+    t.string  "cr_sub_code"
+    t.string  "narration"
+    t.string  "paid_to_received_from"
+    t.string  "cheque_no"
+    t.string  "prepared_by"
+    t.string  "checked_by"
+    t.string  "approved_by"
+    t.string  "authorized_by"
+    t.integer "transaction_no",        limit: 8
+    t.string  "fiscal_year"
+    t.string  "bill_no"
+    t.string  "posted_by"
+  end
+
+  create_table "voucher_detail", force: :cascade do |t|
+    t.string  "voucher_no"
+    t.string  "voucher_code"
+    t.string  "ac_code"
+    t.string  "sub_code"
+    t.string  "particulars"
+    t.string  "currency_code"
+    t.string  "amount"
+    t.string  "conversion_rate"
+    t.decimal "nrs_amount",        precision: 15, scale: 4
+    t.string  "transaction_type"
+    t.string  "cost_revenue_code"
+    t.string  "invoice_no"
+    t.string  "vou_period"
+    t.string  "against_ac_code"
+    t.string  "against_sub_code"
+    t.string  "cheque_no"
+    t.string  "fiscal_year"
+    t.string  "serial_no"
+  end
+
+  create_table "voucher_number_configuration", force: :cascade do |t|
+    t.string "no_code"
+    t.string "voucher_no_format"
+  end
+
+  create_table "voucher_number_detail", force: :cascade do |t|
+    t.string "no_code"
+    t.string "part_no"
+    t.string "character_length"
+    t.string "choice_of_part"
+    t.string "other_constant"
+    t.string "number_format"
+  end
+
+  create_table "voucher_parameter", force: :cascade do |t|
+    t.string "voucher_code"
+    t.string "voucher_name"
+    t.string "voucher_type"
+    t.string "dr_ac_code"
+    t.string "dr_sub_code"
+    t.string "cr_ac_code"
+    t.string "cr_sub_code"
+    t.string "check_dr_code"
+    t.string "check_cr_code"
+    t.string "checked_by"
+    t.string "approved_by"
+    t.string "authorized_by"
+    t.string "voucher_no_code"
+  end
+
+  create_table "voucher_particulars", force: :cascade do |t|
+    t.string  "bill_no"
+    t.string  "count_shares"
+    t.integer "no_of_shares"
+    t.decimal "rate_per_share",  precision: 15, scale: 2
+    t.string  "company_code"
+    t.string  "commission_rate"
+    t.string  "fiscal_year"
+    t.string  "transaction_fee"
+  end
+
+  create_table "voucher_transaction", force: :cascade do |t|
+    t.string "voucher_no"
+    t.string "voucher_code"
+    t.string "fiscal_year"
+  end
+
+  create_table "voucher_user", force: :cascade do |t|
+    t.string "voucher_code"
+    t.string "voucher_name"
+    t.string "voucher_type"
+    t.string "user_code"
+    t.string "status"
+  end
+
   create_table "vouchers", force: :cascade do |t|
     t.integer  "fy_code"
     t.integer  "voucher_number"
@@ -1515,6 +1628,12 @@ ActiveRecord::Schema.define(version: 20161101144507) do
   add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
   add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
+
+  create_table "zone_para", force: :cascade do |t|
+    t.string "regional_code"
+    t.string "zone_code"
+    t.string "zone_name"
+  end
 
   add_foreign_key "bank_payment_letters", "branches"
   add_foreign_key "bank_payment_letters", "sales_settlements"
