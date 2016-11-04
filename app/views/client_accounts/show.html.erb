@@ -1,7 +1,7 @@
 <% provide(:section_title, "Client Details") %>
 
 <!-- bootstrap tabs -->
-<div class="nav-tabs-custom">
+<div class="nav-tabs-custom client-show">
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a>
@@ -179,7 +179,13 @@
   </div>
 </div>
 
-<div class="stick-to-bottom">
-  <%= link_to 'Edit', edit_client_account_path(@client_account) %> |
-  <%= link_to 'Back', client_accounts_path %>
-</div>
+<% if current_user.client? %>
+    <div class="highlighted-box">
+      Please contact <%= current_tenant.full_name %> if you need to make changes to the information in this page.
+    </div>
+<% else %>
+    <div class="stick-to-bottom">
+      <%= link_to 'Edit', edit_client_account_path(@client_account) %> |
+      <%= link_to 'Back', client_accounts_path %>
+    </div>
+<% end %>

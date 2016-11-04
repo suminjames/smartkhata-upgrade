@@ -84,6 +84,18 @@ class User < ActiveRecord::Base
 
   attr_accessor :current_url_link
 
+  def self.client_logged_in?
+    UserSession.user.client?
+  end
+
+  #
+  # A user has_many client_accounts.
+  # This method checks if the user object is associated with the client_account_id.
+  #
+  def belongs_to_client_account(client_account_id)
+    self.client_accounts.pluck(:id).include? client_account_id
+  end
+
   def blocked_path_list
     get_blocked_path_list(self.user_access_role_id)
   end
