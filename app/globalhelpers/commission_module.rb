@@ -1,34 +1,31 @@
 module CommissionModule
 
   def get_commission_rate(amount, transaction_date)
-
     if transaction_date >= date_of_commission_rate_update
-      case amount
-        when 0..4166.67
-          "flat_25"
-        when 4166.68..50000
-          "0.60"
-        when 50001..500000
-          "0.55"
-        when 500001..2000000
-          "0.50"
-        when 2000001..10000000
-          "0.45"
-        else # >= 10000001
-          "0.40"
+      if amount <= 4166.67
+        "flat_25"
+      elsif amount > 4166.67 && amount <= 50000
+        "0.60"
+      elsif amount > 50000 && amount <= 500000
+        "0.55"
+      elsif amount > 500000 && amount <= 2000000
+        "0.50"
+      elsif amount > 2000000 && amount <= 10000000
+        "0.45"
+      else # > 10000000
+        "0.40"
       end
     else
-      case amount
-        when 0..2500
-          "flat_25"
-        when 2501..50000
-          "1"
-        when 50001..500000
-          "0.9"
-        when 500001..1000000
-          "0.8"
-        else
-          "0.7"
+      if amount <= 2500
+        "flat_25"
+      elsif amount > 2500 && amount <= 50000
+        "1"
+      elsif amount > 50000 && amount <= 500000
+        "0.9"
+      elsif amount > 500000 && amount <= 1000000
+        "0.8"
+      else # > 1000000
+        "0.7"
       end
     end
   end
