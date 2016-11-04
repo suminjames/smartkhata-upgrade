@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get 'general_settings/set_branch'
 
   get 'dashboard/index'
+  get 'dashboard/client_index'
 
   resources :nepse_chalans
   resources :vendor_accounts

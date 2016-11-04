@@ -4,7 +4,11 @@ class VisitorsController < ApplicationController
 
   def index
     if user_signed_in?
-      redirect_to :controller => 'dashboard', :action => 'index'
+      if current_user.client?
+        redirect_to :controller => 'dashboard', :action => 'client_index'
+      else
+        redirect_to :controller => 'dashboard', :action => 'index'
+      end
     end
   end
 end

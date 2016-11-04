@@ -35,13 +35,18 @@ class ShareInventory < ActiveRecord::Base
   include Auditable
   include ::Models::UpdaterWithBranch
 
-
   belongs_to :client_account
   belongs_to :isin_info
+
+  scope :by_client_id, -> (id) { where(client_account_id: id) }
 
   def self.with_most_quantity
     query = ShareInventory.joins(:isin_info).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC").limit(1)
     query.first
+  end
+
+  def self.group_by_isin_for_client(client_id)
+    ShareInventory.joins(:isin_info).by_client_id(client_id).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC")
   end
 
   #

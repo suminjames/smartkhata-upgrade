@@ -11,6 +11,13 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions
   # GET /share_transactions.json
   def index
+    # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
+    # error flash message.
+    if User.client_logged_in? &&
+        !current_user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
+      user_not_authorized and return
+    end
+
     # this case is for the viewing of transaction by floorsheet date
     bs_date = params.dig(:filterrific, :by_date)
     if bs_date.present? && is_valid_bs_date?(bs_date)
