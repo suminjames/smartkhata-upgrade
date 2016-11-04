@@ -47,6 +47,8 @@ class User < ActiveRecord::Base
   has_many :client_accounts
   has_one :employee_account
 
+  belongs_to :branch
+
   has_many :menu_permissions, through: :user_access_role
   has_many :branch_permissions
   belongs_to :user_access_role
