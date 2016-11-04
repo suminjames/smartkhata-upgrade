@@ -16,14 +16,14 @@
   %div#bill_list
     %table.table.table-striped
       %thead
-        %th.col-xs-1= 'S.N.'
-        %th.col-xs-1= 'Bill No.'
-        %th.col-xs-1= 'Date(BS)'
-        %th.col-xs-2= 'Client'
-        %th.col-xs-1= 'Type'
-        %th.col-xs-1= 'Status'
-        %th.col-xs-2= 'Companies<br>Transacted'.html_safe
-        %th.col-xs-1= 'Net<br>Bill<br>Amount'.html_safe
+        %th.col-sm-1= 'S.N.'
+        %th.col-sm-1= 'Bill No.'
+        %th.col-sm-1= 'Date(BS)'
+        %th.col-sm-2= 'Client'
+        %th.col-sm-1= 'Type'
+        %th.col-sm-1= 'Status'
+        %th.col-sm-2= 'Companies<br>Transacted'.html_safe
+        %th.col-sm-1= 'Net<br>Bill<br>Amount'.html_safe
       %tbody
         -if bills.present?
           -pagination_count = kaminari_serial_number(params[:page], bills.limit_value)
