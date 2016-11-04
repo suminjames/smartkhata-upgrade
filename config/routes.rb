@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :broker_profiles
   resources :user_access_roles
   resources :bank_payment_letters do
     collection do
@@ -150,6 +151,10 @@ Rails.application.routes.draw do
     resources :profitandloss
     resources :trial_balance
     resources :threshold_transactions, only: [:index]
+  end
+
+  namespace 'master_setup' do
+    resources :broker_profiles
   end
 
   get "/test" => "test#index"
