@@ -89,8 +89,12 @@ class ClientAccount < ActiveRecord::Base
   belongs_to :branch
 
   # 36 fields present. Validate accordingly!
+  # validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
+  #                       :unless => :nepse_code?
   validates_presence_of :name, :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :unless => :nepse_code?
+                        :if => lambda {|record| record.nepse_code.blank?  && record.individual?}
+  validates_presence_of :name, :address1_perm, :city_perm, :state_perm, :country_perm,
+                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate?}
   validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
   validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
