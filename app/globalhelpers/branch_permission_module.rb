@@ -6,10 +6,14 @@ module BranchPermissionModule
   # and model dont have access to current_user helper
   #
   def permitted_branches(user = current_user)
-    if !user.client?
-      Branch.permitted_branches_for_user(user)
+    if user.present?
+      if !user.client?
+        Branch.permitted_branches_for_user(user)
+      else
+        [user.branch]
+      end
     else
-      [user.branch]
+      []
     end
   end
 
