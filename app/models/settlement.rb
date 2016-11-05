@@ -45,6 +45,7 @@ class Settlement < ActiveRecord::Base
   has_many :credited_particulars, through: :for_cr, source: :particular
   has_many :particulars, through: :particular_settlement_associations
 
+  belongs_to :voucher
   #
   # # Father of all hacks :)
   # # careful with the mapping between the type i.e settlement and cr dr of association
