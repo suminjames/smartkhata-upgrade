@@ -9,7 +9,7 @@ class CreateVoucherDetail < ActiveRecord::Migration
       t.string :currency_code
       t.string :amount
       t.string :conversion_rate
-      t.decimal :nrs_amount, precision: 15, scale: 4
+      t.string :nrs_amount
       t.string :transaction_type
       t.string :cost_revenue_code
       t.string :invoice_no

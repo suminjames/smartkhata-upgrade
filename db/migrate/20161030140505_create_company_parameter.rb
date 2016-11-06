@@ -5,8 +5,8 @@ class CreateCompanyParameter < ActiveRecord::Migration
       t.string :nepse_code
       t.string :company_name
       t.string :sector_code
-      t.date :listing_date
-      t.date :incorpyear
+      t.string :listing_date
+      t.string :incorpyear
       t.string :company_address
       t.string :listing_bs_date
       t.string :no_of_share, limit: 8

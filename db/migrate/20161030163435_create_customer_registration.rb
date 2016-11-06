@@ -1,7 +1,7 @@
 class CreateCustomerRegistration < ActiveRecord::Migration
   def change
     create_table :customer_registration do |t|
-      t.integer :customer_code
+      t.string :customer_code
       t.string :customer_name
       t.string :fathers_name
       t.string :g_father_name
@@ -15,7 +15,7 @@ class CreateCustomerRegistration < ActiveRecord::Migration
       t.string :ac_code
       t.string :group_tag
       t.string :group_code
-      t.date :dob
+      t.string :dob
       t.string :dob_bs
       t.string :birth_reg_no
       t.string :birth_reg_issued_date
@@ -48,7 +48,7 @@ class CreateCustomerRegistration < ActiveRecord::Migration
       t.string :financial_institution_address
       t.string :account_no
       t.string :company_reg_no
-      t.date :company_reg_date
+      t.string :company_reg_date
       t.string :company_reg_date_bs
       t.string :business_sector
       t.string :referred_client_code

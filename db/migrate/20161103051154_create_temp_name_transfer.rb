@@ -1,8 +1,8 @@
 class CreateTempNameTransfer < ActiveRecord::Migration
   def change
     create_table :temp_name_transfer do |t|
-      t.integer :transaction_no, limit: 8
-      t.integer :quantity
+      t.string :transaction_no
+      t.string :quantity
     end
   end
 end

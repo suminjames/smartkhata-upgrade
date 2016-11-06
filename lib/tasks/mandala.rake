@@ -162,7 +162,7 @@ namespace :mandala do
           v.update_attribute('voucher_number', (v.voucher_number + 10000))
 
         rescue
-          puts "error for voucher: #{voucher.fy_code}-#{voucher.voucher_number}"
+          puts "error for voucher: #{v.fy_code}-#{v.voucher_number}"
         end
       end
       puts "done"
@@ -198,6 +198,8 @@ namespace :mandala do
               else
                 # puts "processing #{voucher.voucher_no}"
                 new_voucher.save!
+                voucher.voucher_id = new_voucher.id
+                voucher.save!
               end
 
             #   transfer voucher to the main system

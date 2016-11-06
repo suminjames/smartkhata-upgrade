@@ -3,6 +3,7 @@ class Mandala::Voucher < ActiveRecord::Base
   include FiscalYearModule
 
   self.table_name = "voucher"
+  belongs_to :voucher
 
   def voucher_details
     Mandala::VoucherDetail.where(voucher_no: self.voucher_no, voucher_code: self.voucher_code)

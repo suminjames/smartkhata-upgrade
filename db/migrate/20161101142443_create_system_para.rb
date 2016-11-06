@@ -5,7 +5,7 @@ class CreateSystemPara < ActiveRecord::Migration
       t.string :nepse_sales_ac
       t.string :commission_purchase_ac
       t.string :commission_sales_ac
-      t.integer :name_transfer_rate
+      t.string :name_transfer_rate
       t.string :nepse_capital_ac
       t.string :extra_commission_charge
       t.string :voucher_tag

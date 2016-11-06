@@ -2,9 +2,9 @@ class CreateMandalaBill < ActiveRecord::Migration
   def change
     create_table :bill do |t|
       t.string :bill_no
-      t.date :bill_date
+      t.string :bill_date
       t.string :bill_type
-      t.date :clearance_date
+      t.string :clearance_date
       t.string :customer_code
       t.string :bill_bs_date
       t.string :clearance_bs_date
@@ -16,19 +16,19 @@ class CreateMandalaBill < ActiveRecord::Migration
       t.string :chalan_no
       t.string :chalan_form_no
       t.string :group_code
-      t.date :transaction_date
+      t.string :transaction_date
       t.string :cust_type
       t.string :cr_customer_code
       t.string :bill_reverse
       t.string :mutual_tag
       t.string :mutual_no
       t.string :fiscal_year
-      t.decimal :transaction_fee, precision: 15, scale: 4
+      t.string :transaction_fee
       t.string :settlement_tag
-      t.decimal :net_rev_amt, precision: 15, scale: 4
-      t.decimal :net_pay_amt, precision: 15, scale: 4
-      t.decimal :total_demat_amount, precision: 15, scale: 4
-      t.decimal :total_nt_amount, precision: 15, scale: 4
+      t.string :net_rev_amt
+      t.string :net_pay_amt
+      t.string :total_demat_amount
+      t.string :total_nt_amount
     end
   end
 end

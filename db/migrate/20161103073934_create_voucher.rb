@@ -17,7 +17,7 @@ class CreateVoucher < ActiveRecord::Migration
       t.string :checked_by
       t.string :approved_by
       t.string :authorized_by
-      t.integer :transaction_no, limit: 8
+      t.string :transaction_no
       t.string :fiscal_year
       t.string :bill_no
       t.string :posted_by

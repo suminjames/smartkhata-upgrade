@@ -4,9 +4,9 @@ class CreateReceiptPaymentSlip < ActiveRecord::Migration
       t.string :title
       t.string :customer_code
       t.string :currency_code
-      t.decimal :amount, precision: 15, scale: 2
+      t.string :amount
       t.string :entered_by
-      t.date :entered_date
+      t.string :entered_date
       t.string :fiscal_year
       t.string :remarks
       t.string :payment_type
@@ -19,12 +19,12 @@ class CreateReceiptPaymentSlip < ActiveRecord::Migration
       t.string :voucher_no
       t.string :voucher_code
       t.string :supplier_id
-      t.integer :transaction_no, limit: 8
+      t.string :transaction_no
       t.string :void
       t.string :bill_no
       t.string :pay_to
       t.string :cheque_printed
-      t.date :issue_date
+      t.string :issue_date
     end
   end
 end
