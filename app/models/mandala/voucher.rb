@@ -45,8 +45,8 @@ class Mandala::Voucher < ActiveRecord::Base
         voucher_type: voucher_mapping,
         date: Date.parse(voucher_date),
         date_bs: bs_date,
-        desc: narration
-                  })
+        desc: narration,
+        voucher_status: :complete })
   end
 
   def voucher_mapping

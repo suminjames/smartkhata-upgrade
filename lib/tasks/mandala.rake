@@ -103,7 +103,8 @@ namespace :mandala do
       # map the system accounts
 
 
-      customer_ac_codes = ['10301-6515','10301-3206', '10301-4629']
+      # customer_ac_codes = ['10301-6515','10301-3206', '10301-4629']
+      customer_ac_codes = ['10301-3206']
       customer_codes = Mandala::CustomerRegistration.where(ac_code: customer_ac_codes).pluck(:customer_code)
 
       Mandala::Bill.where.not(customer_code: customer_codes).delete_all
@@ -214,10 +215,33 @@ namespace :mandala do
           '' => "Purchase Commission"
 
       }
+      group = Group.find_or_create_by!({name: "Investment",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
 
+      mandala_smartkhata_group_arr = {
+          '103' => 'Current Assets',
+          '101' => 'Fixed Assets',
+          '102' => 'Investment',
 
+          '201' => 'Capital',
+          '202' => 'Reserve & Surplus',
+          '203' => 'Loan',
+          '204' => 'Current Liabilities',
 
+          '301' => 'Direct Income',
+          '302' => 'Indirect Income',
 
+          '401' => 'Indirect Income',
+          '402' => 'Indirect Expense',
+          '403' => 'Direct Expense'
+      }
+
+      mandala_smartkhata_group_arr.each do |k,v|
+        chart_of_acc = Mandala::ChartOfAccount.find_by(ac_code: k)
+        if chart_of_acc.present?
+          chart_of_acc.group_id = Group.find_by(name: v).id
+          chart_of_acc.save!
+        end
+      end
 
 
 
@@ -263,22 +287,88 @@ namespace :mandala do
                 voucher.migration_completed = true
                 voucher.save!
 
+                dr_particulars = []
+                cr_particulars = []
+
                 voucher.ledgers.each do |ledger|
                   particular = ledger.new_smartkhata_particular(new_voucher.id, fy_code: fy_code)
                   particular.save!
+
                   ledger.particular = particular
                   ledger.save!
+
+                  dr_particulars << particular if particular.dr?
+                  cr_particulars << particular if particular.cr?
+                end
+
+                # payment receipt case
+                if voucher.voucher_code != 'JVR'
+                  receipt_payments = voucher.receipt_payments
+
+                  if receipt_payments.size > 1
+                    raise NotImplementedError
+                  end
+
+                  settlement = nil
+                  receipt_payments.each do |rp|
+                    settlement = rp.new_smartkhata_settlement(new_voucher.id, fy_code)
+                    settlement.save!
+
+                    cheque_entries = []
+                    if new_voucher.payment_bank? || new_voucher.receipt_bank?
+                      rp.receipt_payment_details.each do |detail|
+                        cheque_entry = detail.new_smartkhata_cheque_entry(settlement.date, fy_code )
+                        if cheque_entry.present?
+                          cheque_entry.save!
+                          detail.cheque_entry_id = cheque_entry.id
+                          detail.save!
+                          cheque_entries << cheque_entry
+                        end
+                      end
+
+                      if new_voucher.payment_bank?
+                        cr_particulars.each do |particular|
+                          cheque_entries.each do |cheque_entry|
+                            particular.cheque_entries_on_payment << cheque_entry if cheque_entry.amount == particular.amount
+                          end
+                        end
+                        dr_particulars.each do |particular|
+                          if particular.cheque_entries_on_payment.size <= 0
+                            particular.cheque_entries_on_payment << cheque_entries
+                            particular.save!
+                          end
+                        end
+                      elsif new_voucher.receipt_bank?
+                        dr_particulars.each do |particular|
+                          cheque_entries.each do |cheque_entry|
+                            particular.cheque_entries_on_receipt << cheque_entry if cheque_entry.amount == particular.amount
+                          end
+                        end
+
+                        cr_particulars.each do |particular|
+                          if particular.cheque_entries_on_receipt.size <= 0
+                            particular.cheque_entries_on_receipt << cheque_entries
+                            particular.save!
+                          end
+                        end
+                      end
+                    end
+                  end
+
+
+
+
+                  new_voucher.particulars.select{|x| x.dr?}.each do |p|
+                    p.debit_settlements << settlement if settlement.present?
+                  end
+                  new_voucher.particulars.select{|x| x.cr?}.each do |p|
+                    p.credit_settlements << settlement if settlement.present?
+                  end
                 end
               end
 
-            #   transfer voucher to the main system
-            #   particulars are mandala ledger
-            #   settlement from receipt_payments
-            # #   cheque_entries from receipt_payment_detail
-            # rescue
-            #   debugger
-            #   puts voucher.voucher_no
-            # end
+          #     bills
+          #   settlement details
           end
 
       end

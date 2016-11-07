@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161106055753) do
+ActiveRecord::Schema.define(version: 20161107095338) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -333,6 +333,7 @@ ActiveRecord::Schema.define(version: 20161106055753) do
     t.string  "mgr_sub_code"
     t.string  "fiscal_year"
     t.integer "ledger_id"
+    t.integer "group_id"
   end
 
   create_table "cheque_entries", force: :cascade do |t|

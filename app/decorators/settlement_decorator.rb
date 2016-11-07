@@ -18,7 +18,11 @@ class SettlementDecorator < ApplicationDecorator
     cheque_numbers = []
     bank_names = []
     object.cheque_entries.each do |cheque_entry|
-      bank_name = cheque_entry.receipt? ? cheque_entry.additional_bank.name : cheque_entry.bank_account.bank_name
+      if cheque_entry.additional_bank.present?
+        bank_name = cheque_entry.additional_bank.name
+      else
+        bank_name = cheque_entry.bank_account.bank_name
+      end
       # strip the bank name
       cutoff_length = strip ? 20 : 100
       bank_name = bank_name.length > cutoff_length ? "#{bank_name[0..cutoff_length-1]}..." : bank_name
