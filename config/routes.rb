@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  namespace :master_setup do
+    resources :commission_rates
+    resources :broker_profiles
+  end
+
   resources :broker_profiles
   resources :user_access_roles
   resources :bank_payment_letters do
@@ -153,9 +158,6 @@ Rails.application.routes.draw do
     resources :threshold_transactions, only: [:index]
   end
 
-  namespace 'master_setup' do
-    resources :broker_profiles
-  end
 
   get "/test" => "test#index"
 

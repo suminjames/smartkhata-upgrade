@@ -1,4 +1,13 @@
 FactoryGirl.define do
+  factory :master_setup_commission_rate, class: 'MasterSetup::CommissionRate' do
+    date_from "2016-11-07"
+    date_to "2016-11-07"
+    amount_gt "9.99"
+    amout_lt_eq "9.99"
+    rate "9.99"
+    is_flat_rate false
+    remarks "MyString"
+  end
 
   factory :user do
     name 'Lachlan'

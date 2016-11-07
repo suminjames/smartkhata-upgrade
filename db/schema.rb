@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161025064840) do
+ActiveRecord::Schema.define(version: 20161107050104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -489,6 +489,18 @@ ActiveRecord::Schema.define(version: 20161025064840) do
   add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
+
+  create_table "master_setup_commission_rates", force: :cascade do |t|
+    t.date     "date_from"
+    t.date     "date_to"
+    t.decimal  "amount_gt"
+    t.decimal  "amout_lt_eq"
+    t.decimal  "rate"
+    t.boolean  "is_flat_rate"
+    t.string   "remarks"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
 
   create_table "menu_items", force: :cascade do |t|
     t.string   "name"

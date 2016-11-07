@@ -1,0 +1,14 @@
+= simple_form_for(@master_setup_commission_rate) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :date_from
+    = f.input :date_to
+    = f.input :amount_gt
+    = f.input :amout_lt_eq
+    = f.input :rate
+    = f.input :is_flat_rate
+    = f.input :remarks
+
+  .form-actions
+    = f.button :submit
