@@ -100,6 +100,9 @@ namespace :mandala do
       UserSession.user = User.first
 
 
+      # map the system accounts
+
+
       customer_ac_codes = ['10301-6515','10301-3206', '10301-4629']
       customer_codes = Mandala::CustomerRegistration.where(ac_code: customer_ac_codes).pluck(:customer_code)
 
@@ -107,7 +110,6 @@ namespace :mandala do
       bill_numbers = Mandala::Bill.pluck(:bill_no)
       Mandala::BillDetail.where.not(bill_no: bill_numbers).delete_all
       Mandala::CustomerLedger.where.not(customer_code: customer_ac_codes).delete_all
-      Mandala::Ledger.where.not(ac_code: customer_ac_codes).delete_all
 
       Mandala::ReceiptPaymentSlip.where.not(customer_code: customer_ac_codes).delete_all
       Mandala::ReceiptPaymentDetail.where.not(customer_code: customer_ac_codes).delete_all
@@ -116,7 +118,7 @@ namespace :mandala do
       voucher_numbers = Mandala::VoucherDetail.where(ac_code: customer_ac_codes).pluck(:voucher_no)
       Mandala::Voucher.where.not(voucher_no: voucher_numbers).delete_all
       Mandala::VoucherDetail.where.not(voucher_no: voucher_numbers).delete_all
-
+      Mandala::Ledger.where.not(voucher_no: voucher_numbers).delete_all
 
       buy_transaction_numbers = Mandala::DailyTransaction.where(customer_code: customer_codes).pluck(:transaction_no)
       sell_transaction_numbers = Mandala::DailyTransaction.where(seller_customer_code: customer_codes).pluck(:transaction_no)
@@ -141,10 +143,29 @@ namespace :mandala do
       Bill.where('date <= ?', '2016-09-14').delete_all
 
       Rake::Task["mandala:fix_vouchers"].invoke(tenant)
-
+      Rake::Task["mandala:map_system_ledgers"].invoke(tenant)
 
     else
       puts 'Please pass a tenant to the task'
+    end
+  end
+
+  task :map_system_ledgers, [:tenant] => :environment do |task, args|
+    if args.tenant.present?
+      tenant = args.tenant
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.user = User.first
+
+      Mandala::SystemPara.smartkhata_mapped_system_ac.each do |k,v|
+        chart_of_accounts = Mandala::ChartOfAccount.where(ac_code: k)
+        if chart_of_accounts.size > 1
+          puts "something went wrong"
+        else
+          chart_of_account = chart_of_accounts.first
+          chart_of_account.ledger_id = v.to_i
+          chart_of_account.save!
+        end
+      end
     end
   end
 
@@ -181,8 +202,48 @@ namespace :mandala do
 
       vouchers= Mandala::Voucher.all
 
-      ActiveRecord::Base.transaction do
+      arr = {
 
+          '1030509' =>  "Close Out",
+          '204010000001' => "Nepse Purchase",
+          '10301-01' =>  "Nepse Sales",
+          '103020200001' => "Cash" ,
+          '303001' => "DP Fee/ Transfer",
+          '402000000002' => "TDS",
+          '301000000002' => "Sales Commission",
+          '' => "Purchase Commission"
+
+      }
+
+
+
+
+
+
+
+      arr.each do |k,v|
+        chart_of_acc = Mandala::ChartOfAccount.find_by(ac_code: k)
+        if chart_of_acc.present?
+          ledger = Ledger.find_by_name(v)
+          chart_of_acc.ledger_id = ledger.id
+          chart_of_acc.save!
+        end
+      end
+
+      bank_arr = {
+          '1030201000011' => "Bank:Global IME Bank(7501010000706)",
+      }
+
+      bank_arr.each do |k,v|
+        chart_of_acc = Mandala::ChartOfAccount.find_by(ac_code: k)
+        if chart_of_acc.present?
+          ledger = Ledger.find_by_name(v)
+          chart_of_acc.ledger_id = ledger.id
+          chart_of_acc.save!
+        end
+      end
+
+      ActiveRecord::Base.transaction do
 
           vouchers.each do |voucher|
             # begin
@@ -199,7 +260,15 @@ namespace :mandala do
                 # puts "processing #{voucher.voucher_no}"
                 new_voucher.save!
                 voucher.voucher_id = new_voucher.id
+                voucher.migration_completed = true
                 voucher.save!
+
+                voucher.ledgers.each do |ledger|
+                  particular = ledger.new_smartkhata_particular(new_voucher.id, fy_code: fy_code)
+                  particular.save!
+                  ledger.particular = particular
+                  ledger.save!
+                end
               end
 
             #   transfer voucher to the main system

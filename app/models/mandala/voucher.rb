@@ -13,6 +13,13 @@ class Mandala::Voucher < ActiveRecord::Base
     Mandala::Ledger.where(voucher_no: self.voucher_no, voucher_code: self.voucher_code)
   end
 
+  def modified_ledgers
+    ledgers = []
+    mandala_data = self.ledgers
+    ledgers = mandala_data
+    ledgers
+  end
+
   def receipt_payments
     Mandala::ReceiptPaymentSlip.where(voucher_no: self.voucher_no, voucher_code: self.voucher_code)
   end
@@ -21,11 +28,15 @@ class Mandala::Voucher < ActiveRecord::Base
   scope :rcp, -> { where(voucher_code: 'RCP') }
   scope :pvb, -> { where(voucher_code: 'PVR') }
   scope :rcb, -> { where(voucher_code: 'RCB') }
+  scope :pending, -> {where(migration_completed: false)}
 
   def fy_code
     get_fy_code_from_fiscal_year(fiscal_year)
   end
 
+  def pending
+
+  end
   def new_smartkhata_voucher
     fy_code = get_fy_code_from_fiscal_year(fiscal_year)
     ::Voucher.new({
@@ -61,5 +72,4 @@ class Mandala::Voucher < ActiveRecord::Base
       return voucher_info[0]
     end
   end
-
 end
