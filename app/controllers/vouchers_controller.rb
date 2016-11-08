@@ -54,13 +54,18 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type, @vendor_account_list, @client_ledger_list =
-        Vouchers::Setup.new(voucher_type: @voucher_type,
-                            client_account_id: @client_account_id,
-                            bill_id: @bill_id,
-                            clear_ledger: @clear_ledger,
-                            bill_ids: @bill_ids).voucher_and_relevant
-    puts @voucher_type
+    @voucher,
+        @is_payment_receipt,
+        @ledger_list_financial,
+        @ledger_list_available,
+        @default_ledger_id,
+        @voucher_type,
+        @vendor_account_list,
+        @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
+                                                  client_account_id: @client_account_id,
+                                                  bill_id: @bill_id,
+                                                  clear_ledger: @clear_ledger,
+                                                  bill_ids: @bill_ids).voucher_and_relevant
   end
 
   # POST /vouchers
@@ -79,9 +84,7 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name
-    )
-
+                                            tenant_full_name: current_tenant.full_name)
 
     # abort("Message goes here")
     respond_to do |format|
