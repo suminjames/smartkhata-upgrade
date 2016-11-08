@@ -30,10 +30,11 @@
                                 ledger_list_available,
                                 :id,
                                 :name_and_code,
-                                {},
                                 {
-                                    :class => 'form-control combobox-select min-3 select-ledger',
-                                    include_blank: true,
+                                    include_blank: true
+                                },
+                                {
+                                    :class => 'form-control combobox combobox-select min-3 select-ledger',
                                     'data-placeholder': 'Select a ledger...'
                                 }
             ) %>
@@ -101,9 +102,10 @@
                               Bank.all,
                               :id,
                               :name,
-                              {},
+                              {include_blank: true},
                               {
-                                  :class => 'form-control combobox '
+                                  :class => 'form-control combobox ',
+                                  'data-placeholder': "Cheque's bank..."
                               }
           )
       %>

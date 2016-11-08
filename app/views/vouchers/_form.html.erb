@@ -101,12 +101,16 @@
             <div class="row client-group">
               <div class="col-xs-3">
                 <%= select_tag "group_leader_ledger_id",
-                               options_from_collection_for_select(client_ledger_list,
-                                                                  "id",
-                                                                  "name",
-                                                                  group_leader_ledger_id),
+                               options_from_collection_for_select(
+                                   client_ledger_list,
+                                   "id",
+                                   "name_and_code",
+                                   group_leader_ledger_id
+                               ),
                                {
+                                   :include_blank => true,
                                    :class => 'form-control combobox combobox-select min-3 select-ledger',
+                                   'data-placeholder': 'Select a client...',
                                    :style => 'width: 100%'
                                }
                 %>
@@ -129,7 +133,9 @@
                                    vendor_account_id
                                ),
                                {
+                                   :include_blank => true,
                                    :class => 'form-control combobox select-ledger',
+                                   'data-placeholder': 'Select a vendor...',
                                    :style => 'width: 100%'
                                }
                 %>
@@ -138,8 +144,8 @@
           </div>
         </div>
 
-
     <% end %>
+
     <br>
     <div class="form-inputs voucher">
       <div class="box box-primary z-light-bg">
@@ -185,6 +191,6 @@
       <%= f.input :desc, label: false %>
     </div>
     <div class="form-actions">
-      <%= f.submit "submit", class: 'btn btn-primary btn-flat' %>
+      <%= f.submit "Submit", class: 'btn btn-primary btn-flat' %>
     </div>
 <% end %>

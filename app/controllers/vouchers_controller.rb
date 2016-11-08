@@ -86,7 +86,6 @@ class VouchersController < ApplicationController
                                             vendor_account_id: @vendor_account_id,
                                             tenant_full_name: current_tenant.full_name)
 
-    # abort("Message goes here")
     respond_to do |format|
       if voucher_creation.process
 
