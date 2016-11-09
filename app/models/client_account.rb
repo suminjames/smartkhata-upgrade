@@ -164,19 +164,19 @@ class ClientAccount < ActiveRecord::Base
   # create client ledger
   def create_ledger
     client_group = Group.find_or_create_by!(name: "Clients")
-    # if self.nepse_code.present?
-    #   client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-    #     ledger.name = self.name
-    #     ledger.client_account_id = self.id
-    #     ledger.group_id = client_group.id
-    #   end
-    # end
-    client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-      ledger.name = self.name
-      ledger.client_account_id = self.id
-      ledger.group_id = client_group.id
+    if self.nepse_code.present?
+      Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
+        ledger.name = self.name
+        ledger.client_account_id = self.id
+        ledger.group_id = client_group.id
+      end
+    else
+      client_ledger = Ledger.new
+      client_ledger.name = self.name
+      client_ledger.client_account_id = self.id
+      client_ledger.group_id = client_group.id
+      client_ledger.save!
     end
-
   end
 
   # assign the client ledger to 'Clients' group
@@ -243,7 +243,11 @@ class ClientAccount < ActiveRecord::Base
   end
 
   def name_and_nepse_code
-    "#{self.name.titleize} (#{self.nepse_code})"
+    if self.nepse_code.present?
+      "#{self.name.titleize} (#{self.nepse_code})"
+    else
+      "#{self.name.titleize}"
+    end
   end
 
   def commaed_contact_numbers
@@ -308,7 +312,11 @@ class ClientAccount < ActiveRecord::Base
     search_term = search_term.present? ? search_term.to_s : ''
     client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
-      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      if client_account['nepse_code'].present?
+        identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      else
+        identifier = "#{client_account['name']}"
+      end
       { :text=> identifier, :id => client_account['id'].to_s }
     end
   end
