@@ -336,7 +336,9 @@ class Ledger < ActiveRecord::Base
     ledgers.collect do |ledger|
       identifier = "#{ledger['name']} "
       if ledger['client_account_id'].present?
-        identifier += "(#{ledger['client_code']})"
+        if ledger['client_code'].present?
+          identifier += "(#{ledger['client_code']})"
+        end
       elsif ledger['bank_account_id'].present?
         identifier += '(**Bank Account**)'
       elsif ledger['employee_account_id'].present?
