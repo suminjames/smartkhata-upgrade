@@ -41,7 +41,7 @@ class Mandala::Voucher < ActiveRecord::Base
     fy_code = get_fy_code_from_fiscal_year(fiscal_year)
     ::Voucher.new({
         fy_code: fy_code,
-        voucher_number: get_fy_stripped_voucher_no(fy_code),
+        voucher_number: get_fy_stripped_voucher_no,
         voucher_type: voucher_mapping,
         date: Date.parse(voucher_date),
         date_bs: bs_date,
@@ -64,7 +64,7 @@ class Mandala::Voucher < ActiveRecord::Base
     ::Voucher.voucher_types[vouchers[self.voucher_code]]
   end
 
-  def get_fy_stripped_voucher_no(fy_code)
+  def get_fy_stripped_voucher_no
     voucher_info = voucher_no.split('-')
     if voucher_info.size > 1
       return voucher_info[1]

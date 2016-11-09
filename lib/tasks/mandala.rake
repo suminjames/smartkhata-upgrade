@@ -1,4 +1,13 @@
 namespace :mandala do
+  task :validate_tenant, [:tenant] => :environment  do |task, args|
+    abort 'Please pass a tenant name' unless args.tenant.present?
+    tenant = args.tenant
+    Apartment::Tenant.switch!(args.tenant)
+    UserSession.selected_branch_id = 1
+    UserSession.selected_fy_code = 7374
+    UserSession.user = User.first
+  end
+
   desc "upload mandala data"
   task :upload_data, [:tenant] => :environment do |task, args|
     if args.tenant.present?
@@ -89,7 +98,6 @@ namespace :mandala do
     end
   end
 
-
   desc "remove the data except for few clients"
   task :setup_test, [:tenant] => :environment do |task, args|
     if args.tenant.present?
@@ -104,7 +112,7 @@ namespace :mandala do
 
 
       # customer_ac_codes = ['10301-6515','10301-3206', '10301-4629']
-      customer_ac_codes = ['10301-3206']
+      # customer_ac_codes = ['10301-3206']
       customer_codes = Mandala::CustomerRegistration.where(ac_code: customer_ac_codes).pluck(:customer_code)
 
       Mandala::Bill.where.not(customer_code: customer_codes).delete_all
@@ -187,8 +195,27 @@ namespace :mandala do
           puts "error for voucher: #{v.fy_code}-#{v.voucher_number}"
         end
       end
+
+      Bill.all.each do |b|
+        begin
+          b.update_attribute('bill_number', b.bill_number + 10000)
+        rescue
+          puts "error for bill: #{b.bill_number}"
+        end
+      end
       puts "done"
     end
+  end
+
+  task :fix_bills, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    Bill.all.each do |b|
+      begin
+        b.update_attribute('bill_number', b.bill_number + 10000)
+      rescue
+        puts "error for bill: #{b.bill_number}"
+      end
+    end
+    puts "done"
   end
 
 
@@ -267,113 +294,159 @@ namespace :mandala do
         end
       end
 
+      bills = Mandala::Bill.all
+
       ActiveRecord::Base.transaction do
 
-          vouchers.each do |voucher|
-            # begin
-              # puts voucher.voucher_no
+        vouchers.each do |voucher|
+          # begin
+            # puts voucher.voucher_no
 
 
-              fy_code = voucher.fy_code
+            fy_code = voucher.fy_code
 
 
-              new_voucher = voucher.new_smartkhata_voucher
-              if new_voucher.has_incorrect_fy_code?
-                puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
-              else
-                # puts "processing #{voucher.voucher_no}"
-                new_voucher.save!
-                voucher.voucher_id = new_voucher.id
-                voucher.migration_completed = true
-                voucher.save!
+            new_voucher = voucher.new_smartkhata_voucher
+            if new_voucher.has_incorrect_fy_code?
+              puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+            else
+              # puts "processing #{voucher.voucher_no}"
+              new_voucher.save!
+              voucher.voucher_id = new_voucher.id
+              voucher.migration_completed = true
+              voucher.save!
 
-                dr_particulars = []
-                cr_particulars = []
+              dr_particulars = []
+              cr_particulars = []
 
-                voucher.ledgers.each do |ledger|
-                  particular = ledger.new_smartkhata_particular(new_voucher.id, fy_code: fy_code)
-                  particular.save!
+              voucher.ledgers.each do |ledger|
+                particular = ledger.new_smartkhata_particular(new_voucher.id, fy_code: fy_code)
+                particular.save!
 
-                  ledger.particular = particular
-                  ledger.save!
+                ledger.particular = particular
+                ledger.save!
 
-                  dr_particulars << particular if particular.dr?
-                  cr_particulars << particular if particular.cr?
+                dr_particulars << particular if particular.dr?
+                cr_particulars << particular if particular.cr?
+              end
+
+              # payment receipt case
+              if voucher.voucher_code != 'JVR'
+                receipt_payments = voucher.receipt_payments
+
+                if receipt_payments.size > 1
+                  raise NotImplementedError
                 end
 
-                # payment receipt case
-                if voucher.voucher_code != 'JVR'
-                  receipt_payments = voucher.receipt_payments
+                settlement = nil
+                receipt_payments.each do |rp|
+                  settlement = rp.new_smartkhata_settlement(new_voucher.id, fy_code)
+                  settlement.save!
 
-                  if receipt_payments.size > 1
-                    raise NotImplementedError
-                  end
+                  cheque_entries = []
+                  multi_detailed_cheque = false
 
-                  settlement = nil
-                  receipt_payments.each do |rp|
-                    settlement = rp.new_smartkhata_settlement(new_voucher.id, fy_code)
-                    settlement.save!
+                  if new_voucher.payment_bank? || new_voucher.receipt_bank?
+                    rp.receipt_payment_details.each do |detail|
 
-                    cheque_entries = []
-                    if new_voucher.payment_bank? || new_voucher.receipt_bank?
-                      rp.receipt_payment_details.each do |detail|
+                      cheque_entry = detail.find_cheque_entry.first
+                      if cheque_entry.present?
+                        cheque_entry.amount += detail.amount.to_f
+                        multi_detailed_cheque = true
+                      else
                         cheque_entry = detail.new_smartkhata_cheque_entry(settlement.date, fy_code )
-                        if cheque_entry.present?
-                          cheque_entry.save!
-                          detail.cheque_entry_id = cheque_entry.id
-                          detail.save!
-                          cheque_entries << cheque_entry
+                      end
+
+                      if cheque_entry.present?
+                        begin
+                        cheque_entry.save!
+                        rescue
+                          debugger
+                        end
+
+                        detail.cheque_entry_id = cheque_entry.id
+                        detail.save!
+                        cheque_entries << cheque_entry unless multi_detailed_cheque
+                      end
+                    end
+
+                    if new_voucher.payment_bank?
+                      cr_particulars.each do |particular|
+                        cheque_entries.each do |cheque_entry|
+                          particular.cheque_entries_on_payment << cheque_entry if cheque_entry.amount == particular.amount
+                        end
+                      end
+                      dr_particulars.each do |particular|
+                        if particular.cheque_entries_on_payment.size <= 0
+                          particular.cheque_entries_on_payment << cheque_entries
+                          particular.save!
+                        end
+                      end
+                    elsif new_voucher.receipt_bank?
+                      dr_particulars.each do |particular|
+                        cheque_entries.each do |cheque_entry|
+                          particular.cheque_entries_on_receipt << cheque_entry if cheque_entry.amount == particular.amount
                         end
                       end
 
-                      if new_voucher.payment_bank?
-                        cr_particulars.each do |particular|
-                          cheque_entries.each do |cheque_entry|
-                            particular.cheque_entries_on_payment << cheque_entry if cheque_entry.amount == particular.amount
-                          end
-                        end
-                        dr_particulars.each do |particular|
-                          if particular.cheque_entries_on_payment.size <= 0
-                            particular.cheque_entries_on_payment << cheque_entries
-                            particular.save!
-                          end
-                        end
-                      elsif new_voucher.receipt_bank?
-                        dr_particulars.each do |particular|
-                          cheque_entries.each do |cheque_entry|
-                            particular.cheque_entries_on_receipt << cheque_entry if cheque_entry.amount == particular.amount
-                          end
-                        end
-
-                        cr_particulars.each do |particular|
-                          if particular.cheque_entries_on_receipt.size <= 0
-                            particular.cheque_entries_on_receipt << cheque_entries
-                            particular.save!
-                          end
+                      cr_particulars.each do |particular|
+                        if particular.cheque_entries_on_receipt.size <= 0
+                          particular.cheque_entries_on_receipt << cheque_entries
+                          particular.save!
                         end
                       end
                     end
                   end
-
-
-
-
-                  new_voucher.particulars.select{|x| x.dr?}.each do |p|
-                    p.debit_settlements << settlement if settlement.present?
-                  end
-                  new_voucher.particulars.select{|x| x.cr?}.each do |p|
-                    p.credit_settlements << settlement if settlement.present?
-                  end
                 end
+
+
+
+
+                new_voucher.particulars.select{|x| x.dr?}.each do |p|
+                  p.debit_settlements << settlement if settlement.present?
+                end
+                new_voucher.particulars.select{|x| x.cr?}.each do |p|
+                  p.credit_settlements << settlement if settlement.present?
+                end
+
+
               end
+            end
 
-          #     bills
-          #   settlement details
+        #     bills
+        #   settlement details
+        end
+
+        bills.each do |bill|
+          new_bill = bill.new_smartkhata_bill
+          if new_bill.has_incorrect_fy_code?
+            puts "#{bill.bill_no}"
+          else
+            new_bill.save!
+            bill.bill_id= new_bill.id
+            begin
+              bill.save!
+              bill.bill_details.each do |bill_detail|
+                daily_transaction = bill_detail.daily_transaction
+                share_transaction = daily_transaction.new_smartkhata_share_transaction
+                share_transaction.bill_id = new_bill.id
+                share_transaction.save!
+                daily_transaction.share_transaction_id = share_transaction.id
+                daily_transaction.save!
+
+              end
+            #   share settlements
+            rescue NotImplementedError
+              puts "#{bill.bill_no} has no share transactions"
+            end
+
           end
-
+        end
       end
     else
-
+      puts 'kya majak hai'
     end
   end
+
+
 end
