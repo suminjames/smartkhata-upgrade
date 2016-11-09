@@ -330,9 +330,17 @@ class Ledger < ActiveRecord::Base
   # Returns an array of hash(not Ledger objects) containing attributes sufficient to represent ledgers in combobox.
   # Attributes include id and name(identifier)
   #
-  def self.find_similar_to_term(search_term)
+  def self.find_similar_to_term(search_term, search_type)
     search_term = search_term.present? ? search_term.to_s : ''
-    ledgers = Ledger.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    search_type = search_type.present? ? search_type.to_s : ''
+
+    if search_type == 'client_group_leader_ledger'
+      # voucher#new's client group leader ledger search
+      ledgers = Ledger.find_all_client_ledgers.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    else
+      # generic ledger search
+      ledgers = Ledger.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    end
     ledgers.collect do |ledger|
       identifier = "#{ledger['name']} "
       if ledger['client_account_id'].present?

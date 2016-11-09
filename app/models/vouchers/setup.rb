@@ -49,7 +49,7 @@ class Vouchers::Setup < Vouchers::Base
     end
 
     vendor_account_list = VendorAccount.all
-    client_ledger_list = Ledger.find_all_client_ledgers
+    client_ledger_list = []
 
     # settlement by clearance only in case of payment to client
     if settlement_by_clearance

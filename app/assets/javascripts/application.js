@@ -44,7 +44,8 @@ $(document).on("ready page:load", function(){
             delay: 250,
             data: function (params) {
                 return {
-                    q: params.term // search term
+                    q: params.term, // search term
+                    search_type: 'generic'// search type
                 };
             },
             processResults: function (data, params) {
@@ -155,10 +156,33 @@ $(document).on("ready page:load", function(){
             }
         }
     });
+
     $('#client_accounts_referrer_name_combobox').select2({
         theme: 'bootstrap',
         allowClear: true,
         tags: true
+    });
+
+    $('#voucher_group_leader_ledger_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/ledgers/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    search_type: 'client_group_leader_ledger'// search type
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
     });
 
     hideFilterrificSpinner()
