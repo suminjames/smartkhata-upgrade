@@ -38,7 +38,6 @@ is_payment_bank_transfer = () ->
   return false
 
 $(document).ready(ready)
-$(document).on('page:load', ready)
 
 
 particular_has_bank = ($this) ->
