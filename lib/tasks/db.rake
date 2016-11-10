@@ -2,10 +2,20 @@
 namespace :db do
 
   desc "Dumps the database to db/APP_NAME.dump"
-  task :dump => :environment do
+  task :dump, [:name] => :environment do |task, args|
     cmd = nil
+    name = args.name
+    if name.blank?
+      name = Time.now.strftime("%Y%m%d%H%M%S")
+    end
+
     with_config do |app, host, db, user|
-      cmd = "pg_dump --host #{host} --username #{user} --verbose --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{Time.now.strftime("%Y%m%d%H%M%S")}_#{db}.psql"
+      if ENV['RAILS_ENV'].present?
+        cmd = "pg_dump --host #{host} --username #{user} --verbose --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{Time.now.strftime("%Y%m%d%H%M%S")}_#{db}.psql"
+      else
+        cmd = "pg_dump --host localhost --verbose --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{name}_#{db}.psql"
+      end
+
     end
     puts cmd
     exec cmd

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161109064446) do
+ActiveRecord::Schema.define(version: 20161110053512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -160,6 +160,7 @@ ActiveRecord::Schema.define(version: 20161109064446) do
     t.string  "total_demat_amount"
     t.string  "total_nt_amount"
     t.integer "bill_id"
+    t.date    "bill_date_parsed"
   end
 
   create_table "bill_detail", force: :cascade do |t|
@@ -1538,6 +1539,7 @@ ActiveRecord::Schema.define(version: 20161109064446) do
     t.string  "posted_by"
     t.integer "voucher_id"
     t.boolean "migration_completed",   default: false
+    t.date    "voucher_date_parsed"
   end
 
   create_table "voucher_detail", force: :cascade do |t|

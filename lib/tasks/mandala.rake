@@ -137,27 +137,63 @@ namespace :mandala do
       Mandala::TempDailyTransaction.where.not(transaction_no: transaction_numbers).delete_all
 
 
-    #   clear smartkhata data too
-      vouchers = Voucher.where('date <= ?', '2016-09-14').pluck(:id)
-      BillVoucherAssociation.where(voucher_id: vouchers).delete_all
-      Settlement.where(voucher_id: vouchers).delete_all
-      Voucher.where('date <= ?', '2016-09-14').delete_all
 
-      particulars = Particular.where('transaction_date <= ?', '2016-09-14').pluck(:id)
-      ChequeEntryParticularAssociation.where(particular_id:  particulars).delete_all
-      Particular.where('transaction_date <= ?', '2016-09-14').delete_all
-
-      bills = Bill.where('date <= ?', '2016-09-14').pluck(:id)
-      BillVoucherAssociation.where(bill_id: bills).delete_all
-      Bill.where('date <= ?', '2016-09-14').delete_all
-
-      Rake::Task["mandala:fix_vouchers"].invoke(tenant)
-      Rake::Task["mandala:map_system_ledgers"].invoke(tenant)
 
     else
       puts 'Please pass a tenant to the task'
     end
   end
+
+  task :setup, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    Rake::Task['db:migrate'].invoke
+
+    tenant = args.tenant
+
+    #   clear smartkhata data too
+    vouchers = Voucher.where('date <= ?', '2016-09-14').pluck(:id)
+    BillVoucherAssociation.where(voucher_id: vouchers).delete_all
+    Settlement.where(voucher_id: vouchers).delete_all
+    Voucher.where('date <= ?', '2016-09-14').delete_all
+
+    particulars = Particular.where('transaction_date <= ?', '2016-09-14').pluck(:id)
+    ChequeEntryParticularAssociation.where(particular_id:  particulars).delete_all
+    Particular.where('transaction_date <= ?', '2016-09-14').delete_all
+
+    bills = Bill.where('date <= ?', '2016-09-14').pluck(:id)
+    BillVoucherAssociation.where(bill_id: bills).delete_all
+    Bill.where('date <= ?', '2016-09-14').delete_all
+
+    Rake::Task["mandala:fix_vouchers"].invoke(tenant)
+    Rake::Task["mandala:fix_bills"].invoke(tenant)
+
+    Rake::Task["mandala:parse_voucher_date"].invoke(tenant)
+    Rake::Task["mandala:parse_bill_date"].invoke(tenant)
+
+    Rake::Task["mandala:setup_opening_balances"].invoke(tenant)
+  end
+
+  task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
+    tenant = args.tenant
+    Rake::Task["mandala:setup"].invoke(tenant)
+    Rake::Task["mandala:sync_data"].invoke(tenant)
+  end
+
+  task :parse_voucher_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
+    Mandala::Voucher.all.each do |voucher|
+      voucher.voucher_date_parsed = Date.parse(voucher.voucher_date)
+      voucher.save!
+    end
+    puts "Voucher dates parsed successfully"
+  end
+
+  task :parse_bill_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
+    Mandala::Bill.all.each do |bill|
+      bill.bill_date_parsed = Date.parse(bill.bill_date)
+      bill.save!
+    end
+    puts "Bill dates parsed successfully"
+  end
+
 
   task :map_system_ledgers, [:tenant] => :environment do |task, args|
     if args.tenant.present?
@@ -228,8 +264,8 @@ namespace :mandala do
       UserSession.selected_fy_code = 7374
       UserSession.user = User.first
 
-      vouchers= Mandala::Voucher.all
-
+      # vouchers= Mandala::Voucher.all
+      vouchers = Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') )
       arr = {
 
           '1030509' =>  "Close Out",
@@ -239,7 +275,7 @@ namespace :mandala do
           '303001' => "DP Fee/ Transfer",
           '402000000002' => "TDS",
           '301000000002' => "Sales Commission",
-          '' => "Purchase Commission"
+          # '' => "Purchase Commission"
 
       }
       group = Group.find_or_create_by!({name: "Investment",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
@@ -294,7 +330,8 @@ namespace :mandala do
         end
       end
 
-      bills = Mandala::Bill.all
+      # bills = Mandala::Bill.all
+      bills = []
 
       ActiveRecord::Base.transaction do
 
@@ -416,6 +453,7 @@ namespace :mandala do
         #     bills
         #   settlement details
         end
+        puts "vouchers synched"
 
         bills.each do |bill|
           new_bill = bill.new_smartkhata_bill
@@ -442,6 +480,7 @@ namespace :mandala do
 
           end
         end
+        puts "bills synched"
       end
     else
       puts 'kya majak hai'
