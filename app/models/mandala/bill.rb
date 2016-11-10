@@ -41,7 +41,7 @@ class Mandala::Bill < ActiveRecord::Base
   end
 
   def get_client_account_id
-    Mandala::CustomerRegistration.where(customer_code: customer_code).first.client_account.id
+    Mandala::CustomerRegistration.where(customer_code: customer_code).first.find_or_create_smartkhata_client_account.id
   end
 
   def amount_to_pay

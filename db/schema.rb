@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161110053512) do
+ActiveRecord::Schema.define(version: 20161110070100) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -163,6 +163,8 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.date    "bill_date_parsed"
   end
 
+  add_index "bill", ["bill_no"], name: "index_bill_on_bill_no", using: :btree
+
   create_table "bill_detail", force: :cascade do |t|
     t.string "bill_no"
     t.string "no_of_shares"
@@ -187,6 +189,10 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.string "no_of_shortage_shares"
     t.string "close_out_amount"
   end
+
+  add_index "bill_detail", ["bill_no"], name: "index_bill_detail_on_bill_no", using: :btree
+  add_index "bill_detail", ["transaction_no"], name: "index_bill_detail_on_transaction_no", using: :btree
+  add_index "bill_detail", ["transaction_type"], name: "index_bill_detail_on_transaction_type", using: :btree
 
   create_table "bill_voucher_associations", force: :cascade do |t|
     t.integer  "association_type"
@@ -337,6 +343,9 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.integer "ledger_id"
     t.integer "group_id"
   end
+
+  add_index "chart_of_account", ["ac_code"], name: "index_chart_of_account_on_ac_code", using: :btree
+  add_index "chart_of_account", ["account_type"], name: "index_chart_of_account_on_account_type", using: :btree
 
   create_table "cheque_entries", force: :cascade do |t|
     t.string   "beneficiary_name"
@@ -500,6 +509,8 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.integer "isin_info_id"
   end
 
+  add_index "company_parameter", ["company_code"], name: "index_company_parameter_on_company_code", using: :btree
+
   create_table "company_parameter_list", force: :cascade do |t|
     t.string "company_code"
     t.string "share_code"
@@ -599,6 +610,9 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.string  "mutual_fund"
     t.integer "client_account_id"
   end
+
+  add_index "customer_registration", ["ac_code"], name: "index_customer_registration_on_ac_code", using: :btree
+  add_index "customer_registration", ["customer_code"], name: "index_customer_registration_on_customer_code", using: :btree
 
   create_table "customer_registration_detail", force: :cascade do |t|
     t.string "customer_code"
@@ -1103,6 +1117,11 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.integer "cheque_entry_id"
   end
 
+  add_index "receipt_payment_detail", ["cheque_no"], name: "index_receipt_payment_detail_on_cheque_no", using: :btree
+  add_index "receipt_payment_detail", ["fiscal_year"], name: "index_receipt_payment_detail_on_fiscal_year", using: :btree
+  add_index "receipt_payment_detail", ["slip_no"], name: "index_receipt_payment_detail_on_slip_no", using: :btree
+  add_index "receipt_payment_detail", ["slip_type"], name: "index_receipt_payment_detail_on_slip_type", using: :btree
+
   create_table "receipt_payment_slip", force: :cascade do |t|
     t.string  "title"
     t.string  "customer_code"
@@ -1130,6 +1149,9 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.string  "issue_date"
     t.integer "settlement_id"
   end
+
+  add_index "receipt_payment_slip", ["voucher_code"], name: "index_receipt_payment_slip_on_voucher_code", using: :btree
+  add_index "receipt_payment_slip", ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no", using: :btree
 
   create_table "sales_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18
@@ -1542,6 +1564,9 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.date    "voucher_date_parsed"
   end
 
+  add_index "voucher", ["voucher_code"], name: "index_voucher_on_voucher_code", using: :btree
+  add_index "voucher", ["voucher_no"], name: "index_voucher_on_voucher_no", using: :btree
+
   create_table "voucher_detail", force: :cascade do |t|
     t.string "voucher_no"
     t.string "voucher_code"
@@ -1562,6 +1587,9 @@ ActiveRecord::Schema.define(version: 20161110053512) do
     t.string "fiscal_year"
     t.string "serial_no"
   end
+
+  add_index "voucher_detail", ["voucher_code"], name: "index_voucher_detail_on_voucher_code", using: :btree
+  add_index "voucher_detail", ["voucher_no"], name: "index_voucher_detail_on_voucher_no", using: :btree
 
   create_table "voucher_number_configuration", force: :cascade do |t|
     t.string "no_code"

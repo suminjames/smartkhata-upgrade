@@ -1,0 +1,152 @@
+namespace :mandala do
+  desc "synch_vouchers"
+  task :sync_vouchers,[:tenant] => 'mandala:validate_tenant' do |task,args|
+
+    def time_diff_more?(start_time, end_time, second)
+      seconds_diff = (start_time - end_time).to_i.abs
+      return true if seconds_diff > second
+      false
+    end
+
+    # vouchers= Mandala::Voucher.all
+    # vouchers = Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') )
+
+    pending_voucher = []
+    vouchers_taking_time = []
+    count = 0
+    Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
+
+      # begin
+      # puts voucher.voucher_no
+      fy_code = voucher.fy_code
+
+      start_time = Time.now
+
+      new_voucher = voucher.new_smartkhata_voucher
+      # if new_voucher.has_incorrect_fy_code?
+      #   pending_voucher << voucher
+      # else
+        # puts "processing #{voucher.voucher_no}"
+        new_voucher.save!
+        voucher.voucher_id = new_voucher.id
+        voucher.migration_completed = true
+        voucher.save!
+
+        dr_particulars = []
+        cr_particulars = []
+
+        voucher.ledgers.each do |ledger|
+          particular = ledger.new_smartkhata_particular(new_voucher.id, fy_code: fy_code)
+          particular.save!
+
+          ledger.particular = particular
+          ledger.save!
+
+          dr_particulars << particular if particular.dr?
+          cr_particulars << particular if particular.cr?
+        end
+
+        # payment receipt case
+        if voucher.voucher_code != 'JVR'
+          receipt_payments = voucher.receipt_payments
+
+          if receipt_payments.size > 1
+            raise NotImplementedError
+          end
+
+          settlement = nil
+          receipt_payments.each do |rp|
+            settlement = rp.new_smartkhata_settlement(new_voucher.id, fy_code)
+            settlement.save!
+
+            cheque_entries = []
+            multi_detailed_cheque = false
+
+            if new_voucher.payment_bank? || new_voucher.receipt_bank?
+              rp.receipt_payment_details.each do |detail|
+
+                cheque_entry = detail.find_cheque_entry.first
+                if cheque_entry.present?
+                  cheque_entry.amount += detail.amount.to_f
+                  multi_detailed_cheque = true
+                else
+                  cheque_entry = detail.new_smartkhata_cheque_entry(settlement.date, fy_code )
+                end
+
+                if cheque_entry.present?
+                  begin
+                    cheque_entry.save!
+                  rescue
+                    debugger
+                  end
+
+                  detail.cheque_entry_id = cheque_entry.id
+                  detail.save!
+                  cheque_entries << cheque_entry unless multi_detailed_cheque
+                end
+              end
+
+              if new_voucher.payment_bank?
+                cr_particulars.each do |particular|
+                  cheque_entries.each do |cheque_entry|
+                    particular.cheque_entries_on_payment << cheque_entry if cheque_entry.amount == particular.amount
+                  end
+                end
+                dr_particulars.each do |particular|
+                  if particular.cheque_entries_on_payment.size <= 0
+                    particular.cheque_entries_on_payment << cheque_entries
+                    particular.save!
+                  end
+                end
+              elsif new_voucher.receipt_bank?
+                dr_particulars.each do |particular|
+                  cheque_entries.each do |cheque_entry|
+                    particular.cheque_entries_on_receipt << cheque_entry if cheque_entry.amount == particular.amount
+                  end
+                end
+
+                cr_particulars.each do |particular|
+                  if particular.cheque_entries_on_receipt.size <= 0
+                    particular.cheque_entries_on_receipt << cheque_entries
+                    particular.save!
+                  end
+                end
+              end
+            end
+          end
+
+
+
+
+          new_voucher.particulars.select{|x| x.dr?}.each do |p|
+            p.debit_settlements << settlement if settlement.present?
+          end
+          new_voucher.particulars.select{|x| x.cr?}.each do |p|
+            p.credit_settlements << settlement if settlement.present?
+          end
+
+
+        end
+
+        puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+        count += 1
+        puts "Total processed: #{count}"
+
+        end_time = Time.now
+        vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
+      # end
+
+    end
+
+    puts "vouchers synched"
+
+    vouchers_taking_time.each do |voucher|
+      puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+    end
+
+    puts "pending ones"
+    pending_voucher.each do |voucher|
+      puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+    end
+  end
+end
