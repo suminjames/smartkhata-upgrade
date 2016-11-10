@@ -185,6 +185,36 @@ $(document).on("ready page:load", function(){
         }
     });
 
+    // HACK!!!
+    // Errorenous redirect from voucher#create renders voucher#new which might have unknown numbers of particular fields. Combobox ajax filter needs to be binded to all of this particular fields' ledger select tag. As the number of particulars is unknown to the javascript, bind combobox ajax to a lot of particular fields' select tag.
+    // However, this doesn't affect while 'Add Particular' button is clicked to add particular row. In this case, any number of additions will have ajax binded.
+    // TODO(sarojk): Remove this hack. Find a better way of doing this.
+    var MAX_PARTICULAR_FIELD = 100
+    for (var i = 0 ; i < MAX_PARTICULAR_FIELD; i++){
+        id = "voucher_particulars_attributes_" + i + "_ledger_id"
+        $('#' + id).select2({
+            theme: 'bootstrap',
+            allowClear: true,
+            minimumInputLength: 3,
+            ajax: {
+                url: "/ledgers/combobox_ajax_filter",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        search_type: 'generic'// search type
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+    }
+
     hideFilterrificSpinner()
 });
 
