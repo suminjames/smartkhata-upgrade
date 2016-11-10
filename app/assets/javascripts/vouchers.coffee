@@ -16,14 +16,19 @@ ready = ->
     $('select.combobox').select2({
       theme: "bootstrap",
       selectOnClose: true,
-#      allowClear: true,
+      allowClear: true,
     })
     $('select.combobox.min-3').select2({
       theme: "bootstrap",
       selectOnClose: true,
-#      allowClear: true,
+      allowClear: true,
       minimumInputLength: 3,
     })
+    $('select.combobox#voucher-financial-ledger-combobox').select2({
+      theme: "bootstrap",
+      selectOnClose: true,
+    })
+
     fix_autocomplete()
 
 is_payment_bank_transfer = () ->
@@ -33,6 +38,7 @@ is_payment_bank_transfer = () ->
   return false
 
 $(document).ready(ready)
+$(document).on('page:load', ready)
 
 
 particular_has_bank = ($this) ->
@@ -137,23 +143,49 @@ $ ->
     $(this).closest('div.row.particular').remove()
     event.preventDefault()
 
+bind_ajax_to_new_particular_row = (id_of_new_particular_row) ->
+  `$("#" + id_of_new_particular_row).select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: "/ledgers/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  search_type: 'generic'// search type
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });`
 
 $(document).on 'click', '.add_fields', (event) ->
   time = new Date().getTime()
   regexp = new RegExp($(this).data('id'), 'g')
   $(this).before($(this).data('fields').replace(regexp, time))
+
+  #  bind combobox ajax to newly added particular row
+  id_of_new_particular_row = "voucher_particulars_attributes_" + time + "_ledger_id"
+  bind_ajax_to_new_particular_row(id_of_new_particular_row)
   #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
   event.preventDefault()
-  $('select.combobox').select2({
-    theme: "bootstrap",
-    selectOnClose: true
-  })
-  $('.combobox-select.min-3').select2({
-    theme: 'bootstrap',
-    tags: true,
-    allowClear: true,
-    minimumInputLength: 3
-  })
+#  $('select.combobox').select2({
+#    theme: "bootstrap",
+#    selectOnClose: true
+#  })
+#  $('.combobox-select.min-3').select2({
+#    theme: 'bootstrap',
+#    tags: true,
+#    allowClear: true,
+#    minimumInputLength: 3
+#  })
 
   fix_autocomplete()
   manage_cheque_all_select()

@@ -35,9 +35,10 @@ class Vouchers::Create < Vouchers::Base
     end
 
     # assign all ledgers if ledger_list_available is not present
-    @ledger_list_available ||= Ledger.all
+    # @ledger_list_available ||= Ledger.all
+    @ledger_list_available = []
     @vendor_account_list = VendorAccount.all
-    @client_ledger_list = Ledger.find_all_client_ledgers
+    @client_ledger_list = []
 
     is_payment_receipt = is_payment_receipt?(@voucher_type)
 
@@ -47,7 +48,10 @@ class Vouchers::Create < Vouchers::Base
       vendor_account = VendorAccount.find_by(id: @vendor_account_id )
     elsif @voucher_settlement_type == 'client'
       client_group_leader_ledger = Ledger.find_by(id: @group_leader_ledger_id)
-      client_group_leader_account = client_group_leader_ledger.client_account if client_group_leader_ledger.present?
+      if client_group_leader_ledger.present?
+        client_group_leader_account = client_group_leader_ledger.client_account
+        @client_ledger_list <<  client_group_leader_ledger
+      end
     end
 
     # convert the bs date to english date for storage
@@ -111,6 +115,14 @@ class Vouchers::Create < Vouchers::Base
     net_usable_blnc = 0
     debit_ledgers = Hash.new 0
     credit_ledgers = Hash.new 0
+
+    # save associated ledgers to be shown in select tag in view, upon redirect
+    voucher.particulars.each do |particular|
+      if particular.ledger_id.present?
+        ledger_list_available << particular.ledger
+      end
+    end
+
     # check if debit equal credit or amount is not zero
     voucher.particulars.each do |particular|
       particular.description = voucher.desc
