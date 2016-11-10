@@ -18,7 +18,7 @@ namespace :mandala do
 
       # begin
       # puts voucher.voucher_no
-      fy_code = voucher.fy_code
+
 
       start_time = Time.now
 
@@ -31,6 +31,7 @@ namespace :mandala do
         voucher.voucher_id = new_voucher.id
         voucher.migration_completed = true
         voucher.save!
+        fy_code = new_voucher.fy_code
 
         dr_particulars = []
         cr_particulars = []

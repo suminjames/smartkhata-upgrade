@@ -112,7 +112,7 @@ namespace :mandala do
 
 
       # customer_ac_codes = ['10301-6515','10301-3206', '10301-4629']
-      # customer_ac_codes = ['10301-3206']
+      customer_ac_codes = ['10301-6515']
       customer_codes = Mandala::CustomerRegistration.where(ac_code: customer_ac_codes).pluck(:customer_code)
 
       Mandala::Bill.where.not(customer_code: customer_codes).delete_all
