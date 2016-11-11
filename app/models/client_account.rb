@@ -99,7 +99,7 @@ class ClientAccount < ActiveRecord::Base
   validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
   validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
-  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true, unless: :skip_validation_for_system # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
   validates_uniqueness_of :nepse_code, :allow_blank => true
@@ -173,19 +173,19 @@ class ClientAccount < ActiveRecord::Base
   # create client ledger
   def create_ledger
     client_group = Group.find_or_create_by!(name: "Clients")
-    # if self.nepse_code.present?
-    #   client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-    #     ledger.name = self.name
-    #     ledger.client_account_id = self.id
-    #     ledger.group_id = client_group.id
-    #   end
-    # end
+
     client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
       ledger.name = self.name
       ledger.client_account_id = self.id
       ledger.group_id = client_group.id
     end
 
+    client_ledger
+  end
+
+  def find_or_create_ledger
+    return self.ledger if self.ledger.present?
+    create_ledger
   end
 
   # assign the client ledger to 'Clients' group

@@ -1,6 +1,9 @@
 module FiscalYearModule
   @@fiscal_year_breakpoint = [
-      [7172, Date.parse('2014-7-16'), Date.parse('2015-7-15')],
+      [6869, Date.parse('2011-7-17'), Date.parse('2012-7-15')],
+      [6970, Date.parse('2012-7-16'), Date.parse('2013-7-15')],
+      [7071, Date.parse('2013-7-16'), Date.parse('2014-7-16')],
+      [7172, Date.parse('2014-7-17'), Date.parse('2015-7-15')],
       [7273, Date.parse('2015-7-16'), Date.parse('2016-7-15')],
       [7374, Date.parse('2016-7-16'), Date.parse('2017-7-15')],
       [7475, Date.parse('2017-7-16'), Date.parse('2018-7-15')],
@@ -10,6 +13,17 @@ module FiscalYearModule
       [7879, Date.parse('2021-7-16'), Date.parse('2022-7-16')],
       [7980, Date.parse('2022-7-17'), Date.parse('2023-7-16')],
   ]
+
+  @@fiscal_year_mapping = {
+      '2068/2069' => 6869,
+      '2069/2070' => 6970,
+      '2070/2071' => 7071,
+      '2071/2072' => 7172,
+      '2072/2073' => 7273,
+      '2073/2074' => 7374,
+      '2074/2075' => 7475,
+  }
+
 
   def get_fiscal_breakpoint
     return @@fiscal_year_breakpoint
@@ -81,6 +95,10 @@ module FiscalYearModule
       return true if date >= fy_code_date[1] && date <= fy_code_date[2]
     end
     false
+  end
+
+  def get_fy_code_from_fiscal_year(fiscal_year)
+    @@fiscal_year_mapping[fiscal_year]
   end
 end
 

@@ -1,3 +1,4 @@
+
 class Vouchers::Create < Vouchers::Base
   attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id
 

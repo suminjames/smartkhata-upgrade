@@ -28,13 +28,14 @@ class Voucher < ActiveRecord::Base
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-  enum voucher_type: [:journal, :payment, :receipt, :contra]
+  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit]
   enum voucher_status: [:pending, :complete, :rejected, :reversed]
 
   ########################################
   # Callbacks
 
   before_save :process_voucher
+  # before_validation :validate_fy_code
   after_save :assign_cheque
 
   ########################################
@@ -44,11 +45,11 @@ class Voucher < ActiveRecord::Base
   has_many :ledgers, :through => :particulars
   has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
-  has_many :settlements
+  has_many :settlements, dependent: :destroy
   has_one :nepse_chalan
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
-  has_many :bill_voucher_associations
+  has_many :bill_voucher_associations,  dependent: :destroy
   has_many :bills_on_creation, through: :on_creation, source: :bill
   has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
@@ -72,11 +73,27 @@ class Voucher < ActiveRecord::Base
         "RCV"
       when :contra
         "CVR"
+      when :payment_cash
+        "PVR"
+      when :receipt_cash
+        "RCP"
+      when :payment_bank
+        "PVB"
+      when :receipt_bank
+        "RCB"
+      when :receipt_bank_deposit
+        "CDB"
       else
         "NA"
     end
   end
 
+
+  def has_incorrect_fy_code?
+    true_fy_code = get_fy_code(self.date)
+    return true if true_fy_code != self.fy_code
+    false
+  end
   # def date_valid_for_fy_code?
   #   errors.add :date, "Fuck you Asshole" unless date_valid_for_fy_code(self.fy_code, self.date)
   # end
