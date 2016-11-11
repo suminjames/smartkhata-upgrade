@@ -3,7 +3,7 @@
 # Table name: particulars
 #
 #  id                     :integer          not null, primary key
-#  opening_balance        :decimal(15, 4)   default(0.0)
+#  opening_blnc           :decimal(15, 4)   default(0.0)
 #  transaction_type       :integer
 #  ledger_type            :integer          default(0)
 #  cheque_number          :integer

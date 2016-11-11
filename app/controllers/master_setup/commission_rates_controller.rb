@@ -1,5 +1,13 @@
+=begin
+# Story
+- A Commission Rate once set should not be editable
+=end
+
 class MasterSetup::CommissionRatesController < ApplicationController
   before_action :set_master_setup_commission_rate, only: [:show, :edit, :update, :destroy]
+
+  before_action -> {authorize MasterSetup::CommissionRate}, only: [:index, :new, :create]
+  before_action -> {authorize @master_setup_commission_rate}, only: [:show, :edit, :update, :destroy]
 
   # GET /master_setup/commission_rates
   # GET /master_setup/commission_rates.json
@@ -69,6 +77,6 @@ class MasterSetup::CommissionRatesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def master_setup_commission_rate_params
-      params.require(:master_setup_commission_rate).permit(:date_from, :date_to, :amount_gt, :amout_lt_eq, :rate, :is_flat_rate, :remarks)
+      params.require(:master_setup_commission_rate).permit(:date_from, :date_to, :amount_gt, :amount_lt_eq, :rate, :is_flat_rate, :remarks)
     end
 end

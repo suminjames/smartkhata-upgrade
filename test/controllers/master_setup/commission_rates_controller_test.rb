@@ -18,7 +18,7 @@ class MasterSetup::CommissionRatesControllerTest < ActionController::TestCase
 
   test "should create master_setup_commission_rate" do
     assert_difference('MasterSetup::CommissionRate.count') do
-      post :create, master_setup_commission_rate: { amount_gt: @master_setup_commission_rate.amount_gt, amout_lt_eq: @master_setup_commission_rate.amout_lt_eq, date_from: @master_setup_commission_rate.date_from, date_to: @master_setup_commission_rate.date_to, is_flat_rate: @master_setup_commission_rate.is_flat_rate, rate: @master_setup_commission_rate.rate, remarks: @master_setup_commission_rate.remarks }
+      post :create, master_setup_commission_rate: { amount_gt: @master_setup_commission_rate.amount_gt, amount_lt_eq: @master_setup_commission_rate.amount_lt_eq, date_from: @master_setup_commission_rate.date_from, date_to: @master_setup_commission_rate.date_to, is_flat_rate: @master_setup_commission_rate.is_flat_rate, rate: @master_setup_commission_rate.rate, remarks: @master_setup_commission_rate.remarks }
     end
 
     assert_redirected_to master_setup_commission_rate_path(assigns(:master_setup_commission_rate))
@@ -35,7 +35,7 @@ class MasterSetup::CommissionRatesControllerTest < ActionController::TestCase
   end
 
   test "should update master_setup_commission_rate" do
-    patch :update, id: @master_setup_commission_rate, master_setup_commission_rate: { amount_gt: @master_setup_commission_rate.amount_gt, amout_lt_eq: @master_setup_commission_rate.amout_lt_eq, date_from: @master_setup_commission_rate.date_from, date_to: @master_setup_commission_rate.date_to, is_flat_rate: @master_setup_commission_rate.is_flat_rate, rate: @master_setup_commission_rate.rate, remarks: @master_setup_commission_rate.remarks }
+    patch :update, id: @master_setup_commission_rate, master_setup_commission_rate: { amount_gt: @master_setup_commission_rate.amount_gt, amount_lt_eq: @master_setup_commission_rate.amount_lt_eq, date_from: @master_setup_commission_rate.date_from, date_to: @master_setup_commission_rate.date_to, is_flat_rate: @master_setup_commission_rate.is_flat_rate, rate: @master_setup_commission_rate.rate, remarks: @master_setup_commission_rate.remarks }
     assert_redirected_to master_setup_commission_rate_path(assigns(:master_setup_commission_rate))
   end
 

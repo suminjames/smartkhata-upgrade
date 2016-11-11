@@ -4,7 +4,7 @@ class CreateMasterSetupCommissionRates < ActiveRecord::Migration
       t.date :date_from
       t.date :date_to
       t.decimal :amount_gt
-      t.decimal :amout_lt_eq
+      t.decimal :amount_lt_eq
       t.decimal :rate
       t.boolean :is_flat_rate
       t.string :remarks
