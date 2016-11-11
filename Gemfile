@@ -56,9 +56,14 @@ group :development do
   gem "awesome_print"
   gem 'capistrano3-puma'
   gem 'rails_best_practices'
+  gem 'rails-erd'
 end
 group :production do
   gem 'puma'
+end
+
+group :development, :test do
+  gem 'factory_girl_rails'
 end
 
 # Converts array that is returned during ActiveRecord pluck to hash
@@ -82,5 +87,5 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
-
 gem "audited", "~> 4.3"
+gem 'simplecov', :require => false, :group => :test

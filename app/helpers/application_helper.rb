@@ -116,7 +116,6 @@ module ApplicationHelper
     params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
 
-
   # Alternative helper to check authorization: pundit
   def is_authorized_to_access?(link)
     admin_and_above? || !current_user.blocked_path_list.include?(link)

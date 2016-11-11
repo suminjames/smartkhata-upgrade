@@ -266,6 +266,19 @@ class ClientAccount < ActiveRecord::Base
     str
   end
 
+  def pending_bills_path
+    Rails.application.routes.url_helpers.bills_path("filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
+  end
+
+  def share_inventory_path
+    Rails.application.routes.url_helpers.share_transactions_path("filterrific[by_client_id]":"#{self.id}")
+  end
+
+
+  def ledger_closing_balance
+    self.ledger.closing_balance
+  end
+
   def self.existing_referrers_names
     where.not(referrer_name: '').order(:referrer_name).uniq.pluck(:referrer_name)
   end

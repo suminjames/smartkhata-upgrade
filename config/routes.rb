@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get 'general_settings/set_branch'
 
   get 'dashboard/index'
+  get 'dashboard/client_index'
 
   resources :nepse_chalans
   resources :vendor_accounts
@@ -40,6 +41,7 @@ Rails.application.routes.draw do
       get :bills_associated_with_cheque_entries
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
+      get :make_void
       get :bounce
       get :represent
       get :show_multiple
@@ -57,6 +59,7 @@ Rails.application.routes.draw do
     collection do
       get 'deal_cancel'
       get 'pending_deal_cancel'
+      get 'capital_gain_report'
     end
   end
   resources :bills do

@@ -31,12 +31,10 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
+  id: 1
   cheque_number: 123
   bank_account: one
   branch_id: 1
-  # particulars: one
-  # Client account?
-  # Additional bank id?
 
 two:
   cheque_number: 735

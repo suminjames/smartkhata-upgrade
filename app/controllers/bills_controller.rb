@@ -12,6 +12,13 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+    # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
+    # error flash message.
+    if User.client_logged_in? &&
+        !UserSession.user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
+      user_not_authorized and return
+    end
+
     # Check if 'Process Selected Bill', and render accordingly.
     if params['search_by'] == 'client_id'
       @process_selected_bills = true
@@ -54,13 +61,12 @@ class BillsController < ApplicationController
       # end
     end
 
-
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = 'One of the search options provided is invalid.'
+      flash.now[:error] = "#{ e.message }"
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
