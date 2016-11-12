@@ -162,10 +162,15 @@ namespace :mandala do
   task :patch_existing_vouchers, [:tenant] => 'mandala:validate_tenant' do |task, args|
     ActiveRecord::Base.transaction do
       # the mandala voucher were imported before this date
-      Voucher.where('date > ?', Date.parse('2016-9-14') ).order(:date).find_each do |voucher|
+      Voucher.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |voucher|
         voucher.map_payment_receipt_to_new_types
         voucher.voucher_number = nil
+        begin
         voucher.save!
+        rescue
+          puts "#{voucher.id}"
+          # raise ArgumentError
+        end
       end
     end
 

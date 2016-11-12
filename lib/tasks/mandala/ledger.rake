@@ -61,13 +61,15 @@ namespace :mandala do
             balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
             # total dr
-            query = "SELECT SUM( amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND particular_transaction_type = 0"
+            query = "SELECT SUM( amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND transaction_type = 0"
             dr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
-            query = "SELECT SUM(amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND particular_transaction_type = 1"
+            query = "SELECT SUM(amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND transaction_type = 1"
             cr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
-            raise ArgumentError if dr_amount - cr_amount != balance
+             if (dr_amount - cr_amount - balance).abs > 0.01
+               raise ArgumentError
+             end
 
             daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
             daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
