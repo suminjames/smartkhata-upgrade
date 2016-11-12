@@ -334,6 +334,7 @@ namespace :mandala do
         bench = Benchmark.measure do
           Rake::Task["mandala:sync_vouchers"].invoke(tenant)
           Rake::Task["mandala:sync_bills"].invoke(tenant)
+          Rake::Task["mandala:populate_ledger_dailies"].invoke(tenant)
           Rake::Task["mandala:populate_closing_balance"].invoke(tenant)
         end
         puts "#{bench}"

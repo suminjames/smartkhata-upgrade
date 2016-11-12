@@ -88,6 +88,23 @@ class Voucher < ActiveRecord::Base
     end
   end
 
+  def map_payment_receipt_to_new_types
+    if self.receipt? || self.payment?
+      if self.receipt?
+        if self.cheque_entries.count > 0
+          self.voucher_type = :receipt_bank
+        else
+          self.voucher_type = :receipt_cash
+        end
+      else
+        if self.cheque_entries.count > 0
+          self.voucher_type = :payment_bank
+        else
+          self.voucher_type = :payment_cash
+        end
+      end
+    end
+  end
 
   def has_incorrect_fy_code?
     true_fy_code = get_fy_code(self.date)
@@ -116,7 +133,7 @@ class Voucher < ActiveRecord::Base
   #
   def assign_cheque
 
-    if self.payment?
+    if self.payment_bank?
       cheque_entries = self.cheque_entries.payment.uniq
       dr_particulars = self.particulars.select{ |x| x.dr? }
       dr_particulars.each do |particular|
@@ -152,7 +169,7 @@ class Voucher < ActiveRecord::Base
           cheque.save!
         end
       end
-    elsif self.receipt?
+    elsif self.receipt_bank?
       cheque_entries = self.cheque_entries.receipt.uniq
       particulars = self.particulars.cr
       particulars.each do |particular|

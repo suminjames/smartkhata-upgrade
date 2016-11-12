@@ -11,10 +11,10 @@ namespace :mandala do
     count = 0
     bills = []
     # bills = Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') )
-    # Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') ).where(bill_id: nil).each do |bill|
+    #
     ActiveRecord::Base.transaction do
-      Mandala::Bill.where(bill_id: nil).each do |bill|
-
+      # Mandala::Bill.where(bill_id: nil).each do |bill|
+      Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') ).where(bill_id: nil).each do |bill|
         start_time = Time.now
         pending_bill = []
         bills_taking_time = []

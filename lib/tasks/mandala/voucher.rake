@@ -7,7 +7,7 @@ namespace :mandala do
       return true if seconds_diff > second
       false
     end
-    
+
     # vouchers= Mandala::Voucher.all
     # vouchers = Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') )
 
@@ -17,7 +17,8 @@ namespace :mandala do
     error_count = 0
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
     ActiveRecord::Base.transaction do
-      Mandala::Voucher.where(voucher_id: nil).find_each do |voucher|
+      Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
+      # Mandala::Voucher.where(voucher_id: nil).find_each do |voucher|
         # begin
         # puts voucher.voucher_no
 
@@ -157,4 +158,17 @@ namespace :mandala do
       puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
     end
   end
+
+  task :patch_existing_vouchers, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    ActiveRecord::Base.transaction do
+      # the mandala voucher were imported before this date
+      Voucher.where('date > ?', Date.parse('2016-9-14') ).order(:date).find_each do |voucher|
+        voucher.map_payment_receipt_to_new_types
+        voucher.voucher_number = nil
+        voucher.save!
+      end
+    end
+
+  end
+
 end
