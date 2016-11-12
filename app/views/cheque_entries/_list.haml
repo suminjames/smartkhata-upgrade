@@ -83,7 +83,7 @@
               %td.text-center= check_box_tag cheque_entry.id, '', false, class: cheque_entry.formatted_check_box_class
               %td.text-center= cheque_entry.cheque_number
               %td.text-center= cheque_entry.bank_account.name
-              %td.text-center= cheque_entry.receipt? ? cheque_entry.additional_bank.name : 'N/A'
+              %td.text-center= cheque_entry.receipt? ? cheque_entry.try(:additional_bank).try(:name) : 'N/A'
               %td.text-center= ad_to_bs_string(cheque_entry.cheque_date) if cheque_entry.cheque_date.present?
               %td.text-center= cheque_entry.beneficiary_name
               %td.text-center= arabic_number(cheque_entry.amount)

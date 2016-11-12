@@ -169,10 +169,11 @@ class LedgersController < ApplicationController
   #
   def combobox_ajax_filter
     search_term = params[:q]
+    search_type = params[:search_type]
     ledgers = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-      ledgers = Ledger.find_similar_to_term search_term
+      ledgers = Ledger.find_similar_to_term(search_term, search_type)
     end
     respond_to do |format|
       format.json { render json: ledgers, status: :ok }

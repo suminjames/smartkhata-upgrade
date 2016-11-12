@@ -38,7 +38,9 @@ class Mandala::Voucher < ActiveRecord::Base
 
   end
   def new_smartkhata_voucher
-    fy_code = get_fy_code_from_fiscal_year(fiscal_year)
+    fy_code = get_fy_code
+    fy_code ||= get_fy_code_from_fiscal_year(fiscal_year)
+
     ::Voucher.new({
         fy_code: fy_code,
         voucher_number: get_fy_stripped_voucher_no,
@@ -71,5 +73,13 @@ class Mandala::Voucher < ActiveRecord::Base
     else
       return voucher_info[0]
     end
+  end
+
+  def get_fy_code
+    voucher_info = voucher_no.split('-')
+    if voucher_info.size > 1
+      return voucher_info[0]
+    end
+    return nil
   end
 end
