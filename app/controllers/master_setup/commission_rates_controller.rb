@@ -77,6 +77,6 @@ class MasterSetup::CommissionRatesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def master_setup_commission_rate_params
-      params.require(:master_setup_commission_rate).permit(:date_from, :date_to, :amount_gt, :amount_lt_eq, :rate, :is_flat_rate, :remarks)
+      params.require(:master_setup_commission_rate).permit(:date_from, :date_to, :amount_gt, :amount_lt_eq, :has_amount_lt_eq_limit, :has_date_to_limit, :rate, :is_flat_rate, :remarks)
     end
 end

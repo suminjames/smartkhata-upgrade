@@ -1,14 +1,29 @@
 = simple_form_for(@master_setup_commission_rate) do |f|
   = f.error_notification
 
-  .form-inputs
-    = f.input :date_from
-    = f.input :date_to
-    = f.input :amount_gt
-    = f.input :amount_lt_eq
-    = f.input :rate
-    = f.input :is_flat_rate
-    = f.input :remarks
+  .row
+    .col-xs-5
+      .form-inputs
+        = f.input :date_from, label: 'Date From'
+        .row
+          .col-xs-6
+            = f.input :date_to, label: 'Date To'
+          .col-xs-6
+            = f.input :has_date_to_limit, label: 'No Upper Limit'
+        .row
+          .col-xs-6
+            = f.input :amount_gt, label: 'Amount Greater Than'
+        .row
+          .col-xs-6
+            = f.input :amount_lt_eq, label: 'Amount Less Than Or Equal To'
+          .col-xs-6
+            = f.input :has_amount_lt_eq_limit, label: 'No Upper Limit'
+        .row
+          .col-xs-6
+            = f.input :rate, label: 'Rate (in %)'
+          .col-xs-6
+            = f.input :is_flat_rate, label: 'Is Flat Rate'
+        = f.input :remarks
 
-  .form-actions
-    = f.button :submit
+        .form-actions
+          = f.button :submit

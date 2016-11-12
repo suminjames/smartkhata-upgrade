@@ -1,33 +1,37 @@
-%h1 Listing master_setup_commission_rates
-
-%table
-  %thead
-    %tr
-      %th Date from
-      %th Date to
-      %th Amount gt
-      %th Amount lt eq
-      %th Rate
-      %th Is flat rate
-      %th Remarks
-      %th
-      %th
-      %th
-
-  %tbody
-    - @master_setup_commission_rates.each do |master_setup_commission_rate|
-      %tr
-        %td= master_setup_commission_rate.date_from
-        %td= master_setup_commission_rate.date_to
-        %td= master_setup_commission_rate.amount_gt
-        %td= master_setup_commission_rate.amount_lt_eq
-        %td= master_setup_commission_rate.rate
-        %td= master_setup_commission_rate.is_flat_rate
-        %td= master_setup_commission_rate.remarks
-        %td= link_to 'Show', master_setup_commission_rate
-        %td= link_to 'Edit', edit_master_setup_commission_rate_path(master_setup_commission_rate)
-        %td= link_to 'Destroy', master_setup_commission_rate, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
-%br
+= provide(:section_title, "Commission Rates")
 
 = link_to 'New Commission rate', new_master_setup_commission_rate_path
+
+- if @master_setup_commission_rates.size <= 0
+  .clearfix.top-buffer-md
+    There are no Commission Rates yet.
+- if @master_setup_commission_rates.size > 0
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Date from
+        %th Date to
+        %th Amount gt
+        %th Amount lt eq
+        %th Rate
+        %th Is flat rate
+        %th Remarks
+        %th
+        %th
+        %th
+
+    %tbody
+      - @master_setup_commission_rates.each do |master_setup_commission_rate|
+        %tr
+          %td= master_setup_commission_rate.date_from
+          %td= master_setup_commission_rate.date_to
+          %td= master_setup_commission_rate.amount_gt
+          %td= master_setup_commission_rate.amount_lt_eq
+          %td= master_setup_commission_rate.rate
+          %td= master_setup_commission_rate.is_flat_rate
+          %td= master_setup_commission_rate.remarks
+          %td= link_to 'Show', master_setup_commission_rate
+          %td= link_to 'Edit', edit_master_setup_commission_rate_path(master_setup_commission_rate)
+          %td= link_to 'Destroy', master_setup_commission_rate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br

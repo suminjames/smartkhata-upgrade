@@ -493,13 +493,15 @@ ActiveRecord::Schema.define(version: 20161110092029) do
   create_table "master_setup_commission_rates", force: :cascade do |t|
     t.date     "date_from"
     t.date     "date_to"
+    t.boolean  "has_date_to_limit"
     t.decimal  "amount_gt"
     t.decimal  "amount_lt_eq"
+    t.boolean  "has_amount_lt_eq_limit"
     t.decimal  "rate"
     t.boolean  "is_flat_rate"
     t.string   "remarks"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "menu_items", force: :cascade do |t|
