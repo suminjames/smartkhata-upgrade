@@ -224,22 +224,14 @@ namespace :mandala do
 
       Voucher.all.each do |v|
         begin
-
+          # skip
+          v.skip_cheque_assign = true
           v.update_attribute('voucher_number', (v.voucher_number + 10000))
 
         rescue
           puts "error for voucher: #{v.fy_code}-#{v.voucher_number}"
         end
       end
-
-      Bill.all.each do |b|
-        begin
-          b.update_attribute('bill_number', b.bill_number + 10000)
-        rescue
-          puts "error for bill: #{b.bill_number}"
-        end
-      end
-      puts "done"
     end
   end
 

@@ -49,4 +49,23 @@ namespace :mandala do
     end
     puts "bills synched"
   end
+
+  task :patch_existing_bills, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    ActiveRecord::Base.transaction do
+      # Bill.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |bill|
+      #   bill.bill_number = nil
+      #   bill.save!
+      # end
+      # the mandala voucher were imported before this date
+      bill_number = Bill.where('date <=?', Date.parse('2016-9-14') ).order(bill_number: :desc).first.bill_number
+      Bill.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |bill|
+        bill_number += 1
+        bill.bill_number = bill_number
+        bill.save!
+        puts "#{bill.id}"
+          # raise ArgumentError
+
+      end
+    end
+  end
 end

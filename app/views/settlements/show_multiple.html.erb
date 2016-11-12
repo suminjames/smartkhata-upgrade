@@ -77,9 +77,9 @@
       <p>the sum of <strong>Rs.   <%= arabic_number(settlement.amount) %></strong></p>
       <p>(in words)<strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
       <!-- Receipt details END -->
-      <% if settlement.voucher.cheque_entries.present? %>
+      <% if settlement.cheque_entries.present? %>
           <p>By Cheque:
-            <% settlement.voucher.cheque_entries.uniq.each do |cheque| %>
+            <% settlement.cheque_entries.uniq.each do |cheque| %>
                 <% if cheque.receipt? %>
                     <br>
                     <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{cheque.additional_bank.name} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
