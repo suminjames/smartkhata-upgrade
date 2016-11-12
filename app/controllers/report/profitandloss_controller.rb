@@ -1,4 +1,5 @@
 class Report::ProfitandlossController < ApplicationController
+  before_action -> {authorize self}
   layout 'application_custom', only: [:index]
 
   def index

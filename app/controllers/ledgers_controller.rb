@@ -2,10 +2,12 @@ class LedgersController < ApplicationController
   before_action :set_ledger, only: [:show, :edit, :update, :destroy]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
+  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance]
+  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
+
   # GET /ledgers
   # GET /ledgers.json
   def index
-    authorize Ledger
     #default landing action for '/ledgers'
       @filterrific = initialize_filterrific(
           Ledger,
@@ -35,7 +37,6 @@ class LedgersController < ApplicationController
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
-    authorize @ledger
     @back_path = request.referer || ledgers_path
     ledger_query = Ledgers::Query.new(params, @ledger)
 
@@ -82,7 +83,6 @@ class LedgersController < ApplicationController
 
   # GET /ledgers/1/edit
   def edit
-    authorize @ledger
     @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
   end
 
@@ -141,6 +141,7 @@ class LedgersController < ApplicationController
   def update
     @can_edit_balance = params[:can_edit_balance] == "true" ? true : false
     authorize @ledger
+
     respond_to do |format|
       if @ledger.update_custom(ledger_params)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
@@ -155,7 +156,6 @@ class LedgersController < ApplicationController
   # DELETE /ledgers/1
   # DELETE /ledgers/1.json
   def destroy
-    authorize @ledger
     @ledger.destroy
     respond_to do |format|
       format.html { redirect_to ledgers_url, notice: 'Ledger was successfully destroyed.' }
@@ -181,7 +181,6 @@ class LedgersController < ApplicationController
   end
 
   def daybook
-    authorize Ledger
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @daybook_ledgers = Ledger.daybook_ledgers
@@ -200,7 +199,6 @@ class LedgersController < ApplicationController
   end
 
   def cashbook
-    authorize Ledger
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @cashbook_ledgers = Ledger.cashbook_ledgers
@@ -221,7 +219,6 @@ class LedgersController < ApplicationController
 
   # Get list of group members
   def group_members_ledgers
-    authorize Ledger
     if params[:client_account_id]
       @client_account_id = params[:client_account_id].to_i
       @client_account = ClientAccount.find(@client_account_id)
@@ -231,7 +228,6 @@ class LedgersController < ApplicationController
   end
 
   def transfer_group_member_balance
-    authorize Ledger
     client_account = ClientAccount.find(@client_account_id)
     @back_path = request.referer || group_member_ledgers_path
 

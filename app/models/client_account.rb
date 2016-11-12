@@ -68,7 +68,11 @@
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
+  include Auditable
+
   include ::Models::UpdaterWithBranch
+
+  attr_accessor :skip_validation_for_system
 
   after_create :create_ledger
 
@@ -92,13 +96,13 @@ class ClientAccount < ActiveRecord::Base
   validates_presence_of :name,
                         :unless => :nepse_code?
   validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.individual?}
+                        :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
   validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate?}
-  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate? && !record.skip_validation_for_system}
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true,  unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
-  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true, unless: :skip_validation_for_system # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
   validates_uniqueness_of :nepse_code, :allow_blank => true
@@ -140,6 +144,10 @@ class ClientAccount < ActiveRecord::Base
         where(:boid => [nil, '']).order('name asc')
       when 'no_nepse_code'
         where(:nepse_code => [nil, '']).order('name asc')
+      when 'with_boid'
+        where.not(:boid => [nil, '']).order('name asc')
+      when 'with_nepse_code'
+        where.not(:nepse_code => [nil, '']).order('name asc')
     end
   }
 
@@ -153,6 +161,10 @@ class ClientAccount < ActiveRecord::Base
     end
   }
 
+  def skip_or_nepse_code_present?
+    nepse_code? || skip_validation_for_system
+  end
+
   validate :bank_details_present?
 
   def bank_details_present?
@@ -165,7 +177,7 @@ class ClientAccount < ActiveRecord::Base
   def create_ledger
     client_group = Group.find_or_create_by!(name: "Clients")
     if self.nepse_code.present?
-      Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
+      client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
         ledger.name = self.name
         ledger.client_account_id = self.id
         ledger.group_id = client_group.id
@@ -177,6 +189,13 @@ class ClientAccount < ActiveRecord::Base
       client_ledger.group_id = client_group.id
       client_ledger.save!
     end
+
+    client_ledger
+  end
+
+  def find_or_create_ledger
+    return self.ledger if self.ledger.present?
+    create_ledger
   end
 
   # assign the client ledger to 'Clients' group
@@ -261,6 +280,19 @@ class ClientAccount < ActiveRecord::Base
     str
   end
 
+  def pending_bills_path
+    Rails.application.routes.url_helpers.bills_path("filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
+  end
+
+  def share_inventory_path
+    Rails.application.routes.url_helpers.share_transactions_path("filterrific[by_client_id]":"#{self.id}")
+  end
+
+
+  def ledger_closing_balance
+    self.ledger.closing_balance
+  end
+
   def self.existing_referrers_names
     where.not(referrer_name: '').order(:referrer_name).uniq.pluck(:referrer_name)
   end
@@ -280,20 +312,17 @@ class ClientAccount < ActiveRecord::Base
         ["without any Phone Number", "no_any_phone_number"],
         ["without Email", "no_email"],
         ["without BOID", "no_boid"],
-        ["without Nepse Code", "no_nepse_code"]
+        ["without Nepse Code", "no_nepse_code"],
+        ["with BOID", "with_boid"]
     ]
   end
 
   def self.pretty_string_of_filter_identifier(filter_identifier)
     filter_identifier ||= ''
     pretty_string = ''
-    arr = [
-        ["without Mobile Number", "no_mobile_number"],
-        ["without any Phone Number", "no_any_phone_number"],
-        ["without Email", "no_email"],
-        ["without BOID", "no_boid"],
-        ["without Nepse Code", "no_nepse_code"]
-    ]
+
+    arr = self.options_for_client_filter
+
     arr.each do |sub_arr|
       if filter_identifier == sub_arr[1]
         pretty_string = sub_arr[0]
@@ -349,6 +378,16 @@ class ClientAccount < ActiveRecord::Base
         new_ledger.save!
       end
     end
+  end
+
+
+
+  def can_be_invited_by_email?
+    user_id.blank? && email.present?
+  end
+
+  def can_assign_username?
+    user_id.blank? && boid.present?
   end
 
 end

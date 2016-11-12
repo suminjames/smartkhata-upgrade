@@ -1,0 +1,3 @@
+module Mandala::Data
+
+end

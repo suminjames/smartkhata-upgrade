@@ -157,6 +157,16 @@ class BillDecorator < ApplicationDecorator
     object.sales? ? h.arabic_number(object.net_amount) : 0.00
   end
 
+  def formatted_bill_age
+    age_in_days = object.age
+    case age_in_days
+      when 0..6 then "#{age_in_days} days"
+      when 7..29 then "> #{age_in_days/7} weeks"
+      when 30..364 then "> #{age_in_days/30} months"
+      else "> 1 year"
+    end
+  end
+
   # OPTIMIZE Is the bill transaction date the same as one of its share_transactions?
   def formatted_bill_message
     case type

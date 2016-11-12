@@ -182,6 +182,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # TODO(Subas) remove this code block to take only the mapped user list
     client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
       client.name = client_name.titleize
+      client.skip_validation_for_system = true
     end
 
 

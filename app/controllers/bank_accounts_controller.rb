@@ -1,5 +1,9 @@
 class BankAccountsController < ApplicationController
   before_action :set_bank_account, only: [:show, :edit, :update, :destroy]
+
+  before_action -> {authorize @bank_account}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize BankAccount}, only: [:index, :new, :create, :generate_bills]
+
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index

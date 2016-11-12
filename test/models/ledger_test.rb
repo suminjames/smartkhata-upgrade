@@ -5,14 +5,14 @@
 #  id                  :integer          not null, primary key
 #  name                :string
 #  client_code         :string
-#  opening_blnc        :decimal(15, 4)   default("0.0")
-#  closing_blnc        :decimal(15, 4)   default("0.0")
+#  opening_blnc        :decimal(15, 4)   default(0.0)
+#  closing_blnc        :decimal(15, 4)   default(0.0)
 #  creator_id          :integer
 #  updater_id          :integer
 #  fy_code             :integer
 #  branch_id           :integer
-#  dr_amount           :decimal(15, 4)   default("0.0"), not null
-#  cr_amount           :decimal(15, 4)   default("0.0"), not null
+#  dr_amount           :decimal(15, 4)   default(0.0), not null
+#  cr_amount           :decimal(15, 4)   default(0.0), not null
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  group_id            :integer
@@ -20,8 +20,8 @@
 #  client_account_id   :integer
 #  employee_account_id :integer
 #  vendor_account_id   :integer
-#  opening_balance_org :decimal(15, 4)   default("0")
-#  closing_balance_org :decimal(15, 4)   default("0")
+#  opening_balance_org :decimal(15, 4)   default(0.0)
+#  closing_balance_org :decimal(15, 4)   default(0.0)
 #
 
 # TODO Testings

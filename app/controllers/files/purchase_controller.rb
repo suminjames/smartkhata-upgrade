@@ -1,4 +1,6 @@
 class Files::PurchaseController < ApplicationController
+  before_action -> {authorize self}
+
   def new
   end
 

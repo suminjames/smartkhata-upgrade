@@ -4,7 +4,7 @@
 #
 #  id              :integer          not null, primary key
 #  settlement_id   :decimal(18, )
-#  status          :integer          default("0")
+#  status          :integer          default(0)
 #  creator_id      :integer
 #  updater_id      :integer
 #  settlement_date :date

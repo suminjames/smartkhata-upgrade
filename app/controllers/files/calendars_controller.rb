@@ -1,4 +1,6 @@
 class Files::CalendarsController < ApplicationController
+  before_action -> {authorize self}
+
   def new
     # new
   end

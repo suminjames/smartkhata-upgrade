@@ -70,17 +70,16 @@
   <p>(in words) <strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
 
-  <% if settlement.voucher.cheque_entries.present? %>
+  <% if settlement.cheque_entries.size > 0 %>
       <p>By Cheque:
         <%
-          settlement.cheque_entries.each do |cheque|
-            bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+         settlement.cheque_entries.uniq.each do |cheque|
+            bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name
             cheque_number = cheque.cheque_number
             cheque_amount = arabic_number(cheque.amount)
         %>
             <br>
             <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %>
-            <% bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
         <%
           end
         %>

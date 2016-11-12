@@ -2,6 +2,9 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number, :ageing_analysis]
+  # also :authorize_single_bill(s) when implemented
+
   # layout 'application_custom', only: [:index]
 
   include BillModule
@@ -9,6 +12,13 @@ class BillsController < ApplicationController
   # GET /bills
   # GET /bills.json
   def index
+    # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
+    # error flash message.
+    if User.client_logged_in? &&
+        !UserSession.user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
+      user_not_authorized and return
+    end
+
     # Check if 'Process Selected Bill', and render accordingly.
     if params['search_by'] == 'client_id'
       @process_selected_bills = true
@@ -26,6 +36,60 @@ class BillsController < ApplicationController
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_bill_type: Bill.options_for_bill_type_select,
             by_bill_status: Bill.options_for_bill_status_select,
+        },
+        persistence_id: false
+    ) or return
+
+    if ['xlsx', 'pdf'].include? params[:format]
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).decorate
+    else
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+    end
+
+    @download_path_xlsx = bills_path({format:'xlsx'}.merge params)
+    @download_path_pdf = bills_path({format:'pdf'}.merge params)
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx do
+        report = Reports::Excelsheet::BillsReport.new(@bills, params[:filterrific], current_tenant)
+        send_data report.file, type: report.type, filename: report.filename
+        report.clear
+      end
+      # format.pdf do
+      # end
+    end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = "#{ e.message }"
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+
+  end
+
+  def ageing_analysis
+    @filterrific = initialize_filterrific(
+        # Show only purchase and unsettled bills. Used for ageing analysis report.
+        Bill.by_branch_fy_code.find_not_settled.purchase,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_bill_status: Bill.options_for_bill_status_select_for_ageing_analysis,
+            by_bill_age: Bill.options_for_bill_age_select
         },
         persistence_id: false
     ) or return
@@ -56,6 +120,7 @@ class BillsController < ApplicationController
     redirect_to(reset_filterrific_url(format: :html)) and return
 
   end
+
   # GET /bills/1
   # GET /bills/1.json
   def show
@@ -201,7 +266,6 @@ class BillsController < ApplicationController
   end
 
   def process_selected
-    authorize Bill
     amount_margin_error = 0.01
 
     @back_path = request.referer || bills_path
@@ -242,7 +306,6 @@ class BillsController < ApplicationController
 
   # Entertains ajax requests.
   def show_by_number
-    authorize Bill
     @bill_number = params[:number]
     @bill = nil
     if @bill_number
@@ -264,6 +327,10 @@ class BillsController < ApplicationController
     # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
     # The bang operator '!' after find_by_id raises an error and halts the script
     @bill = Bill.find_by_id!(params[:id]).decorate
+  end
+
+  def authorize_bill
+    authorize Bill
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -43,6 +43,7 @@
 #
 
 class ShareTransaction < ActiveRecord::Base
+  include Auditable
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
@@ -137,6 +138,32 @@ class ShareTransaction < ActiveRecord::Base
 
   def do_as_per_params (params)
     # TODO
+  end
+
+  #
+  # Returns a hash with share quantity flows of an isin from the search scope that is provided in the `filterrific` ParamSet.
+  # The passed in isin_info_id is bind with `by_isin_id filter, which might or might not have been initially set to some value in filterrific's search scope.
+  #
+  def self.quantity_flows_for_isin(filterrific, isin_info_id)
+    # Assign `by_isin_id` filter as the isin_info_id method argument.
+    filterrific.by_isin_id = isin_info_id
+    share_transactions = filterrific.find
+    total_in_sum = 0
+    total_out_sum = 0
+    balance_sum = 0
+    share_transactions.each_with_index do |st, index|
+      if st.buying?
+        total_in_sum += st.quantity
+      else
+        total_out_sum += st.quantity
+      end
+    end
+    balance_sum = total_in_sum - total_out_sum
+    {
+        :total_in_sum => total_in_sum,
+        :total_out_sum => total_out_sum,
+        :balance_sum => balance_sum
+    }
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it

@@ -25,6 +25,8 @@
 #
 
 class Bill < ActiveRecord::Base
+  include Auditable
+
   extend CustomDateModule
   include CustomDateModule
 
@@ -125,16 +127,20 @@ class Bill < ActiveRecord::Base
     date_ad = bs_to_ad(date_bs)
     where('date <= ?', date_ad.end_of_day)
   }
-
+  scope :by_bill_age, lambda { |number_of_days|
+    reference_date = Date.today - number_of_days.to_i
+    where('settlement_date <= ?', reference_date)
+  }
 
   filterrific(
-      default_filter_params: { sorted_by: 'bill_number_asc' },
+      default_filter_params: { },
       available_filters: [
           :sorted_by,
           :by_client_id,
           :by_bill_number,
           :by_bill_type,
           :by_bill_status,
+          :by_bill_age,
           :by_date,
           :by_date_from,
           :by_date_to
@@ -146,7 +152,11 @@ class Bill < ActiveRecord::Base
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^bill_number/
-        by_branch_fy_code.order("bills.bill_number #{ direction }")
+        order("bills.bill_number #{ direction }")
+      when /^net_amount/
+        order("bills.net_amount #{ direction }")
+      when /^age/
+        order("bills.settlement_date #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
@@ -175,7 +185,11 @@ class Bill < ActiveRecord::Base
 
   # Returns total net dp fee
   def get_net_dp_fee
-    return self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
+    dp_fee = self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
+    if dp_fee == 0
+      dp_fee = 25
+    end
+    return dp_fee
   end
 
   # Returns total net cgt
@@ -240,6 +254,15 @@ class Bill < ActiveRecord::Base
   end
 
 
+  # Returns the age of purchase bill in days.
+  def age
+    age = nil
+    if self.purchase?
+      age = (Date.today - self.settlement_date).to_i
+    end
+    age
+  end
+
   # get new bill number
   def self.new_bill_number(fy_code)
     bill = Bill.unscoped.where(fy_code: fy_code).last
@@ -271,6 +294,20 @@ class Bill < ActiveRecord::Base
    self.pending? || self.partial?
   end
 
+  def self.options_for_bill_age_select
+    [
+        ["> 1 days", 1],
+        ["> 2 days", 2],
+        ["> 3 days", 3],
+        ["> 1 week", 7],
+        ["> 2 week", 14],
+        ["> 1 month", 30],
+        ["> 3 month", 90],
+        ["> 6 month", 180],
+        ["> 1 year", 364]
+    ]
+  end
+
   def self.options_for_bill_type_select
     [
         ["Purchase", "purchase"],
@@ -285,6 +322,19 @@ class Bill < ActiveRecord::Base
         ['Settled', 'settled'],
         ['Provisional', 'provisional']
     ]
+  end
+
+  def self.options_for_bill_status_select_for_ageing_analysis
+    [
+        ['Pending', 'pending'],
+        ['Partial', 'partial'],
+    ]
+  end
+
+  def has_incorrect_fy_code?
+    true_fy_code = get_fy_code(self.settlement_date)
+    return true if true_fy_code != self.fy_code
+    false
   end
 
   private

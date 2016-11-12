@@ -1,0 +1,21 @@
+# == Schema Information
+#
+# Table name: user_access_roles
+#
+#  id          :integer          not null, primary key
+#  role_type   :integer          default(0)
+#  role_name   :string
+#  description :text
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  role_type: 1
+  role_name: MyString
+
+two:
+  role_type: 1
+  role_name: MyString

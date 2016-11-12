@@ -4,22 +4,20 @@
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
   <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entry-print-spinner') %>
-  <span class="cheque-print-error"><%= "Cheque was printed before" if @cheque_entry.printed? %></span>
+  <span class="cheque-print-error"><%= "Cheque is printed." if @cheque_entry.printed? %></span>
+  <span class="cheque-print-error"><%= "Cheque is void." if @cheque_entry.void? %></span>
+  <span class="cheque-print-error"><%= "Cheque is bounced." if @cheque_entry.bounced? %></span>
   <iframe class='hidden-iframe' id='iframe-for-cheque-entry-pdf-print'>
     <!--hidden iframe for printing-->
   </iframe>
-  <% if @cheque_entry.bounced? %>
-      <span class="cheque-print-error"> Cheque is bounced</span>
-  <% elsif @cheque_entry.void? %>
-      <span class="cheque-print-error"> Cheque is void</span>
-  <% end %>
+
 </div>
 
 
 <div class="printThis cheque-single clearfix">
   <div class="receipt-section show-on-print">
     <div class="receipt-cheque desc-on-left">
-      <p>2519</p>
+      <p>####</p>
       <p><%= @cheque_date.strftime("%Y-%m-%d") %></p>
       <p><%= @name %></p>
     </div>
@@ -52,6 +50,7 @@
     <p class="hide-on-print">" <%= @cheque_entry.cheque_number %> "</p>
   </div>
 </div>
+
 <%= link_to "Make Void", make_void_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat'  if @cheque_entry.payment? && !@cheque_entry.void? %>
 <%= link_to "Make Bounced", bounce_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && !@cheque_entry.bounced? %>
 <%= link_to "Represent", represent_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && @cheque_entry.bounced? %>

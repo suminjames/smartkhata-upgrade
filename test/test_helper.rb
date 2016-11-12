@@ -13,9 +13,22 @@ Apartment::Tenant.create( "trishakti" ) rescue nil
 Apartment::Tenant.switch!( "trishakti" )
 
 class ActiveSupport::TestCase
+
+  include FactoryGirl::Syntax::Methods
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
+  setup do
+    new_user = User.find_or_create_by!(email: 'testuser@test.com') do |user|
+      user.password = 'test'
+      user.password_confirmation = 'test'
+      user.branch_id = 1
+      user.confirm
+    end
+    UserSession.user = new_user
+    UserSession.selected_branch_id = new_user.branch_id
+    UserSession.selected_fy_code = 7374
+  end
   # Add more helper methods to be used by all tests here...
 
   # SAMPLE DATA: Invalid data samples (limited) to be used by various (unit) tests
@@ -92,5 +105,5 @@ class ActiveSupport::TestCase
 end
 
 class ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 end

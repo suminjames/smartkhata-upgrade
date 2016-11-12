@@ -15,6 +15,8 @@
 #
 
 class Group < ActiveRecord::Base
+  include Auditable
+
   include ::Models::Updater
   include FiscalYearModule
 
@@ -94,7 +96,7 @@ class Group < ActiveRecord::Base
 
   def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
-    Ledger.where("group_id IN (#{subtree})")
+    Ledger.where("group_id IN (#{subtree})").order(name: :asc)
   end
 
   def closing_balance(fy_code = get_fy_code)

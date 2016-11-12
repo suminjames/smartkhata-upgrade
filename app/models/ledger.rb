@@ -1,3 +1,4 @@
+
 # == Schema Information
 #
 # Table name: ledgers
@@ -25,6 +26,7 @@
 #
 
 class Ledger < ActiveRecord::Base
+  include Auditable
   # include ::Models::UpdaterWithFyCode
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial
   attr_reader :closing_balance

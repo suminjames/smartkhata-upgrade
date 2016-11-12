@@ -1,4 +1,4 @@
-class DashboardDecorator < ApplicationDecorator
+class UserAccessRoleDecorator < ApplicationDecorator
   delegate_all
 
   # Define presentation-specific methods here. Helpers are accessed through

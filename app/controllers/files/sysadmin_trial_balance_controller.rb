@@ -1,4 +1,5 @@
 class Files::SysadminTrialBalanceController < Files::FilesController
+  before_action -> {authorize self}
 
   def index
 

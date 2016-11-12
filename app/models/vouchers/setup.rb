@@ -21,7 +21,7 @@ class Vouchers::Setup < Vouchers::Base
 
     voucher = get_new_voucher(voucher_type)
 
-    if voucher_type == Voucher.voucher_types[:receipt] || voucher_type == Voucher.voucher_types[:payment]
+    if voucher.is_payment_receipt?
       is_payment_receipt = true
       ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
@@ -30,18 +30,23 @@ class Vouchers::Setup < Vouchers::Base
 
       ledger_list_financial << cash_ledger
 
-      if voucher_type == Voucher.voucher_types[:receipt]
+      # default ledger selection for most of the cases
+      if voucher.is_bank_related_receipt?
         default_ledger_id = default_bank_receive ? default_bank_receive.ledger.id : cash_ledger.id
-      else
+      elsif voucher.is_bank_related_payment?
         default_ledger_id = default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
+      else
+        default_ledger_id = cash_ledger.id
       end
+
       voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
     voucher.particulars = []
+    # we need to prepopulate particulars
     if is_payment_receipt
-      transaction_type = voucher_type == Voucher.voucher_types[:receipt] ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
+      transaction_type = voucher.is_receipt? ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       voucher.particulars << Particular.new(ledger_id: default_ledger_id, amount: amount, transaction_type: transaction_type)
     end
 
@@ -49,6 +54,7 @@ class Vouchers::Setup < Vouchers::Base
     client_ledger_list = []
 
     # settlement by clearance only in case of payment to client
+    # it is used to zero the account balance of the client.
     if settlement_by_clearance
       voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
       voucher.particulars << Particular.new(ledger_id: client_account.ledger.id, amount: amount, transaction_type: Particular.transaction_types[:cr])

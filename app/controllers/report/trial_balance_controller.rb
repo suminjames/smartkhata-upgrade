@@ -1,7 +1,9 @@
 class Report::TrialBalanceController < ApplicationController
+  before_action -> {authorize self}
   layout 'application_custom', only: [:index]
 
   def index
+    @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params))
 
     if params[:search_by] == 'all'
       @balance = Group.trial_balance
@@ -68,5 +70,16 @@ class Report::TrialBalanceController < ApplicationController
           end
       end
     end
+
+    if params[:format] == 'xlsx'
+      report = Reports::Excelsheet::TrialBalanceReport.new(@balance_report, params, current_tenant)
+      if report.generated_successfully?
+        send_data(report.file, type: report.type, filename: report.filename)
+        report.clear
+      else
+        redirect_to report_trial_balance_index_path, flash: { error: report.error }
+      end
+    end
+
   end
 end

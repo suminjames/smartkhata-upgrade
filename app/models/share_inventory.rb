@@ -32,22 +32,38 @@
 #
 
 class ShareInventory < ActiveRecord::Base
+  include Auditable
   include ::Models::UpdaterWithBranch
-
 
   belongs_to :client_account
   belongs_to :isin_info
 
-  # def get_value_by_isin(isin_info)
-  #   ShareInventory.where(isin_info_id: isin_info.id).sum(:floorsheet_blnc)
-  # end
-
-  # def get_value_by_client(client_account)
-  # end
+  scope :by_client_id, -> (id) { where(client_account_id: id) }
 
   def self.with_most_quantity
     query = ShareInventory.joins(:isin_info).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC").limit(1)
     query.first
   end
 
+  def self.group_by_isin_for_client(client_id)
+    ShareInventory.joins(:isin_info).by_client_id(client_id).select('isin_infos.isin as isin, sum(share_inventories.floorsheet_blnc) as total').group('isin_infos.id').order("total DESC")
+  end
+
+  #
+  # Returns a hash with share quantity flows of an isin in a client's inventory.
+  # If a client_account_id isn't passed in, returns a hash with share quantity flows of an isin in (not a particular client's inventory but) overall inventory.
+  #
+  def self.quantity_flow_of_isin_with_client(isin_info_id, client_account_id = nil)
+    if client_account_id.present?
+      sums = ShareInventory.where(client_account_id: client_account_id, isin_info_id: isin_info_id).first
+    else
+      sums = ShareInventory.select("SUM(total_in) AS total_in_sum, SUM(total_out) AS total_out_sum, SUM(floorsheet_blnc) AS floorsheet_blnc_sum").where(isin_info_id: isin_info_id)
+      sums = sums.to_a.first
+    end
+    {
+        :total_in_sum => sums.total_in,
+        :total_out_sum => sums.total_out,
+        :floorsheet_blnc_sum => sums.floorsheet_blnc
+    }
+  end
 end

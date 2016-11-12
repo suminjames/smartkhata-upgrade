@@ -9,8 +9,8 @@
 #  date_bs          :string
 #  desc             :string
 #  beneficiary_name :string
-#  voucher_type     :integer          default("0")
-#  voucher_status   :integer          default("0")
+#  voucher_type     :integer          default(0)
+#  voucher_status   :integer          default(0)
 #  creator_id       :integer
 #  updater_id       :integer
 #  reviewer_id      :integer

@@ -6,11 +6,11 @@
 #  beneficiary_name   :string
 #  cheque_number      :integer
 #  additional_bank_id :integer
-#  status             :integer          default("0")
-#  print_status       :integer          default("0")
-#  cheque_issued_type :integer          default("0")
+#  status             :integer          default(0)
+#  print_status       :integer          default(0)
+#  cheque_issued_type :integer          default(0)
 #  cheque_date        :date
-#  amount             :decimal(15, 4)   default("0.0")
+#  amount             :decimal(15, 4)   default(0.0)
 #  bank_account_id    :integer
 #  client_account_id  :integer
 #  vendor_account_id  :integer
@@ -31,12 +31,10 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
+  id: 1
   cheque_number: 123
   bank_account: one
   branch_id: 1
-  # particulars: one
-  # Client account?
-  # Additional bank id?
 
 two:
   cheque_number: 735

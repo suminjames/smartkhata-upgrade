@@ -1,6 +1,9 @@
 class BankPaymentLettersController < ApplicationController
   before_action :set_bank_payment_letter, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @bank_payment_letter}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize BankPaymentLetter}, only: [:index, :new, :create, :finalize_payment]
+
   # GET /bank_payment_letters
   # GET /bank_payment_letters.json
   def index

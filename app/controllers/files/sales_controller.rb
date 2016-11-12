@@ -1,4 +1,5 @@
 class Files::SalesController < Files::FilesController
+  before_action -> {authorize self}
 
   @@file_type = FileUpload::file_types[:orders]
   @@file_name_contains = "CM05"

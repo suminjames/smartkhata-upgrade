@@ -89,6 +89,7 @@ class Vouchers::Base
       #     need to receive from bills and ledger has advances to cover up the bill amount
       #       use the balance and create general voucher, settle all bills
 
+      # TODO change the voucher types to its sub class for payment receipt
 
       if clear_ledger
         if ledger_balance > 0
@@ -153,7 +154,10 @@ class Vouchers::Base
     else
       # in case payment or receive is done
       case voucher_type
-        when Voucher.voucher_types[:receipt]
+        when Voucher.voucher_types[:receipt],
+            Voucher.voucher_types[:receipt_cash],
+            Voucher.voucher_types[:receipt_bank],
+            Voucher.voucher_types[:receipt_bank_deposit]
           # check if the client account is present
           # and grab all the bills from which we can receive amount if bill is not present
           # else grab the amount to be paid from the bill
@@ -169,7 +173,9 @@ class Vouchers::Base
             end
             amount = amount.abs
           end
-        when Voucher.voucher_types[:payment]
+        when Voucher.voucher_types[:payment],
+            Voucher.voucher_types[:payment_cash],
+            Voucher.voucher_types[:payment_bank],
           if client_account.present?
             unless bill.present?
               bills = client_account.bills.requiring_payment

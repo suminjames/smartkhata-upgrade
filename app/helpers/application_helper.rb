@@ -115,4 +115,26 @@ module ApplicationHelper
   def kaminari_serial_number(page_number, per_page)
     params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
+
+  # Alternative helper to check authorization: pundit
+  def is_authorized_to_access?(link)
+    admin_and_above? || !current_user.blocked_path_list.include?(link)
+  end
+
+  def admin_and_above?
+    current_user.admin? || current_user.sys_admin?
+  end
+
+  def can_invite_users?
+    is_authorized_to_access?(client_accounts_path(invite: true))
+  end
+
+  def get_user_name_from_boid(boid)
+    new_boid = boid[-8,8]
+    new_boid.sub!(/^[0]+/,'')
+    unless new_boid.length >= 4
+      new_boid = boid[-4,4]
+    end
+    new_boid
+  end
 end

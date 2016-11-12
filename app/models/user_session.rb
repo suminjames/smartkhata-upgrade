@@ -4,7 +4,7 @@
 
 class UserSession
   class << self
-    attr_reader :user, :selected_fy_code, :selected_branch_id
+    attr_reader :user, :selected_fy_code, :selected_branch_id, :tenant
     delegate :id, :email, :branch_id, to: :user
     # Stores the current_user for devise using the application_controller
 
@@ -29,6 +29,10 @@ class UserSession
       @selected_branch_id = branch_id
     end
 
+    def tenant=(tenant)
+     @tenant = tenant
+    end
+
     # def branch_id
     #   user.branch_id
     # end
@@ -39,6 +43,7 @@ class UserSession
     def set_console(tenant = 'trishakti', fy_code = 7374, selected_branch_id = 1)
       Apartment::Tenant.switch!(tenant)
       UserSession.user = User.first
+      UserSession.tenant = Tenant.find_by_name(tenant)
       UserSession.selected_fy_code = 7374
       UserSession.selected_branch_id = 1
     end

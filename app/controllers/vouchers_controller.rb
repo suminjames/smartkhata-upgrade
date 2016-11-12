@@ -2,6 +2,10 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: [:show, :edit, :update, :destroy]
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
+
+  before_action :authorize_voucher, only: [:index, :pending_vouchers, :new, :create, :finalize_payment, :set_bill_client]
+  before_action :authorize_single_voucher, only: [:show, :edit, :update, :destroy]
+
   layout 'application_custom', only: [:new, :create]
   # GET /vouchers
   # GET /vouchers.json
@@ -55,17 +59,17 @@ class VouchersController < ApplicationController
   # POST /vouchers/new
   def new
     @voucher,
-        @is_payment_receipt,
-        @ledger_list_financial,
-        @ledger_list_available,
-        @default_ledger_id,
-        @voucher_type,
-        @vendor_account_list,
-        @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
-                                                  client_account_id: @client_account_id,
-                                                  bill_id: @bill_id,
-                                                  clear_ledger: @clear_ledger,
-                                                  bill_ids: @bill_ids).voucher_and_relevant
+    @is_payment_receipt,
+    @ledger_list_financial,
+    @ledger_list_available,
+    @default_ledger_id,
+    @voucher_type,
+    @vendor_account_list,
+    @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
+                                              client_account_id: @client_account_id,
+                                              bill_id: @bill_id,
+                                              clear_ledger: @clear_ledger,
+                                              bill_ids: @bill_ids).voucher_and_relevant
   end
 
   # POST /vouchers
@@ -90,11 +94,12 @@ class VouchersController < ApplicationController
       if voucher_creation.process
 
         @voucher = voucher_creation.voucher
-        settlements = @voucher.settlements
+        settlements = voucher_creation.settlements
 
         format.html {
           if settlements.size > 0 && !@voucher.is_payment_bank?
-            settlement_ids = settlements.pluck(:id)
+            # settlement_ids = settlements.pluck(:id)
+            settlement_ids = settlements.map(&:id)
             # TODO (Remove this hack to show all the settlements)
             redirect_to show_multiple_settlements_path(settlement_ids: settlement_ids)
           else
@@ -306,6 +311,14 @@ class VouchersController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_voucher
     @voucher = Voucher.find(params[:id]).decorate
+  end
+
+  def authorize_voucher
+    authorize Voucher
+  end
+
+  def authorize_single_voucher
+    authorize @voucher
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
