@@ -96,9 +96,9 @@ class ClientAccount < ActiveRecord::Base
   validates_presence_of :name,
                         :unless => :nepse_code?
   validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.individual?}
+                        :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
   validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate?}
+                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate? && !record.skip_validation_for_system}
   validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
   validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true,  unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true

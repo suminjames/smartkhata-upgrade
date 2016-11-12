@@ -90,6 +90,29 @@ class Voucher < ActiveRecord::Base
     end
   end
 
+  # implemented the various types of vouchers
+  # payment and receipt are for legacy purpose
+  def is_payment_receipt?
+    self.payment? || self.receipt? || self.payment_cash? || self.receipt_cash? || self.receipt_bank? || self.payment_bank? || self.receipt_bank_deposit?
+  end
+
+  def is_payment?
+    self.payment? || self.payment_cash? || self.payment_bank?
+  end
+
+  def is_receipt?
+    self.receipt? || self.receipt_cash? || self.receipt_bank? || self.receipt_bank_deposit?
+  end
+
+  def is_bank_related_receipt?
+    self.receipt? || self.receipt_bank? || self.receipt_bank_deposit?
+  end
+
+  def is_bank_related_payment?
+    self.payment? || self.payment_bank?
+  end
+
+
   def map_payment_receipt_to_new_types
     if self.receipt? || self.payment?
       if self.receipt?
@@ -136,7 +159,7 @@ class Voucher < ActiveRecord::Base
   # If this voucher is receipt, assign the cheques to credited particular(s) of the voucher.
   #
   def assign_cheque
-    if self.payment?
+    if self.is_payment?
       cheque_entries = self.cheque_entries.payment.uniq
       dr_particulars = self.particulars.select{ |x| x.dr? }
       dr_particulars.each do |particular|
@@ -172,7 +195,7 @@ class Voucher < ActiveRecord::Base
           cheque.save!
         end
       end
-    elsif self.receipt?
+    elsif self.is_receipt?
       cheque_entries = self.cheque_entries.receipt.uniq
       particulars = self.particulars.cr
       particulars.each do |particular|

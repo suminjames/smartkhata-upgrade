@@ -106,7 +106,7 @@ class Ledgers::ParticularEntry
     opening_balance_cost_center = nil
 
     # check if there are records after the entry
-    if accounting_date <= Time.now
+    if accounting_date <= Time.now.to_date
       # get all the ledger dailies for the ledger which is after the accounting date
       # ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
       ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
@@ -145,7 +145,7 @@ class Ledgers::ParticularEntry
       # only for the case when passed fycode is less than the current fy_code
       current_fy_code = get_fy_code
       if fy_code < current_fy_code
-        ledger_blnc_org_current_fy = LedgerBalance.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
+        ledger_blnc_org_current_fy = LedgerBalance.unscoped.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
 
         if ledger_blnc_org_current_fy
           ledger_blnc_org_current_fy.opening_balance += adjustment_amount
@@ -153,7 +153,7 @@ class Ledgers::ParticularEntry
           ledger_blnc_org_current_fy.save!
 
 
-          ledger_blnc_cost_center_current_fy =  LedgerBalance.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
+          ledger_blnc_cost_center_current_fy =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
           ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
           ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
           ledger_blnc_cost_center_current_fy.save!
@@ -161,9 +161,9 @@ class Ledgers::ParticularEntry
       end
     end
 
-
-    ledger_blnc_org = LedgerBalance.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
-    ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
+    # need to do the unscoped here for matching the ledger balance
+    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
+    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance

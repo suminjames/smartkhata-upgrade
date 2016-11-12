@@ -1,6 +1,6 @@
 
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements
 
   def initialize(attrs = {})
     super(attrs)
@@ -11,10 +11,12 @@ class Vouchers::Create < Vouchers::Base
     @voucher_settlement_type = attrs[:voucher_settlement_type]
     @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
+    @settlements = []
     # @current_tenant_full_name = attrs[:tenant_full_name]
   end
 
   def process
+
     # to track if the voucher can be saved.
     # result as false
     res = false
@@ -28,7 +30,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher.voucher_type = @voucher_type
 
     # needed for error case
-    if @voucher.receipt? || @voucher.payment?
+    if @voucher.is_payment_receipt?
       @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
@@ -41,6 +43,7 @@ class Vouchers::Create < Vouchers::Base
     @vendor_account_list = VendorAccount.all
     @client_ledger_list = []
 
+    # TODO (Subas): Redundant with voucher.rb may be
     is_payment_receipt = is_payment_receipt?(@voucher_type)
 
 
@@ -95,7 +98,7 @@ class Vouchers::Create < Vouchers::Base
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         @processed_bills, description_bills, receipt_amount = process_bills(is_payment_receipt, @client_account, net_blnc, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
-        @voucher, res, @error_message = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
+        @voucher, res, @error_message, @settlements = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
       else
         if has_error
           @error_message = error_message
@@ -141,9 +144,9 @@ class Vouchers::Create < Vouchers::Base
       (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
 
       # get a net usable balance to charge the client for billing purpose
-      if voucher.receipt?
+      if voucher.is_receipt?
         net_usable_blnc += (particular.dr?) ? particular.amount : 0
-      elsif voucher.payment?
+      elsif voucher.is_payment?
         net_usable_blnc += (particular.cr?) ? particular.amount : 0
       end
 
@@ -169,7 +172,13 @@ class Vouchers::Create < Vouchers::Base
     is_payment_receipt = false
     # ledgers need to be pre populated for sales and purchase type
     case voucher_type
-      when Voucher.voucher_types[:receipt], Voucher.voucher_types[:payment]
+      when Voucher.voucher_types[:receipt],
+          Voucher.voucher_types[:payment],
+          Voucher.voucher_types[:payment_cash],
+          Voucher.voucher_types[:receipt_cash],
+          Voucher.voucher_types[:receipt_bank],
+          Voucher.voucher_types[:payment_bank],
+          Voucher.voucher_types[:receipt_bank_deposit]
         is_payment_receipt = true
     end
     is_payment_receipt
@@ -228,7 +237,6 @@ class Vouchers::Create < Vouchers::Base
     res = false
     settlement = nil
     settlements = []
-
     Voucher.transaction do
       # @receipt = nil
       # Processed_bills are the bills that are in the scope of this voucher.
@@ -246,6 +254,9 @@ class Vouchers::Create < Vouchers::Base
       #   settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
       # end
 
+      # flag to know if the voucher has cheque entry
+      voucher_has_cheque_entry = false
+
       voucher.particulars.each do |particular|
         particular.transaction_date = voucher.date
         particular.date_bs = voucher.date_bs
@@ -260,6 +271,10 @@ class Vouchers::Create < Vouchers::Base
 
         # particular.bill_id = bill_id
         if (particular.cheque_number.present?)
+
+          # turn the flag for cheque on
+          voucher_has_cheque_entry = true
+
           # make the additional_bank_id nil for payment
           bank_account = ledger.bank_account
 
@@ -325,14 +340,14 @@ class Vouchers::Create < Vouchers::Base
           end
 
         end
-
+        debugger
         if is_payment_receipt && voucher_settlement_type == 'default'
           settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills)
           # TODO()
           # voucher.settlements << settlement if settlement.present?
           # particular.settlements << settlement if settlement.present?
           # TODO(sarojk): Verify if settlement is created for payment and credit
-          if voucher.payment?
+          if voucher.is_payment?
             particular.debit_settlements << settlement if settlement.present?
           else
             particular.credit_settlements << settlement if settlement.present?
@@ -376,8 +391,9 @@ class Vouchers::Create < Vouchers::Base
         voucher.particulars.select{|x| x.cr?}.each do |p|
           p.credit_settlements << settlement
         end
+        settlements << settlement
       elsif is_payment_receipt
-        if voucher.payment?
+        if voucher.is_payment?
           voucher.particulars.select{|x| x.cr?}.each do |p|
             p.credit_settlements << settlements
           end
@@ -388,11 +404,26 @@ class Vouchers::Create < Vouchers::Base
         end
       end
 
+      # logic to make the voucher comply to new standard
+      # splitting the payment and receipt to multiple types
+      if is_payment_receipt && voucher_has_cheque_entry
+        if voucher.is_payment?
+          voucher.voucher_type = Voucher.voucher_types[:payment_bank]
+        else
+          voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
+        end
+      else
+        if voucher.is_payment?
+          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+        else
+          voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+        end
+      end
       # mark the voucher as settled if it is not payment bank
       voucher.complete! unless voucher.is_payment_bank
       res = true if voucher.save
     end
-    return voucher, res, error_message
+    return voucher, res, error_message, settlements
   end
 
   def purchase_sales_settlement(voucher, attrs = {})
@@ -412,16 +443,16 @@ class Vouchers::Create < Vouchers::Base
 
     # incase of multiple settlement or default take the amount from particular
     if !is_single_settlement
-      if voucher.receipt?
+      if voucher.is_receipt?
         receipt_amount += (particular.cr?) ? particular.amount : 0
-      elsif voucher.payment?
+      elsif voucher.is_payment?
         receipt_amount += (particular.dr?) ? particular.amount : 0
       end
     end
 
     # in case of payment the settlement date has to be today itself as cheque is created on that day
     # in case of receipt however it can be voucher date
-    if voucher.payment?
+    if voucher.is_payment?
       settlement_date_bs = ad_to_bs(DateTime.now)
     else
       settlement_date_bs = voucher.date_bs
@@ -444,14 +475,14 @@ class Vouchers::Create < Vouchers::Base
 
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
+      settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
-    elsif voucher.receipt? && particular.cr? || voucher.payment? && particular.dr?
+    elsif voucher.is_receipt? && particular.cr? || voucher.is_payment? && particular.dr?
       settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.receipt?
+      settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       client_account_id = client_account.id if client_account.present?
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
       # settlement.client_account = client_account
