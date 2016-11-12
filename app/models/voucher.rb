@@ -26,6 +26,8 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
+  attr_accessor :skip_cheque_assign, :skip_number_assign
+
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
   enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit]
@@ -36,7 +38,7 @@ class Voucher < ActiveRecord::Base
 
   before_save :process_voucher
   # before_validation :validate_fy_code
-  after_save :assign_cheque
+  after_save :assign_cheque, unless: :skip_cheque_assign
 
   ########################################
   # Relationships
@@ -122,8 +124,10 @@ class Voucher < ActiveRecord::Base
     fy_code = get_fy_code(self.date)
     # TODO double check the query for enum
     # rails enum and query not working properly
-    last_voucher = Voucher.unscoped.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).order(voucher_number: :desc).first
-    self.voucher_number ||= last_voucher.present? ? ( last_voucher.voucher_number + 1 ): 1
+    unless skip_number_assign
+      last_voucher = Voucher.unscoped.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).order(voucher_number: :desc).first
+      self.voucher_number ||= last_voucher.present? ? ( last_voucher.voucher_number + 1 ): 1
+    end
     self.fy_code = fy_code
   end
 
@@ -132,8 +136,7 @@ class Voucher < ActiveRecord::Base
   # If this voucher is receipt, assign the cheques to credited particular(s) of the voucher.
   #
   def assign_cheque
-
-    if self.payment_bank?
+    if self.payment?
       cheque_entries = self.cheque_entries.payment.uniq
       dr_particulars = self.particulars.select{ |x| x.dr? }
       dr_particulars.each do |particular|
@@ -169,7 +172,7 @@ class Voucher < ActiveRecord::Base
           cheque.save!
         end
       end
-    elsif self.receipt_bank?
+    elsif self.receipt?
       cheque_entries = self.cheque_entries.receipt.uniq
       particulars = self.particulars.cr
       particulars.each do |particular|

@@ -27,14 +27,15 @@ namespace :mandala do
 
         new_voucher = voucher.new_smartkhata_voucher
 
-        begin
           if new_voucher.has_incorrect_fy_code?
             pending_voucher << voucher
           else
-            # puts "processing #{voucher.voucher_no}"
+            # skip cheque assign step
+            new_voucher.skip_cheque_assign = true
             new_voucher.save!
             voucher.voucher_id = new_voucher.id
             voucher.migration_completed = true
+
             voucher.save!
             fy_code = new_voucher.fy_code
 
@@ -141,10 +142,6 @@ namespace :mandala do
             end_time = Time.now
             vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
           end
-        rescue
-          error_count += 1
-        end
-
       end
     end
     puts "vouchers synched"
@@ -160,11 +157,27 @@ namespace :mandala do
   end
 
   task :patch_existing_vouchers, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    fy_code = 7374
+    branch_id = 1
     ActiveRecord::Base.transaction do
+      # first make the voucher number nil
+      Voucher.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |voucher|
+        voucher.skip_number_assign = true
+        voucher.skip_cheque_assign = true
+        begin
+          voucher.voucher_number = nil
+          voucher.save!
+        rescue
+          puts "#{voucher.id}"
+        end
+
+      end
+
       # the mandala voucher were imported before this date
       Voucher.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |voucher|
         voucher.map_payment_receipt_to_new_types
-        voucher.voucher_number = nil
+        # voucher.voucher_number = nil
+        voucher.skip_cheque_assign = true
         begin
         voucher.save!
         rescue

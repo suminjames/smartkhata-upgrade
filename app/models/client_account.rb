@@ -99,8 +99,8 @@ class ClientAccount < ActiveRecord::Base
                         :if => lambda {|record| record.nepse_code.blank?  && record.individual?}
   validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
                         :if => lambda {|record| record.nepse_code.blank?  && record.corporate?}
-  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true
+  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true,  unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
   validates_numericality_of :mobile_number, only_integer: true, allow_blank: true, unless: :skip_validation_for_system # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
