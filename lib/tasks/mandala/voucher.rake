@@ -164,12 +164,10 @@ namespace :mandala do
       Voucher.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |voucher|
         voucher.skip_number_assign = true
         voucher.skip_cheque_assign = true
-        begin
-          voucher.voucher_number = nil
-          voucher.save!
-        rescue
-          puts "#{voucher.id}"
-        end
+
+        voucher.voucher_number = nil
+        voucher.save!
+
 
       end
 
@@ -178,12 +176,10 @@ namespace :mandala do
         voucher.map_payment_receipt_to_new_types
         # voucher.voucher_number = nil
         voucher.skip_cheque_assign = true
-        begin
+
         voucher.save!
-        rescue
-          puts "#{voucher.id}"
+        puts "#{voucher.id}"
           # raise ArgumentError
-        end
       end
     end
 
