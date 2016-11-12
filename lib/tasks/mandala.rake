@@ -330,7 +330,7 @@ namespace :mandala do
       end
 
 
-      ActiveRecord::Base.transaction do
+
         bench = Benchmark.measure do
           Rake::Task["mandala:sync_vouchers"].invoke(tenant)
           Rake::Task["mandala:sync_bills"].invoke(tenant)
@@ -338,7 +338,6 @@ namespace :mandala do
         end
         puts "#{bench}"
 
-      end
     else
       puts 'kya majak hai'
     end
