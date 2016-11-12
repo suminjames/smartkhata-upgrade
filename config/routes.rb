@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       get 'deal_cancel'
       get 'pending_deal_cancel'
       get 'capital_gain_report'
+      get 'threshold_transactions'
     end
   end
   resources :bills do
@@ -149,7 +150,6 @@ Rails.application.routes.draw do
     resources :balancesheet
     resources :profitandloss
     resources :trial_balance
-    resources :threshold_transactions, only: [:index]
   end
 
   get "/test" => "test#index"

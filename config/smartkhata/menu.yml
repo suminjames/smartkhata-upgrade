@@ -160,6 +160,9 @@ menus:
       path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete')
         %>"
       code: RS_TRO_CAT
+    - name: Threshold Transactions Report
+      path: "<%= threshold_transactions_share_transactions_path %>"
+      code: RS_TRO_CAT
   - name: Settlements
     code: RS_SET
     menu_items:

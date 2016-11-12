@@ -1,4 +1,4 @@
-<% provide(:section_title, "Reports:Order Threshold") %>
+<% provide(:section_title, "Report: Threshold Transaction") %>
 <%= form_tag(report_threshold_transactions_path, :method => "get", id: "search-form") do %>
     <%= text_field_tag :transaction_date, params[:transaction_date], placeholder: "YYYY-MM-DD" %>
     <%= submit_tag "Search" %>
@@ -12,7 +12,6 @@
         <h4><strong><%= t('threshold_transaction_detail', :locale => :np) %></strong></h4>
       </div>
       <br><br>
-      <h4><%= t('informer_name', :locale => :np) %> : <%= current_tenant.full_name %></h4>
 
       <table class="table table-condensed bordered-full">
         <tr>
