@@ -19,4 +19,35 @@ class IsinInfoTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
+  def setup
+    @isin_info = create(:isin_info)
+  end
+
+  test "valid isin" do
+    assert @isin_info.valid?
+  end
+
+  test "invalid without name" do
+    @isin_info.company = nil
+    refute @isin_info.valid?
+  end
+
+  test "invalid without code" do
+    @isin_info.isin = nil
+    refute @isin_info.valid?
+  end
+
+  test "invalid with same code" do
+    new = @isin_info.dup
+    new.save
+    assert_includes new.errors, :isin
+  end
+
+  test "valid with different code" do
+    new = @isin_info.dup
+    new.isin = 'DAD'
+    assert new.valid?
+  end
 end
+
+
