@@ -34,7 +34,7 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
         self.ledger_id = ledger.id
         self.save!
       rescue
-        debugger
+        p 'rescued'
       end
 
     end
