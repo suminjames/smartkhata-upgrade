@@ -15,7 +15,7 @@
       <tr>
         <td><%= voucher.date_bs %></td>
         <td><%= "#{voucher.voucher_code}-#{voucher.voucher_number}" %></td>
-        <td><%= voucher.particulars.has_bank.first.cheque_number %></td>
+        <td><%= voucher.particulars.has_bank.try(:first).try(:cheque_number) %></td>
         <td><%= voucher.desc %></td>
         <td><%= voucher.formatted_linked_ledgers %></td>
         <td><%= link_to 'Show', voucher %></td>
