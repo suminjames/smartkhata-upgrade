@@ -932,7 +932,7 @@ ActiveRecord::Schema.define(version: 20161113151541) do
     t.datetime "updated_at",                                               null: false
   end
 
-  add_index "master_setup_commission_details", ["master_setup_commission_info_id"], name: "commission_info_id", using: :btree
+  add_index "master_setup_commission_details", ["master_setup_commission_info_id"], name: "master_setup_commission_info_id", using: :btree
 
   create_table "master_setup_commission_infos", force: :cascade do |t|
     t.date     "start_date"

@@ -1,3 +1,3 @@
 class MasterSetup::CommissionInfo < ActiveRecord::Base
-  has_many :master_setup_commission_details
+  has_many :commission_details, class_name: '::MasterSetup::CommissionDetail', foreign_key: 'master_setup_commission_info_id'
 end
