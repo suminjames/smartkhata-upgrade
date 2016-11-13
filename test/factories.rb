@@ -1,4 +1,17 @@
 FactoryGirl.define do
+  factory :master_setup_commission_detail, class: 'MasterSetup::CommissionDetail' do
+    start_amount "9.99"
+    limit_amount "9.99"
+    commission_rate 1.5
+    commission_amount 1.5
+    master_setup_commission_info nil
+  end
+  factory :master_setup_commission_info, class: 'MasterSetup::CommissionInfo' do
+    start_date "2016-11-13"
+    end_date "2016-11-13"
+    start_date_bs "MyString"
+    end_date_bs "MyString"
+  end
   factory :master_setup_commission_rate, class: 'MasterSetup::CommissionRate' do
     date_from "2016-11-10"
     date_to "2016-11-10"

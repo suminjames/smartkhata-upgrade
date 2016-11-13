@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  namespace :master_setup do
+    resources :commission_details
+  end
+  namespace :master_setup do
+    resources :commission_infos
+  end
   resources :isin_infos
   namespace :master_setup do
     resources :commission_rates

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161110070100) do
+ActiveRecord::Schema.define(version: 20161113151541) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -922,6 +922,27 @@ ActiveRecord::Schema.define(version: 20161110070100) do
   add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
   add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
 
+  create_table "master_setup_commission_details", force: :cascade do |t|
+    t.decimal  "start_amount",                    precision: 15, scale: 4
+    t.decimal  "limit_amount",                    precision: 15, scale: 4
+    t.float    "commission_rate"
+    t.float    "commission_amount"
+    t.integer  "master_setup_commission_info_id"
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+  end
+
+  add_index "master_setup_commission_details", ["master_setup_commission_info_id"], name: "commission_info_id", using: :btree
+
+  create_table "master_setup_commission_infos", force: :cascade do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "start_date_bs"
+    t.string   "end_date_bs"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
   create_table "menu_items", force: :cascade do |t|
     t.string   "name"
     t.string   "path"
@@ -1681,6 +1702,7 @@ ActiveRecord::Schema.define(version: 20161110070100) do
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "ledger_balances", "ledgers"
+  add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
   add_foreign_key "particular_settlement_associations", "particulars"
