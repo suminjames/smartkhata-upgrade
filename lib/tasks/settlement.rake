@@ -12,8 +12,9 @@ namespace :settlement do
   desc "patch the settlements"
   task :patch_particulars, [:tenant] => 'mandala:validate_tenant' do |task, args|
     # for those without particular associations
+    count = 0
     ActiveRecord::Base.transaction do
-      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).where(date_bs: "2073-7-26").each do |settlement|
+      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).find_each do |settlement|
         voucher = settlement.voucher
 
         voucher.particulars.select{|x| x.dr?}.each do |p|
@@ -29,7 +30,9 @@ namespace :settlement do
         voucher.particulars.select{|x| x.cr?}.each do |p|
           p.credit_settlements << settlement
         end
-
+        count += 1
+        puts "settlement: #{settlement.name}"
+        puts "total processed : #{count}"
       end
     end
   end
