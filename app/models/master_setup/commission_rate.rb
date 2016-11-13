@@ -17,15 +17,5 @@
 #
 
 class MasterSetup::CommissionRate < ActiveRecord::Base
-  validates_presence_of :date_from,  :rate
-
-  def self.has_commission_rate_for_date(date_ad)
-
-  end
-
-  def self.commission_rate_for(amount, transaction_date)
-    self.where()
-
-  end
 
 end
