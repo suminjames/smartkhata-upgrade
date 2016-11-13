@@ -203,7 +203,11 @@ class ChequeEntriesController < ApplicationController
     cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
     settlement_ids = []
     cheque_entries.each do |cheque_entry|
-      settlements = cheque_entry.settlements
+      if cheque_entry.payment?
+        settlements = cheque_entry.dr_settlements
+      else
+        settlements = cheque_entry.cr_settlements
+      end
       settlements.each do |settlement|
         settlement_ids << settlement.id
       end
