@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Start date:
+  = @master_setup_commission_info.start_date
+%p
+  %b End date:
+  = @master_setup_commission_info.end_date
+%p
+  %b Start date bs:
+  = @master_setup_commission_info.start_date_bs
+%p
+  %b End date bs:
+  = @master_setup_commission_info.end_date_bs
+
+= link_to 'Edit', edit_master_setup_commission_info_path(@master_setup_commission_info)
+\|
+= link_to 'Back', master_setup_commission_infos_path

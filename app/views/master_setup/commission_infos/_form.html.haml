@@ -1,0 +1,11 @@
+= simple_form_for(@master_setup_commission_info) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :start_date
+    = f.input :end_date
+    = f.input :start_date_bs
+    = f.input :end_date_bs
+
+  .form-actions
+    = f.button :submit

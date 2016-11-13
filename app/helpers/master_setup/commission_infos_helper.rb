@@ -1,0 +1,2 @@
+module MasterSetup::CommissionInfosHelper
+end

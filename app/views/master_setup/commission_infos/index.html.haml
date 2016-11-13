@@ -1,0 +1,27 @@
+%h1 Listing master_setup_commission_infos
+
+%table
+  %thead
+    %tr
+      %th Start date
+      %th End date
+      %th Start date bs
+      %th End date bs
+      %th
+      %th
+      %th
+
+  %tbody
+    - @master_setup_commission_infos.each do |master_setup_commission_info|
+      %tr
+        %td= master_setup_commission_info.start_date
+        %td= master_setup_commission_info.end_date
+        %td= master_setup_commission_info.start_date_bs
+        %td= master_setup_commission_info.end_date_bs
+        %td= link_to 'Show', master_setup_commission_info
+        %td= link_to 'Edit', edit_master_setup_commission_info_path(master_setup_commission_info)
+        %td= link_to 'Destroy', master_setup_commission_info, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Commission info', new_master_setup_commission_info_path
