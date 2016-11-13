@@ -8,5 +8,5 @@ class BillPolicy < ApplicationPolicy
 
   permit_custom_access :employee_and_above, sales_payment_bills_path, [:sales_payment_process]
   # unless you can see ledgers you can not process selected bills
-  permit_custom_access :employee_and_above, bills_path, [:process_selected, :show]
+  permit_custom_access :employee_and_above, bills_path, [:process_selected, :show, :show_multiple]
 end
