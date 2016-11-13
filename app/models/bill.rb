@@ -185,7 +185,11 @@ class Bill < ActiveRecord::Base
 
   # Returns total net dp fee
   def get_net_dp_fee
-    return self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
+    dp_fee = self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
+    if dp_fee == 0
+      dp_fee = 25
+    end
+    return dp_fee
   end
 
   # Returns total net cgt
@@ -261,7 +265,7 @@ class Bill < ActiveRecord::Base
 
   # get new bill number
   def self.new_bill_number(fy_code)
-    bill = Bill.unscoped.where(fy_code: fy_code).last
+    bill = Bill.unscoped.where(fy_code: fy_code).order('bill_number DESC').first
     # initialize the bill with 1 if no bill is present
     if bill.nil?
       1
@@ -325,6 +329,12 @@ class Bill < ActiveRecord::Base
         ['Pending', 'pending'],
         ['Partial', 'partial'],
     ]
+  end
+
+  def has_incorrect_fy_code?
+    true_fy_code = get_fy_code(self.settlement_date)
+    return true if true_fy_code != self.fy_code
+    false
   end
 
   private

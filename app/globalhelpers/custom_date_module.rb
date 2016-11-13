@@ -24,6 +24,11 @@ module CustomDateModule
     return @cal.ad_to_bs_string(ad_date.year, ad_date.month, ad_date.day)
   end
 
+  # workaround for some modules that extend
+  def ad_to_bs_string_public(ad_date)
+    ad_to_bs_string(ad_date)
+  end
+
   # Converts an AD date to BS date string
   # params ad_date - AD date  is a `Date` object not `String`
   # return - BS date is a hash, with signature {:year=> 2072, :month => 2, :day => 32}, not `Date` object.
@@ -61,5 +66,9 @@ module CustomDateModule
     return true
   end
 
+
+  def test
+    puts "hello"
+  end
   module_function :ad_to_bs, :ad_to_bs_string
 end

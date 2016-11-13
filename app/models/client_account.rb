@@ -74,7 +74,7 @@ class ClientAccount < ActiveRecord::Base
 
   attr_accessor :skip_validation_for_system
 
-  # after_create :create_ledger
+  after_create :create_ledger
 
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator, class_name: 'User'
@@ -93,13 +93,16 @@ class ClientAccount < ActiveRecord::Base
   belongs_to :branch
 
   # 36 fields present. Validate accordingly!
-  validates_presence_of :name, :unless => :nepse_code?
-  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm, unless: :skip_validation_for_system
-
+  validates_presence_of :name,
+                        :unless => :nepse_code?
+  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
+                        :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
+  validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
+                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate? && !record.skip_validation_for_system}
   validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
+  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true,  unless: :skip_validation_for_system
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
-  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true # length?
+  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true, unless: :skip_validation_for_system # length?
   validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
   validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
   validates_uniqueness_of :nepse_code, :allow_blank => true
@@ -173,19 +176,26 @@ class ClientAccount < ActiveRecord::Base
   # create client ledger
   def create_ledger
     client_group = Group.find_or_create_by!(name: "Clients")
-    # if self.nepse_code.present?
-    #   client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-    #     ledger.name = self.name
-    #     ledger.client_account_id = self.id
-    #     ledger.group_id = client_group.id
-    #   end
-    # end
-    client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-      ledger.name = self.name
-      ledger.client_account_id = self.id
-      ledger.group_id = client_group.id
+    if self.nepse_code.present?
+      client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
+        ledger.name = self.name
+        ledger.client_account_id = self.id
+        ledger.group_id = client_group.id
+      end
+    else
+      client_ledger = Ledger.new
+      client_ledger.name = self.name
+      client_ledger.client_account_id = self.id
+      client_ledger.group_id = client_group.id
+      client_ledger.save!
     end
 
+    client_ledger
+  end
+
+  def find_or_create_ledger
+    return self.ledger if self.ledger.present?
+    create_ledger
   end
 
   # assign the client ledger to 'Clients' group
@@ -252,7 +262,11 @@ class ClientAccount < ActiveRecord::Base
   end
 
   def name_and_nepse_code
-    "#{self.name.titleize} (#{self.nepse_code})"
+    if self.nepse_code.present?
+      "#{self.name.titleize} (#{self.nepse_code})"
+    else
+      "#{self.name.titleize}"
+    end
   end
 
   def commaed_contact_numbers
@@ -327,7 +341,11 @@ class ClientAccount < ActiveRecord::Base
     search_term = search_term.present? ? search_term.to_s : ''
     client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
-      identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      if client_account['nepse_code'].present?
+        identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
+      else
+        identifier = "#{client_account['name']}"
+      end
       { :text=> identifier, :id => client_account['id'].to_s }
     end
   end

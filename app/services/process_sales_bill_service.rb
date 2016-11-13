@@ -54,7 +54,7 @@ class ProcessSalesBillService
     @date = DateTime.now
 
     ActiveRecord::Base.transaction do
-      voucher = Voucher.create!(date: @date, voucher_type: Voucher.voucher_types[:payment])
+      voucher = Voucher.create!(date: @date, voucher_type: Voucher.voucher_types[:payment_bank], skip_cheque_assign: true)
       voucher.pending!
       voucher.save!
 

@@ -58,7 +58,7 @@ class ChequeEntriesController < ApplicationController
     # TODO(subas): Is @bank needed? There apparently doesn't seem to be its any use in corresponding view.
     if @cheque_entry.additional_bank_id.present?
       @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = current_tenant.full_name
+      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name: current_tenant.full_name
     else
       @bank = @cheque_entry.bank_account.bank
       @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
@@ -203,7 +203,11 @@ class ChequeEntriesController < ApplicationController
     cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
     settlement_ids = []
     cheque_entries.each do |cheque_entry|
-      settlements = cheque_entry.settlements
+      if cheque_entry.payment?
+        settlements = cheque_entry.dr_settlements
+      else
+        settlements = cheque_entry.cr_settlements
+      end
       settlements.each do |settlement|
         settlement_ids << settlement.id
       end

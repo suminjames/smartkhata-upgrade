@@ -25,6 +25,15 @@ class LedgerBalance < ActiveRecord::Base
   attr_accessor :opening_balance_type
   before_create :update_closing_balance
 
+  # scope based on the branch and fycode selection
+  default_scope do
+    if UserSession.selected_branch_id == 0
+      where(fy_code: UserSession.selected_fy_code)
+    else
+      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+    end
+  end
+
   def update_closing_balance
     unless self.opening_balance.blank?
       self.opening_balance = self.opening_balance * -1 if self.opening_balance_type.to_i == Particular.transaction_types['cr']

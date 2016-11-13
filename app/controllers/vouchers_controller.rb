@@ -58,13 +58,18 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-    @voucher, @is_payment_receipt, @ledger_list_financial, @ledger_list_available, @default_ledger_id, @voucher_type, @vendor_account_list, @client_ledger_list =
-        Vouchers::Setup.new(voucher_type: @voucher_type,
-                            client_account_id: @client_account_id,
-                            bill_id: @bill_id,
-                            clear_ledger: @clear_ledger,
-                            bill_ids: @bill_ids).voucher_and_relevant
-    puts @voucher_type
+    @voucher,
+    @is_payment_receipt,
+    @ledger_list_financial,
+    @ledger_list_available,
+    @default_ledger_id,
+    @voucher_type,
+    @vendor_account_list,
+    @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
+                                              client_account_id: @client_account_id,
+                                              bill_id: @bill_id,
+                                              clear_ledger: @clear_ledger,
+                                              bill_ids: @bill_ids).voucher_and_relevant
   end
 
   # POST /vouchers
@@ -83,20 +88,18 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name
-    )
+                                            tenant_full_name: current_tenant.full_name)
 
-
-    # abort("Message goes here")
     respond_to do |format|
       if voucher_creation.process
 
         @voucher = voucher_creation.voucher
-        settlements = @voucher.settlements
+        settlements = voucher_creation.settlements
 
         format.html {
           if settlements.size > 0 && !@voucher.is_payment_bank?
-            settlement_ids = settlements.pluck(:id)
+            # settlement_ids = settlements.pluck(:id)
+            settlement_ids = settlements.map(&:id)
             # TODO (Remove this hack to show all the settlements)
             redirect_to show_multiple_settlements_path(settlement_ids: settlement_ids)
           else

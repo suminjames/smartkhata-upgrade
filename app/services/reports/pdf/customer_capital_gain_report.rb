@@ -127,7 +127,6 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
     report_date_bs = "#{ad_to_bs(Date.today)} BS"
     client = @share_transactions.first.client_account
     client_name = client.name_and_nepse_code
-    client_name = 'Surya Prasad Dhunga Joshi COmpany Pvt. Ltd.'
     client_type = client.client_type.titleize
     data = [
         ["Customer Name:", client_name, "Fiscal Year:", fiscal_year],

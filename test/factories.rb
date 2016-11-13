@@ -132,4 +132,10 @@ FactoryGirl.define do
 
     ledger
   end
+
+  factory :isin_info do
+    company 'Danphe Infotech'
+    sector 'technology'
+    isin 'DAN'
+  end
 end

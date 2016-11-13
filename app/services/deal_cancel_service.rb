@@ -92,8 +92,12 @@ class DealCancelService
         @share_transaction.net_amount -= @share_transaction.dp_fee
         @share_transaction.dp_fee = 0
         @share_transaction.save!
-        # rewrite the sms message
-        create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+
+        # Data migrated from mandala doesn't have transaction_message for share_transactions.
+        # Therefore, only change the message if transaction_message is present to avoid error.
+        if @share_transaction.transaction_message.present?
+          create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+        end
 
       end
       @info_message = 'Deal cancelled successfully.'
@@ -153,8 +157,11 @@ class DealCancelService
           @share_transaction.transaction_cancel_status = :deal_cancel_complete
           @share_transaction.save!
 
-          # rewrite the sms message
-          create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+          # Data migrated from mandala doesn't have transaction_message for share_transactions.
+          # Therefore, only change the message if transaction_message is present to avoid error.
+          if @share_transaction.transaction_message.present?
+            create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+          end
           @info_message = 'Deal cancel approved successfully.'
         end
       else
@@ -196,7 +203,11 @@ class DealCancelService
             bill.save!
           end
 
-          create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+          # Data migrated from mandala doesn't have transaction_message for share_transactions.
+          # Therefore, only change the message if transaction_message is present to avoid error.
+          if @share_transaction.transaction_message.present?
+            create_sms_result = CreateSmsService.new(broker_code: @broker_code, transaction_message: @share_transaction.transaction_message, transaction_date: @share_transaction.date, bill: bill).change_message
+          end
         end
         @info_message = 'Deal cancel rejected successfully.'
         @share_transaction = nil

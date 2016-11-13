@@ -1,0 +1,65 @@
+-#This view is called by #index action.
+%div.threshold-report#filterrific_results
+
+  - if share_transactions
+    %div.bottom-buffer-sm
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+          Download
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'PDF', @download_path_pdf, :target => "_blank"
+          %li
+            = link_to 'PDF for Letter Head', @download_path_pdf_for_letter_head, :target => "_blank"
+
+  -if share_transactions
+    %div.text-center
+      %h4
+        %strong
+          =t('annexure', :locale => :np)
+          =t('number.two', :locale => :np)
+      %h4
+        %strong
+          =t('threshold_transaction_detail', :locale => :np)
+      %h4
+        %strong
+          = t('informer_name', :locale => :np)
+          \:
+          = current_tenant.full_name
+
+  = render 'shared/pagination', collection_to_paginate: share_transactions
+
+  %div#share_transaction_list
+    %table.table.table-striped
+      %thead
+        %th.col-1= t('serial_no', :locale => :np)
+        %th.col-2= t('buyer_seller_address', :locale => :np)
+        %th.col-3= t('occupation', :locale => :np)
+        %th.col-4= t('branch_if_any', :locale => :np)
+        %th.col-5= t('transaction_date', :locale => :np)
+        %th.col-6= t('transaction_type', :locale => :np)
+        %th.col-7= t('transaction_amount', :locale => :np)
+        %th.col-8= t('source_of_income', :locale => :np)
+        %th.col-9= t('remarks', :locale => :np)
+      %tbody
+        -if share_transactions
+          -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
+          -share_transactions.each_with_index do |share_transaction, index|
+            %tr
+              %td.text-center= pagination_count + index
+              %td= share_transaction.client_account.name
+              %td= share_transaction.client_account.profession_code
+              %td
+              %td.text-right= ad_to_bs_string(share_transaction.date)
+              %td.text-center= share_transaction.transaction_type.titleize
+              %td.text-right= arabic_number(share_transaction.net_amount)
+              %td
+              %td
+
+    - if !share_transactions || share_transactions.empty?
+      %div.row.text-center.top-buffer-md
+        There are no matching share transactions.
+
+  = render 'shared/pagination', collection_to_paginate: share_transactions
