@@ -2,11 +2,13 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
   include ShareInventoryModule
+
+  layout 'application_custom', only: [:threshold_transactions]
 
   # GET /share_transactions
   # GET /share_transactions.json
@@ -85,7 +87,7 @@ class ShareTransactionsController < ApplicationController
       format.html
       format.js
       format.pdf do
-        print_in_letter_head = params[:print_in_letter_head].present? ? true : false
+        print_in_letter_head = params[:print_in_letter_head].present?
         pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
         send_data pdf.render, filename:  Reports::Pdf::ShareTransactionsReport.file_name(params[:filterrific]) + '.pdf', type: 'application/pdf'
       end
@@ -121,6 +123,53 @@ class ShareTransactionsController < ApplicationController
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
 
+  end
+
+  def threshold_transactions
+    @filterrific = initialize_filterrific(
+        ShareTransaction,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_isin_id: ShareTransaction.options_for_isin_select
+        },
+        persistence_id: false
+    ) or return
+    items_per_page = 20
+    if params[:paginate] == 'false'
+      @share_transactions= @filterrific.find.above_threshold.includes(:client_account).order('date ASC, contract_no ASC')
+    else
+      @share_transactions= @filterrific.find.above_threshold.includes(:client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+    end
+
+    @download_path_pdf = threshold_transactions_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @download_path_pdf_for_letter_head = threshold_transactions_share_transactions_path({format:'pdf', paginate: 'false', print_in_letter_head: 1}.merge params)
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        print_in_letter_head = params[:print_in_letter_head].present?
+        pdf = Reports::Pdf::ThresholdShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
+        send_data pdf.render, filename:  "Threshold_Transactions_Report.pdf", type: 'application/pdf'
+      end
+    end
+
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = e.message
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   def deal_cancel

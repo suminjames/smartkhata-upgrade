@@ -76,7 +76,8 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_isin_id,
-          :by_transaction_cancel_status
+          :by_transaction_cancel_status,
+          :above_threshold
       ]
   )
 
@@ -134,7 +135,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :cancelled, -> { where.not(deleted_at: nil) }
   scope :without_chalan, -> { where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil) }
 
-  scope :above_threshold, ->(date) { not_cancelled.find_by_date(date).where("net_amount >= ?", 1000000) }
+  scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
 
   def do_as_per_params (params)
     # TODO
