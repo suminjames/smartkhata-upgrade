@@ -265,7 +265,7 @@ class Bill < ActiveRecord::Base
 
   # get new bill number
   def self.new_bill_number(fy_code)
-    bill = Bill.unscoped.where(fy_code: fy_code).last
+    bill = Bill.unscoped.where(fy_code: fy_code).order('bill_number DESC').first
     # initialize the bill with 1 if no bill is present
     if bill.nil?
       1

@@ -78,7 +78,7 @@ class Mandala::DailyTransaction < ActiveRecord::Base
     begin
     Mandala::CustomerRegistration.where(customer_code: customer_code_from_data).first.find_or_create_smartkhata_client_account.id
     rescue
-      debugger
+       p 'rescued'
     end
   end
 end

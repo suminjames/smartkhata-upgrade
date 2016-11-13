@@ -63,7 +63,6 @@ namespace :ledger do
           client_account = ledger.client_account
           correct_client_account = ClientAccount.find_by_nepse_code(client_account.nepse_code.gsub(/\t/,''))
 
-          debugger
           count += 1
         end
         puts "Task completed #{count} records deleted"

@@ -84,7 +84,7 @@ namespace :mandala do
                       begin
                         cheque_entry.save!
                       rescue
-                        debugger
+                        p 'rescued'
                       end
 
                       detail.cheque_entry_id = cheque_entry.id

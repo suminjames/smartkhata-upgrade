@@ -340,7 +340,6 @@ class Vouchers::Create < Vouchers::Base
           end
 
         end
-        debugger
         if is_payment_receipt && voucher_settlement_type == 'default'
           settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills)
           # TODO()
