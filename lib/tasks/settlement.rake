@@ -18,7 +18,7 @@ namespace :settlement do
         voucher = settlement.voucher
 
         voucher.particulars.select{|x| x.dr?}.each do |p|
-          if voucher.payment_bank?
+          if voucher.payment_bank? || voucher.journal?
             if (p.amount - settlement.amount ).abs < 0.01
               p.debit_settlements << settlement
             end
