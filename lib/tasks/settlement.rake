@@ -14,7 +14,7 @@ namespace :settlement do
     # for those without particular associations
     count = 0
     ActiveRecord::Base.transaction do
-      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).find_each do |settlement|
+      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).where(date_bs: '2073-7-25').find_each do |settlement|
         voucher = settlement.voucher
 
         voucher.particulars.select{|x| x.dr?}.each do |p|
