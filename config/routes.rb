@@ -61,6 +61,7 @@ Rails.application.routes.draw do
       get 'pending_deal_cancel'
       get 'capital_gain_report'
       get 'threshold_transactions'
+      get 'contract_note_details'
     end
   end
   resources :bills do

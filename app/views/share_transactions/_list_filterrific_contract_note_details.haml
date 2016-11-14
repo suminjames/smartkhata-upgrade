@@ -1,0 +1,75 @@
+%div.contract-note-details#filterrific_results
+  -if share_transactions && share_transactions.present?
+    %div.bottom-buffer-sm
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+          Download
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'Excelsheet', @download_path_xlsx
+          %li
+            = link_to 'PDF', @download_path_pdf, :target => "_blank"
+
+    = render 'shared/pagination', collection_to_paginate: share_transactions
+
+    .row
+      .col-sm-12.text-center
+        %strong
+          Date:
+          - date = share_transactions.first.date
+          ="#{ad_to_bs(date)} BS (#{date} AD)"
+
+    %div#share_transaction_list
+      %table.table.table-striped
+        %thead
+          %th.text-center= 'SN'
+          %th.text-center= 'Contract No'
+          %th.text-center= 'Symbol'
+          %th.text-center= 'Buyer<br>Broker'.html_safe
+          %th.text-center= 'Seller<br>Broker'.html_safe
+          %th.text-center= 'Client Name'
+          %th.text-center= 'Client<br>Code'.html_safe
+          %th.text-center= 'Quantity'
+          %th.text-center= 'Rate'
+          %th.text-center= 'Amount'
+          %th.text-center= 'Stock<br>Commission'.html_safe
+          %th.text-center= 'Bank<br>Deposit'.html_safe
+        %tbody
+          -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
+          :ruby
+            total_amount = 0
+            total_stock_commission = 0
+            total_bank_deposit = 0
+          -share_transactions.each_with_index do |share_transaction, index|
+            %tr
+              %td.text-center= pagination_count + index
+              %td.text-center= share_transaction.contract_no
+              %td.text-center= share_transaction.isin_info.isin
+              %td.text-center= share_transaction.buyer
+              %td.text-center= share_transaction.seller
+              %td.text-center= share_transaction.client_account.name
+              %td.text-center= share_transaction.client_account.nepse_code
+              %td.text-right= arabic_number_integer(share_transaction.quantity)
+              %td.text-right= arabic_number_integer(share_transaction.share_rate)
+              %td.text-right= arabic_number_integer(share_transaction.share_amount)
+              %td.text-right= arabic_number(share_transaction.commission_amount)
+              %td.text-right= arabic_number(share_transaction.bank_deposit) if share_transaction.buying?
+              :ruby
+                total_amount += share_transaction.share_amount
+                total_stock_commission += share_transaction.commission_amount
+                total_bank_deposit += share_transaction.bank_deposit if share_transaction.buying?
+          %thead
+            %th.text-right{:colspan => 9}= 'Total'
+            %th.text-center= arabic_number(total_amount)
+            %th.text-center= arabic_number(total_stock_commission)
+            %th.text-center= arabic_number(total_bank_deposit)
+
+    = render 'shared/pagination', collection_to_paginate: share_transactions
+
+  - if (!share_transactions || share_transactions.empty?) && params.dig(:filterrific, :by_date).present?
+    %div.row.text-center.top-buffer-md
+      There are no matching contract note details.
+
+
