@@ -14,11 +14,16 @@ namespace :settlement do
     # for those without particular associations
     count = 0
     ActiveRecord::Base.transaction do
-      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).where(date_bs: '2073-7-25').find_each do |settlement|
+      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).find_each do |settlement|
         voucher = settlement.voucher
 
+        if !(voucher.payment_bank? || voucher.journal? || voucher.receipt_bank? || voucher.receipt_cash? || voucher.payment_cash?)
+          debugger
+          raise   NotImplementedError
+        end
+
         voucher.particulars.select{|x| x.dr?}.each do |p|
-          if voucher.payment_bank? || voucher.journal?
+          if voucher.payment_bank? || voucher.journal? || voucher.payment_cash?
             if (p.amount - settlement.amount ).abs < 0.01
               p.debit_settlements << settlement
             end
@@ -28,7 +33,14 @@ namespace :settlement do
         end
 
         voucher.particulars.select{|x| x.cr?}.each do |p|
-          p.credit_settlements << settlement
+          if voucher.receipt_bank? || voucher.receipt_cash?
+            if (p.amount - settlement.amount ).abs < 0.01
+              p.credit_settlements << settlement
+            end
+          else
+            p.credit_settlements << settlement
+          end
+
         end
         count += 1
         puts "settlement: #{settlement.name}"
