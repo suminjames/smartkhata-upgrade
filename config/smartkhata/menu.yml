@@ -132,6 +132,12 @@ menus:
     - name: Vendors
       path: "<%= vendor_accounts_path %>"
       code: RG_VER_VEN
+  - name: Company Register
+    code: RG_CMP
+    menu_items:
+    - name: Company Register
+      path: "<%= isin_infos_path %>"
+      code: RG_CMP_IND
 - name: Reports
   code: RS
   sub_menus:

@@ -1,0 +1,2 @@
+module IsinInfoHelper
+end

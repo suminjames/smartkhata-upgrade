@@ -21,4 +21,7 @@ class IsinInfo < ActiveRecord::Base
   def name_and_code
     "#{self.isin} (#{self.company})"
   end
+
+  validates_presence_of :company
+  validates :isin, uniqueness: true, presence: true, :case_sensitive => false
 end

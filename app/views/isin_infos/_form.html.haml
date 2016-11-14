@@ -1,0 +1,10 @@
+= simple_form_for(@isin_info) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :company
+    = f.input :isin
+    = f.input :sector
+
+  .form-actions
+    = f.button :submit
