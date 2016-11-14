@@ -169,6 +169,9 @@ menus:
     - name: Threshold Transactions Report
       path: "<%= threshold_transactions_share_transactions_path %>"
       code: RS_TRO_CAT
+    - name: Contract Note Details
+      path: "<%= contract_note_details_share_transactions_path %>"
+      code: RS_TRO_CND
   - name: Settlements
     code: RS_SET
     menu_items:

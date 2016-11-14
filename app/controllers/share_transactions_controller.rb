@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -230,7 +230,7 @@ class ShareTransactionsController < ApplicationController
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
       flash.now[:error] = 'One of the search options provided is invalid.'
-      format.html { render :index }
+      format.html { render :capital_gain_report}
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
 
@@ -241,6 +241,55 @@ class ShareTransactionsController < ApplicationController
     # There is an issue with the persisted param_set. Reset it.
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
+  end
+
+  def contract_note_details
+    @filterrific = initialize_filterrific(
+        ShareTransaction,
+        params[:filterrific],
+        persistence_id: false
+    ) or return
+
+    @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
+
+    @download_path_xlsx = contract_note_details_share_transactions_path({format:'xlsx'}.merge params)
+    @download_path_pdf =  contract_note_details_share_transactions_path({format:'pdf'}.merge params)
+
+    if params.dig(:filterrific, :by_date).present?
+      @share_transactions = @filterrific.find.includes(:isin_info, :client_account).order(contract_no: :desc)
+      @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
+    else
+      empty_array = []
+      @share_transactions = Kaminari.paginate_array(empty_array).page(0).per(1000)
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
+      # format.xlsx do
+      # end
+      format.pdf do
+        pdf = Reports::Pdf::ContractNoteDetails.new(@share_transactions, current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
+        send_data pdf.render, filename: "ContractNoteDetailsReport.pdf", type: 'application/pdf'
+      end
+    end
+
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = 'One of the search options provided is invalid.'
+      format.html { render :contract_note_details}
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+
   end
 
   def pending_deal_cancel

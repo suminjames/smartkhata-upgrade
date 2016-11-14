@@ -1,8 +1,14 @@
 %p#notice= notice
-- section_title = params[:filterrific] && params[:filterrific][:by_transaction_cancel_status] ? 'Share Inventory: Cancelled Transaction' : 'Share Inventory'
+:ruby
+  if params[:filterrific] && params[:filterrific][:by_transaction_cancel_status]
+    section_title = 'Share Inventory: Cancelled Transaction'
+  else
+    section_title = 'Share Inventory'
+  end
 - provide(:section_title, section_title)
 
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  = hidden_field_tag(:paginate, params[:paginate])
   .panel.panel-default.filter-form
     .panel-body
       .row
