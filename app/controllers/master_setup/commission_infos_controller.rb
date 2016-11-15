@@ -15,6 +15,7 @@ class MasterSetup::CommissionInfosController < ApplicationController
   # GET /master_setup/commission_infos/new
   def new
     @master_setup_commission_info = MasterSetup::CommissionInfo.new
+    @master_setup_commission_info.commission_details = [MasterSetup::CommissionDetail.new]
   end
 
   # GET /master_setup/commission_infos/1/edit
@@ -69,6 +70,6 @@ class MasterSetup::CommissionInfosController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def master_setup_commission_info_params
-      params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs)
+      params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs, commission_details_attributes: [:start_amount,:limit_amount, :commission_rate, :commission_amount])
     end
 end

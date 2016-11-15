@@ -2,10 +2,33 @@
   = f.error_notification
 
   .form-inputs
-    = f.input :start_date
-    = f.input :end_date
-    = f.input :start_date_bs
-    = f.input :end_date_bs
+    %div.row
+      %div.col-sm-3
+        = f.input :start_date
+      %div.col-sm-3
+        = f.input :end_date
+  %br
+  .form-inputs
+    .box.box-primary.z-light-bg
+      .box-header
+        %h3.box-title Commission Details
+
+      .box-body.dynamic-details
+        .row
+          .col-xs-2
+            %h4 Starting Amount
+          .col-xs-2
+            %h4 Limiting Amount
+          .col-xs-2
+            %h4 Commission Rate
+          .col-xs-2
+            %h4 Commission Amount
+
+        = f.simple_fields_for :commission_details do |c|
+          = render partial: 'commission_detail_fields', :locals => { :f => c }
+        = link_to_add_fields "Add Commission Details",f, :commission_details
+
+
 
   .form-actions
     = f.button :submit
