@@ -173,14 +173,22 @@ namespace :mandala do
   end
 
   task :setup_fix, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    tenant = args.tenant
     ActiveRecord::Base.transaction do
       vouchers =Voucher.where(date: Date.parse('2016-09-16')).where('vouchers.created_at <= ?','2016-11-01').where(voucher_type: [Voucher.voucher_types[:payment_cash],Voucher.voucher_types[:receipt_cash]]).pluck(:id)
       vouchers = vouchers +  ['72956', '72971']
 
-      ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id)
+
 
       Particular.where(voucher_id: vouchers).delete_all
       Voucher.where(id: vouchers).delete_all
+
+      # updating balances
+      vouchers = vouchers + ['72982', '73092']
+      ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
+
+      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["mandala:populate_closing_balance_selected"].invoke(tenant, ledgers)
     end
   end
 
