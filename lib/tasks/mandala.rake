@@ -172,6 +172,18 @@ namespace :mandala do
     Rake::Task["mandala:setup_opening_balances"].invoke(tenant)
   end
 
+  task :setup_fix, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    ActiveRecord::Base.transaction do
+      vouchers =Voucher.where(date: Date.parse('2016-09-16')).where('vouchers.created_at <= ?','2016-11-01').where(voucher_type: [Voucher.voucher_types[:payment_cash],Voucher.voucher_types[:receipt_cash]]).pluck(:id)
+      vouchers = vouchers +  ['72956', '72971']
+
+      ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id)
+
+      Particular.where(voucher_id: vouchers).delete_all
+      Voucher.where(id: vouchers).delete_all
+    end
+  end
+
   task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
     tenant = args.tenant
     Rake::Task["mandala:setup"].invoke(tenant)
