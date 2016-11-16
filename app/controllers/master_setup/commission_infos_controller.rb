@@ -4,7 +4,7 @@ class MasterSetup::CommissionInfosController < ApplicationController
   # GET /master_setup/commission_infos
   # GET /master_setup/commission_infos.json
   def index
-    @master_setup_commission_infos = MasterSetup::CommissionInfo.all
+    @commission_infos = MasterSetup::CommissionInfo.all
   end
 
   # GET /master_setup/commission_infos/1
