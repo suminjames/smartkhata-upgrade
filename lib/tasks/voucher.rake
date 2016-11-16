@@ -75,4 +75,18 @@ namespace :voucher do
       puts 'Please pass a tenant and id to the task'
     end
   end
+
+  task :delete_simple, [:tenant, :id] => 'mandala:validate_tenant' do |task, args|
+    tenant = args.tenant
+    vouchers = [args.id]
+    ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
+    ActiveRecord::Base.transaction do
+      Particular.where(voucher_id: vouchers).delete_all
+      Voucher.where(id: vouchers).delete_all
+
+      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["mandala:populate_closing_balance_selected"].invoke(tenant, ledgers)
+    end
+  end
+
 end
