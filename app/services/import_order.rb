@@ -66,7 +66,8 @@ class ImportOrder < ImportFile
           order_detail_obj.segment = hash['ORDER_SEGMENT'].downcase
           # Use of Nonee because 'none' is reserved word. See OrderDetail model's 'enum condition' for more.
           order_detail_obj.condition = (hash['ORDER_CONDITION'] == 'None') ? 'nonee' : hash['ORDER_CONDITION'].downcase
-          order_detail_obj.state = hash['ORDER_STATE'].downcase
+          # As enum type 'new' is reserved for new object creation, used 'neww' instead.
+          order_detail_obj.state = (hash['ORDER_STATE'].downcase == 'new') ? 'neww' : hash['ORDER_STATE'].downcase
           order_detail_obj.save!
         end
 

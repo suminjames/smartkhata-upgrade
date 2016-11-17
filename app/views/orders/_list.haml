@@ -50,8 +50,8 @@
               %td= order_detail.typee
               %td= order_detail.segment
               %td= order_detail.condition == 'nonee' ? 'none' : order_detail.condition
-              %td= order_detail.state
-            -# Order Details ENDS
+              %td= order_detail.neww? ? 'new' : order_detail.state
+              -# Order Details ENDS
 
     - if orders.empty?
       %div.row.text-center.top-buffer-md
