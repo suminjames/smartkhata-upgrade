@@ -7,8 +7,8 @@ namespace :mandala do
       UserSession.selected_branch_id = branch_id
       UserSession.selected_fy_code = fy_code
 
-      ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_by(ledger_id: ledger.id)
-      ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_by(ledger_id: ledger.id)
+      ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
+      ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
       # needed for entering the data balance
       # here we are migrating only single branch so need not concern about the multiple branches
@@ -71,8 +71,8 @@ namespace :mandala do
     fy_code = 7374
     branch_id = 1
 
-    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_by(ledger_id: ledger.id)
-    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_by(ledger_id: ledger.id)
+    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
+    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
     if ledger_blnc_org.present?
       query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id}) AS subquery;"
@@ -155,4 +155,15 @@ namespace :mandala do
       end
     end
   end
+
+  task :fix_ledger,[:tenant, :ledger_ids] => 'mandala:validate_tenant' do |task, args|
+    tenant = args.tenant
+    ActiveRecord::Base.transaction do
+      Ledger.find_each do |ledger|
+        patch_ledger_dailies(ledger)
+        patch_closing_balance(ledger)
+      end
+    end
+  end
+
 end

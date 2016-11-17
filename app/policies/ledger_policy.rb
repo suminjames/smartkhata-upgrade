@@ -9,4 +9,7 @@ class LedgerPolicy < ApplicationPolicy
   permit_custom_access :employee_and_above, ledgers_path, [:show, :combobox_ajax_filter]
 
   # actions remaining to be added: :cashbook, :daybook
+  def show_all?
+    @user.admin?
+  end
 end
