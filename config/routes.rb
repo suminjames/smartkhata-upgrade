@@ -90,6 +90,7 @@ Rails.application.routes.draw do
   resources :ledgers do
     collection do
       post 'transfer_group_member_balance'
+      get 'show_all'
     end
   end
   resources :orders, :only => [:show, :index]
