@@ -14,8 +14,7 @@ namespace :setup do
 
     commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 0.25)
 
-    commission_details = MasterSetup::CommissionDetail
-                             .create([
+    commission_details = MasterSetup::CommissionDetail.create([
                                          {start_amount: 0, limit_amount: 2500, commission_amount: 25},
                                          {start_amount: 2500, limit_amount: 50000.0, commission_rate: 1.0},
                                          {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.9},

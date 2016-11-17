@@ -58,13 +58,13 @@ module CommissionModule
       raise ArgumentError
     end
 
-    commission_info = commission_info.first
+    commission_info = commission_infos.first
     commission_info.broker_commission_rate = 100 - commission_info.nepse_commission_rate
     commission_info
   end
 
   def get_commission_info_with_detail(transaction_date)
-    get_commission_info(transaction_date)
+    commission_info = get_commission_info(transaction_date)
     commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
     commission_info
   end
@@ -76,8 +76,8 @@ module CommissionModule
   end
 
   def get_commission_by_rate(commission_rate, amount)
-    if (commission_rate.include? "flat_")
-      return commission_rate.split("flat_")[1]
+    if (commission_rate.to_s.include? "flat_")
+      return commission_rate.split("flat_")[1].to_f
     else
       return amount * commission_rate.to_f * 0.01
     end

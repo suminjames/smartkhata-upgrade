@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: master_setup_commission_details
+#
+#  id                              :integer          not null, primary key
+#  start_amount                    :decimal(15, 4)
+#  limit_amount                    :decimal(15, 4)
+#  commission_rate                 :float
+#  commission_amount               :float
+#  master_setup_commission_info_id :integer
+#  created_at                      :datetime         not null
+#  updated_at                      :datetime         not null
+#
+
 class MasterSetup::CommissionDetail < ActiveRecord::Base
   # belongs_to :master_setup_commission_info
   ########################################

@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: master_setup_commission_infos
+#
+#  id                    :integer          not null, primary key
+#  start_date            :date
+#  end_date              :date
+#  start_date_bs         :string
+#  end_date_bs           :string
+#  nepse_commission_rate :float
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#
+
 class MasterSetup::CommissionInfo < ActiveRecord::Base
 
   ########################################
@@ -5,7 +19,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   has_many :commission_details, class_name: '::MasterSetup::CommissionDetail', foreign_key: 'master_setup_commission_info_id'
   accepts_nested_attributes_for :commission_details
 
-  attr_accessor :commission_details_array, :nepse_commission_rate, :broker_commission_rate
+  attr_accessor :commission_details_array, :broker_commission_rate
   ########################################
   # Callbacks
 
@@ -25,7 +39,6 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
 
   ########################################
   # Methods
-
   private
 
   def validate_date_range

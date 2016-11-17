@@ -131,9 +131,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     import_error("The amount dont match up") and return if (@total_amount_file - @total_amount).abs > 0.1
 
     begin
+
       commission_info = get_commission_info_with_detail(@date)
-    rescue
-      import_error("Commission Rates not found for the required date") and return
+    # rescue
+    #   import_error("Commission Rates not found for the required date #{@date.to_date}") and return
     end
 
 
@@ -238,6 +239,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # bank_deposit: deposit to nepse
     cgt = 0
     amount = share_net_amount
+
     commission = get_commission(amount, commission_info)
     commission_rate = get_commission_rate(amount, commission_info)
 
