@@ -5,6 +5,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   has_many :commission_details, class_name: '::MasterSetup::CommissionDetail', foreign_key: 'master_setup_commission_info_id'
   accepts_nested_attributes_for :commission_details
 
+  attr_accessor :commission_details_array, :nepse_commission_rate, :broker_commission_rate
   ########################################
   # Callbacks
 
@@ -35,7 +36,12 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
     end
 
     if commission_info_latest.present?
-      errors.add :base, "Entry missing for dates before the starting date" if self.start_date.yesterday != commission_info_latest.end_date
+      if self.start_date.yesterday != commission_info_latest.end_date
+        errors.add :base, "Entry missing for dates before the starting date"
+      elsif self.start_date < commission_info_latest.end_date
+        errors.add :base, "Date is already Included. Please review"
+      end
+
     end
   end
 
@@ -59,6 +65,5 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
     starting_amounts = starting_amounts.drop(1)
     limit_amounts.pop
     errors.add :base, "Invalid Data" if limit_amounts != starting_amounts
-
   end
 end

@@ -6,12 +6,28 @@
 %p
   %b End date:
   = @master_setup_commission_info.end_date
-%p
-  %b Start date bs:
-  = @master_setup_commission_info.start_date_bs
-%p
-  %b End date bs:
-  = @master_setup_commission_info.end_date_bs
+
+- if @master_setup_commission_info.commission_details.size > 0
+  %table.table.table-striped
+    %thead
+      %tr
+        %th From (exclusive)
+        %th Upto (inclusive)
+        %th rate
+        %th amount
+
+    %tbody
+      - @master_setup_commission_info.commission_details.each do |detail|
+        %tr
+          %td= detail.start_amount
+          %td= detail.limit_amount
+          %td= detail.commission_rate
+          %td= detail.commission_amount
+
+
+
+%br
+%br
 
 = link_to 'Edit', edit_master_setup_commission_info_path(@master_setup_commission_info)
 \|

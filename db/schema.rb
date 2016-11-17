@@ -939,8 +939,9 @@ ActiveRecord::Schema.define(version: 20161113151541) do
     t.date     "end_date"
     t.string   "start_date_bs"
     t.string   "end_date_bs"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.float    "nepse_commission_rate"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
   end
 
   create_table "menu_items", force: :cascade do |t|
