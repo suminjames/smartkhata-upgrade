@@ -96,14 +96,14 @@ module CommissionModule
   # get broker commission( commission for the broker)
   #
   def broker_commission(commission, commission_info)
-    commission * commission_info.broker_commission_rate
+    commission * commission_info.broker_commission_rate  * 0.01
   end
 
   #
   #   get nepse commission
   #
   def nepse_commission(commission, commission_info)
-    commission * commission_info.nepse_commission_rate
+    commission * commission_info.nepse_commission_rate  * 0.01
   end
 
   # #

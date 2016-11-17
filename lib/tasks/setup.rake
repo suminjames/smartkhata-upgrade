@@ -12,7 +12,7 @@ namespace :setup do
   desc "populate commissions"
   task :commission, [:tenant] => 'mandala:validate_tenant' do |task, args|
 
-    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 0.25)
+    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25)
 
     commission_details = MasterSetup::CommissionDetail.create([
                                          {start_amount: 0, limit_amount: 2500, commission_amount: 25},
@@ -26,12 +26,12 @@ namespace :setup do
     commission_rate.save!
 
 
-    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 0.2)
+    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20)
 
     commission_details = MasterSetup::CommissionDetail
                              .create([
                                  {start_amount: 0, limit_amount: 4166.67, commission_amount: 25},
-                                 {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.65},
+                                 {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.6},
                                  {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.55},
                                  {start_amount: 500000.0, limit_amount: 2000000.0, commission_rate: 0.5},
                                  {start_amount: 2000000.0, limit_amount: 	10000000.0, commission_rate: 0.45},

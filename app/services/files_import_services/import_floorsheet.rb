@@ -59,7 +59,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # do not reprocess file if it is already uploaded
     floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
     # raise soft error and return if the file is already uploaded
-    import_error("The file is already uploaded") and return unless floorsheet_file.nil?
+    # import_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
     settlement_date = Calendar::t_plus_3_trading_days(@date)
     fy_code = get_fy_code(@date)
@@ -260,7 +260,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
     @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
-
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_by(isin: company_symbol)
 
