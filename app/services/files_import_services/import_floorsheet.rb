@@ -59,7 +59,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # do not reprocess file if it is already uploaded
     floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
     # raise soft error and return if the file is already uploaded
-    # import_error("The file is already uploaded") and return unless floorsheet_file.nil?
+    import_error("The file is already uploaded") and return unless floorsheet_file.nil?
 
     settlement_date = Calendar::t_plus_3_trading_days(@date)
     fy_code = get_fy_code(@date)
