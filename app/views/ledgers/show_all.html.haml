@@ -1,0 +1,56 @@
+- provide(:section_title, "Ledgers")
+.clearfix.search-form
+  = form_tag(show_all_ledgers_path, :method => "get", id: "search-form") do
+    .row
+      .col-xs-4
+        = text_field_tag :date_bs, @date_bs, :required => true, placeholder: "Search by Date", :autofocus => true, class: 'form-control'
+        = submit_tag "Search", class: 'btn btn-sm'
+- if @particulars.present?
+  .box.box-warning
+    .box-body.ledger.ledger-single
+      %table.table.with-dr-cr
+        %tr
+          %th.text-center Date
+          %th.text-center Particulars
+          %th.text-center Voucher
+          %th.text-center Bill
+          %th.text-center Cheque
+
+          %th.text-center Pay / Receipt No
+          %th.text-center{colspan: 2} Transaction Amount
+          %th.text-center Balance
+        %colgroup
+          %col.col-1
+          %col.col-2
+          %col.col-3
+          %col.col-4
+          %col.col-5
+          %col.col-6
+          %col.col-7
+          %col.col-8
+          %col.col-9
+            - @particulars.each do |particular|
+              %tr
+                %td= ad_to_bs(particular.transaction_date)
+                %td= particular.get_description
+                %td= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true
+                %td= particular.bills.count
+                %td
+                  - if particular.cheque_entries.count > 0
+                    - particular.cheque_entries.each do |cheque|
+                      =link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true
+                      %br
+                %td
+                  - if particular.settlements.size > 0
+                    - particular.settlements.each do |settlement|
+                      =link_to "#{settlement.id }", settlement_path(settlement.id), remote: true
+                      %br
+                %td.text-right
+                  - if particular.dr?
+                    %span.debit-amount= "#{number_to_currency(particular.amount)} Dr"
+
+                %td.text-right
+                  - if particular.cr?
+                    %span.credit-amount= "#{number_to_currency(particular.amount)} Cr"
+
+                %td.text-right= particular.ledger_id

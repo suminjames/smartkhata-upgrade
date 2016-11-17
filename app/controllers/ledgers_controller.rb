@@ -74,6 +74,12 @@ class LedgersController < ApplicationController
     end
   end
 
+  def show_all
+    @date_bs = params[:date_bs]
+    if params[:date_bs].present?
+      @particulars = Particular.where(date_bs: @date_bs).order(ledger_id: :desc)
+    end
+  end
   # GET /ledgers/new
   def new
     @ledger = Ledger.new
