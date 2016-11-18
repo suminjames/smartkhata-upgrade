@@ -286,7 +286,7 @@ class ChequeEntriesController < ApplicationController
 
     respond_to do |format|
       if !has_error
-        format.html { redirect_to cheque_entries_path, notice: 'Cheque entry was successfully created.' }
+        format.html { redirect_to cheque_entries_path('filterrific[by_bank_account_id]':@bank_account_id), notice: 'Cheque entry was successfully created.' }
         format.json { render :show, status: :created, location: @cheque_entry }
       else
         format.html { render :new }

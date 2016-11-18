@@ -1,5 +1,23 @@
 Rails.application.routes.draw do
+  namespace :master_setup do
+    resources :commission_details
+  end
+  namespace :master_setup do
+    resources :commission_infos
+  end
   resources :isin_infos
+  namespace :master_setup do
+    resources :commission_rates
+  end
+  namespace :master_setup do
+    resources :commission_rates
+  end
+  namespace :master_setup do
+    resources :commission_rates
+    resources :broker_profiles
+  end
+
+  resources :broker_profiles
   resources :user_access_roles
   resources :bank_payment_letters do
     collection do
@@ -93,6 +111,7 @@ Rails.application.routes.draw do
   resources :ledgers do
     collection do
       post 'transfer_group_member_balance'
+      get 'show_all'
     end
   end
   resources :orders, :only => [:show, :index]

@@ -3,7 +3,7 @@
 # Table name: users
 #
 #  id                     :integer          not null, primary key
-#  email                  :string           default(""), not null
+#  email                  :string           default("")
 #  encrypted_password     :string           default(""), not null
 #  reset_password_token   :string
 #  reset_password_sent_at :datetime
@@ -31,6 +31,8 @@
 #  invitations_count      :integer          default(0)
 #  branch_id              :integer
 #  user_access_role_id    :integer
+#  username               :string
+#  pass_changed           :boolean          default(FALSE)
 #
 
 class User < ActiveRecord::Base

@@ -1,0 +1,29 @@
+%h1 Listing master_setup_commission_details
+
+%table
+  %thead
+    %tr
+      %th Start amount
+      %th Limit amount
+      %th Commission rate
+      %th Commission amount
+      %th Master setup commission info
+      %th
+      %th
+      %th
+
+  %tbody
+    - @master_setup_commission_details.each do |master_setup_commission_detail|
+      %tr
+        %td= master_setup_commission_detail.start_amount
+        %td= master_setup_commission_detail.limit_amount
+        %td= master_setup_commission_detail.commission_rate
+        %td= master_setup_commission_detail.commission_amount
+        %td= master_setup_commission_detail.master_setup_commission_info
+        %td= link_to 'Show', master_setup_commission_detail
+        %td= link_to 'Edit', edit_master_setup_commission_detail_path(master_setup_commission_detail)
+        %td= link_to 'Destroy', master_setup_commission_detail, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Commission detail', new_master_setup_commission_detail_path

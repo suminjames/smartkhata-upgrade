@@ -1,3 +1,35 @@
+# == Schema Information
+#
+# Table name: receipt_payment_slip
+#
+#  id             :integer          not null, primary key
+#  title          :string
+#  customer_code  :string
+#  currency_code  :string
+#  amount         :string
+#  entered_by     :string
+#  entered_date   :string
+#  fiscal_year    :string
+#  remarks        :string
+#  payment_type   :string
+#  ac_code        :string
+#  slip_no        :string
+#  slip_date      :string
+#  slip_type      :string
+#  manual_slip_no :string
+#  settlement_tag :string
+#  voucher_no     :string
+#  voucher_code   :string
+#  supplier_id    :string
+#  transaction_no :string
+#  void           :string
+#  bill_no        :string
+#  pay_to         :string
+#  cheque_printed :string
+#  issue_date     :string
+#  settlement_id  :integer
+#
+
 class Mandala::ReceiptPaymentSlip < ActiveRecord::Base
   self.table_name = "receipt_payment_slip"
   belongs_to :settlement

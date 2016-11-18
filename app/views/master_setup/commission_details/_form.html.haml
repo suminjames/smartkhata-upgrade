@@ -1,0 +1,12 @@
+= simple_form_for(@master_setup_commission_detail) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :start_amount
+    = f.input :limit_amount
+    = f.input :commission_rate
+    = f.input :commission_amount
+    = f.association :master_setup_commission_info
+
+  .form-actions
+    = f.button :submit

@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Start amount:
+  = @master_setup_commission_detail.start_amount
+%p
+  %b Limit amount:
+  = @master_setup_commission_detail.limit_amount
+%p
+  %b Commission rate:
+  = @master_setup_commission_detail.commission_rate
+%p
+  %b Commission amount:
+  = @master_setup_commission_detail.commission_amount
+%p
+  %b Master setup commission info:
+  = @master_setup_commission_detail.master_setup_commission_info
+
+= link_to 'Edit', edit_master_setup_commission_detail_path(@master_setup_commission_detail)
+\|
+= link_to 'Back', master_setup_commission_details_path

@@ -211,3 +211,12 @@ menus:
     - name: Create User Role
       path: "<%= new_user_access_role_path %>"
       code: ADS_RLM_CUR
+  - name: Misc
+    code: ADS_MIS
+    menu_items:
+    - name: Broker Profiles Management
+      path: "<%= master_setup_broker_profiles_path %>"
+      code: ADS_MIS_BPM
+    - name: Commission Rates Management
+      path: "<%= master_setup_commission_rates_path %>"
+      code: ADS_MIS_CRM
