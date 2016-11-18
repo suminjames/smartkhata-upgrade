@@ -90,4 +90,4 @@ wiki/
 .rbenv-gemsets
 
 # Ignore byebug debugger history
-.byebug_history
+.byebug_historydb/backup/
