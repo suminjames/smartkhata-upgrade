@@ -90,3 +90,4 @@ wiki/
 
 # Ignore byebug debugger history
 .byebug_historydb/backups/
+test_files/
