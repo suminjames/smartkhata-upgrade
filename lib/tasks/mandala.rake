@@ -188,8 +188,8 @@ namespace :mandala do
       # vouchers = vouchers + ['72982', '73092']
       # ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
 
-      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
-      Rake::Task["mandala:populate_closing_balance_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
     end
   end
 
@@ -287,7 +287,7 @@ namespace :mandala do
           '303001' => "DP Fee/ Transfer",
           '402000000002' => "TDS",
           '301000000002' => "Sales Commission",
-          # '' => "Purchase Commission"
+          '301000000001' => "Purchase Commission"
 
       }
       group = Group.find_or_create_by!({name: "Investment",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})

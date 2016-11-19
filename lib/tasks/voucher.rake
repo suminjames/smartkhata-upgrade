@@ -76,7 +76,7 @@ namespace :voucher do
     end
   end
 
-  task :delete_simple, [:tenant, :id] => 'mandala:validate_tenant' do |task, args|
+  task :delete_simple, [:tenant, :id] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     vouchers = [args.id]
     ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
@@ -84,13 +84,13 @@ namespace :voucher do
       Particular.where(voucher_id: vouchers).delete_all
       Voucher.where(id: vouchers).delete_all
 
-      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
-      Rake::Task["mandala:populate_closing_balance_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
     end
   end
 
 
-  task :change_date, [:tenant, :id, :new_date] =>  'mandala:validate_tenant' do |task, args|
+  task :change_date, [:tenant, :id, :new_date] =>  'smartkhata:validate_tenant' do |task, args|
     include CustomDateModule
     tenant = args.tenant
     abort 'Please voucher' unless args.id.present?
@@ -111,7 +111,7 @@ namespace :voucher do
         v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
       end
 
-      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
     end
   end
 end
