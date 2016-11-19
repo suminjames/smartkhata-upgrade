@@ -48,6 +48,7 @@ class Voucher < ActiveRecord::Base
   has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
   has_many :settlements, dependent: :destroy
+  has_many :payment_receipts, :through => :particulars, source: :settlements
   has_one :nepse_chalan
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"

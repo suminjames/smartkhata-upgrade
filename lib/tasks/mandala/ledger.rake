@@ -14,9 +14,8 @@ namespace :mandala do
       # here we are migrating only single branch so need not concern about the multiple branches
       transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id).order(:transaction_date).pluck(:transaction_date).uniq
 
-      first_daily = false
+      first_daily = true
       opening_balance = 0
-
       LedgerDaily.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
       LedgerDaily.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
 
