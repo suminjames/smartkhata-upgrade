@@ -89,4 +89,29 @@ namespace :voucher do
     end
   end
 
+
+  task :change_date, [:tenant, :id, :new_date] =>  'mandala:validate_tenant' do |task, args|
+    include CustomDateModule
+    tenant = args.tenant
+    abort 'Please voucher' unless args.id.present?
+    abort 'Please valid date bs' unless args.new_date.split('-').size == 3
+
+    vouchers = [args.id]
+    new_date_bs = args.new_date
+    vouchers = Voucher.where(id: vouchers)
+    ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
+
+    ActiveRecord::Base.transaction do
+      vouchers.each do |v|
+        v.skip_cheque_assign = true
+        v.skip_number_assign = true
+        v.update_attributes(date: bs_to_ad(new_date_bs), date_bs: new_date_bs)
+        v.particulars.update_all(date_bs: new_date_bs, transaction_date:  bs_to_ad(new_date_bs))
+        v.payment_receipts.update_all(date: bs_to_ad(new_date_bs), date_bs: new_date_bs)
+        v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
+      end
+
+      Rake::Task["mandala:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+    end
+  end
 end
