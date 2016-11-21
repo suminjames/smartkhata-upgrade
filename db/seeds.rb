@@ -33,11 +33,14 @@ count = 0
     puts "Creating Tenant..."
     count += 1
 
+    # since seed runs for each tenant
+    # need to make sure it will run only once
     unless t == "public"
       Apartment::Tenant.create(t.name)
       Apartment::Tenant.switch!(t.name)
     else
       Apartment::Tenant.switch!("public")
+      next if User.count > 0
     end
 
 
