@@ -35,6 +35,9 @@ class DashboardController < ApplicationController
     # @custom_url_list = [
     #     {url: "asf", name: "create ledger"}
     # ]
+
+    @info = request.env["HTTP_X_SSL_CLIENT_S_DN"];
+    @verify = request.env["HTTP-X-CLIENT-VERIFY"];
   end
 
   def client_index
