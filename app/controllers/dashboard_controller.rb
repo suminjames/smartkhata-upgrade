@@ -36,8 +36,8 @@ class DashboardController < ApplicationController
     #     {url: "asf", name: "create ledger"}
     # ]
 
-    @info = request.env["HTTP_X_SSL_CLIENT_S_DN"];
-    @verify = request.env["HTTP-X-CLIENT-VERIFY"];
+    @identifier = get_common_name_from_dn(request.env["X-SSL-Client-S-DN"])
+
   end
 
   def client_index

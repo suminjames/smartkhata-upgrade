@@ -1,5 +1,5 @@
 <% provide(:section_title, "Dashboard") %>
-<%= @info %> <br> <%= @verify %>
+<%= @identifier %>
 "Info"
 <div class="row">
   <% #select_tag "select_urls", options_for_select(@custom_url_list.collect {|p| [ p[:url], p[:name] ] }), {prompt: 'Select a action...', :class=>'form-control combobox'} %>

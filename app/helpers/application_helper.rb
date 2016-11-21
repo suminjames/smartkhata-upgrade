@@ -137,4 +137,17 @@ module ApplicationHelper
     end
     new_boid
   end
+
+  def get_common_name_from_dn(string)
+    # /C=NP/ST=Bagmati/L=Kathmandu/O=Trishakti Securities/OU=Web/CN=Client
+    unless string.blank?
+      string_arr = string.split('/')
+      cn_arr = string_arr.select{|x| (x =~ /CN=/).present? }
+      if cn_arr.first.present?
+        cn_key_pair = cn_arr.first
+        return cn_key_pair.split('=')[1]
+      end
+    end
+    nil
+  end
 end
