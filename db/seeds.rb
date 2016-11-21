@@ -32,8 +32,15 @@ count = 0
   begin
     puts "Creating Tenant..."
     count += 1
-    Apartment::Tenant.create(t.name)
-    Apartment::Tenant.switch!(t.name)
+
+    unless t == "public"
+      Apartment::Tenant.create(t.name)
+      Apartment::Tenant.switch!(t.name)
+    else
+      Apartment::Tenant.switch!("public")
+    end
+
+
 
     branch = Branch.create(code: "KTM", address: "Kathmandu")
     admin_user_data = @admin_users[count - 1]
