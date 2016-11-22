@@ -40,7 +40,6 @@
 #  isin_info_id              :integer
 #  transaction_message_id    :integer
 #  transaction_cancel_status :integer          default(0)
-#  settlement_date           :date
 #
 
 class ShareTransaction < ActiveRecord::Base
@@ -152,11 +151,10 @@ class ShareTransaction < ActiveRecord::Base
     share_transactions = filterrific.find
     total_in_sum = 0
     total_out_sum = 0
-    balance_sum = 0
-    share_transactions.each_with_index do |st, index|
+    share_transactions.each do |st|
       if st.buying?
         total_in_sum += st.quantity
-      else
+      elsif st.selling?
         total_out_sum += st.quantity
       end
     end
@@ -166,6 +164,50 @@ class ShareTransaction < ActiveRecord::Base
         :total_out_sum => total_out_sum,
         :balance_sum => balance_sum
     }
+  end
+
+  # TODO(sarojk): Sanitize variables inside the raw sql query.
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs)
+    where_conditions =  []
+    if isin_id.present?
+      where_conditions << "isin_info_id = #{isin_id}"
+    end
+    if date_bs.present?
+      date_ad = bs_to_ad(date_bs)
+      where_conditions << "date = '#{date_ad}'"
+    end
+    if date_from_bs.present? && date_to_bs.present?
+      date_from_ad = bs_to_ad(date_from_bs)
+      date_to_ad = bs_to_ad(date_to_bs)
+      where_conditions << "(date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    end
+
+    if where_conditions.present?
+      where_condition_str = "WHERE #{where_conditions.join(" AND ")}"
+    else
+      where_condition_str = ''
+    end
+
+    query = "
+      SELECT
+        isin_info_id,
+        SUM( CASE WHEN buyer = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_in_sum,
+        SUM( CASE WHEN seller = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_out_sum
+      FROM
+        share_transactions
+      #{where_condition_str}
+      GROUP BY
+        isin_info_id
+      ORDER BY
+        isin_info_id
+      "
+    pg_result = ActiveRecord::Base.connection.execute(query)
+    result_arr = []
+    pg_result.each do |rec|
+      rec["quantity_balance"] = rec["quantity_in_sum"].to_i - rec["quantity_out_sum"].to_i
+      result_arr << rec
+    end
+    result_arr
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it

@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -112,6 +112,79 @@ class ShareTransactionsController < ApplicationController
     respond_to do |format|
       flash.now[:error] = e.message
       format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
+
+  end
+
+
+  def securities_flow
+    @filterrific = initialize_filterrific(
+        ShareTransaction,
+        params[:filterrific],
+        select_options: {
+            by_isin_id: ShareTransaction.options_for_isin_select
+        },
+        persistence_id: false
+    ) or return
+
+    @is_securities_balance_view = params[:only_balance] == 'true'
+
+    items_per_page = 20
+
+    tenant_broker_id = current_tenant.broker_code
+    @securities_flows = ShareTransaction.securities_flows(
+        tenant_broker_id,
+        params.dig(:filterrific, :by_isin_id),
+        params.dig(:filterrific, :by_date),
+        params.dig(:filterrific, :by_date_from),
+        params.dig(:filterrific, :by_date_to)
+    )
+    if params[:paginate] == 'false'
+      items_per_page = @securities_flows.size
+    end
+
+    @securities_flows = Kaminari::paginate_array(@securities_flows).page(params[:page]).per(items_per_page)
+
+    @download_path_xlsx = securities_flow_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    @download_path_pdf = securities_flow_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Reports::Pdf::SecuritiesFlowsReport.new(@securities_flows, @is_securities_balance_view, params, current_tenant)
+        send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf'
+      end
+      format.xlsx do
+        report = Reports::Excelsheet::SecuritiesFlowsReport.new(@securities_flows, @is_securities_balance_view, params, current_tenant)
+        if report.generated_successfully?
+          # send_file(report.path, type: report.type)
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
+        else
+          # This should be ideally an ajax notification!
+          # preserve params??
+          redirect_to share_transactions_path, flash: { error: report.error }
+        end
+      end
+    end
+
+      # Recover from 'invalid date' error in particular, among other RuntimeErrors.
+      # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = e.message
+      format.html { render :securities_flow}
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
 
