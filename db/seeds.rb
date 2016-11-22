@@ -18,10 +18,12 @@ tenant = Tenant.find_or_create_by!(name: "smartkhata", dp_id: '1010')
 tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
 
 @tenants = Tenant.all
+@tenants << "public"
 
 @admin_users = [
     {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
     {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
+    {:email => 'demo@danfeinfotech.com', :password => '12demo09'},
     {:email => 'demo@danfeinfotech.com', :password => '12demo09'},
 ]
 
@@ -30,8 +32,18 @@ count = 0
   begin
     puts "Creating Tenant..."
     count += 1
-    Apartment::Tenant.create(t.name)
-    Apartment::Tenant.switch!(t.name)
+
+    # since seed runs for each tenant
+    # need to make sure it will run only once
+    unless t == "public"
+      Apartment::Tenant.create(t.name)
+      Apartment::Tenant.switch!(t.name)
+    else
+      Apartment::Tenant.switch!("public")
+      next if User.count > 0
+    end
+
+
 
     branch = Branch.create(code: "KTM", address: "Kathmandu")
     admin_user_data = @admin_users[count - 1]
