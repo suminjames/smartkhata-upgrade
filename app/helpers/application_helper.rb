@@ -153,8 +153,8 @@ module ApplicationHelper
 
   def valid_certificate? user
     return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
-    return false if user.client? && request.headers.env["HTTP_X_SSL_CLIENT_S_DN"] != 'Client'
-    return false if !user.client? && request.headers.env["HTTP_X_SSL_CLIENT_S_DN"] != 'Employee'
+    return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Client'
+    return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Employee'
     true
   end
 end
