@@ -152,9 +152,11 @@ module ApplicationHelper
   end
 
   def valid_certificate? user
-    return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
-    return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Client'
-    return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Employee'
+    if Rails.env.production?
+      return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
+      return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Client'
+      return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Employee'
+    end
     true
   end
 end
