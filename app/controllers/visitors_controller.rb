@@ -22,14 +22,8 @@ class VisitorsController < ApplicationController
     # @ssl_client_serial = request.env["X-SSL-Client-Serial"]
     # @ssl_client_verify = request.env["X-CLIENT-VERIFY"]
 
-    @subject = request.env["X-SSL-Client-S-DN"]
+    @subject = request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]
     my_logger.info("Subject  #{@subject}")
-    @subject = @_headers["X-SSL-Client-S-DN"]
-    my_logger.info("header  #{@subject}")
-    @subject = request.headers.inspect
-    my_logger.info("headers  #{@subject}")
-    @subject = request.env.to_s
-    my_logger.info("env  #{@subject}")
 
   end
 end
