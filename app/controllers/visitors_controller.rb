@@ -14,5 +14,8 @@ class VisitorsController < ApplicationController
     elsif user_signed_in?
       @invalid_certificate = true
     end
+
+    @ssl_cdn = request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]
+    @ssl_verify = request.headers.env["HTTP_X_CLIENT_VERIFY"]
   end
 end
