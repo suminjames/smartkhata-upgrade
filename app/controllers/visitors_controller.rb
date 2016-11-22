@@ -2,10 +2,6 @@ class VisitorsController < ApplicationController
   skip_before_filter :authenticate_user!
   skip_after_action :verify_authorized
 
-  def my_logger
-    @@my_logger ||= Logger.new("#{Rails.root}/log/my.log")
-  end
-
   def index
 
     if user_signed_in?
@@ -22,8 +18,7 @@ class VisitorsController < ApplicationController
     # @ssl_client_serial = request.env["X-SSL-Client-Serial"]
     # @ssl_client_verify = request.env["X-CLIENT-VERIFY"]
 
-    @subject = request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]
-    my_logger.info("Subject  #{@subject}")
-
+    @ssl_client_s_dn = request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]
+    @ssl_client_verify = request.headers.env["HTTP_X_CLIENT_VERIFY"]
   end
 end

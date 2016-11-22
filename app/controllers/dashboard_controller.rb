@@ -36,7 +36,7 @@ class DashboardController < ApplicationController
     #     {url: "asf", name: "create ledger"}
     # ]
 
-    @identifier = get_common_name_from_dn(request.env["X-SSL-Client-S-DN"])
+    @identifier = get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"])
 
   end
 
