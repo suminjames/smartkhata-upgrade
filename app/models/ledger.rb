@@ -31,6 +31,7 @@ class Ledger < ActiveRecord::Base
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial
   attr_reader :closing_balance
 
+  delegate :nepse_code, to: :client_account, :allow_nil => true
 
   INTERNALLEDGERS = ["Purchase Commission",
                      "Sales Commission",
