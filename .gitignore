@@ -89,5 +89,6 @@ wiki/
 .rbenv-gemsets
 
 # Ignore byebug debugger history
-.byebug_historydb/backups/
+.byebug_history
+db/backup/
 test_files/
