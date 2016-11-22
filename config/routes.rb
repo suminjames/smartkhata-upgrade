@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       get 'capital_gain_report'
       get 'threshold_transactions'
       get 'contract_note_details'
+      get 'securities_flow'
     end
   end
   resources :bills do
