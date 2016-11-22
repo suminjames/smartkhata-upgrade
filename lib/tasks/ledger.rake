@@ -233,12 +233,14 @@ namespace :ledger do
 
     ActiveRecord::Base.transaction do
       ledger_to_merge_from.particulars.update_all(ledger_id: ledger_to_merge_to.id)
+
+
+      LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
+      LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
+      ledger_to_merge_from.delete
+
       patch_ledger_dailies(ledger_to_merge_to)
       patch_closing_balance(ledger_to_merge_to)
-
-      LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_to.id).delete_all
-      LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_to.id).delete_all
-      ledger_to_merge_from.delete
     end
   end
 end
