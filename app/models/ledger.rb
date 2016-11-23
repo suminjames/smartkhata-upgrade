@@ -51,7 +51,6 @@ class Ledger < ActiveRecord::Base
   belongs_to :bank_account
   belongs_to :client_account
   belongs_to :vendor_account
-
   has_many :ledger_dailies
   has_many :ledger_balances
   has_many :employee_ledger_associations
@@ -63,6 +62,7 @@ class Ledger < ActiveRecord::Base
   # validates_presence_of :group_id
   validate :positive_amount, on: :create
   before_create :update_closing_blnc
+  before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
 
   accepts_nested_attributes_for :ledger_balances
@@ -362,6 +362,12 @@ class Ledger < ActiveRecord::Base
       end
       { :text=> identifier, :id => ledger['id'].to_s }
     end
+  end
+
+
+  def delete_associated_records
+    LedgerBalance.unscoped.where(ledger_id: self.id).delete_all
+    LedgerDaily.unscoped.where(ledger_id: self.id).delete_all
   end
 
 end
