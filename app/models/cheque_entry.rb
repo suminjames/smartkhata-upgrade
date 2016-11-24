@@ -104,7 +104,21 @@ class ChequeEntry < ActiveRecord::Base
     date_ad = bs_to_ad(date_bs)
     where('cheque_date <= ?', date_ad.end_of_day)
   }
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
+
+  # can we go with arel now?
+  scope :by_client_id, -> (id) { where(client_account_id: id)
+  ledger_id = Ledger.find_by(client_account_id: id)
+  where([ %(
+      EXISTS (
+        SELECT 1
+          FROM particulars p
+        INNER JOIN cheque_entry_particular_associations c
+          ON c.particular_id = p.id AND c.cheque_entry_id = cheque_entries.id
+        WHERE p.ledger_id = ?
+      )
+    ),ledger_id ])
+  }
+
   scope :by_bank_account_id, -> (id) { where(bank_account_id: id) }
   scope :by_cheque_entry_status, lambda {|status|
     if status == 'assigned'
