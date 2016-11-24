@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -401,14 +401,14 @@ class ShareTransactionsController < ApplicationController
     # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
-        @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
       else
-        @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
         # Needed for pagination to work
-        @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
+        @share_transactions = @share_transactions.page(0).per(@share_transactions.size).decorate
       end
     else
-      @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+      @share_transactions= @filterrific.find.with_closeout.includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
     end
 
     @download_path_xlsx = closeouts_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)

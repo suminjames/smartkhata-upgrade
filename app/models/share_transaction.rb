@@ -242,4 +242,9 @@ class ShareTransaction < ActiveRecord::Base
   def self.options_for_isin_select
     IsinInfo.all.order(:isin)
   end
+
+  def closeout_settled?
+    closeout_settled
+  end
+
 end

@@ -27,9 +27,12 @@
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
   %div#share_transaction_list
-    %table.table.table-striped
+    %table.table
       %thead
-        %th.text-center= 'SN'
+        %th.col-xs-1.text-center
+          = 'All'
+          %br
+          = check_box_tag 'select_all', '', false, class: 'sharetransaction'
         %th.text-center= 'Transaction<br>Date'.html_safe
         %th.text-center= 'Transaction No'
         %th.col-sm-2.text-center= 'Company'
@@ -44,8 +47,8 @@
         -if share_transactions
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
           -share_transactions.each_with_index do |share_transaction, index|
-            %tr
-              %td.text-center= pagination_count + index
+            %tr{:id => "sharetransaction#{share_transaction.id}", :class => share_transaction.formatted_status_indicator_class}
+              %td.text-center= check_box_tag share_transaction.id, '', false, :disabled =>  (share_transaction.closeout_settled? ?  true : false )
               %td.text-center= ad_to_bs_string(share_transaction.date)
               %td.text-center= share_transaction.contract_no
               %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
