@@ -41,6 +41,6 @@ class ShareTransactionDecorator < ApplicationDecorator
   end
 
   def formatted_status_indicator_class
-    object.closeout_settled? ? "" : "sharetransaction indicator-bg-light-red"
+    object.closeout_settled? ? "share_transaction" : "share_transaction indicator-bg-light-red"
   end
 end

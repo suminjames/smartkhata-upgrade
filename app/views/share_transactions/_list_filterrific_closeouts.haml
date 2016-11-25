@@ -1,5 +1,5 @@
 -#This view is called by #index action.
-%div#filterrific_results
+%div#filterrific_results.glike-action-container
 
   - if share_transactions
     %div.bottom-buffer-sm
@@ -13,26 +13,35 @@
             = link_to 'Excelsheet', @download_path_xlsx
           %li
             = link_to 'PDF', @download_path_pdf, :target => "_blank"
-      .btn-group
-        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
-          %span.glyphicon.glyphicon-print{"aria-hidden" => "true"}
-          Print
-          %span.caret
-        %ul.dropdown-menu
-          %li
-            = link_to 'in Regular', @print_path_pdf_in_regular
-          %li
-            = link_to 'in Letter-head', @print_path_pdf_in_letter_head
+    %br
+    %div.row.top-buffer-sm
+      %div.col-xs-12
+        %div.btn-group.action.btnMarkCloseout.processed.btn-disabled
+          %span.glyphicon.glyphicon-transfer
+          %span= 'Mark Selected as Processed'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'closeout-mark-processed'
+        |
+        %div.btn-group.action.btnMarkCloseout.pending.btn-disabled
+          %span.glyphicon.glyphicon-transfer
+          %span= 'Mark Selected as Pending'
+          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'closeout-mark-pending'
+
+        %div.col-xs-offset-9.col-xs-3.top-buffer-sm
+          %div.row
+            %div.col-xs-1
+              %div.box-sm.indicator-bg-light-red
+            %div.col-xs-8
+              Pending Processing
 
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
-  %div#share_transaction_list
+  %div#share_transaction_list.items-to-act-container
     %table.table
       %thead
         %th.col-xs-1.text-center
           = 'All'
           %br
-          = check_box_tag 'select_all', '', false, class: 'sharetransaction'
+          = check_box_tag 'select_all', '', false, class: 'share_transaction'
         %th.text-center= 'Transaction<br>Date'.html_safe
         %th.text-center= 'Transaction No'
         %th.col-sm-2.text-center= 'Company'
@@ -47,15 +56,15 @@
         -if share_transactions
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
           -share_transactions.each_with_index do |share_transaction, index|
-            %tr{:id => "sharetransaction#{share_transaction.id}", :class => share_transaction.formatted_status_indicator_class}
-              %td.text-center= check_box_tag share_transaction.id, '', false, :disabled =>  (share_transaction.closeout_settled? ?  true : false )
+            %tr{:id => "share_transaction_#{share_transaction.id}", :class => share_transaction.formatted_status_indicator_class}
+              %td.text-center= check_box_tag share_transaction.id, '', false
               %td.text-center= ad_to_bs_string(share_transaction.date)
               %td.text-center= share_transaction.contract_no
               %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
               %td.text-center= share_transaction.client_account.name_and_nepse_code
               %td.text-center= share_transaction.selling? ? share_transaction.buyer : share_transaction.seller
-              %td.quantity-in.text-right= arabic_number_integer(share_transaction.quantity) if share_transaction.buying?
-              %td.quantity-out.text-right= arabic_number_integer(share_transaction.quantity) if share_transaction.selling?
+              %td.quantity-in.text-right= arabic_number_integer(share_transaction.raw_quantity) if share_transaction.buying?
+              %td.quantity-out.text-right= arabic_number_integer(share_transaction.raw_quantity) if share_transaction.selling?
               %td.text-right= arabic_number_integer(share_transaction.raw_quantity - share_transaction.quantity)
               %td.text-right= share_transaction.share_rate
               %td.text-right= arabic_number_integer(share_transaction.closeout_amount)

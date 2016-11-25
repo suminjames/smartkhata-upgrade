@@ -10,14 +10,14 @@
           %label
             Client
           - if User.client_logged_in?
-            - client_id = params.dig(:filterrific, :by_client_id)
+            - client_id = params.dig(:filterrific, :by_client_id_closeouts)
             %br
             = ClientAccount.find_by_id(client_id).try(:name_and_nepse_code)
-            = f.hidden_field(:by_client_id, :value => client_id)
+            = f.hidden_field(:by_client_id_closeouts, :value => client_id)
           - else
             = f.collection_select(                        |
-              :by_client_id,                              |
-              @filterrific.select_options[:by_client_id], |
+              :by_client_id_closeouts,                              |
+              @filterrific.select_options[:by_client_id_closeouts], |
               :id,                                        |
               :name_and_nepse_code,                                      |
               {include_blank: true},                 |
@@ -31,8 +31,8 @@
           %label
             Company
           = f.collection_select(                        |
-            :by_isin_id,                              |
-            @filterrific.select_options[:by_isin_id], |
+            :by_isin_id_closeouts,                              |
+            @filterrific.select_options[:by_isin_id_closeouts], |
             :id,                                        |
             :name_and_code,                                      |
             {include_blank: true},                 |
@@ -42,7 +42,7 @@
             Date
           %br
           = f.text_field(                 |
-            :by_date,                     |
+            :by_date_closeouts,                     |
             :placeholder => 'YYYY-MM-DD', |
             class: 'form-control' )       |
         .col-sm-2.text-center
@@ -51,15 +51,15 @@
           .clearfix
             .row
               = f.text_field(                 |
-                :by_date_from,                |
+                :by_date_from_closeouts,                |
                 :placeholder => 'YYYY-MM-DD', |
                 class: 'form-control' )       |
             .row.top-buffer-sm
               = f.text_field(                 |
-                :by_date_to,                  |
+                :by_date_to_closeouts,                  |
                 :placeholder => 'YYYY-MM-DD', |
                 class: 'form-control' ) |
     = render_filterrific_spinner
 
-= render(partial: 'share_transactions/list_closeouts_filterrific', locals: { share_transactions: @share_transactions} )
+= render(partial: 'share_transactions/list_filterrific_closeouts', locals: { share_transactions: @share_transactions} )
 

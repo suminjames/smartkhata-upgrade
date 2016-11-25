@@ -83,6 +83,7 @@ Rails.application.routes.draw do
       get 'contract_note_details'
       get 'securities_flow'
       get 'closeouts'
+      get 'make_closeouts_processed'
     end
   end
   resources :bills do
