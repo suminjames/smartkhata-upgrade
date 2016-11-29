@@ -20,7 +20,6 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
     if self.ledger_id.present?
       ledger =  self.ledger
     else
-      debugger
       # client ledgers
       if mgr_ac_code == @@client_mgr_ac_code
         client_registration = self.client_registration
@@ -55,6 +54,9 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
     Mandala::CustomerRegistration.where(ac_code: self.ac_code).first
   end
 
+  def account_balances
+    Mandala::AccountBalance.where(ac_code: self.ac_code)
+  end
   # def show_tree
   #   line = ""
   #   self.child_groups.each do |x|
