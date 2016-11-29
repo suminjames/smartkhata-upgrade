@@ -58,6 +58,7 @@ class Voucher < ActiveRecord::Base
   has_many :bills, through: :bill_voucher_associations
   belongs_to :reviewer, class_name: 'User'
 
+  has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################
   # Validations
   # validate :date_valid_for_fy_code?
@@ -218,4 +219,6 @@ class Voucher < ActiveRecord::Base
 
     end
   end
+
+#   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
 end

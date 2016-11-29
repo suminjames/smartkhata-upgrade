@@ -20,6 +20,7 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
     if self.ledger_id.present?
       ledger =  self.ledger
     else
+      debugger
       # client ledgers
       if mgr_ac_code == @@client_mgr_ac_code
         client_registration = self.client_registration
