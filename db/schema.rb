@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161113151541) do
+ActiveRecord::Schema.define(version: 20161123144731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1309,8 +1309,8 @@ ActiveRecord::Schema.define(version: 20161113151541) do
     t.decimal  "adjusted_sell_price",       precision: 15, scale: 4, default: 0.0
     t.date     "date"
     t.date     "deleted_at"
-    t.datetime "created_at",                                                       null: false
-    t.datetime "updated_at",                                                       null: false
+    t.datetime "created_at",                                                         null: false
+    t.datetime "updated_at",                                                         null: false
     t.integer  "nepse_chalan_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
@@ -1322,6 +1322,7 @@ ActiveRecord::Schema.define(version: 20161113151541) do
     t.integer  "transaction_message_id"
     t.integer  "transaction_cancel_status",                          default: 0
     t.date     "settlement_date"
+    t.boolean  "closeout_settled",                                   default: false
   end
 
   add_index "share_transactions", ["bill_id"], name: "index_share_transactions_on_bill_id", using: :btree

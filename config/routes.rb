@@ -82,6 +82,8 @@ Rails.application.routes.draw do
       get 'threshold_transactions'
       get 'contract_note_details'
       get 'securities_flow'
+      get 'closeouts'
+      get 'make_closeouts_processed'
     end
   end
   resources :bills do

@@ -77,7 +77,14 @@ class ShareTransaction < ActiveRecord::Base
           :by_client_id,
           :by_isin_id,
           :by_transaction_cancel_status,
-          :above_threshold
+          :above_threshold,
+          # for close outs
+          :sorted_by_closeouts,
+          :by_date_closeouts,
+          :by_date_from_closeouts,
+          :by_date_to_closeouts,
+          :by_client_id_closeouts,
+          :by_isin_id_closeouts,
       ]
   )
 
@@ -112,6 +119,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
+  # does not show transactions with full closeout
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -119,11 +127,42 @@ class ShareTransaction < ActiveRecord::Base
         not_cancelled.order("share_transactions.id #{ direction }")
       when /^date/
         not_cancelled.order("share_transactions.date #{ direction }")
+      when /^close_out/
+        order("share_transactions.date asc")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
 
+
+  # for closeouts
+  scope :by_date_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where('date>= ?', date_ad.beginning_of_day)
+  }
+  scope :by_date_to_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where('date<= ?', date_ad.end_of_day)
+  }
+  scope :by_client_id_closeouts, -> (id) { with_closeout.where(client_account_id: id) }
+  scope :by_isin_id_closeouts, -> (id) { with_closeout.where(isin_info_id: id) }
+
+
+  scope :sorted_by_closeouts, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        with_closeout.order("share_transactions.id #{ direction }")
+      when /^date/
+        with_closeout.order("share_transactions.date #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
@@ -134,7 +173,8 @@ class ShareTransaction < ActiveRecord::Base
 
   scope :cancelled, -> { where.not(deleted_at: nil) }
   scope :without_chalan, -> { where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil) }
-
+  # deleted transactions fall under deal cancel
+  scope :with_closeout, -> { where(deleted_at: nil).where.not(closeout_amount: 0.0)}
   scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
 
   def do_as_per_params (params)
@@ -242,4 +282,9 @@ class ShareTransaction < ActiveRecord::Base
   def self.options_for_isin_select
     IsinInfo.all.order(:isin)
   end
+
+  def closeout_settled?
+    closeout_settled
+  end
+
 end
