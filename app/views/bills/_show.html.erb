@@ -192,6 +192,13 @@ Note:
           <td>Net Receivable Amount:</td>
           <td><%= bill.formatted_net_receivable_amount %></td>
         </tr>
+        <% if bill.sales? && bill.closeout_charge > 0 %>
+        <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
+          <td>CloseOut Deduction:</td>
+          <td><%= bill.formatted_net_closeout_amount %></td>
+        </tr>
+        <% end %>
+
         <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
           <td>Net Payable Amount:</td>
           <td><%= bill.formatted_net_payable_amount %></td>

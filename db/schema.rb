@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161110070100) do
+ActiveRecord::Schema.define(version: 20161202070759) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -225,6 +225,7 @@ ActiveRecord::Schema.define(version: 20161110070100) do
     t.integer  "branch_id"
     t.integer  "sales_settlement_id",        limit: 8
     t.integer  "settlement_approval_status",                                    default: 0
+    t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
@@ -1181,11 +1182,14 @@ ActiveRecord::Schema.define(version: 20161110070100) do
     t.integer  "updater_id"
     t.string   "receiver_name"
     t.integer  "voucher_id"
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.datetime "created_at",                                                         null: false
+    t.datetime "updated_at",                                                         null: false
     t.integer  "branch_id"
-    t.integer  "settlement_by_cheque_type", default: 0
+    t.integer  "settlement_by_cheque_type",                          default: 0
     t.date     "date"
+    t.decimal  "cash_amount",               precision: 15, scale: 4
+    t.boolean  "multi_cheque_payment",                               default: false
+    t.boolean  "belongs_to_batch_payment"
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
