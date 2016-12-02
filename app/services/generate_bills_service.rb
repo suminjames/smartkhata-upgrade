@@ -24,6 +24,7 @@ class GenerateBillsService
         custom_key = ("#{client_code.to_s}-#{transaction.date.to_s}")
 
         client_account = transaction.client_account
+        client_name = client_account.name
         cost_center_id = client_account.branch_id
         commission = transaction.commission_amount
         sales_commission = commission * broker_commission_rate(transaction.date)
@@ -147,7 +148,7 @@ class GenerateBillsService
             process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
           end
 
-          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no})"
+          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name}"
           voucher = Voucher.create!(date: settlement_date)
           voucher.share_transactions << transaction
           voucher.desc = description
@@ -186,7 +187,7 @@ class GenerateBillsService
           # in case of sales transaction greater than 5000000 it has to be settled seperately
           # not with nepse
           if transaction.share_amount > 5000000
-            description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
+            description = "Sales Adjustment with Broker No. #{transaction.buyer} (#{share_quantity}*#{company_symbol}@#{share_rate})"
             voucher = Voucher.create!(date: settlement_date)
             voucher.share_transactions << transaction
             voucher.desc = description
