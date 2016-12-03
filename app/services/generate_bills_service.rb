@@ -24,6 +24,7 @@ class GenerateBillsService
         custom_key = ("#{client_code.to_s}-#{transaction.date.to_s}")
 
         client_account = transaction.client_account
+        client_name = client_account.name
         cost_center_id = client_account.branch_id
         commission = transaction.commission_amount
         sales_commission = commission * broker_commission_rate(transaction.date)
@@ -72,12 +73,14 @@ class GenerateBillsService
             end
           end
 
+
           # TODO possible error location
           bill.share_transactions << transaction
 
           # bill net amount should consider closeout
           if transaction.closeout_amount.present? && transaction.closeout_amount > 0 && transaction.quantity > 0
-            bill.net_amount += ( transaction.net_amount + charges_of_closeout)
+            bill.net_amount += transaction.net_amount
+            bill.closeout_charge += transaction.closeout_amount
           else
             bill.net_amount += transaction.net_amount
           end
@@ -129,12 +132,9 @@ class GenerateBillsService
         # closeout amout is positive meaning there is a closeout on sales
         # closeout on buy is handled on deal cancel
         if transaction.closeout_amount.present? && transaction.closeout_amount > 0
-          # it depends who will pay client or broker himself
-
           # if quantity is zero meaning all transaction is shorted all the amount is moved to closeout
           # else partial amount is moved to closeout
-
-
+          # in case of zero quantity two vouchers are created.
           if transaction.quantity > 0
             payable_to_client = transaction.net_amount + charges_of_closeout
             nepse_adjustment = transaction.amount_receivable + charges_of_closeout
@@ -148,7 +148,7 @@ class GenerateBillsService
             process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
           end
 
-          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no})"
+          description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name}"
           voucher = Voucher.create!(date: settlement_date)
           voucher.share_transactions << transaction
           voucher.desc = description
@@ -159,12 +159,18 @@ class GenerateBillsService
           if transaction.quantity > 0
             process_accounts(nepse_ledger, voucher, false, charges_of_closeout, description, cost_center_id, settlement_date)
             process_accounts(closeout_ledger, voucher, true, charges_of_closeout, description, cost_center_id, settlement_date)
+            process_accounts(closeout_ledger, voucher, false, charges_of_closeout, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, true, charges_of_closeout, description, cost_center_id, settlement_date)
           else
             process_accounts(closeout_ledger, voucher, true, transaction.net_amount.abs, description, cost_center_id, settlement_date)
             process_accounts(nepse_ledger, voucher, false, transaction.amount_receivable.abs, description, cost_center_id, settlement_date)
             process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
             process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
             process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
+
+            # make an entry for client end too.
+            process_accounts(closeout_ledger, voucher, false, transaction.net_amount.abs, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, true, transaction.net_amount.abs, description, cost_center_id, settlement_date)
           end
 
           voucher.complete!
@@ -181,7 +187,7 @@ class GenerateBillsService
           # in case of sales transaction greater than 5000000 it has to be settled seperately
           # not with nepse
           if transaction.share_amount > 5000000
-            description = "Sales Adjustment with Other Broker (#{share_quantity}*#{company_symbol}@#{share_rate})"
+            description = "Sales Adjustment with Broker No. #{transaction.buyer} (#{share_quantity}*#{company_symbol}@#{share_rate})"
             voucher = Voucher.create!(date: settlement_date)
             voucher.share_transactions << transaction
             voucher.desc = description
