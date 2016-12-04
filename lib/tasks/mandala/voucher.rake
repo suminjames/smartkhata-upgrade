@@ -17,8 +17,8 @@ namespace :mandala do
     error_count = 0
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
     ActiveRecord::Base.transaction do
-      Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
-      # Mandala::Voucher.where(voucher_id: nil).find_each do |voucher|
+      # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
+      Mandala::Voucher.where(voucher_id: nil, fiscal_year: '2071/2072').find_each do |voucher|
         # begin
         # puts voucher.voucher_no
 
@@ -82,8 +82,10 @@ namespace :mandala do
 
                     if cheque_entry.present?
                       begin
+                        cheque_entry.skip_cheque_number_validation = true
                         cheque_entry.save!
                       rescue
+                        debugger
                         p 'rescued'
                       end
 

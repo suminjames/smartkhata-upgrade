@@ -13,8 +13,8 @@ namespace :mandala do
     # bills = Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') )
     #
     ActiveRecord::Base.transaction do
-      # Mandala::Bill.where(bill_id: nil).each do |bill|
-      Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') ).where(bill_id: nil).each do |bill|
+      Mandala::Bill.where(bill_id: nil, fiscal_year: '2071/2072').find_each do |bill|
+      # Mandala::Bill.where('bill_date_parsed > ?', Date.parse('2016-7-15') ).where(bill_id: nil).each do |bill|
         start_time = Time.now
         pending_bill = []
         bills_taking_time = []
@@ -23,13 +23,13 @@ namespace :mandala do
         if new_bill.has_incorrect_fy_code?
           # puts "#{bill.bill_no}"
         else
-          new_bill.save!
-          bill.bill_id= new_bill.id
           begin
+            new_bill.save!
+            bill.bill_id= new_bill.id
             bill.save!
             bill.bill_details.each do |bill_detail|
               daily_transaction = bill_detail.daily_transaction
-              share_transaction = daily_transaction.new_smartkhata_share_transaction
+              share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
               share_transaction.bill_id = new_bill.id
               share_transaction.save!
               daily_transaction.share_transaction_id = share_transaction.id
