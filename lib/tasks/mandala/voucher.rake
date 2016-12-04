@@ -89,14 +89,9 @@ namespace :mandala do
                     end
 
                     if cheque_entry.present?
-                      begin
-                        cheque_entry.skip_cheque_number_validation = true
-                        cheque_entry.save!
-                      rescue
-                        debugger
-                        p 'rescued'
-                      end
-
+                      cheque_entry.skip_cheque_number_validation = true
+                      cheque_entry.save!
+  
                       detail.cheque_entry_id = cheque_entry.id
                       detail.save!
                       cheque_entries << cheque_entry unless multi_detailed_cheque
