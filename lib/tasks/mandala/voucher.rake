@@ -1,6 +1,6 @@
 namespace :mandala do
   desc "synch_vouchers"
-  task :sync_vouchers,[:tenant] => 'mandala:validate_tenant' do |task,args|
+  task :sync_vouchers,[:tenant, :fiscal_year] => 'mandala:validate_tenant' do |task,args|
 
     def time_diff_more?(start_time, end_time, second)
       seconds_diff = (start_time - end_time).to_i.abs
@@ -15,10 +15,18 @@ namespace :mandala do
     vouchers_taking_time = []
     count = 0
     error_count = 0
+
+    # first build vouchers and add the conditional
+    vouchers = Mandala::Voucher.where(voucher_id: nil)
+    fiscal_year = args.fiscal_year
+    if fiscal_year.present?
+      vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
+    end
+
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
     ActiveRecord::Base.transaction do
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
-      Mandala::Voucher.where(voucher_id: nil, fiscal_year: '2071/2072').find_each do |voucher|
+      vouchers.find_each do |voucher|
         # begin
         # puts voucher.voucher_no
 

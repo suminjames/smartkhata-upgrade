@@ -387,8 +387,8 @@ namespace :mandala do
         Rake::Task["mandala:sync_vouchers"].invoke(tenant)
         Rake::Task["mandala:sync_bills"].invoke(tenant)
 
-        # Rake::Task["ledger:populate_ledger_dailies"].invoke(tenant,'true')
-        # Rake::Task["ledger:populate_closing_balance"].invoke(tenant,'true')
+        Rake::Task["ledger:populate_ledger_dailies"].invoke(tenant,'true')
+        Rake::Task["ledger:populate_closing_balance"].invoke(tenant,'true')
       end
       puts "#{bench}"
 
@@ -397,5 +397,19 @@ namespace :mandala do
     end
   end
 
+
+  desc "import the mandala data with fiscal year"
+  task :sync_data_partial, [:tenant, :fiscal_year] => :environment do |task, args|
+    tenant = args.tenant
+    fiscal_year = args.fiscal_year
+
+    abort 'Please pass a fiscal year' unless args.fiscal_year.present?
+
+    bench = Benchmark.measure do
+      Rake::Task["mandala:sync_vouchers"].invoke(tenant, fiscal_year)
+      Rake::Task["mandala:sync_bills"].invoke(tenant, fiscal_year)
+    end
+    puts "#{bench}"
+  end
 
 end
