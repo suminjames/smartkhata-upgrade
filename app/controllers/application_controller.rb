@@ -35,6 +35,7 @@ class ApplicationController < ActionController::Base
 
   def current_tenant
     @current_tenant ||= Tenant.find_by(name: request.subdomain)
+    @current_tenant ||= Tenant.find_by(name: 'smartkhata')
   end
 
   helper_method :current_tenant
