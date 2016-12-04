@@ -33,6 +33,8 @@ class ChequeEntry < ActiveRecord::Base
   include CustomDateModule
   include ::Models::UpdaterWithBranch
 
+  attr_accessor :skip_cheque_number_validation
+
   belongs_to :client_account
   belongs_to :vendor_account
   belongs_to :bank_account
@@ -58,8 +60,8 @@ class ChequeEntry < ActiveRecord::Base
 
   # validate foreign key: ensures that the bank account exists
   validates :bank_account, presence: true , :unless => :additional_bank_id?
-  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id,:cheque_issued_type], message: "should be unique"},
-            numericality: {only_integer: true, greater_than: 0}
+  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id,:cheque_issued_type], message: "should be unique"}
+  validates :cheque_number, numericality: {only_integer: true, greater_than: 0} , unless: :skip_cheque_number_validation
 
   # TODO (subas) make sure to do the necessary settings
   #
