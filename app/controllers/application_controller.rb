@@ -15,8 +15,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, :unless => :devise_controller?
   before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
-  before_action :validate_certificate, :unless => :devise_controller?
-  # after_action :verify_authorized, :unless => :devise_controller?
+  after_action :verify_authorized, :unless => :devise_controller?
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
@@ -36,6 +35,7 @@ class ApplicationController < ActionController::Base
 
   def current_tenant
     @current_tenant ||= Tenant.find_by(name: request.subdomain)
+    @current_tenant ||= Tenant.find_by(name: 'smartkhata')
   end
 
   helper_method :current_tenant
@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
 
 
   def user_not_authorized
-    flash[:alert] = "Access denied. Wrong certificate type. Please contact Technical support"
+    flash[:alert] = "Access denied."
     redirect_to (request.referrer || root_path)
   end
 
@@ -64,14 +64,6 @@ class ApplicationController < ActionController::Base
     UserSession.selected_fy_code = session[:user_selected_fy_code]
     UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
-
-  def validate_certificate
-    unless valid_certificate? current_user
-      flash[:alert] = "Access denied."
-      redirect_to root_path
-    end
-  end
-
 
   #   set the default fycode and branch params
   def set_branch_fy_params
