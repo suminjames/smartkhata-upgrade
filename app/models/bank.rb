@@ -19,6 +19,9 @@ class Bank < ActiveRecord::Base
   include Auditable
   include ::Models::Updater
   has_many :bank_accounts
-  validates :name, uniqueness: true, presence: true
+
+  attr_accessor :skip_name_validation
+
+  validates :name, uniqueness: true, presence: true, unless: :skip_name_validation
   validates :bank_code, uniqueness: true, presence: true
 end

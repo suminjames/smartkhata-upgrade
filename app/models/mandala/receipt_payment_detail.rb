@@ -14,7 +14,7 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
                      fy_code: fy_code,
                      amount: amount,
                      client_account_id: beneficiary_client_id
-    ) if ( !cheque_no.blank? && valid_cheque? )
+    ) if ( !cheque_no.blank? && valid_cheque?)
   end
 
   def find_cheque_entry
@@ -30,7 +30,11 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   end
 
   def bank_id(bank_code)
-    Bank.find_by(bank_code: bank_code).try(:id)
+    bank = Bank.find_by(bank_code: bank_code)
+    unless bank.present?
+      bank = Bank.create!(bank_code: bank_code, name: "Unknown", skip_name_validation: true)
+    end  
+    bank.id
   end
 
   def cheque_issued_type
@@ -38,6 +42,6 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   end
 
   def valid_cheque?
-      /\A[-+]?\d+\z/ === cheque_no
+      /\A[-+]?\d+\z/ === cheque_no && cheque_no != 'cash'
   end
 end

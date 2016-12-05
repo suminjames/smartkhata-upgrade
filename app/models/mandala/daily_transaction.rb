@@ -1,23 +1,28 @@
 class Mandala::DailyTransaction < ActiveRecord::Base
   self.table_name = "daily_transaction"
 
-  def bill_detail
-    bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type)
+  def bill_detail(bill_no = nil)
+    if bill_no
+      bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type, bill_no: bill_no)
+    else
+      bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type)
+    end
+
     if bill_details.size != 1
       raise NotImplementedError
     end
     bill_details.first
   end
 
-  def new_smartkhata_share_transaction
+  def new_smartkhata_share_transaction(bill_no = nil)
     ::ShareTransaction.new({
         contract_no: transaction_no,
         quantity: final_quantity,
         raw_quantity: quantity,
         share_rate: rate,
         share_amount: total_amount,
-        commission_rate: commission_rate,
-        commission_amount: commission_amount,
+        commission_rate: commission_rate(bill_no),
+        commission_amount: commission_amount(bill_no),
         buyer: buyer,
         seller: seller,
         isin_info_id: isin_info_id,
@@ -25,9 +30,11 @@ class Mandala::DailyTransaction < ActiveRecord::Base
         date: Date.parse(transaction_date),
         settlement_date: Date.parse(settlement_date),
         sebo: total_amount.to_f * 0.00015   ,
-        cgt: bill_detail.capital_gain.to_f,
-        dp_fee: bill_detail.demat_rate.to_f,
-        adjusted_sell_price: adjusted_purchase_price
+        cgt: bill_detail(bill_no).capital_gain.to_f,
+        dp_fee: bill_detail(bill_no).demat_rate.to_f,
+        adjusted_sell_price: adjusted_purchase_price,
+        closeout_amount: closeout_amount,
+        transaction_type: sk_transaction_type,
                            })
   end
 
@@ -43,11 +50,11 @@ class Mandala::DailyTransaction < ActiveRecord::Base
     self.quantity.to_f * self.rate.to_f
   end
 
-  def commission_rate
+  def commission_rate(bill_no)
     self.bill_detail.commission_rate
   end
 
-  def commission_amount
+  def commission_amount(bill_no)
     self.bill_detail.commission_amount
   end
 
