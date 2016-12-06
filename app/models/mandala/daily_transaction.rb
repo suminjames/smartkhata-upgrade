@@ -39,7 +39,8 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   end
 
   def isin_info_id
-    Mandala::CompanyParameter.where(company_code: company_code).first.get_isin_info_id
+    isin_info = Mandala::CompanyParameter.where(company_code: company_code).first
+    isin_info.present? ? isin_info.get_isin_info_id : nil
   end
   # close out consideration
   def final_quantity
