@@ -52,11 +52,11 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   end
 
   def commission_rate(bill_no)
-    self.bill_detail.commission_rate
+    self.bill_detail(bill_no).commission_rate
   end
 
   def commission_amount(bill_no)
-    self.bill_detail.commission_amount
+    self.bill_detail(bill_no).commission_amount
   end
 
   def sk_transaction_type

@@ -44,8 +44,9 @@ namespace :mandala do
           count += 1
           puts "#{count} bill processed"
         end
-      rescue => error
-        puts error.message
+      rescue Exception => e
+        debugger
+        # puts error.message
       end
     end
 

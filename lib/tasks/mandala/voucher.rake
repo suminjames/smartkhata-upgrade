@@ -147,8 +147,8 @@ namespace :mandala do
             vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
           end
           end
-        rescue => error
-          puts error.message
+        rescue Exception => e
+          puts e.message
           puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
         end
     end
