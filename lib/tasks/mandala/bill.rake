@@ -17,34 +17,41 @@ namespace :mandala do
       bills = bills.where('fiscal_year = ?', fiscal_year)
     end
 
+    bills.find_each do |bill|
+      begin
+        ActiveRecord::Base.transaction do
+          start_time = Time.now
+          pending_bill = []
+          bills_taking_time = []
 
-    ActiveRecord::Base.transaction do
-      bills.find_each do |bill|
-        start_time = Time.now
-        pending_bill = []
-        bills_taking_time = []
-
-        new_bill = bill.new_smartkhata_bill
-        if new_bill.has_incorrect_fy_code?
-          # puts "#{bill.bill_no}"
-        else
-          new_bill.save!
-          bill.bill_id= new_bill.id
-          bill.save!
-          bill.bill_details.each do |bill_detail|
-            daily_transaction = bill_detail.daily_transaction
-            share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
-            share_transaction.bill_id = new_bill.id
-            share_transaction.save!
-            daily_transaction.share_transaction_id = share_transaction.id
-            daily_transaction.save!
+          new_bill = bill.new_smartkhata_bill
+          if new_bill.has_incorrect_fy_code?
+            # puts "#{bill.bill_no}"
+          else
+            new_bill.save!
+            bill.bill_id= new_bill.id
+            bill.save!
+            bill.bill_details.each do |bill_detail|
+              daily_transaction = bill_detail.daily_transaction
+              share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
+              share_transaction.bill_id = new_bill.id
+              share_transaction.save!
+              daily_transaction.share_transaction_id = share_transaction.id
+              daily_transaction.save!
+            end
           end
+          puts "#{bill.bill_no}"
+          count += 1
+          puts "#{count} bill processed"
         end
-        puts "#{bill.bill_no}"
-        count += 1
-        puts "#{count} bill processed"
+      rescue => error
+        puts error.message
       end
     end
+
+
+
+
     puts "bills synched"
   end
 

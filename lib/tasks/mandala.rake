@@ -399,7 +399,7 @@ namespace :mandala do
 
 
   desc "import the mandala data with fiscal year"
-  task :sync_data_partial, [:tenant, :fiscal_year] => :environment do |task, args|
+  task :sync_data_partial, [:tenant, :fiscal_year] => 'mandala:validate_tenant' do |task, args|
     tenant = args.tenant
     fiscal_year = args.fiscal_year
 
@@ -411,13 +411,4 @@ namespace :mandala do
     end
     puts "#{bench}"
   end
-
-  desc "import the mandala data with fiscal year"
-  task :sync_data_partial, [:tenant] => 'mandala:validate_tenant' do |task, args|
-    tenant = args.tenant
-    Rake::Task["ledger:populate_ledger_dailies"].invoke(tenant,'true')
-    Rake::Task["ledger:populate_closing_balance"].invoke(tenant,'true')
-  end
-
-
 end

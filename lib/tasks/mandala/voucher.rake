@@ -23,18 +23,16 @@ namespace :mandala do
       vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
     end
 
-    begin
+
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
-    ActiveRecord::Base.transaction do
+
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
       vouchers.find_each do |voucher|
-        # begin
-        # puts voucher.voucher_no
+        begin
+          ActiveRecord::Base.transaction do
+          start_time = Time.now
 
-
-        start_time = Time.now
-
-        new_voucher = voucher.new_smartkhata_voucher
+          new_voucher = voucher.new_smartkhata_voucher
 
           if new_voucher.has_incorrect_fy_code?
             pending_voucher << voucher
@@ -148,12 +146,14 @@ namespace :mandala do
             end_time = Time.now
             vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
           end
-      end
+          end
+        rescue => error
+          puts error.message
+          puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+        end
     end
 
-    rescue
-      debugger
-    end
+
 
     puts "vouchers synched"
     puts "#{error_count} vouchers have error"
