@@ -57,30 +57,30 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
   def populate_data_rows
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center]].push(*[@styles[:wrap]]*6).insert(2, @styles[:float_format])
-    striped_style_row = [@styles[:striped_center]].push(*[@styles[:wrap_striped]]*6).insert(2, @styles[:float_format_striped])
+    # striped_style_row = [@styles[:striped_center]].push(*[@styles[:wrap_striped]]*6).insert(2, @styles[:float_format_striped])
     # debugger
     row_index = 0
     @settlements.each_with_index do |s, index|
       sn = index + 1
-      cheque_numbers, bank_names = s.formatted_cheque_numbers_and_bank_names(strip: false)
-                                    .values_at(:cheque_numbers, :bank_names)
+      cheque_numbers, bank_codes = s.formatted_cheque_numbers_and_bank_codes(strip: false)
+                                    .values_at(:cheque_numbers, :bank_codes)
                                     .map{|d| d.split '<br>'}
 
       # shift: pops the first element. Empty string just in case..
       cheque_num = cheque_numbers.shift || ''
-      bank_name = bank_names.shift || ''
+      bank_code = bank_codes.shift || ''
       settlement_type = s.receipt? ? 'receipt' : 'payment'
 
-      row_style = row_index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, s.name, s.amount, bank_name, cheque_num, s.date_bs, s.description, settlement_type], style: row_style
+      row_style = normal_style_row
+      @sheet.add_row [sn, s.name, s.amount, bank_code, cheque_num, s.date_bs, s.description, settlement_type], style: row_style
       row_index += 1
 
       # Add additional bank names and cheque numbers as distinct rows
-      bank_names.each_with_index do |bank_name, sub_index|
+      bank_codes.each_with_index do |bank_code, sub_index|
         cheque_num = cheque_numbers[sub_index] || ''
 
-        row_style = row_index.even? ? normal_style_row : striped_style_row
-        @sheet.add_row (['']*6).insert(3, *[bank_name, cheque_num]), style: row_style
+        row_style = normal_style_row
+        @sheet.add_row (['']*6).insert(3, *[bank_code, cheque_num]), style: row_style
         row_index += 1
       end
     end
@@ -92,6 +92,6 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
     # @sheet.column_info.first.width = 5
 
     # problems with auto width
-    @sheet.column_widths 6, nil, nil, 25, 18, nil, 55
+    @sheet.column_widths 6, nil, nil, 15, 18, nil, 55
   end
 end
