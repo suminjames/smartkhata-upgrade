@@ -23,6 +23,7 @@ namespace :mandala do
       vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
     end
 
+    begin
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
     ActiveRecord::Base.transaction do
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
@@ -89,14 +90,9 @@ namespace :mandala do
                     end
 
                     if cheque_entry.present?
-                      begin
-                        cheque_entry.skip_cheque_number_validation = true
-                        cheque_entry.save!
-                      rescue
-                        debugger
-                        p 'rescued'
-                      end
-
+                      cheque_entry.skip_cheque_number_validation = true
+                      cheque_entry.save!
+  
                       detail.cheque_entry_id = cheque_entry.id
                       detail.save!
                       cheque_entries << cheque_entry unless multi_detailed_cheque
@@ -154,6 +150,11 @@ namespace :mandala do
           end
       end
     end
+
+    rescue
+      debugger
+    end
+
     puts "vouchers synched"
     puts "#{error_count} vouchers have error"
     vouchers_taking_time.each do |voucher|

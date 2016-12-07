@@ -175,13 +175,16 @@ namespace :ledger do
   task :populate_ledger_dailies,[:tenant, :all_fiscal_year] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
-
     ActiveRecord::Base.transaction do
+      count = 0
       Ledger.find_each do |ledger|
+        count += 1
         # fy_codes = [6869, 6970, 7071, 7172, 7273]
         patch_ledger_dailies(ledger, all_fiscal_year)
+        puts "#{count} ledgers processed"
       end
     end
+    puts "completed ledger dailies"
   end
 
   task :populate_ledger_dailies_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|

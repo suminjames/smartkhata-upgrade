@@ -28,24 +28,17 @@ namespace :mandala do
         if new_bill.has_incorrect_fy_code?
           # puts "#{bill.bill_no}"
         else
-          begin
-            new_bill.save!
-            bill.bill_id= new_bill.id
-            bill.save!
-            bill.bill_details.each do |bill_detail|
-              daily_transaction = bill_detail.daily_transaction
-              share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
-              share_transaction.bill_id = new_bill.id
-              share_transaction.save!
-              daily_transaction.share_transaction_id = share_transaction.id
-              daily_transaction.save!
-
-            end
-              #   share settlements
-          rescue NotImplementedError
-            puts "#{bill.bill_no} has no share transactions"
+          new_bill.save!
+          bill.bill_id= new_bill.id
+          bill.save!
+          bill.bill_details.each do |bill_detail|
+            daily_transaction = bill_detail.daily_transaction
+            share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
+            share_transaction.bill_id = new_bill.id
+            share_transaction.save!
+            daily_transaction.share_transaction_id = share_transaction.id
+            daily_transaction.save!
           end
-
         end
         puts "#{bill.bill_no}"
         count += 1
