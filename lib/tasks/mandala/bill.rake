@@ -45,14 +45,10 @@ namespace :mandala do
           puts "#{count} bill processed"
         end
       rescue Exception => e
-        debugger
-        # puts error.message
+        # debugger
+        puts error.message
       end
     end
-
-
-
-
     puts "bills synched"
   end
 
