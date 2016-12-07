@@ -419,9 +419,9 @@ class Vouchers::Create < Vouchers::Base
         end
       else
         if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
-        else
           voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+        else
+          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
         end
       end
       # mark the voucher as settled if it is not payment bank
