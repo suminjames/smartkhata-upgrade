@@ -46,7 +46,7 @@ namespace :mandala do
         end
       rescue Exception => e
         # debugger
-        puts error.message
+        puts e.message
       end
     end
     puts "bills synched"
