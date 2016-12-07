@@ -23,6 +23,7 @@ namespace :mandala do
       vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
     end
 
+    begin
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
     ActiveRecord::Base.transaction do
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
@@ -154,6 +155,11 @@ namespace :mandala do
           end
       end
     end
+
+    rescue
+      debugger
+    end
+
     puts "vouchers synched"
     puts "#{error_count} vouchers have error"
     vouchers_taking_time.each do |voucher|
