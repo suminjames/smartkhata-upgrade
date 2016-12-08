@@ -204,7 +204,7 @@ namespace :ledger do
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
       Ledger.find_each do |ledger|
-        patch_closing_balance(ledge, all_fiscal_year)
+        patch_closing_balance(ledger, all_fiscal_year)
       end
     end
   end
