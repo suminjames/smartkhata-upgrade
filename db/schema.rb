@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161123144731) do
+ActiveRecord::Schema.define(version: 20161202070759) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -225,6 +225,7 @@ ActiveRecord::Schema.define(version: 20161123144731) do
     t.integer  "branch_id"
     t.integer  "sales_settlement_id",        limit: 8
     t.integer  "settlement_approval_status",                                    default: 0
+    t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
