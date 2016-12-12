@@ -151,9 +151,9 @@ class ChequeEntriesController < ApplicationController
     cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
+      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
     end
-    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque void recorded succesfully'} and return
   end
   # GET /cheque_entries/bounce
@@ -161,7 +161,7 @@ class ChequeEntriesController < ApplicationController
     cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
+      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
     end
     @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque bounced succesfully'} and return
@@ -172,7 +172,7 @@ class ChequeEntriesController < ApplicationController
     cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_activity, flash: {:error => cheque_activity.error_message } and return
+      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
     end
     @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque Represent recorded succesfully'} and return

@@ -11,7 +11,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
   def perform_action
     voucher = @cheque_entry.vouchers.uniq.first
-    set_error('The cheque can not be bounced.. Please contact technical support') and return if voucher.cheque_entries.uniq.count != 1
+    set_error('The cheque can not be bounced...Please contact technical support') and return if voucher.cheque_entries.uniq.count != 1
 
 
 
