@@ -6,6 +6,7 @@ set :branch, :master
 
 set :deploy_to, '/home/deploy/smartkhata'
 # set :scm, :git
+# set :git_shallow_clone, 1
 
 # set :format, :pretty
 # set :log_level, :debug
