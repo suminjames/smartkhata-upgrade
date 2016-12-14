@@ -1,6 +1,8 @@
 class Mandala::DailyTransaction < ActiveRecord::Base
   self.table_name = "daily_transaction"
 
+  belongs_to :share_transaction
+
   def bill_detail(bill_no = nil)
     if bill_no
       bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type, bill_no: bill_no)
@@ -60,7 +62,7 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   end
 
   def sk_transaction_type
-    self.transaction_type == 'P' ? ::ShareTransaction.transaction_types[:purchase] : ::ShareTransaction.transaction_types[:sales]
+    self.transaction_type == 'P' ? ::ShareTransaction.transaction_types[:buying] : ::ShareTransaction.transaction_types[:selling]
   end
 
   def customer_code_from_data
