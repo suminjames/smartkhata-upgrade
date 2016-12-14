@@ -26,31 +26,6 @@
       <% end %>
     </div>
   </div>
-  <% if admin_and_above? %>
-    <div class="col-sm-4">
-      <div class="small-box bg-saroj">
-        <div class="inner">
-          <% if @amount > 0 %>
-              <div class="row box-equivalent">
-                <h3><%= number_to_currency(@amount) %></h3>
-                <p>Net Loss</p>
-              </div>
-          <% else %>
-              <h3><%= number_to_currency(@amount.abs) %></h3>
-              <p>Net Profit</p>
-          <% end %>
-        </div>
-        <div class="icon">
-          <!-- <i class="ion ion-stats-bars"></i> -->
-          <i class="ion ion-cash"></i>
-        </div>
-        <a href="<%= report_profitandloss_index_path %>" class="small-box-footer">
-          More info <i class="fa fa-arrow-circle-right"></i>
-        </a>
-      </div>
-    </div>
-  <% end %>
-
   <div class="col-sm-4">
     <!-- small box -->
     <div class="small-box bg-saroj">
