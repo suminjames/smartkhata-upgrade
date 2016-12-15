@@ -147,20 +147,9 @@ class ImportPayout < ImportFile
           # client pays the commission_amount
 
           if transaction.share_amount >= 5000000
-            # some time nepse does weird calculation and sends amount receivable as 0
-            # generally its a negative value
-            # chargeable by nepse includes nepse commission and tds
-            amount_receivable_from_file = amount_receivable
-
+            # amount receivable generally includes only cgt
             # calculate the amount_receivable
-            amount_receivable =  ( transaction.sebo + transaction.commission_amount * chargeable_by_nepse + transaction.cgt ) * -1
-
-            if ( amount_receivable != amount_receivable_from_file) && (amount_receivable_from_file != 0)
-              import_error("Please make sure the amount receivable is correct for  transaction number #{hash['CONTRACTNO']}")
-              raise ActiveRecord::Rollback
-              break
-            end
-            amount_receivable = transaction.share_amount + amount_receivable
+            amount_receivable = transaction.share_amount - ( transaction.sebo + transaction.commission_amount * chargeable_by_nepse + transaction.cgt )
           end
 
           # this is the case for close out
