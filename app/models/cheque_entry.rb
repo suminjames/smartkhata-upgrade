@@ -39,6 +39,8 @@ class ChequeEntry < ActiveRecord::Base
   belongs_to :vendor_account
   belongs_to :bank_account
   belongs_to :additional_bank, class_name: "Bank"
+  has_one :bank, through: :bank_account
+
   # belongs_to :particular
 
   # for many to many relation between cheque and the particulars.
