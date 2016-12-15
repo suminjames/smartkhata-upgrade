@@ -189,7 +189,7 @@ class GenerateBillsService
           if transaction.share_amount > 5000000
             description = "Sales Adjustment with Broker No. #{transaction.buyer} (#{share_quantity}*#{company_symbol}@#{share_rate})"
             voucher = Voucher.create!(date: settlement_date)
-            voucher.share_transactions << transaction
+            # voucher.share_transactions << transaction
             voucher.desc = description
 
             clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
