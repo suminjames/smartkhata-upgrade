@@ -40,7 +40,7 @@ class ImportPayout < ImportFile
         begin
           @sales_settlement_date = bs_to_ad(@sales_settlement_date_bs)
           unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
-             @error_message = "Date is invalid for selected fiscal year"
+            @error_message = "Date is invalid for selected fiscal year"
           end
         rescue
           @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
@@ -146,8 +146,21 @@ class ImportPayout < ImportFile
           #   - dp fee
           # client pays the commission_amount
 
-          if transaction.share_amount >= 5000000 && amount_receivable < 0
-            amount_receivable = transaction.share_amount + amount_receivable - transaction.sebo - transaction.commission_amount * chargeable_by_nepse
+          if transaction.share_amount >= 5000000
+            # some time nepse does weird calculation and sends amount receivable as 0
+            # generally its a negative value
+            # chargeable by nepse includes nepse commission and tds
+            amount_receivable_from_file = amount_receivable
+
+            # calculate the amount_receivable
+            amount_receivable =  ( transaction.sebo + transaction.commission_amount * chargeable_by_nepse + transaction.cgt ) * -1
+
+            if ( amount_receivable != amount_receivable_from_file) && (amount_receivable_from_file != 0)
+              import_error("Please make sure the amount receivable is correct for  transaction number #{hash['CONTRACTNO']}")
+              raise ActiveRecord::Rollback
+              break
+            end
+            amount_receivable = transaction.share_amount + amount_receivable
           end
 
           # this is the case for close out
