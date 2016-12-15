@@ -6,9 +6,7 @@
        - Caution: If stuck, talk to someone who has done it before.
     - to get sidekiq (background worker) to run,
         - first, install (and start) redis-server using the instructions in the link below.
-            - https://redis.io/topics/quickstart
-                - Note: Make sure to do 'sudo make install' to place the binaries /usr/local/bin.
-            - Note: Default configuration should work. No extra configuration is required.
+            - https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04#configure-redis
         - second, execute sidekiq as a background job using the command below
             - RAILS_ENV=production bundle exec sidekiq &
         - test sidekiq is working
