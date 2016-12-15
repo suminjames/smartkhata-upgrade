@@ -417,7 +417,7 @@ class Vouchers::Create < Vouchers::Base
         else
           voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
         end
-      else
+      elsif is_payment_receipt
         if voucher.is_payment?
           voucher.voucher_type = Voucher.voucher_types[:payment_cash]
         else
