@@ -21,10 +21,10 @@
       <th class="">S.N.</th>
       <th class="col-xs-2">Name</th>
       <th class="col-xs-1 text-right">Amount</th>
-      <th class="col-xs-2">Bank</th>
+      <th class="col-xs-1">Bank</th>
       <th class="col-xs-2">Cheque Number</th>
       <th class="col-xs-1">Date</th>
-      <th class="col-xs-2">Description</th>
+      <th class="col-xs-3">Description</th>
       <th class="col-xs-1">Type</th>
       <th class="col-xs-1">Action</th>
     </tr>
@@ -40,8 +40,8 @@
               <td><%= pagination_count + index %></td>
               <td><%= settlement.name %></td>
               <td class="text-right"><%= arabic_number(settlement.amount) %></td>
-              <td><%= settlement.formatted_cheque_numbers_and_bank_names[:bank_names].html_safe %></td>
-              <td><%= settlement.formatted_cheque_numbers_and_bank_names[:cheque_numbers].html_safe %></td>
+              <td><%= settlement.formatted_cheque_numbers_and_bank_codes[:bank_codes].html_safe %></td>
+              <td><%= settlement.formatted_cheque_numbers_and_bank_codes[:cheque_numbers].html_safe %></td>
               <td><%= settlement.date_bs %></td>
               <td><%= settlement.description %></td>
               <td><%= pretty_enum(settlement.settlement_type) %></td>
