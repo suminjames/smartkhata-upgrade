@@ -1,4 +1,7 @@
 namespace :smartkhata do
+  # validation for tenant in the rake argument list
+  # raises error if not present
+
   desc "validate against tenant"
   task :validate_tenant, [:tenant] => :environment  do |task, args|
     abort 'Please pass a tenant name' unless args.tenant.present?

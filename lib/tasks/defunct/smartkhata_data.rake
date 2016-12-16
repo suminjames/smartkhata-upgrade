@@ -1,3 +1,5 @@
+# This file might not be needed anymore
+
 # This is purely hack to kickstart the smartkhata from given floorsheet files
 # not to be confused with general purpose
 # less time was dedicated for this task and will require code changes for reusability.
