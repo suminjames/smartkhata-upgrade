@@ -1,4 +1,15 @@
 namespace :mandala do
+
+  # rake mandala:upload_data['tenant']
+  # rake mandala:setup['tenant']
+  # rake mandala:sync_data['tenant']
+  # OR
+  # rake mandala:upload_data['tenant']
+  # rake mandala:setup_and_sync['tenant']
+
+
+
+
   # this tasks imports data from csv to the database
   # performs migration from mandala to smartkhata
   task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
@@ -83,6 +94,8 @@ namespace :mandala do
         mandala_files.each do |file_name|
           file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name.upcase}_DATA_TABLE.csv")
           "Mandala::#{file_name.classify}".constantize.delete_all
+
+          next  if !File.exist?(file)
 
           # count = 0
           bench = Benchmark.measure do
