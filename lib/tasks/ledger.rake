@@ -232,8 +232,8 @@ namespace :ledger do
   task :merge_ledgers, [:tenant, :merge_to, :merge_from]=> 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     tenant = args.tenant
-    abort 'Please the ledger id to merge to' unless args.merge_to.present?
-    abort 'Please the ledger id to merge from' unless args.merge_from.present?
+    abort 'Please pass the ledger id to merge to' unless args.merge_to.present?
+    abort 'Please pass the ledger id to merge from' unless args.merge_from.present?
 
     ledger_to_merge_to = Ledger.find(args.merge_to)
     ledger_to_merge_from = Ledger.find(args.merge_from)
@@ -245,10 +245,25 @@ namespace :ledger do
 
       LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
       LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
+
       ledger_to_merge_from.delete
 
       patch_ledger_dailies(ledger_to_merge_to)
       patch_closing_balance(ledger_to_merge_to)
+
+      mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
+      mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
+
+      if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
+        abort 'Need manual Intervention'
+      elsif mandala_mapping_for_deleted_ledger.present?
+        mandala_mapping_for_deleted_ledger.ledger_id = args.merge_to
+        mandala_mapping_for_deleted_ledger.save!
+      end
+
+    #   current implementation does not account for the client acccount
+    #   and also the chart of account and the mandala mapping
+
     end
   end
 end

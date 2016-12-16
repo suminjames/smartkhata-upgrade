@@ -1,4 +1,12 @@
 namespace :mandala do
+  # this tasks imports data from csv to the database
+  # performs migration from mandala to smartkhata
+  task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
+    tenant = args.tenant
+    Rake::Task["mandala:setup"].invoke(tenant)
+    Rake::Task["mandala:sync_data"].invoke(tenant)
+  end
+
   task :validate_tenant, [:tenant] => :environment  do |task, args|
     abort 'Please pass a tenant name' unless args.tenant.present?
     tenant = args.tenant
@@ -73,7 +81,7 @@ namespace :mandala do
 
       ActiveRecord::Base.transaction do
         mandala_files.each do |file_name|
-          Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name.upcase}_DATA_TABLE.csv")
+          file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name.upcase}_DATA_TABLE.csv")
           "Mandala::#{file_name.classify}".constantize.delete_all
 
           # count = 0
@@ -211,11 +219,7 @@ namespace :mandala do
   end
 
 
-  task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
-    tenant = args.tenant
-    Rake::Task["mandala:setup"].invoke(tenant)
-    Rake::Task["mandala:sync_data"].invoke(tenant)
-  end
+
 
   # converts the voucher date which is string to date for future reference
   task :parse_voucher_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
