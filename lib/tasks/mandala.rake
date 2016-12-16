@@ -73,7 +73,7 @@ namespace :mandala do
 
       ActiveRecord::Base.transaction do
         mandala_files.each do |file_name|
-          file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name}.csv")
+          Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name.upcase}_DATA_TABLE.csv")
           "Mandala::#{file_name.classify}".constantize.delete_all
 
           # count = 0
@@ -87,45 +87,6 @@ namespace :mandala do
           end
           puts "  #{file_name} --> #{bench}"
 
-          total_time_for_execution += bench.total
-        end
-      end
-
-      puts "Total time elapsed --> #{ total_time_for_execution}"
-
-    else
-      puts 'Please pass a tenant to the task'
-    end
-  end
-
-  desc "upload mandala data update"
-  task :upload_data_update, [:tenant] => :environment do |task, args|
-    if args.tenant.present?
-
-      tenant = args.tenant
-      Apartment::Tenant.switch!(args.tenant)
-
-      # below are the list of tables in mandala
-      mandala_files = [
-          "voucher",
-      ]
-
-      total_time_for_execution = 0
-
-      ActiveRecord::Base.transaction do
-        mandala_files.each do |file_name|
-          file = Rails.root.join('test_files', 'mandala', args.tenant, "#{file_name.upcase}_DATA_TABLE.csv")
-          # count = 0
-          bench = Benchmark.measure do
-            CSV.foreach(file, :headers => true, :header_converters => [:downcase]) do |row|
-              a = "Mandala::#{file_name.classify}".constantize.new(row.to_hash)
-              if a.valid?
-                a.save!
-                puts "#{a.voucher_no}"
-              end
-            end
-          end
-          puts "  #{file_name} --> #{bench}"
           total_time_for_execution += bench.total
         end
       end
@@ -183,27 +144,65 @@ namespace :mandala do
   #   end
   # end
 
+  desc "Clear Unwanted Data"
+  task :clear_unwanted_old_data, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    tenant = args.tenant
+
+
+    ##   clear smartkhata data too
+    # #  kept for reference purpose only
+
+    # vouchers = Voucher.where('date <= ?', '2016-09-14').pluck(:id)
+    # BillVoucherAssociation.where(voucher_id: vouchers).delete_all
+    # Settlement.where(voucher_id: vouchers).delete_all
+    # Voucher.where('date <= ?', '2016-09-14').delete_all
+    #
+    # particulars = Particular.where('transaction_date <= ?', '2016-09-14').pluck(:id)
+    # ChequeEntryParticularAssociation.where(particular_id:  particulars).delete_all
+    # Particular.where('transaction_date <= ?', '2016-09-14').delete_all
+    #
+    # bills = Bill.where('date <= ?', '2016-09-14').pluck(:id)
+    # BillVoucherAssociation.where(bill_id: bills).delete_all
+    # Bill.where('date <= ?', '2016-09-14').delete_all
+
+
+    puts "Deleting file uploads.."
+    FileUpload.delete_all
+
+    puts "Deleting bills and vouchers.."
+    BillVoucherAssociation.delete_all
+    Settlement.unscoped.delete_all
+    Voucher.delete_all
+    Bill.unscoped.delete_all
+
+    puts "Deleting Particulars and Cheque Entries ..."
+    ChequeEntryParticularAssociation.delete_all
+    ParticularsShareTransaction.unscoped.delete_all
+    Particular.unscoped.delete_all
+    LedgerBalance.unscoped.delete_all
+    LedgerDaily.unscoped.delete_all
+    ChequeEntry.unscoped.delete_all
+    SalesSettlement.delete_all
+
+    puts "Deleting Share Transactions"
+    ShareTransaction.delete_all
+    ShareInventory.delete_all
+
+    puts "Deleting Order"
+    Order.delete_all
+  end
+
   task :setup, [:tenant] => 'mandala:validate_tenant' do |task, args|
     Rake::Task['db:migrate'].invoke
 
     tenant = args.tenant
 
-    #   clear smartkhata data too
-    vouchers = Voucher.where('date <= ?', '2016-09-14').pluck(:id)
-    BillVoucherAssociation.where(voucher_id: vouchers).delete_all
-    Settlement.where(voucher_id: vouchers).delete_all
-    Voucher.where('date <= ?', '2016-09-14').delete_all
+    Rake::Task["mandala:clear_unwanted_old_data"].invoke(tenant)
 
-    particulars = Particular.where('transaction_date <= ?', '2016-09-14').pluck(:id)
-    ChequeEntryParticularAssociation.where(particular_id:  particulars).delete_all
-    Particular.where('transaction_date <= ?', '2016-09-14').delete_all
+    # # it is needed when the data is not wiped completely
 
-    bills = Bill.where('date <= ?', '2016-09-14').pluck(:id)
-    BillVoucherAssociation.where(bill_id: bills).delete_all
-    Bill.where('date <= ?', '2016-09-14').delete_all
-
-    Rake::Task["mandala:fix_vouchers"].invoke(tenant)
-    Rake::Task["mandala:fix_bills"].invoke(tenant)
+    # Rake::Task["mandala:fix_vouchers"].invoke(tenant)
+    # Rake::Task["mandala:fix_bills"].invoke(tenant)
 
     Rake::Task["mandala:parse_voucher_date"].invoke(tenant)
     Rake::Task["mandala:parse_bill_date"].invoke(tenant)
@@ -211,26 +210,6 @@ namespace :mandala do
     Rake::Task["mandala:setup_opening_balances"].invoke(tenant)
   end
 
-  # task :setup_fix, [:tenant] => 'mandala:validate_tenant' do |task, args|
-  #   tenant = args.tenant
-  #   ActiveRecord::Base.transaction do
-  #     vouchers =Voucher.where(date: [Date.parse('2016-09-15'), Date.parse('2016-09-15')]).where('vouchers.created_at <= ?','2016-11-01').where(voucher_type: [Voucher.voucher_types[:payment_cash],Voucher.voucher_types[:receipt_cash]]).pluck(:id)
-  #     # vouchers = vouchers +  ['72956', '72971']
-  #
-  #
-  #     ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
-  #
-  #     Particular.where(voucher_id: vouchers).delete_all
-  #     Voucher.where(id: vouchers).delete_all
-  #
-  #     # updating balances
-  #     # vouchers = vouchers + ['72982', '73092']
-  #     # ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
-  #
-  #     Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
-  #     Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
-  #   end
-  # end
 
   task :setup_and_sync,[:tenant] => 'mandala:validate_tenant' do |task,args|
     tenant = args.tenant
@@ -238,6 +217,7 @@ namespace :mandala do
     Rake::Task["mandala:sync_data"].invoke(tenant)
   end
 
+  # converts the voucher date which is string to date for future reference
   task :parse_voucher_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
     Mandala::Voucher.where(voucher_id: nil).each do |voucher|
       voucher.voucher_date_parsed = Date.parse(voucher.voucher_date)
@@ -246,6 +226,7 @@ namespace :mandala do
     puts "Voucher dates parsed successfully"
   end
 
+  # converts the string bill date which is string to date for future reference
   task :parse_bill_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
     Mandala::Bill.all.each do |bill|
       bill.bill_date_parsed = Date.parse(bill.bill_date)
@@ -255,6 +236,7 @@ namespace :mandala do
   end
 
 
+  # this might be redudant with the sync_data task below
   task :map_system_ledgers, [:tenant] => :environment do |task, args|
     if args.tenant.present?
       tenant = args.tenant
@@ -274,38 +256,6 @@ namespace :mandala do
     end
   end
 
-  task :fix_vouchers, [:tenant] => :environment do |task, args|
-    if args.tenant.present?
-      tenant = args.tenant
-      Apartment::Tenant.switch!(args.tenant)
-      UserSession.selected_branch_id = 1
-      UserSession.selected_fy_code = 7374
-      UserSession.user = User.first
-
-      Voucher.all.each do |v|
-        begin
-          # skip
-          v.skip_cheque_assign = true
-          v.update_attribute('voucher_number', (v.voucher_number + 10000))
-
-        rescue
-          puts "error for voucher: #{v.fy_code}-#{v.voucher_number}"
-        end
-      end
-    end
-  end
-
-  task :fix_bills, [:tenant] => 'mandala:validate_tenant' do |task, args|
-    Bill.all.each do |b|
-      begin
-        b.update_attribute('bill_number', b.bill_number + 10000)
-      rescue
-        puts "error for bill: #{b.bill_number}"
-      end
-    end
-    puts "done"
-  end
-
 
   desc "import the mandala data"
   task :sync_data, [:tenant] => :environment do |task, args|
@@ -316,6 +266,8 @@ namespace :mandala do
       UserSession.selected_fy_code = 7374
       UserSession.user = User.first
 
+      Rake::Task["mandala:parse_bill_date"].invoke(tenant)
+      Rake::Task["mandala:parse_voucher_date"].invoke(tenant)
 
       arr = {
 
@@ -410,5 +362,42 @@ namespace :mandala do
       Rake::Task["mandala:sync_bills"].invoke(tenant, fiscal_year)
     end
     puts "#{bench}"
+  end
+
+
+  # this was required when there was data present in the db
+  # might not be needed when doing a clean setup
+  task :fix_vouchers, [:tenant] => :environment do |task, args|
+    if args.tenant.present?
+      tenant = args.tenant
+      Apartment::Tenant.switch!(args.tenant)
+      UserSession.selected_branch_id = 1
+      UserSession.selected_fy_code = 7374
+      UserSession.user = User.first
+
+      Voucher.all.each do |v|
+        begin
+          # skip
+          v.skip_cheque_assign = true
+          v.update_attribute('voucher_number', (v.voucher_number + 10000))
+
+        rescue
+          puts "error for voucher: #{v.fy_code}-#{v.voucher_number}"
+        end
+      end
+    end
+  end
+
+  # this was required when there was data present in the db
+  # might not be needed when doing a clean setup
+  task :fix_bills, [:tenant] => 'mandala:validate_tenant' do |task, args|
+    Bill.all.each do |b|
+      begin
+        b.update_attribute('bill_number', b.bill_number + 10000)
+      rescue
+        puts "error for bill: #{b.bill_number}"
+      end
+    end
+    puts "done"
   end
 end
