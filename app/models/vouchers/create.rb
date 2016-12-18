@@ -297,7 +297,13 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is payment if issued from the company
             #   cheque is receipt type if issued from the client
             cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
-            cheque_entry.cheque_date = DateTime.now
+
+            # only for payment the date will be todays date.
+            if voucher.is_payment?
+              cheque_entry.cheque_date = DateTime.now
+            else
+              cheque_entry.cheque_date = voucher.date
+            end
 
             # if the cheque received from client is already entered to system reject it
             if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
