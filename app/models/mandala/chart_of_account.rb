@@ -74,6 +74,9 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
     Mandala::CustomerRegistration.where(ac_code: self.ac_code).first
   end
 
+  def account_balances
+    Mandala::AccountBalance.where(ac_code: self.ac_code)
+  end
   # def show_tree
   #   line = ""
   #   self.child_groups.each do |x|

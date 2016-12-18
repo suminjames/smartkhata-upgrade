@@ -15,7 +15,6 @@
           %th.text-center Voucher
           %th.text-center Bill
           %th.text-center Cheque
-
           %th.text-center Pay / Receipt No
           %th.text-center{colspan: 2} Transaction Amount
           %th.text-center Balance
@@ -29,28 +28,27 @@
           %col.col-7
           %col.col-8
           %col.col-9
-            - @particulars.each do |particular|
-              %tr
-                %td= ad_to_bs(particular.transaction_date)
-                %td= particular.get_description
-                %td= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true
-                %td= particular.bills.count
-                %td
-                  - if particular.cheque_entries.count > 0
-                    - particular.cheque_entries.each do |cheque|
-                      =link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true
-                      %br
-                %td
-                  - if particular.settlements.size > 0
-                    - particular.settlements.each do |settlement|
-                      =link_to "#{settlement.id }", settlement_path(settlement.id), remote: true
-                      %br
-                %td.text-right
-                  - if particular.dr?
-                    %span.debit-amount= "#{number_to_currency(particular.amount)} Dr"
+        - @particulars.each do |particular|
+          %tr
+            %td= ad_to_bs(particular.transaction_date)
+            %td= particular.get_description
+            %td= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true
+            %td= particular.bills.count
+            %td
+              - if particular.cheque_entries.count > 0
+                - particular.cheque_entries.each do |cheque|
+                  =link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true
+                  %br
+            %td
+              - if particular.settlements.size > 0
+                - particular.settlements.each do |settlement|
+                  =link_to "#{settlement.id }", settlement_path(settlement.id), remote: true
+                  %br
+            %td.text-right
+              - if particular.dr?
+                %span.debit-amount= "#{number_to_currency(particular.amount)} Dr"
 
-                %td.text-right
-                  - if particular.cr?
-                    %span.credit-amount= "#{number_to_currency(particular.amount)} Cr"
-
-                %td.text-right= particular.ledger_id
+            %td.text-right
+              - if particular.cr?
+                %span.credit-amount= "#{number_to_currency(particular.amount)} Cr"
+            %td.text-right= particular.ledger_id

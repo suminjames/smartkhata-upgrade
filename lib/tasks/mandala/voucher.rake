@@ -1,6 +1,6 @@
 namespace :mandala do
   desc "synch_vouchers"
-  task :sync_vouchers,[:tenant] => 'mandala:validate_tenant' do |task,args|
+  task :sync_vouchers,[:tenant, :fiscal_year] => 'mandala:validate_tenant' do |task,args|
 
     def time_diff_more?(start_time, end_time, second)
       seconds_diff = (start_time - end_time).to_i.abs
@@ -15,17 +15,24 @@ namespace :mandala do
     vouchers_taking_time = []
     count = 0
     error_count = 0
+
+    # first build vouchers and add the conditional
+    vouchers = Mandala::Voucher.where(voucher_id: nil)
+    fiscal_year = args.fiscal_year
+    if fiscal_year.present?
+      vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
+    end
+
+
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
-    ActiveRecord::Base.transaction do
-      Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
-      # Mandala::Voucher.where(voucher_id: nil).find_each do |voucher|
-        # begin
-        # puts voucher.voucher_no
 
+      # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
+      vouchers.find_each do |voucher|
+        begin
+          ActiveRecord::Base.transaction do
+          start_time = Time.now
 
-        start_time = Time.now
-
-        new_voucher = voucher.new_smartkhata_voucher
+          new_voucher = voucher.new_smartkhata_voucher
 
           if new_voucher.has_incorrect_fy_code?
             pending_voucher << voucher
@@ -81,12 +88,9 @@ namespace :mandala do
                     end
 
                     if cheque_entry.present?
-                      begin
-                        cheque_entry.save!
-                      rescue
-                        p 'rescued'
-                      end
-
+                      cheque_entry.skip_cheque_number_validation = true
+                      cheque_entry.save!
+  
                       detail.cheque_entry_id = cheque_entry.id
                       detail.save!
                       cheque_entries << cheque_entry unless multi_detailed_cheque
@@ -142,8 +146,15 @@ namespace :mandala do
             end_time = Time.now
             vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
           end
-      end
+          end
+        rescue Exception => e
+          puts e.message
+          puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+        end
     end
+
+
+
     puts "vouchers synched"
     puts "#{error_count} vouchers have error"
     vouchers_taking_time.each do |voucher|

@@ -1,0 +1,20 @@
+
+#. For setting up the production environment,
+    - (largely) follow the instructions in the link below.
+       - https://www.sitepoint.com/deploy-your-rails-app-to-aws/
+       - Note: A few changes here and there is required.
+       - Caution: If stuck, talk to someone who has done it before.
+    - to get sidekiq (background worker) to run,
+        - first, install (and start) redis-server using the instructions in the link below.
+            - https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04#configure-redis
+        - second, execute sidekiq as a background job using the command below
+            - RAILS_ENV=production bundle exec sidekiq &
+        - test sidekiq is working
+            - can be done by visiting APP_URL/sidekiq
+    - change the existing history size of the bash (for user `deploy`) to be very big
+        - in /home/deploy/.bashrc, modify existing history configuration to
+            export HISTSIZE=100000
+            export HISTFILESIZE=$HISTSIZE
+
+
+

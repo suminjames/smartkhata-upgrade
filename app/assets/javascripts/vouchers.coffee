@@ -170,22 +170,25 @@ $(document).on 'click', '.add_fields', (event) ->
   regexp = new RegExp($(this).data('id'), 'g')
   $(this).before($(this).data('fields').replace(regexp, time))
 
-  #  bind combobox ajax to newly added particular row
-  id_of_new_particular_row = "voucher_particulars_attributes_" + time + "_ledger_id"
-  bind_ajax_to_new_particular_row(id_of_new_particular_row)
-  #  $(this).closest('.box-body').find('.remove-particular').css('visibility','visible')
-  event.preventDefault()
-#  $('select.combobox').select2({
-#    theme: "bootstrap",
-#    selectOnClose: true
-#  })
-#  $('.combobox-select.min-3').select2({
-#    theme: 'bootstrap',
-#    tags: true,
-#    allowClear: true,
-#    minimumInputLength: 3
-#  })
+  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
+  #  Addition of particular row is different in receipt voucher, where the Credit Particulars should only be financial ledgers. Check for type of particular adding, and act accordingly.
+  if new_particular_row_is_financial_ledger == true
+    id_of_new_particular_row_ledger_select = "voucher-financial-ledger-combobox"
+    id_of_new_particular_row_additional_bank_select = "voucher_particulars_attributes_" + time + "_additional_bank_id"
+    $('select.combobox#' + id_of_new_particular_row_ledger_select).select2({
+      theme: "bootstrap",
+      selectOnClose: true
+    })
+    $('select.combobox#' + id_of_new_particular_row_additional_bank_select).select2({
+      theme: "bootstrap",
+      selectOnClose: true
+    })
+  else
+    id_of_new_particular_row_ledger_select = "voucher_particulars_attributes_" + time + "_ledger_id"
+    # bind combobox ajax to newly added generic particular row
+    bind_ajax_to_new_particular_row(id_of_new_particular_row_ledger_select)
 
+  event.preventDefault()
   fix_autocomplete()
   manage_cheque_all_select()
 

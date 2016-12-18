@@ -87,9 +87,12 @@ class Mandala::CustomerRegistration < ActiveRecord::Base
   def find_or_new_smartkhata_client_account_from_hash(hash)
     # to make sure the json and the csv files are compatible
     hash = hash.transform_keys { |key| key.to_s.upcase }
+    client_account = nil
     # look for the clients with the nepse code and update the account code for the same
     # the following case is valid when we have clients present in the database
-    client_account = ::ClientAccount.find_by(nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
+    if hash['NEPSE_CUSTOMER_CODE'].present?
+      client_account = ::ClientAccount.find_by(nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
+    end
 
     if client_account
       # skip if client_account has same ac code

@@ -38,6 +38,16 @@ module CustomDateModule
     return @cal.ad_to_bs_hash(ad_date.year, ad_date.month, ad_date.day)
   end
 
+  #
+  # Checks to see if the passed in ad_date is convertible to bs_date.
+  # NepaliCalendarPlus only converts ad_date > '1944/01/01'
+  #
+  def is_convertible_ad_date? (ad_date)
+    @cal = NepaliCalendarPlus::CalendarPlus.new
+    ref_day_eng = Date.parse(@cal.ref_date['ad_to_bs']['ad'])
+    return @cal.ad_date_in_range?(ad_date, ref_day_eng)
+  end
+
   # Checks whether or not a date_bs is valid
   def is_valid_bs_date? (bs_date)
     begin

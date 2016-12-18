@@ -174,7 +174,7 @@ class ChequeEntriesController < ApplicationController
     if cheque_activity.error_message.present?
       redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
     end
-    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque Represent recorded succesfully'} and return
   end
 

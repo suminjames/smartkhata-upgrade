@@ -109,6 +109,8 @@ class ClientAccount < ActiveRecord::Base
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
 
+  before_save :format_nepse_code
+
   scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   # for future reference only .. delete if you feel you know things well enough
@@ -160,6 +162,10 @@ class ClientAccount < ActiveRecord::Base
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
+
+  def format_nepse_code
+    self.nepse_code = self.nepse_code.try(:strip).try(:upcase)
+  end
 
   def skip_or_nepse_code_present?
     nepse_code? || skip_validation_for_system

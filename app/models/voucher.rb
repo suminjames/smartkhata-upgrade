@@ -48,6 +48,7 @@ class Voucher < ActiveRecord::Base
   has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
   has_many :settlements, dependent: :destroy
+  has_many :payment_receipts, :through => :particulars, source: :settlements
   has_one :nepse_chalan
   has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
   has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
@@ -57,6 +58,7 @@ class Voucher < ActiveRecord::Base
   has_many :bills, through: :bill_voucher_associations
   belongs_to :reviewer, class_name: 'User'
 
+  has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################
   # Validations
   # validate :date_valid_for_fy_code?
@@ -217,4 +219,6 @@ class Voucher < ActiveRecord::Base
 
     end
   end
+
+#   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
 end

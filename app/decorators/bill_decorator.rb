@@ -157,6 +157,12 @@ class BillDecorator < ApplicationDecorator
     object.sales? ? h.arabic_number(object.net_amount) : 0.00
   end
 
+  def formatted_net_closeout_amount
+    object.sales? ? h.arabic_number(object.closeout_charge) : 0.00
+  end
+
+
+
   def formatted_bill_age
     age_in_days = object.age
     case age_in_days

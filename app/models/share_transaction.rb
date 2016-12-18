@@ -88,7 +88,7 @@ class ShareTransaction < ActiveRecord::Base
       ]
   )
 
-  enum transaction_type: [:buying, :selling]
+  enum transaction_type: [:buying, :selling, :unknown]
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
   # before_update :calculate_cgt
   validates :base_price, numericality: true

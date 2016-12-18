@@ -25,7 +25,8 @@ class OrderDetail < ActiveRecord::Base
   include Auditable
   belongs_to :isin_info
 
-  enum state: [:cancelled, :executed, :queued]
+  # As enum type 'new' is reserved for new object creation, used 'neww' instead.
+  enum state: [:cancelled, :executed, :queued, :neww]
 
   enum typee: [:buy, :sell]
 

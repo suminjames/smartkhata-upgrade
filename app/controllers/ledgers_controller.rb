@@ -2,7 +2,7 @@ class LedgersController < ApplicationController
   before_action :set_ledger, only: [:show, :edit, :update, :destroy]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
-  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance]
+  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all]
   before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
 
   # GET /ledgers
@@ -77,9 +77,10 @@ class LedgersController < ApplicationController
   def show_all
     @date_bs = params[:date_bs]
     if params[:date_bs].present?
-      @particulars = Particular.where(date_bs: @date_bs).order(ledger_id: :desc)
+      @particulars = Particular.includes(:voucher).where(date_bs: @date_bs).where('vouchers.voucher_type IN (1,2,4,5,6,7,8)').where('vouchers.created_at <= ?','2016-11-01').references(:vouchers).order(ledger_id: :desc)
     end
   end
+
   # GET /ledgers/new
   def new
     @ledger = Ledger.new

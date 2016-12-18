@@ -1,3 +1,6 @@
+# This file might not be needed anymore
+# no more hacks
+
 # hack to fix data in smartkhata in reference to mandala
 namespace :smartkhata_mandala_hack do
 
