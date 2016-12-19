@@ -102,7 +102,7 @@
       <%= f.collection_select(:additional_bank_id,
                               Bank.all,
                               :id,
-                              :name,
+                              :bank_code_and_name,
                               {include_blank: true},
                               {
                                   :class => 'form-control combobox ',
