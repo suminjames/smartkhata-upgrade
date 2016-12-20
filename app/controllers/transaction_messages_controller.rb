@@ -66,7 +66,7 @@ class TransactionMessagesController < ApplicationController
     transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
       if transaction_message.can_email?
-        UserMailer.delay(:retry => false).transaction_message_email(transaction_message.id, current_tenant.id)
+        SmartkhataMailer.delay(:retry => false).transaction_message_email(transaction_message.id, current_tenant.id)
       end
     end
     respond_to do |format|
