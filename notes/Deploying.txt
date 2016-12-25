@@ -8,7 +8,7 @@
         - first, install (and start) redis-server using the instructions in the link below.
             - https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04#configure-redis
         - second, execute sidekiq as a background job using the command below
-            - RAILS_ENV=production bundle exec sidekiq &
+            - bundle exec sidekiq -d -L log/sidekiq.log -C config/sidekiq.yml -e production
         - test sidekiq is working
             - can be done by visiting APP_URL/sidekiq
     - change the existing history size of the bash (for user `deploy`) to be very big
