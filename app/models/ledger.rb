@@ -364,6 +364,25 @@ class Ledger < ActiveRecord::Base
     end
   end
 
+  # TODO(sarojk): Incorporate more types as added.
+  def name_and_identifier
+    identifier = ""
+    if client_account_id.present?
+      if client_code.present?
+        identifier = "(#{client_code})"
+      end
+    elsif bank_account_id.present?
+      identifier = '(**Bank Account**)'
+    elsif employee_account_id.present?
+      identifier = '(**Employee**)'
+    elsif vendor_account_id.present?
+      identifier = "(**Vendor**)"
+    else
+      # Internal Ledger
+      identifier = "(**Internal**)"
+    end
+    "#{name} #{identifier}"
+  end
 
   def delete_associated_records
     LedgerBalance.unscoped.where(ledger_id: self.id).delete_all
