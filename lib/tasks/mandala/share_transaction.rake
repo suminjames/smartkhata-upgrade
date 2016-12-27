@@ -47,23 +47,23 @@ namespace :mandala do
         # Associated bill
         associated_bill = Mandala::Bill.find_by_bill_no(daily_transaction.seller_bill_no)
         if associated_bill.present?
-          puts "Skipping creation of share transaction! Bill #{associated_bill.try(:bill_no)} already exists for transaction number #{daily_transaction.transaction_no}. That is, it had already been migrated."
+          puts "Skipping creation of sales share transaction! Also, bill #{associated_bill.try(:bill_no)} already exists for transaction number #{daily_transaction.transaction_no}."
           skipped_share_transaction_counter += 1
         else
-          if ShareTransaction.find_by_contract_no(daily_transaction.transaction_no).present?
-            puts "ShareTransaction with transaction no #{daily_transaction.transaction_no} already exists."
+          if ShareTransaction.selling.find_by_contract_no(daily_transaction.transaction_no).present?
+            puts "Sales share transaction with transaction no #{daily_transaction.transaction_no} already exists."
             skipped_share_transaction_counter += 1
           else
             sk_share_transaction = daily_transaction.new_smartkhata_share_transaction_with_out_bill
-            puts "ShareTransaction with transaction no #{daily_transaction.transaction_no} created."
+            puts "Sales share transaction with transaction no #{daily_transaction.transaction_no} created."
             sk_share_transaction.save!
             new_share_transaction_counter += 1
           end
         end
       end
     end
-    puts "Total number of new smartkhata share transactions created = #{new_share_transaction_counter}."
-    puts "Total number of skipped share transactions = #{skipped_share_transaction_counter}."
+    puts "Total number of new smartkhata sales share transactions created = #{new_share_transaction_counter}."
+    puts "Total number of skipped mandala sales share transactions = #{skipped_share_transaction_counter}."
     puts
 
     Apartment::Tenant.switch!('public')

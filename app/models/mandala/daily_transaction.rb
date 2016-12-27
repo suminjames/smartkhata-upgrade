@@ -18,7 +18,12 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   end
 
   def dp_fee
-    daily_transactions = Mandala::DailyTransaction.where(:transaction_date => transaction_date, :transaction_type => transaction_type, :company_code => company_code)
+
+    if self.transaction_type == 'P'
+      daily_transactions = Mandala::DailyTransaction.where(:customer_code => customer_code_from_data, :transaction_date => transaction_date, :transaction_type => transaction_type, :company_code => company_code)
+    else
+      daily_transactions = Mandala::DailyTransaction.where(:seller_customer_code => customer_code_from_data, :transaction_date => transaction_date, :transaction_type => transaction_type, :company_code => company_code)
+    end
     if daily_transactions.size == 0
       raise NotImplementedError
     else
