@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: chart_of_account
+#
+#  id              :integer          not null, primary key
+#  ac_code         :string
+#  sub_code        :string
+#  ac_name         :string
+#  account_type    :string
+#  currency_code   :string
+#  control_account :string
+#  sub_ledger      :string
+#  reporting_group :string
+#  mgr_ac_code     :string
+#  mgr_sub_code    :string
+#  fiscal_year     :string
+#  ledger_id       :integer
+#  group_id        :integer
+#
+
 class Mandala::ChartOfAccount < ActiveRecord::Base
   self.table_name = "chart_of_account"
   belongs_to :ledger, class_name: '::Ledger'

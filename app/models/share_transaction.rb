@@ -76,7 +76,15 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_isin_id,
-          :by_transaction_cancel_status
+          :by_transaction_cancel_status,
+          :above_threshold,
+          # for close outs
+          :sorted_by_closeouts,
+          :by_date_closeouts,
+          :by_date_from_closeouts,
+          :by_date_to_closeouts,
+          :by_client_id_closeouts,
+          :by_isin_id_closeouts,
       ]
   )
 
@@ -111,6 +119,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
+  # does not show transactions with full closeout
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -118,11 +127,42 @@ class ShareTransaction < ActiveRecord::Base
         not_cancelled.order("share_transactions.id #{ direction }")
       when /^date/
         not_cancelled.order("share_transactions.date #{ direction }")
+      when /^close_out/
+        order("share_transactions.date asc")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
 
+
+  # for closeouts
+  scope :by_date_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+  }
+  scope :by_date_from_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where('date>= ?', date_ad.beginning_of_day)
+  }
+  scope :by_date_to_closeouts, lambda { |date_bs|
+    date_ad = bs_to_ad(date_bs)
+    with_closeout.where('date<= ?', date_ad.end_of_day)
+  }
+  scope :by_client_id_closeouts, -> (id) { with_closeout.where(client_account_id: id) }
+  scope :by_isin_id_closeouts, -> (id) { with_closeout.where(isin_info_id: id) }
+
+
+  scope :sorted_by_closeouts, lambda { |sort_option|
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    case sort_option.to_s
+      when /^id/
+        with_closeout.order("share_transactions.id #{ direction }")
+      when /^date/
+        with_closeout.order("share_transactions.date #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    end
+  }
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
@@ -133,8 +173,9 @@ class ShareTransaction < ActiveRecord::Base
 
   scope :cancelled, -> { where.not(deleted_at: nil) }
   scope :without_chalan, -> { where(deleted_at: nil).where.not(quantity: 0).where(nepse_chalan_id: nil) }
-
-  scope :above_threshold, ->(date) { not_cancelled.find_by_date(date).where("net_amount >= ?", 1000000) }
+  # deleted transactions fall under deal cancel
+  scope :with_closeout, -> { where(deleted_at: nil).where.not(closeout_amount: 0.0)}
+  scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
 
   def do_as_per_params (params)
     # TODO
@@ -150,11 +191,10 @@ class ShareTransaction < ActiveRecord::Base
     share_transactions = filterrific.find
     total_in_sum = 0
     total_out_sum = 0
-    balance_sum = 0
-    share_transactions.each_with_index do |st, index|
+    share_transactions.each do |st|
       if st.buying?
         total_in_sum += st.quantity
-      else
+      elsif st.selling?
         total_out_sum += st.quantity
       end
     end
@@ -164,6 +204,50 @@ class ShareTransaction < ActiveRecord::Base
         :total_out_sum => total_out_sum,
         :balance_sum => balance_sum
     }
+  end
+
+  # TODO(sarojk): Sanitize variables inside the raw sql query.
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs)
+    where_conditions =  []
+    if isin_id.present?
+      where_conditions << "isin_info_id = #{isin_id}"
+    end
+    if date_bs.present?
+      date_ad = bs_to_ad(date_bs)
+      where_conditions << "date = '#{date_ad}'"
+    end
+    if date_from_bs.present? && date_to_bs.present?
+      date_from_ad = bs_to_ad(date_from_bs)
+      date_to_ad = bs_to_ad(date_to_bs)
+      where_conditions << "(date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    end
+
+    if where_conditions.present?
+      where_condition_str = "WHERE #{where_conditions.join(" AND ")}"
+    else
+      where_condition_str = ''
+    end
+
+    query = "
+      SELECT
+        isin_info_id,
+        SUM( CASE WHEN buyer = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_in_sum,
+        SUM( CASE WHEN seller = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_out_sum
+      FROM
+        share_transactions
+      #{where_condition_str}
+      GROUP BY
+        isin_info_id
+      ORDER BY
+        isin_info_id
+      "
+    pg_result = ActiveRecord::Base.connection.execute(query)
+    result_arr = []
+    pg_result.each do |rec|
+      rec["quantity_balance"] = rec["quantity_in_sum"].to_i - rec["quantity_out_sum"].to_i
+      result_arr << rec
+    end
+    result_arr
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it
@@ -198,4 +282,9 @@ class ShareTransaction < ActiveRecord::Base
   def self.options_for_isin_select
     IsinInfo.all.order(:isin)
   end
+
+  def closeout_settled?
+    closeout_settled
+  end
+
 end

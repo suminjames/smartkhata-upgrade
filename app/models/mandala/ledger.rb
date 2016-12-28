@@ -1,3 +1,37 @@
+# == Schema Information
+#
+# Table name: ledger
+#
+#  id                         :integer          not null, primary key
+#  transaction_id             :string
+#  ac_code                    :string
+#  sub_code                   :string
+#  voucher_code               :string
+#  voucher_no                 :string
+#  serial_no                  :string
+#  particulars                :string
+#  amount                     :string
+#  nrs_amount                 :string
+#  transaction_type           :string
+#  transaction_date           :string
+#  effective_transaction_date :string
+#  bs_date                    :string
+#  book_code                  :string
+#  internal_no                :string
+#  currency_code              :string
+#  conversion_rate            :string
+#  cost_revenue_code          :string
+#  record_deleted             :string
+#  cheque_no                  :string
+#  invoice_no                 :string
+#  vou_period                 :string
+#  against_ac_code            :string
+#  against_sub_code           :string
+#  fiscal_year                :string
+#  bill_no                    :string
+#  particular_id              :integer
+#
+
 class Mandala::Ledger < ActiveRecord::Base
   self.table_name = "ledger"
   belongs_to :particular

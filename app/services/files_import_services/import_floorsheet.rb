@@ -130,10 +130,18 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     import_error("The amount dont match up") and return if (@total_amount_file - @total_amount).abs > 0.1
 
+    begin
+
+      commission_info = get_commission_info_with_detail(@date)
+    # rescue
+    #   import_error("Commission Rates not found for the required date #{@date.to_date}") and return
+    end
+
+
     # critical functionality happens here
     ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
-        @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
+        @processed_data << process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
       # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
@@ -158,7 +166,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   # 	Bank Deposit,
   # ]
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-  def process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date)
+  def process_records(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
     contract_no = arr[0].to_i
     company_symbol = arr[1]
     buyer_broking_firm_code = arr[2]
@@ -231,14 +239,15 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # bank_deposit: deposit to nepse
     cgt = 0
     amount = share_net_amount
-    commission = get_commission(amount, @date)
-    commission_rate = get_commission_rate(amount, @date)
+
+    commission = get_commission(amount, commission_info)
+    commission_rate = get_commission_rate(amount, commission_info)
 
     # redundant for now
     # compliance_fee = compliance_fee(commission, @date)
     # commission for broker for the transaction
-    broker_purchase_commission = broker_commission(commission, @date)
-    nepse = nepse_commission(commission, @date)
+    broker_purchase_commission = broker_commission(commission, commission_info)
+    nepse = nepse_commission(commission, commission_info)
 
     tds = broker_purchase_commission * 0.15
 
@@ -251,7 +260,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
     @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
-
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_by(isin: company_symbol)
 

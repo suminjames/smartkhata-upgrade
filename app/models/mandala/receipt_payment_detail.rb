@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: receipt_payment_detail
+#
+#  id              :integer          not null, primary key
+#  slip_no         :string
+#  slip_type       :string
+#  fiscal_year     :string
+#  cheque_no       :string
+#  bank_code       :string
+#  amount          :string
+#  remarks         :string
+#  customer_code   :string
+#  bill_no         :string
+#  cheque_entry_id :integer
+#
+
 class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   self.table_name = "receipt_payment_detail"
   belongs_to :cheque_entry

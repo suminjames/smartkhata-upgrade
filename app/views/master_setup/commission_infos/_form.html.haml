@@ -1,0 +1,35 @@
+= simple_form_for(@master_setup_commission_info) do |f|
+  = f.error_notification
+  .has-error
+    = f.error :base
+  .form-inputs
+    %div.row
+      %div.col-sm-3
+        = f.input :start_date
+      %div.col-sm-3
+        = f.input :end_date
+  %br
+  .form-inputs
+    .box.box-primary.z-light-bg
+      .box-header
+        %h3.box-title Commission Details
+
+      .box-body.dynamic-details
+        .row
+          .col-xs-3
+            %h4 Amount Greater Than
+          .col-xs-3
+            %h4 Amount Up to
+          .col-xs-2
+            %h4 Rate
+          .col-xs-2
+            %h4 Amount
+
+        = f.simple_fields_for :commission_details do |c|
+          = render partial: 'commission_detail_fields', :locals => { :f => c }
+        = link_to_add_fields "Add Commission Details",f, :commission_details
+
+
+
+  .form-actions
+    = f.button :submit

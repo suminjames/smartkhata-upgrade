@@ -21,6 +21,9 @@ class DashboardController < ApplicationController
     # @custom_url_list = [
     #     {url: "asf", name: "create ledger"}
     # ]
+
+    @identifier = get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"])
+
   end
 
   def client_index
