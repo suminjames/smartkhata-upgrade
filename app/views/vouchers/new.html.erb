@@ -21,4 +21,9 @@
 
 %>
 <br>
-<%= link_to 'Back', vouchers_path %>
+<!--
+TODO(sarojk): Find a better way for 'Back' linking. The following is not the best solution.
+  -Linking to request.referrer is more intuitive option rather than pointing to vouchers_path(which lists pending vouchers)
+  -However, is unintuitive at times. . For instance: while vouchers/new page is triggered by clicking one of the many new vouchers(jvr, receipt, payment) links, the back button takes to vouchers_path(which lists pending voucher). Also, if page is refreshed for a vouchers#new page which was triggered from links (like clear ledger) other than new voucher links, the request.referrer is absent.
+-->
+<%= link_to 'Back', (request.referrer || vouchers_path) %>
