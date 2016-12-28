@@ -144,6 +144,16 @@ class BillDecorator < ApplicationDecorator
     str
   end
 
+  def formatted_client_all_phones
+    arr = []
+    formatted_client_phones.each do |key, value|
+      arr << value
+    end
+    str = arr.select{|e| e != 'N/A'}.join ", "
+    str = 'N/A' if str.empty?
+    str
+  end
+
 
   def formatted_net_bill_amount
     h.arabic_number(object.net_amount)

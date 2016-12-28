@@ -1,6 +1,5 @@
 %td{colspan: 7}
-  = simple_form_for object, url: object.new_record? ? share_transactions_path : share_transaction_path(object),
-                     remote: true do |f|
+  = simple_form_for object, url: object.new_record? ? share_transactions_path : share_transaction_path(object), remote: true do |f|
     .row
       .col-xs-6
         %p= "Company:  #{object.isin_info.company}"

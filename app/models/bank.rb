@@ -24,4 +24,8 @@ class Bank < ActiveRecord::Base
 
   validates :name, uniqueness: true, presence: true, unless: :skip_name_validation
   validates :bank_code, uniqueness: true, presence: true
+
+  def bank_code_and_name
+    "#{self.bank_code} (#{self.name})"
+  end
 end
