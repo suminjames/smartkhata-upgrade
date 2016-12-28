@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+  before_filter :set_mailer_host
 
   # extend ActiveSupport::Concern
 
@@ -39,6 +40,12 @@ class ApplicationController < ActionController::Base
   end
 
   helper_method :current_tenant
+
+  def set_mailer_host
+    # subdomain = current_tenant ? "#{current_tenant.name}." : ""
+    # ActionMailer::Base.default_url_options[:host] = "#{subdomain}#{Rails.application.secrets.domain_name}"
+    ActionMailer::Base.default_url_options[:host] = request.host
+  end
 
   def fy_code_route_mismatch
     session[:return_to] = root_path

@@ -81,48 +81,54 @@ task :migrate_ddkc_sharekhata_clients_to_smartkhata, [:tenant] => :environment d
   #  account_balance
 
   # Insert client accounts from file into db
+  counter = 0
   ActiveRecord::Base.transaction do
     client_accounts_arr.each_with_index do |client_account, index|
       if client_account_boid_nepse_code_mappings[client_account["boid"]].present?
+        counter += 1
+        p counter
         puts client_account
-        ClientAccount.find_or_create_by!(boid: client_account["boid"]) do |new_client_account|
-          new_client_account.skip_validation_for_system = true
-          new_client_account.nepse_code = client_account_boid_nepse_code_mappings[client_account["boid"]]
-          new_client_account.name = client_account["name"]
-          new_client_account.address1 = client_account["address1"]
-          new_client_account.address1_perm = client_account["address1_perm"]
-          new_client_account.address2 = client_account["address2"]
-          new_client_account.address2_perm = client_account["address2_perm"]
-          new_client_account.address3 = client_account["address3"]
-          new_client_account.address3_perm = client_account["address3_perm"]
-          new_client_account.city = client_account["city"]
-          new_client_account.city_perm = client_account["city_perm"]
-          new_client_account.state = client_account["state"]
-          new_client_account.state_perm = client_account["state_perm"]
-          new_client_account.country = client_account["country"]
-          new_client_account.country_perm = client_account["country_perm"]
-          new_client_account.phone = client_account["phone"]
-          new_client_account.phone_perm = client_account["phone_perm"]
-          new_client_account.customer_product_no = client_account["customer_product_no"]
-          new_client_account.dp_id = client_account["dp_id"]
-          new_client_account.sex = client_account["sex"]
-          new_client_account.nationality = client_account["nationality"]
-          new_client_account.stmt_cycle_code = client_account["stmt_cycle_code"]
-          new_client_account.ac_suspension_fl = client_account["ac_suspension_fl"]
-          new_client_account.profession_code = client_account["profession_code"]
-          new_client_account.income_code = client_account["income_code"]
-          new_client_account.electronic_dividend = client_account["electronic_dividend"]
-          new_client_account.dividend_curr = client_account["dividend_curr"]
-          new_client_account.email = client_account["email"]
-          new_client_account.father_mother= client_account["father_husband"]
-          new_client_account.citizen_passport = client_account["citizen_passport"]
-          new_client_account.purpose_code_add = client_account["purpose_code_add"]
-          new_client_account.add_holder = client_account["add_holder"]
-          dob_str = client_account["dob"]
-          if dob_str.present? && is_convertible_ad_date?(Date.parse(dob_str))
-            new_client_account.dob = ad_to_bs_string(Date.parse(dob_str))
-          end
+        client_account_in_db = ClientAccount.find_by_nepse_code(client_account_boid_nepse_code_mappings[client_account["boid"]])
+        if client_account_in_db.blank?
+          client_account_in_db = ClientAccount.new
         end
+        client_account_in_db.skip_validation_for_system = true
+        client_account_in_db.nepse_code = client_account_boid_nepse_code_mappings[client_account["boid"]]
+        client_account_in_db.name = client_account["name"]
+        client_account_in_db.address1 = client_account["address1"]
+        client_account_in_db.address1_perm = client_account["address1_perm"]
+        client_account_in_db.address2 = client_account["address2"]
+        client_account_in_db.address2_perm = client_account["address2_perm"]
+        client_account_in_db.address3 = client_account["address3"]
+        client_account_in_db.address3_perm = client_account["address3_perm"]
+        client_account_in_db.city = client_account["city"]
+        client_account_in_db.city_perm = client_account["city_perm"]
+        client_account_in_db.state = client_account["state"]
+        client_account_in_db.state_perm = client_account["state_perm"]
+        client_account_in_db.country = client_account["country"]
+        client_account_in_db.country_perm = client_account["country_perm"]
+        client_account_in_db.phone = client_account["phone"]
+        client_account_in_db.phone_perm = client_account["phone_perm"]
+        client_account_in_db.customer_product_no = client_account["customer_product_no"]
+        client_account_in_db.dp_id = client_account["dp_id"]
+        client_account_in_db.sex = client_account["sex"]
+        client_account_in_db.nationality = client_account["nationality"]
+        client_account_in_db.stmt_cycle_code = client_account["stmt_cycle_code"]
+        client_account_in_db.ac_suspension_fl = client_account["ac_suspension_fl"]
+        client_account_in_db.profession_code = client_account["profession_code"]
+        client_account_in_db.income_code = client_account["income_code"]
+        client_account_in_db.electronic_dividend = client_account["electronic_dividend"]
+        client_account_in_db.dividend_curr = client_account["dividend_curr"]
+        client_account_in_db.email = client_account["email"]
+        client_account_in_db.father_mother= client_account["father_husband"]
+        client_account_in_db.citizen_passport = client_account["citizen_passport"]
+        client_account_in_db.purpose_code_add = client_account["purpose_code_add"]
+        client_account_in_db.add_holder = client_account["add_holder"]
+        dob_str = client_account["dob"]
+        if dob_str.present? && is_convertible_ad_date?(Date.parse(dob_str))
+          client_account_in_db.dob = ad_to_bs_string(Date.parse(dob_str))
+        end
+        client_account_in_db.save!
       end
     end
   end
