@@ -12,6 +12,7 @@
         %th.col-xs-1= 'Bill No.'
         %th.col-xs-1= 'Date(BS)'
         %th.col-xs-2= 'Client'
+        %th.col-sm-2= 'Phone<br>Numbers'.html_safe
         %th.col-xs-1= 'Status'
         %th.col-xs-2= 'Companies<br>Transacted'.html_safe
         -#%th.col-xs-1= 'Net<br>Bill<br>Amount'.html_safe
@@ -26,6 +27,7 @@
               %td= bill.formatted_bill_number
               %td= bill.formatted_bill_dates["bs"][0..-4]
               %td= bill.formatted_client_name
+              %td= bill.formatted_client_all_phones
               %td= bill.formatted_status
               %td= bill.formatted_companies_list
               %td.text-right= bill.formatted_net_bill_amount
