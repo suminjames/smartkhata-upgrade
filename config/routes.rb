@@ -1,4 +1,23 @@
 Rails.application.routes.draw do
+  namespace :master_setup do
+    resources :commission_details
+  end
+  namespace :master_setup do
+    resources :commission_infos
+  end
+  resources :isin_infos
+  namespace :master_setup do
+    resources :commission_rates
+  end
+  namespace :master_setup do
+    resources :commission_rates
+  end
+  namespace :master_setup do
+    resources :commission_rates
+    resources :broker_profiles
+  end
+
+  resources :broker_profiles
   resources :user_access_roles
   resources :bank_payment_letters do
     collection do
@@ -60,6 +79,11 @@ Rails.application.routes.draw do
       get 'deal_cancel'
       get 'pending_deal_cancel'
       get 'capital_gain_report'
+      get 'threshold_transactions'
+      get 'contract_note_details'
+      get 'securities_flow'
+      get 'closeouts'
+      get 'make_closeouts_processed'
     end
   end
   resources :bills do
@@ -150,7 +174,6 @@ Rails.application.routes.draw do
     resources :balancesheet
     resources :profitandloss
     resources :trial_balance
-    resources :threshold_transactions, only: [:index]
   end
 
   get "/test" => "test#index"

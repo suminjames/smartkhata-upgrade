@@ -1,3 +1,68 @@
+# == Schema Information
+#
+# Table name: customer_registration
+#
+#  id                            :integer          not null, primary key
+#  customer_code                 :string
+#  customer_name                 :string
+#  fathers_name                  :string
+#  g_father_name                 :string
+#  citizenship_no                :string
+#  tel_no                        :string
+#  fax                           :string
+#  email                         :string
+#  contact_person                :string
+#  customer_address              :string
+#  mgr_ac_code                   :string
+#  ac_code                       :string
+#  group_tag                     :string
+#  group_code                    :string
+#  dob                           :string
+#  dob_bs                        :string
+#  birth_reg_no                  :string
+#  birth_reg_issued_date         :string
+#  ctznp_issued_date             :string
+#  ctznp_issued_date_bs          :string
+#  ctznp_issued_district_code    :string
+#  pan_no                        :string
+#  husband_wife_name             :string
+#  occupation                    :string
+#  organization_name             :string
+#  organization_address          :string
+#  idcard_no                     :string
+#  mobile_no                     :string
+#  skype_id                      :string
+#  temp_district_code            :string
+#  temp_vdc_mp_smp               :string
+#  temp_vdc_mp_smp_name          :string
+#  temp_tole                     :string
+#  temp_ward_no                  :string
+#  temp_block_no                 :string
+#  per_district_code             :string
+#  per_vdc_mp_smp                :string
+#  per_vdc_mp_smp_name           :string
+#  per_tole                      :string
+#  per_ward_no                   :string
+#  per_block_no                  :string
+#  per_tel_no                    :string
+#  per_fax_no                    :string
+#  financial_institution_name    :string
+#  financial_institution_address :string
+#  account_no                    :string
+#  company_reg_no                :string
+#  company_reg_date              :string
+#  company_reg_date_bs           :string
+#  business_sector               :string
+#  referred_client_code          :string
+#  entered_by                    :string
+#  entered_bs_date               :string
+#  nepse_customer_code           :string
+#  demat_ac_no                   :string
+#  company_code                  :string
+#  mutual_fund                   :string
+#  client_account_id             :integer
+#
+
 class Mandala::CustomerRegistration < ActiveRecord::Base
   self.table_name = "customer_registration"
   belongs_to :client_account

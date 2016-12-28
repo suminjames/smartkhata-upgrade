@@ -6,11 +6,7 @@
 #  association_type :integer
 #  cheque_entry_id  :integer
 #  particular_id    :integer
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
 #
-
-
 
 class ChequeEntryParticularAssociation < ActiveRecord::Base
   belongs_to :cheque_entry

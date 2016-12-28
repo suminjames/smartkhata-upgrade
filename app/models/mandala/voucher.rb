@@ -1,3 +1,33 @@
+# == Schema Information
+#
+# Table name: voucher
+#
+#  id                    :integer          not null, primary key
+#  voucher_no            :string
+#  voucher_code          :string
+#  serial_no             :string
+#  voucher_date          :string
+#  bs_date               :string
+#  dr_ac_code            :string
+#  dr_sub_code           :string
+#  cr_ac_code            :string
+#  cr_sub_code           :string
+#  narration             :string
+#  paid_to_received_from :string
+#  cheque_no             :string
+#  prepared_by           :string
+#  checked_by            :string
+#  approved_by           :string
+#  authorized_by         :string
+#  transaction_no        :string
+#  fiscal_year           :string
+#  bill_no               :string
+#  posted_by             :string
+#  voucher_id            :integer
+#  migration_completed   :boolean          default(FALSE)
+#  voucher_date_parsed   :date
+#
+
 class Mandala::Voucher < ActiveRecord::Base
 
   include FiscalYearModule

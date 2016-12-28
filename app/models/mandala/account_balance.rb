@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: account_balance
+#
+#  id                 :integer          not null, primary key
+#  ac_code            :string
+#  sub_code           :string
+#  balance_amount     :string
+#  balance_date       :string
+#  fiscal_year        :string
+#  balance_type       :string
+#  nrs_balance_amount :string
+#  closed_by          :string
+#  closed_date        :string
+#
+
 class Mandala::AccountBalance < ActiveRecord::Base
   self.table_name = "account_balance"
   include FiscalYearModule

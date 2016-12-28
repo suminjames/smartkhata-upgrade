@@ -1,3 +1,40 @@
+# == Schema Information
+#
+# Table name: bill
+#
+#  id                    :integer          not null, primary key
+#  bill_no               :string
+#  bill_date             :string
+#  bill_type             :string
+#  clearance_date        :string
+#  customer_code         :string
+#  bill_bs_date          :string
+#  clearance_bs_date     :string
+#  vendor_id             :string
+#  bill_status           :string
+#  voucher_no            :string
+#  voucher_code          :string
+#  bill_transaction_type :string
+#  chalan_no             :string
+#  chalan_form_no        :string
+#  group_code            :string
+#  transaction_date      :string
+#  cust_type             :string
+#  cr_customer_code      :string
+#  bill_reverse          :string
+#  mutual_tag            :string
+#  mutual_no             :string
+#  fiscal_year           :string
+#  transaction_fee       :string
+#  settlement_tag        :string
+#  net_rev_amt           :string
+#  net_pay_amt           :string
+#  total_demat_amount    :string
+#  total_nt_amount       :string
+#  bill_id               :integer
+#  bill_date_parsed      :date
+#
+
 class Mandala::Bill < ActiveRecord::Base
   include FiscalYearModule
 

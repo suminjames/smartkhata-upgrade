@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Company:
+  = @isin_info.company
+%p
+  %b Isin:
+  = @isin_info.isin
+%p
+  %b Sector:
+  = @isin_info.sector
+%p
+  %b Last price:
+  = @isin_info.last_price
+
+= link_to 'Edit', edit_isin_info_path(@isin_info)
+\|
+= link_to 'Back', isin_infos_path

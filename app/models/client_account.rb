@@ -312,6 +312,15 @@ class ClientAccount < ActiveRecord::Base
     client_arr
   end
 
+  def self.options_for_client_select_closeouts(filterrific_params)
+    client_arr = []
+    if filterrific_params.present? && filterrific_params[:by_client_id_closeouts].present?
+      client_id = filterrific_params[:by_client_id_closeouts]
+      client_arr = self.by_client_id(client_id)
+    end
+    client_arr
+  end
+
   def self.options_for_client_filter
     [
         ["without Mobile Number", "no_mobile_number"],

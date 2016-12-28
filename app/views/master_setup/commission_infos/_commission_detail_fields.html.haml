@@ -1,0 +1,14 @@
+.row.commission-detail
+  %div.col-sm-3
+    = f.input :start_amount, label: false
+  %div.col-sm-3
+    = f.input :limit_amount, label: false
+  %div.col-sm-2
+    = f.input :commission_rate, label: false
+  %div.col-sm-2
+    = f.input :commission_amount, label: false
+  %div.col-sm-2
+    = link_to '<i class="fa fa-times" aria-hidden="true"></i>'.html_safe,
+          '#',
+          class: 'removeThisDetail btn btn-danger btn-flat lighter',
+          data: { toggle: "tooltip", placement: "top",title: "Remove" }

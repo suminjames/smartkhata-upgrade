@@ -1,0 +1,57 @@
+-#This view is called by #index action.
+%div#filterrific_results
+
+
+  - if !(!securities_flows || securities_flows.empty?)
+    %div.bottom-buffer-sm
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+          Download
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'Excelsheet', @download_path_xlsx
+          %li
+            = link_to 'PDF', @download_path_pdf, :target => "_blank"
+
+    %div.row
+      %div.col-xs-12.text-center
+        - report_headings = report_headings_for_securities_flow(params, @is_securities_balance_view)
+        - report_headings.each do |heading|
+          %h4= heading
+
+
+    = render 'shared/pagination', collection_to_paginate: securities_flows
+
+    %div#securities_flows_list
+      %table.table.table-striped
+        %thead
+          %th.text-center= 'SN'
+          %th.text-center= 'Company'
+          - if !@is_securities_balance_view
+            %th.text-center= 'Quantity<br>In'.html_safe
+            %th.text-center= 'Quantity<br>Out'.html_safe
+          %th.text-center= 'Quantity<br>Balance'.html_safe
+        %tbody
+          -if securities_flows
+            -pagination_count = kaminari_serial_number(params[:page], securities_flows.limit_value)
+            -securities_flows.each_with_index do |securities_flow, index|
+              -#- isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific, securities_flow.isin_info_id)
+              %tr
+                -isin_info = IsinInfo.find(securities_flow["isin_info_id"])
+                %td.text-center= pagination_count + index
+                %td.text-center
+                  =isin_info.isin
+                  %br
+                  =isin_info.company
+                - if !@is_securities_balance_view
+                  %td.text-right= securities_flow["quantity_in_sum"]
+                  %td.text-right= securities_flow["quantity_out_sum"]
+                %td.text-right= securities_flow["quantity_balance"]
+
+  - if !securities_flows || securities_flows.empty?
+    %div.row.text-center.top-buffer-md
+      There are no matching securities flows.
+
+  = render 'shared/pagination', collection_to_paginate: securities_flows

@@ -1,3 +1,60 @@
+# == Schema Information
+#
+# Table name: daily_transaction
+#
+#  id                       :integer          not null, primary key
+#  transaction_no           :string
+#  job_no                   :string
+#  share_code               :string
+#  quantity                 :string
+#  rate                     :string
+#  customer_code            :string
+#  broker_no                :string
+#  broker_job_no            :string
+#  self_broker_no           :string
+#  transaction_date         :string
+#  settlement_date          :string
+#  transaction_type         :string
+#  base_price               :string
+#  transaction_bs_date      :string
+#  settlement_bs_date       :string
+#  company_code             :string
+#  seller_customer_code     :string
+#  buyer_bill_no            :string
+#  seller_bill_no           :string
+#  deposited_date           :string
+#  receipt_date             :string
+#  client_account_no        :string
+#  cash_account_no          :string
+#  remarks                  :string
+#  cancel_tag               :string
+#  chalan_no                :string
+#  buyer_order_no           :string
+#  seller_order_no          :string
+#  broker_transaction       :string
+#  other_broker_transaction :string
+#  fiscal_year              :string
+#  base_price_date          :string
+#  transaction_status       :string
+#  nepse_commission         :string
+#  sebo_commission          :string
+#  tds                      :string
+#  capital_gain             :string
+#  capital_gain_tax         :string
+#  adjusted_purchase_price  :string
+#  payout_tag               :string
+#  closeout_quantity        :string
+#  closeout_amount          :string
+#  closeout_tag             :string
+#  receivable_amount        :string
+#  settlement_id            :string
+#  voucher_no               :string
+#  voucher_code             :string
+#  closeout_voucher_tag     :string
+#  closeout_voucher_no      :string
+#  share_transaction_id     :integer
+#
+
 class Mandala::DailyTransaction < ActiveRecord::Base
   self.table_name = "daily_transaction"
 

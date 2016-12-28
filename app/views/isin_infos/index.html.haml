@@ -1,0 +1,29 @@
+=provide(:section_title, "Listing Companies")
+- if @isin_infos.present?
+  = render 'shared/pagination', collection_to_paginate: @isin_infos
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Company
+        %th Isin
+        %th Sector
+        %th Max
+        %th Last price
+        %th
+        %th
+
+    %tbody
+      - @isin_infos.each do |isin_info|
+        %tr
+          %td= isin_info.company
+          %td= isin_info.isin
+          %td= isin_info.sector
+          %td= isin_info.max
+          %td= isin_info.last_price
+          %td= link_to 'Show', isin_info
+          %td= link_to 'Edit', edit_isin_info_path(isin_info)
+- else
+  %p= "No Company found"
+
+%br
+= link_to 'New Company', new_isin_info_path

@@ -153,7 +153,7 @@ class ChequeEntriesController < ApplicationController
     if cheque_activity.error_message.present?
       redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
     end
-    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque void recorded succesfully'} and return
   end
   # GET /cheque_entries/bounce
@@ -286,7 +286,7 @@ class ChequeEntriesController < ApplicationController
 
     respond_to do |format|
       if !has_error
-        format.html { redirect_to cheque_entries_path, notice: 'Cheque entry was successfully created.' }
+        format.html { redirect_to cheque_entries_path('filterrific[by_bank_account_id]':@bank_account_id), notice: 'Cheque entry was successfully created.' }
         format.json { render :show, status: :created, location: @cheque_entry }
       else
         format.html { render :new }

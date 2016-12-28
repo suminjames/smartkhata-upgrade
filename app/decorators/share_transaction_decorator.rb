@@ -1,4 +1,4 @@
-class ShareTransactionDecorator < Draper::Decorator
+class ShareTransactionDecorator < ApplicationDecorator
   delegate_all
 
   def formatted_company_name
@@ -40,4 +40,7 @@ class ShareTransactionDecorator < Draper::Decorator
     commission_rate = commission_rate == "flat_25" ? "Flat NRs 25" : commission_rate.to_f.to_s + "%"
   end
 
+  def formatted_status_indicator_class
+    object.closeout_settled? ? "share_transaction" : "share_transaction indicator-bg-light-red"
+  end
 end
