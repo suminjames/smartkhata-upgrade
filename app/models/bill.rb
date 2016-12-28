@@ -22,6 +22,7 @@
 #  branch_id                  :integer
 #  sales_settlement_id        :integer
 #  settlement_approval_status :integer          default(0)
+#  closeout_charge            :decimal(15, 4)   default(0.0)
 #
 
 class Bill < ActiveRecord::Base

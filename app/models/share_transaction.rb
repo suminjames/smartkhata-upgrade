@@ -40,6 +40,8 @@
 #  isin_info_id              :integer
 #  transaction_message_id    :integer
 #  transaction_cancel_status :integer          default(0)
+#  settlement_date           :date
+#  closeout_settled          :boolean          default(FALSE)
 #
 
 class ShareTransaction < ActiveRecord::Base
