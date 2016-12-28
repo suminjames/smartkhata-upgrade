@@ -91,3 +91,4 @@ wiki/
 # Ignore byebug debugger history
 .byebug_history
 test_files/
+test.html

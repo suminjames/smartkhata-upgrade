@@ -20,8 +20,8 @@ class ActiveSupport::TestCase
 
   setup do
     new_user = User.find_or_create_by!(email: 'testuser@test.com') do |user|
-      user.password = 'test'
-      user.password_confirmation = 'test'
+      user.password = 'test123'
+      user.password_confirmation = 'test123'
       user.branch_id = 1
       user.confirm
     end
@@ -91,16 +91,20 @@ class ActiveSupport::TestCase
 
 
   # INTEGRATION HELPERS
-  def log_in(email=users(:user).email, password='password')
+  def log_in(email='testuser@test.com', password='test123')
     post_via_redirect new_user_session_path, 'user[email]' => email, 'user[password]' => password
   end
 
   def set_fy_code_and_branch(fy_code=7273, branch_id=1)
-    get general_settings_set_fy_path, {fy_code: 7273, branch_id: 1}
+    get general_settings_set_fy_path, {fy_code: fy_code, branch_id: 1}
   end
 
   def set_host(host_name='trishakti.lvh.me')
     host! host_name
+  end
+
+  def write_to_html(content)
+    File.open('test.html', 'w') {|f| f.write(content)}
   end
 end
 

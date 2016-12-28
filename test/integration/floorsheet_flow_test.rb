@@ -1,13 +1,15 @@
 require 'test_helper'
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
 
+# This is for fiscal year 2073/74
 class FloorsheetFlowTest < ActionDispatch::IntegrationTest
   include CustomDateModule
+  include Devise::Test::IntegrationHelpers
+
   def setup
     set_host
-    log_in
-    set_fy_code_and_branch
-
+    sign_in users(:user)
+    set_fy_code_and_branch(7374, 1)
     # Create groups: from seeds.rb
     Group.create!([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
@@ -61,18 +63,24 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "floorsheet flow" do
+
     initial_opening_balance_diff = @get_opening_balance_diff
+
     assert_difference 'FileUpload.where(file_type: FileUpload::file_types[:floorsheet]).count', 1 do
-      file = fixture_file_upload(Rails.root.join('test/fixtures/files/May12/BrokerwiseFloorSheetReport 12 May.xls'), 'text/xls')
+      file = fixture_file_upload(Rails.root.join('test/fixtures/files/floorsheets/BrokerwiseFloorSheetReport2073-08-13.xls'), 'text/xls')
       post import_files_floorsheets_path, file: file
+
+      # debugging purpose
+      write_to_html(response.body)
     end
+
     final_opening_balance_diff = @get_opening_balance_diff
 
     # 1. CHECK BALANCE SHEET
     assert_equal initial_opening_balance_diff, final_opening_balance_diff
 
     # 2. CHECK TRIAL BALANCE
-    date_bs = ad_to_bs (Date.parse '2016-05-12') #floorsheet date
+    date_bs = '2073-8-13' #floorsheet date
     get report_trial_balance_index_path(search_by:'date', search_term: date_bs)
 
     # scrape to find total: in the application, this is done by jquery
@@ -100,9 +108,5 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
     # Check the amounts and closing balance are greater than zero
     [dr_amount, closing_balance_cr].each { |v| assert_operator v, :>, 0 }
 
-    #
-    # TEST "Create transaction message"
-    # TEST "Send SMS/Bill"
-    #
   end
 end
