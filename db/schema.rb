@@ -1064,7 +1064,7 @@ ActiveRecord::Schema.define(version: 20161202070759) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8
@@ -1204,14 +1204,11 @@ ActiveRecord::Schema.define(version: 20161202070759) do
     t.integer  "updater_id"
     t.string   "receiver_name"
     t.integer  "voucher_id"
-    t.datetime "created_at",                                                         null: false
-    t.datetime "updated_at",                                                         null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
     t.integer  "branch_id"
-    t.integer  "settlement_by_cheque_type",                          default: 0
+    t.integer  "settlement_by_cheque_type", default: 0
     t.date     "date"
-    t.decimal  "cash_amount",               precision: 15, scale: 4
-    t.boolean  "multi_cheque_payment",                               default: false
-    t.boolean  "belongs_to_batch_payment"
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
