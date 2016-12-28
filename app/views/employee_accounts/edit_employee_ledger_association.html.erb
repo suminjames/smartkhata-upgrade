@@ -9,7 +9,7 @@
   <div class="tab-content">
     <div class="tab-pane active" id="tab_1">
       <div id="edit_employee_ledger_association">
-        <%= simple_form_for(@employee_account, url: '/update_employee_access') do |f| %>
+        <%= simple_form_for(@employee_account, url: employee_accounts_update_employee_access_path(id: @employee_account.id ), method: :post) do |f| %>
             <%= f.error_notification %>
 
             <%= hidden_field_tag 'edit_type', 'ledger_access' %>
