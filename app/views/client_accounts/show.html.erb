@@ -168,6 +168,10 @@
         <%= @client_account.nepse_code %>
       </p>
       <p>
+        <strong>Branch:</strong>
+        <%= @client_account.try(:branch).try(:code) %>
+      </p>
+      <p>
         <strong>Group Leader:</strong>
         <%= @client_account.group_leader.name_and_nepse_code if @client_account.group_leader.present? %>
       </p>
