@@ -1,6 +1,8 @@
 
 -Floorsheet
     -both sales / purchase record
+        -purchase record can be distinguished by 'bank deposit' column
+
 -Sales CM
     -sales payout information
         -information about the sales payment broker owes to its client
@@ -14,7 +16,7 @@
 -Closeout
     - strictly in sales
     - complement of Deal Cancel
-    - seen in CM report
+    - seen in CM report in 'Closeout Amount' column
 
 -As they are complement of each other, the way they occur:
     -Sell order placed for shares not possessed.
@@ -23,4 +25,15 @@
         -The payment is known as closeout.
 
 
+-CGT and CapitalGain
+    -only for sold transactions
+    -when floorsheet is uploaded, cgt is not allocated for both buy and sell transactions.
+    -however, during payout upload, the sold transactions will be updated with cgt and capitalgain (both available in
+    the uploaded file itself.)
 
+-DP Fee
+    -calculated during floorsheet upload
+    -NRs. 25 for each unique ISIN's transaction type
+        -i.e., NRs 25 for x number of NIBL(s) bought, and separate NRs. 25 for y number of NIBL(s) sold
+    -so 25 is separately divided (for bought or sold) among number of NIBL(s).
+    -in the event of transaction cancellation, adjustment of dp fee is required.

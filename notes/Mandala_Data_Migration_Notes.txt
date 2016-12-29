@@ -1,0 +1,3 @@
+
+Mandala Data Migration Notes:
+-No settlement ID is tracked by Mandala for sales share transactions (or daily transactions)

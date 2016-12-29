@@ -40,7 +40,7 @@ class UserSession
     #
     # Sets rails console
     #
-    def set_console(tenant = 'trishakti', fy_code = 7374, selected_branch_id = 1)
+    def set_console(tenant, fy_code = 7374, selected_branch_id = 1)
       Apartment::Tenant.switch!(tenant)
       UserSession.user = User.first
       UserSession.tenant = Tenant.find_by_name(tenant)
