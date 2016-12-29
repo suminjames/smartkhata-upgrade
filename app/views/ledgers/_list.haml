@@ -9,7 +9,7 @@
         - ledgers.each do |ledger|
           %tr
             %td
-              = ledger.name
+              = ledger.name_and_identifier
             %td.text-right{style: "padding-right: 40px;"}
               - amt = number_to_currency(ledger.closing_balance.abs)
               - if ledger.closing_balance + margin_of_error_amount < 0
