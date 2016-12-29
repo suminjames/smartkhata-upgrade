@@ -1,79 +1,59 @@
 desc "Delete a voucher"
 namespace :voucher do
-  task :delete, [:tenant, :id] => :environment do |task,args|
-    def recalculate_dailies(daily_balances)
-      opening_balance = 0
-      closing_balance = 0
-      daily_balances.each do |daily|
-        if opening_balance == 0
-          opening_balance = daily.opening_balance
-          closing_balance = daily.closing_balance
-        else
-          opening_balance = closing_balance
-          daily.opening_balance = opening_balance
-          closing_balance = opening_balance + daily.dr_amount - daily.cr_amount
-          daily.closing_balance = closing_balance
-          daily.save!
-        end
-      end
-    end
+  task :delete, [:tenant, :id] => 'smartkhata:validate_tenant' do |task,args|
+    tenant = args.tenant
+    vouchers = [args.id]
 
-    if args.tenant.present? && args.id.present?
-      Apartment::Tenant.switch!(args.tenant)
-      UserSession.user = User.first
+    voucher = Voucher.where(id: vouchers).first
+    raise NotImplementedError unless voucher.present?
 
-      voucher = Voucher.find(args.id)
-      current_fy_code = voucher.fy_code
+    ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
+    particulars = Particular.where(voucher_id: vouchers)
+    # right now we are focussed with just two entry receipt payment
+    raise NotImplementedError if particulars.count != 2
+    ActiveRecord::Base.transaction do
 
-
-      UserSession.selected_branch_id = voucher.branch_id
-      UserSession.selected_fy_code= current_fy_code
-
-
-      ActiveRecord::Base.transaction do
-        voucher.particulars.each do |p|
-          ledger = p.ledger
-          branch_id = p.branch_id
-
-          puts "processing the particular for #{ledger.name}"
-          amount = p.cr? ? p.amount : (p.amount * -1)
-
-          ledger_blnc_org = LedgerBalance.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
-          ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id,current_fy_code).find_by(ledger_id: ledger.id)
-          ledger_blnc_cost_center.closing_balance += amount
-          ledger_blnc_org.closing_balance += amount
-
-          if p.cr?
-            ledger_blnc_cost_center.cr_amount += amount
-            ledger_blnc_org.cr_amount += amount
-          else
-            ledger_blnc_cost_center.dr_amount += amount
-            ledger_blnc_org.dr_amount += amount
-          end
-
-          ledger_blnc_org.save!
-          ledger_blnc_cost_center.save!
-
-          p.delete
-
-
-          all_cost_center_dailies = ledger.ledger_dailies.where(branch_id: nil).order('date ASC')
-          branch_cost_center_dailies = ledger.ledger_dailies.where(branch_id: 1).order('date ASC')
-
-          recalculate_dailies(all_cost_center_dailies)
-          recalculate_dailies(branch_cost_center_dailies)
-        end
-
-        voucher.delete
-
-        puts "Task completed "
+      cheque_entries = voucher.cheque_entries.uniq
+      raise NotImplementedError if cheque_entries.count > 1
+      cheque_entry = cheque_entries.first
+      if cheque_entry
+        ChequeEntryParticularAssociation.where(cheque_entry_id: cheque_entry.id).delete_all
+        cheque_entry.delete
       end
 
 
-      Apartment::Tenant.switch!('public')
-    else
-      puts 'Please pass a tenant and id to the task'
+      settlements= voucher.payment_receipts.uniq
+      raise NotImplementedError if settlements.count > 1
+      settlement = settlements.first
+      amount = 0
+      if settlement
+        ParticularSettlementAssociation.where(settlement_id: settlement.id).delete_all
+        settlement.delete
+        amount = settlement.amount
+      end
+
+
+
+      raise NotImplementedError if voucher.bills.count > 1
+      bill = voucher.bills.first
+      if bill
+        BillVoucherAssociation.where(voucher_id: voucher.id).delete_all
+        # since we are considering the case of 2 particular voucher
+
+        raise NotImplementError if amount ==  0
+        bill.balance_to_pay += amount
+        bill.status = Bill.statuses[:pending]
+        bill.save!
+      end
+
+      particulars.delete_all
+      Voucher.where(id: vouchers).delete_all
+
+      # update the ledgers with new balances
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
     end
+
   end
 
   task :delete_simple, [:tenant, :id] => 'smartkhata:validate_tenant' do |task, args|
@@ -115,3 +95,6 @@ namespace :voucher do
     end
   end
 end
+
+
+822212
