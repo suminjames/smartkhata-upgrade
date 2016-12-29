@@ -6,24 +6,23 @@
 -Sales CM
     -sales payout information
         -information about the sales payment broker owes to its client
+
 -Order
     -is solely for record keeping purposes, and doesn't intermingle with other models.
 
 -Deal Cancel
-    - strictly in purchase case
-    - complement of Closeout
+    - happens 'mysteriously', and is apparently nobody's fault but nepse's glitch
+    - no party financially liable
 
 -Closeout
-    - strictly in sales
-    - complement of Deal Cancel
-    - seen in CM report in 'Closeout Amount' column
-
--As they are complement of each other, the way they occur:
-    -Sell order placed for shares not possessed.
-      -If deal cancel when BrokerA -> Broker B,
-        Broker A has to pay 120% the amount of order
-        -The payment is known as closeout.
-
+    - if a buy/sale order doesn't goes through due to insufficient quantity of 
+      share transaction, `closeout` takes place.
+    - by law, closeout triggering seller should pay 20% of the 
+      insufficient quantity's worth (through the seller broker) to the affected 
+      buyer (through the buyer broker) via Nepse.
+        -however, there are `other ways` closeouts are settled.
+    - 'closeout for sales transactions' seen in CM report in 'Closeout Amount' column
+    - 'closeout for purchase transactions' seen in  <TODO>
 
 -CGT and CapitalGain
     -only for sold transactions

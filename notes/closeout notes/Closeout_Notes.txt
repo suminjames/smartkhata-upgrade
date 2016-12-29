@@ -1,0 +1,11 @@
+
+Closeout Cases Outline
+
+-Purchase
+-Sell
+
+Case:
+    Client C(x) of Broker B(x) bought 200 quantity of NIB @ 1800 from Client C(z) of Broker B(z).
+    Client C(z) only has 100 quantity of NIB to sell.
+    Closeout in effect.
+
