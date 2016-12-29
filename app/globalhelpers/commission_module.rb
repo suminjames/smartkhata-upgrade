@@ -129,7 +129,7 @@ module CommissionModule
     # end
 
     commision_info = get_commission_info(transaction_date)
-    commision_info.broker_commission_rate
+    commision_info.broker_commission_rate * 0.01
   end
 
   #
@@ -137,7 +137,7 @@ module CommissionModule
   #
   def nepse_commission_rate(transaction_date)
     commision_info = get_commission_info(transaction_date)
-    commision_info.nepse_commission_rate
+    commision_info.nepse_commission_rate * 0.01
   end
 
 

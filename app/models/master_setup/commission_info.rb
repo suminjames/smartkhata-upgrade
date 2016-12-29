@@ -79,12 +79,21 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
     starting_amounts.sort!
     limit_amounts.sort!
 
-    # all should be unique
+    # all should be unique for a date range
+    # cant be validated on child model because it will be unknown to that model
     errors.add :base, "Invalid Data" if starting_amounts.size > starting_amounts.uniq.size
     errors.add :base, "Invalid Data" if limit_amounts.size > limit_amounts.uniq.size
+
+    # should have atleast one detail
+    # details should cover the whole range ie 0 - MAX
     errors.add :base, "At least one detail should be present and have min amount" if starting_amounts[0] != 0
     errors.add :base, "At least one detail should address the max amount" if limit_amounts[-1] != MAX
 
+    # since we have two ends that can be nil
+    # cases when starting amount is nil
+    # or when limiting amount is nil
+    # removing both should be exactly equal
+    # more of a collective validation to ward off unwanted data
     starting_amounts = starting_amounts.drop(1)
     limit_amounts.pop
 

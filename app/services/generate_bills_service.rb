@@ -47,6 +47,9 @@ class GenerateBillsService
 
 
 
+        # raise error when them amounts dont match up
+        # A voucher should always equal dr and cr particular amounts
+        raise NotImplementedError if (transaction.net_amount + sales_commission + transaction.dp_fee - transaction.amount_receivable - tds).abs > 0.01
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing

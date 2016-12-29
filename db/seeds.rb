@@ -132,6 +132,9 @@ count = 0
     commission_rate.commission_details << commission_details
     commission_rate.save!
 
+    puts "putting the menus"
+    MenuItemService.new.call
+
     puts " Populating calendar..."
     Calendar.populate_calendar
 

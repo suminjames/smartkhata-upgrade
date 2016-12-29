@@ -1,4 +1,4 @@
-class CreateMenuItemsService
+class MenuItemService
   include Rails.application.routes.url_helpers
 
   def find_or_create_by_code(params)
@@ -10,10 +10,6 @@ class CreateMenuItemsService
   def call
     menu_list_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
     menu_list = YAML::load(ERB.new(File.read(menu_list_file)).result(binding))
-
-    if menu_list['has_changes'] != true
-      return false
-    end
 
     tenants = Tenant.all
     tenants.each do |t|
@@ -55,15 +51,6 @@ class CreateMenuItemsService
         end
       # rescue
       #   puts 'there was issue'
-      end
-
-      # store the database id for each of the tenant menu items
-      File.open(Rails.root.join('config', 'smartkhata', 'tenant_menus', "#{t.name}_menu.yml"), 'w') do |h|
-        h.puts "#"
-        h.puts "# available action/menus"
-        h.puts "# documentation available at menu.yml"
-        h.puts "#"
-        h.write menu_list.to_yaml
       end
     end
 
