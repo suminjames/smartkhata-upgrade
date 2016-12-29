@@ -42,6 +42,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   private
 
   def validate_date_range
+    # get the last commission info ordered by start date
     commission_info_latest = self.class.all.order(:start_date => :desc).first
     if start_date >= end_date
       errors.add :start_date, "Start date should be before the end date"
@@ -49,10 +50,20 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
     end
 
     if commission_info_latest.present?
-      if self.start_date.yesterday != commission_info_latest.end_date
-        errors.add :base, "Entry missing for dates before the starting date"
-      elsif self.start_date < commission_info_latest.end_date
+
+      end_date_to_compare = commission_info_latest.end_date
+
+      # cases where the one being edited is the last entry
+      if self.id == commission_info_latest.id
+        end_date_to_compare = self.start_date.yesterday
+      end
+
+      # cant have 2 commission details for same day
+      # cant have dates without commission rates
+      if self.start_date < commission_info_latest.end_date && self.id != commission_info_latest.id
         errors.add :base, "Date is already Included. Please review"
+      elsif self.start_date.yesterday != end_date_to_compare
+        errors.add :base, "Entry missing for dates before the starting date"
       end
 
     end
@@ -68,7 +79,6 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
     starting_amounts.sort!
     limit_amounts.sort!
 
-
     # all should be unique
     errors.add :base, "Invalid Data" if starting_amounts.size > starting_amounts.uniq.size
     errors.add :base, "Invalid Data" if limit_amounts.size > limit_amounts.uniq.size
@@ -77,6 +87,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
 
     starting_amounts = starting_amounts.drop(1)
     limit_amounts.pop
+
     errors.add :base, "Invalid Data" if limit_amounts != starting_amounts
   end
 end

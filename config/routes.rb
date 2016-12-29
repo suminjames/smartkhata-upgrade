@@ -11,9 +11,6 @@ Rails.application.routes.draw do
   end
   namespace :master_setup do
     resources :commission_rates
-  end
-  namespace :master_setup do
-    resources :commission_rates
     resources :broker_profiles
   end
 

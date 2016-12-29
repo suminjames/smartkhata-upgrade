@@ -236,5 +236,5 @@ menus:
       path: "<%= master_setup_broker_profiles_path %>"
       code: ADS_MIS_BPM
     - name: Commission Rates Management
-      path: "<%= master_setup_commission_rates_path %>"
-      code: ADS_MIS_CRM
+      path: "<%= master_setup_commission_infos_path %>"
+      code: ADS_MIS_CIM

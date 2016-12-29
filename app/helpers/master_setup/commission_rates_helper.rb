@@ -1,2 +1,0 @@
-module MasterSetup::CommissionRatesHelper
-end

@@ -1,29 +1,26 @@
 FactoryGirl.define do
   factory :master_setup_commission_detail, class: 'MasterSetup::CommissionDetail' do
-    start_amount "9.99"
-    limit_amount "9.99"
+    start_amount 0
+    limit_amount nil
     commission_rate 1.5
     commission_amount 1.5
-    master_setup_commission_info nil
   end
+
   factory :master_setup_commission_info, class: 'MasterSetup::CommissionInfo' do
-    start_date "2016-11-13"
+    start_date "2016-11-12"
     end_date "2016-11-13"
     start_date_bs "MyString"
     end_date_bs "MyString"
+
+    before(:create) do |master_setup_commission_info|
+      master_setup_commission_info.commission_details << FactoryGirl.create(:master_setup_commission_detail)
+    end
   end
-  factory :master_setup_commission_rate, class: 'MasterSetup::CommissionRate' do
-    date_from "2016-11-10"
-    date_to "2016-11-10"
-    amount_gt "9.99"
-    amount_lt_eq "9.99"
-    rate "9.99"
-    is_flat_rate false
-    remarks "MyString"
-  end
+
   factory :user do
     name 'Lachlan'
     email 'idiot@gmail.com'
+    password 'password'
     encrypted_password { Devise::Encryptor.digest(User, 'password') }
     confirmed_at '2016-05-05'  #stupid error this is needed for login
     role {User.roles[:admin]}

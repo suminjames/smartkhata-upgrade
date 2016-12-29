@@ -1,3 +1,7 @@
 #. ISSUE: Address already in use - bind(2) (Errno::EADDRINUSE)
 - lsof -wni tcp:3000
 - kill the pid
+
+
+### cases when using nested attributes ( when updating the child get doubled )
+make sure to include id in the permitted parameter list
