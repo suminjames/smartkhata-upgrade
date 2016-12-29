@@ -136,7 +136,6 @@ class ImportPayout < ImportFile
             update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, true)
           end
 
-          # TODO remove hard code calculations
           # net amount is the amount that is payble to the client after charges
           # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
           # amount payble to client =

@@ -190,6 +190,11 @@ namespace :mandala do
     puts "Deleting file uploads.."
     FileUpload.delete_all
 
+    puts "Deleting associations"
+    ChequeEntryParticularAssociation.delete_all
+    ParticularsShareTransaction.unscoped.delete_all
+    ParticularSettlementAssociation.unscoped.delete_all
+
     puts "Deleting bills and vouchers.."
     BillVoucherAssociation.delete_all
     Settlement.unscoped.delete_all
@@ -197,8 +202,6 @@ namespace :mandala do
     Bill.unscoped.delete_all
 
     puts "Deleting Particulars and Cheque Entries ..."
-    ChequeEntryParticularAssociation.delete_all
-    ParticularsShareTransaction.unscoped.delete_all
     Particular.unscoped.delete_all
     LedgerBalance.unscoped.delete_all
     LedgerDaily.unscoped.delete_all
@@ -208,7 +211,8 @@ namespace :mandala do
     puts "Deleting Share Transactions"
     ShareTransaction.delete_all
     ShareInventory.delete_all
-
+    SmsMessage.delete_all
+    TransactionMessage.delete_all
     puts "Deleting Order"
     Order.delete_all
   end
