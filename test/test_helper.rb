@@ -8,8 +8,12 @@ require 'rails/test_help'
 require "minitest/reporters"
 Minitest::Reporters.use!
 
-Apartment::Tenant.drop( "trishakti" ) rescue nil
-Apartment::Tenant.create( "trishakti" ) rescue nil
+# Apartment::Tenant.drop( "trishakti" ) rescue nil
+# Apartment::Tenant.create( "trishakti" ) rescue nil
+
+# we are loading data from seed file
+# if this line throws error make sure to run
+# rake db:test:prepare
 Apartment::Tenant.switch!( "trishakti" )
 
 class ActiveSupport::TestCase

@@ -9,73 +9,75 @@
 # # Further work[maybe]:
 # #          calculate the bills count dynamically.. making the test work with different test files?
 #
-# require 'test_helper'
-# require "#{Rails.root}/app/globalhelpers/custom_date_module"
+require 'test_helper'
+require "#{Rails.root}/app/globalhelpers/custom_date_module"
+
+class BasicAppFlowTest < ActionDispatch::IntegrationTest
+  include CustomDateModule
+  def setup
+    # To prevent isin company Nil Error in bills#show
+    puts "\nFetching companies from NEPSE..."
+    Rake::Task["fetch_companies"].invoke
+    # Rake::Task["update_isin_prices"].invoke
+
+    # subdomain needed for current_tenant()
+    set_host
+    # Secure browsing!
+    https!
+    # login as existing user
+    log_in
+    assert_equal dashboard_index_path, path
+    assert_equal 'Signed in successfully.', flash[:notice]
+
+    # Set relevant fy code and branch id
+    @fy_code = 7273
+    set_fy_code_and_branch
+
+    @purchase_bills_in_fixtures = Bill.purchase.count
+    @sales_bills_in_fixtures = Bill.sales.count
+
+    # DO calculate these from the test files END
+    # bill in (file + fixtures)
+    @purchase_bills_expected_count = 1 + @purchase_bills_in_fixtures
+    @sales_bills_expected_count = 3 + @sales_bills_in_fixtures
+
+    @additional_bank_id = Bank.first.id
+    # Cash ledger expected in fixtures!
+    @cash_ledger_id = Ledger.find_by!(name: "Cash").id
+
+    # assume default pagination
+    @items_in_first_pagination = 20
+
+    # Sample date within the fiscal_year
+    @sample_date = '2073-1-30'
+    @date_today = ad_to_bs(Date.today).to_s
+  end
 #
-# class BasicAppFlowTest < ActionDispatch::IntegrationTest
-#   include CustomDateModule
-#   def setup
-#     # To prevent isin company Nil Error in bills#show
-#     puts "\nFetching companies from NEPSE..."
-#     Rake::Task["fetch_companies"].invoke
-#     # Rake::Task["update_isin_prices"].invoke
-#
-#     # subdomain needed for current_tenant()
-#     set_host
-#     # Secure browsing!
-#     https!
-#     # login as existing user
-#     log_in
-#     assert_equal dashboard_index_path, path
-#     assert_equal 'Signed in successfully.', flash[:notice]
-#
-#     # Set relevant fy code and branch id
-#     @fy_code = 7273
-#     set_fy_code_and_branch
-#
-#     @purchase_bills_in_fixtures = Bill.purchase.count
-#     @sales_bills_in_fixtures = Bill.sales.count
-#     # DO calculate these from the test files END
-#     # bill in (file + fixtures)
-#     @purchase_bills_expected_count = 51 + @purchase_bills_in_fixtures
-#     @sales_bills_expected_count = 45 + @sales_bills_in_fixtures
-#
-#     @additional_bank_id = Bank.first.id
-#     # Cash ledger expected in fixtures!
-#     @cash_ledger_id = Ledger.find_by!(name: "Cash").id
-#
-#     # assume default pagination
-#     @items_in_first_pagination = 20
-#
-#     # Sample date within the fiscal_year
-#     @sample_date = '2073-1-30'
-#     @date_today = ad_to_bs(Date.today).to_s
-#   end
-#
-#   test "the basic flow" do
-#     ############################################################### SECTION ONE ############################################################################
-#
-#     puts "Creating Bank & accounts..."
-#     # --- 1. Add Bank ---
-#     assert_difference 'Bank.count', 1 do
-#       post banks_path, bank: { address: 'utopia', bank_code: 'TBH', contact_no: '999999999', name: 'The Bank' }
-#     end
-#     new_bank = assigns(:bank)
-#     assert_redirected_to bank_path(new_bank)
-#
-#     # --- 1.1 Add Bank Account- of created bank & existing bank ---
-#     existing_bank = banks(:one)
-#     assert_difference 'BankAccount.by_branch_id.count', 2 do
-#       post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, bank_branch: "asd", "default_for_receipt"=>"1", "default_for_payment"=>"0",
-#                                    "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}]}}
-#       @bank_account_receipt = assigns(:bank_account)
-#       post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, bank_branch: "asd", "default_for_receipt"=>"0", "default_for_payment"=>"1",
-#                                               "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}] }}
-#         @bank_account_payment = assigns(:bank_account)
-#     end
-#     assert_redirected_to bank_account_path(@bank_account_payment)
-#
-#
+  test "the basic flow" do
+    ############################################################### SECTION ONE ############################################################################
+
+    puts "Creating Bank & accounts..."
+
+    # --- 1. Add Bank ---
+    assert_difference 'Bank.count', 1 do
+      post banks_path, bank: { address: 'utopia', bank_code: 'TBH', contact_no: '999999999', name: 'The Bank' }
+    end
+    new_bank = assigns(:bank)
+    assert_redirected_to bank_path(new_bank)
+
+    # --- 1.1 Add Bank Account- of created bank & existing bank ---
+    existing_bank = banks(:one)
+    assert_difference 'BankAccount.by_branch_id.count', 2 do
+      post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, bank_branch: "asd", "default_for_receipt"=>"1", "default_for_payment"=>"0",
+                                   "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}]}}
+      @bank_account_receipt = assigns(:bank_account)
+      post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, bank_branch: "asd", "default_for_receipt"=>"0", "default_for_payment"=>"1",
+                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}] }}
+        @bank_account_payment = assigns(:bank_account)
+    end
+    assert_redirected_to bank_account_path(@bank_account_payment)
+
+
 #     ############################################################### SECTION TWO ############################################################################
 #
 #     puts "Adding cheque entries..."
@@ -604,5 +606,5 @@
 #         credited_ledger_name = ledger_options[10].text
 #         [bank_account_ledger_id, credited_ledger_id, credited_ledger_name]
 #       end
-#     end
-# end
+  end
+end

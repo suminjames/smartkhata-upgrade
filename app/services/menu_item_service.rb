@@ -7,18 +7,18 @@ class MenuItemService
     menu_item = MenuItem.create(params)
   end
 
-  def call
+  def call(verbose = true)
     menu_list_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
     menu_list = YAML::load(ERB.new(File.read(menu_list_file)).result(binding))
 
     tenants = Tenant.all
+
     tenants.each do |t|
       Apartment::Tenant.switch!(t.name)
       begin
         # keep track of the menus created or updated
         # and delete the rest
         new_menu_lists = []
-
         menu_list['menus'].each do |menu|
           params = {name: menu['name'], code: menu['code'], path: menu['path'], hide_on_main_navigation: menu['hide_on_main_navigation'], request_type: menu['request_type']}
           menu_item = find_or_create_by_code(params)
@@ -27,7 +27,7 @@ class MenuItemService
           sub_menu_list = menu['sub_menus'] || []
           sub_menu_list.each do |sub_menu|
             params = {name: sub_menu['name'], code: sub_menu['code'], path: sub_menu['path'], hide_on_main_navigation: sub_menu['hide_on_main_navigation'], request_type: menu['request_type']}
-            puts sub_menu['name']
+            puts sub_menu['name'] if verbose
 
             sub_menu_item = find_or_create_by_code(params)
             new_menu_lists << sub_menu_item.id
@@ -54,16 +54,24 @@ class MenuItemService
       end
     end
 
+
     # keeping the menu.yml file intact
     Apartment::Tenant.switch!('public')
-    menu_list = YAML::load_file(menu_list_file)
-    menu_list['has_changes'] = false
-    File.open(menu_list_file, 'w') do |h|
-      h.puts "#"
-      h.puts "# available action/menus"
-      h.puts "# default request_type is get"
-      h.puts "#"
-      h.write menu_list.to_yaml
+
+
+    case Rails.env
+      when "test"
+        #   nothing yet
+      else
+        menu_list = YAML::load_file(menu_list_file)
+        menu_list['has_changes'] = false
+        File.open(menu_list_file, 'w') do |h|
+          h.puts "#"
+          h.puts "# available action/menus"
+          h.puts "# default request_type is get"
+          h.puts "#"
+          h.write menu_list.to_yaml
+        end
     end
 
     true

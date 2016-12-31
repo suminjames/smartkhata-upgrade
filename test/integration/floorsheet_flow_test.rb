@@ -10,51 +10,6 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
     set_host
     sign_in users(:user)
     set_fy_code_and_branch(7374, 1)
-    # Create groups: from seeds.rb
-    Group.create!([
-                     { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
-                     {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}])
-
-    group = Group.create({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
-    groups = Group.create([
-                              { name: "Profit & Loss Account", for_trial_balance: true},
-                              {name: "General Reserve"},
-                              {name: "Capital Reserve"},
-                              # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-                              # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-                              {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                              {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                              { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
-                              {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
-                          ])
-
-    group.children << groups
-    group.save!
-
-    group = Group.find_by(name: "Direct Income")
-    ledgers = Ledger.create([{name: "Purchase Commission"},{name: "Sales Commission"}])
-    group.ledgers << ledgers
-    group.save!
-
-    group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
-    groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
-    group.children << groups
-    group.save!
-
-    group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
-    groups = Group.create([{ name: "Duties & Taxes"},{name: "Sundry Creditors"},{name: "Account Payables"}])
-    ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}, {name: "Nepse Sales"}, {name: "Clearing Account"}, {name: 'Compliance Fee'}])
-    group.children << groups
-    group.ledgers << ledgers
-    group.save!
-
-    group = Group.find_by(name: "Current Assets")
-    group.update({report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
-    groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}, {name: "Clearing Account"}])
-    group.children << groups
-    ledgers = Ledger.create([{name: "TDS"},{name: "Cash"},{name: 'Close Out'}])
-    group.ledgers << ledgers
-    group.save!
 
     @get_opening_balance_diff = lambda {
       get report_balancesheet_index_path
@@ -63,6 +18,23 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "floorsheet flow" do
+
+    # Different scenario to test for
+
+    # in terms of transaction type
+    # buy, sell, both
+
+    # in terms of number of transaction for a isin
+    # one , many
+
+    # in terms of companies traded
+    # one, many
+
+    # in terms of share amount
+    # 0 - 2500, 2501 - 50000,
+    # 50001 - 500000, 500001 - 1000000,
+    # more than 1000001 (best to  include > 5000000)
+
 
     initial_opening_balance_diff = @get_opening_balance_diff
 
@@ -73,6 +45,10 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
       # debugging purpose
       write_to_html(response.body)
     end
+
+    # verify if the vouchers created are correct
+
+
 
     final_opening_balance_diff = @get_opening_balance_diff
 
@@ -105,8 +81,10 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
       [dr_amount, cr_amount],
       [closing_balance_dr, closing_balance_cr] ].each { |a, b| assert_equal a.to_i, b.to_i }
 
-    # Check the amounts and closing balance are greater than zero
-    [dr_amount, closing_balance_cr].each { |v| assert_operator v, :>, 0 }
+    # need to verify this
+
+    # # Check the amounts and closing balance are greater than zero
+    # [dr_amount, closing_balance_cr].each { |v| assert_operator v, :>, 0 }
 
   end
 end
