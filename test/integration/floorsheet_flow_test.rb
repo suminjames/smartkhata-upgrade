@@ -39,7 +39,7 @@ class FloorsheetFlowTest < ActionDispatch::IntegrationTest
     initial_opening_balance_diff = @get_opening_balance_diff
 
     assert_difference 'FileUpload.where(file_type: FileUpload::file_types[:floorsheet]).count', 1 do
-      file = fixture_file_upload(Rails.root.join('test/fixtures/files/floorsheets/BrokerwiseFloorSheetReport2073-08-13.xls'), 'text/xls')
+      file = fixture_file_upload(Rails.root.join('test/fixtures/files/floorsheets/BrokerwiseFloorSheetReport_small_2073-08-13.xls'), 'text/xls')
       post import_files_floorsheets_path, file: file
 
       # debugging purpose
