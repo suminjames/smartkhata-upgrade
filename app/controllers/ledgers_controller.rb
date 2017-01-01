@@ -61,8 +61,10 @@ class LedgersController < ApplicationController
         @closing_balance_sorted,
         @opening_balance_sorted = ledger_query.ledger_with_particulars
 
-    @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
-    @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
+    # @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
+    # @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
+    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx'))
+    @download_path_xlsx_client =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', for_client: 1))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
     unless ledger_query.error_message.blank?
