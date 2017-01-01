@@ -8,8 +8,14 @@ require 'rails/test_help'
 require "minitest/reporters"
 Minitest::Reporters.use!
 
-Apartment::Tenant.drop( "trishakti" ) rescue nil
-Apartment::Tenant.create( "trishakti" ) rescue nil
+require 'capybara/rails'
+
+# Apartment::Tenant.drop( "trishakti" ) rescue nil
+# Apartment::Tenant.create( "trishakti" ) rescue nil
+
+# we are loading data from seed file
+# if this line throws error make sure to run
+# rake db:test:prepare
 Apartment::Tenant.switch!( "trishakti" )
 
 class ActiveSupport::TestCase
@@ -110,4 +116,17 @@ end
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
+end
+
+
+class ActionDispatch::IntegrationTest
+  # Make the Capybara DSL available in all integration tests
+  include Capybara::DSL
+
+  # Reset sessions and driver between tests
+  # Use super wherever this method is redefined in your individual test classes
+  def teardown
+    Capybara.reset_sessions!
+    Capybara.use_default_driver
+  end
 end

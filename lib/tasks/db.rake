@@ -40,6 +40,14 @@ namespace :db do
             puts 'Please pass a date to the task'
         end
     end
+
+  # override the db:test:prepare
+  namespace :test do
+    task :prepare => :environment do
+      Rake::Task["db:seed"].invoke
+    end
+  end
+
   private
 
   def with_config
