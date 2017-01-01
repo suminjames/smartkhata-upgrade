@@ -17,4 +17,17 @@
             export HISTFILESIZE=$HISTSIZE
 
 
+#. For setting(or patching) the application initially.
+    Note: The following is already included in db:seed
+    - To initially seed the commission
+        - bundle exec rake setup:commission
+    - To populate(or update) the menu
+        - bundle exec rake menu:update_list
+            - note:
+                - this is to be run after the menu.yml file is modified
 
+#. For checking correctness
+    - Check 'NEPSE Purchase' ledger for that particular date
+        - for now, this ledger should only have credit entries
+            - after closeout feature has been introduced, it will also have debit entries
+        - check number of particulars
