@@ -208,10 +208,12 @@ class ShareTransaction < ActiveRecord::Base
     }
   end
 
-  # TODO(sarojk): Sanitize variables inside the raw sql query.
   def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs)
+    ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
+
     if isin_id.present?
+      isin_id = ar_connection.quote(isin_id)
       where_conditions << "isin_info_id = #{isin_id}"
     end
     if date_bs.present?
@@ -230,6 +232,7 @@ class ShareTransaction < ActiveRecord::Base
       where_condition_str = ''
     end
 
+    tenant_broker_id = ar_connection.quote(tenant_broker_id)
     query = "
       SELECT
         isin_info_id,
@@ -243,7 +246,7 @@ class ShareTransaction < ActiveRecord::Base
       ORDER BY
         isin_info_id
       "
-    pg_result = ActiveRecord::Base.connection.execute(query)
+    pg_result = ar_connection.execute(query)
     result_arr = []
     pg_result.each do |rec|
       rec["quantity_balance"] = rec["quantity_in_sum"].to_i - rec["quantity_out_sum"].to_i
