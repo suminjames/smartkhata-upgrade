@@ -2,7 +2,7 @@
 <% seed_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
    config = YAML::load(ERB.new(File.read(seed_file)).result(binding))
 %>
-<% if user_signed_in?  && !current_user.client? && valid_certificate?(current_user) %>
+<% if user_signed_in?  && !current_user.client? #&& valid_certificate?(current_user) %>
 <% config['menus'] = permitted_menu_list(config['menus'], current_user.id) %>
 
 <% config['menus'].each do |menu|
