@@ -295,11 +295,11 @@ class Ledger < ActiveRecord::Base
 
 
 
-  def self.get_ledger_by_ids(attrs = {})
-    fy_code = attrs[:fy_code]
-    ledger_ids = attrs[:ledger_ids] || []
-    self.by_fy_code(fy_code).where(id: ledger_ids)
-  end
+  # def self.get_ledger_by_ids(attrs = {})
+  #   fy_code = attrs[:fy_code]
+  #   ledger_ids = attrs[:ledger_ids] || []
+  #   self.where(id: ledger_ids)
+  # end
 
   def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)

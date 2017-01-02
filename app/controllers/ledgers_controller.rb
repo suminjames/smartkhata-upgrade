@@ -244,7 +244,7 @@ class LedgersController < ApplicationController
       redirect_to @back_path, :flash => {:error => 'No Ledgers were Selected'} and return
     end
 
-    ledger_list = Ledger.get_ledger_by_ids(fy_code: get_fy_code, ledger_ids: @ledger_ids)
+    ledger_list = Ledger.where(id: @ledger_ids)
     group_member_ledger_ids = client_account.get_group_members_ledger_ids
 
     # make sure all id in ledger_ids are in group_memger_ledger_ids
@@ -265,14 +265,22 @@ class LedgersController < ApplicationController
       # update each ledgers
       ledger_list.each do |ledger|
         _closing_balance = ledger.closing_balance
-        net_balance += _closing_balance
-        process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+        # dont consider the 0 balance ledger
+        if ledger.closing_balance.abs > 0.01
+          net_balance += _closing_balance
+          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+        end
       end
 
       process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+      raise ActiveRecord::Rollback if net_balance == 0.0
     end
 
-    redirect_to group_member_ledgers_path, :flash => {:info => 'Successfully Transferred'} and return
+    # also redirect to same path
+    if net_balance == 0.0
+      redirect_to @back_path, :flash => {:error => 'The balance to transfer is 0'} and return
+    end
+    redirect_to group_member_ledgers_path, notice: 'Successfully Transferred' and return
   end
 
 
