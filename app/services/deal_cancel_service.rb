@@ -17,7 +17,7 @@ class DealCancelService
   def process
     # if approval action is present and the action is other than allowed
     if @approval_action.present? && !@@approval_action.include?(@approval_action)
-      @error_message = "The Action is not available"
+      @error_message = "The action is not available."
       return
     end
 
@@ -28,7 +28,7 @@ class DealCancelService
       @share_transaction = ShareTransaction.no_deal_cancel.find_by(id: @transaction_id)
     end
     if @share_transaction.blank?
-      @error_message = "The Transaction number does not exist in the system or unavailable for action"
+      @error_message = "The transaction number does not exist in the system or unavailable for action."
       return
     end
 
@@ -36,7 +36,7 @@ class DealCancelService
     bill = @share_transaction.bill
     # dont allow to approve deal cancel after starting settlement process
     if bill.present? && !bill.pending?
-      @error_message = "Bill associated with the share transaction is already under process or settled"
+      @error_message = "Bill associated with the share transaction is already under process or settled."
       return
     end
 
@@ -100,7 +100,7 @@ class DealCancelService
         end
 
       end
-      @info_message = 'Deal cancelled successfully.'
+      @info_message = 'Deal cancel queued for approval successfully.'
       @share_transaction = nil
       return
     else

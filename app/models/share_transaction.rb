@@ -69,6 +69,9 @@ class ShareTransaction < ActiveRecord::Base
   has_many :particulars_on_payment_by_letter, through: :on_payment_by_letter, source: :particular
   has_many :particulars, through: :particulars_share_transactions
 
+  # before_update :calculate_cgt
+  validates :base_price, numericality: true
+
   filterrific(
       default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [
@@ -92,8 +95,6 @@ class ShareTransaction < ActiveRecord::Base
 
   enum transaction_type: [:buying, :selling, :unknown]
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
-  # before_update :calculate_cgt
-  validates :base_price, numericality: true
 
   scope :find_by_date, -> (date) { where(
       :date => date.beginning_of_day..date.end_of_day) }
@@ -168,6 +169,7 @@ class ShareTransaction < ActiveRecord::Base
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
+  scope :settled, lambda{ where.not(settlement_id: nil)}
 
   # used for bill ( it eradicates only with deal cancelled not the closeout onces)
   # data needs to be hidden from client for deal cancel only as it happens between brokers.

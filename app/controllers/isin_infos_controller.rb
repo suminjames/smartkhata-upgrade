@@ -7,7 +7,7 @@ class IsinInfosController < ApplicationController
   # GET /isin_infos
   # GET /isin_infos.json
   def index
-    @isin_infos = IsinInfo.all.page(params[:page]).per(20)
+    @isin_infos = IsinInfo.all.page(params[:page]).per(20).order(:isin)
   end
 
   # GET /isin_infos/1
@@ -31,7 +31,7 @@ class IsinInfosController < ApplicationController
 
     respond_to do |format|
       if @isin_info.save
-        format.html { redirect_to @isin_info, notice: 'Isin infoa was successfully created.' }
+        format.html { redirect_to @isin_info, notice: 'Listed company was successfully created.' }
         format.json { render :show, status: :created, location: @isin_info }
       else
         format.html { render :new }
@@ -45,7 +45,7 @@ class IsinInfosController < ApplicationController
   def update
     respond_to do |format|
       if @isin_info.update(isin_info_params)
-        format.html { redirect_to @isin_info, notice: 'Isin infoa was successfully updated.' }
+        format.html { redirect_to @isin_info, notice: 'Listed company was successfully updated.' }
         format.json { render :show, status: :ok, location: @isin_info }
       else
         format.html { render :edit }
@@ -59,7 +59,7 @@ class IsinInfosController < ApplicationController
   def destroy
     @isin_info.destroy
     respond_to do |format|
-      format.html { redirect_to isin_infos_url, notice: 'Isin infoa was successfully destroyed.' }
+      format.html { redirect_to isin_infos_url, notice: 'Listed company was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
