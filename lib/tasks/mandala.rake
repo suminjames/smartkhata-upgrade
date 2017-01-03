@@ -423,7 +423,7 @@ namespace :mandala do
   end
 
   desc "Populate Floorsheet FileUploads after mandala migration."
-  task :populate_file_uploads, [:tenant] => :environment do |task, args|
+  task :populate_floorsheet_file_uploads, [:tenant] => :environment do |task, args|
     if args.tenant.blank?
       fail "Invalid arguments!"
     end
@@ -431,18 +431,25 @@ namespace :mandala do
     UserSession.set_console(tenant)
     file_type = FileUpload::file_types[:floorsheet]
     file_type_str = FileUpload.file_types.keys[file_type]
+    count = 0
     unique_share_transaction_buy_dates = ShareTransaction.all.buying.select("date").group("date").order("date").pluck("date")
     ActiveRecord::Base.transaction do
       unique_share_transaction_buy_dates.each do |date|
-        FileUpload.find_or_create_by!(:report_date => date, :file_type => file_type)
-        puts "Created #{file_type_str.titlecase} Fileupload for report_date #{date}."
+        # FileUpload.find_or_create_by!(:report_date => date, :file_type => file_type)
+        if FileUpload.where(:report_date => date, :file_type => file_type).size <= 0
+          FileUpload.create(:report_date => date, :file_type => file_type)
+          puts "Created #{file_type_str.titlecase} Fileupload for report_date #{date}."
+          count += 1
+        end
       end
     end
     Apartment::Tenant.switch!('public')
+    puts
+    puts "Total number of floorsheet fileuploads created: #{count}"
   end
 
   desc "Create SalesSettlements after mandala migration."
-  task :populate_sales_settlements, [:tenant] => :environment do |task, args|
+  task :populate_sales_settlements_file_uploads, [:tenant] => :environment do |task, args|
     puts "Apparently mandala doesn't keep track of settlement id."
     puts "Therefore, creation of salessettlements after mandala migration not possible."
   end

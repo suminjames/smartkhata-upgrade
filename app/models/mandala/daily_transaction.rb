@@ -95,14 +95,15 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   # tries to create share transactions (in SmartKhata) out of daily transactions (in Mandala) of sales transactions uploaded in floorsheet, whose payout hasn't been uploaded yet (therefore, the bill hasn't created).
   def new_smartkhata_share_transaction_with_out_bill
     date_ad = Date.parse(transaction_date)
+    commission_info = get_commission_info_with_detail(date_ad)
     ::ShareTransaction.new({
                                contract_no: transaction_no,
                                quantity: final_quantity,
                                raw_quantity: quantity,
                                share_rate: rate,
                                share_amount: total_amount,
-                               commission_rate: get_commission_rate(total_amount, date_ad),
-                               commission_amount: get_commission(total_amount, date_ad),
+                               commission_rate: get_commission_rate(total_amount, commission_info),
+                               commission_amount: get_commission(total_amount, commission_info),
                                buyer: buyer,
                                seller: seller,
                                isin_info_id: isin_info_id,
