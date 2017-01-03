@@ -5,7 +5,7 @@
   <table class="table">
     <thead>
     <tr>
-      <th>Bank Name</th>
+      <th>Bank </th>
       <th>Account Number</th>
       <th></th>
       <th></th>
@@ -15,7 +15,7 @@
     <tbody>
     <% @bank_accounts.each do |bank_account| %>
         <tr>
-          <td><%= bank_account.bank.name %></td>
+          <td><%= bank_account.bank.code_and_name %></td>
           <td><%= bank_account.account_number %></td>
           <td><%= link_to 'Show', bank_account %></td>
           <td><%= link_to 'Edit', edit_bank_account_path(bank_account) %></td>
