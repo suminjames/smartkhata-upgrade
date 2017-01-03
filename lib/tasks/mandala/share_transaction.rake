@@ -17,6 +17,7 @@ namespace :mandala do
       fail "Invalid Params!"
     end
 
+    # Note: incoming date should be AD Date
     date_from_str = args.date_from
     date_to_str = args.date_to
 

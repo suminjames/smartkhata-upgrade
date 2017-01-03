@@ -3,10 +3,10 @@
   %table.table.table-striped
     %thead
       %tr
-        %th Start date
-        %th End date
-        %th Start date bs
-        %th End date bs
+        %th Start Date(AD)
+        %th End Date(AD)
+        %th Start Date(BS)
+        %th End Date(BS)
         %th
         %th
         %th
@@ -16,8 +16,8 @@
         %tr
           %td= master_setup_commission_info.start_date
           %td= master_setup_commission_info.end_date
-          %td= master_setup_commission_info.start_date_bs
-          %td= master_setup_commission_info.end_date_bs
+          %td= ad_to_bs(master_setup_commission_info.start_date)
+          %td= ad_to_bs(master_setup_commission_info.end_date)
           %td= link_to 'Show', master_setup_commission_info
           %td= link_to 'Edit', edit_master_setup_commission_info_path(master_setup_commission_info)
 - else

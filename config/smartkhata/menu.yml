@@ -134,7 +134,7 @@ menus:
   - name: Company Register
     code: RG_CMP
     menu_items:
-    - name: Company Register
+    - name: Listed Company Register
       path: "<%= isin_infos_path %>"
       code: RG_CMP_IND
 - name: Reports
@@ -237,7 +237,4 @@ menus:
     - name: Commission Rates Management
       path: "<%= master_setup_commission_infos_path %>"
       code: ADS_MIS_CIM
-    - name: Listed Companies
-      path: "<%= isin_infos_path %>"
-      code: ADS_MIS_IIP
 has_changes: false
