@@ -55,12 +55,9 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
-    # TODO(subas): Is @bank needed? There apparently doesn't seem to be its any use in corresponding view.
-    if @cheque_entry.additional_bank_id.present?
-      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name: current_tenant.full_name
+    if @cheque_entry.receipt?
+      @name = current_tenant.full_name
     else
-      @bank = @cheque_entry.bank_account.bank
       @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
     end
     @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
