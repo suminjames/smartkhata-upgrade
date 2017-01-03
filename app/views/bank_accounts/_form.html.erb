@@ -4,7 +4,17 @@
         <%= f.error_notification %>
 
         <div class="form-inputs">
-          <%= f.association :bank, collection: Bank.order(:name), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank...' %>
+          <%= f.association :bank,
+                            collection: Bank.order(:name),
+                            label_method: :code_and_name,
+                            :input_html => {
+                                include_blank: true,
+                                :class => 'combobox',
+                                :id => 'new_bank_accounts_combobox',
+                                :autocomplete => 'off',
+                                'data-placeholder': '- Select a bank -'
+                            }
+          %>
           <%= f.input :account_number %>
           <%= f.input :bank_branch %>
           <%= f.input :contact_no %>
