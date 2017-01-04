@@ -118,8 +118,8 @@
       <div class="particular-bill-container">
         <%= f.input :bills_selection,
                     :as => :hidden %>
-        <%= link_to '<i class="fa fa-search" aria-hidden="true""></i>'.html_safe,
-                    select_for_settlement_bills_path(client_account_id: 1, sk_id: sk_id),
+        <%= link_to '<i class="fa fa-search" aria-hidden="true"></i>'.html_safe,
+                    select_for_settlement_bills_path(sk_id: sk_id), class: 'bill-finder',
                     remote: true %>
         <span class="info"></span>
       </div>

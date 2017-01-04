@@ -82,11 +82,17 @@ class BillsController < ApplicationController
 
   # GET select_for_settlment
   def select_for_settlement
-    @client_account_id = params['client_account_id'].to_i
+    @ledger_id = params['ledger_id'].to_i
     @sk_id = params['sk_id'] || nil
+    @bills = []
+    @client_account_id = nil
+    @client_account_id = Ledger.find_by(id: @ledger_id).try(:client_account_id)
+    # debugger
+    if @client_account_id
+      client_account= ClientAccount.find(@client_account_id)
+      @bills = client_account.get_all_related_bills.order(date: :asc).decorate
+    end
 
-    client_account= ClientAccount.find(@client_account_id)
-    @bills = client_account.get_all_related_bills.order(date: :asc).decorate
     respond_to do |format|
       format.js
       format.html

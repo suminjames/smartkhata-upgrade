@@ -106,6 +106,13 @@ manage_cheque = ($this, clear_cheque) ->
     $this.parent().parent().find('.cheque-container.bank select').skDisable()
 
 
+manage_bill_finder = ($this) ->
+  $ledger_id = $this.val()
+  $billFinder = $this.closest('.particular').find('a.bill-finder')
+  if $billFinder != undefined
+    href = $billFinder.attr('href')+ '&ledger_id='+ $ledger_id
+    $billFinder.attr('href', href)
+
 #    all particular wide fix
 manage_cheque_all_select = () ->
   $("select.select-ledger").each ->
@@ -119,7 +126,7 @@ error_populate_cheque_number = ($this) ->
     if($input.val().trim().length == 0)
       if !$input.parent().hasClass('has-error')
         $input.parent().addClass('has-error')
-        $input.parent().append('<p class="error">Cheque cant be empty</p>')
+        $input.parent().append('<p class="error">Enter Cheque</p>')
       event.preventDefault()
     else
       $input.parent().removeClass('has-error')
@@ -225,6 +232,7 @@ $ ->
   $(document).on 'change', 'select.select-ledger', (event) ->
     $this = $(this)
     manage_cheque($this)
+    manage_bill_finder($this)
 
 
 
@@ -297,9 +305,10 @@ $(document).on 'click', '.add-to-caller', (event) ->
   $this = $(this)
   skId = $this.data('id')
   $particular = $($('div[data-particular="'+skId+'"]')[0])
-  $amount = parseFloat($this.closest('#smartkhata-modal').find('.numeric-amount').text())
-  $bill_list = $this.closest('#smartkhata-modal').find('.selected-bill-name-list').text()
-  $bill_ids = $this.closest('#smartkhata-modal').find('.selected-bill-id-list').text()
+  $modal = $this.closest('#smartkhata-modal')
+  $amount = parseFloat($modal.find('.numeric-amount').text())
+  $bill_list = $modal.find('.selected-bill-name-list').text()
+  $bill_ids = $modal.find('.selected-bill-id-list').text()
 #  make sure it is not a negative amount
   if ($amount <= 0)
     alert('Amount cant be negative or zero')
@@ -310,4 +319,6 @@ $(document).on 'click', '.add-to-caller', (event) ->
     $particular.find('.voucher_particulars_amount input').val($amount)
     $particular.find('.particular-bill-container .info').text($bill_list)
     $particular.find('.particular-bill-container input').val($bill_ids)
-    $this.closest('#smartkhata-modal').modal('hide')
+    $modal.modal('hide')
+
+  display_balance_total($particular)
