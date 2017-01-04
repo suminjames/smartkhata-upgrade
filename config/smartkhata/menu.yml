@@ -222,12 +222,6 @@ menus:
     - name: Branches
       path: "<%= branches_path %>"
       code: ADS_BRM_BRA
-  - name: Branch Management
-    code: ADS_BRM
-    menu_items:
-    - name: Branches
-      path: "<%= branches_path %>"
-      code: ADS_BRM_BRA
   - name: Misc
     code: ADS_MIS
     menu_items:
