@@ -110,7 +110,7 @@ manage_bill_finder = ($this) ->
   $particular.find('.voucher_particulars_amount input').val(0)
   $particular.find('.particular-bill-container .info').text('')
   $particular.find('.particular-bill-container input').val('')
-  
+
   if $billFinder != undefined
     href = $billFinder.attr('href')
     $billFinder.attr('href', href.replace(/ledger_id=[^&]+/, 'ledger_id='+ $ledger_id));

@@ -41,7 +41,7 @@ class Vouchers::Setup < Vouchers::Base
       end
 
       bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
-      voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
+      # voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
