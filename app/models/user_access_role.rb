@@ -11,12 +11,12 @@
 #
 
 class UserAccessRole < ActiveRecord::Base
-  has_many :menu_permissions
+  has_many :menu_permissions, dependent: :destroy
   has_many :menu_items, through: :menu_permissions
 
   validates_presence_of :role_name
   validates :role_name, uniqueness: true
-  enum  role_type: [:employee, :user ]
+  enum  role_type: [:employee, :user]
 
   has_many :users
 end

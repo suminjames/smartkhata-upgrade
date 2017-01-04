@@ -40,6 +40,7 @@
           <th>Name</th>
           <th>Phone</th>
           <th>Email</th>
+          <th>Access Role</th>
           <!--<th>Has Access To</th>-->
         </tr>
         </thead>
@@ -53,6 +54,7 @@
               <td><%= x.name %></td>
               <td><%= x.phone %><%= "," unless x.phone.blank? %><%= x.phone_perm %></td>
               <td><%= x.email %></td>
+              <td><%= x.user_access_role.try(:role_name) %></td>
               <!--x.has_access_to-->
               <!--<td></td>-->
               <!--TODO(sarojk): Width of the table columns is being messed up by the following td's adjustment. Fix it: Table flexible-->
