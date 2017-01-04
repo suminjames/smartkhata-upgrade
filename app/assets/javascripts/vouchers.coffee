@@ -73,9 +73,6 @@ is_payment_bank_transfer = () ->
     return true
   return false
 
-$(document).ready(ready)
-
-
 particular_has_bank = ($this) ->
   $val = $this.val()
   $this.find("option[value='" + $val + "']").text().indexOf('Bank:') == 0
@@ -108,10 +105,15 @@ manage_cheque = ($this, clear_cheque) ->
 
 manage_bill_finder = ($this) ->
   $ledger_id = $this.val()
+  $particular = $this.closest('.particular')
   $billFinder = $this.closest('.particular').find('a.bill-finder')
+  $particular.find('.voucher_particulars_amount input').val(0)
+  $particular.find('.particular-bill-container .info').text('')
+  $particular.find('.particular-bill-container input').val('')
+  
   if $billFinder != undefined
-    href = $billFinder.attr('href')+ '&ledger_id='+ $ledger_id
-    $billFinder.attr('href', href)
+    href = $billFinder.attr('href')
+    $billFinder.attr('href', href.replace(/ledger_id=[^&]+/, 'ledger_id='+ $ledger_id));
 
 #    all particular wide fix
 manage_cheque_all_select = () ->
@@ -204,6 +206,7 @@ bind_ajax_to_new_particular_row = (id_of_new_particular_row) ->
       }
   });`
 
+$(document).ready(ready)
 #  on selecting a transaction type it has to do some changes based on whether its a bank or not and dr or cr
 $ ->
   $(document).on 'change', '.type-selector select', (event) ->

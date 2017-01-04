@@ -119,9 +119,9 @@
         <%= f.input :bills_selection,
                     :as => :hidden %>
         <%= link_to '<i class="fa fa-search" aria-hidden="true"></i>'.html_safe,
-                    select_for_settlement_bills_path(sk_id: sk_id), class: 'bill-finder',
+                    select_for_settlement_bills_path(sk_id: sk_id, ledger_id: f.object.ledger_id), class: 'bill-finder',
                     remote: true %>
-        <span class="info"></span>
+        <span class="info"><%= f.object.selected_bill_names %></span>
       </div>
     <% end %>
   </div>

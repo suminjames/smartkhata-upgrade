@@ -21,6 +21,7 @@ class Vouchers::Setup < Vouchers::Base
 
     voucher = get_new_voucher(voucher_type)
 
+    bill_id_names = ""
     if voucher.is_payment_receipt?
       is_payment_receipt = true
       ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
@@ -39,7 +40,8 @@ class Vouchers::Setup < Vouchers::Base
         default_ledger_id = cash_ledger.id
       end
 
-      voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
+      bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
+      voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
       voucher.desc = "Settled with ledger balance clearance" if clear_ledger
     end
 
@@ -64,7 +66,10 @@ class Vouchers::Setup < Vouchers::Base
     else
       # for sales and purchase we need two particular one for debit and one for credit
       if client_account.present?
-        voucher.particulars << Particular.new(ledger_id: client_account.ledger.id, amount: amount)
+        voucher.particulars << Particular.new(ledger_id: client_account.ledger.id,
+                                              amount: amount,
+                                              bills_selection: bill_ids.join(','),
+                                              selected_bill_names: bill_id_names )
         ledger_list_available << client_account.ledger
       end
       # a general particular for the voucher
