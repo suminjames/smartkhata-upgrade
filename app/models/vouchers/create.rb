@@ -16,7 +16,6 @@ class Vouchers::Create < Vouchers::Base
   end
 
   def process
-
     # to track if the voucher can be saved.
     # result as false
     res = false
@@ -26,6 +25,7 @@ class Vouchers::Create < Vouchers::Base
     # get a calculated values, these are returned nil if not applicable
     @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
         set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
+
     # set the voucher type
     @voucher.voucher_type = @voucher_type
 
@@ -34,11 +34,8 @@ class Vouchers::Create < Vouchers::Base
       @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
       cash_ledger = Ledger.find_by(name: "Cash")
       @ledger_list_financial << cash_ledger
-      # @ledger_list_available = Ledger.non_bank_ledgers
     end
 
-    # assign all ledgers if ledger_list_available is not present
-    # @ledger_list_available ||= Ledger.all
     @ledger_list_available = []
     @vendor_account_list = VendorAccount.all
     @client_ledger_list = []
@@ -75,12 +72,6 @@ class Vouchers::Create < Vouchers::Base
     end
 
 
-    # do not create voucher if bills have pending deal cancel
-    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
-    if bills_have_pending_deal_cancel
-      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
-      return
-    end
 
     # make sure the group leader and vendor are selected where required.
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?
@@ -91,9 +82,23 @@ class Vouchers::Create < Vouchers::Base
       return
     end
 
+    # do not create voucher if bills have pending deal cancel
+    bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
+    if bills_have_pending_deal_cancel
+      @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
+      return
+    end
 
     if @voucher.particulars.length > 1
-      @voucher, has_error, error_message, net_blnc, net_usable_blnc = process_particulars(@voucher, @voucher_settlement_type)
+      # according to new logic the bill settlement is done through particular
+      # bills are tied up to particulars
+      # TODO(Subas) Move the association away from voucher to the particulars perhaps
+      @voucher,
+          has_error,
+          error_message,
+          net_blnc,
+          net_usable_blnc = process_particulars(@voucher, @voucher_settlement_type)
+
       @processed_bills = []
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
@@ -191,10 +196,15 @@ class Vouchers::Create < Vouchers::Base
 
 
     if is_payment_receipt && client_account
-      net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
-      bills.each do |bill|
 
+      # net usable balance is the particular amount for a client
+      net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
+
+      bills.each do |bill|
         # modify the net usable balance in case of the ledger clearout
+        # not so sure about this anymore
+        # perhaps clear ledger will be removed for now
+        # REVIEW #
         if clear_ledger
           # sales voucher => purchase of shares ( Broker sells to client)
           if voucher_type == Voucher.voucher_types[:receipt]
@@ -207,10 +217,10 @@ class Vouchers::Create < Vouchers::Base
             end
           end
         end
+        # REVIEW #
 
         # since the data is stored to 4 digits and payment is only applicable in 2 digits
         # round the balance_to_pay to 2 digits
-
         if bill.balance_to_pay.round(2) <= net_usable_blnc || (bill.balance_to_pay.round(2) - net_usable_blnc).abs <= @amount_margin_error
           net_usable_blnc = net_usable_blnc - bill.balance_to_pay
           description_bills += "Bill No.:#{bill.fy_code}-#{bill.bill_number}   Amount: #{arabic_number(bill.balance_to_pay)}   Date: #{bill.date_bs} | "
@@ -492,7 +502,6 @@ class Vouchers::Create < Vouchers::Base
       settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
       # settlement.client_account = client_account
     end
-
     settlement
   end
 end

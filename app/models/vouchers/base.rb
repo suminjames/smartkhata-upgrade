@@ -25,6 +25,7 @@ class Vouchers::Base
   end
 
   def set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger = false)
+
     # set default values to nil
     bill_ids ||= []
     amount = 0.0
@@ -32,7 +33,7 @@ class Vouchers::Base
     settlement_by_clearance = false
     bill_ledger_adjustment = 0.0
 
-    # get client account and bill if present
+    # get client account and bill if present from respective ids
     client_account, bill = client_account_and_bill(client_account_id, bill_id)
 
     # different conditions that are available are
