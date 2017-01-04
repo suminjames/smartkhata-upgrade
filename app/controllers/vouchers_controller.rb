@@ -28,6 +28,7 @@ class VouchersController < ApplicationController
     # this case is for payment by bank and should not affect others
     if @voucher.is_payment_bank && !full_view
       @from_path = vouchers_path if @from_path.match(/new/)
+
       # TODO remove this hack
       @particulars_with_bank = @particulars.has_bank
       # allow single payment by a cheque
