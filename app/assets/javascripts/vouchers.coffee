@@ -2,14 +2,50 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-manage_cheque_all_select = () ->
-  $("select.select-ledger").each ->
-    $this = $(this)
-    manage_cheque($this)
+
 
 fix_autocomplete = () ->
   $('.combobox-container input:text').each ->
     $(this).attr('autocomplete', 'off')
+
+$.fn.extend
+  skDisable: ->
+    @each ->
+      $(this).prop('disabled', true);
+      $(this).find('option').attr("selected",false)
+  skEnable: ->
+    @each ->
+      $(this).prop('disabled', false);
+  skInitializeSelect2Simple: ->
+    @each ->
+      $(this).select2({
+        theme: "bootstrap",
+        selectOnClose: true
+      })
+  skInitializeSelect2Ledger: ->
+    @each ->
+      `$(this).select2({
+          theme: 'bootstrap',
+          allowClear: true,
+          minimumInputLength: 3,
+          ajax: {
+              url: "/ledgers/combobox_ajax_filter",
+              dataType: 'json',
+              delay: 250,
+              data: function (params) {
+                  return {
+                      q: params.term, // search term
+                      search_type: 'generic'// search type
+                  };
+              },
+              processResults: function (data, params) {
+                  return {
+                      results: data
+                  };
+              }
+          }
+      });`
+
 
 ready = ->
   jQuery ->
@@ -44,6 +80,7 @@ particular_has_bank = ($this) ->
   $val = $this.val()
   $this.find("option[value='" + $val + "']").text().indexOf('Bank:') == 0
 
+#  cheque and bank input enable and disable on the basis of selections
 manage_cheque = ($this, clear_cheque) ->
   clear_cheque ||= false
   $val = $this.val()
@@ -55,17 +92,26 @@ manage_cheque = ($this, clear_cheque) ->
         $cheque.val(response)
       else
         $cheque.val("")
-    $this.parent().parent().find('.cheque-container').show()
+    $this.parent().parent().find('.cheque-container input').skEnable()
+    $this.parent().parent().find('.cheque-container.bank select').skEnable()
     if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
-      $this.parent().parent().find('.cheque-container.bank').hide()
+      $this.parent().parent().find('.cheque-container.bank select').skDisable()
       $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
     else
       if clear_cheque
         $cheque.val("")
-
   else
     $cheque.val("")
-    $this.parent().parent().find('.cheque-container').hide()
+    $this.parent().parent().find('.cheque-container input').skDisable()
+    $this.parent().parent().find('.cheque-container.bank select').skDisable()
+
+
+#    all particular wide fix
+manage_cheque_all_select = () ->
+  $("select.select-ledger").each ->
+    $this = $(this)
+    manage_cheque($this)
+
 
 error_populate_cheque_number = ($this) ->
   if particular_has_bank($this) && !is_payment_bank_transfer()
@@ -84,8 +130,8 @@ error_populate_additional_bank_select= ($this) ->
   if particular_has_bank($this) && !is_payment_bank_transfer()
     # Check if additional bank field is available, which should only be true for receipt voucher with bank.
     is_additional_bank_field_present = $this.parent().parent().find('.cheque-container.bank').size() != 0
-    # Also, in JVR, selection of Dr or Cr  for bank ledgers changes visibility of additional bank select tag. Accomodate this too.
-    is_additional_bank_field_visible = $this.parent().parent().find('.cheque-container.bank').is(":visible")
+    # Also, in JVR, selection of Dr or Cr  for bank ledgers changes disablity of additional bank select tag. Accomodate this too.
+    is_additional_bank_field_visible = $this.parent().parent().find('.cheque-container.bank').is(":enabled")
     if is_additional_bank_field_present == true && is_additional_bank_field_visible == true
       $select = $this.parent().parent().find('.cheque-container.bank').find('select')
       # check if additional bank is selected or not
@@ -98,107 +144,6 @@ error_populate_additional_bank_select= ($this) ->
       else
         $select.parent().removeClass('has-error')
         $select.parent().find('p.error').hide()
-
-$ ->
-  $(document).on 'change', '.type-selector select', (event) ->
-    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
-    manage_cheque($ledgerSelect, true)
-
-$ ->
-  manage_cheque_all_select()
-
-$ ->
-  $(document).on 'change', '.cheque', (event) ->
-    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
-    error_populate_cheque_number($ledgerSelect)
-
-$ ->
-  $(document).on 'change', '.cheque-container.bank', (event) ->
-    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
-    error_populate_additional_bank_select($ledgerSelect)
-
-$ ->
-  $(document).on 'change', 'select.select-ledger', (event) ->
-    $this = $(this)
-    manage_cheque($this)
-
-$ ->
-  $('#new_voucher').on 'submit', (event) ->
-    $(".particular").each ->
-      $this = $(this)
-    #      if ($this.find('.voucher_particulars_amnt input').val().trim() == "" || parseFloat($this.find('.voucher_particulars_amnt input').val()) == 0)
-    #        $this.remove()
-
-
-    $("select.select-ledger").each ->
-      $this = $(this)
-      error_populate_cheque_number($this)
-      error_populate_additional_bank_select($this)
-
-
-$ ->
-  $('form').on 'click', '.removeThisParticular', (event) ->
-
-    $(this).closest('div.row.particular').remove()
-    event.preventDefault()
-
-bind_ajax_to_new_particular_row = (id_of_new_particular_row) ->
-  `$("#" + id_of_new_particular_row).select2({
-      theme: 'bootstrap',
-      allowClear: true,
-      minimumInputLength: 3,
-      ajax: {
-          url: "/ledgers/combobox_ajax_filter",
-          dataType: 'json',
-          delay: 250,
-          data: function (params) {
-              return {
-                  q: params.term, // search term
-                  search_type: 'generic'// search type
-              };
-          },
-          processResults: function (data, params) {
-              return {
-                  results: data
-              };
-          }
-      }
-  });`
-
-$(document).on 'click', '.add_fields', (event) ->
-  time = new Date().getTime()
-  regexp = new RegExp($(this).data('id'), 'g')
-  $(this).before($(this).data('fields').replace(regexp, time))
-
-  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
-  #  Addition of particular row is different in receipt voucher, where the Credit Particulars should only be financial ledgers. Check for type of particular adding, and act accordingly.
-  if new_particular_row_is_financial_ledger == true
-    id_of_new_particular_row_ledger_select = "voucher-financial-ledger-combobox"
-    id_of_new_particular_row_additional_bank_select = "voucher_particulars_attributes_" + time + "_additional_bank_id"
-    $('select.combobox#' + id_of_new_particular_row_ledger_select).select2({
-      theme: "bootstrap",
-      selectOnClose: true
-    })
-    $('select.combobox#' + id_of_new_particular_row_additional_bank_select).select2({
-      theme: "bootstrap",
-      selectOnClose: true
-    })
-  else
-    id_of_new_particular_row_ledger_select = "voucher_particulars_attributes_" + time + "_ledger_id"
-    # bind combobox ajax to newly added generic particular row
-    bind_ajax_to_new_particular_row(id_of_new_particular_row_ledger_select)
-
-  event.preventDefault()
-  fix_autocomplete()
-  manage_cheque_all_select()
-
-
-$(document).on 'change', '.voucher_particulars_amount input', (event) ->
-  display_balance_total($(this))
-
-$(document).on 'change', '.type-selector select', (event) ->
-  display_balance_total($(this))
-
 
 display_balance_total = ($this) ->
   $voucher_element = $this.closest('.voucher .box .box-body')
@@ -229,6 +174,111 @@ manage_group_vendor_entry = ($this) ->
     $('.many-to-single-settlement-vendor').hide()
     $('.many-to-single-settlement-client').show()
 
+bind_ajax_to_new_particular_row = (id_of_new_particular_row) ->
+  `$("#" + id_of_new_particular_row).select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: "/ledgers/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  search_type: 'generic'// search type
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });`
+
+#  on selecting a transaction type it has to do some changes based on whether its a bank or not and dr or cr
+$ ->
+  $(document).on 'change', '.type-selector select', (event) ->
+    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
+    manage_cheque($ledgerSelect, true)
+
+# initially check all the ledger and enable the cheque only when it is needed
+$ ->
+  manage_cheque_all_select()
+
+#  error population in case of cheque number
+#  for the cases where cheque number is required
+$ ->
+  $(document).on 'change', '.cheque', (event) ->
+    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
+    error_populate_cheque_number($ledgerSelect)
+
+#    check and display error when cheque container is not selected
+$ ->
+  $(document).on 'change', '.cheque-container.bank', (event) ->
+    $ledgerSelect = $(this).closest('.particular').find('select.select-ledger')
+    error_populate_additional_bank_select($ledgerSelect)
+
+#    actions based on the ledger selection
+$ ->
+  $(document).on 'change', 'select.select-ledger', (event) ->
+    $this = $(this)
+    manage_cheque($this)
+
+
+
+$ ->
+  $('#new_voucher').on 'submit', (event) ->
+    $("select.select-ledger").each ->
+      $this = $(this)
+      error_populate_cheque_number($this)
+      error_populate_additional_bank_select($this)
+
+$ ->
+  $('form').on 'click', '.removeThisParticular', (event) ->
+
+    $(this).closest('div.row.particular').remove()
+    event.preventDefault()
+
+
+
+$(document).on 'click', '.add_fields', (event) ->
+  time = new Date().getTime()
+  regexp = new RegExp($(this).data('id'), 'g')
+  $(this).before($(this).data('fields').replace(regexp, time))
+
+  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
+
+  $('select.select2simple').skInitializeSelect2Simple()
+  $('select.select2-ajax-ledger').skInitializeSelect2Ledger()
+
+#  #  Addition of particular row is different in receipt voucher, where the Credit Particulars should only be financial ledgers. Check for type of particular adding, and act accordingly.
+#  if new_particular_row_is_financial_ledger == true
+#  #    id_of_new_particular_row_ledger_select = "voucher-financial-ledger-combobox"
+#  #    $('select.combobox#' + id_of_new_particular_row_ledger_select).select2({
+#  #      theme: "bootstrap",
+#  #      selectOnClose: true
+#  #    })
+#  else
+##    id_of_new_particular_row_ledger_select = "voucher_particulars_attributes_" + time + "_ledger_id"
+#    # bind combobox ajax to newly added generic particular row
+##    bind_ajax_to_new_particular_row(id_of_new_particular_row_ledger_select)
+
+  event.preventDefault()
+  fix_autocomplete()
+  manage_cheque_all_select()
+
+
+$(document).on 'change', '.voucher_particulars_amount input', (event) ->
+  display_balance_total($(this))
+
+$(document).on 'change', '.type-selector select', (event) ->
+  display_balance_total($(this))
+
+
+
+
 
 $ ->
   $settlement_type = $('input:radio[name="voucher_settlement_type"]:checked')
@@ -241,3 +291,23 @@ $ ->
 
   $('input:radio[name="payment_mode"]').on 'change', (event) ->
     manage_cheque_all_select()
+
+#    current implementation supports only receipt
+$(document).on 'click', '.add-to-caller', (event) ->
+  $this = $(this)
+  skId = $this.data('id')
+  $particular = $($('div[data-particular="'+skId+'"]')[0])
+  $amount = parseFloat($this.closest('#smartkhata-modal').find('.numeric-amount').text())
+  $bill_list = $this.closest('#smartkhata-modal').find('.selected-bill-name-list').text()
+  $bill_ids = $this.closest('#smartkhata-modal').find('.selected-bill-id-list').text()
+#  make sure it is not a negative amount
+  if ($amount <= 0)
+    alert('Amount cant be negative or zero')
+    $particular.find('.voucher_particulars_amount input').val(0)
+    $particular.find('.particular-bill-container .info').text('')
+    $particular.find('.particular-bill-container input').val('')
+  else
+    $particular.find('.voucher_particulars_amount input').val($amount)
+    $particular.find('.particular-bill-container .info').text($bill_list)
+    $particular.find('.particular-bill-container input').val($bill_ids)
+    $this.closest('#smartkhata-modal').modal('hide')

@@ -1,0 +1,11 @@
+var title = '.modal-title',
+    loader = '.ajax-loader',
+    content = '.modal-body',
+    modal = '#smartkhata-modal';
+
+//i set the title through a helper function
+$(title).html('Bills for Settlement');
+$(content).html('<%= j render("select_for_settlement", bills: @bills, client_account_id: @client_account_id, sk_id: @sk_id, modal_view: true) %>');
+$(modal).modal();
+
+// when called from the voucher end(which is generally the case)

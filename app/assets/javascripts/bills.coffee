@@ -8,6 +8,22 @@ get_balance = ($this) ->
   else
     return parse_number($parent.find('.bill-amount')) * -1
 
+get_bill_id = ($this) ->
+  $parent = $this.closest('tr')
+  return $parent.find('td.formatted-bill-number').text()
+
+get_bill_names = () ->
+  arr = []
+  $('.check-bill:checked').each ->
+    arr.push(get_bill_id($(this)))
+  return arr.join(',')
+
+get_bill_ids = () ->
+  arr = []
+  $('.check-bill:checked').each ->
+    arr.push($(this).val())
+  return arr.join(',')
+
 get_total_balance = () ->
   balance = 0
   $('.check-bill:checked').each ->
@@ -23,3 +39,7 @@ $ ->
 
     $total_amount.text(format_number(Math.abs(bill_amount)))
     $total_type.text(if bill_amount >= 0 then 'dr' else 'cr')
+
+    $('.total-bill-amount .numeric-amount').text(bill_amount)
+    $('.total-bill-amount .selected-bill-name-list').text(get_bill_names())
+    $('.total-bill-amount .selected-bill-id-list').text(get_bill_ids())
