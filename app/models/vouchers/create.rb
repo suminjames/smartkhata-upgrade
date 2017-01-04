@@ -126,6 +126,8 @@ class Vouchers::Create < Vouchers::Base
     credit_ledgers = Hash.new 0
 
     # save associated ledgers to be shown in select tag in view, upon redirect
+    # looped before processing to avoid it being not updated due to abrupt exit in code
+    # also attr_reader and can be set?
     voucher.particulars.each do |particular|
       if particular.ledger_id.present?
         ledger_list_available << particular.ledger

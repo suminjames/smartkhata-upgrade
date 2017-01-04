@@ -107,7 +107,6 @@ manage_bill_finder = ($this) ->
   $ledger_id = $this.val()
   $particular = $this.closest('.particular')
   $billFinder = $this.closest('.particular').find('a.bill-finder')
-  $particular.find('.voucher_particulars_amount input').val(0)
   $particular.find('.particular-bill-container .info').text('')
   $particular.find('.particular-bill-container input').val('')
 
