@@ -26,7 +26,7 @@ class Vouchers::Base
     bill_ids ||= []
     amount = 0.0
     bills = []
-    settlement_by_clearance = false
+    settlement_by_clearance = clear_ledger
     bill_ledger_adjustment = 0.0
     voucher_type = 0
 
@@ -211,7 +211,7 @@ class Vouchers::Base
   def validate
   #   when bill ids are present client account should also be present
   #   since bill is always tied up to client
-    raise SmartKhataError if @bill_ids.present? && !@client_account_id.present?
+    raise SmartKhataError if (( @bill_ids.present? || @clear_ledger) && !@client_account_id.present?)
   end
 
 
