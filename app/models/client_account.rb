@@ -405,4 +405,7 @@ class ClientAccount < ActiveRecord::Base
     user_id.blank? && boid.present?
   end
 
+  def has_sufficient_bank_account_info?
+    bank_name.present? && bank_account.present?
+  end
 end
