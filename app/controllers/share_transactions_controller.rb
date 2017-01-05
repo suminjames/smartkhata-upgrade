@@ -37,8 +37,6 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-
-
     items_per_page = 20
     # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
@@ -75,11 +73,10 @@ class ShareTransactionsController < ApplicationController
       end
     end
 
-    @download_path_xlsx = share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-    @download_path_pdf = share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
-
-    @print_path_pdf_in_regular = share_transactions_path({format:'pdf'}.merge params)
-    @print_path_pdf_in_letter_head =share_transactions_path({format:'pdf', print_in_letter_head: 1}.merge params)
+    @download_path_xlsx = share_transactions_path(request.query_parameters.merge(format: 'xlsx', paginate: 'false'))
+    @download_path_pdf = share_transactions_path(request.query_parameters.merge(format: 'pdf', paginate: 'false'))
+    @print_path_pdf_in_regular = share_transactions_path(request.query_parameters.merge(format: 'pdf', paginate: 'false', print: 'true'))
+    @print_path_pdf_in_letter_head = share_transactions_path(request.query_parameters.merge(format: 'pdf', paginate: 'false', print: 'true', print_in_letter_head: 1))
 
     if params[:filterrific] && params[:group_by_company].present?
       params[:filterrific][:group_by_company] = params[:group_by_company]
@@ -90,8 +87,16 @@ class ShareTransactionsController < ApplicationController
       format.js
       format.pdf do
         print_in_letter_head = params[:print_in_letter_head].present?
+        print = params[:print] == 'true'
         pdf = Reports::Pdf::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
-        send_data pdf.render, filename:  Reports::Pdf::ShareTransactionsReport.file_name(params[:filterrific]) + '.pdf', type: 'application/pdf'
+        options = {
+            filename: Reports::Pdf::ShareTransactionsReport.file_name(params[:filterrific]) + '.pdf',
+            type: 'application/pdf'
+        }
+        # The value of disposition needs to be 'inline' for printing to work.
+        # This is because during printing, the PDF is first loaded in a hidden iframe, then printed.
+        options[:disposition] = "inline" if print
+        send_data pdf.render, options
       end
       format.xlsx do
         report = Reports::Excelsheet::ShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant)

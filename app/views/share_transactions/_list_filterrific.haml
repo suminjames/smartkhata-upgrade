@@ -20,9 +20,19 @@
           %span.caret
         %ul.dropdown-menu
           %li
-            = link_to 'in Regular', @print_path_pdf_in_regular
+            %a
+              %span.btnPrintPDF.btnPrintShareTransactionListPDFRegular{:data_download_url=> URI.unescape(@print_path_pdf_in_regular)}
+                %span
+                  in Regular
+                = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'share-transaction-print-regular-spinner')
+                %iframe.hidden-iframe#iframe-for-share-transaction-pdf-regular-print
           %li
-            = link_to 'in Letter-head', @print_path_pdf_in_letter_head
+            %a
+              %span.btnPrintPDF.btnPrintShareTransactionListPDFLetterhead{:data_download_url=> URI.unescape(@print_path_pdf_in_letter_head)}
+                %span
+                  in Letterhead
+                = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'share-transaction-print-letterhead-spinner')
+                %iframe.hidden-iframe#iframe-for-share-transaction-pdf-letterhead-print
       - if @transaction_date.present?
         = link_to "Create Transaction Message", create_multiple_transaction_messages_path(transaction_date: @transaction_date), {data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Creating..." } , method: :post, class: "btn btn-sm btn-default"}
 
