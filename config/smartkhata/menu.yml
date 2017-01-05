@@ -78,9 +78,6 @@ menus:
     - name: Transaction Messages
       path: "<%= transaction_messages_path %>"
       code: AS_BIL_TRM
-    - name: Payment Letters
-      path: "<%= bank_payment_letters_path %>"
-      code: AS_BIL_PMT
     - name: Sales Bill Payment
       path: "<%= sales_payment_bills_path %>"
       code: AS_BIL_BPM
