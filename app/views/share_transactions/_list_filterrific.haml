@@ -21,14 +21,14 @@
         %ul.dropdown-menu
           %li
             %a
-              %span.btnPrintPDF.btnPrintShareTransactionListPDFRegular{:data_download_url=> URI.unescape(@print_path_pdf_in_regular)}
+              %span.btnPrintPDF.btnPrintShareTransactionListPDFRegular{:"data-download-url" => URI.unescape(@print_path_pdf_in_regular)}
                 %span
                   in Regular
                 = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'share-transaction-print-regular-spinner')
                 %iframe.hidden-iframe#iframe-for-share-transaction-pdf-regular-print
           %li
             %a
-              %span.btnPrintPDF.btnPrintShareTransactionListPDFLetterhead{:data_download_url=> URI.unescape(@print_path_pdf_in_letter_head)}
+              %span.btnPrintPDF.btnPrintShareTransactionListPDFLetterhead{:"data-download-url" => URI.unescape(@print_path_pdf_in_letter_head)}
                 %span
                   in Letterhead
                 = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'share-transaction-print-letterhead-spinner')

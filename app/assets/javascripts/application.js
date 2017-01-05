@@ -331,12 +331,12 @@ $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
 });
 
 $(document).on("click", ".btnPrintShareTransactionListPDFRegular", function (event) {
-    url = $(this).attr('data_download_url');
+    url = $(this).attr('data-download-url');
     loadAndPrint(url, 'iframe-for-share-transaction-pdf-regular-print', 'share-transaction-regular-print-regular-spinner');
 });
 
 $(document).on("click", ".btnPrintShareTransactionListPDFLetterhead", function (event) {
-    url = $(this).attr('data_download_url');
+    url = $(this).attr('data-download-url');
     loadAndPrint(url, 'iframe-for-share-transaction-pdf-letterhead-print', 'share-transaction-print-letterhead-spinner');
 });
 
