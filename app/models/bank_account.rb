@@ -42,6 +42,10 @@ class BankAccount < ActiveRecord::Base
   validates_presence_of :bank, :account_number, :bank_branch
   accepts_nested_attributes_for :ledger
 
+
+  def test_dummy
+    raise SmartKhataError
+  end
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted
   def change_default

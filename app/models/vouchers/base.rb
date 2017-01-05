@@ -8,33 +8,30 @@ class Vouchers::Base
 
   def initialize(attrs = {})
     @client_account_id = attrs[:client_account_id]
-    @bill_id = attrs[:bill_id]
     @voucher_type = attrs[:voucher_type]
     @error_message = nil
     @clear_ledger = attrs[:clear_ledger]
     @bill_ids = attrs[:bill_ids]
     @amount_margin_error = 0.01
+    validate
   end
+
+
+
 
   private
-
-  def get_new_voucher(voucher_type)
-    voucher = Voucher.new
-    voucher.voucher_type = voucher_type
-    voucher
-  end
-
-  def set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger = false)
-
+  # attr_accessor :bill_ids, :client_account_id, :clear_ledger
+  def set_bill_client(client_account_id, bill_ids,clear_ledger = false)
     # set default values to nil
     bill_ids ||= []
     amount = 0.0
     bills = []
     settlement_by_clearance = false
     bill_ledger_adjustment = 0.0
+    voucher_type = 0
 
     # get client account and bill if present from respective ids
-    client_account, bill = client_account_and_bill(client_account_id, bill_id)
+    client_account = client_account_and_bill(client_account_id)
 
     # different conditions that are available are
     #   1. clear ledger (clear ledger balance)
@@ -59,11 +56,10 @@ class Vouchers::Base
         bill_list = get_bills_from_ids(bill_ids)
 
         related_pending_bill_ids = client_account.get_all_related_bill_ids
-
         # make sure all id in bill_ids are in related_pending_bill_ids
         unless (bill_ids - related_pending_bill_ids).empty?
           # this condition should not be true
-          raise NotImplementedError
+          raise SmartKhataError
         end
 
         bills_receive = bill_list.requiring_receive
@@ -124,7 +120,11 @@ class Vouchers::Base
             end
           else
             # this condition should not be true
-            raise NotImplementedError
+
+            # this should be avoided
+            # when user have less than 0 debit amount ie needs to be paid, client should not pay
+            # this action should not be attempted, perform other strategies
+            raise SmartKhataError
           end
         else
           # this case for condition when amount to pay is greater than amount to receive
@@ -133,9 +133,14 @@ class Vouchers::Base
           # even if the current selection of bills imply we need to pay to client
           # we need to receive amount from client
 
+
           # this condition should not be true
+
+          # this should be avoided
+          # when user have more than 0 debit amount ie needs to pay, we should not be paying them
+          # this action should not be attempted, perform other strategies
           if ledger_balance + @amount_margin_error >= 0
-            raise NotImplementedError
+            raise SmartKhataError
 
             #   eg -10000 ledger balance, -5000 amount to pay now => pay only 5000
           elsif ledger_balance <= amount_to_receive_or_pay
@@ -153,60 +158,69 @@ class Vouchers::Base
         end
       end
     else
-      # in case payment or receive is done
-      case voucher_type
-        when Voucher.voucher_types[:receipt],
-            Voucher.voucher_types[:receipt_cash],
-            Voucher.voucher_types[:receipt_bank],
-            Voucher.voucher_types[:receipt_bank_deposit]
-          # check if the client account is present
-          # and grab all the bills from which we can receive amount if bill is not present
-          # else grab the amount to be paid from the bill
+      # not used anymore, might be revived in future
 
-          # TODO(subas) Remove the condition where bill is not present
-          if client_account.present?
-            unless bill.present?
-              bills = client_account.bills.requiring_receive
-              amount = bills.sum(:balance_to_pay)
-            else
-              bills = [bill]
-              amount = bill.balance_to_pay
-            end
-            amount = amount.abs
-          end
-        when Voucher.voucher_types[:payment],
-            Voucher.voucher_types[:payment_cash],
-            Voucher.voucher_types[:payment_bank],
-          if client_account.present?
-            unless bill.present?
-              bills = client_account.bills.requiring_payment
-              amount = bills.sum(:balance_to_pay)
-            else
-              bills = [bill]
-              amount = bill.balance_to_pay
-            end
-            amount = amount.abs
-          end
-      end
+      # # in case payment or receive is done
+      # case voucher_type
+      #   when Voucher.voucher_types[:receipt],
+      #       Voucher.voucher_types[:receipt_cash],
+      #       Voucher.voucher_types[:receipt_bank],
+      #       Voucher.voucher_types[:receipt_bank_deposit]
+      #     # check if the client account is present
+      #     # and grab all the bills from which we can receive amount if bill is not present
+      #     # else grab the amount to be paid from the bill
+      #
+      #     # TODO(subas) Remove the condition where bill is not present
+      #     if client_account.present?
+      #       unless bill.present?
+      #         bills = client_account.bills.requiring_receive
+      #         amount = bills.sum(:balance_to_pay)
+      #       else
+      #         bills = [bill]
+      #         amount = bill.balance_to_pay
+      #       end
+      #       amount = amount.abs
+      #     end
+      #   when Voucher.voucher_types[:payment],
+      #       Voucher.voucher_types[:payment_cash],
+      #       Voucher.voucher_types[:payment_bank],
+      #     if client_account.present?
+      #       unless bill.present?
+      #         bills = client_account.bills.requiring_payment
+      #         amount = bills.sum(:balance_to_pay)
+      #       else
+      #         bills = [bill]
+      #         amount = bill.balance_to_pay
+      #       end
+      #       amount = amount.abs
+      #     end
+      # end
     end
 
 
     amount = amount.round(2)
-    return client_account, bill, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment
+    return client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment
+  end
+  def get_new_voucher(voucher_type)
+    voucher = Voucher.new
+    voucher.voucher_type = voucher_type
+    voucher
   end
 
-  def client_account_and_bill(client_account_id, bill_id)
-    # find the bills for the client
-    # or client for the bill
-    bill = nil
+  # validate self
+  def validate
+  #   when bill ids are present client account should also be present
+  #   since bill is always tied up to client
+    raise SmartKhataError if @bill_ids.present? && !@client_account_id.present?
+  end
+
+
+
+  def client_account_and_bill(client_account_id)
+    # find the client account
     client_account = nil
-    if client_account_id.present?
-      client_account = ClientAccount.find(client_account_id)
-    elsif bill_id.present?
-      bill = Bill.find(bill_id)
-      client_account = bill.client_account
-    end
-    return client_account, bill
+    client_account = ClientAccount.find(client_account_id) if client_account_id.present?
+    return client_account
   end
 
   def bills_have_pending_deal_cancel(bill_list)

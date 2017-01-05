@@ -23,8 +23,8 @@ class Vouchers::Create < Vouchers::Base
     # amount_entered = voucher.particulars.dr.sum(:amount)
 
     # get a calculated values, these are returned nil if not applicable
-    @client_account, @bill, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
-        set_bill_client(@client_account_id, @bill_ids, @bill_id, @voucher_type, @clear_ledger)
+    @client_account, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
+        set_bill_client(@client_account_id, @bill_ids, @clear_ledger)
 
     # set the voucher type
     @voucher.voucher_type = @voucher_type

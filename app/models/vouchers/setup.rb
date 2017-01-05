@@ -1,16 +1,15 @@
 class Vouchers::Setup < Vouchers::Base
-
   def voucher_and_relevant
-    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @bill_id, @clear_ledger)
+    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @clear_ledger)
   end
 
-  def voucher_setup(voucher_type, client_account_id, bill_ids, bill_id, clear_ledger)
+  def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger)
     is_payment_receipt = false
     default_ledger_id = nil
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bill, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, bill_id, voucher_type, clear_ledger)
+    client_account, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, clear_ledger)
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)

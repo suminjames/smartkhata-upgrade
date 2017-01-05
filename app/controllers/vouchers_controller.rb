@@ -59,6 +59,10 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
+
+    # two way to post to this controller
+    # either clear_ledger and client_account_id or client_account_id and bill_ids
+
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -68,7 +72,7 @@ class VouchersController < ApplicationController
     @vendor_account_list,
     @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
                                               client_account_id: @client_account_id,
-                                              bill_id: @bill_id,
+                                              # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
                                               bill_ids: @bill_ids).voucher_and_relevant
   end
