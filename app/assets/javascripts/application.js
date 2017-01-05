@@ -312,7 +312,6 @@ $(document).on("click", ".btnPrintMultipleSettlementsPDF", function (event) {
 
 // Currently used by cheque_entry#show.
 $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
-    console.log('Print Yo!')
     $this = $(this)
     cheque_entry_id = this.id.split("-")[1];
     // Update 'print_status' of cheque entry before printing the cheque entry pdf
@@ -331,16 +330,27 @@ $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
     });
 });
 
+$(document).on("click", ".btnPrintShareTransactionListPDFRegular", function (event) {
+    url = $(this).attr('data-download-url');
+    loadAndPrint(url, 'iframe-for-share-transaction-pdf-regular-print', 'share-transaction-regular-print-regular-spinner');
+});
+
+$(document).on("click", ".btnPrintShareTransactionListPDFLetterhead", function (event) {
+    url = $(this).attr('data-download-url');
+    loadAndPrint(url, 'iframe-for-share-transaction-pdf-letterhead-print', 'share-transaction-print-letterhead-spinner');
+});
+
 // The following methods print and callPrint has been excerpted from https://www.sitepoint.com/load-pdf-iframe-call-print/
 function loadAndPrint(url, iframeId, spinnerId) {
+    // console.log("Load and Print invoked.");
     $('#' + spinnerId).removeClass('hidden')
-    // console.log("load and print");
     var _this = this,
         $iframe = $('iframe#' + iframeId)
 
     $iframe.attr('src', url);
 
     $iframe.load(function () {
+        // console.log("Loaded content in hidden iframe.")
         callPrint(iframeId, spinnerId);
     });
 }
