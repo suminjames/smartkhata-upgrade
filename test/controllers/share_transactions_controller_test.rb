@@ -65,7 +65,7 @@ class ShareTransactionsControllerTest < ActionController::TestCase
 
     # third step: queue deal cancel
     get :deal_cancel, id: transaction.id
-    assert_contains 'Deal cancelled successfully', flash[:notice]
+    assert_contains 'Deal cancel queued for approval successfully.', flash[:notice]
     assert_redirected_to deal_cancel_share_transactions_path
 
     transaction.reload
