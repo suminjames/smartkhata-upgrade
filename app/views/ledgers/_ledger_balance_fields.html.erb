@@ -1,5 +1,5 @@
 <div class="row particular">
-  <div class="col-xs-5"><%= f.input :opening_balance, input_html: { value: f.object.formatted_opening_balance },label:false %></div>
+  <div class="col-xs-5"><%= f.input :opening_balance, input_html: { value: f.object.formatted_opening_balance, min: 0 },label:false %></div>
   <div class="col-xs-2"><%= f.select :opening_balance_type, options_for_select(Particular.transaction_types, f.object.opening_balance_type) %></div>
   <div class="col-xs-4">
     <%= f.input :branch_id , label: false do %>
