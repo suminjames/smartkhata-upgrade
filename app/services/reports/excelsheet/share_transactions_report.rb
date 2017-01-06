@@ -8,6 +8,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
       @date_query_present = [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present?}
       @group_by_company = params[:group_by_company] == 'true'
+      @transaction_type = params[:by_transaction_type]
     end
 
     generate_excelsheet if params_valid?
@@ -35,21 +36,37 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     # Adds document headings and returns the filename conditionally, before the real data table is inserted.
     report = 'ShareTransactionReport'
     headings, @file_name = case
-    when @client_account && @isin_info
-      [["Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\""],
-      "ClientCompany_#{report}_#{@client_account.id}_#{@isin_info.id}_#{@date}"]
-    when @client_account
-      [["Client Wise Report", "\"#{@client_account.name.strip}\""],
-      "ClientWise_#{report}_#{@client_account.id}_#{@date}"]
-    when @isin_info
-      [["Company Wise Report", "\"#{@isin_info.company.strip}\""],
-      "CompanyWise_#{report}_#{@isin_info.id}_#{@date}"]
-    else # full report
-      sub_heading = "All transactions"
-      sub_heading << " of" if @date_query_present
-      [["Share Inventory Report", sub_heading],
-      "#{report}_#{@date}"]
-    end
+                             when @client_account && @isin_info
+                               [
+                                   [
+                                       "Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\""
+                                   ],
+                                   "ClientCompany_#{report}_#{@client_account.id}_#{@isin_info.id}_#{@date}"
+                               ]
+                             when @client_account
+                               [
+                                   [
+                                       "Client Wise Report", "\"#{@client_account.name.strip}\""
+                                   ],
+                                   "ClientWise_#{report}_#{@client_account.id}_#{@date}"
+                               ]
+                             when @isin_info
+                               [
+                                   [
+                                       "Company Wise Report", "\"#{@isin_info.company.strip}\""
+                                   ],
+                                   "CompanyWise_#{report}_#{@isin_info.id}_#{@date}"
+                               ]
+                             else # full report
+                               sub_heading = "All transactions"
+                               sub_heading << " of" if @date_query_present
+                               [
+                                   [
+                                       "Share Inventory Report", sub_heading
+                                   ],
+                                   "#{report}_#{@date}"
+                               ]
+                           end
     add_document_headings(*headings)
   end
 
@@ -71,6 +88,9 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
         end
         add_date_info.call
         add_blank_row
+      end
+      if @transaction_type.present?
+        add_header_row("Transaction Type: #{@transaction_type.titleize}", :info)
       end
     }
   end

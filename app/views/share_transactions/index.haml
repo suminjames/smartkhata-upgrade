@@ -43,14 +43,21 @@
             :name_and_code,                                      |
             {include_blank: true},                 |
             {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+          %div.top-buffer-xs
+            %label
+              Type
+            = f.select(                        |
+              :by_transaction_type,                              |
+              @filterrific.select_options[:by_transaction_type], |
+              {include_blank: true},                 |
+              {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
         .col-sm-2
           %label
             Date
-          %br
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' )       |
+            class: 'form-control' ) |
         .col-sm-2.text-center
           %label
             Date Range

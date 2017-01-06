@@ -16,6 +16,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
       @group_by_company = params[:group_by_company] == 'true'
+      @transaction_type = params[:by_transaction_type]
     end
 
     if @print_in_letter_head
@@ -98,6 +99,10 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       sub_heading << " of" if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present?}
       document_headings.push("Share Inventory Report", sub_heading)
       @file_name = "ShareTransactionReport_#{@date}"
+    end
+
+    if @transaction_type.present?
+      document_headings.push("Transaction Type: #{@transaction_type.titleize}")
     end
 
     if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present? }

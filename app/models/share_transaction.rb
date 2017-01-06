@@ -81,6 +81,7 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_to,
           :by_client_id,
           :by_isin_id,
+          :by_transaction_type,
           :by_transaction_cancel_status,
           :above_threshold,
           # for close outs
@@ -112,6 +113,9 @@ class ShareTransaction < ActiveRecord::Base
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
     not_cancelled.where('date<= ?', date_ad.end_of_day)
+  }
+  scope :by_transaction_type, lambda { |type|
+    not_cancelled.where(:transaction_type => ShareTransaction.transaction_types[type])
   }
   scope :by_transaction_cancel_status, lambda { |status|
     if status == 'deal_cancel_complete'
@@ -289,6 +293,14 @@ class ShareTransaction < ActiveRecord::Base
   def self.options_for_isin_select
     IsinInfo.all.order(:isin)
   end
+
+  def self.options_for_transaction_type_select
+    [
+        ['Buying', 'buying'],
+        ['Selling', 'selling'],
+    ]
+  end
+
 
   def closeout_settled?
     closeout_settled
