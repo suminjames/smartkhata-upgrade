@@ -32,7 +32,8 @@ class ShareTransactionsController < ApplicationController
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_isin_id: ShareTransaction.options_for_isin_select
+            by_isin_id: ShareTransaction.options_for_isin_select,
+            by_transaction_type: ShareTransaction.options_for_transaction_type_select
         },
         persistence_id: false
     ) or return

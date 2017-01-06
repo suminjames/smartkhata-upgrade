@@ -345,6 +345,9 @@ select.combobox {
 
 // Add a bit of margin-top in elements.
 // Usually  between two .row elements, which apparently have no margin.
+.top-buffer-xs {
+  margin-top:5px;
+}
 .top-buffer-sm {
   margin-top:10px;
 }
