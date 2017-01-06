@@ -1,6 +1,5 @@
 <%= simple_form_for(@ledger) do |f| %>
     <%= f.error_notification %>
-    <%= hidden_field_tag 'can_edit_balance', @can_edit_balance %>
     <div class="form-inputs row">
       <div class="col-xs-6">
         <%= f.input :name %>
@@ -42,7 +41,10 @@
     <% if can_edit_balance %>
         <h4>Opening Balance</h4>
         <%= f.fields_for :ledger_balances do |p| %>
-            <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
+            <% if p.object.branch_id.present? %>
+              <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
+
+            <% end %>
         <% end %>
         <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
 

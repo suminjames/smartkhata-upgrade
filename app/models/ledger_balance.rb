@@ -42,4 +42,24 @@ class LedgerBalance < ActiveRecord::Base
       self.opening_balance = 0
     end
   end
+
+  # when editing the ledger balances.
+  # this considers the case when no particulars are present
+  def update_with_closing_balance(params)
+    opening_balance = params[:opening_balance_type] == Particular.transaction_types['cr'].to_s ? params[:opening_balance].to_f * -1 :params[:opening_balance]
+    params.merge!(closing_balance: opening_balance, opening_balance: opening_balance)
+    self.update(params)
+  end
+
+  def opening_balance_type
+    @opening_balance_type || (self.opening_balance >= 0 ? Particular.transaction_types['dr'].to_s : Particular.transaction_types['cr'].to_s)
+  end
+
+  def self.new_with_params(params)
+    LedgerBalance.new(branch_id: params[:branch_id],opening_balance_type: params[:opening_balance_type], opening_balance: params[:opening_balance])
+  end
+
+  def formatted_opening_balance
+    self.opening_balance.abs unless self.errors.size > 1
+  end
 end
