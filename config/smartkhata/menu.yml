@@ -162,6 +162,9 @@ menus:
       path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete')
         %>"
       code: RS_TRO_CAT
+    - name: Closeout Transactions
+      path: "<%= closeouts_share_transactions_path %>"
+      code: RS_TRO_CLT
     - name: Threshold Transactions Report
       path: "<%= threshold_transactions_share_transactions_path %>"
       code: RS_TRO_TTR
@@ -228,4 +231,3 @@ menus:
     - name: Commission Rates Management
       path: "<%= master_setup_commission_infos_path %>"
       code: ADS_MIS_CIM
-has_changes: false
