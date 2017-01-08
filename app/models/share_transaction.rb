@@ -46,6 +46,7 @@
 
 class ShareTransaction < ActiveRecord::Base
   include Auditable
+  include CommissionModule
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
@@ -304,6 +305,10 @@ class ShareTransaction < ActiveRecord::Base
 
   def closeout_settled?
     closeout_settled
+  end
+
+  def stock_commission_amount
+    commission_amount * nepse_commission_rate(date)
   end
 
 end
