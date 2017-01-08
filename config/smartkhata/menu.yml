@@ -228,4 +228,3 @@ menus:
     - name: Commission Rates Management
       path: "<%= master_setup_commission_infos_path %>"
       code: ADS_MIS_CIM
-has_changes: false

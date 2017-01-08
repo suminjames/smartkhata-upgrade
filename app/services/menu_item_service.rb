@@ -64,7 +64,6 @@ class MenuItemService
         #   nothing yet
       else
         menu_list = YAML::load_file(menu_list_file)
-        menu_list['has_changes'] = false
         File.open(menu_list_file, 'w') do |h|
           h.puts "#"
           h.puts "# available action/menus"
