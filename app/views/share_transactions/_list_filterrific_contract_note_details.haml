@@ -34,7 +34,7 @@
           %th.text-center= 'Quantity'
           %th.text-center= 'Rate'
           %th.text-center= 'Amount'
-          -#%th.text-center= 'Stock<br>Commission'.html_safe
+          %th.text-center= 'Stock<br>Commission'.html_safe
           %th.text-center= 'Bank<br>Deposit'.html_safe
         %tbody
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
@@ -54,16 +54,16 @@
               %td.text-right= arabic_number_integer(share_transaction.quantity)
               %td.text-right= arabic_number_integer(share_transaction.share_rate)
               %td.text-right= arabic_number_integer(share_transaction.share_amount)
-              -#%td.text-right= arabic_number(share_transaction.commission_amount)
+              %td.text-right= arabic_number(share_transaction.stock_commission_amount)
               %td.text-right= arabic_number(share_transaction.bank_deposit) if share_transaction.buying?
               :ruby
                 total_amount += share_transaction.share_amount
-                -#total_stock_commission += share_transaction.commission_amount
+                total_stock_commission += share_transaction.stock_commission_amount
                 total_bank_deposit += share_transaction.bank_deposit if share_transaction.buying?
           %thead
             %th.text-right{:colspan => 9}= 'Total'
             %th.text-center= arabic_number(total_amount)
-            -#%th.text-center= arabic_number(total_stock_commission)
+            %th.text-center= arabic_number(total_stock_commission)
             %th.text-center= arabic_number(total_bank_deposit)
 
     = render 'shared/pagination', collection_to_paginate: share_transactions
@@ -71,5 +71,3 @@
   - if (!share_transactions || share_transactions.empty?) && params.dig(:filterrific, :by_date).present?
     %div.row.text-center.top-buffer-md
       There are no matching contract note details.
-
-
