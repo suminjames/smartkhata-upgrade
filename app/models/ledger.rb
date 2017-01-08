@@ -160,8 +160,7 @@ class Ledger < ActiveRecord::Base
           ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
           balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
 
-          ledger_balance_org.update_attributes(opening_balance: ledger_balance, closing_balance: ledger_balance, opening_balance_type: balance_type)
-
+          ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
           return true
         end
       end

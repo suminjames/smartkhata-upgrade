@@ -23,13 +23,14 @@ class LedgerBalance < ActiveRecord::Base
   belongs_to :ledger
   include ::Models::UpdaterWithBranchFycodeBalance
   # attr_accessor :opening_balance_type
-  before_create :update_closing_balance
+
+  # before_create :update_closing_balance
 
   validates :branch_id, :uniqueness => { scope: [:fy_code, :ledger_id] }
 
   validate :check_positive_amount
 
-  before_save :update_closing_balance
+  before_save :update_opening_closing_balance
 
   enum opening_balance_type: [:dr, :cr]
   # scope based on the branch and fycode selection
@@ -45,14 +46,23 @@ class LedgerBalance < ActiveRecord::Base
     end
   end
 
-  def update_closing_balance
+  def update_opening_closing_balance
+
     unless self.opening_balance.blank?
+      # debugger
       if self.opening_balance_type == 'cr'
         if self.opening_balance > 0
           self.opening_balance = self.opening_balance * -1
         end
       end
-      self.closing_balance = self.opening_balance
+
+      # when it is created make the closing balance equal to opening balance
+      if self.new_record?
+        self.closing_balance = self.opening_balance
+      elsif self.opening_balance_changed?
+        self.closing_balance = ( self.opening_balance - self.opening_balance_was ) + self.closing_balance
+      end
+
     else
       self.opening_balance = 0
     end

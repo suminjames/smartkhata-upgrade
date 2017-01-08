@@ -116,7 +116,6 @@
                   "opening_balance"=>"1000.0",
                   "opening_balance_type"=>"cr",
                   "branch_id"=>"1",
-                  # "id"=>"#{@ledger_balance.id}"
               },
               "1"=>{
                   "opening_balance"=>"400",
@@ -126,13 +125,13 @@
           }
       }
 
-
+      UserSession.selected_branch_id =  0
       assert @ledger.update_custom(params)
-      assert_equal -1000, @ledger.closing_balance.to_f
+      assert_equal -600, @ledger.closing_balance.to_f
       UserSession.selected_branch_id = 2
       assert_equal 400, @ledger.closing_balance.to_f
-      UserSession.selected_branch_id = nil
-      assert_equal -600, @ledger.closing_balance.to_f
+      UserSession.selected_branch_id = 1
+      assert_equal -1000, @ledger.closing_balance.to_f
     end
 
     # update custom method in ledger.rb
@@ -248,5 +247,39 @@
       refute @sk_ledger.update_custom(params)
       assert_equal ledger_balance_count, 2
       assert_equal 500, @sk_ledger.closing_balance.to_f
+    end
+
+
+    test "should update opening balance of one branch but not the other when other has closing balance" do
+      @ledger_balance = create(:ledger_balance, ledger_id: @sk_ledger.id, opening_balance: 500)
+      @ledger_balance_org = create(:ledger_balance, branch_id: nil, ledger_id: @sk_ledger.id, opening_balance: 500)
+
+      @ledger_balance.update(closing_balance: 1000)
+      @ledger_balance_org.update(closing_balance: 1000)
+
+      params = {
+          "name" => "tester saroj",
+          "group_id" =>"1",
+          "vendor_account_id" =>"",
+          "ledger_balances_attributes" =>{
+              "0"=>{
+                  "opening_balance"=>"1000.0",
+                  "opening_balance_type"=>"dr",
+                  "branch_id"=>"2"
+              }
+          }
+      }
+      # convert string keys to hash
+      params = params.deep_symbolize_keys
+      # edit both is available on all branch
+      UserSession.selected_branch_id = 2
+
+      # make sure there are only 3 ledger balances
+      ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @sk_ledger.id).count
+      assert @sk_ledger.update_custom(params)
+      assert_equal ledger_balance_count, 2
+      assert_equal 1000, @sk_ledger.opening_balance.to_f
+      UserSession.selected_branch_id = 0
+      assert_equal 2000, @sk_ledger.closing_balance.to_f
     end
   end
