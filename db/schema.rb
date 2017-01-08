@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161202070759) do
+ActiveRecord::Schema.define(version: 20170108063925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -852,20 +852,22 @@ ActiveRecord::Schema.define(version: 20161202070759) do
   end
 
   create_table "ledger_balances", force: :cascade do |t|
-    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
-    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "closing_balance",      precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",            precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",            precision: 15, scale: 4, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "ledger_id"
-    t.datetime "created_at",                                             null: false
-    t.datetime "updated_at",                                             null: false
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
+    t.integer  "opening_balance_type",                          default: 0
   end
 
   add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
+  add_index "ledger_balances", ["fy_code", "branch_id", "ledger_id"], name: "index_ledger_balances_on_fy_code_and_branch_id_and_ledger_id", unique: true, using: :btree
   add_index "ledger_balances", ["fy_code"], name: "index_ledger_balances_on_fy_code", using: :btree
   add_index "ledger_balances", ["ledger_id"], name: "index_ledger_balances_on_ledger_id", using: :btree
 
@@ -1064,7 +1066,7 @@ ActiveRecord::Schema.define(version: 20161202070759) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8
@@ -1204,11 +1206,13 @@ ActiveRecord::Schema.define(version: 20161202070759) do
     t.integer  "updater_id"
     t.string   "receiver_name"
     t.integer  "voucher_id"
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.datetime "created_at",                                                     null: false
+    t.datetime "updated_at",                                                     null: false
     t.integer  "branch_id"
-    t.integer  "settlement_by_cheque_type", default: 0
+    t.integer  "settlement_by_cheque_type",                          default: 0
     t.date     "date"
+    t.decimal  "cash_amount",               precision: 15, scale: 2
+    t.boolean  "belongs_to_batch_payment"
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree

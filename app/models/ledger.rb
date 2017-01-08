@@ -28,7 +28,8 @@
 class Ledger < ActiveRecord::Base
   include Auditable
   # include ::Models::UpdaterWithFyCode
-  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial
+  # remove enforce and change it to skip validation later
+  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation
   attr_reader :closing_balance
 
   delegate :nepse_code, to: :client_account, :allow_nil => true
@@ -64,7 +65,9 @@ class Ledger < ActiveRecord::Base
   before_create :update_closing_blnc
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
+  validates_presence_of :group_id, if: :enforce_validation
 
+  # accepts_nested_attributes_for :ledger_balances, allow_destroy: true
   accepts_nested_attributes_for :ledger_balances
 
   scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
@@ -142,52 +145,37 @@ class Ledger < ActiveRecord::Base
   end
 
   def has_editable_balance?
+    # not sure if this is required
     # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
     (self.particulars.size <= 0)
   end
-  # def update_custom(params)
-  #   valid = false
-  #   self.name = params[:name]
-  #   self.group_id = params[:group_id]
-  #   self.vendor_account_id= params[:vendor_account_id]
-  #
-  #   if params[:ledger_balances_attributes]
-  #     ledger_balances = []
-  #     branch_ids = []
-  #     total_balance = 0.0
-  #
-  #     params[:ledger_balances_attributes].values.each do |balance|
-  #       ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
-  #       self.association(:ledger_balances).add_to_target(ledger_balance)
-  #     end
-  #
-  #     self.ledger_balances.each do |balance|
-  #       if balance.opening_balance >=0
-  #         if branch_ids.include?(balance.branch_id)
-  #           balance.errors.add(:branch_id, "cant have multiple entry")
-  #           valid = false
-  #           break
-  #         end
-  #         valid = true
-  #         branch_ids << balance.branch_id
-  #         total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-  #         next
-  #       end
-  #       valid = false
-  #       balance.errors.add(:opening_balance, "cant be a negative amount")
-  #       break
-  #     end
-  #
-  #     if valid
-  #       self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
-  #       self.save
-  #     else
-  #       false
-  #     end
-  #   end
-  # end
 
   def update_custom(params)
+    # debugger
+    self.enforce_validation = true
+    begin
+      ActiveRecord::Base.transaction do
+        if self.update(params)
+          ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: self.id, branch_id: nil)
+          ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
+          balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
+
+          ledger_balance_org.update_attributes(opening_balance: ledger_balance, closing_balance: ledger_balance, opening_balance_type: balance_type)
+
+          return true
+        end
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      self.errors.add(:base, "Please make sure one entry per branch")
+    end
+    return false
+  end
+  def update_custom_old(params)
+    # why did not i use self.update(params)
+    # because it does not work well with default scope
+    # association keep breaking
+
+
     valid = true
     self.name = params[:name]
     self.group_id = params[:group_id]

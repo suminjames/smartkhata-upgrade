@@ -114,13 +114,13 @@
           :ledger_balances_attributes =>{
               "0"=>{
                   "opening_balance"=>"1000.0",
-                  "opening_balance_type"=>"1",
+                  "opening_balance_type"=>"cr",
                   "branch_id"=>"1",
                   # "id"=>"#{@ledger_balance.id}"
               },
               "1"=>{
                   "opening_balance"=>"400",
-                  "opening_balance_type"=>"0",
+                  "opening_balance_type"=>"dr",
                   "branch_id"=>"2"
               }
           }
@@ -137,8 +137,10 @@
 
     # update custom method in ledger.rb
     test "should update ledger with initial ledger balances" do
+
+
       @ledger_balance = create(:ledger_balance, ledger_id: @sk_ledger.id, opening_balance: 500, closing_balance: 500)
-      @ledger_balance_org = create(:ledger_balance, branch_id: nil, ledger_id: @sk_ledger.id, opening_balance: 500, closing_balance: 500)
+        @ledger_balance_org = create(:ledger_balance, branch_id: nil, ledger_id: @sk_ledger.id, opening_balance: 500, closing_balance: 500)
 
       params = {
           "name" => "tester saroj",
@@ -147,24 +149,25 @@
           "ledger_balances_attributes" =>{
               "0"=>{
                   "opening_balance"=>"1000.0",
-                  "opening_balance_type"=>"1",
+                  "opening_balance_type"=>"cr",
                   "branch_id"=>"1",
                   "id"=>"#{@ledger_balance.id}"
               },
               "1"=>{
                   "opening_balance"=>"400",
-                  "opening_balance_type"=>"0",
+                  "opening_balance_type"=>"dr",
                   "branch_id"=>"2"
               }
           }
       }
       # convert string keys to hash
       params = params.deep_symbolize_keys
-      # edit both is available on all branch
-      UserSession.selected_branch_id = nil
-
       # make sure there are only 3 ledger balances
       ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @sk_ledger.id).count
+
+      # edit both is available on all branch
+      UserSession.selected_branch_id = 0
+
       assert @sk_ledger.update_custom(params)
 
       # assert_equal 3,ledger_balance_count
@@ -189,13 +192,13 @@
           "ledger_balances_attributes" =>{
               "0"=>{
                   "opening_balance"=>"1000.0",
-                  "opening_balance_type"=>"1",
+                  "opening_balance_type"=>"cr",
                   "branch_id"=>"1",
                   "id"=>"#{@ledger_balance.id}"
               },
               "1"=>{
                   "opening_balance"=>"-400",
-                  "opening_balance_type"=>"0",
+                  "opening_balance_type"=>"dr",
                   "branch_id"=>"2"
               }
           }
@@ -203,7 +206,7 @@
       # convert string keys to hash
       params = params.deep_symbolize_keys
       # edit both is available on all branch
-      UserSession.selected_branch_id = nil
+      UserSession.selected_branch_id = 0
 
       # make sure there are only 3 ledger balances
       ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @sk_ledger.id).count
@@ -224,13 +227,13 @@
           "ledger_balances_attributes" =>{
               "0"=>{
                   "opening_balance"=>"-1000.0",
-                  "opening_balance_type"=>"1",
+                  "opening_balance_type"=>"dr",
                   "branch_id"=>"1",
                   "id"=>"#{@ledger_balance.id}"
               },
               "1"=>{
                   "opening_balance"=>"400",
-                  "opening_balance_type"=>"0",
+                  "opening_balance_type"=>"dr",
                   "branch_id"=>"2"
               }
           }
@@ -238,7 +241,7 @@
       # convert string keys to hash
       params = params.deep_symbolize_keys
       # edit both is available on all branch
-      UserSession.selected_branch_id = nil
+      UserSession.selected_branch_id = 0
 
       # make sure there are only 3 ledger balances
       ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @sk_ledger.id).count
