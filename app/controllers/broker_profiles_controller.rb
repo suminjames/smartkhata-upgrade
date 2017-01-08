@@ -1,6 +1,8 @@
 class BrokerProfilesController < ApplicationController
   before_action :set_broker_profile, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize BrokerProfile}, only: [:index, :new, :create]
+  before_action -> {authorize @broker_profile}, only: [:show, :edit, :update, :destroy]
   # GET /broker_profiles
   # GET /broker_profiles.json
   def index

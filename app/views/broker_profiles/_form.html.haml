@@ -1,0 +1,16 @@
+= simple_form_for(@broker_profile) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :broker_name
+    = f.input :broker_number
+    = f.input :address
+    = f.input :dp_code
+    = f.input :phone_number
+    = f.input :fax_number
+    = f.input :email
+    = f.input :pan_number
+    = f.input :locale, label: 'Language' do
+      = f.select :locale, options_for_select(BrokerProfile.locales.keys.to_a, f.object.locale), {}
+  .form-actions
+    = f.button :submit
