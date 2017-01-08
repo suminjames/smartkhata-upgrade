@@ -92,7 +92,7 @@ class LedgersController < ApplicationController
 
   # GET /ledgers/1/edit
   def edit
-    @can_edit_balance = (@ledger.particulars.count <= 0) && (@ledger.opening_balance == 0.0)
+    @can_edit_balance = @ledger.has_editable_balance?
   end
 
   # POST /ledgers
@@ -148,7 +148,7 @@ class LedgersController < ApplicationController
   # PATCH/PUT /ledgers/1
   # PATCH/PUT /ledgers/1.json
   def update
-    @can_edit_balance = params[:can_edit_balance] == "true" ? true : false
+    @can_edit_balance = @ledger.has_editable_balance?
     authorize @ledger
 
     respond_to do |format|
@@ -292,7 +292,7 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id])
+    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id, :id])
   end
 
 

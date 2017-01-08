@@ -28,7 +28,8 @@
 class Ledger < ActiveRecord::Base
   include Auditable
   # include ::Models::UpdaterWithFyCode
-  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial
+  # remove enforce and change it to skip validation later
+  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation
   attr_reader :closing_balance
 
   delegate :nepse_code, to: :client_account, :allow_nil => true
@@ -64,7 +65,9 @@ class Ledger < ActiveRecord::Base
   before_create :update_closing_blnc
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
+  validates_presence_of :group_id, if: :enforce_validation
 
+  # accepts_nested_attributes_for :ledger_balances, allow_destroy: true
   accepts_nested_attributes_for :ledger_balances
 
   scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
@@ -141,49 +144,37 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  # def update_custom(params)
-  #   valid = false
-  #   self.name = params[:name]
-  #   self.group_id = params[:group_id]
-  #   self.vendor_account_id= params[:vendor_account_id]
-  #
-  #   if params[:ledger_balances_attributes]
-  #     ledger_balances = []
-  #     branch_ids = []
-  #     total_balance = 0.0
-  #
-  #     params[:ledger_balances_attributes].values.each do |balance|
-  #       ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
-  #       self.association(:ledger_balances).add_to_target(ledger_balance)
-  #     end
-  #
-  #     self.ledger_balances.each do |balance|
-  #       if balance.opening_balance >=0
-  #         if branch_ids.include?(balance.branch_id)
-  #           balance.errors.add(:branch_id, "cant have multiple entry")
-  #           valid = false
-  #           break
-  #         end
-  #         valid = true
-  #         branch_ids << balance.branch_id
-  #         total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-  #         next
-  #       end
-  #       valid = false
-  #       balance.errors.add(:opening_balance, "cant be a negative amount")
-  #       break
-  #     end
-  #
-  #     if valid
-  #       self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
-  #       self.save
-  #     else
-  #       false
-  #     end
-  #   end
-  # end
+  def has_editable_balance?
+    # not sure if this is required
+    # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
+    (self.particulars.size <= 0)
+  end
 
   def update_custom(params)
+    # debugger
+    self.enforce_validation = true
+    begin
+      ActiveRecord::Base.transaction do
+        if self.update(params)
+          ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: self.id, branch_id: nil)
+          ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
+          balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
+
+          ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
+          return true
+        end
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      self.errors.add(:base, "Please make sure one entry per branch")
+    end
+    return false
+  end
+  def update_custom_old(params)
+    # why did not i use self.update(params)
+    # because it does not work well with default scope
+    # association keep breaking
+
+
     valid = true
     self.name = params[:name]
     self.group_id = params[:group_id]
@@ -202,46 +193,79 @@ class Ledger < ActiveRecord::Base
       valid = false
     end
 
-    if params[:ledger_balances_attributes]
-      branch_ids = []
-      total_balance = 0.0
+    ActiveRecord::Base.transaction do
+      # ledger balance attribute may or may not be present
+      if params[:ledger_balances_attributes]
+        branch_ids = []
+        total_balance = 0.0
 
-      # Associate passed in ledger_balances to this ledger object, but do not commit to db, yet!
-      # 'add_to_target' ensures its not committed to db.
-      params[:ledger_balances_attributes].values.each do |balance|
-        # For some reasons, empty hashes of ledger balances is being sent from dom even when ledger balances are removed using the remove button. Check for their presence.
-        if balance.present?
-          ledger_balance = LedgerBalance.new(branch_id: balance[:branch_id],opening_balance_type: balance[:opening_balance_type], opening_balance: balance[:opening_balance])
-          self.association(:ledger_balances).add_to_target(ledger_balance)
+        # Associate passed in ledger_balances to this ledger object, but do not commit to db, yet!
+        # 'add_to_target' ensures its not committed to db.
+        params[:ledger_balances_attributes].values.each do |balance|
+          # For some reasons, empty hashes of ledger balances is being sent from dom even when ledger balances are removed using the remove button. Check for their presence.
+
+          if balance.present?
+            ledger_balance = LedgerBalance.unscoped.find_by(id: balance[:id])
+            # to ward off unnecessary balances without any value but id
+            if ledger_balance && balance[:opening_balance].present?
+              previous_balance = ledger_balance.opening_balance
+              ledger_balance.update_with_closing_balance(balance)
+              total_balance += ledger_balance.opening_balance - previous_balance
+
+            else
+              ledger_balance = LedgerBalance.new(balance)
+              self.association(:ledger_balances).add_to_target(ledger_balance)
+            end
+          end
         end
-      end
 
-      self.ledger_balances.each do |balance|
-        if balance.opening_balance >= 0
-          # Multiple balances entries for same branch is invalid.
-          if branch_ids.include?(balance.branch_id)
-            balance.errors.add(:branch_id, "can't have multiple entries for same branch")
+        self.ledger_balances.each do |balance|
+          # for cases when it is being persisted
+          # allow credit values
+          if balance.opening_balance.to_f >= 0 || ( balance.id.present? && balance.opening_balance_type  == '1')
+
+            # Multiple balances entries for same branch is invalid.
+            if branch_ids.include?(balance.branch_id)
+              balance.errors.add(:branch_id, "can't have multiple entries for same branch")
+              valid = false
+              break
+            end
+            branch_ids << balance.branch_id
+
+            opening_balance = balance.opening_balance
+
+            unless ( balance.id.present? )
+              opening_balance = balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
+              total_balance += opening_balance
+            end
+            next
+          else
             valid = false
+            balance.errors.add(:opening_balance, "can't be a negative amount")
             break
           end
-          branch_ids << balance.branch_id
-          total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-          next
-        else
-          valid = false
-          balance.errors.add(:opening_balance, "can't be a negative amount")
-          break
+        end
+
+        if valid
+          # find if ledger balance for org is present
+          # if yes update with the changes else create
+          ledger_balance_org = LedgerBalance.unscoped.find_by(ledger_id: self.id, branch_id: nil)
+          if ledger_balance_org
+            previous_balance = ledger_balance_org.opening_balance
+            total_balance = previous_balance + total_balance
+
+            ledger_balance_org.update_attributes(opening_balance: total_balance, closing_balance: total_balance)
+          else
+            balance_type = total_balance >= 0 ? Particular.transaction_types['dr'].to_s : Particular.transaction_types['cr'].to_s
+            self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance.abs, opening_balance_type: balance_type))
+          end
         end
       end
 
-      if valid
-        self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance))
-        self.save
-      end
-    else # in the case when there is no ledger_balances passed in.
       if valid
         self.save
       else
+        raise ActiveRecord::Rollback
         false
       end
     end

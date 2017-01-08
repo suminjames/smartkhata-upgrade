@@ -1,6 +1,13 @@
 <div class="row particular">
-  <div class="col-xs-5"><%= f.input :opening_balance, label:false %></div>
-  <div class="col-xs-2"><%= f.select :opening_balance_type, options_for_select(Particular.transaction_types) %></div>
+  <div class="col-xs-5"><%= f.input :opening_balance, input_html: { value: f.object.formatted_opening_balance },label:false %></div>
+  <div class="col-xs-2">
+    <%= f.select :opening_balance_type,
+                 options_for_select(
+                     LedgerBalance.opening_balance_types.keys.to_a,
+                     f.object.opening_balance_type
+                 )
+    %>
+  </div>
   <div class="col-xs-4">
     <%= f.input :branch_id , label: false do %>
         <%= f.select :branch_id, available_branches.all.map { |r| [r.code, r.id, { class: 'form-control' }] }, selected: f.object.branch_id || UserSession.selected_branch_id, include_blank: false %>
