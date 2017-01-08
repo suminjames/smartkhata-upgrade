@@ -1,3 +1,4 @@
+
 class MenuItemService
   include Rails.application.routes.url_helpers
 
@@ -16,6 +17,12 @@ class MenuItemService
     tenants.each do |t|
       Apartment::Tenant.switch!(t.name)
       begin
+        # check for any duplicate menu item codes in menu.yml file, and return with false
+        if menu_list_has_duplicate_codes(menu_list)
+          puts "Error! Menu.yml has duplicate codes."
+          puts "Can't proceed with the operation."
+          return false
+        end
         # keep track of the menus created or updated
         # and delete the rest
         new_menu_lists = []
@@ -87,4 +94,26 @@ class MenuItemService
     Apartment::Tenant.switch!('public')
     return true
   end
+
+  def all_codes_in_menu_list(menu_list)
+    codes = []
+    menu_list['menus'].each do |menu|
+      codes << menu['code']
+      sub_menu_list = menu['sub_menus'] || []
+      sub_menu_list.each do |sub_menu|
+        codes << sub_menu['code']
+        inner_menu_list = sub_menu['menu_items'] || []
+        inner_menu_list.each do |menu_item|
+          codes << menu_item['code']
+        end
+      end
+    end
+    codes
+  end
+
+  def menu_list_has_duplicate_codes(menu_list)
+    arr = all_codes_in_menu_list(menu_list)
+    arr.detect{ |e| arr.count(e) > 1 }
+  end
 end
+
