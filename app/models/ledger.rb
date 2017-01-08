@@ -221,7 +221,6 @@ class Ledger < ActiveRecord::Base
             ledger_balance = LedgerBalance.unscoped.find_by(id: balance[:id])
             # to ward off unnecessary balances without any value but id
             if ledger_balance && balance[:opening_balance].present?
-
               previous_balance = ledger_balance.opening_balance
               ledger_balance.update_with_closing_balance(balance)
               total_balance += ledger_balance.opening_balance - previous_balance
@@ -236,7 +235,7 @@ class Ledger < ActiveRecord::Base
         self.ledger_balances.each do |balance|
           # for cases when it is being persisted
           # allow credit values
-          if balance.opening_balance >= 0 || ( balance.id.present? && balance.opening_balance_type  == '1')
+          if balance.opening_balance.to_f >= 0 || ( balance.id.present? && balance.opening_balance_type  == '1')
 
             # Multiple balances entries for same branch is invalid.
             if branch_ids.include?(balance.branch_id)
