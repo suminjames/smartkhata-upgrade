@@ -24,6 +24,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
+  # resuce_from SmartKhata::Error::Branch, with: :branch_access_error
 
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found
@@ -52,6 +53,18 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
+  def branch_access_error
+    flash[:alert] = "You are not authorized to access any branch. Please contact administrator"
+    session[:return_to] = root_path
+
+    # for logged in users it is dashboard
+    # for visitors its root path
+    if user_signed_in?
+      redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
+    else
+      redirect_to root_path
+    end
+  end
 
   def user_not_authorized
     flash[:alert] = "Access denied."
@@ -63,9 +76,15 @@ class ApplicationController < ActionController::Base
     current_user.current_url_link = request.path
     UserSession.user = current_user
     UserSession.tenant = current_tenant
+
     # session storage for controllers
     session[:user_selected_fy_code] ||= get_fy_code
-    session[:user_selected_branch_id] ||= current_user.branch_id
+
+    branch_id = get_preferrable_branch_id
+
+    branch_access_error unless branch_id.present?
+
+    session[:user_selected_branch_id] ||= branch_id
 
     # set the session variable for the session
     UserSession.selected_fy_code = session[:user_selected_fy_code]
@@ -85,5 +104,17 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit :account_update, keys: added_attrs
   end
 
+  def get_preferrable_branch_id
+    if current_user.admin?
+      Branch.first.id
+    else
+      available_branches_ids = available_branches.pluck(:id)
+      if available_branches_ids.include? current_user.branch_id
+        current_user.branch_id
+      else
+        available_branches_ids.first
+      end
+    end
 
+  end
 end

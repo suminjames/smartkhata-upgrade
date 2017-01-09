@@ -151,17 +151,27 @@ class Ledger < ActiveRecord::Base
   end
 
   def update_custom(params)
-    # debugger
+    self.save_custom(params)
+  end
+
+  def create_custom
+    self.save_custom
+  end
+
+  def save_custom(params = nil)
     self.enforce_validation = true
     begin
       ActiveRecord::Base.transaction do
-        if self.update(params)
-          ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: self.id, branch_id: nil)
-          ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
-          balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
-
-          ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
-          return true
+        if params
+          if self.update(params)
+            LedgerBalance.update_or_create_org_balance(self.id)
+            return true
+          end
+        else
+          if self.save
+            LedgerBalance.update_or_create_org_balance(self.id)
+            return true
+          end
         end
       end
     rescue ActiveRecord::RecordNotUnique => e
@@ -169,26 +179,6 @@ class Ledger < ActiveRecord::Base
     end
     return false
   end
-
-  def create_custom
-    valid = false
-    success = false
-    total_balance = 0.0
-    self.enforce_validation = true
-      if self.save
-        ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: self.id, branch_id: nil)
-        ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
-        balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
-        ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
-        return true
-      end
-    begin
-    rescue ActiveRecord::RecordNotUnique => e
-      self.errors.add(:base, "Please make sure one entry per branch")
-    end
-    return false
-  end
-
 
   def update_custom_old(params)
     # why did not i use self.update(params)

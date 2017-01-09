@@ -91,8 +91,25 @@ module ApplicationHelper
 
   # get available branches
   def available_branches
-    Branch.all
+    available_branches_for_user(current_user)
   end
+
+  # get the branches that are available for the user
+  # for admin and client all the branch are available
+  # for employee only those assigned on the permission
+  def available_branches_for_user(current_user)
+    _available_branches = []
+    if current_user
+      if current_user.admin? || current_user.client?
+        _available_branches = Branch.all
+      else
+        branch_ids = current_user.branch_permissions.pluck(:branch_id)
+        _available_branches = Branch.where(id: branch_ids)
+      end
+    end
+    _available_branches
+  end
+
 
   # @params time - Time object holds time, date and timezone
   def to_ktm_timezone(time)
