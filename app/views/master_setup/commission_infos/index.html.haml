@@ -19,7 +19,11 @@
           %td= ad_to_bs(master_setup_commission_info.start_date)
           %td= ad_to_bs(master_setup_commission_info.end_date)
           %td= link_to 'Show', master_setup_commission_info
-          %td= link_to 'Edit', edit_master_setup_commission_info_path(master_setup_commission_info)
+          - if master_setup_commission_info.is_latest?
+            %td= link_to 'Edit', edit_master_setup_commission_info_path(master_setup_commission_info)
+          - else
+            %td.light-text= "Uneditable".html_safe
+
 - else
   %p= "No Commission Information found"
 %br

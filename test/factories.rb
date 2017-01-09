@@ -7,10 +7,11 @@ FactoryGirl.define do
   end
 
   factory :master_setup_commission_info, class: 'MasterSetup::CommissionInfo' do
-    start_date "2016-11-12"
-    end_date "2016-11-13"
+    start_date "2022-1-1"
+    end_date "2022-1-10"
     start_date_bs "MyString"
     end_date_bs "MyString"
+    nepse_commission_rate 22.5
 
     before(:create) do |master_setup_commission_info|
       master_setup_commission_info.commission_details << FactoryGirl.create(:master_setup_commission_detail)
