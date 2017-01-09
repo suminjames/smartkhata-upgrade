@@ -260,8 +260,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
     @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
+
     # get company information to store in the share transaction
-    company_info = IsinInfo.find_or_create_by(isin: company_symbol)
+    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
 
     # TODO: Include base price
 
