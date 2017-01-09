@@ -40,6 +40,11 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
 
   ########################################
   # Methods
+
+  def is_latest?
+    self == self.class.all.order(:start_date => :desc).first
+  end
+
   private
 
   def validate_date_range
