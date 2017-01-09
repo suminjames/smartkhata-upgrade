@@ -104,6 +104,55 @@
       refute_empty Ledger.options_for_ledger_select({"by_ledger_id"=>@ledger.id, "by_ledger_type"=>""})
     end
 
+
+    # update custom method in ledger.rb
+    test "should create ledger with ledger balances" do
+      params = {
+          :name => "tester saroj",
+          :group_id =>"1",
+          :vendor_account_id =>"",
+          :ledger_balances_attributes =>{
+              "0"=>{
+                  "opening_balance"=>"1000.0",
+                  "opening_balance_type"=>"cr",
+                  "branch_id"=>"1",
+              },
+              "1"=>{
+                  "opening_balance"=>"400",
+                  "opening_balance_type"=>"dr",
+                  "branch_id"=>"2"
+              }
+          }
+      }
+
+      UserSession.selected_branch_id =  0
+      @ledger = Ledger.new(params)
+      assert @ledger.create_custom
+      assert_equal -600, @ledger.closing_balance.to_f
+      ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @ledger.id).count
+      assert_equal 3, ledger_balance_count
+      UserSession.selected_branch_id = 2
+      assert_equal 400, @ledger.closing_balance.to_f
+      UserSession.selected_branch_id = 1
+      assert_equal -1000, @ledger.closing_balance.to_f
+    end
+
+    # update custom method in ledger.rb
+    test "should create ledger" do
+      params = {
+          :name => "tester saroj",
+          :group_id =>"1",
+          :vendor_account_id =>"",
+      }
+
+      UserSession.selected_branch_id =  0
+      @ledger = Ledger.new(params)
+      assert @ledger.create_custom
+      assert_equal 0, @ledger.closing_balance.to_f
+      ledger_balance_count = LedgerBalance.unscoped.where(fy_code: 7374, ledger_id: @ledger.id).count
+      assert_equal 1, ledger_balance_count #the ledger balance count should be one atleast for the org
+    end
+
     # update custom method in ledger.rb
     test "should update ledger with ledger balances" do
       @ledger_balance_org = create(:ledger_balance, ledger_id: @sk_ledger.id, opening_balance: 0, closing_balance: 0)
