@@ -71,10 +71,10 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     existing_bank = banks(:one)
     assert_difference 'BankAccount.by_branch_id.count', 2 do
       post bank_accounts_path, bank_account: {bank_id: new_bank.id, account_number: 619, bank_branch: "asd", "default_for_receipt"=>"1", "default_for_payment"=>"0",
-                                   "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}]}}
+                                   "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 'dr'}]}}
       @bank_account_receipt = assigns(:bank_account)
       post bank_accounts_path, bank_account: {bank_id: existing_bank.id, account_number: 916, bank_branch: "asd", "default_for_receipt"=>"0", "default_for_payment"=>"1",
-                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 0}] }}
+                                              "ledger_attributes" => { group_id: 1, "ledger_balances_attributes" => [{ opening_balance: 500, opening_balance_type: 'dr'}] }}
       @bank_account_payment = assigns(:bank_account)
     end
     assert_redirected_to bank_account_path(@bank_account_payment)
