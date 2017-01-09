@@ -24,7 +24,8 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   # Callbacks
 
   ########################################
-  # Vaidations
+  # Validations
+  validates :nepse_commission_rate, presence: true, :inclusion => {in: 0..100, message:"is out of range."}
   validate :validate_date_range
   validate :validate_details
 
