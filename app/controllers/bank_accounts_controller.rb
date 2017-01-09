@@ -31,37 +31,9 @@ class BankAccountsController < ApplicationController
   def create
 
     @bank_account = BankAccount.new(bank_account_params)
-    # since this group is integral to the software in hand
-    # any error raised here should be thoroughly examined
-    @group_id = Group.find_by(name: "Current Assets").id
-    @valid = false
-    @success = false
-    total_balance = 0.0
-
-    @bank = Bank.find_by(id: @bank_account.bank_id)
-    if @bank.present?
-      @bank_account.ledger.name = "Bank:"+@bank.name+"(#{@bank_account.account_number})"
-      @bank_account.ledger.group_id = @group_id
-      @bank_account.bank_name = @bank.name
-      @bank_account.ledger.ledger_balances.each do |balance|
-        if balance.opening_balance >=0
-          @valid = true
-          total_balance += balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-          next
-        end
-        @valid = false
-        flash.now[:error] = "Please dont include a negative amount"
-        break
-      end
-    end
-
-    if @valid
-      @bank_account.ledger.ledger_balances << LedgerBalance.new(branch_id: nil, opening_balance: total_balance)
-      @success = true if @bank_account.save
-    end
-
+    # @bank = Bank.find_by(id: @bank_account.bank_id)
     respond_to do |format|
-      if @success
+      if @bank_account.save_custom
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully created.' }
         format.json { render :show, status: :created, location: @bank_account }
       else

@@ -30,7 +30,14 @@
                 <%= p.fields_for :ledger_balances do |lb| %>
                   <div class="row particular">
                     <div class="col-xs-5"><%= lb.input :opening_balance, label:false %></div>
-                    <div class="col-xs-2"><%= lb.select :opening_balance_type, options_for_select(Particular.transaction_types) %></div>
+                    <div class="col-xs-2">
+                      <%= lb.select :opening_balance_type,
+                                   options_for_select(
+                                       LedgerBalance.opening_balance_types.keys.to_a,
+                                       lb.object.opening_balance_type
+                                   )
+                      %>
+                    </div>
                     <div class="col-xs-4">
                       <%= lb.input :branch_id, :as => :hidden, :input_html => {:value => lb.object.branch_id  || UserSession.selected_branch_id } %>
                       <%= lb.collection_select(:branch_id, available_branches.all, :id, :code,{ selected: lb.object.branch_id  || UserSession.selected_branch_id}, {:class => 'form-control ', disabled: true}) %>
