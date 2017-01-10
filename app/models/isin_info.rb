@@ -49,9 +49,23 @@ class IsinInfo < ActiveRecord::Base
   def self.options_for_sector_select
     options = []
     IsinInfo.select('DISTINCT sector').each do |isin_info|
-     options << [isin_info.sector] * 2
+      if isin_info.sector.present?
+        options << [isin_info.sector] * 2
+      end
     end
     options
+  end
+
+  def self.find_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    isin_infos = IsinInfo.where("company ILIKE :search OR isin ILIKE :search", search: "%#{search_term}%").order(:isin).pluck_to_hash(:id, :company, :isin)
+    isin_infos.collect do |isin_info|
+      identifier = "#{isin_info['isin']}"
+      if isin_info['company'].present?
+        identifier += " (#{isin_info['company']})"
+      end
+      { :text=> identifier, :id => isin_info['id'].to_s }
+    end
   end
 
 end

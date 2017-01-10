@@ -1,7 +1,7 @@
 class IsinInfosController < ApplicationController
   before_action :set_isin_info, only: [:show, :edit, :update, :destroy]
 
-  before_action :authorize_isin_class, only: [:index, :new, :create]
+  before_action :authorize_isin_class, only: [:index, :new, :create, :combobox_ajax_filter]
   before_action :authorize_isin_record, only: [:show, :edit, :update, :destroy]
 
   # GET /isin_infos
@@ -86,6 +86,18 @@ class IsinInfosController < ApplicationController
     respond_to do |format|
       format.html { redirect_to isin_infos_url, notice: 'Listed company was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def combobox_ajax_filter
+    search_term = params[:q]
+    isin_infos = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+     isin_infos = IsinInfo.find_similar_to_term search_term
+    end
+    respond_to do |format|
+      format.json { render json: isin_infos, status: :ok }
     end
   end
 
