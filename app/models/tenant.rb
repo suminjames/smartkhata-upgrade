@@ -18,45 +18,43 @@
 
 
 class Tenant < ActiveRecord::Base
-  has_many :broker_profiles
-
   attr_accessor :locale
 
   after_initialize :set_attr
 
   def broker_profile
-    broker_profiles.unscoped.where(
+    MasterSetup::BrokerProfile.where(
         locale: BrokerProfile.locales[@locale],
-        profile_type: BrokerProfile.profile_types[:is_self_broker]
+        profile_type: BrokerProfile.profile_types[:is_self_broker],
     ).first
   end
 
   def dp_id
-    broker_profile.try(:dp_code) || dp_id
+    broker_profile.try(:dp_code) || read_attribute(:dp_id)
   end
 
   def full_name
-    broker_profile.try(:broker_name) || full_name
+    broker_profile.try(:broker_name) || read_attribute(:full_name)
   end
 
   def phone_number
-    broker_profile.try(:phone_number) || phone_number
+    broker_profile.try(:phone_number) || read_attribute(:phone_number)
   end
 
   def address
-    broker_profile.try(:address) || address
+    broker_profile.try(:address) || read_attribute(:address)
   end
 
   def pan_number
-    broker_profile.try(:pan_number) || pan_number
+    broker_profile.try(:pan_number) || read_attribute(:pan_number)
   end
 
   def fax_number
-    broker_profile.try(:fax_number) || fax_number
+    broker_profile.try(:fax_number) || read_attribute(:fax_number)
   end
 
   def broker_code
-    broker_profile.try(:broker_number) || broker_code
+    broker_profile.try(:broker_number) || read_attribute(:broker_code)
   end
 
   private

@@ -71,15 +71,16 @@ class IsinInfo < ActiveRecord::Base
     end
   end
 
-  def self.find_or_create_new_by_symbol(symbol)
+  def self.find_or_create_new_by_symbol(company_symbol)
     company_info = IsinInfo.find_by_isin(company_symbol)
     unless company_info.present?
       new_isin_info = IsinInfo.new
       new_isin_info.skip_company_validation = true
       new_isin_info.isin = company_symbol
       new_isin_info.save!
+      company_info = new_isin_info
     end
-    new_isin_info
+    company_info
   end
 
 end

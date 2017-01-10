@@ -6,7 +6,7 @@ class BrokerProfilesController < ApplicationController
   # GET /broker_profiles
   # GET /broker_profiles.json
   def index
-    @broker_profiles = BrokerProfile.all
+    @broker_profiles = BrokerProfile.all.order(:broker_number)
   end
 
   # GET /broker_profiles/1
