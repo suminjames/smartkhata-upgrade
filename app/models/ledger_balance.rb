@@ -84,14 +84,28 @@ class LedgerBalance < ActiveRecord::Base
     LedgerBalance.new(branch_id: params[:branch_id],opening_balance_type: params[:opening_balance_type], opening_balance: params[:opening_balance])
   end
 
+  def self.update_or_create_org_balance(ledger_id)
+    ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: ledger_id, branch_id: nil)
+    ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: ledger_id).where.not(branch_id: nil).sum(:opening_balance)
+    balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
+    ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
+  end
+
   def formatted_opening_balance
     self.opening_balance.abs unless self.errors.size > 1
   end
 
   def check_positive_amount
+    # validate if openeing balance type is sent
+    # if not for leagacy support add the balance type.
+
     if self.opening_balance_type.present?
       if self.opening_balance.to_f < 0 && self.opening_balance_type != "cr"
         errors.add(:opening_balance, "can't be negative or blank")
+      end
+    else
+      if self.opening_balance.to_f < 0
+        self.opening_balance_type = 'cr'
       end
     end
   end

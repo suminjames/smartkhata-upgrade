@@ -90,7 +90,6 @@ FactoryGirl.define do
     sequence(:bank_code) { |n| "#{n}" }
     address 'AnotherString'
     contact_no 'AnotherString'
-
   end
 
   factory :ledger do
