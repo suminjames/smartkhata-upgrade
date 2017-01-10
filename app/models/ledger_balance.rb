@@ -96,9 +96,16 @@ class LedgerBalance < ActiveRecord::Base
   end
 
   def check_positive_amount
+    # validate if openeing balance type is sent
+    # if not for leagacy support add the balance type.
+
     if self.opening_balance_type.present?
       if self.opening_balance.to_f < 0 && self.opening_balance_type != "cr"
         errors.add(:opening_balance, "can't be negative or blank")
+      end
+    else
+      if self.opening_balance.to_f < 0
+        self.opening_balance_type = 'cr'
       end
     end
   end
