@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   namespace :master_setup do
     resources :commission_infos
   end
+
+  match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
   resources :isin_infos
   namespace :master_setup do
     resources :commission_rates
