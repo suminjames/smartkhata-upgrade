@@ -32,31 +32,31 @@ class Tenant < ActiveRecord::Base
   end
 
   def dp_id
-    broker_profile.try(:dp_code)
+    broker_profile.try(:dp_code) || dp_id
   end
 
   def full_name
-    broker_profile.try(:broker_name)
+    broker_profile.try(:broker_name) || full_name
   end
 
   def phone_number
-    broker_profile.try(:phone_number)
+    broker_profile.try(:phone_number) || phone_number
   end
 
   def address
-    broker_profile.try(:address)
+    broker_profile.try(:address) || address
   end
 
   def pan_number
-    broker_profile.try(:pan_number)
+    broker_profile.try(:pan_number) || pan_number
   end
 
   def fax_number
-    broker_profile.try(:fax_number)
+    broker_profile.try(:fax_number) || fax_number
   end
 
   def broker_code
-    broker_profile.try(:broker_number)
+    broker_profile.try(:broker_number) || broker_code
   end
 
   private
