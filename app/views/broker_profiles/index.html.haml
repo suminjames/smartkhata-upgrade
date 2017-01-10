@@ -1,0 +1,27 @@
+- provide(:section_title, "Listing Broker Profiles")
+%table.table.table-striped
+  %thead
+    %tr
+      %th Broker name
+      %th Broker number
+      %th Phone number
+      %th Fax number
+      %th Pan number
+      %th Language
+      %th{:colspan => 3}
+  %tbody
+    - @broker_profiles.each do |broker_profile|
+      %tr
+        %td= broker_profile.broker_name
+        %td= broker_profile.broker_number
+        %td= broker_profile.phone_number
+        %td= broker_profile.fax_number
+        %td= broker_profile.pan_number
+        %td= broker_profile.locale
+        %td= link_to 'Show', broker_profile
+        %td= link_to 'Edit', edit_broker_profile_path(broker_profile)
+        %td= link_to 'Destroy', broker_profile, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Broker profile', new_broker_profile_path

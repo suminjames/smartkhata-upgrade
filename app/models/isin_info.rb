@@ -16,7 +16,10 @@
 class IsinInfo < ActiveRecord::Base
   has_many :share_transactions
 
-  validates_presence_of :company
+  # The 'skip_company_validation' flag is true while importing floorsheet file.
+  attr_accessor :skip_company_validation
+
+  validates_presence_of :company, :if => lambda{|record| !record.skip_company_validation }
   validates :isin, uniqueness: true, presence: true, :case_sensitive => false
 
 
@@ -66,6 +69,18 @@ class IsinInfo < ActiveRecord::Base
       end
       { :text=> identifier, :id => isin_info['id'].to_s }
     end
+  end
+
+  def self.find_or_create_new_by_symbol(company_symbol)
+    company_info = IsinInfo.find_by_isin(company_symbol)
+    unless company_info.present?
+      new_isin_info = IsinInfo.new
+      new_isin_info.skip_company_validation = true
+      new_isin_info.isin = company_symbol
+      new_isin_info.save!
+      company_info = new_isin_info
+    end
+    company_info
   end
 
 end
