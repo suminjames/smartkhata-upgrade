@@ -1,29 +1,37 @@
+%p#notice= notice
 =provide(:section_title, "Listed Companies")
-- if @isin_infos.present?
-  = render 'shared/pagination', collection_to_paginate: @isin_infos
-  %table.table.table-striped
-    %thead
-      %tr
-        %th Company
-        %th Isin
-        %th Sector
-        %th Max
-        %th Last price
-        %th
-        %th
 
-    %tbody
-      - @isin_infos.each do |isin_info|
-        %tr
-          %td= isin_info.company
-          %td= isin_info.isin
-          %td= isin_info.sector
-          %td= isin_info.max
-          %td= isin_info.last_price
-          %td= link_to 'Show', isin_info
-          %td= link_to 'Edit', edit_isin_info_path(isin_info)
-- else
-  %p= "No Company found"
+%div.bottom-buffer-sm
+  = link_to 'New Company', new_isin_info_path
 
-%br
-= link_to 'New Company', new_isin_info_path
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Company Name
+          = f.collection_select(                        |
+            :by_isin_info_id,                              |
+            @filterrific.select_options[:by_isin_info_id], |
+            :id,                                        |
+            :name_and_code,                       |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'isin_info_index_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-2
+          %label
+            Sector Type
+          = f.select(                          |
+            :by_sector, |
+            @filterrific.select_options[:by_sector], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+      .row.top-buffer-sm
+        .col-xs-2
+          = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+    = render_filterrific_spinner
+
+= render(partial: 'isin_infos/list_filterrific', locals: { isin_infos: @isin_infos })
+
