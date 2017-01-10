@@ -21,8 +21,6 @@ class BrokerProfile < ActiveRecord::Base
   enum profile_type: [:is_self_broker, :is_other_broker]
   enum locale: [:english, :nepali]
 
-  belongs_to :tenant
-
   default_scope { is_other_broker }
 
   before_validation -> { strip_blanks :broker_name, :broker_number }
