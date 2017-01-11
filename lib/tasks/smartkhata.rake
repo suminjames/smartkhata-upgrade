@@ -1,4 +1,4 @@
-namespace :smart_khata do
+namespace :smartkhata do
   # validation for tenant in the rake argument list
   # raises error if not present
 
