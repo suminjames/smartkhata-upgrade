@@ -47,7 +47,7 @@ FactoryGirl.define do
     branch_id 1
     voucher
     ledger
-
+    transaction_type 0
     factory :debit_particular do
       transaction_type 0
       ledger

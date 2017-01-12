@@ -112,9 +112,10 @@ class Vouchers::Base
             # eg. if >= 5000 ledger balance , 5000 amount to pay => get 5000
             if (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
               amount = (amount_to_receive_or_pay).abs
-
-              #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
             else
+              #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
+              #   case of advance payment
+
               amount = ledger_balance
               bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
             end

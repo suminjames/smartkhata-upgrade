@@ -22,9 +22,9 @@ class Vouchers::Create < Vouchers::Base
 
     # amount_entered = voucher.particulars.dr.sum(:amount)
 
-    # get a calculated values, these are returned nil if not applicable
-    @client_account, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
-        set_bill_client(@client_account_id, @bill_ids, @clear_ledger)
+    # # get a calculated values, these are returned nil if not applicable
+    # @client_account, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
+    #     set_bill_client(@client_account_id, @bill_ids, @clear_ledger)
 
     # set the voucher type
     # @voucher.voucher_type = @voucher_type
@@ -103,7 +103,9 @@ class Vouchers::Create < Vouchers::Base
       # make changes in ledger balances and save the voucher
       if net_blnc == 0 && has_error == false
         receipt_amount  = net_usable_blnc.abs || 0
-        @processed_bills, description_bills = process_bills(is_payment_receipt, @client_account, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
+        # @processed_bills, description_bills = process_bills(is_payment_receipt, @client_account, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
+
+        @processed_bills, description_bills = process_client_bills(voucher, is_payment_receipt)
 
         @voucher, res, @error_message, @settlements = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
       else
@@ -181,16 +183,22 @@ class Vouchers::Create < Vouchers::Base
     end
     return voucher, has_error, error_message, net_blnc, net_usable_blnc, debit_ledgers, credit_ledgers
   end
-  def process_client_bills(voucher, processed_bills, is_payment_receipt)
+  def process_client_bills(voucher, is_payment_receipt)
     processed_bills = []
     description_bills = ""
-    receipt_amount = 0.0
+
 
     voucher.particulars.each do |particular|
-      if particular.bills_selection.present? && !particular.bills_selection.empty
+      if particular.bills_selection.present? && !particular.bills_selection.blank?
         # get a calculated values, these are returned nil if not applicable
+        bill_ids = particular.bills_selection.split(',').map(&:to_i)
+        _clear_ledger = particular.clear_ledger || false
+
+        # this step does validations too.
+        # so that bills of others are not added
         _client_account, _bills, _amount_to_pay_receive, _voucher_type, _settlement_by_clearance, _bill_ledger_adjustment =
-            set_bill_client(particular.ledger.client_account_id, particular.bills_selection)
+            set_bill_client(particular.ledger.client_account_id, bill_ids, _clear_ledger)
+
 
         # do not create voucher if bills have pending deal cancel
         bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(_bills)
@@ -198,7 +206,7 @@ class Vouchers::Create < Vouchers::Base
           @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
           return
         end
-        _processed_bills, _description_bills, _receipt_amount = process_bills(is_payment_receipt, _client_account, particular.amount, @clear_ledger, voucher.voucher_type, _bills, _bill_ledger_adjustment)
+        _processed_bills, _description_bills, _receipt_amount = process_bills(is_payment_receipt, _client_account, particular.amount, voucher.voucher_type, _bills, _bill_ledger_adjustment)
 
         processed_bills += _processed_bills
         description_bills += _description_bills
@@ -222,7 +230,8 @@ class Vouchers::Create < Vouchers::Base
     is_payment_receipt
   end
 
-  def process_bills(is_payment_receipt, client_account, net_usable_blnc, clear_ledger, voucher_type, bills, bill_ledger_adjustment)
+  def process_bills(is_payment_receipt, client_account, net_usable_blnc, voucher_type, bills, bill_ledger_adjustment)
+
     processed_bills = []
     description_bills = ""
     if is_payment_receipt && client_account
@@ -231,23 +240,19 @@ class Vouchers::Create < Vouchers::Base
       net_usable_blnc = (net_usable_blnc.abs + bill_ledger_adjustment)
 
       bills.each do |bill|
-        # modify the net usable balance in case of the ledger clearout
-        # not so sure about this anymore
-        # perhaps clear ledger will be removed for now
-        # REVIEW #
-        if clear_ledger
-          # sales voucher => purchase of shares ( Broker sells to client)
-          if voucher_type == Voucher.voucher_types[:receipt]
-            if bill.sales?
-              net_usable_blnc += (bill.balance_to_pay * 2.00)
-            end
-          else
-            if bill.purchase?
-              net_usable_blnc += (bill.balance_to_pay * 2.00)
-            end
+        # it considers the case when both the types of bills are selected
+        # incase of receipt , we need to adjust the sales bill amount
+        # by adding the amount twice, making sure that one is for reduction that is used in the function below
+        # the other is the actual effect, ie we are adding it from our part (payment)
+        if voucher_type == :receipt.to_s
+          if bill.sales?
+            net_usable_blnc += (bill.balance_to_pay * 2.00)
+          end
+        else
+          if bill.purchase?
+            net_usable_blnc += (bill.balance_to_pay * 2.00)
           end
         end
-        # REVIEW #
 
         # since the data is stored to 4 digits and payment is only applicable in 2 digits
         # round the balance_to_pay to 2 digits

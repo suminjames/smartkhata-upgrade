@@ -64,7 +64,6 @@ class Vouchers::BaseTest < ActiveSupport::TestCase
 
     bill_ids = [purchase_bill.id, sales_bill.id]
     voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
-
     client_account_t,
         bills,
         amount,
