@@ -196,8 +196,11 @@ class Vouchers::Create < Vouchers::Base
 
         # this step does validations too.
         # so that bills of others are not added
+        # dont call clear ledger from this point
+        # clear ledger should not be called from the new voucher section as it modifies voucher type
+
         _client_account, _bills, _amount_to_pay_receive, _voucher_type, _settlement_by_clearance, _bill_ledger_adjustment =
-            set_bill_client(particular.ledger.client_account_id, bill_ids, voucher_type, _clear_ledger)
+            set_bill_client(particular.ledger.client_account_id, bill_ids, voucher_type)
 
 
         # do not create voucher if bills have pending deal cancel

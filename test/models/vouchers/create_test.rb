@@ -22,7 +22,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
 
   # basic voucher with 2 particulars each
   class BasicVouchersTest < Vouchers::CreateTest
-    test "should create a payment voucher" do
+    test "should create a journal voucher" do
       voucher_type = 0
       voucher.particulars << dr_particular
       voucher.particulars << cr_particular
@@ -34,7 +34,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       assert_equal "JVR", voucher_creation.voucher.voucher_code
     end
 
-    test "should create a receipt voucher" do
+    test "should create a payment voucher" do
       voucher_type = 1
       voucher.voucher_type = 1
       voucher.particulars << dr_particular
@@ -48,7 +48,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       assert_equal "PVR", voucher_creation.voucher.voucher_code
     end
 
-    test "should create a journal voucher" do
+    test "should create a receipt voucher" do
       voucher_type = 2
       voucher.voucher_type = 2
       voucher.particulars << dr_particular
