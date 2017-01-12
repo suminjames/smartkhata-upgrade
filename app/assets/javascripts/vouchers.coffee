@@ -112,7 +112,8 @@ manage_bill_finder = ($this) ->
 
   if $billFinder != undefined
     href = $billFinder.attr('href')
-    $billFinder.attr('href', href.replace(/ledger_id=[^&]+/, 'ledger_id='+ $ledger_id));
+    if href != undefined
+      $billFinder.attr('href', href.replace(/ledger_id=[^&]+/, 'ledger_id='+ $ledger_id));
 
 #    all particular wide fix
 manage_cheque_all_select = () ->
@@ -312,6 +313,10 @@ $(document).on 'click', '.add-to-caller', (event) ->
   $bill_list = $modal.find('.selected-bill-name-list').text()
   $bill_ids = $modal.find('.selected-bill-id-list').text()
 #  make sure it is not a negative amount
+
+  if ( $particular.find('.type-selector select').val() == 'dr' )
+    $amount = Math.abs($amount)
+
   if ($amount <= 0)
     alert('Amount cant be negative or zero')
     $particular.find('.voucher_particulars_amount input').val(0)

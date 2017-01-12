@@ -114,7 +114,7 @@ class VouchersController < ApplicationController
         format.json { render :show, status: :created, location: @voucher }
       else
         @voucher = voucher_creation.voucher
-
+        debugger
         # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
@@ -328,7 +328,7 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection])
+    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names])
   end
 
   def set_voucher_general_params

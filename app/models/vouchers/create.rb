@@ -20,7 +20,9 @@ class Vouchers::Create < Vouchers::Base
     res = false
 
     # set the voucher type
-    # @voucher.voucher_type = @voucher_type
+    # causes issues for the voucher types when clear ledger is called
+    # without this is set as jvr
+    @voucher.voucher_type = @voucher_type
 
     # needed for error case
     if @voucher.is_payment_receipt?
