@@ -39,12 +39,17 @@ class Vouchers::Setup < Vouchers::Base
       end
 
       bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
-      # voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
-      voucher.desc = "Settled with ledger balance clearance" if clear_ledger
+      if bill_ids.size == 0
+        bill_ids = bills.map { |a| a.id }
+      end
+
+      voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
+
     end
 
     voucher.particulars = []
     # we need to prepopulate particulars
+
     if is_payment_receipt
       transaction_type = voucher.is_receipt? ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
       voucher.particulars << Particular.new(ledger_id: default_ledger_id, amount: amount, transaction_type: transaction_type)
@@ -59,8 +64,16 @@ class Vouchers::Setup < Vouchers::Base
 
     # it is used to zero the account balance of the client.
     if settlement_by_clearance
+      voucher.desc = "Settled with ledger balance clearance"
       voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
-      voucher.particulars << Particular.new(ledger_id: client_account.ledger.id, amount: amount, transaction_type: client_transaction_type)
+
+      voucher.particulars << Particular.new(
+          ledger_id: client_account.ledger.id,
+          amount: amount,
+          bills_selection: bill_ids.join(','),
+          selected_bill_names: bill_id_names,
+          transaction_type: client_transaction_type
+      )
       ledger_list_available << client_account.ledger
     else
       # for sales and purchase we need two particular one for debit and one for credit

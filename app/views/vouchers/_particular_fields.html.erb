@@ -113,7 +113,7 @@
     %>
   </div>
   <div class="col-sk-4">
-    <% if (voucher_type == Voucher.voucher_types[:receipt] && inverse == false) %>
+    <% if ((voucher_type == Voucher.voucher_types[:payment] || voucher_type == Voucher.voucher_types[:receipt]) && inverse == false) %>
       <!-- note this class name is referenced from select_for_settlement.js -->
       <div class="particular-bill-container">
         <%= f.input :bills_selection,

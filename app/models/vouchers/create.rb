@@ -12,19 +12,12 @@ class Vouchers::Create < Vouchers::Base
     @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
     @settlements = []
-    # @current_tenant_full_name = attrs[:tenant_full_name]
   end
 
   def process
     # to track if the voucher can be saved.
     # result as false
     res = false
-
-    # amount_entered = voucher.particulars.dr.sum(:amount)
-
-    # # get a calculated values, these are returned nil if not applicable
-    # @client_account, @bills, @amount_to_pay_receive, @voucher_type, settlement_by_clearance, bill_ledger_adjustment =
-    #     set_bill_client(@client_account_id, @bill_ids, @clear_ledger)
 
     # set the voucher type
     # @voucher.voucher_type = @voucher_type
