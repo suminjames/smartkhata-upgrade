@@ -105,7 +105,7 @@ class Vouchers::Create < Vouchers::Base
         receipt_amount  = net_usable_blnc.abs || 0
         # @processed_bills, description_bills = process_bills(is_payment_receipt, @client_account, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
 
-        @processed_bills, description_bills = process_client_bills(voucher, is_payment_receipt)
+        @processed_bills, description_bills = process_client_bills(voucher, is_payment_receipt, @voucher_type)
 
         @voucher, res, @error_message, @settlements = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
       else
@@ -183,7 +183,7 @@ class Vouchers::Create < Vouchers::Base
     end
     return voucher, has_error, error_message, net_blnc, net_usable_blnc, debit_ledgers, credit_ledgers
   end
-  def process_client_bills(voucher, is_payment_receipt)
+  def process_client_bills(voucher, is_payment_receipt, voucher_type)
     processed_bills = []
     description_bills = ""
 
@@ -197,7 +197,7 @@ class Vouchers::Create < Vouchers::Base
         # this step does validations too.
         # so that bills of others are not added
         _client_account, _bills, _amount_to_pay_receive, _voucher_type, _settlement_by_clearance, _bill_ledger_adjustment =
-            set_bill_client(particular.ledger.client_account_id, bill_ids, _clear_ledger)
+            set_bill_client(particular.ledger.client_account_id, bill_ids, voucher_type, _clear_ledger)
 
 
         # do not create voucher if bills have pending deal cancel

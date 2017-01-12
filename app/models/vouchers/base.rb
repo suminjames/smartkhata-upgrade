@@ -21,14 +21,14 @@ class Vouchers::Base
 
   private
   # attr_accessor :bill_ids, :client_account_id, :clear_ledger
-  def set_bill_client(client_account_id, bill_ids,clear_ledger = false)
+  def set_bill_client(client_account_id, bill_ids, voucher_type, clear_ledger = false)
     # set default values to nil
     bill_ids ||= []
     amount = 0.0
     bills = []
     settlement_by_clearance = clear_ledger
     bill_ledger_adjustment = 0.0
-    voucher_type = 0
+    voucher_type ||= 0
 
     # get client account and bill if present from respective ids
     client_account = client_account_and_bill(client_account_id)

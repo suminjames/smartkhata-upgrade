@@ -9,7 +9,7 @@ class Vouchers::Setup < Vouchers::Base
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bills, amount, voucher_type, settlement_by_clearance, amount_to_pay_receive = set_bill_client(client_account_id, bill_ids, clear_ledger)
+    client_account, bills, amount, voucher_type, settlement_by_clearance = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger)
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -19,7 +19,6 @@ class Vouchers::Setup < Vouchers::Base
     end
 
     voucher = get_new_voucher(voucher_type)
-
     bill_id_names = ""
     if voucher.is_payment_receipt?
       is_payment_receipt = true

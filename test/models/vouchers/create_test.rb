@@ -20,48 +20,48 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
     }
   end
 
-  # # basic voucher with 2 particulars each
-  # class BasicVouchersTest < Vouchers::CreateTest
-  #   test "should create a payment voucher" do
-  #     voucher_type = 0
-  #     voucher.particulars << dr_particular
-  #     voucher.particulars << cr_particular
-  #
-  #     voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
-  #                          voucher: @voucher,
-  #                          tenant_full_name: "Trishakti")
-  #     assert voucher_creation.process
-  #     assert_equal "JVR", voucher_creation.voucher.voucher_code
-  #   end
-  #
-  #   test "should create a receipt voucher" do
-  #     voucher_type = 1
-  #     voucher.voucher_type = 1
-  #     voucher.particulars << dr_particular
-  #     voucher.particulars << cr_particular
-  #
-  #     voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
-  #                                             voucher: @voucher,
-  #                                             voucher_settlement_type: "default",
-  #                                             tenant_full_name: "Trishakti")
-  #     assert voucher_creation.process
-  #     assert_equal "PVR", voucher_creation.voucher.voucher_code
-  #   end
-  #
-  #   test "should create a journal voucher" do
-  #     voucher_type = 2
-  #     voucher.voucher_type = 2
-  #     voucher.particulars << dr_particular
-  #     voucher.particulars << cr_particular
-  #
-  #     voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
-  #                                             voucher: @voucher,
-  #                                             voucher_settlement_type: "default",
-  #                                             tenant_full_name: "Trishakti")
-  #     assert voucher_creation.process
-  #     assert_equal "RCP", voucher_creation.voucher.voucher_code
-  #   end
-  # end
+  # basic voucher with 2 particulars each
+  class BasicVouchersTest < Vouchers::CreateTest
+    test "should create a payment voucher" do
+      voucher_type = 0
+      voucher.particulars << dr_particular
+      voucher.particulars << cr_particular
+
+      voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
+                           voucher: @voucher,
+                           tenant_full_name: "Trishakti")
+      assert voucher_creation.process
+      assert_equal "JVR", voucher_creation.voucher.voucher_code
+    end
+
+    test "should create a receipt voucher" do
+      voucher_type = 1
+      voucher.voucher_type = 1
+      voucher.particulars << dr_particular
+      voucher.particulars << cr_particular
+
+      voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
+                                              voucher: @voucher,
+                                              voucher_settlement_type: "default",
+                                              tenant_full_name: "Trishakti")
+      assert voucher_creation.process
+      assert_equal "PVR", voucher_creation.voucher.voucher_code
+    end
+
+    test "should create a journal voucher" do
+      voucher_type = 2
+      voucher.voucher_type = 2
+      voucher.particulars << dr_particular
+      voucher.particulars << cr_particular
+
+      voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
+                                              voucher: @voucher,
+                                              voucher_settlement_type: "default",
+                                              tenant_full_name: "Trishakti")
+      assert voucher_creation.process
+      assert_equal "RCP", voucher_creation.voucher.voucher_code
+    end
+  end
 
   class AdvancedReceiptTest < Vouchers::CreateTest
     test "should settle purchase bill with full amount" do
@@ -244,46 +244,46 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       refute voucher_creation.voucher.is_payment_bank?
     end
   end
-  #
-  # class AdvancedBothPayReceiveTest < Vouchers::CreateTest
-  #   test "should settle both type of bills" do
-  #     voucher.voucher_type = 2
-  #     voucher_type = 2
-  #     ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 1000 )
-  #
-  #     purchase_bill_id = purchase_bill.id
-  #     sales_bill_id = sales_bill.id
-  #
-  #     client_particular.bills_selection = "#{purchase_bill_id},#{sales_bill_id}"
-  #     client_particular.transaction_type = 1
-  #     client_particular.amount = 1000
-  #     dr_particular.amount = 1000
-  #
-  #     voucher.particulars << dr_particular
-  #     voucher.particulars << client_particular
-  #
-  #
-  #
-  #     voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
-  #                                             voucher: @voucher,
-  #                                             voucher_settlement_type: "default",
-  #                                             tenant_full_name: "Trishakti")
-  #     voucher_creation.process
-  #     assert_nil voucher_creation.error_message
-  #     assert_equal "RCP", voucher_creation.voucher.voucher_code
-  #
-  #     sales_bill = Bill.find(sales_bill_id)
-  #     assert_equal 0, sales_bill.balance_to_pay
-  #     assert_equal "settled", sales_bill.status
-  #
-  #     purchase_bill = Bill.find(purchase_bill_id)
-  #     assert_equal 0, purchase_bill.balance_to_pay
-  #     assert_equal "settled", purchase_bill.status
-  #
-  #
-  #
-  #     assert_equal 1, voucher_creation.settlements.size
-  #     refute voucher_creation.voucher.is_payment_bank?
-  #   end
-  # end
+
+  class AdvancedBothPayReceiveTest < Vouchers::CreateTest
+    test "should settle both type of bills" do
+      voucher.voucher_type = 2
+      voucher_type = 2
+      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 1000 )
+
+      purchase_bill_id = purchase_bill.id
+      sales_bill_id = sales_bill.id
+
+      client_particular.bills_selection = "#{purchase_bill_id},#{sales_bill_id}"
+      client_particular.transaction_type = 1
+      client_particular.amount = 1000
+      dr_particular.amount = 1000
+
+      voucher.particulars << dr_particular
+      voucher.particulars << client_particular
+
+
+
+      voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
+                                              voucher: @voucher,
+                                              voucher_settlement_type: "default",
+                                              tenant_full_name: "Trishakti")
+      voucher_creation.process
+      assert_nil voucher_creation.error_message
+      assert_equal "RCP", voucher_creation.voucher.voucher_code
+
+      sales_bill = Bill.find(sales_bill_id)
+      assert_equal 0, sales_bill.balance_to_pay
+      assert_equal "settled", sales_bill.status
+
+      purchase_bill = Bill.find(purchase_bill_id)
+      assert_equal 0, purchase_bill.balance_to_pay
+      assert_equal "settled", purchase_bill.status
+
+
+
+      assert_equal 1, voucher_creation.settlements.size
+      refute voucher_creation.voucher.is_payment_bank?
+    end
+  end
 end
