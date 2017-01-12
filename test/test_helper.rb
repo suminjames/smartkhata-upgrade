@@ -130,3 +130,6 @@ class ActionDispatch::IntegrationTest
     Capybara.use_default_driver
   end
 end
+
+# At bottom of test_helper.rb (or at least after `require 'rails/test_help'`)
+require 'mocha/mini_test'

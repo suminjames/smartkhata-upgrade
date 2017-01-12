@@ -1,0 +1,7 @@
+<% provide(:section_title, "Bills") %>
+<%= form_tag process_selected_bills_path do %>
+    <%= render 'select_for_settlement', bills: @bills, modal_view: false, sk_id: @sk_id %>
+    <%= hidden_field_tag 'client_account_id', @client_account_id %>
+    <%= submit_tag "Process Checked" if !@bills.empty? %>
+<% end %>
+

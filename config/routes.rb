@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       post 'process_selected'
       get 'sales_payment'
       post 'sales_payment_process'
+      get 'select_for_settlement'
       get 'ageing_analysis'
     end
   end

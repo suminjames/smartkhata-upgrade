@@ -48,7 +48,7 @@ FactoryGirl.define do
     branch_id 1
     voucher
     ledger
-
+    transaction_type 0
     factory :debit_particular do
       transaction_type 0
       ledger
@@ -109,13 +109,21 @@ FactoryGirl.define do
     fy_code '7374'
   end
 
+  factory :ledger_balance do
+    opening_balance 0
+    # closing_balance 5000  taken care in callback
+    dr_amount 5000
+    branch_id 1
+    fy_code '7374'
+  end
+
   factory :bill do
     sequence (:bill_number)
     client_name 'Harold Hill'
     net_amount '9000'
-    balance_to_pay '9000'
+    balance_to_pay  { net_amount }
     bill_type 0
-    status 2
+    status :pending
     special_case 0
     fy_code '7374'
     date { 3.day.ago.to_date }
@@ -147,8 +155,6 @@ FactoryGirl.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
-
-    ledger
   end
 
   factory :isin_info do
