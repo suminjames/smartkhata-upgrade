@@ -15,49 +15,49 @@ class Vouchers::SetupTest < ActiveSupport::TestCase
     }
   end
 
-  # class BasicVouchersTest < Vouchers::SetupTest
-  #   test "should build  a journal voucher" do
-  #     voucher,
-  #         is_payment_receipt,
-  #         ledger_list_financial,
-  #         ledger_list_available,
-  #         default_ledger_id,
-  #         voucher_type,
-  #         vendor_account_list,
-  #         client_ledger_list = Vouchers::Setup.new(voucher_type: 0).voucher_and_relevant
-  #
-  #     assert_equal "JVR", voucher.voucher_code
-  #     assert_equal 1, voucher.particulars.size
-  #   end
-  #
-  #   test "should build a payment voucher" do
-  #     voucher,
-  #         is_payment_receipt,
-  #         ledger_list_financial,
-  #         ledger_list_available,
-  #         default_ledger_id,
-  #         voucher_type,
-  #         vendor_account_list,
-  #         client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant
-  #
-  #     assert_equal "PMT", voucher.voucher_code
-  #     assert_equal 2, voucher.particulars.size
-  #   end
-  #
-  #   test "should build a receipt voucher" do
-  #     voucher,
-  #         is_payment_receipt,
-  #         ledger_list_financial,
-  #         ledger_list_available,
-  #         default_ledger_id,
-  #         voucher_type,
-  #         vendor_account_list,
-  #         client_ledger_list = Vouchers::Setup.new(voucher_type: 2).voucher_and_relevant
-  #
-  #     assert_equal "RCV", voucher.voucher_code
-  #     assert_equal 2, voucher.particulars.size
-  #   end
-  # end
+  class BasicVouchersTest < Vouchers::SetupTest
+    test "should build  a journal voucher" do
+      voucher,
+          is_payment_receipt,
+          ledger_list_financial,
+          ledger_list_available,
+          default_ledger_id,
+          voucher_type,
+          vendor_account_list,
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 0).voucher_and_relevant
+
+      assert_equal "JVR", voucher.voucher_code
+      assert_equal 1, voucher.particulars.size
+    end
+
+    test "should build a payment voucher" do
+      voucher,
+          is_payment_receipt,
+          ledger_list_financial,
+          ledger_list_available,
+          default_ledger_id,
+          voucher_type,
+          vendor_account_list,
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant
+
+      assert_equal "PMT", voucher.voucher_code
+      assert_equal 2, voucher.particulars.size
+    end
+
+    test "should build a receipt voucher" do
+      voucher,
+          is_payment_receipt,
+          ledger_list_financial,
+          ledger_list_available,
+          default_ledger_id,
+          voucher_type,
+          vendor_account_list,
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 2).voucher_and_relevant
+
+      assert_equal "RCV", voucher.voucher_code
+      assert_equal 2, voucher.particulars.size
+    end
+  end
 
   class AdvancedVouchersClearLedgerTest < Vouchers::SetupTest
     test "should build a payment voucher when ledger balance is in cr" do

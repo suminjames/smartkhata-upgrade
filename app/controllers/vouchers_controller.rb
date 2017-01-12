@@ -114,7 +114,6 @@ class VouchersController < ApplicationController
         format.json { render :show, status: :created, location: @voucher }
       else
         @voucher = voucher_creation.voucher
-        debugger
         # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
