@@ -109,14 +109,6 @@ FactoryGirl.define do
     fy_code '7374'
   end
 
-  factory :ledger_balance do
-    opening_balance 0
-    # closing_balance 5000  taken care in callback
-    dr_amount 5000
-    branch_id 1
-    fy_code '7374'
-  end
-
   factory :bill do
     sequence (:bill_number)
     client_name 'Harold Hill'

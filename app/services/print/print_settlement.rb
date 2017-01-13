@@ -9,6 +9,9 @@ class Print::PrintSettlement < Prawn::Document
 
     @settlement = settlement
     @current_tenant = current_tenant
+  end
+  def call(settlement = nil)
+    @settlement = settlement || @settlement
     draw
   end
 
@@ -47,6 +50,26 @@ class Print::PrintSettlement < Prawn::Document
     end
   end
 
+  # def details_section
+  #   if @settlement.receipt?
+  #     text "Received with thanks from: " + "<b><u>#{@settlement.name}</u></b>", :inline_format => true
+  #   else
+  #     text "Paid to: " + "<b><u>#{@settlement.name}</u></b>", :inline_format => true
+  #   end
+  #   text "the sum of <b>Rs. #{arabic_number(@settlement.amount)}</b>", :inline_format => true
+  #   text "(in words) <u><b> #{arabic_word(@settlement.amount)}</b></u>", :inline_format => true
+  #
+  #   move_down(1)
+  #
+  #   if @settlement.cheque_entries.size > 0
+  #     text 'By Cheque:'
+  #     @settlement.cheque_entries.uniq.each do |cheque|
+  #       bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+  #       text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+  #     end
+  #   end
+  # end
+
   def details_section
     if @settlement.receipt?
       text "Received with thanks from: " + "<b><u>#{@settlement.name}</u></b>", :inline_format => true
@@ -58,13 +81,46 @@ class Print::PrintSettlement < Prawn::Document
 
     move_down(1)
 
-    if @settlement.cheque_entries.size > 0
-      text 'By Cheque:'
-      @settlement.cheque_entries.uniq.each do |cheque|
-        bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
-        text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+    # Legacy code
+    if @settlement.cash_amount.blank?
+      if @settlement.cheque_entries.size > 0
+        text 'By Cheque:'
+        @settlement.cheque_entries.uniq.each do |cheque|
+          bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+          text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+        end
+      end
+    else
+      if @settlement.cheque_entries.size > 0
+        text 'By Cheque:'
+        amount = 0
+        if @settlement.receipt?  || @settlement.belongs_to_batch_payment?
+          _particulars = @settlement.debited_particulars.uniq
+        else
+          _particulars = @settlement.credited_particulars.uniq
+        end
+
+        _particulars.each do |p|
+          p.cheque_entries.uniq.each do |cheque|
+            bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+            cheque_number = cheque.cheque_number
+            if cheque.amount >= p.amount
+              cheque_amount = arabic_number(p.amount)
+            else
+              cheque_amount = arabic_number(cheque.amount)
+            end
+            text nbsp * 4 + "Cheque Number: <i>#{cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque_amount}</i>", :inline_format => true
+          end
+        end
+
+        if (@settlement.cash_amount.to_f > 0)
+          text "By Cash: Rs. #{arabic_number(@settlement.cash_amount)}"
+        end
+      else
+        text "By Cash: Rs. #{arabic_number(@settlement.cash_amount)}"
       end
     end
+
   end
 
   def settlement_no_row
