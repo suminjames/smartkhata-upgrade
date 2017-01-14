@@ -80,6 +80,7 @@ class SettlementsController < ApplicationController
       format.js
       format.pdf do
         pdf = Print::PrintSettlement.new(@settlement, current_tenant)
+        pdf.call
         send_data pdf.render, filename: "Settlement_#{@settlement.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
@@ -93,6 +94,7 @@ class SettlementsController < ApplicationController
       format.js
       format.pdf do
         pdf = Print::PrintMultipleSettlements.new(@settlements, current_tenant)
+        pdf.call_multiple
         send_data pdf.render, filename: "MultipleSettlements_#{@settlement_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end

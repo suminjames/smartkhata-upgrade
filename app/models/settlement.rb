@@ -53,7 +53,9 @@ class Settlement < ActiveRecord::Base
   # has_many :cheque_particulars, through: :debited_particulars, source: :particular
   has_many :cheque_entries, through: :debited_particulars
 
-
+  ########################################
+  # Validation
+  validates_presence_of :date_bs
 
   enum settlement_type: [:receipt, :payment]
   enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
@@ -174,5 +176,15 @@ class Settlement < ActiveRecord::Base
     branch_id = self.branch_id
     settlement_type = self.settlement_type
     self.settlement_number = Settlement.new_settlement_number(fy_code, branch_id, settlement_type)
+    # for new creations
+    # for legacy settlements cash amount is nil
+    self.cash_amount ||= 0.0
+  end
+
+  # generally it is assumed that a payment is done by a single voucher
+  # incase of the sales payment however one voucher makes multiple payment
+  # which causes issue with the settlement show
+  def belongs_to_batch_payment?
+    self.belongs_to_batch_payment
   end
 end

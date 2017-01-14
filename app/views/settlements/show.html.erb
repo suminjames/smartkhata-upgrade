@@ -1,3 +1,13 @@
 <% provide(:section_title, "Settlement Details") %>
-
-<%= render "settlements/show", settlement: @settlement %>
+<%= link_to "View(pdf)", settlement_path(format: "pdf"), :target => "_blank" %>
+<div class="btnPrintPDF btnPrintSettlementPDF" id="settlement-<%= @settlement.id %>">
+  <span class="glyphicon glyphicon-print print-icon"></span>
+  <span>Print</span>
+  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlement-print-spinner') %>
+  <iframe class="hidden-iframe" id='iframe-for-settlement-pdf-print'>
+    <!--hidden iframe for printing-->
+  </iframe>
+</div>
+<div class="clearfix billfull printThis">
+  <%= render "settlements/show", settlement: @settlement %>
+</div>

@@ -91,8 +91,7 @@ class Vouchers::Create < Vouchers::Base
       @voucher,
           has_error,
           error_message,
-          net_blnc,
-          net_usable_blnc = process_particulars(@voucher, @voucher_settlement_type)
+          net_cash_amount = process_particulars(@voucher, @voucher_settlement_type)
 
       @processed_bills = []
       # make changes in ledger balances and save the voucher
@@ -102,7 +101,7 @@ class Vouchers::Create < Vouchers::Base
 
         @processed_bills, description_bills = process_client_bills(voucher, is_payment_receipt, @voucher_type)
 
-        @voucher, res, @error_message, @settlements = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account)
+        @voucher, res, @error_message, @settlements = voucher_save(@processed_bills, @voucher, description_bills, is_payment_receipt, @client_account, receipt_amount, @voucher_settlement_type, vendor_account, client_group_leader_account, net_cash_amount)
       else
         if has_error
           @error_message = error_message
@@ -121,8 +120,8 @@ class Vouchers::Create < Vouchers::Base
     error_message = ""
     net_blnc = 0
     net_usable_blnc = 0
-    debit_ledgers = Hash.new 0
-    credit_ledgers = Hash.new 0
+    net_cash_amount = 0
+    cash_ledger_id = Ledger.find_by(name: "Cash").id
 
     # save associated ledgers to be shown in select tag in view, upon redirect
     # looped before processing to avoid it being not updated due to abrupt exit in code
@@ -135,6 +134,12 @@ class Vouchers::Create < Vouchers::Base
 
     # check if debit equal credit or amount is not zero
     voucher.particulars.each do |particular|
+
+      # keep track of the cash amount needed to be shown on the settlement receipt
+      if voucher.is_payment_receipt?
+        net_cash_amount += particular.amount if particular.ledger_id == cash_ledger_id
+      end
+
       particular.description = voucher.desc
       particular.amount = particular.amount || 0
       if particular.amount <= 0
@@ -176,7 +181,7 @@ class Vouchers::Create < Vouchers::Base
 
 
     end
-    return voucher, has_error, error_message, net_blnc, net_usable_blnc, debit_ledgers, credit_ledgers
+    return voucher, has_error, error_message, net_cash_amount
   end
   def process_client_bills(voucher, is_payment_receipt, voucher_type)
     processed_bills = []
@@ -275,7 +280,7 @@ class Vouchers::Create < Vouchers::Base
     return processed_bills, description_bills
   end
 
-  def voucher_save(processed_bills, voucher, description_bills, is_payment_receipt, client_account, receipt_amount, voucher_settlement_type, vendor_account, client_group_leader_account)
+  def voucher_save(processed_bills, voucher, description_bills, is_payment_receipt, client_account, receipt_amount, voucher_settlement_type, vendor_account, client_group_leader_account, net_cash_amount)
     error_message = nil
     res = false
     settlement = nil
@@ -390,7 +395,7 @@ class Vouchers::Create < Vouchers::Base
 
         end
         if is_payment_receipt && voucher_settlement_type == 'default'
-          settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills)
+          settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills, cash_amount: net_cash_amount)
           # TODO()
           # voucher.settlements << settlement if settlement.present?
           # particular.settlements << settlement if settlement.present?
@@ -431,7 +436,8 @@ class Vouchers::Create < Vouchers::Base
             is_single_settlement: true,
             client_group_leader_account: client_group_leader_account,
             vendor_account: vendor_account,
-            receipt_amount: receipt_amount
+            receipt_amount: receipt_amount,
+            cash_amount: net_cash_amount
         )
         voucher.particulars.select{|x| x.dr?}.each do |p|
           p.debit_settlements << settlement
@@ -484,6 +490,7 @@ class Vouchers::Create < Vouchers::Base
     client_group_leader_account = attrs[:client_group_leader_account]
     vendor_account = attrs[:vendor_account]
     fy_code = attrs[:fy_code] ||= get_fy_code
+    cash_amount = attrs[:cash_amount] || 0.0
 
     settler_name = ""
     settlement = nil
@@ -524,7 +531,7 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
@@ -532,7 +539,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount)
       # settlement.client_account = client_account
     end
     settlement
