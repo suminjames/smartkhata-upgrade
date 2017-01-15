@@ -18,7 +18,6 @@ class NepseSettlement < ActiveRecord::Base
   include ::Models::Updater
   has_many :bills
 
-
   def bills_for_payment_letter_list
     # self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
     self.bills.to_a.select {|bill| bill.requires_processing?}
@@ -29,6 +28,13 @@ class NepseSettlement < ActiveRecord::Base
     # self.bills.to_a.select {|bill| bill.client_account.ledger.closing_balance < 0 && bill.requires_processing?}
     self.bills.to_a.select {|bill| bill.requires_processing?}
     # self.bills.to_a
+  end
+
+  scope :purchases, -> { where(type: 'NepsePurchaseSettlement') }
+  scope :sales, -> { where(type: 'NepseSaleSettlement') }
+
+  def self.settlement_types
+    %w(NepsePurchaseSettlement NepseSaleSettlement)
   end
 end
   

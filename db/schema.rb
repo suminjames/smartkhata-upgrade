@@ -1013,7 +1013,7 @@ ActiveRecord::Schema.define(version: 20170115124418) do
     t.date     "settlement_date"
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
-    t.integer  "settlement_type",                default: 0
+    t.string   "type"
   end
 
   add_index "nepse_settlements", ["creator_id"], name: "index_nepse_settlements_on_creator_id", using: :btree

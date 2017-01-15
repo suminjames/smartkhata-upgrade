@@ -1,4 +1,5 @@
 class NepseSettlementsController < ApplicationController
+  before_action :set_settlement_type
   before_action :set_nepse_settlement, only: [:show, :edit, :update, :destroy]
   before_action -> {authorize @nepse_settlement}, only: [:show, :edit, :update, :destroy]
   before_action -> {authorize NepseSettlement}, only: [:index, :new, :create, :generate_bills]
@@ -11,9 +12,9 @@ class NepseSettlementsController < ApplicationController
   # GET /nepse_settlements.json
   def index
     if params[:pending]
-      @nepse_settlements = NepseSettlement.pending.order(settlement_id: :desc)
+      @nepse_settlements = nepse_settlement_class.pending.order(settlement_id: :desc)
     else
-      @nepse_settlements = NepseSettlement.all.order(settlement_id: :desc)
+      @nepse_settlements = nepse_settlement_class.all.order(settlement_id: :desc)
     end
 
   end
@@ -33,7 +34,7 @@ class NepseSettlementsController < ApplicationController
 
   # GET /nepse_settlements/new
   def new
-    @nepse_settlement = NepseSettlement.new
+    @nepse_settlement = nepse_settlement_class.new
   end
 
   # GET /nepse_settlements/1/edit
@@ -43,7 +44,7 @@ class NepseSettlementsController < ApplicationController
   # POST /nepse_settlements
   # POST /nepse_settlements.json
   def create
-    @nepse_settlement = NepseSettlement.new(nepse_settlement_params)
+    @nepse_settlement = nepse_settlement_class.new(nepse_settlement_params)
 
     respond_to do |format|
       if @nepse_settlement.save
@@ -82,7 +83,7 @@ class NepseSettlementsController < ApplicationController
 
   # generate bills for the sale settlement
   def generate_bills
-    @nepse_settlement = NepseSettlement.find(params[:id])
+    @nepse_settlement = nepse_settlement_class.find(params[:id])
 
     # check if the sales settlement is pending
     # return with error message if otherwise
@@ -100,12 +101,25 @@ class NepseSettlementsController < ApplicationController
 
   private
   # Use callbacks to share common setup or constraints between actions.
+  def set_settlement_type
+    @type = nepse_settlement_type
+  end
+
+  def nepse_settlement_type
+    NepseSettlement.settlement_types.include?(params[:type]) ? params[:type] : "NepseSaleSettlement"
+  end
+  def nepse_settlement_class
+    nepse_settlement_type.constantize
+  end
+
   def set_nepse_settlement
-    @nepse_settlement = NepseSettlement.find(params[:id])
+    @nepse_settlement = nepse_settlement_class.find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def nepse_settlement_params
     params.fetch(:nepse_settlement, {})
   end
+
+
 end

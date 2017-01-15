@@ -62,7 +62,7 @@ class ImportPayout < ImportFile
 
           settlement_id = hash['SETT_ID'].to_i
           unless settlement_ids.include? settlement_id
-            settlement_cm_file = NepseSettlement.find_by(settlement_id: settlement_id)
+            settlement_cm_file = NepseSaleSettlement.find_by(settlement_id: settlement_id)
             unless settlement_cm_file.nil?
               import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
               raise ActiveRecord::Rollback
@@ -168,9 +168,9 @@ class ImportPayout < ImportFile
         # that track the file uploads for different settlement
         settlement_ids.each do |settlement_id|
           if multiple_settlement_ids_allowed
-            @nepse_settlement_ids << NepseSettlement.find_or_create_by!(settlement_id: settlement_id).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
           else
-            @nepse_settlement_ids << NepseSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
           end
 
         end

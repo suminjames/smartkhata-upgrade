@@ -1,0 +1,1 @@
+class NepseSaleSettlementPolicy < NepseSettlementPolicy; end

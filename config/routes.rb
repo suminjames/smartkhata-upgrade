@@ -73,6 +73,10 @@ Rails.application.routes.draw do
       get 'generate_bills'
     end
   end
+
+  resources :nepse_purchase_settlements, controller: 'nepse_settlements', type: 'NepsePurchaseSettlement'
+  resources :nepse_sale_settlements, controller: 'nepse_settlements', type: 'NepseSaleSettlement'
+
   resources :share_transactions do
     collection do
       get 'deal_cancel'

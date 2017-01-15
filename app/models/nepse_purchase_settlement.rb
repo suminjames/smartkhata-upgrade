@@ -1,0 +1,3 @@
+class NepsePurchaseSettlement < NepseSettlement; end
+
+  
