@@ -149,6 +149,9 @@ Rails.application.routes.draw do
     resources :sales, only: [:new, :index] do
       collection {post :import}
     end
+    resources :cm31, only: [:new, :index] do
+      collection {post :import}
+    end
     resources :dpa5 do
       collection {post :import}
     end

@@ -35,7 +35,7 @@ class Files::SalesController < Files::FilesController
     redirect_to nepse_sale_settlement_path(@nepse_settlement_id) and return if @nepse_settlement_id.present?
 
     # else redirect to pending sales settlement
-    redirect_to nepse_sale_settlement_path(pending: true) if payout_upload.nepse_settlement_ids.size > 1
+    redirect_to nepse_sale_settlements_path(pending: true) if payout_upload.nepse_settlement_ids.size > 1
 
   end
 
