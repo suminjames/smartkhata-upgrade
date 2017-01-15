@@ -311,4 +311,57 @@ class ShareTransaction < ActiveRecord::Base
     commission_amount * nepse_commission_rate(date)
   end
 
+  #
+  # Calculation notes:
+  # bp = > base price, pp => purchase price, x => commission rate(or amount if flat_25)
+  #
+  # bp + x% of bp = pp
+  # ie, bp * ( x + 100 ) / 100 = pp
+  #   bp, x -> unknown
+  #   x -> one of the commission percentages
+  #   -> estimated from pp
+  # bp * quantity => (might be) share_amount
+  #
+  # -check for correctness
+  #  -by comparing x with commission percentage of (might be) share_amount
+  #    -if not equal,
+  #        -go down to lower tier percentage
+  #  -only two level checking should be sufficient
+  #   -this is to check for those prices which fall (just) above a range group
+  #
+  def calculate_base_price
+    calculated_base_price = nil
+    if (buying? || settlement_id.blank? || quantity == 0 || purchase_price == 0)
+      calculated_base_price = 0.0
+    else
+      commission_rates_desc = get_commission_rate_array_for_date(date)
+      possible_commission_rate = get_commission_rate(purchase_price, get_commission_info_with_detail(date))
+      index_of_possible_commission_rate = commission_rates_desc.index(possible_commission_rate)
+      # Remove unwanted commission rate values other than the possible one.
+      # The actual commission rate is bigger than or equal to possible commission rate.
+      # Check for only two levels of commission rates, which should be sufficient for the calculation.
+      from_index = index_of_possible_commission_rate == 0 ? 0 : (index_of_possible_commission_rate - 1)
+      to_index = index_of_possible_commission_rate
+      commission_rates_desc_snipped = commission_rates_desc[from_index..to_index]
+      commission_rates_desc_snipped.reverse.each do |commission_rate|
+        if commission_rate.to_s.include?('flat_')
+          possible_base_price = purchase_price - commission_rate.split("_")[1].to_f
+        else
+          possible_base_price = 100.0 * purchase_price / (commission_rate + 100.0)
+        end
+        # possible_share_amount = possible_base_price * quantity
+        possible_share_amount = possible_base_price
+        commission_rate_for_possible_share_amount = get_commission_rate(possible_share_amount, get_commission_info_with_detail(date))
+        if commission_rate == commission_rate_for_possible_share_amount
+          calculated_base_price = possible_base_price
+          # The calculate_base_price (above) to this point is actually for the whole transaction, and not a unit of share,
+          # very similar to purchase price.
+          calculated_base_price = calculated_base_price / quantity
+          break
+        end
+      end
+    end
+    calculated_base_price.try(:to_i)
+  end
+
 end

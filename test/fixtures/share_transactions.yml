@@ -153,3 +153,183 @@ three:
   voucher_id: 2
   client_account: two
   isin_info: two
+
+four:
+  contract_no: 201612224205186
+  buyer: 14
+  seller: 48
+  raw_quantity: 10
+  quantity: 10
+  share_rate: 270.0
+  share_amount: 2700.0
+  sebo: 0.405
+  commission_rate: "flat_25"
+  commission_amount: 25.0
+  dp_fee: 25.0
+  cgt: 82.172
+  net_amount: 2567.423
+  bank_deposit: 2708.405
+  transaction_type: 1
+  settlement_id: 1211002016275
+  base_price: 105.0
+  amount_receivable: 2609.423
+  closeout_amount: 0.0
+  remarks: "Normal Trade"
+  purchase_price: 1006.15
+  capital_gain: 1643.445
+  adjusted_sell_price: 2649.595
+  date: "2017-01-01"
+  created_at: "2017-01-06 10:19:27"
+  updated_at: "2017-01-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 160804
+  bill_id: 82995
+  client_account: two
+  isin_info: two
+  transaction_cancel_status: "no_deal_cancel"
+
+
+five:
+  transaction_type: 1 #selling
+  contract_no: 201612294222285
+  buyer: 47
+  seller: 48
+  raw_quantity: 10
+  quantity: 10
+  share_rate: 1849.0
+  share_amount: 18490.0
+  sebo: 2.7735
+  commission_rate: "0.60"
+  commission_amount: 110.94
+  dp_fee: 25.0
+  cgt: 47.603
+  net_amount: 18303.6828
+  bank_deposit: 18528.2743
+  settlement_id: 1211002016280
+  base_price: 1753.0
+  amount_receivable: 18404.122
+  closeout_amount: 0.0
+  remarks: "Normal Trade"
+  purchase_price: 17399.22
+  capital_gain: 952.066
+  adjusted_sell_price: 18351.286
+  date: "2017-01-01"
+  created_at: "2017-01-06 10:19:27"
+  updated_at: "2017-01-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 2
+  client_account: two
+  isin_info: two
+
+six:
+  transaction_type: 1 #selling
+  contract_no: 201701084247208
+  buyer: 36
+  seller: 48
+  raw_quantity: 26
+  quantity: 26
+  share_rate: 400.0
+  share_amount: 10400.0
+  sebo: 1.56
+  commission_rate: "0.6"
+  commission_amount: 62.4
+  dp_fee: 25.0
+  cgt: 384.753
+  net_amount: 9926.287
+  bank_deposit: 10421.528
+  settlement_id: 1211002017007
+  base_price: 104.0
+  amount_receivable: 9993.719
+  closeout_amount: 0.0
+  remarks: "Normal Trade"
+  purchase_price: 2615.99
+  capital_gain: 7695.05
+  adjusted_sell_price: 10311.04
+  date: "2017-01-01"
+  created_at: "2017-01-06 10:19:27"
+  updated_at: "2017-01-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 2
+  client_account: two
+  isin_info: two
+
+# wholly close out'ed transaction
+seven:
+  transaction_type: 1 #selling
+  contract_no: 201701084247808
+  buyer: 36
+  seller: 48
+  raw_quantity: 26
+  quantity: 0
+  share_rate: 400.0
+  share_amount: 10400.0
+  sebo: 1.56
+  commission_rate: "0.6"
+  commission_amount: 62.4
+  dp_fee: 25.0
+  cgt: 384.753
+  net_amount: 9926.287
+  bank_deposit: 10421.528
+  settlement_id: 1211002017007
+  base_price: 104.0
+  amount_receivable: 9993.719
+  closeout_amount: 0.0
+  remarks: "Normal Trade"
+  purchase_price: 2615.99
+  capital_gain: 7695.05
+  adjusted_sell_price: 10311.04
+  date: "2017-01-01"
+  created_at: "2017-01-06 10:19:27"
+  updated_at: "2017-01-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 2
+  client_account: two
+  isin_info: two
+
+# sales transaction (after floorsheet upload, but before cm upload)
+eight:
+  transaction_type: 1 #selling
+  contract_no: 201701094247923
+  buyer: 26
+  seller: 48
+  raw_quantity: 300
+  quantity: 300
+  share_rate: 226.0
+  share_amount: 67800.0
+  sebo: 10.17
+  commission_rate: "0.55"
+  commission_amount: 372.9
+  dp_fee: 25.0
+  cgt: 0.0
+  net_amount: 68208.07
+  bank_deposit: 67929.498
+  settlement_id:
+  base_price: 0.0
+  amount_receivable: 0.0
+  closeout_amount: 0.0
+  remarks: nil
+  purchase_price: 0.0
+  capital_gain: 0.0
+  adjusted_sell_price: 0.0
+  date: "2017-01-01"
+  created_at: "2017-01-06 10:19:27"
+  updated_at: "2017-01-06 10:19:27"
+  nepse_chalan_id: nil
+  creator_id: 1
+  updater_id: 1
+  branch_id: 1
+  voucher_id: 2
+  client_account: two
+  isin_info: two
