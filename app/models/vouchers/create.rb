@@ -91,6 +91,8 @@ class Vouchers::Create < Vouchers::Base
       @voucher,
           has_error,
           error_message,
+          net_blnc,
+          net_usable_blnc,
           net_cash_amount = process_particulars(@voucher, @voucher_settlement_type)
 
       @processed_bills = []
@@ -181,7 +183,7 @@ class Vouchers::Create < Vouchers::Base
 
 
     end
-    return voucher, has_error, error_message, net_cash_amount
+    return voucher, has_error, error_message, net_blnc, net_usable_blnc, net_cash_amount
   end
   def process_client_bills(voucher, is_payment_receipt, voucher_type)
     processed_bills = []
@@ -395,7 +397,7 @@ class Vouchers::Create < Vouchers::Base
 
         end
         if is_payment_receipt && voucher_settlement_type == 'default'
-          settlement = purchase_sales_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills, cash_amount: net_cash_amount)
+          settlement = purchase_nepse_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills, cash_amount: net_cash_amount)
           # TODO()
           # voucher.settlements << settlement if settlement.present?
           # particular.settlements << settlement if settlement.present?
@@ -430,7 +432,7 @@ class Vouchers::Create < Vouchers::Base
           voucher.beneficiary_name = vendor_account.name
         end
 
-        settlement = purchase_sales_settlement(
+        settlement = purchase_nepse_settlement(
             voucher,
             description_bills: description_bills,
             is_single_settlement: true,
@@ -480,7 +482,7 @@ class Vouchers::Create < Vouchers::Base
     return voucher, res, error_message, settlements
   end
 
-  def purchase_sales_settlement(voucher, attrs = {})
+  def purchase_nepse_settlement(voucher, attrs = {})
     ledger = attrs[:ledger]
     client_account = attrs[:client_account]
     settlement_description = attrs[:settlement_description]

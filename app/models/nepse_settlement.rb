@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: sales_settlements
+# Table name: nepse_settlements
 #
 #  id              :integer          not null, primary key
 #  settlement_id   :decimal(18, )
@@ -12,7 +12,7 @@
 #  updated_at      :datetime         not null
 #
 
-class SalesSettlement < ActiveRecord::Base
+class NepseSettlement < ActiveRecord::Base
   include Auditable
   enum status: [:pending, :complete]
   include ::Models::Updater

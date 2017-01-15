@@ -1,5 +1,5 @@
 class ImportFile
-  attr_reader :status_code, :sales_settlement_id, :error_message, :processed_data
+  attr_reader :status_code, :nepse_settlement_id, :error_message, :processed_data
 
   def initialize(file)
     @file = file

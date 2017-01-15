@@ -188,6 +188,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
     test "should partially settle sales bill with partial amount" do
       voucher.voucher_type = 6
       voucher_type = 6
+      
       # make sure the client has dr balance equal to bill amount
       ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: -2000 )
 

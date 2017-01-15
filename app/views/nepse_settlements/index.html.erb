@@ -1,6 +1,6 @@
 <% provide(:section_title, "Listing Sales Settlements") %>
 
-<% if @sales_settlements.present? %>
+<% if @nepse_settlements.present? %>
   <table class="table">
     <thead>
     <tr>
@@ -10,10 +10,10 @@
     </thead>
 
     <tbody>
-    <% @sales_settlements.each do |sales_settlement| %>
+    <% @nepse_settlements.each do |nepse_settlement| %>
         <tr>
-          <td><%= sales_settlement.settlement_id %></td>
-          <td><%= link_to 'Show', sales_settlement %></td>
+          <td><%= nepse_settlement.settlement_id %></td>
+          <td><%= link_to 'Show', nepse_settlement %></td>
         </tr>
     <% end %>
     </tbody>

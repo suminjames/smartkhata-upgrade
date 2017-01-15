@@ -30,9 +30,9 @@ class BankPaymentLettersController < ApplicationController
     @settlement_id = params[:settlement_id]
     if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
-      @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
+      @nepse_settlement = NepseSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills_for_payment_letter_list if @sales_settlement.present?
+      @bills = @nepse_settlement.bills_for_payment_letter_list if @nepse_settlement.present?
       @is_searched = true
       return
     end
@@ -48,10 +48,10 @@ class BankPaymentLettersController < ApplicationController
   def create
     @settlement_id = params[:settlement_id]
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
-    @sales_settlement = SalesSettlement.find(@bank_payment_letter.sales_settlement_id)
+    @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
 
-    if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+    if UserSession.selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
       redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 
@@ -187,6 +187,6 @@ class BankPaymentLettersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def bank_payment_letter_params
-      params.require(:bank_payment_letter).permit(:sales_settlement_id, :bank_account_id)
+      params.require(:bank_payment_letter).permit(:nepse_settlement_id, :bank_account_id)
     end
 end

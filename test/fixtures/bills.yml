@@ -20,7 +20,7 @@
 #  creator_id                 :integer
 #  updater_id                 :integer
 #  branch_id                  :integer
-#  sales_settlement_id        :integer
+#  nepse_settlement_id        :integer
 #  settlement_approval_status :integer          default(0)
 #
 

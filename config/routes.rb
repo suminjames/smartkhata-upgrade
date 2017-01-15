@@ -68,7 +68,7 @@ Rails.application.routes.draw do
 
   end
   resources :bank_accounts
-  resources :sales_settlements do
+  resources :nepse_settlements do
     collection do
       get 'generate_bills'
     end
