@@ -11,7 +11,7 @@ module ApplicationHelper
     id = new_object.object_id
     fields = f.fields_for(association, new_object, child_index: id) do |builder|
       # render(association.to_s.singularize + "_fields" , f: builder)
-      render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info}
+      render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info, sk_id: id}
     end
     link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.gsub("\n", "")})
   end

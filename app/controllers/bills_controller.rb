@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number, :ageing_analysis]
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :show_by_number, :ageing_analysis]
   # also :authorize_single_bill(s) when implemented
 
   # layout 'application_custom', only: [:index]
@@ -26,7 +26,7 @@ class BillsController < ApplicationController
       client_account= ClientAccount.find(@client_account_id)
       @bills = client_account.get_all_related_bills.order(date: :asc).decorate
       # render a separate page for bills selection
-      render :select_bills_for_settlement and return
+      render :select_for_settlement and return
     end
 
     @filterrific = initialize_filterrific(
@@ -78,7 +78,25 @@ class BillsController < ApplicationController
     # There is an issue with the persisted param_set. Reset it.
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
+  end
 
+  # GET select_for_settlment
+  def select_for_settlement
+    @ledger_id = params['ledger_id'].to_i
+    @sk_id = params['sk_id'] || nil
+    @bills = []
+    @client_account_id = nil
+    @client_account_id = Ledger.find_by(id: @ledger_id).try(:client_account_id)
+    # debugger
+    if @client_account_id
+      client_account= ClientAccount.find(@client_account_id)
+      @bills = client_account.get_all_related_bills.order(date: :asc).decorate
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
   end
 
   def ageing_analysis

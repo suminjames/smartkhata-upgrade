@@ -13,7 +13,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
     @cheque_entry = create(:cheque_entry)
     activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
     activity.process
-    assert_not_nil activity.error_message
+    # assert_not_nil activity.error_message
     assert_equal 'The cheque can not be Bounced.', activity.error_message
   end
 
@@ -57,7 +57,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
     activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
     activity.process
 
-    assert_equal "The cheque can not be bounced.. Please contact technical support", activity.error_message
+    assert_equal "The cheque can not be bounced...Please contact technical support", activity.error_message
     assert_not @cheque_entry.void?
     assert_not Voucher.find(@voucher.id).reversed?
   end

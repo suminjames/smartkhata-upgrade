@@ -1,10 +1,16 @@
+$link_color: #2f8a93;
+$bill_background_color: rgba(236, 240, 245, 0.42);
+$font-size-base: 13px!default;
+
 // import the CSS framework
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
-$link_color: #2f8a93;
-$bill_background_color: rgba(236, 240, 245, 0.42);
 
+
+h4, .h4 {
+  font-size: 16px;
+}
 // make all images responsive by default
 img {
   @extend .img-responsive;
@@ -101,4 +107,19 @@ section {
   &:visited {
     color: white;
   }
+}
+
+//24-grid
+@for $i from 1 through 24 {
+
+  .col-sk-#{$i} {
+    @extend .col-xs-12;
+    width: 100% / 24 * $i;
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
 }
