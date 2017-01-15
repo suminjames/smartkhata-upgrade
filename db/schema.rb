@@ -863,7 +863,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "ledger_id"
     t.datetime "created_at",                                                  null: false
     t.datetime "updated_at",                                                  null: false
-    t.integer  "opening_balance_type",                          default: 0
+    t.integer  "opening_balance_type"
   end
 
   add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
