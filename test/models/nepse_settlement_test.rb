@@ -14,7 +14,7 @@
 
 require 'test_helper'
 
-class SalesSettlementTest < ActiveSupport::TestCase
+class NepseSettlementTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

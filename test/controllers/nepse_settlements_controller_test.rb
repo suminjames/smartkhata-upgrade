@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SalesSettlementsControllerTest < ActionController::TestCase
+class NepseSettlementsControllerTest < ActionController::TestCase
   setup do
     @nepse_settlement = nepse_settlements(:one)
     @processed_nepse_settlement = nepse_settlements(:two)
