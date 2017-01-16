@@ -69,7 +69,6 @@ module CommissionModule
     commission_info
   end
 
-
   def get_commission(amount, commission_info)
     commission_rate = get_commission_rate(amount, commission_info)
     get_commission_by_rate(commission_rate, amount)
@@ -83,6 +82,25 @@ module CommissionModule
     end
   end
 
+  #
+  # Returns array of commission_rate sorted as per ascending order of their amount range.
+  # Note:
+  #   - The use of `*_desc` in variable name might be confusing for ascending sorting as per amount range.
+  #   - However, it is to be noted that as amount range increases, commission rate decreases.
+  # An example of array returned: ["flat_25.0", 0.6, 0.55, 0.5, 0.45, 0.4]
+  #
+  def get_commission_rate_array_for_date(date)
+    commission_details_array = get_commission_info_with_detail(date).commission_details_array
+    commission_rates_desc = commission_details_array .select{|r| r.commission_rate.present?}.map{|r| r.commission_rate}.sort.reverse
+
+    flat_rates_desc = commission_details_array.select{|r| r.commission_rate.blank?}.map{|r| r.commission_amount}.sort.reverse.map{|r| "flat_#{r}"}
+
+    unless flat_rates_desc.blank?
+      # Append flat_rates infront of commission_rates
+      commission_rates_desc = flat_rates_desc + commission_rates_desc
+    end
+    commission_rates_desc
+  end
 
   # #
   # # get compliance fee to be paid to dhitopatra board
@@ -90,7 +108,6 @@ module CommissionModule
   # def compliance_fee(commission, transaction_date)
   #   commission * compliance_fee_rate(transaction_date)
   # end
-
 
   #
   # get broker commission( commission for the broker)
@@ -116,7 +133,6 @@ module CommissionModule
   #     0
   #   end
   # end
-
 
   #
   # broker commission rate on total commission charged from client

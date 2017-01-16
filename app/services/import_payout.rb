@@ -120,11 +120,11 @@ class ImportPayout < ImportFile
           transaction.settlement_id = hash['SETT_ID']
           transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
           transaction.cgt = hash['CGT'].delete(',').to_f
-          transaction.base_price = get_base_price(transaction).to_i
-          transaction.remarks = hash['REMARKS']
           transaction.purchase_price = hash['PURCHASE_PRICE']
+          transaction.remarks = hash['REMARKS']
           transaction.capital_gain = hash['CG']
           transaction.adjusted_sell_price = hash['ADJ_SELL_PRICE']
+          transaction.base_price = transaction.calculate_base_price
 
 
           # get the shortage quantity
@@ -211,16 +211,4 @@ class ImportPayout < ImportFile
     @error_message = "Please Upload a CSV file." and return
   end
 
-  def get_base_price(transaction)
-    unless transaction.cgt > 0
-      0.0
-    else
-      if transaction.client_account.individual?
-        tax_rate = 0.05
-      else
-        tax_rate = 0.1
-      end
-      transaction.share_rate - (transaction.cgt / (transaction.quantity * tax_rate))
-    end
-  end
 end
