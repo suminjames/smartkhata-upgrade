@@ -200,18 +200,22 @@ class ShareTransaction < ActiveRecord::Base
     share_transactions = filterrific.find
     total_in_sum = 0
     total_out_sum = 0
+    balance_share_amount = 0
     share_transactions.each do |st|
       if st.buying?
         total_in_sum += st.quantity
+        balance_share_amount += st.share_amount
       elsif st.selling?
         total_out_sum += st.quantity
+        balance_share_amount -= st.share_amount
       end
     end
     balance_sum = total_in_sum - total_out_sum
     {
         :total_in_sum => total_in_sum,
         :total_out_sum => total_out_sum,
-        :balance_sum => balance_sum
+        :balance_sum => balance_sum,
+        :balance_share_amount => balance_share_amount
     }
   end
 

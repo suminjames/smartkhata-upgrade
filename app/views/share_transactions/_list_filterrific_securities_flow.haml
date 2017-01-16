@@ -37,7 +37,6 @@
           -if securities_flows
             -pagination_count = kaminari_serial_number(params[:page], securities_flows.limit_value)
             -securities_flows.each_with_index do |securities_flow, index|
-              -#- isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific, securities_flow.isin_info_id)
               %tr
                 -isin_info = IsinInfo.find(securities_flow["isin_info_id"])
                 %td.text-center= pagination_count + index

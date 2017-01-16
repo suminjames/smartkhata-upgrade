@@ -89,10 +89,11 @@
               %tr.total-row
                 %td.text-right{colspan: 6}= "Company: #{share_transaction.isin_info.isin}"
                 %td.text-right= 'Total'
-                %td.text-right= "In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
-                %td.text-right= "Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
-                %td.text-right{colspan: 2}= "Qty Balance:<br>#{isin_balances[:balance_sum].to_i}".html_safe
-                %td.text-right{colspan: 2}= ""
+                %td.text-right= "Qty<br>In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
+                %td.text-right= "Qty<br>Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
+                %td.text-right{colspan: 2}= "Qty<br>Balance:<br>#{isin_balances[:balance_sum].to_i}".html_safe
+                %td.text-right= "Amount<br>Balance:<br>#{arabic_number(isin_balances[:balance_share_amount].to_i)}".html_safe
+                %td.text-right= ""
 
     - if !share_transactions || share_transactions.empty?
       %div.row.text-center.top-buffer-md
