@@ -25,6 +25,17 @@
         - bundle exec rake menu:update_list
             - note:
                 - this is to be run after the menu.yml file is modified
+    - If current state of db is stale(before migrations time-stamped 20170115****), in rails console run
+        - NepseSettlement.update_all(type: 'NepseSaleSettlement')
+        - CAUTION:
+            -During aforementioned migrations and the accompanying code changes,
+                -SalesSettlement was renamed to 'NepseSettlement'
+                -'NepseSettlement' has (via Single Table Inheritance) two types:
+                    -'NepseSaleSettlement'
+                    -'NepsePurchaseSettlement'
+            -The `update_all` command above changes every NepseSettlements to type 'NepseSaleSettlement'. This means
+             any 'NepsePurchaseSettlement' would also be converted to 'NepseSaleSettlement'.
+
 
 #. For checking correctness
     - Check 'NEPSE Purchase' ledger for that particular date
