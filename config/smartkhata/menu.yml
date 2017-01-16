@@ -16,6 +16,9 @@ menus:
     - name: Sales CM
       path: "<%= new_files_sale_path %>"
       code: FS_UPL_SCM
+    - name: CM 31
+      path: "<%= new_files_cm31_path%>"
+      code: FS_UPL_CM3
     - name: DpA5
       path: "<%= new_files_dpa5_path %>"
       code: FS_UPL_DPA5
