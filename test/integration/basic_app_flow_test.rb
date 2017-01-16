@@ -110,7 +110,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     @nepse_settlement_id = assigns(:nepse_settlement_id)
 
     follow_redirect!
-    assert_equal nepse_settlement_path(@nepse_settlement_id), path
+    assert_equal nepse_sale_settlement_path(@nepse_settlement_id), path
     assert_select 'input[type=hidden][name=id]', value: @nepse_settlement_id
 
     assert_select 'form[action=?]', generate_bills_nepse_settlements_path do
