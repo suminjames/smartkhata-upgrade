@@ -21,6 +21,8 @@
 #  branch_id                 :integer
 #  settlement_by_cheque_type :integer          default(0)
 #  date                      :date
+#  belongs_to_batch_payment  :boolean
+#  cash_amount               :decimal(15, 2)
 #
 
 class Settlement < ActiveRecord::Base
