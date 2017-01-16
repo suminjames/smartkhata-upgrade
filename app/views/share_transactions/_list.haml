@@ -3,8 +3,6 @@
 - unless smart_listing.empty?
   = form_tag generate_bills_nepse_settlements_path, method: :get do
     = hidden_field_tag 'id', @nepse_settlement.id
-    .callout.callout-info
-      -#%p="Please Unselect the option if you dont want the payment to be created by Letter to Bank"
     .panel.panel-default
       .panel-body
         -#.checkbox
