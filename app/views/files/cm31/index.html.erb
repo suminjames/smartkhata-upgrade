@@ -1,0 +1,7 @@
+<% provide(:section_title, "Purchase Closeout Settlements Listing") %>
+
+<%= render 'shared/pagination', collection_to_paginate: @settlements %>
+<%= render 'list', settlements: @settlements %>
+<%= render 'shared/pagination', collection_to_paginate: @settlements %>
+
+

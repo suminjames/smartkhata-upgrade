@@ -20,7 +20,7 @@ menus:
   - name: Pending
     menu_items:
     - name: Pending Sales Settlement
-      path: "<%= sales_settlements_path(pending: true) %>"
+      path: "<%= nepse_settlements_path(pending: true) %>"
 - name: Account Section
   sub_menus:
   - name: Vouchers

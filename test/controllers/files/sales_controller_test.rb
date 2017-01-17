@@ -61,7 +61,7 @@ class Files::SalesControllerTest < ActionController::TestCase
       end
       @post_action.call(post_action_type, file_num)
       if test_type == 'valid'
-        assert_redirected_to sales_settlement_path(assigns(:sales_settlement_id))
+        assert_redirected_to nepse_settlement_path(assigns(:nepse_settlement_id))
       else
         assert_response :success
         assert_template 'files/sales/import'
@@ -77,12 +77,12 @@ class Files::SalesControllerTest < ActionController::TestCase
       when 'valid again' then 2
       else 0
       end
-      assert_equal @sales_settlements_in_fixtures + file_count, SalesSettlement.count
-      # assert_equal @sales_settlements_in_fixtures + file_count, assigns(:file_list).count
+      assert_equal @nepse_settlements_in_fixtures + file_count, NepseSettlement.count
+      # assert_equal @nepse_settlements_in_fixtures + file_count, assigns(:file_list).count
     }
     # fix tenants issue
     @request.host = 'trishakti.lvh.me'
-    @sales_settlements_in_fixtures = 2
+    @nepse_settlements_in_fixtures = 2
     # Error messages
     @missing_contract_number_msg = 'the file you have uploaded has missing contract number'
     @missing_floorsheet_msg = 'please upload corresponding floorsheet first'

@@ -14,7 +14,7 @@
 #  ledger_id            :integer
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
-#  opening_balance_type :integer          default(0)
+#  opening_balance_type :integer
 #
 
 # Maintains the most up-to-date(rather up-to-moment) ledger attribute for the given branch_id.

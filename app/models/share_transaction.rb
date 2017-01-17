@@ -286,7 +286,12 @@ class ShareTransaction < ActiveRecord::Base
     if self.base_price?
       tax_rate = self.client_account.individual? ? 0.05 : 0.1
       # tax_rate = 0.01
-      self.cgt = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      # self.cgt = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      cgt_var = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      if cgt_var < 0
+        cgt_var = 0
+      end
+      self.cgt = cgt_var
       self.net_amount = self.net_amount - old_cgt + self.cgt
     end
   end

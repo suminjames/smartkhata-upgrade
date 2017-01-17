@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: sales_settlements
+# Table name: nepse_settlements
 #
 #  id              :integer          not null, primary key
 #  settlement_id   :decimal(18, )

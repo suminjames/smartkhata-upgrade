@@ -33,7 +33,7 @@
                 </td>
                 <td><%= settlement.complete? ? 'Processed' : 'Pending' %> </td>
                 <td>
-                  <%= link_to 'view', sales_settlement_path(settlement.id)%>
+                  <%= link_to 'view', nepse_settlement_path(settlement.id)%>
                 </td>
               </tr>
           <% end %>

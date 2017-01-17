@@ -8,7 +8,7 @@
 #  creator_id          :integer
 #  updater_id          :integer
 #  bank_account_id     :integer
-#  sales_settlement_id :integer
+#  nepse_settlement_id :integer
 #  branch_id           :integer
 #  voucher_id          :integer
 #  created_at          :datetime         not null

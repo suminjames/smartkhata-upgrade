@@ -16,6 +16,9 @@ menus:
     - name: Sales CM
       path: "<%= new_files_sale_path %>"
       code: FS_UPL_SCM
+    - name: CM 31
+      path: "<%= new_files_cm31_path%>"
+      code: FS_UPL_CM3
     - name: DpA5
       path: "<%= new_files_dpa5_path %>"
       code: FS_UPL_DPA5
@@ -26,7 +29,7 @@ menus:
     code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
-      path: "<%= sales_settlements_path(pending: true) %>"
+      path: "<%= nepse_settlements_path(pending: true) %>"
       code: FS_PND_SAS
 - name: Account Section
   code: AS

@@ -35,7 +35,7 @@ class BankPaymentLettersControllerTest < ActionController::TestCase
 
     set_fy_code_and_branch_from bill
     assert_difference('BankPaymentLetter.count') do
-      post :create, bank_payment_letter: { branch_id: @bank_payment_letter.branch_id, creator_id: @bank_payment_letter.creator_id, fy_code: @bank_payment_letter.fy_code, sales_settlement_id: @bank_payment_letter.sales_settlement_id, updater_id: @bank_payment_letter.updater_id, voucher_id: @bank_payment_letter.voucher_id },
+      post :create, bank_payment_letter: { branch_id: @bank_payment_letter.branch_id, creator_id: @bank_payment_letter.creator_id, fy_code: @bank_payment_letter.fy_code, nepse_settlement_id: @bank_payment_letter.nepse_settlement_id, updater_id: @bank_payment_letter.updater_id, voucher_id: @bank_payment_letter.voucher_id },
                     bill_ids: [bill.id.to_s]
     end
     assert_redirected_to bank_payment_letter_path(assigns(:bank_payment_letter))
@@ -53,7 +53,7 @@ class BankPaymentLettersControllerTest < ActionController::TestCase
   end
 
   test "should update bank_payment_letter" do
-    patch :update, id: @bank_payment_letter, bank_payment_letter: { branch_id: @bank_payment_letter.branch_id, creator_id: @bank_payment_letter.creator_id, fy_code: @bank_payment_letter.fy_code, sales_settlement_id: @bank_payment_letter.sales_settlement_id, updater_id: @bank_payment_letter.updater_id, voucher_id: @bank_payment_letter.voucher_id }
+    patch :update, id: @bank_payment_letter, bank_payment_letter: { branch_id: @bank_payment_letter.branch_id, creator_id: @bank_payment_letter.creator_id, fy_code: @bank_payment_letter.fy_code, nepse_settlement_id: @bank_payment_letter.nepse_settlement_id, updater_id: @bank_payment_letter.updater_id, voucher_id: @bank_payment_letter.voucher_id }
     assert_redirected_to bank_payment_letter_path(assigns(:bank_payment_letter))
   end
 

@@ -58,7 +58,7 @@ namespace :smartkhata_data do
       LedgerBalance.unscoped.delete_all
       LedgerDaily.unscoped.delete_all
       ChequeEntry.unscoped.delete_all
-      SalesSettlement.delete_all
+      NepseSettlement.delete_all
 
       puts "Deleting Share Transactions"
       ShareTransaction.delete_all
@@ -119,12 +119,12 @@ namespace :smartkhata_data do
       UserSession.selected_branch_id = 1
       UserSession.selected_fy_code = 7374
 
-      @sales_settlements = SalesSettlement.all
+      @nepse_settlements = NepseSettlement.all
 
       puts "Generating sales bills .."
-      @sales_settlements.each do |s|
+      @nepse_settlements.each do |s|
         puts "Generating bills for settlement: #{s.settlement_id}"
-        GenerateBillsService.new(sales_settlement: s).process if s.pending?
+        GenerateBillsService.new(nepse_settlement: s).process if s.pending?
       end
       puts "Task completed "
       Apartment::Tenant.switch!('public')

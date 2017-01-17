@@ -68,11 +68,15 @@ Rails.application.routes.draw do
 
   end
   resources :bank_accounts
-  resources :sales_settlements do
+  resources :nepse_settlements do
     collection do
       get 'generate_bills'
     end
   end
+
+  resources :nepse_purchase_settlements, controller: 'nepse_settlements', type: 'NepsePurchaseSettlement'
+  resources :nepse_sale_settlements, controller: 'nepse_settlements', type: 'NepseSaleSettlement'
+
   resources :share_transactions do
     collection do
       get 'deal_cancel'
@@ -143,6 +147,9 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :sales, only: [:new, :index] do
+      collection {post :import}
+    end
+    resources :cm31, only: [:new, :index] do
       collection {post :import}
     end
     resources :dpa5 do

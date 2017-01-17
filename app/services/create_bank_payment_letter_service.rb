@@ -3,7 +3,7 @@ class CreateBankPaymentLetterService
   attr_accessor :error_message
 
   def initialize(params)
-    @sales_settlement = params[:sales_settlement]
+    @nepse_settlement = params[:nepse_settlement]
     @bank_payment_letter = params[:bank_payment_letter]
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)

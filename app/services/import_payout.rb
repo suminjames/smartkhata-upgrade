@@ -7,13 +7,13 @@ class ImportPayout < ImportFile
   include CustomDateModule
   include FiscalYearModule
 
-  attr_reader :sales_settlement_ids
+  attr_reader :nepse_settlement_ids
 
   def initialize(file, settlement_date = nil)
     super(file)
-    @sales_settlement_ids = []
-    @sales_settlement_date_bs = settlement_date
-    @sales_settlement_date = nil
+    @nepse_settlement_ids = []
+    @nepse_settlement_date_bs = settlement_date
+    @nepse_settlement_date = nil
   end
 
   def process(multiple_settlement_ids_allowed = false)
@@ -31,19 +31,19 @@ class ImportPayout < ImportFile
     # settlement_cm_file = SalesSettlement.find_by(settlement_id: @settlement_id)
     # @error_message = "The file is already uploaded" unless settlement_cm_file.nil?
 
-    @error_message ||= "Please Enter a valid date" if @sales_settlement_date_bs.nil? && !multiple_settlement_ids_allowed
+    @error_message ||= "Please Enter a valid date" if @nepse_settlement_date_bs.nil? && !multiple_settlement_ids_allowed
 
     unless @error_message
       # Check the validity for the entered settlement date
       # byepass this if multiple settlement is allowed
       unless multiple_settlement_ids_allowed
         begin
-          @sales_settlement_date = bs_to_ad(@sales_settlement_date_bs)
-          unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
+          @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
+          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
             @error_message = "Date is invalid for selected fiscal year"
           end
         rescue
-          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@sales_settlement_date) && date_valid_for_fy_code(@sales_settlement_date)
+          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
         end
         return if @error_message
       end
@@ -62,7 +62,7 @@ class ImportPayout < ImportFile
 
           settlement_id = hash['SETT_ID'].to_i
           unless settlement_ids.include? settlement_id
-            settlement_cm_file = SalesSettlement.find_by(settlement_id: settlement_id)
+            settlement_cm_file = NepseSaleSettlement.find_by(settlement_id: settlement_id)
             unless settlement_cm_file.nil?
               import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
               raise ActiveRecord::Rollback
@@ -168,9 +168,9 @@ class ImportPayout < ImportFile
         # that track the file uploads for different settlement
         settlement_ids.each do |settlement_id|
           if multiple_settlement_ids_allowed
-            @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
           else
-            @sales_settlement_ids << SalesSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @sales_settlement_date).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
           end
 
         end

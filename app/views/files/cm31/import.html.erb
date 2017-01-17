@@ -1,0 +1,6 @@
+<% provide(:section_title, "Upload CM31 file") %>
+<% if (!@error) %>
+    File Successfully processed
+<% else %>
+    <%= link_to "Upload CM31 file", new_files_cm31_path %>
+<% end %>

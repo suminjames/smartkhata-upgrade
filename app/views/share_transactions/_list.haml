@@ -1,10 +1,8 @@
--# This view is called by the controller during a pending sales_settlement's show view.
+-# This view is called by the controller during a pending nepse_settlement's show view.
 -# When changed here, be sure to make changes on list_complete.haml too
 - unless smart_listing.empty?
-  = form_tag generate_bills_sales_settlements_path, method: :get do
-    = hidden_field_tag 'id', @sales_settlement.id
-    .callout.callout-info
-      -#%p="Please Unselect the option if you dont want the payment to be created by Letter to Bank"
+  = form_tag generate_bills_nepse_settlements_path, method: :get do
+    = hidden_field_tag 'id', @nepse_settlement.id
     .panel.panel-default
       .panel-body
         -#.checkbox

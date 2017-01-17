@@ -107,20 +107,20 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # --- 4. Upload CM05 of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/sales_cm/CM0502122016121554_test.csv'), 'text/csv')
     post import_files_sales_path, file: file, settlement_date: '2073-08-16'
-    @sales_settlement_id = assigns(:sales_settlement_id)
+    @nepse_settlement_id = assigns(:nepse_settlement_id)
 
     follow_redirect!
-    assert_equal sales_settlement_path(@sales_settlement_id), path
-    assert_select 'input[type=hidden][name=id]', value: @sales_settlement_id
+    assert_equal nepse_sale_settlement_path(@nepse_settlement_id), path
+    assert_select 'input[type=hidden][name=id]', value: @nepse_settlement_id
 
-    assert_select 'form[action=?]', generate_bills_sales_settlements_path do
+    assert_select 'form[action=?]', generate_bills_nepse_settlements_path do
       assert_select 'button[type=submit]', text: 'Process the Settlement'
     end
 
 
     puts "Processing Settlement... Generating Bills"
     # --- 4.1 Process Settlement ---
-    get generate_bills_sales_settlements_path, {id: @sales_settlement_id}
+    get generate_bills_nepse_settlements_path, {id: @nepse_settlement_id}
     assert_response :success
     assert_select 'h3', text: 'Bills generated Successfully'
 
