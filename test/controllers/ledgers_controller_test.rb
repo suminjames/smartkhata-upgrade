@@ -52,15 +52,6 @@ class LedgersControllerTest < ActionController::TestCase
     assert_equal @ledger.name, 'bar'
   end
 
-  test "should update ledger" do
-    assert_not_equal @ledger.name, 'bar'
-    patch :update, id: @ledger, ledger: { name: 'bar' , group_id: @group}
-    assert_redirected_to ledger_path(assigns(:ledger))
-    assert_equal "Ledger was successfully updated.", flash[:notice]
-    @ledger.reload
-    assert_equal @ledger.name, 'bar'
-  end
-
   #Disabled. A ledger should be ever be destroyed.
   test "should destroy ledger" do
     assert_difference 'Ledger.count', -1 do
