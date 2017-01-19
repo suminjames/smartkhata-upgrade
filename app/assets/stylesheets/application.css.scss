@@ -535,3 +535,24 @@ select{
     marign-bottom: 5px;
   }
 }
+//filter form
+.filter-form {
+  .panel-body {
+    padding: 10px;
+  }
+  .top-buffer-md {
+    margin-top: 20px;
+  }
+  label {
+    margin-bottom: 0;
+  }
+
+  //.select2-container--bootstrap .select2-selection--single {
+  //  height: 28px;
+  //}
+  //.form-control{
+  //  height: 28px;
+  //
+  //
+  //}
+}
