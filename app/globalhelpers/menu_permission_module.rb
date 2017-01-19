@@ -41,4 +41,8 @@ module MenuPermissionModule
     !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include? path)
   end
 
+  def user_has_access_to(link)
+    admin_and_above? || current_user.client? || !current_user.blocked_path_list.include?(link)
+  end
+
 end

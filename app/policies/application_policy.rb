@@ -75,7 +75,7 @@ class ApplicationPolicy
   end
 
   def path_authorized_to_client_and_above?(link=user.current_url_link)
-    admin_and_above? || ((employee? || client?) && authorized_to_access?(link))
+    admin_and_above? || client? || (employee? && authorized_to_access?(link))
   end
 
 

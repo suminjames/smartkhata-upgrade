@@ -135,7 +135,7 @@ module ApplicationHelper
 
   # Alternative helper to check authorization: pundit
   def is_authorized_to_access?(link)
-    admin_and_above? || !current_user.blocked_path_list.include?(link)
+    user_has_access_to(link)
   end
 
   def admin_and_above?

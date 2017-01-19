@@ -143,8 +143,9 @@ class BillsController < ApplicationController
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id]).decorate
+    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id])
     authorize @bill
+    @bill = @bill.decorate
     @has_voucher_pending_approval = false
 
     @bill.vouchers_on_settlement.each do |voucher|
