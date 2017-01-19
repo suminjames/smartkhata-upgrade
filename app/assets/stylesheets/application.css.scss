@@ -521,3 +521,17 @@ select{
   cursor: pointer;
 }
 
+
+.info-fy-selection {
+  margin-top: -15px;
+
+  h2 {
+    margin: 10px 10px 5px 0px;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .fire-on-select.form-inline {
+    margin-top: 0;
+    marign-bottom: 5px;
+  }
+}

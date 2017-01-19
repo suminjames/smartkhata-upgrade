@@ -27,12 +27,20 @@
   <div class="content-wrapper">
     <div class="container">
       <section class="content-main">
-        <%= render 'layouts/fy_branch_selection', can_select_fy_code: true %>
-        <%= render 'layouts/messages' %>
-        <div class="box box-default content-area">
-          <div class="box-header with-border content-area">
+        <div class="row info-fy-selection">
+          <div class="col-sm-6">
             <h2 class="box-title section-title"><%= yield(:section_title) %></h2>
           </div>
+          <div class="col-sm-6 text-right">
+            <%= render 'layouts/fy_branch_selection', can_select_fy_code: true %>
+          </div>
+        </div>
+
+        <!--= #render 'layouts/messages'-->
+        <div class="box box-default content-area">
+          <!--<div class="box-header with-border content-area">-->
+
+          <!--</div>-->
           <div class="box-body content-area">
             <%= yield %>
           </div>
