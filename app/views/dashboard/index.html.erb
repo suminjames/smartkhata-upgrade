@@ -5,9 +5,47 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-sm-3">
     <!-- small box -->
-    <div class="small-box bg-saroj">
+    <div class="small-box small-text bg-red animated fadeInDown">
+      <div class="inner">
+        <h3><%= @purchase_bills_pending_count %></h3>
+
+        <p> Bills require action</p>
+      </div>
+      <div class="icon">
+        <img src="<%= image_url('bill_icon.png') %>" class="bill-image">
+      </div>
+      <% if is_authorized_to_access? bills_path %>
+          <a href="<%= bills_path %>" class="small-box-footer">
+            More info <i class="fa fa-arrow-circle-right"></i>
+          </a>
+      <% else %>
+          <span class="small-box-footer">&nbsp;</span>
+      <% end %>
+    </div>
+  </div>
+  <% if admin_and_above? %>
+      <div class="col-sm-3">
+        <!-- small box -->
+        <div class="small-box small-text bg-green animated fadeInDown">
+          <div class="inner">
+            <h3><%= @pending_voucher_approve_count %></h3>
+
+            <p>Vouchers need Approval</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-document-text"></i>
+          </div>
+          <a href="<%= vouchers_path %>" class="small-box-footer">
+            More info <i class="fa fa-arrow-circle-right"></i>
+          </a>
+        </div>
+      </div>
+  <% end %>
+  <div class="col-sm-3">
+    <!-- small box -->
+    <div class="small-box small-text bg-yellow animated fadeInDown">
       <div class="inner">
         <h3><%= @total_users %></h3>
 
@@ -26,9 +64,10 @@
       <% end %>
     </div>
   </div>
-  <div class="col-sm-4">
+
+  <div class="col-sm-3">
     <!-- small box -->
-    <div class="small-box bg-saroj">
+    <div class="small-box small-text bg-blue animated fadeInDown">
       <div class="inner">
         <h3><%= @isin_with_largest_quantity.present? ? "#{@isin_with_largest_quantity.isin}(#{@isin_with_largest_quantity.total.to_i})" : '--' %> </h3>
         <p> Most Number of Shares</p>
@@ -46,43 +85,6 @@
     </div>
   </div>
 
-  <div class="col-sm-4">
-    <!-- small box -->
-    <div class="small-box bg-saroj">
-      <div class="inner">
-        <h3><%= @purchase_bills_pending_count %></h3>
 
-        <p> Bills require action</p>
-      </div>
-      <div class="icon">
-        <img src="<%= image_url('bill_icon.png') %>" class="bill-image">
-      </div>
-      <% if is_authorized_to_access? bills_path %>
-        <a href="<%= bills_path %>" class="small-box-footer">
-          More info <i class="fa fa-arrow-circle-right"></i>
-        </a>
-      <% else %>
-        <span class="small-box-footer">&nbsp;</span>
-      <% end %>
-    </div>
-  </div>
 
-  <% if admin_and_above? %>
-    <div class="col-sm-4">
-      <!-- small box -->
-      <div class="small-box bg-saroj">
-        <div class="inner">
-          <h3><%= @pending_voucher_approve_count %></h3>
-
-          <p>Vouchers need Approval</p>
-        </div>
-        <div class="icon">
-          <i class="ion ion-document-text"></i>
-        </div>
-        <a href="<%= vouchers_path %>" class="small-box-footer">
-          More info <i class="fa fa-arrow-circle-right"></i>
-        </a>
-      </div>
-    </div>
-  <% end %>
 </div>
