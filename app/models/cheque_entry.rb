@@ -1,3 +1,31 @@
+# == Schema Information
+#
+# Table name: cheque_entries
+#
+#  id                 :integer          not null, primary key
+#  beneficiary_name   :string
+#  cheque_number      :integer
+#  additional_bank_id :integer
+#  status             :integer          default(0)
+#  print_status       :integer          default(0)
+#  cheque_issued_type :integer          default(0)
+#  cheque_date        :date
+#  amount             :decimal(15, 4)   default(0.0)
+#  bank_account_id    :integer
+#  client_account_id  :integer
+#  vendor_account_id  :integer
+#  settlement_id      :integer
+#  voucher_id         :integer
+#  creator_id         :integer
+#  updater_id         :integer
+#  branch_id          :integer
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  fy_code            :integer
+#  bounce_date        :date
+#  bounce_narration   :text
+#
+
  # == Schema Information
 
  #
@@ -34,6 +62,8 @@ class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
   attr_accessor :skip_cheque_number_validation
+  # For bounce activity view
+  attr_accessor :bounce_date_bs
 
   belongs_to :client_account
   belongs_to :vendor_account

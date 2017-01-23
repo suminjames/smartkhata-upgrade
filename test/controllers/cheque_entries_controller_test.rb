@@ -5,6 +5,8 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     sign_in users(:user)
     @cheque_entry = cheque_entries(:one)
     @bank_account = bank_accounts(:one)
+    # fix tenants issue
+    @request.host = 'trishakti.lvh.me'
     set_branch_id 1
 
     @post_action = lambda { | bank_account_id, start_cheque_num, end_cheque_num |
@@ -28,7 +30,8 @@ class ChequeEntriesControllerTest < ActionController::TestCase
 
   # index
   test "should get index" do
-    @assert_block_via_get.call(:index)
+    get :index
+    assert_redirected_to cheque_entries_path('filterrific[by_cheque_entry_status]':'assigned')
   end
 
   # new
@@ -41,7 +44,7 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_difference 'ChequeEntry.count', 10 do
       @post_action.call(@bank_account.id, 1, 10)
     end
-    assert_redirected_to cheque_entries_path
+    assert_redirected_to cheque_entries_path('filterrific[by_bank_account_id]':@bank_account.id)
   end
 
   # briefly testing invalid inputs- more in unit test
@@ -56,32 +59,5 @@ class ChequeEntriesControllerTest < ActionController::TestCase
     assert_response :success
     assert_template 'cheque_entries/show'
   end
-
-=begin
-  # Cheque editing & delete to be removed from controller: not configured although action/view exists
-
-  # edit
-  test "should get edit" do
-    get :edit, id: @cheque_entry
-    assert_response :success
-  end
-
-  # update
-  test "should update cheque_entry" do
-    assert_equal @cheque_entry.bank_account.account_number, @bank_account.account_number
-    patch :update, id: @cheque_entry, cheque_entry: { bank_account_id: @another_bank_account.id }
-    assert_redirected_to cheque_entry_path(assigns(:cheque_entry))
-    # check  the updated value?
-    assert_equal @cheque_entry.bank_account.account_number, @another_bank_account.account_number
-  end
-
-  # delete
-  test "should delete cheque_entry" do
-    assert_difference 'ChequeEntry.count', -1 do
-      delete :destroy, id: @cheque_entry
-    end
-    assert_redirected_to cheque_entries_path
-  end
-=end
 
 end
