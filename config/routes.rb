@@ -60,12 +60,12 @@ Rails.application.routes.draw do
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
       get :make_void
-      get :bounce
+      get :bounce_show
       get :represent
       get :show_multiple
       get :make_void
+      patch :bounce_do
     end
-
   end
   resources :bank_accounts
   resources :nepse_settlements do
