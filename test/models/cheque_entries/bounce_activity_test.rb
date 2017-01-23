@@ -1,9 +1,17 @@
 require 'test_helper'
 class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
+  include CustomDateModule
+
+  def setup
+    @bounce_date_bs = '2073-8-21'
+    @cheque_date_ad = bs_to_ad(@bounce_date_bs) - 1
+    @bounce_narration = 'This is a sample bounce narration.'
+  end
+
   test "should return error if the  fycode is different than current" do
     @cheque_entry = create(:cheque_entry)
     UserSession.selected_fy_code = '7273'
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
     assert_not_nil activity.error_message
     assert_equal 'Please select the current fiscal year', activity.error_message
@@ -11,10 +19,10 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
   test "should not bounce payment cheque" do
     @cheque_entry = create(:cheque_entry)
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
     # assert_not_nil activity.error_message
-    assert_equal 'The cheque can not be Bounced.', activity.error_message
+    assert_equal 'The cheque can not be bounced.', activity.error_message
   end
 
   # voucher with two particulars ie external dr to bank cr
@@ -38,7 +46,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
   # this feature is not implemented yet
   test "should not bounces the cheque for voucher with multi cheque entry" do
 
-    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 500)
+    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 500, cheque_date: @cheque_date_ad)
     @cheque_entry_a = create(:receipt_cheque_entry, status: :approved, amount: 500)
 
     @voucher = create(:voucher)
@@ -54,17 +62,18 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
     @cheque_entry_a.particulars_on_receipt << @cr_particular
 
 
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
 
-    assert_equal "The cheque can not be bounced...Please contact technical support", activity.error_message
+    assert_equal "The cheque can not be bounced...Please contact technical support.", activity.error_message
     assert_not @cheque_entry.void?
     assert_not Voucher.find(@voucher.id).reversed?
   end
 
   test "should void the cheque for voucher with single cheque entry and bill with full amount" do
 
-    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000)
+    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: @cheque_date_ad)
+    @cheque_entry.cheque_date = @cheque_date_ad
     @voucher = create(:voucher)
     @dr_particular = create(:debit_particular, voucher: @voucher, amount: 5000)
     @cr_particular = create(:credit_particular, voucher: @voucher, amount: 5000)
@@ -77,7 +86,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
     @voucher.bills_on_creation << @bill_a
 
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
 
     @bill_a = Bill.find(@bill_a.id)
@@ -91,7 +100,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
   test "should void the cheque for voucher with single cheque entry and bill with partial amount" do
 
-    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 4000)
+    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 4000, cheque_date: @cheque_date_ad)
     @voucher = create(:voucher)
     @dr_particular = create(:debit_particular, voucher: @voucher, amount: 4000)
     @cr_particular = create(:credit_particular, voucher: @voucher, amount: 4000)
@@ -104,7 +113,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
     @voucher.bills_on_creation << @bill_a
 
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
 
     @bill_a = Bill.find(@bill_a.id)
@@ -118,7 +127,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
   test "should void the cheque for voucher with single cheque entry and bills with full amount" do
 
-    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000)
+    @cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: @cheque_date_ad)
     @voucher = create(:voucher)
     @dr_particular = create(:debit_particular, voucher: @voucher, amount: 5000)
     @cr_particular = create(:credit_particular, voucher: @voucher, amount: 5000)
@@ -132,7 +141,7 @@ class ChequeEntries::BounceActivityTest < ActiveSupport::TestCase
 
     @voucher.bills_on_creation << [ @bill_a, @bill_b]
 
-    activity = ChequeEntries::BounceActivity.new(@cheque_entry, 'trishakti')
+    activity = ChequeEntries::BounceActivity.new(@cheque_entry, @bounce_date_bs, @bounce_narration, 'trishakti')
     activity.process
 
     @bill_a = Bill.find(@bill_a.id)

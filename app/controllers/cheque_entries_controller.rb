@@ -1,7 +1,7 @@
 class ChequeEntriesController < ApplicationController
-  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce, :represent, :make_void]
-  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce, :represent, :make_void]
-  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce, :represent]
+  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent, :make_void]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent, :make_void]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent]
 
   # GET /cheque_entries
   # GET /cheque_entries.json
@@ -55,12 +55,8 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
-    if @cheque_entry.receipt?
-      @name = current_tenant.full_name
-    else
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
-    end
-    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
 
     respond_to do |format|
       format.html
@@ -153,14 +149,26 @@ class ChequeEntriesController < ApplicationController
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque void recorded succesfully'} and return
   end
-  # GET /cheque_entries/bounce
-  def bounce
-    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, current_tenant.full_name)
+
+  # get
+  def bounce_show
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+  end
+
+  # patch
+  def bounce_do
+    bounce_date_bs = params.dig(:cheque_entry, :bounce_date)
+    bounce_narration = params.dig(:cheque_entry, :bounce_narration)
+    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
+      # redirect_to bounce_show_cheque_entries_path(id: @cheque_entry.id), flash: {:error => cheque_activity.error_message } and return
+      @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+      flash[:alert] = cheque_activity.error_message
+      render :bounce_show  and return
     end
-    @bank,@name,@cheque_date = cheque_activity.get_bank_name_and_date
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque bounced succesfully'} and return
   end
 
@@ -324,6 +332,6 @@ class ChequeEntriesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def cheque_entry_params
-    params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
+    params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, :bounce_date, :bounce_narration, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
   end
 end
