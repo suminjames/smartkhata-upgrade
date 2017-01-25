@@ -9,7 +9,6 @@ class ApplicationController < ActionController::Base
 
   # extend ActiveSupport::Concern
 
-  # rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   include ApplicationHelper
 
   # Callbacks
