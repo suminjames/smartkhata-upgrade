@@ -33,10 +33,11 @@ class Files::FloorsheetsController < Files::FilesController
     #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
+    @is_partial_upload = params[:is_partial_upload] == '1'
     # grab date from the first record
     file_error("Please Upload a valid file and make sure the file name contains floorsheet") and return if (is_invalid_file(@file, @@file_name_contains))
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
     floorsheet_upload.process
     @processed_data = floorsheet_upload.processed_data
     @date = floorsheet_upload.date
