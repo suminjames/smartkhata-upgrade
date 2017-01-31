@@ -15,6 +15,16 @@
     -o-transform: scale(1.25);
     transform: scale(1.1);
   }
+
+  &.small-text {
+    h3 {
+      font-size: 26px;
+    }
+  }
+
+  a {
+    cursor: pointer;
+  }
 }
 
 .bill-image{
