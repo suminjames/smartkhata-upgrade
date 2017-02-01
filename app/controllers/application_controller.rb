@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
         # do nothing
         #   carry on with the request execution
       else
-        # redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
+        redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
       end
     else
       redirect_to root_path
