@@ -29,7 +29,7 @@ menus:
     code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
-      path: "<%= nepse_settlements_path(pending: true) %>"
+      path: "<%= nepse_settlements_path(pending: 'true') %>"
       code: FS_PND_SAS
 - name: Account Section
   code: AS
