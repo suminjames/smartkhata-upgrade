@@ -1,10 +1,11 @@
+<p id='notice'><%= notice %></p>
 <% provide(:section_title, "Edit Employee Ledger Access") %>
 <% employee_account = @employee_account; ledgers = @ledgers %>
 <div class="nav-tabs-custom">
   <ul class="nav nav-tabs">
     <li class=""><%= link_to 'Menu Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access') %></li>
     <li class=""><%= link_to 'Branch Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access') %></li>
-    <li class="active"><%= link_to 'Ledger Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access') %></li>
+    <!--<li class="active"><%#= link_to 'Ledger Access', employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access') %></li>-->
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab_1">

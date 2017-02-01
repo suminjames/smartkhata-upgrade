@@ -101,10 +101,11 @@ class EmployeeAccountsController < ApplicationController
   end
 
   def employee_access
-    if params[:type] == 'ledger_access'
-      @ledgers = Ledger.all.order(:name)
-      render :edit_employee_ledger_association and return
-    elsif params[:type] == 'branch_access'
+    # if params[:type] == 'ledger_access'
+    #   @ledgers = Ledger.all.order(:name)
+    #   render :edit_employee_ledger_association and return
+    # end
+    if params[:type] == 'branch_access'
       @menu_items = MenuItem.arrange
       render :edit_employee_branch_permission and return
     else
@@ -116,33 +117,34 @@ class EmployeeAccountsController < ApplicationController
   # POST/update_menu_access
   def update_employee_access
     # This action has separate logic for basic employee account info update & employee account ledger_association update in place based on 'edit_type' params
-    if params[:edit_type] == 'ledger_access'
-      # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
-      ActiveRecord::Base.transaction do
-
-        EmployeeLedgerAssociation.delete_previous_associations_for(params[:id])
-
-        respond_to do |format|
-          if @employee_account.update(employee_account_ledger_association_params)
-            format.html {redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access'), notice: 'Employee account Branch access was successfully updated.'}
-            format.json { render :show, status: :ok, location: @employee_account }
-          else
-            format.html { render :edit }
-            format.json { render json: @employee_account.errors, status: :unprocessable_entity }
-          end
-        end
-      end
-    elsif params[:edit_type] == 'menu_access'
+    # if params[:edit_type] == 'ledger_access'
+    #   # TODO(sarojk): Throw error if no ledgers selected i.e., no ledger_association when has_access_to 'some'
+    #   ActiveRecord::Base.transaction do
+    #
+    #     EmployeeLedgerAssociation.delete_previous_associations_for(params[:id])
+    #
+    #     respond_to do |format|
+    #       if @employee_account.update(employee_account_ledger_association_params)
+    #         format.html {redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'ledger_access'), notice: 'Employee account Branch access was successfully updated.'}
+    #         format.json { render :show, status: :ok, location: @employee_account }
+    #       else
+    #         format.html { render :edit }
+    #         format.json { render json: @employee_account.errors, status: :unprocessable_entity }
+    #       end
+    #     end
+    #   end
+    # end
+    if params[:edit_type] == 'menu_access'
       user_role_id = params[:employee_account][:user_access_role_id] || nil
       ActiveRecord::Base.transaction do
         u = @employee_account.user
         u.user_access_role_id = user_role_id
         u.save!
       end
-      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access'), notice: 'Employee account Menu access was successfully updated.'
+      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'menu_access'), notice: 'Employee Account Menu Access was successfully updated.'
     elsif params[:edit_type] == 'branch_access'
-      # get menu ids
-      branch_ids = params[:employee_account][:branch_ids].map(&:to_i) if params[:employee_account][:branch_ids].present?
+      branch_ids = params.dig(:employee_account, :branch_ids)
+      branch_ids = branch_ids.present? ? branch_ids.map(&:to_i) : []
       ActiveRecord::Base.transaction do
         # # delete previously set records
         # # TODO(SUBAS) remove only the changed ones
@@ -152,7 +154,7 @@ class EmployeeAccountsController < ApplicationController
           BranchPermission.create!(user_id: @employee_account.user_id, branch_id: branch_id)
         end
       end
-      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access'), notice: 'Employee account Branch access was successfully updated.'
+      redirect_to employee_accounts_employee_access_path(id: @employee_account.id, type: 'branch_access'), notice: 'Employee Account Branch Access was successfully updated.'
     end
   end
 
