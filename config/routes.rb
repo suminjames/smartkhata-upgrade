@@ -91,7 +91,6 @@ Rails.application.routes.draw do
   end
   resources :bills do
     collection do
-      get 'show_by_number'
       get 'show_multiple'
       post 'process_selected'
       get 'sales_payment'

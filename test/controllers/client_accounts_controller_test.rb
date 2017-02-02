@@ -2,6 +2,8 @@ require 'test_helper'
 
 class ClientAccountsControllerTest < ActionController::TestCase
   def setup
+    @request.host = 'trishakti.lvh.me'
+    set_branch_id 1
     sign_in users(:user)
     @client_account = client_accounts(:one)
     @block_assert = lambda{ |action|
@@ -20,22 +22,6 @@ class ClientAccountsControllerTest < ActionController::TestCase
       @block_assert.call(action)
     end
   end
-
-  # test "should get new" do
-  #   @block_assert.call(:new)
-  # end
-
-  # test "should get index" do
-  #   @block_assert.call(:index)
-  # end
-
-  # test "should show client account" do
-  #   @block_assert.call(:show)
-  # end
-
-  # test "should get edit" do
-  #   @block_assert.call(:edit)
-  # end
 
   test "should create new" do
     assert_difference 'ClientAccount.count', 1 do
@@ -60,4 +46,30 @@ class ClientAccountsControllerTest < ActionController::TestCase
     end
     assert_redirected_to client_accounts_path
   end
+
+  test "logged in client user should be able to see associated client's show" do
+    sign_in users(:client_user)
+    @client_account = create(:client_account, :user_id => users(:client_user).id)
+    params = {id: @client_account.id}
+    get :show, params
+    assert_response :success
+    assert_template "client_accounts/show"
+    assert_select 'div.highlighted-box',
+                  /Please contact .+ if you need to make changes to the information in this page./
+    assert_select "div.stick-to-bottom",
+                  {count: 0, text: "Edit"},
+                  "This page must contain no anchors that say Edit"
+    assert_not_nil assigns(:client_account)
+  end
+
+  test "logged in client user should not be able to see unassociated client's show" do
+    sign_in users(:client_user)
+    create(:client_account, :user_id => users(:client_user).id)
+    @client_account =  create(:client_account)
+    params = {id: @client_account.id}
+    get :show, params
+    assert_redirected_to root_path
+    assert_equal "Access denied.", flash[:alert]
+  end
+
 end

@@ -42,3 +42,12 @@ user:
   confirmed_at: '2016-05-05'  #stupid error this is needed for login
   role: <%= User.roles[:admin] %>
   branch_id: 1
+
+
+client_user:
+  name: 'Laxmi Devkota'
+  email: 'ldev.leeterature.133y@gmail.com'
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  confirmed_at: '2016-05-05'  #stupid error this is needed for login
+  role: <%= User.roles[:client] %>
+  branch_id: 1

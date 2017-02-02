@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :show_by_number, :ageing_analysis]
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :ageing_analysis]
   # also :authorize_single_bill(s) when implemented
 
   # layout 'application_custom', only: [:index]
@@ -320,22 +320,6 @@ class BillsController < ApplicationController
       end
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
-    end
-  end
-
-  # Entertains ajax requests.
-  def show_by_number
-    @bill_number = params[:number]
-    @bill = nil
-    if @bill_number
-      bill = @bill_number.to_s.split('-')
-      @bill = Bill.find_by(fy_code: bill[0], bill_number: bill[1].to_i) if bill.length == 2
-    end
-
-    if @bill
-      redirect_to bill_path(@bill) and return
-    else
-      render text: 'No bill found'
     end
   end
 

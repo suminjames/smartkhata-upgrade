@@ -27,7 +27,8 @@ class DashboardController < ApplicationController
   end
 
   def client_index
-    authorize :dashboard, :index?
+    authorize :dashboard, :client_index?
+
     # Hold information for multiple associated client accounts for current logged in user.
     @clients_info_arr = []
     client_accounts = current_user.client_accounts.order(:name)
