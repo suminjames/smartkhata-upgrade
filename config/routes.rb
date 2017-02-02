@@ -177,6 +177,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace 'reports' do
+    resources :audit_trails
+  end
+
   namespace 'report' do
     resources :balancesheet
     resources :profitandloss
