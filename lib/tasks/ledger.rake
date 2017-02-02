@@ -219,10 +219,24 @@ namespace :ledger do
     end
   end
 
-  task :fix_ledger,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+  # Fixes all ledgers
+  task :fix_ledger_all,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     ActiveRecord::Base.transaction do
       Ledger.find_each do |ledger|
+        patch_ledger_dailies(ledger)
+        patch_closing_balance(ledger)
+      end
+    end
+  end
+
+  # Example syntax:
+  # ledger:fix_ledger_selected['trishakti',"3405 11938"]
+  task :fix_ledger_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+    tenant = args.tenant
+    ledger_ids = args.ledger_ids.split(" ")
+    ActiveRecord::Base.transaction do
+      Ledger.where(id: ledger_ids).find_each do |ledger|
         patch_ledger_dailies(ledger)
         patch_closing_balance(ledger)
       end

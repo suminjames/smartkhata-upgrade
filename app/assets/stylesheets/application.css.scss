@@ -521,3 +521,38 @@ select{
   cursor: pointer;
 }
 
+
+.info-fy-selection {
+  margin-top: -15px;
+
+  h2 {
+    margin: 10px 10px 5px 0px;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .fire-on-select.form-inline {
+    margin-top: 0;
+    marign-bottom: 5px;
+  }
+}
+//filter form
+.filter-form {
+  .panel-body {
+    padding: 10px;
+  }
+  .top-buffer-md {
+    margin-top: 20px;
+  }
+  label {
+    margin-bottom: 0;
+  }
+
+  //.select2-container--bootstrap .select2-selection--single {
+  //  height: 28px;
+  //}
+  //.form-control{
+  //  height: 28px;
+  //
+  //
+  //}
+}

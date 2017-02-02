@@ -1,7 +1,8 @@
 %p#notice= notice
 - provide(:section_title, "Cheque Entry Bounce")
 
-- if @cheque_entry.bounce_date.present?
+- is_bounced_previously = ChequeEntry.find(@cheque_entry.id).bounce_date.present?
+- if is_bounced_previously
   %div.alert.alert-info.alert-custom-gray.text-center
     %strong Info!
     This cheque was previously bounced. You can bounce the cheque again though.

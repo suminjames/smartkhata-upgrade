@@ -59,7 +59,12 @@ class ApplicationController < ActionController::Base
     # for logged in users it is dashboard
     # for visitors its root path
     if user_signed_in?
-      redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
+      if request.path == destroy_user_session_path
+        # do nothing
+        #   carry on with the request execution
+      else
+        redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
+      end
     else
       redirect_to root_path
     end

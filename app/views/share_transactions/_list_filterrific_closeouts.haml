@@ -51,7 +51,7 @@
         %th.text-center= 'Qty<br>Out'.html_safe
         %th.text-center= 'Closeout Quantity'
         %th.text-center= 'Rate'
-        %th.text-center= 'Closout Amount'
+        %th.text-center= 'Closeout Amount'
       %tbody
         -if share_transactions
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
