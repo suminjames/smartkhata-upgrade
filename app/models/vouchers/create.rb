@@ -355,10 +355,13 @@ class Vouchers::Create < Vouchers::Base
               cheque_entry.cheque_date = voucher.date
             end
 
-            # if the cheque received from client is already entered to system reject it
-            if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
+            # For receipt cheques,
+            # - if the cheque received from client is already entered to system, reject it
+            # - however, if the cheque was bounced earlier, don't reject it.
+            # if cheque_entry.additional_bank_id.present? && !(cheque_entry.unassigned? || cheque_entry.bounced?)
+            if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned? && !cheque_entry.bounced?
               voucher.settlements = []
-              error_message = "Cheque number is already taken"
+              error_message = "Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first."
               raise ActiveRecord::Rollback
             end
 
