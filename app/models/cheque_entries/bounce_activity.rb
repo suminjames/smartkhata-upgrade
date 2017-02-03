@@ -32,7 +32,6 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     voucher = @cheque_entry.vouchers.uniq.first
     set_error('The cheque can not be bounced...Please contact technical support.') and return if voucher.cheque_entries.uniq.count != 1
 
-
     @bills = voucher.bills.purchase.order(id: :desc)
     cheque_amount = @cheque_entry.amount
     processed_bills = []
@@ -57,7 +56,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
       new_voucher = Voucher.create!(date_bs: ad_to_bs_string(@cheque_entry.bounce_date), date: @cheque_entry.bounce_date)
       new_voucher.bills_on_settlement = processed_bills
 
-      description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}"
+      description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
       voucher.particulars.each do |particular|
         reverse_accounts(particular, new_voucher, description)
       end
