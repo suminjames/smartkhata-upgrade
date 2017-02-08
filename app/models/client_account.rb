@@ -68,31 +68,35 @@
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
 class ClientAccount < ActiveRecord::Base
-  include Auditable
+  ########################################
+  # Constants
 
+  ########################################
+  # Includes
+  include Auditable
   include ::Models::UpdaterWithBranch
 
-  attr_accessor :skip_validation_for_system
-
-  after_create :create_ledger
-
+  ########################################
+  # Relationships
   # to keep track of the user who created and last updated the ledger
   belongs_to :creator, class_name: 'User'
   belongs_to :updater, class_name: 'User'
-
   belongs_to :group_leader, class_name: 'ClientAccount'
   has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
-
   belongs_to :user
-
   has_one :ledger
   has_many :share_inventories
   has_many :bills
-
-  # TODO(Subas) It might not be a better idea for a client to belong to a branch but good for now
   belongs_to :branch
 
-  # 36 fields present. Validate accordingly!
+  ########################################
+  # Callbacks
+  before_save :format_nepse_code
+  after_create :create_ledger
+
+  ########################################
+  # Validations
+  # Too many fields present. Validate accordingly!
   validates_presence_of :name,
                         :unless => :nepse_code?
   validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
@@ -108,25 +112,24 @@ class ClientAccount < ActiveRecord::Base
   validates_uniqueness_of :nepse_code, :allow_blank => true
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
+  validate :bank_details_present?
 
-  before_save :format_nepse_code
+  ########################################
+  # Enums
+  enum client_type: [:individual, :corporate]
 
+  ########################################
+  # Scopes
   scope :by_client_id, -> (id) { where(id: id) }
   scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
-  enum client_type: [:individual, :corporate]
-
-  filterrific(
-      default_filter_params: { sorted_by: 'name_asc' },
-      available_filters: [
-          :sorted_by,
-          :by_client_id,
-          :client_filter
-      ]
-  )
-
+  scope :by_selected_session_branch_id, lambda {|session_branch_id|
+    if session_branch_id != 0
+      where(branch_id: session_branch_id)
+    end
+  }
   scope :client_filter, lambda {|status|
     # [
     #     ["without Mobile Number", "no_mobile_number"],
@@ -152,7 +155,6 @@ class ClientAccount < ActiveRecord::Base
         where.not(:nepse_code => [nil, '']).order('name asc')
     end
   }
-
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -163,6 +165,27 @@ class ClientAccount < ActiveRecord::Base
     end
   }
 
+  ########################################
+  # Attributes
+  attr_accessor :skip_validation_for_system
+
+  ########################################
+  # Delegations
+
+  ########################################
+  # Methods
+
+  filterrific(
+      default_filter_params: { sorted_by: 'name_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_client_id,
+          :client_filter,
+          :by_selected_session_branch_id
+      ]
+  )
+
+
   def format_nepse_code
     self.nepse_code = self.nepse_code.try(:strip).try(:upcase)
   end
@@ -170,8 +193,6 @@ class ClientAccount < ActiveRecord::Base
   def skip_or_nepse_code_present?
     nepse_code? || skip_validation_for_system
   end
-
-  validate :bank_details_present?
 
   def bank_details_present?
     if bank_account.present? && (bank_name.blank? || bank_address.blank?)
@@ -260,6 +281,18 @@ class ClientAccount < ActiveRecord::Base
       messageable_phone_number = self.phone_perm
     end
     messageable_phone_number
+  end
+
+  def can_be_invited_by_email?
+    user_id.blank? && email.present?
+  end
+
+  def can_assign_username?
+    user_id.blank? && boid.present?
+  end
+
+  def has_sufficient_bank_account_info?
+    bank_name.present? && bank_account.present?
   end
 
   # validation helper
@@ -352,9 +385,9 @@ class ClientAccount < ActiveRecord::Base
   # Returns an array of hash(not ClientAccount objects) containing attributes sufficient to represent clients in combobox.
   # Attributes include id and name(identifier)
   #
-  def self.find_similar_to_term(search_term)
+  def self.find_similar_to_term(search_term, branch_id)
     search_term = search_term.present? ? search_term.to_s : ''
-    client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
+    client_accounts = ClientAccount.by_selected_session_branch_id(branch_id).where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
       if client_account['nepse_code'].present?
         identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
@@ -365,47 +398,4 @@ class ClientAccount < ActiveRecord::Base
     end
   end
 
-  #
-  # Create dummy data(client accounts and associated ledgers) to test speed improvements, while accessing combobox.
-  # Never to be used in production.
-  #
-  def self.populate_dummy_data
-    if !Rails.env.production?
-      10000.times do |i|
-        i = i + 10
-        new_client = ClientAccount.new
-        new_client.name = "Client#{i}"
-        new_client.nepse_code = "NepseCode#{i}"
-        new_client.citizen_passport = i
-        new_client.dob = '1988-12-21'
-        new_client.father_mother = 'Client Father'
-        new_client.granfather_father_inlaw = 'Client Mother'
-        new_client.address1_perm = 'Permanent Address 1'
-        new_client.city_perm = 'Permanent City'
-        new_client.state_perm = 'Permanent State'
-        new_client.country_perm = 'Permanent Country'
-        new_client.save!
-
-        new_ledger = Ledger.new
-        new_ledger.name = new_client.name
-        new_ledger.client_account_id = new_client.id
-        new_ledger.client_code = new_client.nepse_code
-        new_ledger.save!
-      end
-    end
-  end
-
-
-
-  def can_be_invited_by_email?
-    user_id.blank? && email.present?
-  end
-
-  def can_assign_username?
-    user_id.blank? && boid.present?
-  end
-
-  def has_sufficient_bank_account_info?
-    bank_name.present? && bank_account.present?
-  end
 end
