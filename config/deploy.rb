@@ -1,5 +1,6 @@
 set :application, 'smartkhata'
-set :repo_url, 'git@bitbucket.org:danphe/smartkhata_rails.git'
+# set :repo_url, 'git@bitbucket.org:danphe/smartkhata_rails.git'
+set :repo_url, 'git@github.com:Daanphe/smartkhata.git'
 set :branch, "nepse-release"
 
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
