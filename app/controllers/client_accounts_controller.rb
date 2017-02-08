@@ -7,6 +7,9 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts
   # GET /client_accounts.json
   def index
+    # Incorporate selected branch from session into filterrific in each request.
+    params[:filterrific] ||= {}
+    params[:filterrific].merge!({by_selected_session_branch_id: UserSession.selected_branch_id})
     @filterrific = initialize_filterrific(
         ClientAccount,
         params[:filterrific],
@@ -132,10 +135,11 @@ class ClientAccountsController < ApplicationController
   #
   def combobox_ajax_filter
     search_term = params[:q]
+    selected_session_branch_id = UserSession.selected_branch_id
     client_accounts = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-      client_accounts = ClientAccount.find_similar_to_term search_term
+      client_accounts = ClientAccount.find_similar_to_term(search_term, selected_session_branch_id)
     end
     respond_to do |format|
       format.json { render json: client_accounts, status: :ok }

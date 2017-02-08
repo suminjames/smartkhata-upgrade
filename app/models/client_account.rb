@@ -125,6 +125,11 @@ class ClientAccount < ActiveRecord::Base
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
+  scope :by_selected_session_branch_id, lambda {|session_branch_id|
+    if session_branch_id != 0
+      where(branch_id: session_branch_id)
+    end
+  }
   scope :client_filter, lambda {|status|
     # [
     #     ["without Mobile Number", "no_mobile_number"],
@@ -175,7 +180,8 @@ class ClientAccount < ActiveRecord::Base
       available_filters: [
           :sorted_by,
           :by_client_id,
-          :client_filter
+          :client_filter,
+          :by_selected_session_branch_id
       ]
   )
 
@@ -379,9 +385,9 @@ class ClientAccount < ActiveRecord::Base
   # Returns an array of hash(not ClientAccount objects) containing attributes sufficient to represent clients in combobox.
   # Attributes include id and name(identifier)
   #
-  def self.find_similar_to_term(search_term)
+  def self.find_similar_to_term(search_term, branch_id)
     search_term = search_term.present? ? search_term.to_s : ''
-    client_accounts = ClientAccount.where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
+    client_accounts = ClientAccount.by_selected_session_branch_id(branch_id).where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
       if client_account['nepse_code'].present?
         identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
