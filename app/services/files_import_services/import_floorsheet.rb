@@ -1,7 +1,7 @@
 #TODO (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
 
 class FilesImportServices::ImportFloorsheet  < ImportFile
-  attr_reader :date
+  attr_reader :date, :error_type, :new_client_accounts
   # process the file
   include CommissionModule
   include ShareInventoryModule
@@ -77,6 +77,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # parse the data
     @total_amount = 0
 
+    new_client_accounts = []
     data_sheet = xlsx.sheet(0)
     (12..(data_sheet.last_row)).each do |i|
 
@@ -109,7 +110,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         client_name = row_data[4]
         client_nepse_code = row_data[5].upcase
         bank_deposit = row_data[10]
-
       else
         @raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
         # sum of the amount section should be equal to the calculated sum
@@ -122,16 +122,25 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       # check for the bank deposit value which is available only for buying
       # store the count of transaction for unique client,company, and type of transaction
+      transaction_type = bank_deposit.nil? ? :selling : :buying
+      hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
 
-
-      if bank_deposit.nil?
-        hash_dp_count[client_nepse_code+company_symbol.to_s+'selling'] += 1
-      else
-        hash_dp_count[client_nepse_code+company_symbol.to_s+'buying'] += 1
+      # Maintain list of new client accounts not in the system yet.
+      unless ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
+        client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
+        unless new_client_accounts.include?(client_account_hash)
+          new_client_accounts << client_account_hash
+        end
       end
 
     end
 
+    # Client information should be available before file upload.
+    unless new_client_accounts.blank?
+      @error_type = 'new_client_accounts_present'
+      @new_client_accounts = new_client_accounts
+      import_error(new_client_accounts_error_message(new_client_accounts)) and return
+    end
 
     import_error("The amounts don't match up.") and return if (@total_amount_file - @total_amount).abs > 0.1
 
@@ -146,7 +155,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # critical functionality happens here
     ActiveRecord::Base.transaction do
       @raw_data.each do |arr|
-        @processed_data << process_records_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+        @processed_data << process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
       # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
       FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
@@ -171,7 +180,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   # 	Bank Deposit,
   # ]
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-  def process_records_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+  def process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
     contract_no = arr[0].to_i
     company_symbol = arr[1]
     buyer_broking_firm_code = arr[2]
@@ -191,21 +200,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     bill = nil
     type_of_transaction = ShareTransaction.transaction_types['buying']
 
-
-    # TODO(Subas) remove this code block to take only the mapped user list
-    client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
-      client.name = client_name.titleize
-      client.skip_validation_for_system = true
-    end
-
-
-    # # client information should be available before file upload
-    # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase)
-    # if client.nil?
-    #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
-    #   raise ActiveRecord::Rollback
-    #   return
-    # end
+    client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
 
     # client branch id is used to enforce branch cost center
     client_branch_id = client.branch_id
@@ -403,14 +398,13 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # get bill number once and increment it on rails code
     # dont do database query for each creation
-    # TODO(sarojk): Handle existing and new bills' bill numbers
     @bill_number = get_bill_number(fy_code)
 
     # loop through 13th row to last row
     # parse the data
     @total_amount = 0
     @partial_total_amount = 0
-
+    new_client_accounts = []
     data_sheet = xlsx.sheet(0)
     (12..(data_sheet.last_row)).each do |i|
 
@@ -423,7 +417,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       break if row_data[0] == nil
 
-      # If share transaction already in db, cancel the processing, and return!
+      # If share transaction already in db, skip it!
       _contract_no = row_data[3].to_i
       if ShareTransaction.find_by_contract_no(_contract_no).present?
         @partial_total_amount += row_data[20]
@@ -451,7 +445,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         client_name = row_data[4]
         client_nepse_code = row_data[5].upcase
         bank_deposit = row_data[10]
-
       else
         @raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
         # sum of the amount section should be equal to the calculated sum
@@ -468,23 +461,35 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # Store the count of transaction for unique client,company, and type of transaction
       # Also, account for share transactions already in the db.
       # `**_counted_from_db` is flag to check whether or not that group of share transaction has been accounted for.
-      if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
-        client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
-          client.name = client_name.titleize
-          client.skip_validation_for_system = true
+      client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
+      if client?
+        if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
+          company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
+          relevant_share_transactions_count = ShareTransaction.where(
+              date: @date,
+              client_account_id: client.id,
+              isin_info_id: company_info.id,
+              transaction_type: ShareTransaction.transaction_types[transaction_type]
+          ).size
+          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
+          # Switch the flag `**_counted_from_db` to true
+          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
         end
-        company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-        relevant_share_transactions_count = ShareTransaction.where(
-            date: @date,
-            client_account_id: client.id,
-            isin_info_id: company_info.id,
-            transaction_type: ShareTransaction.transaction_types[transaction_type]
-        ).size
-        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
-        # Switch the flag `**_counted_from_db` to true
-        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
+        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
+      else
+        # Maintain list of new client accounts not in the system yet.
+        client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
+        unless new_client_accounts.include?(client_account_hash)
+          new_client_accounts << client_account_hash
+        end
       end
-      hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
+    end
+
+    # Client information should be available before file upload.
+    unless new_client_accounts.blank?
+      @error_type = 'new_client_accounts_present'
+      @new_client_accounts = new_client_accounts
+      import_error(new_client_accounts_error_message(new_client_accounts)) and return
     end
 
     @total_amount_file += @partial_total_amount
@@ -504,7 +509,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # Store already processed share transactions (from earlier partial upload).
       processed_share_transactions_for_the_date = ShareTransaction.where(date: @date)
       @raw_data.each do |arr|
-        @processed_data << process_records_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+        @processed_data << process_record_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
       repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
       # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
@@ -575,7 +580,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   # 	Bank Deposit,
   # ]
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-  def process_records_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+  def process_record_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
     contract_no = arr[0].to_i
     company_symbol = arr[1]
     buyer_broking_firm_code = arr[2]
@@ -595,20 +600,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     bill = nil
     type_of_transaction = ShareTransaction.transaction_types['buying']
 
-    # TODO(Subas) remove this code block to take only the mapped user list
-    client = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
-      client.name = client_name.titleize
-      client.skip_validation_for_system = true
-    end
-
-
-    # # client information should be available before file upload
-    # client = ClientAccount.find_by(nepse_code: client_nepse_code.upcase)
-    # if client.nil?
-    #   @error_message = "Please map #{client_name} with nepse code #{client_nepse_code} to the system first"
-    #   raise ActiveRecord::Rollback
-    #   return
-    # end
+    client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
 
     # client branch id is used to enforce branch cost center
     client_branch_id = client.branch_id
@@ -802,4 +794,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def get_bill_number(fy_code = get_fy_code)
     Bill.new_bill_number(fy_code)
   end
+
+  def new_client_accounts_error_message(new_client_accounts)
+    error_message = "FLOORSHEET IMPORT CANCELLED!<br>New client accounts found in the file!<br>"
+    error_message += "Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>"
+    error_message += "If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch.<br>"
+    error_message.html_safe
+  end
+
 end

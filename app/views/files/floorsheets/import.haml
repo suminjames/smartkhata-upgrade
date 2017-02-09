@@ -1,8 +1,19 @@
 - provide(:section_title, 'FloorSheet Details')
-- unless @error
+- if @error
+  = link_to 'Upload FloorSheet', new_files_floorsheet_path
+  - if @error_type == 'new_client_accounts_present'
+    %h3 New client accounts to be created in the system
+    %table.table.table-striped
+      %thead
+        %th.col-xs-3= 'Client Name'
+        %th.col-xs-2= 'Client Nepse Code'
+      %tbody
+      - @new_client_accounts.each do |new_client_account|
+        %tr
+          %td= new_client_account[:client_name]
+          %td= new_client_account[:client_nepse_code]
+- else
   - this_floorsheet_date_bs = ad_to_bs_string(@date)
   - no_paginate = 'true'
   %h4= "FloorSheet Uploaded Successfully"
   = link_to "Create Transaction Messages", create_multiple_transaction_messages_path(transaction_date: @date), {data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Creating Transaction Messages..." } , method: :post, class: "btn btn-sm btn-default"}
-- else
-  = link_to 'Upload FloorSheet', new_files_floorsheet_path
