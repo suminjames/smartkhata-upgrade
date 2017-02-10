@@ -34,17 +34,27 @@ class Files::FloorsheetsController < Files::FilesController
     # get file from import
     @file = params[:file]
     @is_partial_upload = params[:is_partial_upload] == '1'
-    # grab date from the first record
-    file_error("Please Upload a valid file and make sure the file name contains floorsheet") and return if (is_invalid_file(@file, @@file_name_contains))
+    if (is_invalid_file(@file, @@file_name_contains))
+      file_error("Please Upload a valid file and make sure the file name contains floorsheet.") and return
+    end
 
     floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
     floorsheet_upload.process
     @processed_data = floorsheet_upload.processed_data
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message
-      respond_to do |format|
-        flash[:error] = floorsheet_upload.error_message
-        format.html {redirect_to action: 'new' and return}
+      if floorsheet_upload.error_type == 'new_client_accounts_present'
+        # As the messages in new client accounts can be pretty long, flash (which is stored in session with max size limit of 4Kb) might not be able to handle it in redirect to 'new' with flash message.
+        # Instead, render import template itself accommodating error message.
+        @error = true
+        @new_client_accounts = floorsheet_upload.new_client_accounts
+        @error_type = floorsheet_upload.error_type
+        flash.now[:error] = floorsheet_upload.error_message
+      else
+        respond_to do |format|
+          flash[:error] = floorsheet_upload.error_message
+          format.html {redirect_to action: 'new' and return}
+        end
       end
     end
   end

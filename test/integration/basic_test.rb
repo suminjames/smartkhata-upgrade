@@ -8,6 +8,7 @@ class BasicTest < ActionDispatch::IntegrationTest
     @user = create(:user)
     login_as(@user, :scope => :user)
   end
+
   teardown do
     Warden.test_reset!
   end
