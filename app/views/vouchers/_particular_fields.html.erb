@@ -118,6 +118,8 @@
       <div class="particular-bill-container">
         <%= f.input :bills_selection,
                     :as => :hidden %>
+        <%= f.input :ledger_balance_adjustment,
+                    :as => :hidden %>
         <%= f.input :selected_bill_names,
                     :as => :hidden %>
         <%= link_to '<i class="fa fa-search" aria-hidden="true"></i>'.html_safe,
