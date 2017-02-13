@@ -195,6 +195,8 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       # since bill has amount 3000, and account balance is 2000, remaining to be received is 1000ß
       dr_particular.amount = 2000
       client_particular.amount = 2000
+      # the adjustment amount in particular
+      client_particular.ledger_balance_adjustment = 1000
 
       voucher.particulars << dr_particular
       voucher.particulars << client_particular
@@ -286,7 +288,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       client_particular.bills_selection = "#{sales_bill_id}"
       cr_particular.amount = 1000
       client_particular.amount = 1000
-
+      client_particular.ledger_balance_adjustment = 1000
       voucher.particulars << cr_particular
       voucher.particulars << client_particular
 

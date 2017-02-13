@@ -46,7 +46,7 @@ class Particular < ActiveRecord::Base
   has_many :credit_settlements, through: :for_cr, source: :settlement
   has_many :settlements, through: :particular_settlement_associations
 
-  attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger
+  attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger, :ledger_balance_adjustment
 
   # get the particulars with running total
   # records: collection of particular
