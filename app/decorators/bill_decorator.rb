@@ -2,14 +2,21 @@ class BillDecorator < ApplicationDecorator
   delegate_all
   decorates_association :share_transactions
 
-  # Group same isin (not deal cancelled) transaction with same share rate AND same commision rate to be shown in single row in transaction listing
+  # Group same isin (not deal cancelled) transaction with same share rate AND same commission rate AND same base price to be shown in single row in transaction listing.
   def formatted_group_same_isin_same_rate_transactions
 
     # Here, share_transactions_hash has both key and value pair as arrays.
     # hash signature excerpted from http://stackoverflow.com/questions/5009295/pushing-elements-onto-an-array-in-a-ruby-hash
     share_transactions_hash = Hash.new { |h, k| h[k]=[] }
     object.share_transactions.not_cancelled_for_bill.each do |share_transaction|
-      share_transactions_hash[[share_transaction.isin_info.isin, share_transaction.share_rate, share_transaction.commission_rate]] << share_transaction
+      share_transactions_hash[
+          [
+              share_transaction.isin_info.isin,
+              share_transaction.share_rate,
+              share_transaction.commission_rate,
+              share_transaction.base_price
+          ]
+      ] << share_transaction
     end
     formatted_share_transactions = []
     share_transactions_hash.each do |st_array|
