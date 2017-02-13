@@ -206,7 +206,7 @@ class Vouchers::Create < Vouchers::Base
 
 
         # get it from particulars
-        _bill_ledger_adjustment = particular.ledger_balance_adjustment || 0
+        _bill_ledger_adjustment = particular.ledger_balance_adjustment.to_f || 0
 
 
         # do not create voucher if bills have pending deal cancel
@@ -351,6 +351,7 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is payment if issued from the company
             #   cheque is receipt type if issued from the client
             cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
+
 
             # only for payment the date will be todays date.
             if voucher.is_payment?
