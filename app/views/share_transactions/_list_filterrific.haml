@@ -84,16 +84,6 @@
                 total_amount += share_transaction.share_amount
                 total_commission += share_transaction.commission_amount
 
-          -if params[:paginate] == 'false'
-            %thead
-              %th.text-right{:colspan => 7}= 'Total'
-              %th.text-center= arabic_number_integer(total_buy_quantity)
-              %th.text-center= arabic_number_integer(total_sale_quantity)
-              %th
-              %th
-              %th.text-center= arabic_number(total_amount)
-              %th.text-center= arabic_number(total_commission)
-
             -# Logic for adding total row for groups of companies in the listing.
             -break_group = false
             :ruby
@@ -115,6 +105,17 @@
                 %td.text-right{colspan: 2}= "Qty<br>Balance:<br>#{isin_balances[:balance_sum].to_i}".html_safe
                 %td.text-right= "Amount<br>Balance:<br>#{arabic_number(isin_balances[:balance_share_amount].to_i)}".html_safe
                 %td.text-right= ""
+
+          -# Logic to add share transaction listing's total row.
+          -if params[:paginate] == 'false'
+            %thead
+              %th.text-right{:colspan => 7}= 'Total'
+              %th.text-center= arabic_number_integer(total_buy_quantity)
+              %th.text-center= arabic_number_integer(total_sale_quantity)
+              %th
+              %th
+              %th.text-center= arabic_number(total_amount)
+              %th.text-center= arabic_number(total_commission)
 
     - if !share_transactions || share_transactions.empty?
       %div.row.text-center.top-buffer-md
