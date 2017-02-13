@@ -321,11 +321,13 @@ $(document).on 'click', '.add-to-caller', (event) ->
     alert('Amount cant be negative or zero')
     $particular.find('.voucher_particulars_amount input').val(0)
     $particular.find('.particular-bill-container .info').text('')
-    $particular.find('.particular-bill-container input').val('')
+    $particular.find('.particular-bill-container .selected-bill-names input').val("")
+    $particular.find('.particular-bill-container .selected-bill-ids input').val("")
   else
     $particular.find('.voucher_particulars_amount input').val($amount)
     $particular.find('.particular-bill-container .info').text($bill_list)
-    $particular.find('.particular-bill-container input').val($bill_ids)
+    $particular.find('.particular-bill-container .selected-bill-names input').val($bill_list)
+    $particular.find('.particular-bill-container .selected-bill-ids input').val($bill_ids)
     $modal.modal('hide')
 
   display_balance_total($particular)
