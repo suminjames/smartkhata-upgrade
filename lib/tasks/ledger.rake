@@ -275,9 +275,56 @@ namespace :ledger do
         mandala_mapping_for_deleted_ledger.save!
       end
 
-    #   current implementation does not account for the client acccount
-    #   and also the chart of account and the mandala mapping
+      #   current implementation does not account for the client acccount
+      #   and also the chart of account and the mandala mapping
 
     end
   end
+
+  desc "Fix name format of all ledgers."
+  task :fix_format_of_names,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+    count = 0
+    ActiveRecord::Base.transaction do
+      Ledger.unscoped.find_each do |ledger|
+        name_before = ledger.name.dup
+        if name_before != ledger.format_name
+          puts "Processing Ledger(id: #{ledger.id}) with name `#{ledger.name}`."
+          ledger.format_name
+          ledger.save! unless args.mimic.present?
+          count += 1
+          puts "Ledger(id: #{ledger.id})'s name changed from `#{name_before}` to `#{ledger.name}`."
+        end
+      end
+      puts "Total Ledger names formatted: #{count}"
+    end
+  end
+
+  desc "Fix client code format of all ledgers."
+  task :fix_format_of_client_codes,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+    count = 0
+    ActiveRecord::Base.transaction do
+      Ledger.unscoped.find_each do |ledger|
+        if ledger.client_code.present?
+          client_code_before = ledger.client_code.dup
+          if client_code_before != ledger.format_client_code
+            puts "Processing Ledger(id: #{ledger.id}) with client_code `#{ledger.client_code}`."
+            ledger.format_client_code
+            ledger.save! unless args.mimic.present?
+            count += 1
+            puts "Ledger(id: #{ledger.id})'s client code changed from `#{client_code_before}` to `#{ledger.client_code}`."
+          end
+        end
+      end
+      puts "Total Ledger client codes formatted: #{count}"
+    end
+  end
+
+  desc "Find ledgers with duplicate (case insensitive) client code."
+  task :find_ledgers_with_duplicate_client_code,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+    search_hash = Ledger.unscoped.select("LOWER(client_code)").group("LOWER(client_code)").having("count(*) > 1").count
+    search_hash.each do |client_code, occurrence|
+      p "#{client_code} => #{occurrence}"
+    end
+  end
+
 end
