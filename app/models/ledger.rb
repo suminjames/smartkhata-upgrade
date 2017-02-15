@@ -62,6 +62,8 @@ class Ledger < ActiveRecord::Base
   # TODO(subas/saroj) look for uncommenting this.
   # validates_presence_of :group_id
   validate :positive_amount, on: :create
+  before_save :format_name, if: :name_changed?
+  before_save :format_client_code, if: :client_code_changed?
   before_create :update_closing_blnc
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
@@ -124,6 +126,30 @@ class Ledger < ActiveRecord::Base
 
   def self.options_for_ledger_select(filterrific_params)
     ledger_id = filterrific_params.try(:dig, 'by_ledger_id') and where(id: ledger_id) or []
+  end
+
+  def format_client_code
+    self.client_code = self.client_code.try(:strip).try(:upcase)
+  end
+
+  #
+  # Where applicable,
+  #   - Strip name of trailing and leading white space.
+  #   - Remove more than one spaces from in between name.
+  #
+  def format_name
+    if self.name.present?
+      name_is_strippable = self.name.strip != self.name
+      name_has_more_than_one_space_in_between_words = (self.name.split(" ").count - 1 ) != self.name.count(" ")
+      if name_is_strippable
+        self.name =  self.name.strip
+      end
+      if name_has_more_than_one_space_in_between_words
+        # http://stackoverflow.com/questions/4662015/ruby-reduce-all-whitespace-to-single-spaces
+        self.name = self.name.gsub(/\s+/, ' ')
+      end
+    end
+    self.name
   end
 
   #
