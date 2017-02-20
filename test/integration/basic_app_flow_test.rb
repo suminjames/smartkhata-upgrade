@@ -111,6 +111,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
           {
               :name => new_client_account[:client_name],
               :nepse_code => new_client_account[:client_nepse_code],
+              :branch_id =>  branches(:one).id,
               :skip_validation_for_system => true
           }
       )
