@@ -100,6 +100,7 @@ class ClientAccount < ActiveRecord::Base
   # Too many fields present. Validate accordingly!
   validates_presence_of :name,
                         :unless => :nepse_code?
+  validates_presence_of :branch_id
   validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
                         :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
   validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
