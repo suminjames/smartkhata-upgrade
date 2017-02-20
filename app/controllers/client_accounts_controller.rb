@@ -103,7 +103,6 @@ class ClientAccountsController < ApplicationController
 
     respond_to do |format|
       if @client_account.update(client_account_params)
-
         format.html {
           unless from_path.blank?
             redirect_to from_path, notice: 'Client account was successfully updated.'

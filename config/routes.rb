@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations
-  resources :branches
+  resources :branches, :except => [:destroy]
   resources :closeouts
   resources :share_inventories
 
