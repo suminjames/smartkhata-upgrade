@@ -1,7 +1,17 @@
 # ALWAYS BACKUP CONFIGURATION FILES ABOUT TO BE MODIFIED.
 
-#. To get the sender address of postfix mail in ubuntu server,
+#. POSTFIX mail
+    - Installation of 'mailutils' is required for mail to work
+        sudo apt-get install mailutils
+    - To get the sender address of postfix mail in ubuntu server,
+        In /etc/postfix/main.cf, the myorigin parameter specifies the domain that appears in mail that is posted on this machine
+        As myorigin by default is taking its value from /etc/mailname, edit /etc/mailname and replace 'com' with the desired hostname. For example: trishakti.com.np
+    - Note: Don't forget to 'sudo service postfix restart' after modifications.
+________________________________________________________________________________________________________________________
 
-    In /etc/postfix/main.cf, the myorigin parameter specifies the domain that appears in mail that is posted on this machine
-    As myorigin by default is taking its value from /etc/mailname, edit /etc/mailname and replace 'com' with the desired hostname. For example: trishakti.com.np
-    __________________________________________________________________________________________________
+# CRON jobs
+    To run jobs that require password, see instructions at:
+        http://www.londatiga.net/it/database-it/how-to-use-postgresql-pgdump-in-crontab-without-password/
+
+________________________________________________________________________________________________________________________
+
