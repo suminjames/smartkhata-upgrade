@@ -91,7 +91,9 @@ class ClientAccount < ActiveRecord::Base
 
   ########################################
   # Callbacks
-  before_save :format_nepse_code, if: :nepse_code_changed?
+
+  # before_validation is heirarchically called before before_save
+  before_validation :format_nepse_code, if: :nepse_code_changed?
   before_save :format_name, if: :name_changed?
   after_create :create_ledger
 
