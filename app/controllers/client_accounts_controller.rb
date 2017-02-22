@@ -23,8 +23,11 @@ class ClientAccountsController < ApplicationController
     @selected_ledger_for_combobox_in_arr = @ledgers
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
-    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(items_per_page)
-
+    if params[:paginate] == 'false'
+      @client_accounts = @filterrific.find.order(:name)
+    else
+      @client_accounts = @filterrific.find.order(:name).page(params[:page]).per(items_per_page)
+    end
     @download_path_xlsx = client_accounts_path({format:'xlsx'}.merge params)
     @download_path_pdf = client_accounts_path({format:'pdf'}.merge params)
 
