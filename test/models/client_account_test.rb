@@ -69,7 +69,18 @@ class ClientAccountTest < ActiveSupport::TestCase
   def setup
     # adding nepse code will conflict with the business logic
     # hence it has been removed and will be tested with a seperate test for nepse code.
-    @client_account = ClientAccount.new( name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar', address1_perm: 'baz', city_perm: 'qux', state_perm: 'quux', country_perm: 'garply', branch_id: branches(:one).id )
+    @client_account = ClientAccount.new(
+        name: 'New Client',
+        citizen_passport: '123456',
+        dob: '1900-01-01',
+        father_mother: 'foo',
+        granfather_father_inlaw: 'bar',
+        address1_perm: 'baz',
+        city_perm: 'qux',
+        state_perm: 'quux',
+        country_perm: 'garply',
+        branch_id: branches(:one).id
+    )
   end
 
   test "should be valid" do
@@ -119,6 +130,17 @@ class ClientAccountTest < ActiveSupport::TestCase
   test "nepse code should be unique" do
     @client_account.nepse_code = client_accounts(:one).nepse_code
     assert @client_account.invalid?, "Nepse code should be unique"
+  end
+
+  test "case insensitive but same nepse codes should violate uniqueness" do
+    nepse_code = 'ST'
+    another_client_account = @client_account.dup
+    @client_account.nepse_code = nepse_code
+    @client_account.save!
+    another_client_account.nepse_code = nepse_code.downcase
+    assert another_client_account.invalid?, "Nepse code should be unique"
+    assert_not another_client_account.save
+    assert_equal [:nepse_code], another_client_account.errors.keys
   end
 
   private
