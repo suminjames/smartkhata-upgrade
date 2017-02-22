@@ -231,7 +231,7 @@ class ShareTransaction < ActiveRecord::Base
       date_ad = bs_to_ad(date_bs)
       where_conditions << "date = '#{date_ad}'"
     end
-    if date_from_bs.present? && date_to_bs.present?
+    if date_from_bs.present? || date_to_bs.present?
       date_from_ad = bs_to_ad(date_from_bs)
       date_to_ad = bs_to_ad(date_to_bs)
       where_conditions << "(date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"

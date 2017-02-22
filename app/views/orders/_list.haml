@@ -22,38 +22,39 @@
         %th State
       -#%th Description
       %tbody
-        - orders.each_with_index do |order , i|
-          - is_first_order_detail = true
-          - order.order_details.each do |order_detail |
-            %tr
-              - if is_first_order_detail
-                - is_first_order_detail = false
-                %td= i+1
-                %td= order.order_number
-                %td= order.client_account.name.titleize
-                %td= order.client_account.nepse_code
-                %td= ad_to_bs_string(order.date)
-              -else #if is_first_order_detail = false
-                -# Empty 'td's
-                %td= ''
-                %td= ''
-                %td= ''
-                %td= ''
-                %td= ''
-              -# Order Details BEGINS
-              %td= order_detail.order_nepse_id
-              %td= order_detail.isin_info.isin
-              %td= order_detail.price.to_i
-              %td= order_detail.quantity
-              %td= order_detail.amount
-              %td= order_detail.pending_quantity
-              %td= order_detail.typee
-              %td= order_detail.segment
-              %td= order_detail.condition == 'nonee' ? 'none' : order_detail.condition
-              %td= order_detail.neww? ? 'new' : order_detail.state
-              -# Order Details ENDS
+        - if orders.present?
+          - orders.each_with_index do |order , i|
+            - is_first_order_detail = true
+            - order.order_details.each do |order_detail |
+              %tr
+                - if is_first_order_detail
+                  - is_first_order_detail = false
+                  %td= i+1
+                  %td= order.order_number
+                  %td= order.client_account.name.titleize
+                  %td= order.client_account.nepse_code
+                  %td= ad_to_bs_string(order.date)
+                -else #if is_first_order_detail = false
+                  -# Empty 'td's
+                  %td= ''
+                  %td= ''
+                  %td= ''
+                  %td= ''
+                  %td= ''
+                -# Order Details BEGINS
+                %td= order_detail.order_nepse_id
+                %td= order_detail.isin_info.isin
+                %td= order_detail.price.to_i
+                %td= order_detail.quantity
+                %td= order_detail.amount
+                %td= order_detail.pending_quantity
+                %td= order_detail.typee
+                %td= order_detail.segment
+                %td= order_detail.condition == 'nonee' ? 'none' : order_detail.condition
+                %td= order_detail.neww? ? 'new' : order_detail.state
+                -# Order Details ENDS
 
-    - if orders.empty?
+    - if orders.blank?
       %div.row.text-center.top-buffer-md
         There are no matching orders.
 

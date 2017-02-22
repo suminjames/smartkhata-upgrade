@@ -69,7 +69,7 @@
               %td.text-right= share_transaction.share_rate
               %td.text-right= arabic_number_integer(share_transaction.closeout_amount)
 
-    - if !share_transactions || share_transactions.empty?
+    - if share_transactions.blank?
       %div.row.text-center.top-buffer-md
         There are no matching share transactions.
 
