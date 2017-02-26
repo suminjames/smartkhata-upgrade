@@ -421,4 +421,39 @@ class ClientAccount < ActiveRecord::Base
       { :text=> identifier, :id => client_account['id'].to_s }
     end
   end
+
+  def ok_to_delete?
+  # A client_account
+    # belongs_to :creator, class_name: 'User'
+    # belongs_to :updater, class_name: 'User'
+    # belongs_to :group_leader, class_name: 'ClientAccount'
+    # has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
+    # belongs_to :user
+    # has_one :ledger
+    # has_many :share_inventories
+    # has_many :bills
+    # belongs_to :branch
+    unless (self.group_members.empty? &&
+        self.group_leader.nil? &&
+        self.user.nil? &&
+        self.ledger.nil? &&
+        self.bills.empty? &&
+        self.share_inventories.empty?)
+      return false
+    end
+
+    #  Other attachments
+    # - cheque_entry
+    # - order
+    # - settlement
+    # - share_transactions
+    # - transaction_messages
+    ['ChequeEntry', 'Order', 'Settlement', 'ShareTransaction', 'TransactionMessage'].each do |model|
+      model = model.constantize
+      if model.unscoped.where(client_account_id: self.id).size != 0
+        return false
+      end
+    end
+    return true
+  end
 end
