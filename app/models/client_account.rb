@@ -433,7 +433,12 @@ class ClientAccount < ActiveRecord::Base
     # has_many :share_inventories
     # has_many :bills
     # belongs_to :branch
-    unless (self.group_members.empty? && self.user.nil? && self.ledger.nil? && self.bills.empty?)
+    unless (self.group_members.empty? &&
+        self.group_leader.nil? &&
+        self.user.nil? &&
+        self.ledger.nil? &&
+        self.bills.empty? &&
+        self.share_inventories.empty?)
       return false
     end
 
@@ -441,10 +446,9 @@ class ClientAccount < ActiveRecord::Base
     # - cheque_entry
     # - order
     # - settlement
-    # - share_inventories
     # - share_transactions
     # - transaction_messages
-    ['ChequeEntry', 'Order', 'Settlement', 'ShareInventory', 'ShareTransaction', 'TransactionMessage'].each do |model|
+    ['ChequeEntry', 'Order', 'Settlement', 'ShareTransaction', 'TransactionMessage'].each do |model|
       model = model.constantize
       if model.unscoped.where(client_account_id: self.id).size != 0
         return false
