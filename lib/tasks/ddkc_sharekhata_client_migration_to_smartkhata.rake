@@ -1,3 +1,74 @@
+require 'awesome_print'
+
+# In a prior migration of client accounts from ShareKhata to SmartKhata, client type was not properly assigned.
+# This resulted in each new client account creation to have client_type (default value ) of 0 (ie. Individual).
+# However, there were clients with client_type of Corporate. This will result in accounting mishap due to different CGT
+# rates. Check which client's client_type are mismatched.
+task :test_for_client_account_mismatch_during_ddkc_sharekhata_clients_migration_to_smartkhata, [:tenant] => :environment do |task, args|
+  if args.tenant.blank? || args.tenant != 'dipshikha'
+    fail "Invalid tenant! This migration can apparently only be run in dipskhika tenant as of now."
+  end
+  UserSession.set_console('dipshikha')
+
+  dir = "#{Rails.root}/test_files/ddkc_sharekhata_client_migration_to_smartkhata/"
+  file_with_nepse_code_and_boid = dir + 'c_map.csv'
+  file_with_client_accounts_from_sharekhata = dir + 'dipshikha_accounts_20161209152140.csv'
+
+  # Load client accounts from file
+  client_accounts_arr = []
+  csv_text = File.read(file_with_client_accounts_from_sharekhata)
+  csv = CSV.parse(csv_text, :headers => true)
+  csv.each do |row|
+    client_accounts_arr << row.to_hash
+  end
+
+  # load all client accounts' boid and nepse_code mapping in a hash
+  client_account_boid_nepse_code_mappings = {}
+  csv_text = File.read(file_with_nepse_code_and_boid)
+  csv = CSV.parse(csv_text, :headers => false)
+  nepse_code_col = 0
+  client_type_col = 1
+  boid_col = 4
+  csv.each do |row|
+    nepse_code = row[nepse_code_col].upcase.strip
+    boid = row[boid_col]
+    client_type = row[client_type_col].downcase
+    client_type = "individual" if client_type == "minor"
+    if nepse_code.empty? || nepse_code.include?(' ')
+      puts "Warning! Invalid nepse code `#{nepse_code}`. Dropped for migration."
+    else
+      client_account_boid_nepse_code_mappings[boid] = {client_type: client_type, nepse_code: nepse_code}
+    end
+  end
+
+  ap client_account_boid_nepse_code_mappings
+
+  client_accounts_arr.each_with_index do |client_account, index|
+    if client_account_boid_nepse_code_mappings[client_account["boid"]].present?
+      nepse_code = client_account_boid_nepse_code_mappings[client_account["boid"]][:nepse_code]
+      client_type = client_account_boid_nepse_code_mappings[client_account["boid"]][:client_type]
+      puts
+      puts "Inspecting #{nepse_code} of type #{client_type}..."
+      client_accounts = ClientAccount.where("UPPER(nepse_code) = ?", nepse_code.upcase)
+      if client_accounts.size == 0
+        puts "CAUTION! No client account found."
+      elsif client_accounts.size > 1
+        puts "CAUTION! Duplicate nepse code."
+      else
+        client_account =  ClientAccount.unscoped.find_by_nepse_code(nepse_code)
+        client_type_in_db = client_account.client_type
+        if  client_type_in_db == client_type
+          puts "Ok.."
+        else
+          puts "Client type Mismatch for client(id: #{client_account.id})! In csv #{client_type}. In db #{client_type_in_db}"
+          puts "Client account deletable: #{client_account.deletable?}"
+        end
+      end
+    end
+  end
+
+  Apartment::Tenant.switch!('public')
+end
 
 # Populate date column with date_ad that is equivalent to date_bs, which is already a column in the table.
 task :migrate_ddkc_sharekhata_clients_to_smartkhata, [:tenant] => :environment do |task, args|

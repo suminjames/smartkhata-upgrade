@@ -323,7 +323,7 @@ class ImportOrder < ImportFile
     excel_sheet = xlsx.sheet(0)
     @order_file_date = order_file_date(excel_sheet.j5)
     if @order_file_date.nil?
-      @error_message = "Order Date is missing/invalid in cell J5! Please upload a valid file." and return
+      @error_message = "Order Date is missing/invalid in cell J5! Please upload a valid file. Looks like the file has `Historic Orders`, which is not allowed." and return
     end
     order_end_row = bottom_most_order_row_index(excel_sheet)
     if order_end_row != -1

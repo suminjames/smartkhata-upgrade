@@ -1,4 +1,5 @@
 <% provide(:section_title, "Upload Order File") %>
+<p class="text-muted"> Note: Upload file should be in xls format. Only day-wise orders are allowed; historic orders are not allowed.</p>
 <div>
   <%= form_tag import_files_orders_path, multipart: true do %>
       <div class="form-group">
