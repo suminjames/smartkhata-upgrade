@@ -140,19 +140,18 @@ namespace :client_account do
 
   desc "Merge two client accounts"
   # Merges client accounts.
-  # If force is 'true', goes forward with the merging even if src_client_account is not 'easily deletable'.
+  # If args.force is 'force', it goes forward with the merging even if src_client_account is not 'easily deletable'.
   task :merge,[:tenant, :merge_src_id, :merge_dst_id, :force] => 'smartkhata:validate_tenant' do |task, args|
     include ShareInventoryModule
     unless args.merge_src_id.present? && args.merge_dst_id.present?
       abort 'Invalid arguments'
     end
-    merge_client_accounts(args.merge_src_id, args.merge_dst_id, {force: args.force == "true"})
+    merge_client_accounts(args.merge_src_id, args.merge_dst_id, {force: args.force == "force"})
     Apartment::Tenant.switch!('public')
   end
 
-  def merge_client_accounts(src_client_account_id_for_merge, dst_client_account_id_for_merge, args = {})
+  def merge_client_accounts(src_client_account_id_for_merge, dst_client_account_id_for_merge, force = false)
     puts "Attempting to merge source client_account(id: #{src_client_account_id_for_merge}) to destination client_account(id: #{dst_client_account_id_for_merge})"
-    force = args[:force] || false
 
     ActiveRecord::Base.transaction do
       src_client_account = ClientAccount.unscoped.find(src_client_account_id_for_merge)
