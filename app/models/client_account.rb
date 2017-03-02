@@ -439,6 +439,7 @@ class ClientAccount < ActiveRecord::Base
         self.group_leader.nil? &&
         self.user.nil?)
       puts "Client Account has atleast one of the following: group members, group leader, user." if verbose
+      return false unless verbose
       return_val = false
     end
 
@@ -447,10 +448,12 @@ class ClientAccount < ActiveRecord::Base
       if Particular.unscoped.where(ledger_id: relevant_ledger.id).size != 0
         puts "Relevant ledger has particulars" if verbose
         return_val = false
+        return false unless verbose
       end
       if LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).size !=0
         puts "Relevant ledger has balance(s)." if verbose
         return_val = false
+        return false unless verbose
       end
     end
 
@@ -465,8 +468,9 @@ class ClientAccount < ActiveRecord::Base
       if model.unscoped.where(client_account_id: self.id).size != 0
         puts "Relevant #{model} association present." if verbose
         return_val = false
+        return false unless verbose
       end
     end
-    return return_val
+    return_val
   end
 end

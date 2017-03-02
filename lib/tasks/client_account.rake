@@ -43,11 +43,16 @@ namespace :client_account do
   end
 
   desc "Find client accounts with duplicate (case insensitive) nepse code."
+  # Flow:
+  # - Find (and display) client accounts with duplicate nepse_code.
+  # - Iterate over relevant client accounts.
+  # - Check for (automatic) mergeablibilty
+  # - If mergable, and 'resolve' flag set, merge duplicate client accounts.
+  # - If mergable, and 'resolve' flag not set, display information about the mergeability.
   task :find_client_accounts_with_duplicate_nepse_code,[:tenant, :resolve] => 'smartkhata:validate_tenant' do |task, args|
     resolve = args.resolve == "resolve"
     ActiveRecord::Base.transaction do
       can_be_resolved_automatically_count = 0
-      can_not_be_resolved_automatically_count = 0
       resolved_count = 0
       search_hash = ClientAccount.unscoped.select("LOWER(nepse_code)").group("LOWER(nepse_code)").having("count(*) > 1").count
 
@@ -59,81 +64,34 @@ namespace :client_account do
 
         client_accounts = ClientAccount.where("UPPER(nepse_code) = ?", nepse_code.upcase).order(id: :asc)
 
-        if client_accounts.size != 2
-          puts "CAUTION! Duplicate count for the nepse_code is more than 2."
-          can_not_be_resolved_automatically_count += 1
+        client_accounts_mergable,
+            src_client_account_id_for_merge,
+            dst_client_account_id_for_merge = client_accounts_mergable?(client_accounts, {verbose: true})
+
+        if  not client_accounts_mergable
           puts "CAN NOT be resolved automatically!"
         else
-          puts "Relevant client account ids: #{client_accounts.map{|r| r.id}.to_s}"
-          undeleteable_client_account_count = 0
-          client_accounts_have_different_branch = client_accounts.map{|r| r.branch_id}.uniq.size != 1
-          client_accounts_have_different_client_type = client_accounts.map{|r| r.client_type}.uniq.size != 1
-          if client_accounts.first.updated_at > client_accounts.second.updated_at
-            puts "CAUTION! Client accounts' updated_at unexpected behaviour!"
-          end
-          if client_accounts_have_different_branch
-            puts "CAUTION! Client accounts have different branch ids."
-            undeleteable_client_account_count = client_accounts.size
-          elsif client_accounts_have_different_client_type
-            puts "CAUTION! Client accounts have different client types."
-            undeleteable_client_account_count = client_accounts.size
-          else
-            client_accounts.each do |client_account|
-              puts "++Inspecing Client account(id: #{client_account.id})..."
-              if client_account.ledger.blank?
-                puts "CAUTION! Ledger absent!"
-              end
-              if client_account.boid.present?
-                puts "CAUTION! BOID present!"
-              end
-              if client_account.deletable?(verbose: true)
-                puts "Client account(id: #{client_account.id}) OK to delete!"
-              else
-                undeleteable_client_account_count += 1
-                puts "Client account(id: #{client_account.id}) NOT OK to delete!"
-              end
-            end
-          end
-
-          if undeleteable_client_account_count == client_accounts.size
-            can_not_be_resolved_automatically_count += 1
-            puts "CAN NOT be resolved automatically!"
-          else
-            can_be_resolved_automatically_count += 1
-            puts "CAN be resolved automatically!"
-            src_client_account_id_for_merge = nil
-            dst_client_account_id_for_merge = nil
-            client_accounts.each_with_index do |client_account, index|
-              if client_account.deletable?
-                unless src_client_account_id_for_merge.present?
-                  src_client_account_id_for_merge = client_account.id
-                else
-                  dst_client_account_id_for_merge = client_account.id
-                end
-              else
-                dst_client_account_id_for_merge = client_account.id
-              end
-              # ap client_account
-            end
-            if resolve
-              Rake::Task['client_account:merge'].reenable
-              Rake::Task['client_account:merge'].invoke(
-                  Apartment::Tenant.current,
-                  src_client_account_id_for_merge,
-                  dst_client_account_id_for_merge
-              )
-              resolved_count += 1
-            end
+          can_be_resolved_automatically_count += 1
+          puts "CAN be resolved automatically!"
+          if resolve
+            Rake::Task['client_account:merge'].reenable
+            Rake::Task['client_account:merge'].invoke(
+                Apartment::Tenant.current,
+                src_client_account_id_for_merge,
+                dst_client_account_id_for_merge
+            )
+            resolved_count += 1
           end
         end
       end
+
       puts "=" * 80
       if resolve
         puts "Resolved automatically: #{resolved_count}"
       else
         puts "CAN be resolved automatically: #{can_be_resolved_automatically_count}"
       end
-      puts "CAN NOT be resolved automatically: #{can_not_be_resolved_automatically_count}"
+      puts "CAN NOT be resolved automatically: #{search_hash.size - can_be_resolved_automatically_count}"
     end
     Apartment::Tenant.switch!('public')
   end
@@ -284,6 +242,97 @@ namespace :client_account do
       puts "-" * 80
       ap dst_client_account
     end
+  end
+
+  #
+  # Check if provided client accounts are mergeable.
+  #
+  # == Attributes
+  # client_accounts - Array of ClientAccounts
+  #
+  # == Options
+  # verbose - Provides verboseness.
+  #
+  # == Return values
+  # mergability - boolean
+  # src_client_account_id_for_merge
+  # dst_client_account_id_for_merge
+  #
+  def client_accounts_mergable?(client_accounts, options = {})
+    verbose = options[:verbose] == true
+    return_val = true
+
+    if verbose && client_accounts.size == 2
+      puts "Relevant client account ids: #{client_accounts.map{|r| r.id}.to_s}"
+    end
+
+    # Merging of strictly two clients is done.
+    if client_accounts.size != 2
+      puts "CAUTION! Duplicate count for the nepse_code is more than 2."
+      puts "CAN NOT be resolved automatically!"
+      return_val = return_val && false
+      # Return right away in this case
+      return return_val
+    end
+
+    if client_accounts.first.updated_at > client_accounts.second.updated_at
+      puts "CAUTION! Client accounts' updated_at unexpected behaviour!" if verbose
+    end
+
+    client_accounts_have_different_branch = client_accounts.map{|r| r.branch_id}.uniq.size != 1
+    if client_accounts_have_different_branch
+      puts "CAUTION! Client accounts have different branch ids." if verbose
+      return_val = return_val && false
+      return return_val if not verbose
+    end
+
+    client_accounts_have_different_client_type = client_accounts.map{|r| r.client_type}.uniq.size != 1
+    if client_accounts_have_different_client_type
+      puts "CAUTION! Client accounts have different client types." if verbose
+      return_val = return_val && false
+      return return_val if not verbose
+    end
+
+    # If atleast one of the client accounts is deletable, the  client accounts are mergeable.
+    atleast_one_client_account_deletable = false
+    client_accounts.each do |client_account|
+      puts "++Inspecing Client account(id: #{client_account.id})..." if verbose
+      if client_account.ledger.blank?
+        puts "CAUTION! Ledger absent!" if verbose
+      end
+      if client_account.boid.present?
+        puts "CAUTION! BOID present!" if verbose
+      end
+      if client_account.deletable?(verbose: verbose)
+        atleast_one_client_account_deletable = true
+        puts "Client account(id: #{client_account.id}) OK to delete!" if verbose
+      else
+        puts "Client account(id: #{client_account.id}) NOT OK to delete!" if verbose
+      end
+    end
+    return_val = return_val && atleast_one_client_account_deletable
+    return return_val if not verbose
+
+    src_client_account_id_for_merge = nil
+    dst_client_account_id_for_merge = nil
+
+    client_accounts.each_with_index do |client_account, index|
+      if client_account.deletable?
+        unless src_client_account_id_for_merge.present?
+          src_client_account_id_for_merge = client_account.id
+        else
+          dst_client_account_id_for_merge = client_account.id
+        end
+      else
+        dst_client_account_id_for_merge = client_account.id
+      end
+    end
+
+    if return_val == false
+      src_client_account_id_for_merge, dst_client_account_id_for_merge = nil, nil
+    end
+
+    return return_val, src_client_account_id_for_merge, dst_client_account_id_for_merge
   end
 
 end
