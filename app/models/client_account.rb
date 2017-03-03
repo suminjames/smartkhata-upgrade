@@ -422,24 +422,39 @@ class ClientAccount < ActiveRecord::Base
     end
   end
 
-  def ok_to_delete?
-  # A client_account
-    # belongs_to :creator, class_name: 'User'
-    # belongs_to :updater, class_name: 'User'
-    # belongs_to :group_leader, class_name: 'ClientAccount'
-    # has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
-    # belongs_to :user
-    # has_one :ledger
-    # has_many :share_inventories
-    # has_many :bills
-    # belongs_to :branch
+  def deletable?(options = {})
+    verbose = options[:verbose] == true
+    # A client_account
+    #  belongs_to :creator, class_name: 'User'
+    #  belongs_to :updater, class_name: 'User'
+    #  belongs_to :group_leader, class_name: 'ClientAccount'
+    #  has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
+    #  belongs_to :user
+    #  has_one :ledger
+    #  has_many :share_inventories
+    #  has_many :bills
+    #  belongs_to :branch
+    return_val = true
     unless (self.group_members.empty? &&
         self.group_leader.nil? &&
-        self.user.nil? &&
-        self.ledger.nil? &&
-        self.bills.empty? &&
-        self.share_inventories.empty?)
-      return false
+        self.user.nil?)
+      puts "Client Account has atleast one of the following: group members, group leader, user." if verbose
+      return false unless verbose
+      return_val = false
+    end
+
+    if self.ledger.present?
+      relevant_ledger = self.ledger
+      if Particular.unscoped.where(ledger_id: relevant_ledger.id).size != 0
+        puts "Relevant ledger has particulars" if verbose
+        return_val = false
+        return false unless verbose
+      end
+      if LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).size !=0
+        puts "Relevant ledger has balance(s)." if verbose
+        return_val = false
+        return false unless verbose
+      end
     end
 
     #  Other attachments
@@ -448,12 +463,14 @@ class ClientAccount < ActiveRecord::Base
     # - settlement
     # - share_transactions
     # - transaction_messages
-    ['ChequeEntry', 'Order', 'Settlement', 'ShareTransaction', 'TransactionMessage'].each do |model|
+    ['Bill', 'ChequeEntry', 'Order', 'Settlement', 'ShareTransaction', 'TransactionMessage'].each do |model|
       model = model.constantize
       if model.unscoped.where(client_account_id: self.id).size != 0
-        return false
+        puts "Relevant #{model} association present." if verbose
+        return_val = false
+        return false unless verbose
       end
     end
-    return true
+    return_val
   end
 end

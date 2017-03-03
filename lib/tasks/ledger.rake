@@ -245,7 +245,6 @@ namespace :ledger do
 
   task :merge_ledgers, [:tenant, :merge_to, :merge_from]=> 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
-    tenant = args.tenant
     abort 'Please pass the ledger id to merge to' unless args.merge_to.present?
     abort 'Please pass the ledger id to merge from' unless args.merge_from.present?
 
@@ -255,7 +254,6 @@ namespace :ledger do
 
     ActiveRecord::Base.transaction do
       ledger_to_merge_from.particulars.update_all(ledger_id: ledger_to_merge_to.id)
-
 
       LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
       LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
