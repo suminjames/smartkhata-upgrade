@@ -19,6 +19,7 @@ gem 'sidekiq'
 gem 'sinatra', '>= 1.3.0', require: false
 gem 'apartment-sidekiq'
 gem 'scout_apm'
+gem 'awesome_print'
 
 group :development, :test do
   gem 'byebug'
@@ -53,7 +54,6 @@ group :development do
   gem 'rails_layout'
   gem "bullet"
   gem "uniform_notifier"
-  gem "awesome_print"
   gem 'capistrano3-puma'
   gem 'rails_best_practices'
   gem 'rails-erd'
