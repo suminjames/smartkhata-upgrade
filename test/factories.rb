@@ -34,6 +34,8 @@ FactoryGirl.define do
     cheque_issued_type :payment
     amount 5000
     bank_account
+    cheque_date '2016-7-12'
+    branch_id 1
 
     factory :receipt_cheque_entry do
       cheque_issued_type :receipt
