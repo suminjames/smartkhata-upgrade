@@ -115,6 +115,7 @@ GEM
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
     choice (0.2.0)
+    cliver (0.3.2)
     code_analyzer (0.4.5)
       sexp_processor
     coderay (1.1.1)
@@ -129,6 +130,7 @@ GEM
     coffee-script-source (1.10.0)
     concurrent-ruby (1.0.2)
     connection_pool (2.2.0)
+    database_cleaner (1.5.3)
     debug_inspector (0.0.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -141,6 +143,7 @@ GEM
     devise_invitable (1.6.0)
       actionmailer (>= 3.2.6)
       devise (>= 3.2.0)
+    diff-lcs (1.3)
     docile (1.1.5)
     domain_name (0.5.20160615)
       unf (>= 0.0.5, < 1.0.0)
@@ -176,6 +179,10 @@ GEM
     guard-minitest (2.4.5)
       guard-compat (~> 1.2)
       minitest (>= 3.0)
+    guard-rspec (4.7.3)
+      guard (~> 2.1)
+      guard-compat (~> 1.1)
+      rspec (>= 2.99.0, < 4.0)
     haml (4.0.7)
       tilt
     haml-rails (0.9.0)
@@ -233,7 +240,6 @@ GEM
       nokogiri (~> 1.4)
       ntlm-http (~> 0.1, >= 0.1.1)
       webrobots (>= 0.0.9, < 0.2)
-    metaclass (0.0.4)
     method_source (0.8.2)
     mime-types (2.99.2)
     mini_portile2 (2.1.0)
@@ -243,8 +249,6 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (1.2.1)
-      metaclass (~> 0.0.1)
     multi_json (1.12.1)
     nenv (0.3.0)
     nepali_calendar (1.0.1)
@@ -267,6 +271,10 @@ GEM
     pluck_to_hash (1.0.0)
       activerecord (>= 4.0.2)
       activesupport (>= 4.0.2)
+    poltergeist (1.13.0)
+      capybara (~> 2.1)
+      cliver (~> 0.3.1)
+      websocket-driver (>= 0.2.0)
     prawn (2.1.0)
       pdf-core (~> 0.6.1)
       ttfunk (~> 1.4.0)
@@ -345,6 +353,27 @@ GEM
       nokogiri
       roo (>= 2.0.0beta1, < 3)
       spreadsheet (> 0.9.0)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+    rspec-core (3.5.4)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-mocks (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-rails (3.5.2)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
     ruby-graphviz (1.2.2)
     ruby-ole (1.2.12)
     ruby-progressbar (1.8.1)
@@ -365,6 +394,10 @@ GEM
       json
     sexp_processor (4.7.0)
     shellany (0.0.1)
+    shoulda-callback-matchers (1.1.4)
+      activesupport (>= 3)
+    shoulda-matchers (3.1.1)
+      activesupport (>= 4.0.0)
     sidekiq (4.1.4)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
@@ -430,6 +463,9 @@ GEM
       railties (>= 4.0)
       sprockets-rails (>= 2.0, < 4.0)
     webrobots (0.1.2)
+    websocket-driver (0.6.5)
+      websocket-extensions (>= 0.1.0)
+    websocket-extensions (0.1.2)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     zip-zip (0.3)
@@ -460,6 +496,7 @@ DEPENDENCIES
   capistrano3-puma
   capybara
   coffee-rails (~> 4.1.0)
+  database_cleaner
   devise
   devise_invitable
   draper (~> 1.3)
@@ -467,6 +504,7 @@ DEPENDENCIES
   filterrific
   guard
   guard-minitest (~> 2.4, >= 2.4.4)
+  guard-rspec
   haml
   haml-rails
   has_scope
@@ -479,10 +517,10 @@ DEPENDENCIES
   kaminari
   mechanize (= 2.7.3)
   minitest-reporters (~> 1.1, >= 1.1.8)
-  mocha
   nepali_calendar
   pg
   pluck_to_hash
+  poltergeist
   prawn
   prawn-table (~> 0.2.2)
   puma
@@ -495,10 +533,13 @@ DEPENDENCIES
   rails_layout
   roo (~> 2.1.0)
   roo-xls
+  rspec-rails (~> 3.5)
   sankhya
   sass-rails (~> 5.0)
   scout_apm
   sendgrid
+  shoulda-callback-matchers (~> 1.1.1)
+  shoulda-matchers
   sidekiq
   simple_form
   simplecov
@@ -517,4 +558,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.13.6
+   1.14.4

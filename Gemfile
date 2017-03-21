@@ -73,17 +73,25 @@ group :development do
   gem 'capistrano3-puma'
   gem 'rails_best_practices'
   gem 'rails-erd'
+
+  gem 'guard'
+  gem 'guard-rspec', require: false
+  gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
 end
 
 group :development, :test do
   gem 'byebug'
+  gem 'rspec-rails', '~> 3.5'
   gem 'factory_girl_rails'
 end
 
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
-  gem 'guard'
-  gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+
+
   gem 'capybara'
-  gem 'mocha'
+  gem "database_cleaner"
+  gem "poltergeist"
+  gem "shoulda-matchers"
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
 end
