@@ -10,22 +10,20 @@
 # not needed for test setup
 verbose = Rails.env == 'test' ? false : true
 
-tenant = Tenant.find_or_create_by!(name: "dipshikha", dp_id: '11000')
-tenant.update(full_name: 'Dipshikha Dhitopatra Karobar Company Pvt. Ltd.', address: 'Anamnagar, Kathmandu', phone_number: '977-1-4102532', fax_number: '977-1-4254490', pan_number: '302754016', broker_code: '38')
-tenant = Tenant.find_or_create_by!(name: "trishakti", dp_id: '11400')
-tenant.update(full_name: 'Trishakti Securities Public Ltd.', address: 'Putalisadak, Kathmandu', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '48')
+tenant = Tenant.find_or_create_by!(name: "demo", dp_id: '1010')
+tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '99')
+
 tenant = Tenant.find_or_create_by!(name: "smartkhata", dp_id: '1010')
-tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '00')
+tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, Lalitpur', phone_number: '977-1-4232132', fax_number: '977-1-4232133', pan_number: '302830905', broker_code: '88')
 
 @tenants = Tenant.all
-@tenants << "public"
 
 @admin_users = [
-    {:email => 'dipshikha@danfeinfotech.com', :password => 'dipshikha5645'},
-    {:email => 'trishakti@danfeinfotech.com', :password => 'trispa8934'},
     {:email => 'demo@danfeinfotech.com', :password => '12demo09'},
     {:email => 'demo@danfeinfotech.com', :password => '12demo09'}, #for the public
 ]
+
+
 
 count = 0
 @tenants.each do |t|
@@ -42,8 +40,6 @@ count = 0
       Apartment::Tenant.switch!("public")
       next if User.count > 0
     end
-
-
 
     branch = Branch.create(code: "KTM", address: "Kathmandu")
     admin_user_data = @admin_users[count - 1]
@@ -132,11 +128,13 @@ count = 0
     commission_rate.commission_details << commission_details
     commission_rate.save!
 
+
+
+    puts " Populating calendar..." if verbose
+    Calendar.populate_calendar
+
     puts "putting the menus"  if verbose
     MenuItemService.new.call
-
-    # puts " Populating calendar..."
-    Calendar.populate_calendar  if verbose
 
   rescue => error
     puts error.message  if verbose

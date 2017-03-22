@@ -1,0 +1,1 @@
+puma -b "ssl://127.0.0.1:3000?key=$HOME/.ssl/smartkhata/server.key&cert=$HOME/.ssl/smartkhata/server.crt"
