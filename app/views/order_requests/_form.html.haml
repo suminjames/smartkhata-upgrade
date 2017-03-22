@@ -1,0 +1,8 @@
+= simple_form_for(@order_request) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :date_bs
+
+  .form-actions
+    = f.button :submit

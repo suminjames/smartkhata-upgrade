@@ -1,0 +1,29 @@
+%h1 Listing order_request_details
+
+%table
+  %thead
+    %tr
+      %th Quantity
+      %th Rate
+      %th Status
+      %th Isin info
+      %th Order request
+      %th
+      %th
+      %th
+
+  %tbody
+    - @order_request_details.each do |order_request_detail|
+      %tr
+        %td= order_request_detail.quantity
+        %td= order_request_detail.rate
+        %td= order_request_detail.status
+        %td= order_request_detail.isin_info
+        %td= order_request_detail.order_request
+        %td= link_to 'Show', order_request_detail
+        %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail)
+        %td= link_to 'Destroy', order_request_detail, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Order request detail', new_order_request_detail_path

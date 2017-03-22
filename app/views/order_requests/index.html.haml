@@ -1,0 +1,21 @@
+%h1 Listing order_requests
+
+%table
+  %thead
+    %tr
+      %th Date bs
+      %th
+      %th
+      %th
+
+  %tbody
+    - @order_requests.each do |order_request|
+      %tr
+        %td= order_request.date_bs
+        %td= link_to 'Show', order_request
+        %td= link_to 'Edit', edit_order_request_path(order_request)
+        %td= link_to 'Destroy', order_request, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Order request', new_order_request_path
