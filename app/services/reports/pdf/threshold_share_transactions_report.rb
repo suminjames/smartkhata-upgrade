@@ -38,7 +38,6 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
       move_down(3)
       share_transactions_list
       move_down(3)
-      start_new_page
       signee_information
       generate_page_number
     end
@@ -81,10 +80,16 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
         0 => table_width * 3/12.0,
         1 => table_width * 6/12.0
     }
-    table table_data do |t|
+    t = make_table table_data do |t|
       t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
       t.column_widths = column_widths
     end
+
+    if (cursor - t.height) < 0
+      start_new_page
+    end
+
+    t.draw
   end
 
   def report_header
