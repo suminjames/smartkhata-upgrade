@@ -37,7 +37,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
       report_header
       move_down(3)
       share_transactions_list
-      move_down(3)
+      move_down(15)
       signee_information
       generate_page_number
     end
