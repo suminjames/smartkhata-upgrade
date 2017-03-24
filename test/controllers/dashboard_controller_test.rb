@@ -28,7 +28,7 @@ class DashboardControllerTest < ActionController::TestCase
 
   test "client login should get dashboard client index" do
     sign_in_client_user
-    create(:client_account, :user_id => users(:client_user).id)
+    create(:client_account, :user_id => users(:client_user).id, :branch_id => 1)
     get :client_index
     assert_template 'dashboard/client_index'
     assert_response :success
@@ -53,4 +53,5 @@ class DashboardControllerTest < ActionController::TestCase
     assert_redirected_to root_path
     assert_equal "Access denied.", flash[:alert]
   end
+
 end

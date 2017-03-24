@@ -85,7 +85,10 @@ class ClientAccountsControllerTest < ActionController::TestCase
 
   test "logged in client user should be able to see associated client's show" do
     sign_in users(:client_user)
-    @client_account = create(:client_account, :user_id => users(:client_user).id)
+    @client_account = create(
+        :client_account,
+        :user_id => users(:client_user).id,
+        :branch_id => 1)
     params = {id: @client_account.id}
     get :show, params
     assert_response :success
@@ -100,8 +103,8 @@ class ClientAccountsControllerTest < ActionController::TestCase
 
   test "logged in client user should not be able to see unassociated client's show" do
     sign_in users(:client_user)
-    create(:client_account, :user_id => users(:client_user).id)
-    @client_account =  create(:client_account)
+    create(:client_account, :user_id => users(:client_user).id, :branch_id => 1)
+    @client_account =  create(:client_account, :branch_id => 1)
     params = {id: @client_account.id}
     get :show, params
     assert_redirected_to root_path
