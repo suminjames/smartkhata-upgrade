@@ -17,14 +17,18 @@
     %div.text-center
       %h4
         %strong
-          =t('annexure', :locale => :np)
-          =t('number.two', :locale => :np)
+          -#=t('annexure', :locale => :np)
+          -#=t('number.two', :locale => :np)
+          Annexure 2
+
       %h4
         %strong
-          =t('threshold_transaction_detail', :locale => :np)
+          -#=t('threshold_transaction_detail', :locale => :np)
+          =t('threshold_transaction_detail', :locale => :en)
       %h4
         %strong
-          = t('informer_name', :locale => :np)
+          -#= t('informer_name', :locale => :np)
+          = t('informer_name', :locale => :en)
           \:
           = current_tenant.full_name
 
@@ -33,15 +37,24 @@
   %div#share_transaction_list
     %table.table.table-striped
       %thead
-        %th.col-1= t('serial_no', :locale => :np)
-        %th.col-2= t('buyer_seller_address', :locale => :np)
-        %th.col-3= t('occupation', :locale => :np)
-        %th.col-4= t('branch_if_any', :locale => :np)
-        %th.col-5= t('transaction_date', :locale => :np)
-        %th.col-6= t('transaction_type', :locale => :np)
-        %th.col-7= t('transaction_amount', :locale => :np)
-        %th.col-8= t('source_of_income', :locale => :np)
-        %th.col-9= t('remarks', :locale => :np)
+        -#%th.col-1= t('serial_no', :locale => :np)
+        -#%th.col-2= t('buyer_seller_address', :locale => :np)
+        -#%th.col-3= t('occupation', :locale => :np)
+        -#%th.col-4= t('branch_if_any', :locale => :np)
+        -#%th.col-5= t('transaction_date', :locale => :np)
+        -#%th.col-6= t('transaction_type', :locale => :np)
+        -#%th.col-7= t('transaction_amount', :locale => :np)
+        -#%th.col-8= t('source_of_income', :locale => :np)
+        -#%th.col-9= t('remarks', :locale => :np)
+        %th.col-1= t('serial_no', :locale => :en)
+        %th.col-2= t('buyer_seller_address', :locale => :en)
+        %th.col-3= t('occupation', :locale => :en)
+        %th.col-4= t('branch_if_any', :locale => :en)
+        %th.col-5= t('transaction_date', :locale => :en)
+        %th.col-6= t('transaction_type', :locale => :en)
+        %th.col-7= t('transaction_amount', :locale => :en)
+        %th.col-8= t('source_of_income', :locale => :en)
+        %th.col-9= t('remarks', :locale => :en)
       %tbody
         -if share_transactions
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)

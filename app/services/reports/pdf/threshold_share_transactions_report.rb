@@ -30,6 +30,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     draw
   end
 
+
   def draw
     font_size(9) do
       move_down(3)
@@ -95,8 +96,8 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
   def report_header
     table_data = [
         ['Annexure 2'],
-        ['Details of transactions above threshold in the indexed company.'],
-        ["Indexed company name: #{@current_tenant.full_name}"]
+        ['Threshold Transaction Detail'],
+        ["Informer Name: #{@current_tenant.full_name}"]
     ]
     table_width = page_width - 2
     column_widths = {
