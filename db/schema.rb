@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170322041343) do
+ActiveRecord::Schema.define(version: 20170324052944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1045,20 +1045,23 @@ ActiveRecord::Schema.define(version: 20170322041343) do
     t.integer  "quantity"
     t.integer  "rate"
     t.integer  "status"
-    t.integer  "isin_info_id"
+    t.integer  "isin_info"
     t.integer  "order_request_id"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
   end
 
-  add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
+  add_index "order_request_details", ["isin_info"], name: "index_order_request_details_on_isin_info", using: :btree
   add_index "order_request_details", ["order_request_id"], name: "index_order_request_details_on_order_request_id", using: :btree
 
   create_table "order_requests", force: :cascade do |t|
+    t.integer  "client_account_id"
     t.string   "date_bs"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
   end
+
+  add_index "order_requests", ["client_account_id"], name: "index_order_requests_on_client_account_id", using: :btree
 
   create_table "orders", force: :cascade do |t|
     t.integer  "order_number"
@@ -1734,8 +1737,8 @@ ActiveRecord::Schema.define(version: 20170322041343) do
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
-  add_foreign_key "order_request_details", "isin_infos"
   add_foreign_key "order_request_details", "order_requests"
+  add_foreign_key "order_requests", "client_accounts"
   add_foreign_key "particular_settlement_associations", "particulars"
   add_foreign_key "particular_settlement_associations", "settlements"
   add_foreign_key "particulars_share_transactions", "particulars"

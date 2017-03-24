@@ -35,4 +35,6 @@
     <% end
        end %>
  <% end %>
+
+<%= render "layouts/nav_links_for_client" if (user_signed_in? && current_user.client? ) %>
 <%= render "layouts/nav_links_for_auth" %>

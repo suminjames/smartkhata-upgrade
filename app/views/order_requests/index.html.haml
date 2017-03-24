@@ -3,6 +3,7 @@
 %table
   %thead
     %tr
+      %th Client account
       %th Date bs
       %th
       %th
@@ -11,6 +12,7 @@
   %tbody
     - @order_requests.each do |order_request|
       %tr
+        %td= order_request.client_account
         %td= order_request.date_bs
         %td= link_to 'Show', order_request
         %td= link_to 'Edit', edit_order_request_path(order_request)

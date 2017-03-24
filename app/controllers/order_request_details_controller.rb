@@ -1,6 +1,9 @@
 class OrderRequestDetailsController < ApplicationController
   before_action :set_order_request_detail, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @order_request_detail}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize OrderRequestDetail}, only: [:index, :new, :create]
+
   # GET /order_request_details
   # GET /order_request_details.json
   def index
@@ -21,7 +24,6 @@ class OrderRequestDetailsController < ApplicationController
   def edit
   end
 
-  # POST /order_request_details
   # POST /order_request_details.json
   def create
     @order_request_detail = OrderRequestDetail.new(order_request_detail_params)

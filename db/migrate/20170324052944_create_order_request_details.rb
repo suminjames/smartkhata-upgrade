@@ -4,9 +4,8 @@ class CreateOrderRequestDetails < ActiveRecord::Migration
       t.integer :quantity
       t.integer :rate
       t.integer :status
-      t.references :isin_info, index: true, foreign_key: true
+      t.integer :isin_info, index: true
       t.references :order_request, index: true, foreign_key: true
-
       t.timestamps null: false
     end
   end

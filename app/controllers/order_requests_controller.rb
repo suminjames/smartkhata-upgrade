@@ -1,6 +1,9 @@
 class OrderRequestsController < ApplicationController
   before_action :set_order_request, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @order_request}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize OrderRequest}, only: [:index, :new, :create ]
+  
   # GET /order_requests
   # GET /order_requests.json
   def index
@@ -14,7 +17,8 @@ class OrderRequestsController < ApplicationController
 
   # GET /order_requests/new
   def new
-    @order_request = OrderRequest.new
+    @order_request = current_user.client_accounts.first.order_requests.new
+    @order_request.order_request_details = [OrderRequestDetail.new]
   end
 
   # GET /order_requests/1/edit
@@ -69,6 +73,6 @@ class OrderRequestsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_request_params
-      params.require(:order_request).permit(:date_bs)
+      params.require(:order_request).permit(:client_account_id, :date_bs, order_request_details_attributes: [:id, :isin_info_id, :client_account_id, :rate, :quantity ])
     end
 end
