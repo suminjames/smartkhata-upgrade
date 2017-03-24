@@ -1,6 +1,6 @@
 <% provide(:section_title, "New Provisional Sales Bill") %>
 <%= render 'form' %>
 
-<% if is_authorized_to_access? bills_path %>
+<% if user_has_access_to? bills_path %>
   <%= link_to 'Back', bills_path %>
 <% end %>

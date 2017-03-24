@@ -92,4 +92,5 @@ group :test do
   gem "poltergeist"
   gem "shoulda-matchers"
   gem 'shoulda-callback-matchers', '~> 1.1.1'
+  gem 'mocha'
 end

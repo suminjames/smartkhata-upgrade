@@ -92,7 +92,6 @@ Rails.application.routes.draw do
   end
   resources :bills do
     collection do
-      get 'show_by_number'
       get 'show_multiple'
       post 'process_selected'
       get 'sales_payment'
@@ -176,6 +175,10 @@ Rails.application.routes.draw do
     resources :sys_admin_tasks, only: [:new] do
       collection {post :import}
     end
+  end
+
+  namespace 'reports' do
+    resources :audit_trails
   end
 
   namespace 'report' do

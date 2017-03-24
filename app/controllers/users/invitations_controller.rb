@@ -23,7 +23,12 @@ class Users::InvitationsController < Devise::InvitationsController
       accounts = ClientAccount.where(email: account.email)
       # update the accounts to invited.
       ActiveRecord::Base.transaction do
-        user = User.invite!(:email => account.email, :role => :client, :branch_id => UserSession.selected_branch_id) if valid_email?(account.email)
+        user = User.invite!(
+            :email => account.email,
+            :role => :client,
+            :branch_id => UserSession.selected_branch_id
+        ) if valid_email?(account.email)
+
         accounts.each do |a|
           a.skip_validation_for_system = true
           a.user_id = user.id
@@ -37,7 +42,17 @@ class Users::InvitationsController < Devise::InvitationsController
       account.skip_validation_for_system = true
       # accounts = Account.where(boid: account.email)
       ActiveRecord::Base.transaction do
-        new_user = User.create!({:username => get_user_name_from_boid(account.boid), :role => :client, :branch_id => UserSession.selected_branch_id, :password => get_user_name_from_boid(account.boid), :password_confirmation => get_user_name_from_boid(account.boid), confirmed_at: Time.now, email: nil })
+        new_user = User.create!(
+            {
+                :username => get_user_name_from_boid(account.boid),
+                :role => :client,
+                :branch_id => UserSession.selected_branch_id,
+                :password => get_user_name_from_boid(account.boid),
+                :password_confirmation => get_user_name_from_boid(account.boid),
+                confirmed_at: Time.now,
+                email: nil
+            }
+        )
 
         # accounts.each do |a|
         account.user_id = new_user.id

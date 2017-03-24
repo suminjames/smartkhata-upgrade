@@ -2,6 +2,9 @@ require 'test_helper'
 
 class UserAccessRolesControllerTest < ActionController::TestCase
   setup do
+    @request.host = 'trishakti.lvh.me'
+    set_branch_id 1
+    sign_in users(:user)
     @user_access_role = user_access_roles(:one)
   end
 
@@ -18,7 +21,7 @@ class UserAccessRolesControllerTest < ActionController::TestCase
 
   test "should create user_access_role" do
     assert_difference('UserAccessRole.count') do
-      post :create, user_access_role: { role_name: @user_access_role.role_name, role_type: @user_access_role.role_type }
+      post :create, user_access_role: { role_name: @user_access_role.role_name.reverse, role_type: @user_access_role.role_type }
     end
 
     assert_redirected_to user_access_role_path(assigns(:user_access_role))

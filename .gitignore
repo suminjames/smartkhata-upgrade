@@ -91,9 +91,12 @@ wiki/
 
 # Ignore byebug debugger history
 .byebug_history
+
+# Ignore other miscellaneous items
 test_files/
 db/backup/
 test.html
+rails_best_practises_output.html
 
 # Ignore .rspec
 .rspec
