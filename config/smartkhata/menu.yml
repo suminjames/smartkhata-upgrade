@@ -19,9 +19,6 @@ menus:
     - name: CM 31
       path: "<%= new_files_cm31_path%>"
       code: FS_UPL_CM3
-    - name: DpA5
-      path: "<%= new_files_dpa5_path %>"
-      code: FS_UPL_DPA5
     - name: Order
       path: "<%= new_files_order_path %>"
       code: FS_UPL_ORD

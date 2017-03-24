@@ -135,7 +135,7 @@ module ApplicationHelper
 
   # Alternative helper to check authorization: pundit
   def is_authorized_to_access?(link)
-    admin_and_above? || !current_user.blocked_path_list.include?(link)
+    admin_and_above? || current_user.client? || !current_user.blocked_path_list.include?(link)
   end
 
   def admin_and_above?
@@ -171,8 +171,8 @@ module ApplicationHelper
   def valid_certificate? user
     if Rails.env.production?
       return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
-      return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Client'
-      return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Employee'
+      return false if user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'Client'
+      return false if !user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'smartkhata_employ'
     end
     true
   end

@@ -404,6 +404,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # parse the data
     @total_amount = 0
     @partial_total_amount = 0
+    @total_amount_file = 0
     new_client_accounts = []
     data_sheet = xlsx.sheet(0)
     (12..(data_sheet.last_row)).each do |i|
