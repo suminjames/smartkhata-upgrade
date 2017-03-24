@@ -94,3 +94,6 @@ wiki/
 test_files/
 db/backup/
 test.html
+
+# Ignore .rspec
+.rspec
