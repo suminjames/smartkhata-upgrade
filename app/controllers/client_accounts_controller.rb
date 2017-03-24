@@ -7,6 +7,9 @@ class ClientAccountsController < ApplicationController
   # GET /client_accounts
   # GET /client_accounts.json
   def index
+    # Incorporate selected branch from session into filterrific in each request.
+    params[:filterrific] ||= {}
+    params[:filterrific].merge!({by_selected_session_branch_id: UserSession.selected_branch_id})
     @filterrific = initialize_filterrific(
         ClientAccount,
         params[:filterrific],
@@ -20,8 +23,11 @@ class ClientAccountsController < ApplicationController
     @selected_ledger_for_combobox_in_arr = @ledgers
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
-    @client_accounts = params[:paginate] == 'false' ?  @filterrific.find : @filterrific.find.page(params[:page]).per(items_per_page)
-
+    if params[:paginate] == 'false'
+      @client_accounts = @filterrific.find.order(:name)
+    else
+      @client_accounts = @filterrific.find.order(:name).page(params[:page]).per(items_per_page)
+    end
     @download_path_xlsx = client_accounts_path({format:'xlsx'}.merge params)
     @download_path_pdf = client_accounts_path({format:'pdf'}.merge params)
 
@@ -100,7 +106,6 @@ class ClientAccountsController < ApplicationController
 
     respond_to do |format|
       if @client_account.update(client_account_params)
-
         format.html {
           unless from_path.blank?
             redirect_to from_path, notice: 'Client account was successfully updated.'
@@ -132,10 +137,11 @@ class ClientAccountsController < ApplicationController
   #
   def combobox_ajax_filter
     search_term = params[:q]
+    selected_session_branch_id = UserSession.selected_branch_id
     client_accounts = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-      client_accounts = ClientAccount.find_similar_to_term search_term
+      client_accounts = ClientAccount.find_similar_to_term(search_term, selected_session_branch_id)
     end
     respond_to do |format|
       format.json { render json: client_accounts, status: :ok }

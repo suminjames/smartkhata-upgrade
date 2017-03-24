@@ -56,7 +56,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
   end
 #
   test "the basic flow" do
-    ############################################################### SECTION ONE ############################################################################
+    ############################################# SECTION ONE ##########################################################
 
     puts "Creating Bank & accounts..."
 
@@ -80,7 +80,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to bank_account_path(@bank_account_payment)
 
 
-    ############################################################### SECTION TWO ############################################################################
+    ############################################### SECTION TWO ########################################################
 
     puts "Adding cheque entries..."
     # --- 2. Add Cheque Entries ---
@@ -91,17 +91,41 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to cheque_entries_path('filterrific[by_bank_account_id]': @bank_account_receipt.id)
 
 
-    ############################################################### SECTION THREE ##########################################################################
+    ############################################# SECTION THREE ########################################################
 
-    puts "Uploading Floorsheet..."
+    puts "Uploading Floorsheet with new client accounts..."
     # --- 3. Upload Floorsheet of date X ---
     file = fixture_file_upload(Rails.root.join('test/fixtures/files/floorsheets/BrokerwiseFloorSheetReport_small_2073-08-13.xls'), 'text/xls')
+    post import_files_floorsheets_path, file: file
+
+    # As the file contains client accounts that are not in the db yet, floorsheet import is cancelled.
+    expected_error_message = "FLOORSHEET IMPORT CANCELLED!New client accounts found in the file!Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch."
+    assert_select "div#flash_error", text: expected_error_message
+
+    # Mimic manual creation of new client accounts in the file (that are also listed in the error page).
+    new_client_accounts = assigns(:new_client_accounts)
+    assert_not new_client_accounts.empty?
+    client_account_size_before = ClientAccount.unscoped.all.size
+    new_client_accounts.each do |new_client_account|
+      ClientAccount.create(
+          {
+              :name => new_client_account[:client_name],
+              :nepse_code => new_client_account[:client_nepse_code],
+              :branch_id =>  branches(:one).id,
+              :skip_validation_for_system => true
+          }
+      )
+    end
+    client_account_size_after = ClientAccount.unscoped.all.size
+    assert_equal new_client_accounts.size, client_account_size_after - client_account_size_before
+
+    # Redo the file upload.
     post import_files_floorsheets_path, file: file
     get files_floorsheets_path
     assert_not assigns(:file_list).empty?
 
 
-    ############################################################### SECTION FOUR ###########################################################################
+    ############################################# SECTION FOUR #########################################################
 
     puts "Uploading corresponding CM05..."
     # --- 4. Upload CM05 of date X ---
@@ -141,7 +165,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
 
 
-    ############################################################### SECTION FIVE ###########################################################################
+    ############################################# SECTION FIVE #########################################################
 
     # bill processing method has changed.
     # might be a good idea to move this test to elsewhere under bill integration test perhaps
@@ -301,7 +325,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # end
 
 
-    ############################################################### SECTION SIX ############################################################################
+    ############################################# SECTION SIX ##########################################################
 
     puts "Fetching Client ledgers..."
     # --- 6. Client Ledgers ---
@@ -405,7 +429,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
 
 
 
-    ############################################################### SECTION SEVEN ##########################################################################
+    ############################################# SECTION SEVEN ########################################################
 
     puts "Creating different types of vouchers & verifying..."
     # --- 7. Voucher creation --- Create all types of vouchers ---

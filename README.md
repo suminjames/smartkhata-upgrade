@@ -1,3 +1,3 @@
-# SmartKhata
+# SMARTKHATA
 
 ### TODO

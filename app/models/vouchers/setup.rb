@@ -4,12 +4,16 @@ class Vouchers::Setup < Vouchers::Base
   end
 
   def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger)
+
+    bill_ids ||= []
+
     is_payment_receipt = false
     default_ledger_id = nil
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bills, amount, voucher_type, settlement_by_clearance = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger)
+    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger)
+    
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -39,6 +43,7 @@ class Vouchers::Setup < Vouchers::Base
       end
 
       bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
+
       if bill_ids.size == 0
         bill_ids = bills.map { |a| a.id }
       end
@@ -72,7 +77,8 @@ class Vouchers::Setup < Vouchers::Base
           amount: amount,
           bills_selection: bill_ids.join(','),
           selected_bill_names: bill_id_names,
-          transaction_type: client_transaction_type
+          transaction_type: client_transaction_type,
+          ledger_balance_adjustment: ledger_balance_adjustment
       )
       ledger_list_available << client_account.ledger
     else
@@ -82,7 +88,8 @@ class Vouchers::Setup < Vouchers::Base
                                               amount: amount,
                                               bills_selection: bill_ids.join(','),
                                               selected_bill_names: bill_id_names,
-                                              transaction_type: client_transaction_type
+                                              transaction_type: client_transaction_type,
+                                              ledger_balance_adjustment: ledger_balance_adjustment
         )
         ledger_list_available << client_account.ledger
       end

@@ -182,7 +182,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     columns_to_sum.each do |col|
       totalled_cells << "=SUM(#{alphabets[col]}#{first_data_row}:#{alphabets[col]}#{last_data_row})"
     end
-    @sheet.add_row totalled_cells.insert(0, 'Total').insert(1, *['']*6).insert(9, *['']*2), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12)
+    @sheet.add_row totalled_cells.insert(0, 'Grand Total').insert(1, *['']*6).insert(9, *['']*2), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12)
     @sheet.merge_cells("A#{last_data_row+1}:#{alphabets[columns_to_sum.min-1]}#{last_data_row+1}")
   end
 

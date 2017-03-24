@@ -63,6 +63,66 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
     end
   end
 
+  class DuplicateChequeEntryReceiptTest  < Vouchers::CreateTest
+    test "should not allow creation of a receipt voucher with duplicate cheque entry" do
+      voucher_type = 2
+      bank_ledger = create(:bank_ledger)
+      client_ledger = @ledger
+      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+
+      voucher_1 = Voucher.new(voucher_params)
+      voucher_creation_1 = Vouchers::Create.new(
+          voucher_type: voucher_type,
+          voucher: voucher_1,
+          voucher_settlement_type: "default",
+          tenant_full_name: "Trishakti"
+      )
+      assert voucher_creation_1.process
+      assert_equal "RCB", voucher_creation_1.voucher.voucher_code
+
+      voucher_2 = Voucher.new(voucher_params)
+      voucher_creation_2 = Vouchers::Create.new(
+          voucher_type: voucher_type,
+          voucher: voucher_2,
+          voucher_settlement_type: "default",
+          tenant_full_name: "Trishakti"
+      )
+      assert_not voucher_creation_2.process
+      assert_not_nil voucher_creation_2.error_message
+      assert_equal voucher_creation_2.error_message, "Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first."
+    end
+
+    test "should allow creation of a receipt voucher with duplicate cheque entry if the cheque entry has been bounced." do
+      voucher_type = 2
+      bank_ledger = create(:bank_ledger)
+      client_ledger = @ledger
+      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+
+      voucher_1 = Voucher.new(voucher_params)
+      voucher_creation_1 = Vouchers::Create.new(
+          voucher_type: voucher_type,
+          voucher: voucher_1,
+          voucher_settlement_type: "default",
+          tenant_full_name: "Trishakti"
+      )
+      assert voucher_creation_1.process
+      assert_equal "RCB", voucher_creation_1.voucher.voucher_code
+      returned_voucher = voucher_creation_1.voucher
+      cheque_entry = returned_voucher.cheque_entries.uniq.first
+      cheque_entry.bounced!
+
+      voucher_2 = Voucher.new(voucher_params)
+      voucher_creation_2 = Vouchers::Create.new(
+          voucher_type: voucher_type,
+          voucher: voucher_2,
+          voucher_settlement_type: "default",
+          tenant_full_name: "Trishakti"
+      )
+      assert voucher_creation_2.process
+      assert_nil voucher_creation_2.error_message
+    end
+  end
+
   class AdvancedReceiptTest < Vouchers::CreateTest
     test "should settle purchase bill with full amount" do
       voucher.voucher_type = 2
@@ -135,6 +195,8 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       # since bill has amount 3000, and account balance is 2000, remaining to be received is 1000ß
       dr_particular.amount = 2000
       client_particular.amount = 2000
+      # the adjustment amount in particular
+      client_particular.ledger_balance_adjustment = 1000
 
       voucher.particulars << dr_particular
       voucher.particulars << client_particular
@@ -226,7 +288,7 @@ class Vouchers::CreateTest < ActiveSupport::TestCase
       client_particular.bills_selection = "#{sales_bill_id}"
       cr_particular.amount = 1000
       client_particular.amount = 1000
-
+      client_particular.ledger_balance_adjustment = 1000
       voucher.particulars << cr_particular
       voucher.particulars << client_particular
 

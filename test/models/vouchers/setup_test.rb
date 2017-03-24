@@ -2,6 +2,7 @@ require 'test_helper'
 class Vouchers::SetupTest < ActiveSupport::TestCase
   attr_accessor :client_account, :ledger, :purchase_bill, :sales_bill
 
+
   def setup
     @client_account = create(:client_account)
     @ledger = client_account.ledger

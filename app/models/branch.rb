@@ -32,4 +32,8 @@ class Branch < ActiveRecord::Base
     end
       branches
   end
+
+  def self.has_multiple_branches?
+    Branch.unscoped.size > 1
+  end
 end

@@ -1,7 +1,7 @@
 class ChequeEntriesController < ApplicationController
-  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent, :make_void]
-  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent, :make_void]
-  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent]
+  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :make_void]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :make_void]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do]
 
   # GET /cheque_entries
   # GET /cheque_entries.json
@@ -163,7 +163,6 @@ class ChequeEntriesController < ApplicationController
     cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      # redirect_to bounce_show_cheque_entries_path(id: @cheque_entry.id), flash: {:error => cheque_activity.error_message } and return
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
       flash[:alert] = cheque_activity.error_message
       render :bounce_show  and return
@@ -172,15 +171,25 @@ class ChequeEntriesController < ApplicationController
     redirect_to @cheque_entry, :flash => {:notice => 'Cheque bounced succesfully'} and return
   end
 
-  def represent
-    @back_path = request.referer || cheque_entries_path
-    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, current_tenant.full_name)
+  def represent_show
+    # TODO(sarojk): Representing disabled for now.  Revive later.
+    redirect_to @cheque_entry, :flash => {:alert => 'Automatic representing of cheques is disabled. Please re-create a receipt voucher using the same cheque number to record representing of cheque.'} and return
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+  end
+
+  def represent_do
+    represent_date_bs = params.dig(:cheque_entry, :represent_date)
+    represent_narration = params.dig(:cheque_entry, :represent_narration)
+    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, represent_date_bs, represent_narration, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
+      @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+      flash[:alert] = cheque_activity.error_message
+      render :represent_show  and return
     end
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    redirect_to @cheque_entry, :flash => {:notice => 'Cheque Represent recorded succesfully'} and return
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque represented succesfully'} and return
   end
 
   # GET

@@ -23,17 +23,53 @@ class ClientAccountsControllerTest < ActionController::TestCase
     end
   end
 
-  test "should create new" do
+  test "should not create new client without branch assignment for tenant which has multiple branch" do
+    assert_difference 'ClientAccount.count', 0 do
+      post :create, client_account: {name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
+                                     address1_perm: 'baz', city_perm: 'alpha', state_perm: 'beta', country_perm: 'gamma' }
+    end
+    assert_template :new
+    client_account = assigns(:client_account)
+    assert_not_empty client_account.errors
+  end
+
+  test "should create new client with branch assignment for tenant which has multiple branch" do
     assert_difference 'ClientAccount.count', 1 do
       post :create, client_account: {name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
-                                     address1_perm: 'baz', city_perm: 'alpha', state_perm: 'beta', country_perm: 'gamma'}
+                                     address1_perm: 'baz', city_perm: 'alpha', state_perm: 'beta', country_perm: 'gamma', branch_id: branches(:one).id}
     end
+    client_account = assigns(:client_account)
+    assert_redirected_to client_account_path(client_account)
+    assert_equal branches(:one).id, client_account.branch_id
     assert_redirected_to client_account_path(assigns(:client_account))
+  end
+
+
+  test "should create new client without branch assignment for tenant which has single branch" do
+    branches(:two).delete
+    assert_difference 'ClientAccount.count', 1 do
+      post :create, client_account: {name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
+                                     address1_perm: 'baz', city_perm: 'alpha', state_perm: 'beta', country_perm: 'gamma' }
+    end
+    client_account = assigns(:client_account)
+    assert_redirected_to client_account_path(client_account)
+    assert_equal branches(:one).id, client_account.branch_id
+  end
+
+  test "should create new client with branch assignment for tenant which has single branch" do
+    branches(:two).delete
+    assert_difference 'ClientAccount.count', 1 do
+      post :create, client_account: {name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
+                                   address1_perm: 'baz', city_perm: 'alpha', state_perm: 'beta', country_perm: 'gamma', branch_id: branches(:one).id}
+    end
+    client_account = assigns(:client_account)
+    assert_redirected_to client_account_path(client_account)
+    assert_equal branches(:one).id, client_account.branch_id
   end
 
   test "should update client account" do
     assert_not_equal 'Minitest', @client_account.name
-    patch :update, id: @client_account, client_account: {name: 'Minitest'}
+    patch :update, id: @client_account, client_account: {name: 'Minitest', branch_id: branches(:one).id}
     assert_redirected_to client_account_path(assigns(:client_account))
     @client_account.reload
     assert_equal 'Minitest', @client_account.name

@@ -114,15 +114,23 @@
   </div>
   <div class="col-sk-4">
     <% if ((voucher_type == Voucher.voucher_types[:payment] || voucher_type == Voucher.voucher_types[:receipt]) && inverse == false) %>
-      <!-- note this class name is referenced from select_for_settlement.js -->
-      <div class="particular-bill-container">
-        <%= f.input :bills_selection,
+        <!-- note this class name is referenced from select_for_settlement.js -->
+        <%= f.input :ledger_balance_adjustment,
                     :as => :hidden %>
-        <%= f.input :selected_bill_names,
-                    :as => :hidden %>
-        <%= link_to '<i class="fa fa-search" aria-hidden="true"></i>'.html_safe,
-                    select_for_settlement_bills_path(sk_id: sk_id, ledger_id: f.object.ledger_id || ' '), class: 'bill-finder',
-                    remote: true %>
+        <div class="particular-bill-container">
+          <div class ="selected-bill-ids">
+            <%= f.input :bills_selection,
+                        :as => :hidden %>
+          </div>
+          <div class ="selected-bill-names">
+            <%= f.input :selected_bill_names,
+                        :as => :hidden %>
+          </div>
+          <%= link_to '<i class="fa fa-search" aria-hidden="true"></i>'.html_safe,
+                      select_for_settlement_bills_path(sk_id: sk_id, ledger_id: f.object.ledger_id || ' '),
+                      class: 'bill-finder',
+                      remote: true
+          %>
         <span class="info"><%= f.object.selected_bill_names %></span>
       </div>
     <% end %>

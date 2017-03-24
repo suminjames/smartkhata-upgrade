@@ -201,8 +201,12 @@ class Vouchers::Create < Vouchers::Base
         # dont call clear ledger from this point
         # clear ledger should not be called from the new voucher section as it modifies voucher type
 
-        _client_account, _bills, _amount_to_pay_receive, _voucher_type, _settlement_by_clearance, _bill_ledger_adjustment =
+        _client_account, _bills =
             set_bill_client(particular.ledger.client_account_id, bill_ids, voucher_type)
+
+
+        # get it from particulars
+        _bill_ledger_adjustment = particular.ledger_balance_adjustment.to_f || 0
 
 
         # do not create voucher if bills have pending deal cancel
@@ -348,6 +352,7 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is receipt type if issued from the client
             cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
 
+
             # only for payment the date will be todays date.
             if voucher.is_payment?
               cheque_entry.cheque_date = DateTime.now
@@ -355,10 +360,13 @@ class Vouchers::Create < Vouchers::Base
               cheque_entry.cheque_date = voucher.date
             end
 
-            # if the cheque received from client is already entered to system reject it
-            if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned?
+            # For receipt cheques,
+            # - if the cheque received from client is already entered to system, reject it
+            # - however, if the cheque was bounced earlier, don't reject it.
+            # if cheque_entry.additional_bank_id.present? && !(cheque_entry.unassigned? || cheque_entry.bounced?)
+            if cheque_entry.additional_bank_id.present? && !cheque_entry.unassigned? && !cheque_entry.bounced?
               voucher.settlements = []
-              error_message = "Cheque number is already taken"
+              error_message = "Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first."
               raise ActiveRecord::Rollback
             end
 
@@ -545,5 +553,34 @@ class Vouchers::Create < Vouchers::Base
       # settlement.client_account = client_account
     end
     settlement
+  end
+
+  def set_bill_client(client_account_id, bill_ids, voucher_type)
+    # set default values to nil
+    bill_ids ||= []
+    bills = []
+
+    # get client account and bill if present from respective ids
+    client_account = client_account_and_bill(client_account_id)
+
+    bill_list = get_bills_from_ids(bill_ids)
+
+    related_pending_bill_ids = client_account.get_all_related_bill_ids
+    # make sure all id in bill_ids are in related_pending_bill_ids
+    unless (bill_ids - related_pending_bill_ids).empty?
+      # this condition should not be true
+      raise SmartKhataError
+    end
+    # arrange bills based on the voucher type
+    bills_receive = bill_list.requiring_receive
+    bills_payment = bill_list.requiring_payment
+
+    if voucher_type == Voucher.voucher_types[:receipt]
+      bills = [*bills_payment, *bills_receive]
+    else
+      bills = [*bills_receive, *bills_payment]
+    end
+
+    return client_account, bills
   end
 end

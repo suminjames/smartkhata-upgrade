@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations
-  resources :branches
+  resources :branches, :except => [:destroy]
   resources :closeouts
   resources :share_inventories
 
@@ -61,10 +61,11 @@ Rails.application.routes.draw do
       get :make_cheque_entries_unprinted
       get :make_void
       get :bounce_show
-      get :represent
+      get :represent_show
       get :show_multiple
       get :make_void
       patch :bounce_do
+      # patch :represent_do
     end
   end
   resources :bank_accounts
