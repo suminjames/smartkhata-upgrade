@@ -1,26 +1,31 @@
-class UserPolicy
-  attr_reader :current_user, :model
+class UserPolicy < ApplicationPolicy
+  # attr_reader :current_user, :model
 
-  def initialize(current_user, model)
-    @current_user = current_user
-    @user = model
-  end
+  include Rails.application.routes.url_helpers
+
+  # def initialize(current_user, model)
+  #   @current_user = current_user
+  #   @user = model
+  # end
 
   def index?
-    @current_user.admin?
+    @user.admin?
   end
 
   def show?
-    @current_user.admin? or @current_user == @user
+    @user.admin? or @user == @record
   end
 
   def update?
-    @current_user.admin?
+    @user.admin?
   end
 
   def destroy?
-    return false if @current_user == @user
-    @current_user.admin?
+    return false if @user == @record
+    @user.admin?
   end
 
+  def reset_temporary_password?
+    path_authorized_to_employee_and_above?(client_accounts_path)
+  end
 end

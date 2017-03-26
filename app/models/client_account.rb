@@ -172,6 +172,7 @@ class ClientAccount < ActiveRecord::Base
   ########################################
   # Attributes
   attr_accessor :skip_validation_for_system
+  delegate :temp_password,:username, to: :user
 
   ########################################
   # Delegations
@@ -312,7 +313,7 @@ class ClientAccount < ActiveRecord::Base
   end
 
   def can_assign_username?
-    user_id.blank? && boid.present?
+    user_id.blank? && nepse_code.present?
   end
 
   def has_sufficient_bank_account_info?

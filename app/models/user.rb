@@ -68,6 +68,10 @@ class User < ActiveRecord::Base
   validates :password, length: { in: 4..20 }, on: :update, allow_blank: true
   validates_confirmation_of :password, if: :password_required?
 
+  ########################################
+  # Callbacks
+  before_save :check_password_changed
+
   # accepts_nested_attributes_for :menu_permissions
 
   # accepts_nested_attributes_for :branch_permissions
@@ -77,7 +81,7 @@ class User < ActiveRecord::Base
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :invitable, :database_authenticatable, :confirmable,
+  devise :invitable, :database_authenticatable, :confirmable, :registerable,
          :recoverable, :rememberable, :trackable, :authentication_keys => [:login]
 
   attr_accessor :current_url_link
@@ -112,5 +116,12 @@ class User < ActiveRecord::Base
   # or confirmation are being set somewhere.
   def password_required?
     !persisted? || !password.nil? || !password_confirmation.nil?
+  end
+
+  # check if the password is changed and change the temp password to nil
+  # also make sure it is not the case where it is created or reset by the admin
+  # in which case temp password will also have changed
+  def check_password_changed
+    self.temp_password = nil if ( changed.include?('encrypted_password') && !(changed.include?('temp_password')))
   end
 end
