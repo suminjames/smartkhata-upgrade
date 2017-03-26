@@ -2,6 +2,9 @@ class Users::InvitationsController < Devise::InvitationsController
   include ApplicationHelper
   def create
     authorize self
+    require 'securerandom'
+
+
     url = request.referer || client_accounts_path
 
     ids_with_email_initial = params[:ids_for_invite].map(&:to_i) if params[:ids_for_invite].present?
@@ -38,26 +41,26 @@ class Users::InvitationsController < Devise::InvitationsController
     end
 
     ids_without_email.each do |id|
+      temp_password = SecureRandom.hex(3)
       account = ClientAccount.find_by(id: id)
       account.skip_validation_for_system = true
-      # accounts = Account.where(boid: account.email)
+
       ActiveRecord::Base.transaction do
         new_user = User.create!(
             {
-                :username => get_user_name_from_boid(account.boid),
+                :username => account.nepse_code,
                 :role => :client,
                 :branch_id => UserSession.selected_branch_id,
-                :password => get_user_name_from_boid(account.boid),
-                :password_confirmation => get_user_name_from_boid(account.boid),
+                :password => temp_password,
+                :password_confirmation => temp_password,
                 confirmed_at: Time.now,
+                temp_password: temp_password,
                 email: nil
             }
         )
 
-        # accounts.each do |a|
         account.user_id = new_user.id
         account.save!
-        # end
       end
     end
 

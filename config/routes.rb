@@ -134,7 +134,9 @@ Rails.application.routes.draw do
   resources :particulars
   root to: 'visitors#index'
   devise_for :users, :controllers => { :invitations => 'users/invitations' }
-  resources :users, except: [:new, :create, :edit]
+  resources :users, except: [:new, :create, :edit] do
+    collection { get :reset_temporary_password }
+  end
 
   match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]
   resources :client_accounts

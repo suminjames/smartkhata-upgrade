@@ -19,13 +19,13 @@ FactoryGirl.define do
   end
 
   factory :user do
-    name 'Lachlan'
-    email 'idiot@gmail.com'
-    password 'password'
-    encrypted_password { Devise::Encryptor.digest(User, 'password') }
-    confirmed_at '2016-05-05'  #stupid error this is needed for login
+    username  "test"
+    email "test@gmail.com"
+    password "password"
+    password_confirmation "password"
+    confirmed_at Date.today
     role {User.roles[:admin]}
-    branch_id 1
+    branch
   end
 
   factory :cheque_entry do
