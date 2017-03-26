@@ -56,22 +56,17 @@ class User < ActiveRecord::Base
   belongs_to :user_access_role
 
 
-  validates :username,
-            :presence => true,
-            :uniqueness => {
-                :case_sensitive => false
-            } if :email.blank?
-
+  ########################################
+  # Validation
+  validates_uniqueness_of :username, case_sensitive: false, allow_blank: true
   validates_format_of :username, with: /^[a-zA-Z0-9_\.]*$/, :multiline => true
-  #
+  validates_presence_of   :username, :if => lambda { |o| o.email.blank? }
   validates_presence_of   :email, :if => lambda { |o| o.username.blank? }
-  validates_uniqueness_of :email, allow_blank: true, :if => lambda { |o| o.username.blank? }
-
-  validates_format_of     :email, with: /\A[^@]+@[^@]+\z/, allow_blank: true, :if => lambda { |o| o.username.blank? }
-  validates_presence_of     :password, if: :password_required?
+  validates_uniqueness_of :email, allow_blank: true
+  validates_format_of     :email, with: /\A[^@]+@[^@]+\z/, allow_blank: true
+  validates :password, length: { in: 4..20 }, on: :create
+  validates :password, length: { in: 4..20 }, on: :update, allow_blank: true
   validates_confirmation_of :password, if: :password_required?
-  validates_length_of       :password, within: 4..20, allow_blank: true, if: :password_required?
-
 
   # accepts_nested_attributes_for :menu_permissions
 
