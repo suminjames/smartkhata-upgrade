@@ -6,7 +6,7 @@
 #  quantity         :integer
 #  rate             :integer
 #  status           :integer
-#  isin_info        :integer
+#  isin_info_id     :integer
 #  order_request_id :integer
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null

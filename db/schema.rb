@@ -1045,13 +1045,13 @@ ActiveRecord::Schema.define(version: 20170326170940) do
     t.integer  "quantity"
     t.integer  "rate"
     t.integer  "status"
-    t.integer  "isin_info"
+    t.integer  "isin_info_id"
     t.integer  "order_request_id"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
   end
 
-  add_index "order_request_details", ["isin_info"], name: "index_order_request_details_on_isin_info", using: :btree
+  add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
   add_index "order_request_details", ["order_request_id"], name: "index_order_request_details_on_order_request_id", using: :btree
 
   create_table "order_requests", force: :cascade do |t|

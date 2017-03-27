@@ -33,6 +33,7 @@
 #  user_access_role_id    :integer
 #  username               :string
 #  pass_changed           :boolean          default(FALSE)
+#  temp_password          :string
 #
 
 class User < ActiveRecord::Base
