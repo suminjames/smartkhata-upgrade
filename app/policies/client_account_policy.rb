@@ -15,7 +15,7 @@ class ClientAccountPolicy < ApplicationPolicy
 
   #
   # A user has_many client_accounts.
-  # This method checks to see if the record(client_account) in question in associated with the user.
+  # This method checks to see if the record(client_account) in question is associated with the user.
   #
   def record_associated_with_user(record, user)
     path_authorized_to_employee_and_above? || user.client_accounts.include?(record)

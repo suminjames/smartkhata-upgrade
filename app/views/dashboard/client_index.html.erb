@@ -15,7 +15,7 @@
           <div class="icon">
             <i class="ion ion-person"></i>
           </div>
-          <% if is_authorized_to_access? client_accounts_path %>
+          <% if user_has_access_to? client_accounts_path %>
               <a href="<%= client_account_path(client_account.id) %>" class="small-box-footer">
                 More info <i class="fa fa-arrow-circle-right"></i>
               </a>
@@ -35,7 +35,7 @@
           <div class="icon">
             <i class="ion ion-document-text"></i>
           </div>
-          <% if is_authorized_to_access? bills_path %>
+          <% if user_has_access_to? bills_path %>
               <a href="<%= client_info_hash[:pending_bills_path] %>" class="small-box-footer">
                 More info <i class="fa fa-arrow-circle-right"></i>
               </a>
@@ -103,7 +103,7 @@
           <div class="icon">
             <i class="ion ion-arrow-graph-up-right"></i>
           </div>
-          <% if is_authorized_to_access? bills_path %>
+          <% if user_has_access_to? bills_path %>
               <a href="<%= client_info_hash[:share_inventory_path] %>" class="small-box-footer">
                 More info <i class="fa fa-arrow-circle-right"></i>
               </a>

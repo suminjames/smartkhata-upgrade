@@ -133,17 +133,12 @@ module ApplicationHelper
     params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
 
-  # Alternative helper to check authorization: pundit
-  def is_authorized_to_access?(link)
-    admin_and_above? || current_user.client? || !current_user.blocked_path_list.include?(link)
-  end
-
   def admin_and_above?
     current_user.admin? || current_user.sys_admin?
   end
 
   def can_invite_users?
-    is_authorized_to_access?(client_accounts_path(invite: true))
+    user_has_access_to?(client_accounts_path(invite: true))
   end
 
   def get_user_name_from_boid(boid)
