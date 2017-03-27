@@ -1,29 +1,28 @@
-%h1 Listing order_request_details
-
-%table
+%h1 Listing order requests
+= link_to 'New Order request', new_order_request_path
+%table.table
   %thead
     %tr
+      %th Company
+      %th Date
       %th Quantity
       %th Rate
       %th Status
-      %th Isin info
-      %th Order request
-      %th
+
       %th
       %th
 
   %tbody
     - @order_request_details.each do |order_request_detail|
       %tr
+        %td= order_request_detail.company
+        %td= order_request_detail.created_at.to_date
         %td= order_request_detail.quantity
         %td= order_request_detail.rate
-        %td= order_request_detail.status
-        %td= order_request_detail.isin_info
-        %td= order_request_detail.order_request
-        %td= link_to 'Show', order_request_detail
-        %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail)
-        %td= link_to 'Destroy', order_request_detail, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
+        %td= order_request_detail.status.titleize
+        %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail) if order_request_detail.can_be_updated?
+        %td
+          = link_to 'Cancel', order_request_detail, :method => :delete, :data => { :confirm => 'Are you sure?' } if current_user.client? && order_request_detail.can_be_updated?
 %br
 
-= link_to 'New Order request detail', new_order_request_detail_path
+

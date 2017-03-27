@@ -32,7 +32,7 @@ class OrderRequestsController < ApplicationController
 
     respond_to do |format|
       if @order_request.save
-        format.html { redirect_to @order_request, notice: 'Order request was successfully created.' }
+        format.html { redirect_to order_request_details_path, notice: 'Order request was successfully created.' }
         format.json { render :show, status: :created, location: @order_request }
       else
         format.html { render :new }

@@ -7,7 +7,7 @@ class OrderRequestDetailsController < ApplicationController
   # GET /order_request_details
   # GET /order_request_details.json
   def index
-    @order_request_details = OrderRequestDetail.all
+    @order_request_details = OrderRequestDetail.todays_order
   end
 
   # GET /order_request_details/1
@@ -44,7 +44,7 @@ class OrderRequestDetailsController < ApplicationController
   def update
     respond_to do |format|
       if @order_request_detail.update(order_request_detail_params)
-        format.html { redirect_to @order_request_detail, notice: 'Order request detail was successfully updated.' }
+        format.html { redirect_to order_request_details_path, notice: 'Order request detail was successfully updated.' }
         format.json { render :show, status: :ok, location: @order_request_detail }
       else
         format.html { render :edit }
@@ -56,12 +56,14 @@ class OrderRequestDetailsController < ApplicationController
   # DELETE /order_request_details/1
   # DELETE /order_request_details/1.json
   def destroy
-    @order_request_detail.destroy
+
+    @order_request_detail.soft_delete
     respond_to do |format|
-      format.html { redirect_to order_request_details_url, notice: 'Order request detail was successfully destroyed.' }
+      format.html { redirect_to order_request_details_url, notice: 'Order request was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

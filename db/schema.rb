@@ -1044,11 +1044,11 @@ ActiveRecord::Schema.define(version: 20170326170940) do
   create_table "order_request_details", force: :cascade do |t|
     t.integer  "quantity"
     t.integer  "rate"
-    t.integer  "status"
+    t.integer  "status",           default: 0
     t.integer  "isin_info_id"
     t.integer  "order_request_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
