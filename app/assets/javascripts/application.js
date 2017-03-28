@@ -21,6 +21,9 @@
 //= require layout.min.js
 //= require filterrific/filterrific-jquery
 //= require select2.min.js
+//= require react
+//= require react_ujs
+//= require components
 //= require_tree .
 
 $(document).on("ready page:load", function(){
