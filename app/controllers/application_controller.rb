@@ -9,7 +9,6 @@ class ApplicationController < ActionController::Base
 
   # extend ActiveSupport::Concern
 
-  # rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   include ApplicationHelper
 
   # Callbacks
@@ -17,6 +16,7 @@ class ApplicationController < ActionController::Base
   before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
   after_action :verify_authorized, :unless => :devise_controller?
+  before_action :verify_absence_of_temp_password, :unless => :devise_controller?
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
@@ -94,6 +94,14 @@ class ApplicationController < ActionController::Base
     # set the session variable for the session
     UserSession.selected_fy_code = session[:user_selected_fy_code]
     UserSession.selected_branch_id = session[:user_selected_branch_id]
+  end
+
+  def verify_absence_of_temp_password
+    # check if the user has temp password
+    # if yes force user to change password
+    if user_signed_in? && current_user.temp_password.present?
+      redirect_to edit_user_registration_path, alert: "You must change your password before logging in for the first time"
+    end
   end
 
   #   set the default fycode and branch params

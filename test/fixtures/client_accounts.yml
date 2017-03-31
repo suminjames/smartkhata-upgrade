@@ -79,7 +79,7 @@ one:
   country_perm: foo-country
   nepse_code: 99999
   email: dedra@example.com
-  # mobile_number: '9800000000'
+  mobile_number: '9800000000'
   #  boid                      :string
   #  client_type               :integer          default("0")
   #  date                      :date

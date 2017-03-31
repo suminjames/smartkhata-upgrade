@@ -16,7 +16,7 @@
       <div class="icon">
         <img src="<%= image_url('bill_icon.png') %>" class="bill-image">
       </div>
-      <% if is_authorized_to_access? bills_path %>
+      <% if user_has_access_to? bills_path %>
           <a href="<%= bills_path %>" class="small-box-footer">
             More info <i class="fa fa-arrow-circle-right"></i>
           </a>
@@ -55,7 +55,7 @@
         <i class="ion ion-person-add"></i>
       </div>
       <% #if policy(ClientAccount).index? %>
-      <% if is_authorized_to_access? client_accounts_path %>
+      <% if user_has_access_to? client_accounts_path %>
         <a href="<%= client_accounts_path %>" class="small-box-footer">
           More info <i class="fa fa-arrow-circle-right"></i>
         </a>
@@ -75,7 +75,7 @@
       <div class="icon">
         <i class="ion ion-arrow-graph-up-right"></i>
       </div>
-      <% if is_authorized_to_access? share_transactions_path %>
+      <% if user_has_access_to? share_transactions_path %>
         <a href="<%= share_transactions_path %>" class="small-box-footer">
           More info <i class="fa fa-arrow-circle-right"></i>
         </a>
