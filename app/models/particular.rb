@@ -70,10 +70,12 @@ class Particular < ActiveRecord::Base
   # a cheque can pay/recieve for multiple particulars.
   has_many :payments, -> { payment }, class_name: "ChequeEntryParticularAssociation"
   has_many :receipts, -> { receipt }, class_name: "ChequeEntryParticularAssociation"
+  has_many :reversals, -> { reversal }, class_name: "ChequeEntryParticularAssociation"
   has_many :cheque_entry_particular_associations, dependent: :destroy
 
   has_many :cheque_entries_on_payment, through: :payments, source: :cheque_entry
   has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
+  has_many :cheque_entries_on_reversal, through: :reversals, source: :cheque_entry
   has_many :cheque_entries, through: :cheque_entry_particular_associations
 
   has_one :nepse_chalan, through: :voucher
