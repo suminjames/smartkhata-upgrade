@@ -7,7 +7,31 @@ class OrderRequestDetailsController < ApplicationController
   # GET /order_request_details
   # GET /order_request_details.json
   def index
-    @order_request_details = OrderRequestDetail.todays_order
+    @filterrific = initialize_filterrific(
+        OrderRequestDetail,
+        params[:filterrific],
+        select_options: {
+            with_company_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
+            by_sector: IsinInfo.options_for_sector_select,
+            with_status: OrderRequestDetail.statuses
+        },
+        persistence_id: false
+    ) or return
+    @order_request_details = @filterrific.find.page(params[:page]).per(20)
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = "#{ e.message }"
+      format.html { render :index }
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /order_request_details/1
