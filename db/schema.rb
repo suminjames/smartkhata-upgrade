@@ -1041,6 +1041,30 @@ ActiveRecord::Schema.define(version: 20170326170940) do
   add_index "order_details", ["isin_info_id"], name: "index_order_details_on_isin_info_id", using: :btree
   add_index "order_details", ["order_id"], name: "index_order_details_on_order_id", using: :btree
 
+  create_table "order_request_details", force: :cascade do |t|
+    t.integer  "quantity"
+    t.integer  "rate"
+    t.integer  "status",           default: 0
+    t.integer  "isin_info_id"
+    t.integer  "order_request_id"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "branch_id"
+    t.integer  "fy_code"
+  end
+
+  add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
+  add_index "order_request_details", ["order_request_id"], name: "index_order_request_details_on_order_request_id", using: :btree
+
+  create_table "order_requests", force: :cascade do |t|
+    t.integer  "client_account_id"
+    t.string   "date_bs"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "order_requests", ["client_account_id"], name: "index_order_requests_on_client_account_id", using: :btree
+
   create_table "orders", force: :cascade do |t|
     t.integer  "order_number"
     t.integer  "client_account_id"
@@ -1082,7 +1106,7 @@ ActiveRecord::Schema.define(version: 20170326170940) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8
@@ -1716,6 +1740,8 @@ ActiveRecord::Schema.define(version: 20170326170940) do
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
+  add_foreign_key "order_request_details", "order_requests"
+  add_foreign_key "order_requests", "client_accounts"
   add_foreign_key "particular_settlement_associations", "particulars"
   add_foreign_key "particular_settlement_associations", "settlements"
   add_foreign_key "particulars_share_transactions", "particulars"

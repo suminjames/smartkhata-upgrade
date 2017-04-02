@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
 
   # extend ActiveSupport::Concern
 
+  # rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   include ApplicationHelper
 
   # Callbacks
@@ -16,6 +17,7 @@ class ApplicationController < ActionController::Base
   before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
   after_action :verify_authorized, :unless => :devise_controller?
+  before_action :validate_certificate, :unless => :devise_controller?
   before_action :verify_absence_of_temp_password, :unless => :devise_controller?
 
   # method from menu permission module
@@ -67,6 +69,13 @@ class ApplicationController < ActionController::Base
         redirect_to root_path if request.path != '/dashboard/index' && request.path != root_path
       end
     else
+      redirect_to root_path
+    end
+  end
+
+  def validate_certificate
+    unless valid_certificate? current_user
+      flash[:alert] = "Access denied."
       redirect_to root_path
     end
   end

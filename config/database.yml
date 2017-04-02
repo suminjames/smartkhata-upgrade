@@ -48,11 +48,7 @@ test:
   database: stockprofile_test
 
 production:
-  adapter:  postgresql
-  host:     localhost
-  encoding: unicode
+  <<: *default
   database: smartkhata_production
   pool:     5
-  username: sarojk
-  password:
   template: template0

@@ -21,7 +21,7 @@ class IsinInfo < ActiveRecord::Base
 
   validates_presence_of :company, :if => lambda{|record| !record.skip_company_validation }
   validates :isin, uniqueness: true, presence: true, :case_sensitive => false
-
+  has_many :order_request_details
 
   scope :by_isin_info_id, ->(isin_info_id) { where(id: isin_info_id) }
   scope :by_sector, ->(sector_string) { where("sector": sector_string) }

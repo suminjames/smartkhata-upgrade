@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Quantity:
+  = @order_request_detail.quantity
+%p
+  %b Rate:
+  = @order_request_detail.rate
+%p
+  %b Status:
+  = @order_request_detail.status
+%p
+  %b Isin info:
+  = @order_request_detail.isin_info
+%p
+  %b Order request:
+  = @order_request_detail.order_request
+
+= link_to 'Edit', edit_order_request_detail_path(@order_request_detail)
+\|
+= link_to 'Back', order_request_details_path
