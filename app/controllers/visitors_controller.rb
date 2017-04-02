@@ -6,8 +6,8 @@ class VisitorsController < ApplicationController
 
   def index
     @invalid_certificate = nil
-    # if user_signed_in? &&  valid_certificate?(current_user)
-    if user_signed_in?
+    if user_signed_in? &&  valid_certificate?(current_user)
+    # if user_signed_in?
       if current_user.client?
         redirect_to :controller => 'dashboard', :action => 'client_index'
       else

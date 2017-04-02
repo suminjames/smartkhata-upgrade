@@ -33,6 +33,7 @@
 #  user_access_role_id    :integer
 #  username               :string
 #  pass_changed           :boolean          default(FALSE)
+#  temp_password          :string
 #
 
 class User < ActiveRecord::Base
@@ -123,5 +124,9 @@ class User < ActiveRecord::Base
   # in which case temp password will also have changed
   def check_password_changed
     self.temp_password = nil if ( changed.include?('encrypted_password') && !(changed.include?('temp_password')))
+  end
+
+  def is_official?
+    self.admin? || self.employee?
   end
 end

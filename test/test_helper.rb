@@ -132,4 +132,4 @@ class ActionDispatch::IntegrationTest
 end
 
 # At bottom of test_helper.rb (or at least after `require 'rails/test_help'`)
-require 'mocha/mini_test'
+# require 'mocha/mini_test'

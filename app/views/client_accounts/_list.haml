@@ -52,9 +52,9 @@
                 %td= client_account.commaed_contact_numbers
                 %td= client_account.email
                 %td
-                  - if client_account.temp_password.present?
+                  - if client_account.user_id && client_account.temp_password.present?
                     = client_account.temp_password
-                  - elsif client_account.username.present?
+                  - elsif client_account.user_id && client_account.username
                     = link_to 'Reset', reset_temporary_password_users_path(id: client_account.user_id)
                 %td
                   = link_to 'view', client_account_path(client_account)

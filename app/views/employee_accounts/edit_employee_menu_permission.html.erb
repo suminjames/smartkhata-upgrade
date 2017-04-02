@@ -11,11 +11,13 @@
           <%= f.input :name, placeholder: 'Name', disabled: true %>
           <%= hidden_field_tag 'edit_type', 'menu_access' %>
           <%= f.input :user_access_role_id do %>
+              <%= link_to "Create new access role", new_user_access_role_path %>
               <%= f.select :user_access_role_id,
                            UserAccessRole.all.map { |r| [r.role_name, r.id, { class: "form-control" }] },
                            include_blank: '--None--'
               %>
           <% end %>
+
           <br>
           <%= submit_tag -%>
       <% end -%>

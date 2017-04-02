@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170326170940) do
+ActiveRecord::Schema.define(version: 20170402090318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1044,14 +1044,16 @@ ActiveRecord::Schema.define(version: 20170326170940) do
   create_table "order_request_details", force: :cascade do |t|
     t.integer  "quantity"
     t.integer  "rate"
-    t.integer  "status"
-    t.integer  "isin_info"
+    t.integer  "status",           default: 0
+    t.integer  "isin_info_id"
     t.integer  "order_request_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "branch_id"
+    t.integer  "fy_code"
   end
 
-  add_index "order_request_details", ["isin_info"], name: "index_order_request_details_on_isin_info", using: :btree
+  add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
   add_index "order_request_details", ["order_request_id"], name: "index_order_request_details_on_order_request_id", using: :btree
 
   create_table "order_requests", force: :cascade do |t|
