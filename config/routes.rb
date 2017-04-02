@@ -1,5 +1,13 @@
 Rails.application.routes.draw do
-  resources :order_request_details
+  resources :order_request_details do
+    collection do
+      get :client_report
+    end
+    member do
+      get :approve
+      get :reject
+    end
+  end
   resources :order_requests
   namespace :master_setup do
     resources :commission_details

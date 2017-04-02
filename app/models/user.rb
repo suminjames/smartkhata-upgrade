@@ -125,4 +125,8 @@ class User < ActiveRecord::Base
   def check_password_changed
     self.temp_password = nil if ( changed.include?('encrypted_password') && !(changed.include?('temp_password')))
   end
+
+  def is_official?
+    self.admin? || self.employee?
+  end
 end

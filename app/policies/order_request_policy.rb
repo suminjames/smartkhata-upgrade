@@ -18,4 +18,6 @@ class OrderRequestPolicy < ApplicationPolicy
   def record_allowed_for_user(record, user)
     path_authorized_to_employee_and_above? || user.client_accounts.include?(record.client_account)
   end
+
+
 end

@@ -14,6 +14,8 @@ class OrderRequest < ActiveRecord::Base
   has_many :order_request_details
   has_many :isin_infos, through: :order_request_details
 
+  has_one :ledger, through: :client_account
+
   accepts_nested_attributes_for :order_request_details
 
 end
