@@ -134,6 +134,12 @@ menus:
     - name: Listed Company Register
       path: "<%= isin_infos_path %>"
       code: RG_CMP_IND
+  - name: Order Register
+    code: RG_ORD
+    menu_items:
+    - name: Client Request Register
+      path: "<%= order_request_details_path %>"
+      code: RG_ORD_CLR
 - name: Reports
   code: RS
   sub_menus:
@@ -158,6 +164,9 @@ menus:
     - name: Orders
       path: "<%= orders_path(show: 'report')%>"
       code: RS_TRO_ORD
+    - name: Order Requests Report
+      path: "<%= client_report_order_request_details_path %>"
+      code: RS_TRO_OCR
     - name: Cancelled Transactions
       path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete')
         %>"
