@@ -66,7 +66,10 @@
             <% settlement.cheque_entries.uniq.each do |cheque| %>
                 <% bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
                 <br>
-                <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{bank} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+                <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+                  <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{bank} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+                </span>
+
             <% end %>
           </p>
       <% end %>
@@ -94,7 +97,11 @@
                     end
                 %>
                     <br>
-                    <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %>
+
+                    <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+                      <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %> <%= ( cheque.bounced? || cheque.void? ) ? "( cancelled )" : " " %>
+                    </span>
+
                 <% end %>
             <% end %>
           </p>

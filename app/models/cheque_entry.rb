@@ -139,6 +139,7 @@ class ChequeEntry < ActiveRecord::Base
   scope :by_cheque_number, ->(cheque_number) {where(:cheque_number => cheque_number)}
 
 
+
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -180,6 +181,10 @@ class ChequeEntry < ActiveRecord::Base
     else
       return true
     end
+  end
+
+  def associated_bank_particulars
+    particulars = self.particulars.where(cheque_number: self.cheque_number)
   end
 
   def self.next_available_serial_cheque(bank_account_id)

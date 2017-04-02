@@ -13,11 +13,12 @@ class Ledgers::ParticularEntry
   end
 
   # reverse a particular entry
-  def revert(particular, voucher, descr, adjustment)
+  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry)
     process(particular: particular,
             voucher: voucher,
             descr: descr,
-            adjustment: adjustment
+            adjustment: adjustment,
+            reversed_cheque_entry: reversed_cheque_entry
     )
   end
 
@@ -42,6 +43,7 @@ class Ledgers::ParticularEntry
     accounting_date = attrs[:accounting_date] || Time.now.to_date
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
+    reversed_cheque_entry = attrs[:reversed_cheque_entry]
 
     # when all branch selected fall back to the user's branch id
     branch_id = UserSession.branch_id if branch_id == 0
@@ -86,10 +88,15 @@ class Ledgers::ParticularEntry
       cheque_entries_on_receipt = particular.cheque_entries_on_receipt
       cheque_entries_on_payment = particular.cheque_entries_on_payment
 
-      if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
-        new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
-        new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
+      if reversed_cheque_entry
+        new_particular.cheque_entries_on_reversal << reversed_cheque_entry
         new_particular.save!
+      else
+        if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size >0
+          new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
+          new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
+          new_particular.save!
+        end
       end
     end
 

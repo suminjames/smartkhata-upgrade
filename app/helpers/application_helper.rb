@@ -42,8 +42,8 @@ module ApplicationHelper
    Ledgers::ParticularEntry.new.insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date)
   end
 
-  def reverse_accounts(particular, voucher, descr, adjustment = 0.0)
-    Ledgers::ParticularEntry.new.revert(particular, voucher, descr, adjustment = 0.0)
+  def reverse_accounts(particular, voucher, descr, adjustment = 0.0, cheque_entry = nil)
+    Ledgers::ParticularEntry.new.revert(particular, voucher, descr, adjustment = 0.0, cheque_entry)
   end
 
   # method to calculate the broker commission
