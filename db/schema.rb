@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170402090318) do
+ActiveRecord::Schema.define(version: 20170406051042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -236,7 +236,7 @@ ActiveRecord::Schema.define(version: 20170402090318) do
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
 
-  create_table "branch_permissions", id: false, force: :cascade do |t|
+  create_table "branch_permissions", force: :cascade do |t|
     t.integer  "branch_id"
     t.integer  "user_id"
     t.integer  "creator_id"

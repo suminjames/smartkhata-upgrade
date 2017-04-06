@@ -1,6 +1,6 @@
 module Auditable
   extend ActiveSupport::Concern
   included do
-    # audited
+    audited
   end
 end
