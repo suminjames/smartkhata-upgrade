@@ -164,11 +164,11 @@ module ApplicationHelper
   end
 
   def valid_certificate? user
-    if Rails.env.production?
-      return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
-      return false if user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'Client'
-      return false if !user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'smartkhata_employ'
-    end
+    # if Rails.env.production?
+    #   return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
+    #   return false if user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'Client'
+    #   return false if !user.client? && get_common_name_from_dn(request.headers.env["X-Client-DN"]) != 'smartkhata_employ'
+    # end
     true
   end
 end
