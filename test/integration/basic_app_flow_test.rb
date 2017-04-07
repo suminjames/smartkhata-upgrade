@@ -342,7 +342,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     get ledger_path(ledger.id)
     assert_select 'a[href=?]', new_voucher_path(clear_ledger: 'true', client_account_id: client_account_id), {text: 'Clear Ledger'}
     assert_select 'a[href=?]', client_bills_path(client_account_id),                                         {text: 'Process Selected Bills'}
-    assert_select 'h3', 'Achyut Uprety ( A186 )'
+    assert_select 'h3', 'User One ( SK1 )'
 
     # Before processing, should show the unprocessed bill(s) list.
     get client_bills_path(client_account_id)
