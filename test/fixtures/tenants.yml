@@ -28,9 +28,9 @@ dipshikha:
   broker_code: 38
 
 trishakti:
-  name: "trishakti"
+  name: "demo"
   dp_id: '11400'
-  full_name: 'Trishakti Securities Public Ltd.'
+  full_name: 'Demo Securities Public Ltd.'
   address: 'Putalisadak, Kathmandu'
   phone_number: 977-1-4232132
   fax_number: 977-1-4232133
