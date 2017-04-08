@@ -48,6 +48,8 @@ gem 'haml-rails'
 gem 'sankhya'
 gem 'apartment'
 gem 'react-rails'
+gem 'slim'
+
 group :production do
   gem 'puma'
 end
