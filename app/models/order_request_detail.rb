@@ -10,6 +10,8 @@
 #  order_request_id :integer
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  branch_id        :integer
+#  fy_code          :integer
 #
 
 class OrderRequestDetail < ActiveRecord::Base
