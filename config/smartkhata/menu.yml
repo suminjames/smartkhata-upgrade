@@ -225,6 +225,9 @@ menus:
     - name: Create User Role
       path: "<%= new_user_access_role_path %>"
       code: ADS_RLM_CUR
+    - name: Audit Trails
+      path: "<%= reports_audit_trails_path %>"
+      code: ADS_RLM_AUD
   - name: Branch Management
     code: ADS_BRM
     menu_items:

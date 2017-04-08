@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   enum office_roles: [:manager]
 
   after_initialize :set_default_role, :if => :new_record?
-  attr_accessor :login
+  attr_accessor :login, :name_for_user
 
   has_many :client_accounts
   has_one :employee_account
@@ -128,5 +128,9 @@ class User < ActiveRecord::Base
 
   def is_official?
     self.admin? || self.employee?
+  end
+
+  def name_for_user
+    self.email || self.username
   end
 end

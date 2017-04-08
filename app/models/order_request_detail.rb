@@ -18,8 +18,9 @@ class OrderRequestDetail < ActiveRecord::Base
 
   include CustomDateModule
   extend CustomDateModule
+  include Auditable
   # added the updater and creater user tracking
-  include ::Models::UpdaterWithBranchFycode
+  include ::Models::WithBranchFycode
 
 
   belongs_to :isin_info

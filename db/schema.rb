@@ -236,7 +236,7 @@ ActiveRecord::Schema.define(version: 20170402090318) do
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
 
-  create_table "branch_permissions", id: false, force: :cascade do |t|
+  create_table "branch_permissions", force: :cascade do |t|
     t.integer  "branch_id"
     t.integer  "user_id"
     t.integer  "creator_id"

@@ -41,6 +41,30 @@ namespace :db do
         end
     end
 
+  task :restore_secure => :environment do
+
+    import_path = "#{Rails.root}/db/backup/"
+
+    system "openssl aes-256-cbc -d -base64 -in #{Rails.root}/db/backup/my_backup.tar.enc -out #{Rails.root}/db/backup/my_backup.tar -pass pass:my_password"
+    system "tar xf #{Rails.root}/db/backup/my_backup.tar -C #{import_path}"
+    system "gzip -df #{import_path}/my_backup/databases/PostgreSQL.sql.gz"
+
+    file_path = "#{Rails.root}/db/backup/my_backup/databases/PostgreSQL.sql"
+    #
+    cmd = nil
+    with_config do |app, host, db, user|
+      if !ENV['RAILS_ENV'].present?
+        cmd = "pg_restore --verbose --host localhost --clean --no-owner --no-acl --dbname #{db} #{file_path}"
+      else
+        cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db}  #{file_path}"
+      end
+    end
+    Rake::Task["db:drop"].invoke
+    Rake::Task["db:create"].invoke
+    puts cmd
+    exec cmd
+  end
+
   # override the db:test:prepare
   namespace :test do
     task :prepare => :environment do
