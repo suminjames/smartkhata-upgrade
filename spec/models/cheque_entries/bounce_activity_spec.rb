@@ -53,28 +53,6 @@ RSpec.describe ChequeEntries::BounceActivity do
   end
 
 
-  it "should not bounce cheque for voucher with multi cheque entry" do
-    subject.update_attributes(status: :approved, amount: 500, cheque_date: cheque_date_ad)
-    cheque_entry_a = create(:receipt_cheque_entry, status: :approved, amount: 500)
-    dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500)
-    dr_particular_b = create(:debit_particular, voucher: voucher, amount: 500)
-    cr_particular = create(:credit_particular, voucher: voucher, amount: 1000)
-
-    subject.particulars_on_payment << dr_particular_a
-    subject.particulars_on_receipt << cr_particular
-
-    cheque_entry_a.particulars_on_payment << dr_particular_b
-    cheque_entry_a.particulars_on_receipt << cr_particular
-
-    activity = ChequeEntries::BounceActivity.new(subject, bounce_date_bs, bounce_narration, 'trishakti')
-    activity.process
-
-    expect(activity.error_message).to eq("The cheque can not be bounced...Please contact technical support.")
-    expect(subject.bounced?).to_not be_truthy
-    expect(voucher.reload.reversed?).to_not be_truthy
-  end
-
-
   it "should void the cheque for voucher with single cheque entry and bill with full amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: cheque_date_ad)
     cheque_entry.cheque_date = cheque_date_ad
@@ -153,5 +131,29 @@ RSpec.describe ChequeEntries::BounceActivity do
     expect(cheque_entry.reload.vouchers.uniq.size).to eq(2)
   end
 
+  context "multiple cheque receipt" do
+    it "should bounce cheque for voucher with multi cheque entry for single client" do
+      subject.update_attributes(status: :approved, amount: 500, cheque_date: cheque_date_ad)
+      cheque_entry_a = create(:receipt_cheque_entry, status: :approved, amount: 500)
+
+      dr_particular = create(:debit_particular, voucher: voucher, amount: 1000)
+
+      cr_particular_a = create(:credit_particular, voucher: voucher, amount: 500, cheque_number: subject.cheque_number)
+      cr_particular_b = create(:credit_particular, voucher: voucher, amount: 500)
+
+      subject.particulars_on_payment << dr_particular
+      subject.particulars_on_receipt << cr_particular_a
+
+      cheque_entry_a.particulars_on_payment << dr_particular
+      cheque_entry_a.particulars_on_receipt << cr_particular_b
+
+      activity = ChequeEntries::BounceActivity.new(subject, bounce_date_bs, bounce_narration, 'trishakti')
+      activity.process
+
+      expect(activity.error_message).to be_nil
+      expect(subject.bounced?).to be_truthy
+      expect(voucher.reload.reversed?).to be_truthy
+    end
+  end
 
 end

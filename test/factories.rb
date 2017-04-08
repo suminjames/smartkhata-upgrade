@@ -51,6 +51,7 @@ FactoryGirl.define do
     voucher
     ledger
     transaction_type 0
+    cheque_number nil
 
     factory :debit_particular do
       transaction_type 0
