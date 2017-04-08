@@ -10,6 +10,8 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+
+
 //= require jquery
 //= require jquery.turbolinks
 //= require jquery_ujs
@@ -23,6 +25,7 @@
 //= require select2.min.js
 //= require react
 //= require react_ujs
+//= require react-bootstrap
 //= require components
 //= require_tree .
 
