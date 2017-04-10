@@ -1,5 +1,13 @@
 namespace :ledger do
 
+  def fy_codes
+    return [6869, 6970, 7071, 7273, 7374]
+  end
+
+  def current_fy_code
+    return 7374
+  end
+
   def patch_ledger_dailies(ledger, all_fiscal_years = false)
     # need to modify this in future to accomodate current fiscal year
     if all_fiscal_years
@@ -243,27 +251,29 @@ namespace :ledger do
     end
   end
 
-  task :merge_ledgers, [:tenant, :merge_to, :merge_from, :all_fiscal_year]=> 'smartkhata:validate_tenant' do |task, args|
+  task :merge_ledgers, [:tenant, :merge_to, :merge_from, :override_nepse_code]=> 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     abort 'Please pass the ledger id to merge to' unless args.merge_to.present?
     abort 'Please pass the ledger id to merge from' unless args.merge_from.present?
 
     ledger_to_merge_to = Ledger.find(args.merge_to)
     ledger_to_merge_from = Ledger.find(args.merge_from)
-    all_fiscal_year = args.all_fiscal_year || false
-
+    all_fiscal_year = true
+    override_nepse_code = args.override_nepse_code || false
     abort 'Invalid or wrong ledgers' unless args.merge_from.present?
+    abort 'Ledger has opening balance' if ledger_to_merge_from.opening_balance > 0
 
     ActiveRecord::Base.transaction do
-      ledger_to_merge_from.particulars.update_all(ledger_id: ledger_to_merge_to.id)
+
+      particulars = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id)
+
+      if particulars.pluck(:fy_code).uniq.size != 0 && ( particulars.pluck(:fy_code).uniq.size > 1 || particulars.pluck(:fy_code).uniq.first != current_fy_code )
+        abort 'Need manual Intervention. It has previous fiscal year data'
+      end
+      particulars.update_all(ledger_id: ledger_to_merge_to.id)
 
       LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
       LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
-
-
-
-
-
 
       patch_ledger_dailies(ledger_to_merge_to, all_fiscal_year)
       patch_closing_balance(ledger_to_merge_to, all_fiscal_year)
@@ -278,9 +288,19 @@ namespace :ledger do
         if client_account_to_persist
           client_account_to_persist.mobile_number ||= client_account_to_delete.mobile_number
           client_account_to_persist.email ||= client_account_to_delete.email
-          client_account_to_persist.save!
+          client_account_to_persist.skip_validation_for_system = true
+
+
+          nepse_code = client_account_to_delete.nepse_code
+          if override_nepse_code
+            abort 'no nepse code' if nepse_code.blank?
+            client_account_to_persist.nepse_code = nepse_code
+            ledger_to_merge_to.client_code = nepse_code
+          end
+
           TransactionMessage.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
           client_account_to_delete.delete
+          client_account_to_persist.save!
         else
           ledger_to_merge_to.client_account = client_account_to_delete
         end
@@ -290,7 +310,7 @@ namespace :ledger do
       ledger_to_merge_to.save!
 
       if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
-        abort 'Need manual Intervention'
+        abort 'Need manual Intervention both have relation to mandala'
       elsif mandala_mapping_for_deleted_ledger.present?
         mandala_mapping_for_deleted_ledger.ledger_id = args.merge_to
         mandala_mapping_for_deleted_ledger.save!
