@@ -243,13 +243,15 @@ namespace :ledger do
     end
   end
 
-  task :merge_ledgers, [:tenant, :merge_to, :merge_from]=> 'smartkhata:validate_tenant' do |task, args|
+  task :merge_ledgers, [:tenant, :merge_to, :merge_from, :all_fiscal_year]=> 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     abort 'Please pass the ledger id to merge to' unless args.merge_to.present?
     abort 'Please pass the ledger id to merge from' unless args.merge_from.present?
 
     ledger_to_merge_to = Ledger.find(args.merge_to)
     ledger_to_merge_from = Ledger.find(args.merge_from)
+    all_fiscal_year = args.all_fiscal_year || false
+
     abort 'Invalid or wrong ledgers' unless args.merge_from.present?
 
     ActiveRecord::Base.transaction do
@@ -258,13 +260,34 @@ namespace :ledger do
       LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
       LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
 
-      ledger_to_merge_from.delete
 
-      patch_ledger_dailies(ledger_to_merge_to)
-      patch_closing_balance(ledger_to_merge_to)
+
+
+
+
+      patch_ledger_dailies(ledger_to_merge_to, all_fiscal_year)
+      patch_closing_balance(ledger_to_merge_to, all_fiscal_year)
 
       mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
       mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
+
+      # delete client accounts too
+      client_account_to_persist = ledger_to_merge_to.client_account
+      client_account_to_delete = ledger_to_merge_from.client_account
+      if client_account_to_delete
+        if client_account_to_persist
+          client_account_to_persist.mobile_number ||= client_account_to_delete.mobile_number
+          client_account_to_persist.email ||= client_account_to_delete.email
+          client_account_to_persist.save!
+          TransactionMessage.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+          client_account_to_delete.delete
+        else
+          ledger_to_merge_to.client_account = client_account_to_delete
+        end
+      end
+
+      ledger_to_merge_from.delete
+      ledger_to_merge_to.save!
 
       if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
         abort 'Need manual Intervention'
