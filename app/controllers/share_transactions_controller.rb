@@ -26,9 +26,8 @@ class ShareTransactionsController < ApplicationController
       # this instance variable used in view to generate 'create transaction messages' button
       @transaction_date = bs_to_ad(bs_date)
     end
-
     @filterrific = initialize_filterrific(
-        ShareTransaction,
+        ShareTransaction.by_branch,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -39,22 +38,23 @@ class ShareTransactionsController < ApplicationController
     ) or return
 
     items_per_page = 20
+
     # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
         if params[:group_by_company] == "true"
-          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, date ASC, contract_no ASC')
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC')
         else
-          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC')
         end
       else
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC')
         # Needed for pagination to work
         @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
       if params[:group_by_company] == "true"
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
         # This hash maps isin_info_ids(keys) with their respective counts(values)
         # Notice the ommision of pagination the query below. This is to have an overall cardinality of the current search scope.
         # Eg: {2=>5, 29=>6, 98=>1, 103=>2, 111=>4, 133=>8, 145=>5, 209=>1, 219=>1, 444=>4}
@@ -70,7 +70,7 @@ class ShareTransactionsController < ApplicationController
           @grouped_isins_serialized_position_hash[isin] = sum
         end
       else
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
       end
     end
 

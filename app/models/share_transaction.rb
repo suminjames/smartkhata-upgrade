@@ -124,6 +124,15 @@ class ShareTransaction < ActiveRecord::Base
     end
   }
 
+  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+    if branch_id == 0
+      scoped
+    else
+      includes(:client_account).where(client_accounts: {branch_id: branch_id})
+      # where(branch_id: branch_id)
+    end
+  end
+
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
