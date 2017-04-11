@@ -154,7 +154,7 @@ FactoryGirl.define do
   end
 
   factory :isin_info do
-    company 'Danphe Infotech'
+    company 'Test Pvt. Ltd.'
     sector 'technology'
     isin 'DAN'
   end

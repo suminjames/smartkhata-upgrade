@@ -77,6 +77,14 @@ class TransactionMessage < ActiveRecord::Base
     end
   }
 
+  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+    if branch_id == 0
+      scoped
+    else
+      includes(:client_account).where(client_accounts: {branch_id: branch_id})
+    end
+  end
+
   def self.latest_transaction_date
     self.maximum("transaction_date")
   end

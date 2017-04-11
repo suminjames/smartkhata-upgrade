@@ -124,6 +124,15 @@ class ShareTransaction < ActiveRecord::Base
     end
   }
 
+  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+    if branch_id == 0
+      scoped
+    else
+      includes(:client_account).where(client_accounts: {branch_id: branch_id})
+      # where(branch_id: branch_id)
+    end
+  end
+
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
@@ -219,7 +228,7 @@ class ShareTransaction < ActiveRecord::Base
     }
   end
 
-  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs)
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id = UserSession.selected_branch_id)
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -238,9 +247,9 @@ class ShareTransaction < ActiveRecord::Base
     end
 
     if where_conditions.present?
-      where_condition_str = "WHERE #{where_conditions.join(" AND ")}"
+      where_condition_str = "WHERE #{where_conditions.join(" AND ")} AND client_accounts.branch_id = #{branch_id}"
     else
-      where_condition_str = ''
+      where_condition_str = "WHERE client_accounts.branch_id = #{branch_id}"
     end
 
     tenant_broker_id = ar_connection.quote(tenant_broker_id)
@@ -251,6 +260,8 @@ class ShareTransaction < ActiveRecord::Base
         SUM( CASE WHEN seller = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_out_sum
       FROM
         share_transactions
+      INNER JOIN
+        client_accounts on client_accounts.id = share_transactions.client_account_id
       #{where_condition_str}
       GROUP BY
         isin_info_id
