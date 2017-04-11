@@ -7,5 +7,7 @@ FactoryGirl.define do
     bill nil
     quantity 400
     share_rate 200
+    buyer 99
+    seller 100
   end
 end
