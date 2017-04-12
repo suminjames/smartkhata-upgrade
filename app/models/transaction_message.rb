@@ -78,11 +78,7 @@ class TransactionMessage < ActiveRecord::Base
   }
 
   scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
-    if branch_id == 0
-      scoped
-    else
-      includes(:client_account).where(client_accounts: {branch_id: branch_id})
-    end
+    includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
   end
 
   def self.latest_transaction_date
