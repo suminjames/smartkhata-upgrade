@@ -42,6 +42,10 @@ class BankAccount < ActiveRecord::Base
   validates_presence_of :bank, :account_number, :bank_branch
   accepts_nested_attributes_for :ledger
 
+
+  def test_dummy
+    raise SmartKhataError
+  end
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted
   def change_default
@@ -73,6 +77,27 @@ class BankAccount < ActiveRecord::Base
 
   def bank_name
     "#{self.bank.name}"
+  end
+
+  def save_custom
+    _group_id = Group.find_by(name: "Current Assets").id
+    _bank = Bank.find_by(id: self.bank_id)
+    if _bank.present?
+      self.ledger.name = "Bank:"+_bank.name+"(#{self.account_number})"
+      self.ledger.group_id = _group_id
+      self.bank_name = _bank.name
+      begin
+        ActiveRecord::Base.transaction do
+          if self.save
+              LedgerBalance.update_or_create_org_balance(self.ledger.id)
+              return true
+          end
+        end
+      rescue ActiveRecord::RecordNotUnique => e
+        self.errors.add(:base, "Please make sure one entry per branch")
+      end
+    end
+    return false
   end
 
   # assign the ledgers to group name bank accounts

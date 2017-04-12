@@ -15,8 +15,8 @@ class MenuItemService
     tenants = Tenant.all
 
     tenants.each do |t|
-      Apartment::Tenant.switch!(t.name)
       begin
+        Apartment::Tenant.switch!(t.name)
         # check for any duplicate menu item codes in menu.yml file, and return with false
         if menu_list_has_duplicate_codes(menu_list)
           puts "Error! Menu.yml has duplicate codes."
@@ -56,8 +56,9 @@ class MenuItemService
 
           MenuItem.where.not(id: new_menu_lists).delete_all
         end
-      # rescue
-      #   puts 'there was issue'
+      rescue => error
+        puts error.message  if verbose
+        puts "Tenant #{t.name} exists"  if verbose
       end
     end
 

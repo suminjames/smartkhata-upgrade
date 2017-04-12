@@ -4,7 +4,7 @@ class GenerateBillsService
   include CommissionModule
 
   def initialize(params)
-    @sales_settlement = params[:sales_settlement]
+    @nepse_settlement = params[:nepse_settlement]
   end
 
   def process
@@ -14,8 +14,8 @@ class GenerateBillsService
     # Begin Transaction
     ActiveRecord::Base.transaction do
       # only generate bill for the transactions which are not soft deleted
-      share_transactions = ShareTransaction.where(settlement_id: @sales_settlement.settlement_id, deleted_at: nil).includes([:client_account, :isin_info])
-      settlement_date = @sales_settlement.settlement_date
+      share_transactions = ShareTransaction.where(settlement_id: @nepse_settlement.settlement_id, deleted_at: nil).includes([:client_account, :isin_info])
+      settlement_date = @nepse_settlement.settlement_date
 
 
       share_transactions.each do |transaction|
@@ -90,7 +90,7 @@ class GenerateBillsService
 
 
           bill.balance_to_pay = bill.net_amount
-          bill.sales_settlement_id = @sales_settlement.id
+          bill.nepse_settlement_id = @nepse_settlement.id
           bill.save!
         end
         # create client ledger if not exist
@@ -206,7 +206,7 @@ class GenerateBillsService
         end
       end
       # mark the sales settlement as complete to prevent future processing
-      @sales_settlement.complete!
+      @nepse_settlement.complete!
     end
     true
   end

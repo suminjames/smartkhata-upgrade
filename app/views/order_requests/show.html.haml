@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Client account:
+  = @order_request.client_account
+%p
+  %b Date bs:
+  = @order_request.date_bs
+
+= link_to 'Edit', edit_order_request_path(@order_request)
+\|
+= link_to 'Back', order_requests_path

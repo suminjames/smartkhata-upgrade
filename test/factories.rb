@@ -7,10 +7,11 @@ FactoryGirl.define do
   end
 
   factory :master_setup_commission_info, class: 'MasterSetup::CommissionInfo' do
-    start_date "2016-11-12"
-    end_date "2016-11-13"
+    start_date "2022-1-1"
+    end_date "2022-1-10"
     start_date_bs "MyString"
     end_date_bs "MyString"
+    nepse_commission_rate 22.5
 
     before(:create) do |master_setup_commission_info|
       master_setup_commission_info.commission_details << FactoryGirl.create(:master_setup_commission_detail)
@@ -18,13 +19,13 @@ FactoryGirl.define do
   end
 
   factory :user do
-    name 'Lachlan'
-    email 'idiot@gmail.com'
-    password 'password'
-    encrypted_password { Devise::Encryptor.digest(User, 'password') }
-    confirmed_at '2016-05-05'  #stupid error this is needed for login
+    username  "test"
+    email "test@gmail.com"
+    password "password"
+    password_confirmation "password"
+    confirmed_at Date.today
     role {User.roles[:admin]}
-    branch_id 1
+    branch
   end
 
   factory :cheque_entry do
@@ -33,6 +34,8 @@ FactoryGirl.define do
     cheque_issued_type :payment
     amount 5000
     bank_account
+    cheque_date '2016-7-12'
+    branch_id 1
 
     factory :receipt_cheque_entry do
       cheque_issued_type :receipt
@@ -47,6 +50,8 @@ FactoryGirl.define do
     branch_id 1
     voucher
     ledger
+    transaction_type 0
+    cheque_number nil
 
     factory :debit_particular do
       transaction_type 0
@@ -89,7 +94,6 @@ FactoryGirl.define do
     sequence(:bank_code) { |n| "#{n}" }
     address 'AnotherString'
     contact_no 'AnotherString'
-
   end
 
   factory :ledger do
@@ -102,7 +106,7 @@ FactoryGirl.define do
   end
   factory :ledger_balance do
     opening_balance 0
-    opening_balance_type "dr"
+    # opening_balance_type "dr"
     # closing_balance 5000  taken care in callback
     dr_amount 5000
     branch_id 1
@@ -113,9 +117,9 @@ FactoryGirl.define do
     sequence (:bill_number)
     client_name 'Harold Hill'
     net_amount '9000'
-    balance_to_pay '9000'
+    balance_to_pay  { net_amount }
     bill_type 0
-    status 2
+    status :pending
     special_case 0
     fy_code '7374'
     date { 3.day.ago.to_date }
@@ -147,12 +151,10 @@ FactoryGirl.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
-
-    ledger
   end
 
   factory :isin_info do
-    company 'Danphe Infotech'
+    company 'Test Pvt. Ltd.'
     sector 'technology'
     isin 'DAN'
   end

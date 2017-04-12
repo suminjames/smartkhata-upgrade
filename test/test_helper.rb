@@ -16,7 +16,7 @@ require 'capybara/rails'
 # we are loading data from seed file
 # if this line throws error make sure to run
 # rake db:test:prepare
-Apartment::Tenant.switch!( "trishakti" )
+Apartment::Tenant.switch!( "demo" )
 
 class ActiveSupport::TestCase
 
@@ -105,7 +105,7 @@ class ActiveSupport::TestCase
     get general_settings_set_fy_path, {fy_code: fy_code, branch_id: 1}
   end
 
-  def set_host(host_name='trishakti.lvh.me')
+  def set_host(host_name='demo.lvh.me')
     host! host_name
   end
 
@@ -130,3 +130,6 @@ class ActionDispatch::IntegrationTest
     Capybara.use_default_driver
   end
 end
+
+# At bottom of test_helper.rb (or at least after `require 'rails/test_help'`)
+# require 'mocha/mini_test'

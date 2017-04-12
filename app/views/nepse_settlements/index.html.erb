@@ -1,0 +1,24 @@
+<% provide(:section_title, "Listing #{@type.underscore.humanize.pluralize}") %>
+<% if @nepse_settlements.present? %>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Settlement Id:</th>
+      <th> Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @nepse_settlements.each do |nepse_settlement| %>
+        <tr>
+          <td><%= nepse_settlement.settlement_id %></td>
+          <td><%= link_to 'Show', sti_nepse_settlement_path(nepse_settlement.type, nepse_settlement) %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="text-muted">
+    <br>No settlements found.
+  </div>
+<% end %>

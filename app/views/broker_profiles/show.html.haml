@@ -1,0 +1,34 @@
+%p#notice= notice
+- provide(:section_title, "Broker Profile")
+
+%p
+  %b Broker name:
+  = @broker_profile.broker_name
+%p
+  %b Broker number:
+  = @broker_profile.broker_number
+%p
+  %b Address:
+  = @broker_profile.address
+%p
+  %b Dp code:
+  = @broker_profile.dp_code
+%p
+  %b Phone number:
+  = @broker_profile.phone_number
+%p
+  %b Fax number:
+  = @broker_profile.fax_number
+%p
+  %b Email:
+  = @broker_profile.email
+%p
+  %b Pan number:
+  = @broker_profile.pan_number
+%p
+  %b Language:
+  = @broker_profile.locale
+
+= link_to 'Edit', edit_broker_profile_path(@broker_profile)
+\|
+= link_to 'Back', broker_profiles_path

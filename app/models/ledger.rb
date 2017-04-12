@@ -62,6 +62,8 @@ class Ledger < ActiveRecord::Base
   # TODO(subas/saroj) look for uncommenting this.
   # validates_presence_of :group_id
   validate :positive_amount, on: :create
+  before_save :format_name, if: :name_changed?
+  before_save :format_client_code, if: :client_code_changed?
   before_create :update_closing_blnc
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
@@ -126,6 +128,30 @@ class Ledger < ActiveRecord::Base
     ledger_id = filterrific_params.try(:dig, 'by_ledger_id') and where(id: ledger_id) or []
   end
 
+  def format_client_code
+    self.client_code = self.client_code.try(:strip).try(:upcase)
+  end
+
+  #
+  # Where applicable,
+  #   - Strip name of trailing and leading white space.
+  #   - Remove more than one spaces from in between name.
+  #
+  def format_name
+    if self.name.present?
+      name_is_strippable = self.name.strip != self.name
+      name_has_more_than_one_space_in_between_words = (self.name.split(" ").count - 1 ) != self.name.count(" ")
+      if name_is_strippable
+        self.name =  self.name.strip
+      end
+      if name_has_more_than_one_space_in_between_words
+        # http://stackoverflow.com/questions/4662015/ruby-reduce-all-whitespace-to-single-spaces
+        self.name = self.name.gsub(/\s+/, ' ')
+      end
+    end
+    self.name
+  end
+
   #
   # check if the ledger name clashes with system reserved ledger name
   #
@@ -151,17 +177,27 @@ class Ledger < ActiveRecord::Base
   end
 
   def update_custom(params)
-    # debugger
+    self.save_custom(params)
+  end
+
+  def create_custom
+    self.save_custom
+  end
+
+  def save_custom(params = nil)
     self.enforce_validation = true
     begin
       ActiveRecord::Base.transaction do
-        if self.update(params)
-          ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: self.id, branch_id: nil)
-          ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: self.id).where.not(branch_id: nil).sum(:opening_balance)
-          balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
-
-          ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
-          return true
+        if params
+          if self.update(params)
+            LedgerBalance.update_or_create_org_balance(self.id)
+            return true
+          end
+        else
+          if self.save
+            LedgerBalance.update_or_create_org_balance(self.id)
+            return true
+          end
         end
       end
     rescue ActiveRecord::RecordNotUnique => e
@@ -169,6 +205,7 @@ class Ledger < ActiveRecord::Base
     end
     return false
   end
+
   def update_custom_old(params)
     # why did not i use self.update(params)
     # because it does not work well with default scope

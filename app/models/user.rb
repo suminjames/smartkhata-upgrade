@@ -33,6 +33,7 @@
 #  user_access_role_id    :integer
 #  username               :string
 #  pass_changed           :boolean          default(FALSE)
+#  temp_password          :string
 #
 
 class User < ActiveRecord::Base
@@ -44,7 +45,7 @@ class User < ActiveRecord::Base
   enum office_roles: [:manager]
 
   after_initialize :set_default_role, :if => :new_record?
-  attr_accessor :login
+  attr_accessor :login, :name_for_user
 
   has_many :client_accounts
   has_one :employee_account
@@ -56,22 +57,21 @@ class User < ActiveRecord::Base
   belongs_to :user_access_role
 
 
-  validates :username,
-            :presence => true,
-            :uniqueness => {
-                :case_sensitive => false
-            } if :email.blank?
-
+  ########################################
+  # Validation
+  validates_uniqueness_of :username, case_sensitive: false, allow_blank: true
   validates_format_of :username, with: /^[a-zA-Z0-9_\.]*$/, :multiline => true
-  #
+  validates_presence_of   :username, :if => lambda { |o| o.email.blank? }
   validates_presence_of   :email, :if => lambda { |o| o.username.blank? }
-  validates_uniqueness_of :email, allow_blank: true, :if => lambda { |o| o.username.blank? }
-
-  validates_format_of     :email, with: /\A[^@]+@[^@]+\z/, allow_blank: true, :if => lambda { |o| o.username.blank? }
-  validates_presence_of     :password, if: :password_required?
+  validates_uniqueness_of :email, allow_blank: true
+  validates_format_of     :email, with: /\A[^@]+@[^@]+\z/, allow_blank: true
+  validates :password, length: { in: 4..20 }, on: :create
+  validates :password, length: { in: 4..20 }, on: :update, allow_blank: true
   validates_confirmation_of :password, if: :password_required?
-  validates_length_of       :password, within: 4..20, allow_blank: true, if: :password_required?
 
+  ########################################
+  # Callbacks
+  before_save :check_password_changed
 
   # accepts_nested_attributes_for :menu_permissions
 
@@ -82,7 +82,7 @@ class User < ActiveRecord::Base
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :invitable, :database_authenticatable, :confirmable,
+  devise :invitable, :database_authenticatable, :confirmable, :registerable,
          :recoverable, :rememberable, :trackable, :authentication_keys => [:login]
 
   attr_accessor :current_url_link
@@ -106,7 +106,7 @@ class User < ActiveRecord::Base
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
     if login = conditions.delete(:login)
-      where(conditions.to_hash).where(["lower(username) = :value OR lower(email) = :value", { :value => login.downcase }]).first
+      where(conditions.to_hash).where(["lower(username) = :value OR lower(email) = :value", { :value => login.downcase.strip }]).first
     elsif conditions.has_key?(:username) || conditions.has_key?(:email)
       where(conditions.to_hash).first
     end
@@ -117,5 +117,20 @@ class User < ActiveRecord::Base
   # or confirmation are being set somewhere.
   def password_required?
     !persisted? || !password.nil? || !password_confirmation.nil?
+  end
+
+  # check if the password is changed and change the temp password to nil
+  # also make sure it is not the case where it is created or reset by the admin
+  # in which case temp password will also have changed
+  def check_password_changed
+    self.temp_password = nil if ( changed.include?('encrypted_password') && !(changed.include?('temp_password')))
+  end
+
+  def is_official?
+    self.admin? || self.employee?
+  end
+
+  def name_for_user
+    self.email || self.username
   end
 end

@@ -16,9 +16,9 @@ menus:
     - name: Sales CM
       path: "<%= new_files_sale_path %>"
       code: FS_UPL_SCM
-    - name: DpA5
-      path: "<%= new_files_dpa5_path %>"
-      code: FS_UPL_DPA5
+    - name: CM 31
+      path: "<%= new_files_cm31_path%>"
+      code: FS_UPL_CM3
     - name: Order
       path: "<%= new_files_order_path %>"
       code: FS_UPL_ORD
@@ -26,7 +26,7 @@ menus:
     code: FS_PND
     menu_items:
     - name: Pending Sales Settlement
-      path: "<%= sales_settlements_path(pending: true) %>"
+      path: "<%= nepse_settlements_path(pending: true) %>"
       code: FS_PND_SAS
 - name: Account Section
   code: AS
@@ -134,6 +134,12 @@ menus:
     - name: Listed Company Register
       path: "<%= isin_infos_path %>"
       code: RG_CMP_IND
+  - name: Order Register
+    code: RG_ORD
+    menu_items:
+    - name: Client Request Register
+      path: "<%= order_request_details_path %>"
+      code: RG_ORD_CLR
 - name: Reports
   code: RS
   sub_menus:
@@ -158,6 +164,9 @@ menus:
     - name: Orders
       path: "<%= orders_path(show: 'report')%>"
       code: RS_TRO_ORD
+    - name: Order Requests Report
+      path: "<%= client_report_order_request_details_path %>"
+      code: RS_TRO_OCR
     - name: Cancelled Transactions
       path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete')
         %>"
@@ -216,6 +225,9 @@ menus:
     - name: Create User Role
       path: "<%= new_user_access_role_path %>"
       code: ADS_RLM_CUR
+    - name: Audit Trails
+      path: "<%= reports_audit_trails_path %>"
+      code: ADS_RLM_AUD
   - name: Branch Management
     code: ADS_BRM
     menu_items:
@@ -225,7 +237,7 @@ menus:
   - name: Misc
     code: ADS_MIS
     menu_items:
-    - name: Broker Profiles Management
+    - name: Broker Profile Management
       path: "<%= master_setup_broker_profiles_path %>"
       code: ADS_MIS_BPM
     - name: Commission Rates Management

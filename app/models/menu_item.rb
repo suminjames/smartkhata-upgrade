@@ -13,15 +13,7 @@
 #  updated_at              :datetime         not null
 #
 
-#  id                      :integer          not null, primary key
-#  name                    :string
-#  path                    :string
-#  hide_on_main_navigation :boolean          default("false")
-#  parent_id               :integer
-#  code                    :string
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
-#
+
 
 class MenuItem < ActiveRecord::Base
   include Auditable

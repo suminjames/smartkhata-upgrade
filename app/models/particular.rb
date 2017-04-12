@@ -46,7 +46,7 @@ class Particular < ActiveRecord::Base
   has_many :credit_settlements, through: :for_cr, source: :settlement
   has_many :settlements, through: :particular_settlement_associations
 
-  attr_accessor :running_total
+  attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger, :ledger_balance_adjustment
 
   # get the particulars with running total
   # records: collection of particular
@@ -70,10 +70,12 @@ class Particular < ActiveRecord::Base
   # a cheque can pay/recieve for multiple particulars.
   has_many :payments, -> { payment }, class_name: "ChequeEntryParticularAssociation"
   has_many :receipts, -> { receipt }, class_name: "ChequeEntryParticularAssociation"
+  has_many :reversals, -> { reversal }, class_name: "ChequeEntryParticularAssociation"
   has_many :cheque_entry_particular_associations, dependent: :destroy
 
   has_many :cheque_entries_on_payment, through: :payments, source: :cheque_entry
   has_many :cheque_entries_on_receipt, through: :receipts, source: :cheque_entry
+  has_many :cheque_entries_on_reversal, through: :reversals, source: :cheque_entry
   has_many :cheque_entries, through: :cheque_entry_particular_associations
 
   has_one :nepse_chalan, through: :voucher

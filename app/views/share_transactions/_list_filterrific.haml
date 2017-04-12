@@ -57,6 +57,11 @@
       %tbody
         -if share_transactions
           -pagination_count = kaminari_serial_number(params[:page], share_transactions.limit_value)
+          :ruby
+            total_sale_quantity = 0
+            total_buy_quantity = 0
+            total_amount = 0
+            total_commission = 0
           -share_transactions.each_with_index do |share_transaction, index|
             %tr
               %td.text-center= pagination_count + index
@@ -72,6 +77,12 @@
               %td.text-right= arabic_number_integer(share_transaction.isin_info.last_price)
               %td.text-right= arabic_number_integer(share_transaction.share_amount)
               %td.text-right= arabic_number(share_transaction.commission_amount)
+
+              :ruby
+                total_sale_quantity += share_transaction.quantity if share_transaction.selling?
+                total_buy_quantity += share_transaction.quantity if share_transaction.buying?
+                total_amount += share_transaction.share_amount
+                total_commission += share_transaction.commission_amount
 
             -# Logic for adding total row for groups of companies in the listing.
             -break_group = false
@@ -89,10 +100,22 @@
               %tr.total-row
                 %td.text-right{colspan: 6}= "Company: #{share_transaction.isin_info.isin}"
                 %td.text-right= 'Total'
-                %td.text-right= "In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
-                %td.text-right= "Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
-                %td.text-right{colspan: 2}= "Qty Balance:<br>#{isin_balances[:balance_sum].to_i}".html_safe
-                %td.text-right{colspan: 2}= ""
+                %td.text-right= "Qty<br>In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
+                %td.text-right= "Qty<br>Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
+                %td.text-right{colspan: 2}= "Qty<br>Balance:<br>#{isin_balances[:balance_sum].to_i}".html_safe
+                %td.text-right= "Amount<br>Balance:<br>#{arabic_number(isin_balances[:balance_share_amount].to_i)}".html_safe
+                %td.text-right= ""
+
+          -# Logic to add share transaction listing's total row.
+          -if params[:paginate] == 'false'
+            %thead
+              %th.text-right{:colspan => 7}= 'Total'
+              %th.text-center= arabic_number_integer(total_buy_quantity)
+              %th.text-center= arabic_number_integer(total_sale_quantity)
+              %th
+              %th
+              %th.text-center= arabic_number(total_amount)
+              %th.text-center= arabic_number(total_commission)
 
     - if !share_transactions || share_transactions.empty?
       %div.row.text-center.top-buffer-md

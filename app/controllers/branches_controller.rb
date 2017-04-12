@@ -1,7 +1,7 @@
 class BranchesController < ApplicationController
-  before_action :set_branch, only: [:show, :edit, :update, :destroy]
+  before_action :set_branch, only: [:show, :edit, :update]
 
-  before_action -> {authorize @branch}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize @branch}, only: [:show, :edit, :update]
   before_action -> {authorize Branch}, only: [:index, :new, :create]
 
   # GET /branches
@@ -56,13 +56,13 @@ class BranchesController < ApplicationController
 
   # DELETE /branches/1
   # DELETE /branches/1.json
-  def destroy
-    @branch.destroy
-    respond_to do |format|
-      format.html { redirect_to branches_url, notice: 'Branch was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
+  # def destroy
+  #   @branch.destroy
+  #   respond_to do |format|
+  #     format.html { redirect_to branches_url, notice: 'Branch was successfully destroyed.' }
+  #     format.json { head :no_content }
+  #   end
+  # end
 
   private
   # Use callbacks to share common setup or constraints between actions.

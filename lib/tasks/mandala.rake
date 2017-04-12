@@ -206,7 +206,7 @@ namespace :mandala do
     LedgerBalance.unscoped.delete_all
     LedgerDaily.unscoped.delete_all
     ChequeEntry.unscoped.delete_all
-    SalesSettlement.delete_all
+    NepseSettlement.delete_all
 
     puts "Deleting Share Transactions"
     ShareTransaction.delete_all
@@ -449,7 +449,7 @@ namespace :mandala do
   end
 
   desc "Create SalesSettlements after mandala migration."
-  task :populate_sales_settlements_file_uploads, [:tenant] => :environment do |task, args|
+  task :populate_nepse_settlements_file_uploads, [:tenant] => :environment do |task, args|
     puts "Apparently mandala doesn't keep track of settlement id."
     puts "Therefore, creation of salessettlements after mandala migration not possible."
   end

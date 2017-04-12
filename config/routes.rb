@@ -1,17 +1,29 @@
 Rails.application.routes.draw do
+  resources :order_request_details do
+    collection do
+      get :client_report
+    end
+    member do
+      get :approve
+      get :reject
+    end
+  end
+  resources :order_requests
   namespace :master_setup do
     resources :commission_details
   end
   namespace :master_setup do
     resources :commission_infos
   end
+
+  match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
   resources :isin_infos
   namespace :master_setup do
     resources :commission_rates
   end
   namespace :master_setup do
     resources :commission_rates
-    resources :broker_profiles
+    resources :broker_profiles, :except => [:destroy]
   end
 
   resources :broker_profiles
@@ -35,7 +47,7 @@ Rails.application.routes.draw do
   resources :nepse_chalans
   resources :vendor_accounts
   resources :employee_ledger_associations
-  resources :branches
+  resources :branches, :except => [:destroy]
   resources :closeouts
   resources :share_inventories
 
@@ -58,19 +70,24 @@ Rails.application.routes.draw do
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
       get :make_void
-      get :bounce
-      get :represent
+      get :bounce_show
+      get :represent_show
       get :show_multiple
       get :make_void
+      patch :bounce_do
+      # patch :represent_do
     end
-
   end
   resources :bank_accounts
-  resources :sales_settlements do
+  resources :nepse_settlements do
     collection do
       get 'generate_bills'
     end
   end
+
+  resources :nepse_purchase_settlements, controller: 'nepse_settlements', type: 'NepsePurchaseSettlement'
+  resources :nepse_sale_settlements, controller: 'nepse_settlements', type: 'NepseSaleSettlement'
+
   resources :share_transactions do
     collection do
       get 'deal_cancel'
@@ -85,11 +102,11 @@ Rails.application.routes.draw do
   end
   resources :bills do
     collection do
-      get 'show_by_number'
       get 'show_multiple'
       post 'process_selected'
       get 'sales_payment'
       post 'sales_payment_process'
+      get 'select_for_settlement'
       get 'ageing_analysis'
     end
   end
@@ -127,7 +144,9 @@ Rails.application.routes.draw do
   resources :particulars
   root to: 'visitors#index'
   devise_for :users, :controllers => { :invitations => 'users/invitations' }
-  resources :users, except: [:new, :create, :edit]
+  resources :users, except: [:new, :create, :edit] do
+    collection { get :reset_temporary_password }
+  end
 
   match "/client_accounts/combobox_ajax_filter" => "client_accounts#combobox_ajax_filter", via: [:get]
   resources :client_accounts
@@ -140,6 +159,9 @@ Rails.application.routes.draw do
       collection {post :import}
     end
     resources :sales, only: [:new, :index] do
+      collection {post :import}
+    end
+    resources :cm31, only: [:new, :index] do
       collection {post :import}
     end
     resources :dpa5 do
@@ -165,6 +187,10 @@ Rails.application.routes.draw do
     resources :sys_admin_tasks, only: [:new] do
       collection {post :import}
     end
+  end
+
+  namespace 'reports' do
+    resources :audit_trails
   end
 
   namespace 'report' do

@@ -1,15 +1,4 @@
-<%= link_to "View(pdf)", settlement_path(format: "pdf"), :target => "_blank" %>
-
-<div class="btnPrintPDF btnPrintSettlementPDF" id="settlement-<%= settlement.id %>">
-  <span class="glyphicon glyphicon-print print-icon"></span>
-  <span>Print</span>
-  <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'settlement-print-spinner') %>
-  <iframe class="hidden-iframe" id='iframe-for-settlement-pdf-print'>
-    <!--hidden iframe for printing-->
-  </iframe>
-</div>
-
-<div class="clearfix billfull printThis">
+<div class="highlighted-box">
 
   <!-- Static Company Header BEGINS -->
   <div class="clearfix">
@@ -70,21 +59,62 @@
   <p>(in words) <strong><u> <%= arabic_word(settlement.amount) %> Only</u></strong></p>
   <!-- Receipt details END -->
 
-  <% if settlement.cheque_entries.size > 0 %>
-      <p>By Cheque:
-        <%
-         settlement.cheque_entries.uniq.each do |cheque|
-            bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name
-            cheque_number = cheque.cheque_number
-            cheque_amount = arabic_number(cheque.amount)
-        %>
-            <br>
-            <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %>
-        <%
-          end
-        %>
-      </p>
+  <!--Legacy code-->
+  <% if settlement.cash_amount.blank? %>
+      <% if settlement.cheque_entries.size > 0%>
+          <p>By Cheque:
+            <% settlement.cheque_entries.uniq.each do |cheque| %>
+                <% bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
+                <br>
+                <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+                  <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{bank} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
+                </span>
+
+            <% end %>
+          </p>
+      <% end %>
+  <% else %>
+      <% if settlement.cheque_entries.size > 0 %>
+          <p>By Cheque:
+            <% amount = 0 %>
+            <% if settlement.belongs_to_batch_payment? %>
+                <% _particulars = settlement.debited_particulars.uniq%>
+            <% else %>
+                <% _particulars = settlement.credited_particulars.uniq %>
+            <% end %>
+
+            <% _particulars.each do |p| %>
+                <%
+                  p.cheque_entries.uniq.each do |cheque|
+                    bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+                    cheque_number = cheque.cheque_number
+                    if _particulars.count == 1 && p.cheque_entries.count == 1
+                      cheque_amount = arabic_number(p.amount - settlement.cash_amount)
+                      # elsif cheque.amount >= p.amount
+                      #   cheque_amount = arabic_number(p.amount)
+                    else
+                      cheque_amount = arabic_number(cheque.amount)
+                    end
+                %>
+                    <br>
+
+                    <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+                      <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %> <%= ( cheque.bounced? || cheque.void? ) ? "( cancelled )" : " " %>
+                    </span>
+
+                <% end %>
+            <% end %>
+          </p>
+          <% if (settlement.cash_amount.to_f > 0) %>
+              <p>By Cash: Rs. <%= arabic_number(settlement.cash_amount) %></p>
+          <% end %>
+      <% else %>
+          <br>
+          <p>By Cash: Rs. <%= arabic_number(settlement.cash_amount) %></p>
+      <% end %>
+
   <% end %>
+
 
   <br><br>
   <div class="row">

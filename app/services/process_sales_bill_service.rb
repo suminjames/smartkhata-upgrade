@@ -3,7 +3,7 @@ class ProcessSalesBillService
   attr_accessor :error_message
 
   def initialize(params)
-    @sales_settlement = params[:sales_settlement]
+    @nepse_settlement = params[:nepse_settlement]
     @bank_account = params[:bank_account]
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
@@ -24,7 +24,7 @@ class ProcessSalesBillService
     elsif @bank_account.nil?
       @error_message = "No Bank Account is selected"
       return false
-    elsif @sales_settlement.nil?
+    elsif @nepse_settlement.nil?
       @error_message = "Access denied"
       return false
     end
@@ -131,13 +131,13 @@ class ProcessSalesBillService
         particular.cheque_entries_on_payment << cheque_entry
         particular.save!
 
-        settlement = purchase_sales_settlement(voucher, ledger: client_account.ledger, particular: particular, client_account: client_account, settlement_description: description)
+        settlement = purchase_nepse_settlement(voucher, ledger: client_account.ledger, particular: particular, client_account: client_account, settlement_description: description)
         settlements << settlement if settlement.present?
         particular.debit_settlements << settlement if settlement.present?
       end
       # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
       closing_balance = bank_ledger.closing_balance
-      short_description = "Settlement by bank payment for settlement ID #{@sales_settlement.settlement_id}"
+      short_description = "Settlement by bank payment for settlement ID #{@nepse_settlement.settlement_id}"
       # This particular is for bank of the tenant that is credited.
       credit_particular = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code)
       credit_particular.credit_settlements << settlements
@@ -163,7 +163,7 @@ class ProcessSalesBillService
 
   end
 
-  def purchase_sales_settlement(voucher, attrs = {})
+  def purchase_nepse_settlement(voucher, attrs = {})
     ledger = attrs[:ledger]
     client_account = attrs[:client_account]
     settlement_description = attrs[:settlement_description]
@@ -191,7 +191,7 @@ class ProcessSalesBillService
       settler_name = ledger.name
     end
 
-    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque])
+    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque], belongs_to_batch_payment: true)
     settlement.client_account = client_account
     settlement
   end

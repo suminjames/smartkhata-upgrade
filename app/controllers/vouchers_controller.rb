@@ -28,6 +28,7 @@ class VouchersController < ApplicationController
     # this case is for payment by bank and should not affect others
     if @voucher.is_payment_bank && !full_view
       @from_path = vouchers_path if @from_path.match(/new/)
+
       # TODO remove this hack
       @particulars_with_bank = @particulars.has_bank
       # allow single payment by a cheque
@@ -58,6 +59,10 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
+
+    # two way to post to this controller
+    # either clear_ledger and client_account_id or client_account_id and bill_ids
+
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -67,7 +72,7 @@ class VouchersController < ApplicationController
     @vendor_account_list,
     @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
                                               client_account_id: @client_account_id,
-                                              bill_id: @bill_id,
+                                              # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
                                               bill_ids: @bill_ids).voucher_and_relevant
   end
@@ -109,7 +114,6 @@ class VouchersController < ApplicationController
         format.json { render :show, status: :created, location: @voucher }
       else
         @voucher = voucher_creation.voucher
-
         # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
         # ledger list financial contains only bank ledgers and cash ledger
         # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
@@ -323,7 +327,7 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id])
+    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
   end
 
   def set_voucher_general_params

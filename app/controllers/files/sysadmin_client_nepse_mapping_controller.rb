@@ -33,7 +33,7 @@ class Files::SysadminClientNepseMappingController < Files::FilesController
     end
 
     # else redirect to settlement path
-    # redirect_to sales_settlement_path(payout_upload.sales_settlement_id) and return
+    # redirect_to nepse_settlement_path(payout_upload.nepse_settlement_id) and return
   end
 
   # method to calculate the base price

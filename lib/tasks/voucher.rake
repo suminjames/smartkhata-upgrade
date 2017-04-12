@@ -32,8 +32,6 @@ namespace :voucher do
         amount = settlement.amount
       end
 
-
-
       raise NotImplementedError if voucher.bills.count > 1
       bill = voucher.bills.first
       if bill

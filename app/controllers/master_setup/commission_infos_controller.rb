@@ -73,6 +73,6 @@ class MasterSetup::CommissionInfosController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def master_setup_commission_info_params
-      params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs, commission_details_attributes: [:id, :start_amount,:limit_amount, :commission_rate, :commission_amount])
+      params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs, :nepse_commission_rate, commission_details_attributes: [:id, :start_amount,:limit_amount, :commission_rate, :commission_amount])
     end
 end

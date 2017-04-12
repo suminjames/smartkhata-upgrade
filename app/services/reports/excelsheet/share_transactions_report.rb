@@ -1,5 +1,6 @@
 class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
   TABLE_HEADER = ["SN.", "Transaction Date", "Transaction No.", "Company", "Client", "Bill No.", "Broker", "Quantity in", "Quantity out", "Rate", " Current Market Rate", "Amount", "Commission"]
+  include ApplicationHelper
 
   def initialize(share_transactions, params, current_tenant)
     super(share_transactions, params, current_tenant)
@@ -100,7 +101,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format_left], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
     striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:int_format_left_striped], *[@styles[:wrap_striped]]*2, *[@styles[:striped_style]]*2, *[@styles[:int_with_commas_striped]]*5, @styles[:float_format_striped]]
 
-    isin_total_style_row = [@styles[:total_values]] * 10
+    isin_total_style_row = [@styles[:total_values]] * 12
     isin_balances = Hash.new(0)
 
     @actual_row_index_count = 0
@@ -133,8 +134,13 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @actual_row_index_count += 1
 
       if @group_by_company
-        isin_balances[:total_in_sum] += st.quantity if st.buying?
-        isin_balances[:total_out_sum] += st.quantity if st.selling?
+        if st.buying?
+          isin_balances[:total_in_sum] += st.quantity
+          isin_balances[:balance_share_amount] += st.share_amount
+        elsif st.selling?
+          isin_balances[:total_out_sum] += st.quantity
+          isin_balances[:balance_share_amount] -= st.share_amount
+        end
       end
 
       # Logic for adding total row for groups of companies in the listing.
@@ -147,11 +153,14 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
             "",
             "",
             "Company: #{st.isin_info.isin}",
+            "",
+            "",
             "Total",
-            "In:#{isin_balances[:total_in_sum].to_i}",
-            "Out:#{isin_balances[:total_out_sum].to_i}",
+            "Qty In:#{isin_balances[:total_in_sum].to_i}",
+            "Qty Out:#{isin_balances[:total_out_sum].to_i}",
             "Qty Balance:\n#{isin_balances[:balance_sum].to_i}",
             "",
+            "Amount Balance: #{arabic_number(isin_balances[:balance_share_amount])}",
             ""
         ]
         row_style = isin_total_style_row
@@ -173,7 +182,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     columns_to_sum.each do |col|
       totalled_cells << "=SUM(#{alphabets[col]}#{first_data_row}:#{alphabets[col]}#{last_data_row})"
     end
-    @sheet.add_row totalled_cells.insert(0, 'Total').insert(1, *['']*6).insert(9, *['']*2), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12)
+    @sheet.add_row totalled_cells.insert(0, 'Grand Total').insert(1, *['']*6).insert(9, *['']*2), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12)
     @sheet.merge_cells("A#{last_data_row+1}:#{alphabets[columns_to_sum.min-1]}#{last_data_row+1}")
   end
 

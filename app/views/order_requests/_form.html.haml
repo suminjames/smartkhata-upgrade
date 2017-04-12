@@ -1,0 +1,22 @@
+= simple_form_for(@order_request) do |f|
+  = f.error_notification
+
+  = f.input :client_account_id, as: :hidden, input_html: {value: f.object.client_account_id}
+  .box.box-primary.z-light-bg
+    .box-header
+      %h3.box-title Order Details
+
+    .box-body.dynamic-details
+      .row
+        .col-sm-3
+          %h4 Company
+        .col-sm-3
+          %h4 Quantity
+        .col-sm-3
+          %h4 Rate
+      = f.simple_fields_for :order_request_details do |c|
+        = render partial: 'order_request_detail_fields', :locals => { :f => c }
+      = link_to_add_fields "Add Order Detail",f, :order_request_details
+
+  .form-actions
+    = f.button :submit

@@ -81,7 +81,7 @@ class VouchersControllerTest < ActionController::TestCase
       voucher_code = Voucher.voucher_types[voucher_type]
       get :new, voucher_type: voucher_code
       assert_response :success
-      assert_select 'h2.section-title', "New #{voucher_type.capitalize} Voucher"
+      assert_select 'h2.section-title', "New #{voucher_type.humanize.titleize} Voucher"
     end
   end
 
@@ -164,7 +164,7 @@ class VouchersControllerTest < ActionController::TestCase
       }
       post :create, params
     end
-    assert_equal 'Cheque Number is already taken', flash[:error]
+    assert_equal 'Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first.', flash[:error]
     # assert_equal 'Cheque Number is invalid', flash[:error]
     assert_response :success
   end

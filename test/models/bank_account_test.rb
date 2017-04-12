@@ -93,4 +93,47 @@ class BankAccountTest < ActiveSupport::TestCase
     assert_equal "#{@bank_account.bank.name}", @bank_account.bank_name
   end
 
+
+  test "should create a new bank accout with ledger" do
+    bank = create(:bank)
+    ledger = build(:ledger)
+    bank_account = build(:bank_account, bank: bank, branch_id: 1)
+    bank_account.ledger = ledger
+    ledger_balance = build(:ledger_balance, ledger_id: ledger.id, opening_balance: 1000, branch_id: 1)
+    bank_account.ledger.ledger_balances << ledger_balance
+
+    UserSession.selected_branch_id = 1
+    assert bank_account.save_custom
+
+    name = "Bank:"+bank.name+"(#{bank_account.account_number})"
+    bank_ledger = bank_account.ledger
+    assert_equal 1000, bank_ledger.closing_balance
+    UserSession.selected_branch_id = 2
+    assert_equal 0, bank_ledger.closing_balance
+    assert_equal name, bank_ledger.name
+
+    # params = {
+    #     "bank_id" => "2",
+    #     "account_number" => "343",
+    #     "bank_branch" => "asdf",
+    #     "contact_no" => "",
+    #     "address" => "",
+    #     "default_for_receipt" => "0",
+    #     "default_for_payment" => "0",
+    #     "branch_id" => "2",
+    #     "ledger_attributes" => {
+    #         "group_id" => "18",
+    #         "ledger_balances_attributes" => {
+    #             "0" => {
+    #                 "opening_balance" => "1000",
+    #                 "opening_balance_type" => "dr",
+    #                 "branch_id" => "2"
+    #             }
+    #         }
+    #     }
+    # }
+
+  end
+
+
 end

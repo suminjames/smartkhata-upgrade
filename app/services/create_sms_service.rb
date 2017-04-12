@@ -120,10 +120,9 @@ class CreateSmsService
   # group the share transactions
   def group_share_transaction_records(share_transactions)
     share_transactions.each do |transaction_record|
-      bill = transaction_record.bill
+      # bill = transaction_record.bill
+      bill = Bill.unscoped.find_by(id: transaction_record.bill_id)
       client_account = transaction_record.client_account
-
-
       contract_no = transaction_record.contract_no
       company_symbol = transaction_record.isin_info.isin
       client_name = client_account.name

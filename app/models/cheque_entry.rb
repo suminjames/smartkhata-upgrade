@@ -1,6 +1,5 @@
- # == Schema Information
-
- #
+# == Schema Information
+#
 # Table name: cheque_entries
 #
 #  id                 :integer          not null, primary key
@@ -23,8 +22,9 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  fy_code            :integer
+#  bounce_date        :date
+#  bounce_narration   :text
 #
-
 
 class ChequeEntry < ActiveRecord::Base
   include Auditable
@@ -34,6 +34,10 @@ class ChequeEntry < ActiveRecord::Base
   include ::Models::UpdaterWithBranch
 
   attr_accessor :skip_cheque_number_validation
+  # For bounce activity view
+  attr_accessor :bounce_date_bs
+  # For represent activity view
+  attr_accessor :represent_date_bs
 
   belongs_to :client_account
   belongs_to :vendor_account
@@ -62,7 +66,7 @@ class ChequeEntry < ActiveRecord::Base
 
   # validate foreign key: ensures that the bank account exists
   validates :bank_account, presence: true , :unless => :additional_bank_id?
-  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id,:cheque_issued_type], message: "should be unique"}
+  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id, :cheque_issued_type], message: "should be unique"}
   validates :cheque_number, numericality: {only_integer: true, greater_than: 0} , unless: :skip_cheque_number_validation
 
   # TODO (subas) make sure to do the necessary settings
@@ -135,6 +139,7 @@ class ChequeEntry < ActiveRecord::Base
   scope :by_cheque_number, ->(cheque_number) {where(:cheque_number => cheque_number)}
 
 
+
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -176,6 +181,10 @@ class ChequeEntry < ActiveRecord::Base
     else
       return true
     end
+  end
+
+  def associated_bank_particulars
+    particulars = self.particulars.where(cheque_number: self.cheque_number)
   end
 
   def self.next_available_serial_cheque(bank_account_id)

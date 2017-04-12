@@ -182,8 +182,13 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         ]
 
         if @group_by_company
-          isin_balances[:total_in_sum] += st.quantity if st.buying?
-          isin_balances[:total_out_sum] += st.quantity if st.selling?
+          if st.buying?
+            isin_balances[:total_in_sum] += st.quantity
+            isin_balances[:balance_share_amount] += st.share_amount
+          elsif st.selling?
+            isin_balances[:total_out_sum] += st.quantity
+            isin_balances[:balance_share_amount] -= st.share_amount
+          end
         end
 
         # Logic for adding total row for groups of companies in the listing.
@@ -194,13 +199,14 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
           grouped_isin_total_row = [
              {:content => "Company: #{st.isin_info.isin}", :colspan => 5},
              "Total",
-             "In:\n#{isin_balances[:total_in_sum].to_i}",
-             "Out:\n#{isin_balances[:total_out_sum].to_i}",
+             "Qty\nIn:\n#{isin_balances[:total_in_sum].to_i}",
+             "Qty\nOut:\n#{isin_balances[:total_out_sum].to_i}",
              "Qty\nBlnc:\n#{isin_balances[:floorsheet_blnc_sum].to_i}",
-             "",
+             "Amount:\nBalance\n#{arabic_number(isin_balances[:balance_share_amount])}",
              ""
           ]
           table_data << grouped_isin_total_row
+          # Track index of grouped isin total rows for custom formatting (later).
           grouped_isin_total_rows << (index + 2 + grouped_isin_total_rows.size)
           isin_balances = Hash.new(0)
         end
@@ -216,7 +222,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
           total_q_in,
           total_q_out,
           '',
-          arabic_number_integer(total_share_amt),
+          arabic_number(total_share_amt),
           arabic_number(total_comm_amt)
       ]
       table_data << total_row_data

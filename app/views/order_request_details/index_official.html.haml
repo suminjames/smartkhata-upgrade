@@ -1,0 +1,3 @@
+=provide(:section_title, "Client Order Requests")
+=link_to "Refresh", order_request_details_path, class: 'btn btn-primary'
+=react_component('OrderRequests', order_request_details: @order_request_details.map{|x| x.as_json})

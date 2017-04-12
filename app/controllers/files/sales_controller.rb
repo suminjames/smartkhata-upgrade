@@ -5,11 +5,11 @@ class Files::SalesController < Files::FilesController
   @@file_name_contains = "CM05"
 
   def index
-    @settlements= SalesSettlement.order("settlement_id desc").page(params[:page]).per(20)
+    @settlements= NepseSaleSettlement.order("settlement_id desc").page(params[:page]).per(20)
   end
 
   def new
-    settlements = SalesSettlement.order("settlement_id desc")
+    settlements = NepseSaleSettlement.order("settlement_id desc")
     @settlements = settlements.page(params[:page]).per(Files::PREVIEW_LIMIT)
     @list_incomplete = settlements.count > Files::PREVIEW_LIMIT
   end
@@ -29,13 +29,13 @@ class Files::SalesController < Files::FilesController
     end
 
     # sales settlement ids will be 1 if single settlement is uploaded
-    @sales_settlement_id = payout_upload.sales_settlement_ids.first if payout_upload.sales_settlement_ids.size == 1
+    @nepse_settlement_id = payout_upload.nepse_settlement_ids.first if payout_upload.nepse_settlement_ids.size == 1
 
     # if single sales settlement redirect to the path where user can edit base price
-    redirect_to sales_settlement_path(@sales_settlement_id) and return if @sales_settlement_id.present?
+    redirect_to nepse_sale_settlement_path(@nepse_settlement_id) and return if @nepse_settlement_id.present?
 
     # else redirect to pending sales settlement
-    redirect_to sales_settlements_path(pending: true) if payout_upload.sales_settlement_ids.size > 1
+    redirect_to nepse_sale_settlements_path(pending: true) if payout_upload.nepse_settlement_ids.size > 1
 
   end
 

@@ -11,7 +11,7 @@ module ApplicationHelper
     id = new_object.object_id
     fields = f.fields_for(association, new_object, child_index: id) do |builder|
       # render(association.to_s.singularize + "_fields" , f: builder)
-      render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info}
+      render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info, sk_id: id}
     end
     link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.gsub("\n", "")})
   end
@@ -42,8 +42,8 @@ module ApplicationHelper
    Ledgers::ParticularEntry.new.insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date)
   end
 
-  def reverse_accounts(particular, voucher, descr, adjustment = 0.0)
-    Ledgers::ParticularEntry.new.revert(particular, voucher, descr, adjustment = 0.0)
+  def reverse_accounts(particular, voucher, descr, adjustment = 0.0, cheque_entry = nil)
+    Ledgers::ParticularEntry.new.revert(particular, voucher, descr, adjustment = 0.0, cheque_entry)
   end
 
   # method to calculate the broker commission
@@ -91,8 +91,25 @@ module ApplicationHelper
 
   # get available branches
   def available_branches
-    Branch.all
+    available_branches_for_user(current_user)
   end
+
+  # get the branches that are available for the user
+  # for admin and client all the branch are available
+  # for employee only those assigned on the permission
+  def available_branches_for_user(current_user)
+    _available_branches = []
+    if current_user
+      if current_user.admin? || current_user.client?
+        _available_branches = Branch.all
+      else
+        branch_ids = current_user.branch_permissions.pluck(:branch_id)
+        _available_branches = Branch.where(id: branch_ids)
+      end
+    end
+    _available_branches
+  end
+
 
   # @params time - Time object holds time, date and timezone
   def to_ktm_timezone(time)
@@ -116,17 +133,12 @@ module ApplicationHelper
     params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
   end
 
-  # Alternative helper to check authorization: pundit
-  def is_authorized_to_access?(link)
-    admin_and_above? || !current_user.blocked_path_list.include?(link)
-  end
-
   def admin_and_above?
     current_user.admin? || current_user.sys_admin?
   end
 
   def can_invite_users?
-    is_authorized_to_access?(client_accounts_path(invite: true))
+    user_has_access_to?(client_accounts_path(invite: true))
   end
 
   def get_user_name_from_boid(boid)
@@ -152,11 +164,12 @@ module ApplicationHelper
   end
 
   def valid_certificate? user
-    if Rails.env.production?
-      return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
-      return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Client'
-      return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"]) != 'Employee'
-    end
+    # return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
+    #
+    # if Rails.env.production?
+    #   return false if user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_CLIENT_DN"]) != 'smartkhata_client'
+    #   return false if !user.client? && get_common_name_from_dn(request.headers.env["HTTP_X_CLIENT_DN"]) != 'smartkhata_employee'
+    # end
     true
   end
 end

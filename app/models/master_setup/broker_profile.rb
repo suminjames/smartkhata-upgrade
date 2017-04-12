@@ -17,6 +17,27 @@
 #  updated_at    :datetime         not null
 #
 
+# Note:
+# - there should not be more than two MasterSetup::BrokerProfile (one for each locale) for a tenant.
+
 class MasterSetup::BrokerProfile < BrokerProfile
   default_scope { is_self_broker }
+  MAXIMUM_RECORDS_ALLOWED = 2
+
+  validate :single_locale_record
+
+  def self.has_profile_in(locale)
+    self.where(locale: BrokerProfile.locales[locale]).count > 0
+  end
+
+  def self.has_maximum_records?
+    self.all.size >= MAXIMUM_RECORDS_ALLOWED
+  end
+
+  def single_locale_record
+    if self.class.where(locale: MasterSetup::BrokerProfile.locales[self.locale]).size > 0
+      errors.add(:locale, "There is already another Broker Profile for #{self.locale} locale.")
+    end
+  end
+
 end

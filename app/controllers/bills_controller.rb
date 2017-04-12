@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :show_by_number, :ageing_analysis]
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :ageing_analysis]
   # also :authorize_single_bill(s) when implemented
 
   # layout 'application_custom', only: [:index]
@@ -26,7 +26,7 @@ class BillsController < ApplicationController
       client_account= ClientAccount.find(@client_account_id)
       @bills = client_account.get_all_related_bills.order(date: :asc).decorate
       # render a separate page for bills selection
-      render :select_bills_for_settlement and return
+      render :select_for_settlement and return
     end
 
     @filterrific = initialize_filterrific(
@@ -78,7 +78,25 @@ class BillsController < ApplicationController
     # There is an issue with the persisted param_set. Reset it.
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
+  end
 
+  # GET select_for_settlment
+  def select_for_settlement
+    @ledger_id = params['ledger_id'].to_i
+    @sk_id = params['sk_id'] || nil
+    @bills = []
+    @client_account_id = nil
+    @client_account_id = Ledger.find_by(id: @ledger_id).try(:client_account_id)
+    # debugger
+    if @client_account_id
+      client_account= ClientAccount.find(@client_account_id)
+      @bills = client_account.get_all_related_bills.order(date: :asc).decorate
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
   end
 
   def ageing_analysis
@@ -125,8 +143,9 @@ class BillsController < ApplicationController
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id]).decorate
+    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id])
     authorize @bill
+    @bill = @bill.decorate
     @has_voucher_pending_approval = false
 
     @bill.vouchers_on_settlement.each do |voucher|
@@ -233,9 +252,9 @@ class BillsController < ApplicationController
       cheque_entry = ChequeEntry.next_available_serial_cheque(bank_account.id) if bank_account.present?
       @cheque_number = cheque_entry.cheque_number if cheque_entry.present?
 
-      @sales_settlement = SalesSettlement.find_by(settlement_id: params[:settlement_id])
+      @nepse_settlement = NepseSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @sales_settlement.bills_for_sales_payment_list if @sales_settlement.present?
+      @bills = @nepse_settlement.bills_for_sales_payment_list if @nepse_settlement.present?
       @is_searched = true
       return
     end
@@ -244,16 +263,16 @@ class BillsController < ApplicationController
   def sales_payment_process
     @settlement_id = params[:settlement_id]
     @cheque_number = params[:cheque_number].to_i
-    @sales_settlement = SalesSettlement.find_by(id: params[:sales_settlement_id])
+    @nepse_settlement = NepseSettlement.find_by(id: params[:nepse_settlement_id])
     @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     @back_path = request.referer
-    # if UserSession.selected_fy_code != get_fy_code(@sales_settlement.settlement_date)
+    # if UserSession.selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
     #   redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
     # end
 
-    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, sales_settlement: @sales_settlement , date: @sales_settlement.settlement_date, cheque_number: @cheque_number)
+    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, nepse_settlement: @nepse_settlement , date: @nepse_settlement.settlement_date, cheque_number: @cheque_number)
 
     respond_to do |format|
       if process_sales_bill.process
@@ -301,22 +320,6 @@ class BillsController < ApplicationController
       end
     else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
-    end
-  end
-
-  # Entertains ajax requests.
-  def show_by_number
-    @bill_number = params[:number]
-    @bill = nil
-    if @bill_number
-      bill = @bill_number.to_s.split('-')
-      @bill = Bill.find_by(fy_code: bill[0], bill_number: bill[1].to_i) if bill.length == 2
-    end
-
-    if @bill
-      redirect_to bill_path(@bill) and return
-    else
-      render text: 'No bill found'
     end
   end
 

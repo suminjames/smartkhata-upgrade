@@ -1,0 +1,27 @@
+%p#notice= notice
+- provide(:section_title, "Cheque Entry Bounce")
+
+- is_bounced_previously = ChequeEntry.find(@cheque_entry.id).bounce_date.present?
+- if is_bounced_previously
+  %div.alert.alert-info.alert-custom-gray.text-center
+    %strong Info!
+    This cheque was previously bounced. You can bounce the cheque again though.
+
+= simple_form_for(@cheque_entry, :url => bounce_do_cheque_entries_path(id: @cheque_entry.id), :method => :patch) do |f|
+  = f.error_notification
+
+  .clearfix
+    .col-xs-6
+      .form-inputs
+        -#= f.input :cheque_issued_type, collection: ChequeEntry.cheque_issued_types
+        = f.input :beneficiary_name, :disabled => true, :label => :beneficiary_name.to_s.titleize
+        = f.input :additional_bank, input_html: { value: f.object.additional_bank.name }, :disabled => true, :label => 'Bank'
+        = f.input :cheque_number, :disabled => true, :label => :cheque_number.to_s.titleize, :required => false
+        = f.input :amount, input_html: { value: arabic_number(f.object.amount) || 1 }, :disabled => true, as: :string
+        = f.input :cheque_date_bs, input_html: { value: ad_to_bs(f.object.cheque_date) }, :disabled => true, :label => "Cheque Date(BS)"
+        = f.input :bounce_date, input_html: { value: f.object.bounce_date.present? ? ad_to_bs(f.object.bounce_date) : f.object.bounce_date_bs }, as: :string, :label => 'Bounce Date(BS)'
+        = f.input :bounce_narration, as: :text, :label => :bounce_narration.to_s.titleize
+
+      .form-actions
+        = link_to 'Cancel', cheque_entry_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat'
+        = f.button :submit, 'Bounce Cheque'

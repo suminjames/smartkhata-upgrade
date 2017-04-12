@@ -34,9 +34,9 @@
               %i.fa.fa-user{'aria-hidden': "true"}
           %th.col-xs-2= 'Name'
           %th.col-xs-1= 'Nepse Code'
-          %th.col-xs-2= 'BOID'
           %th.col-xs-2= 'Phone'
           %th.col-xs-2= 'Email'
+          %th.col-xs-2= 'Temp Password'
           %th.col-xs-1
         %tbody
           -if client_accounts.present?
@@ -49,9 +49,13 @@
                   %span.col-sm-6.for-user= check_box_tag "ids_for_create[]", client_account.id, false, class: 'username cant-invite' if client_account.can_assign_username?
                 %td= client_account.name.titleize
                 %td= client_account.nepse_code
-                %td= client_account.boid
                 %td= client_account.commaed_contact_numbers
                 %td= client_account.email
+                %td
+                  - if client_account.user_id && client_account.temp_password.present?
+                    = client_account.temp_password
+                  - elsif client_account.user_id && client_account.username
+                    = link_to 'Reset', reset_temporary_password_users_path(id: client_account.user_id)
                 %td
                   = link_to 'view', client_account_path(client_account)
                   &nbsp;|&nbsp;

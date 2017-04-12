@@ -69,16 +69,31 @@ class ClientAccountTest < ActiveSupport::TestCase
   def setup
     # adding nepse code will conflict with the business logic
     # hence it has been removed and will be tested with a seperate test for nepse code.
-    @client_account = ClientAccount.new(name: 'New Client', citizen_passport: '123456', dob: '1900-01-01', father_mother: 'foo', granfather_father_inlaw: 'bar',
-                                        address1_perm: 'baz', city_perm: 'qux', state_perm: 'quux', country_perm: 'garply')
+    @client_account = ClientAccount.new(
+        name: 'New Client',
+        citizen_passport: '123456',
+        dob: '1900-01-01',
+        father_mother: 'foo',
+        granfather_father_inlaw: 'bar',
+        address1_perm: 'baz',
+        city_perm: 'qux',
+        state_perm: 'quux',
+        country_perm: 'garply',
+        branch_id: branches(:one).id
+    )
   end
 
   test "should be valid" do
     assert @client_account.valid?
   end
 
+  test "branch id should alwasys be present" do
+    @client_account.branch_id = nil
+    assert_not @client_account.valid?
+  end
+
   test "necessary fields should not be empty" do
-    assert_invalid @client_account, %w(name citizen_passport dob father_mother granfather_father_inlaw address1_perm city_perm state_perm country_perm)
+    assert_invalid @client_account, %w(name citizen_passport dob father_mother granfather_father_inlaw address1_perm city_perm state_perm country_perm branch_id)
   end
 
   test "DOB should be valid" do
@@ -94,12 +109,38 @@ class ClientAccountTest < ActiveSupport::TestCase
     assert_invalid @client_account, :mobile_number, INVALID_INTEGER_SAMPLES
   end
 
-  test "nepse code should be unique" do
-    @client_account.nepse_code = nil
-    assert @client_account.valid?, "nepse code can be nil"
+  test "nepse code can be blank" do
+    @client_account.nepse_code = ''
+    assert_equal true, @client_account.valid?, "nepse code can be blank"
+    @client_account.save!
+  end
 
+  test "there can be multiple client accounts with blank nepse codes(not violating uniqueness)" do
+    client_account_1  = @client_account.dup
+    client_account_2  = @client_account.dup
+
+    client_account_1.nepse_code = ''
+    assert_equal true, @client_account.valid?, "nepse code can be blank"
+    assert client_account_1.save
+
+    client_account_2.nepse_code = ''
+    assert_equal true, @client_account.valid?, "there can be multiple blank nepse code"
+  end
+
+  test "nepse code should be unique" do
     @client_account.nepse_code = client_accounts(:one).nepse_code
     assert @client_account.invalid?, "Nepse code should be unique"
+  end
+
+  test "case insensitive but same nepse codes should violate uniqueness" do
+    nepse_code = 'ST'
+    another_client_account = @client_account.dup
+    @client_account.nepse_code = nepse_code
+    @client_account.save!
+    another_client_account.nepse_code = nepse_code.downcase
+    assert another_client_account.invalid?, "Nepse code should be unique"
+    assert_not another_client_account.save
+    assert_equal [:nepse_code], another_client_account.errors.keys
   end
 
   private
@@ -107,7 +148,3 @@ class ClientAccountTest < ActiveSupport::TestCase
       assert_invalid @client_account, attr, INVALID_DATE_SAMPLES
     end
 end
-
-  # requires sign-in
-  # test "should create client ledger" do; end
-  # test "should assign group" do; end

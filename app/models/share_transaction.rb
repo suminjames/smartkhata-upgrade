@@ -124,6 +124,15 @@ class ShareTransaction < ActiveRecord::Base
     end
   }
 
+  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+    if branch_id == 0
+      scoped
+    else
+      includes(:client_account).where(client_accounts: {branch_id: branch_id})
+      # where(branch_id: branch_id)
+    end
+  end
+
   scope :by_client_id, -> (id) { not_cancelled.where(client_account_id: id) }
   scope :by_isin_id, -> (id) { not_cancelled.where(isin_info_id: id) }
 
@@ -200,22 +209,26 @@ class ShareTransaction < ActiveRecord::Base
     share_transactions = filterrific.find
     total_in_sum = 0
     total_out_sum = 0
+    balance_share_amount = 0
     share_transactions.each do |st|
       if st.buying?
         total_in_sum += st.quantity
+        balance_share_amount += st.share_amount
       elsif st.selling?
         total_out_sum += st.quantity
+        balance_share_amount -= st.share_amount
       end
     end
     balance_sum = total_in_sum - total_out_sum
     {
         :total_in_sum => total_in_sum,
         :total_out_sum => total_out_sum,
-        :balance_sum => balance_sum
+        :balance_sum => balance_sum,
+        :balance_share_amount => balance_share_amount
     }
   end
 
-  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs)
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id = UserSession.selected_branch_id)
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -234,9 +247,9 @@ class ShareTransaction < ActiveRecord::Base
     end
 
     if where_conditions.present?
-      where_condition_str = "WHERE #{where_conditions.join(" AND ")}"
+      where_condition_str = "WHERE #{where_conditions.join(" AND ")} AND client_accounts.branch_id = #{branch_id}"
     else
-      where_condition_str = ''
+      where_condition_str = "WHERE client_accounts.branch_id = #{branch_id}"
     end
 
     tenant_broker_id = ar_connection.quote(tenant_broker_id)
@@ -247,6 +260,8 @@ class ShareTransaction < ActiveRecord::Base
         SUM( CASE WHEN seller = #{tenant_broker_id} THEN quantity ELSE 0 END ) AS quantity_out_sum
       FROM
         share_transactions
+      INNER JOIN
+        client_accounts on client_accounts.id = share_transactions.client_account_id
       #{where_condition_str}
       GROUP BY
         isin_info_id
@@ -282,7 +297,12 @@ class ShareTransaction < ActiveRecord::Base
     if self.base_price?
       tax_rate = self.client_account.individual? ? 0.05 : 0.1
       # tax_rate = 0.01
-      self.cgt = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      # self.cgt = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      cgt_var = (self.share_rate - self.base_price) * tax_rate * self.quantity
+      if cgt_var < 0
+        cgt_var = 0
+      end
+      self.cgt = cgt_var
       self.net_amount = self.net_amount - old_cgt + self.cgt
     end
   end
@@ -309,6 +329,59 @@ class ShareTransaction < ActiveRecord::Base
 
   def stock_commission_amount
     commission_amount * nepse_commission_rate(date)
+  end
+
+  #
+  # Calculation notes:
+  # bp = > base price, pp => purchase price, x => commission rate(or amount if flat_25)
+  #
+  # bp + x% of bp = pp
+  # ie, bp * ( x + 100 ) / 100 = pp
+  #   bp, x -> unknown
+  #   x -> one of the commission percentages
+  #   -> estimated from pp
+  # bp * quantity => (might be) share_amount
+  #
+  # -check for correctness
+  #  -by comparing x with commission percentage of (might be) share_amount
+  #    -if not equal,
+  #        -go down to lower tier percentage
+  #  -only two level checking should be sufficient
+  #   -this is to check for those prices which fall (just) above a range group
+  #
+  def calculate_base_price
+    calculated_base_price = nil
+    if (buying? || settlement_id.blank? || quantity == 0 || purchase_price == 0)
+      calculated_base_price = 0.0
+    else
+      commission_rates_desc = get_commission_rate_array_for_date(date)
+      possible_commission_rate = get_commission_rate(purchase_price, get_commission_info_with_detail(date))
+      index_of_possible_commission_rate = commission_rates_desc.index(possible_commission_rate)
+      # Remove unwanted commission rate values other than the possible one.
+      # The actual commission rate is bigger than or equal to possible commission rate.
+      # Check for only two levels of commission rates, which should be sufficient for the calculation.
+      from_index = index_of_possible_commission_rate == 0 ? 0 : (index_of_possible_commission_rate - 1)
+      to_index = index_of_possible_commission_rate
+      commission_rates_desc_snipped = commission_rates_desc[from_index..to_index]
+      commission_rates_desc_snipped.reverse.each do |commission_rate|
+        if commission_rate.to_s.include?('flat_')
+          possible_base_price = purchase_price - commission_rate.split("_")[1].to_f
+        else
+          possible_base_price = 100.0 * purchase_price / (commission_rate + 100.0)
+        end
+        # possible_share_amount = possible_base_price * quantity
+        possible_share_amount = possible_base_price
+        commission_rate_for_possible_share_amount = get_commission_rate(possible_share_amount, get_commission_info_with_detail(date))
+        if commission_rate == commission_rate_for_possible_share_amount
+          calculated_base_price = possible_base_price
+          # The calculate_base_price (above) to this point is actually for the whole transaction, and not a unit of share,
+          # very similar to purchase price.
+          calculated_base_price = calculated_base_price / quantity
+          break
+        end
+      end
+    end
+    calculated_base_price.try(:to_i)
   end
 
 end

@@ -1,9 +1,10 @@
--# This view is called by the controller during a settled sales_settlement's show view.
+-# This view is called by the controller during a settled nepse_settlement's show view.
 -# When changed here, be sure to make changes on list.haml too
 
 - unless smart_listing.empty?
   %table.table.table-striped
     %thead
+      %th= "Contract No."
       %th= "Company"
       %th= "Client"
       %th= "Broker"

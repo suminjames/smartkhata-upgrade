@@ -45,7 +45,52 @@
 require 'test_helper'
 
 class ShareTransactionTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  include CommissionModule
+
+  def setup
+    @sales_share_transactions =  ShareTransaction.selling
+  end
+
+  test "calculated base_price of purchased share transaction should be 0" do
+    share_transaction = ShareTransaction.buying.last
+    assert_equal share_transaction.calculate_base_price, 0
+  end
+
+  test "calculated base_price of sold but unsettled share transaction should be 0" do
+    share_transaction = @sales_share_transactions.where(settlement_id: nil).last
+    assert_equal share_transaction.calculate_base_price, 0
+  end
+
+  test "calculated base_price of sold but wholly closeout'ed share transaction should be 0" do
+    share_transaction = @sales_share_transactions.where(quantity: 0).last
+    assert_equal share_transaction.calculate_base_price, 0
+  end
+
+  test "should correctly calculate base price of sold share transaction with flat rate commission" do
+    share_transaction = @sales_share_transactions.where(commission_rate: 'flat_25').last
+    share_transaction.date = "2017-01-01"
+    share_transaction.quantity = 10
+    share_transaction.purchase_price = 1006.15
+    assert_equal share_transaction.calculate_base_price, 98
+  end
+
+  test "should correctly calculate base price of sold share transaction with non flat rate commission but purchase price with flat rate commission" do
+    share_transaction = @sales_share_transactions.where.not(commission_rate: 'flat_25').where.not(settlement_id: nil).last
+    share_transaction.date = "2017-01-01"
+    share_transaction.quantity = 26
+    # This purchase price falls under the flat rate commission for the date provided.
+    share_transaction.purchase_price = 2615.99
+    assert_equal share_transaction.calculate_base_price, 99
+  end
+
+  test "should correctly calculate base price of sold share transaction with commission rate equal to that of purchase price " do
+    share_transaction = @sales_share_transactions.where.not(commission_rate: 'flat_25').where.not(settlement_id: nil).last
+    share_transaction.date = "2017-01-01"
+    share_transaction.quantity = 10
+    share_transaction.share_amount = 18490.0
+    # This purchase price falls under the same commission rate as that of share amount
+    share_transaction.purchase_price = 17399.22
+    assert_equal share_transaction.calculate_base_price, 1729
+  end
+
 end

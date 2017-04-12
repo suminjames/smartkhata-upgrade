@@ -10,6 +10,8 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+
+
 //= require jquery
 //= require jquery.turbolinks
 //= require jquery_ujs
@@ -21,6 +23,10 @@
 //= require layout.min.js
 //= require filterrific/filterrific-jquery
 //= require select2.min.js
+//= require react
+//= require react_ujs
+//= require react-bootstrap
+//= require components
 //= require_tree .
 
 $(document).on("ready page:load", function(){
@@ -191,6 +197,27 @@ $(document).on("ready page:load", function(){
         minimumInputLength: 3,
         ajax: {
             url: "/client_accounts/combobox_ajax_filter",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
+    $('#isin_info_isin_index_combobox').select2({
+        theme: 'bootstrap',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: "/isin_infos/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {

@@ -8,7 +8,7 @@
 #  creator_id          :integer
 #  updater_id          :integer
 #  bank_account_id     :integer
-#  sales_settlement_id :integer
+#  nepse_settlement_id :integer
 #  branch_id           :integer
 #  voucher_id          :integer
 #  created_at          :datetime         not null
@@ -22,7 +22,7 @@
 one:
   fy_code: 7273
   bank_account: one
-  sales_settlement: two
+  nepse_settlement: two
   # branch_id:
   # voucher_id:
 
@@ -30,8 +30,8 @@ two:
   fy_code: 1
   creator_id: 1
   updater_id: 1
-  sales_settlement: two
+  nepse_settlement: two
 
-  # sales_settlement_id:
+  # nepse_settlement_id:
   # branch_id:
   # voucher_id:

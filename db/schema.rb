@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170108063925) do
+ActiveRecord::Schema.define(version: 20170406051042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "bank_account_id"
-    t.integer  "sales_settlement_id", limit: 8
+    t.integer  "nepse_settlement_id", limit: 8
     t.integer  "branch_id"
     t.integer  "voucher_id"
     t.datetime "created_at",                                                           null: false
@@ -113,7 +113,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
 
   add_index "bank_payment_letters", ["bank_account_id"], name: "index_bank_payment_letters_on_bank_account_id", using: :btree
   add_index "bank_payment_letters", ["branch_id"], name: "index_bank_payment_letters_on_branch_id", using: :btree
-  add_index "bank_payment_letters", ["sales_settlement_id"], name: "index_bank_payment_letters_on_sales_settlement_id", using: :btree
+  add_index "bank_payment_letters", ["nepse_settlement_id"], name: "index_bank_payment_letters_on_nepse_settlement_id", using: :btree
   add_index "bank_payment_letters", ["voucher_id"], name: "index_bank_payment_letters_on_voucher_id", using: :btree
 
   create_table "banks", force: :cascade do |t|
@@ -223,7 +223,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "branch_id"
-    t.integer  "sales_settlement_id",        limit: 8
+    t.integer  "nepse_settlement_id",        limit: 8
     t.integer  "settlement_approval_status",                                    default: 0
     t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
   end
@@ -236,7 +236,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
 
-  create_table "branch_permissions", id: false, force: :cascade do |t|
+  create_table "branch_permissions", force: :cascade do |t|
     t.integer  "branch_id"
     t.integer  "user_id"
     t.integer  "creator_id"
@@ -368,6 +368,8 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.datetime "created_at",                                                          null: false
     t.datetime "updated_at",                                                          null: false
     t.integer  "fy_code"
+    t.date     "bounce_date"
+    t.text     "bounce_narration"
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
@@ -863,7 +865,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "ledger_id"
     t.datetime "created_at",                                                  null: false
     t.datetime "updated_at",                                                  null: false
-    t.integer  "opening_balance_type",                          default: 0
+    t.integer  "opening_balance_type"
   end
 
   add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
@@ -1005,6 +1007,20 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   add_index "nepse_chalans", ["updater_id"], name: "index_nepse_chalans_on_updater_id", using: :btree
   add_index "nepse_chalans", ["voucher_id"], name: "index_nepse_chalans_on_voucher_id", using: :btree
 
+  create_table "nepse_settlements", force: :cascade do |t|
+    t.decimal  "settlement_id",   precision: 18
+    t.integer  "status",                         default: 0
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.date     "settlement_date"
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.string   "type"
+  end
+
+  add_index "nepse_settlements", ["creator_id"], name: "index_nepse_settlements_on_creator_id", using: :btree
+  add_index "nepse_settlements", ["updater_id"], name: "index_nepse_settlements_on_updater_id", using: :btree
+
   create_table "order_details", force: :cascade do |t|
     t.integer  "order_id"
     t.string   "order_nepse_id"
@@ -1024,6 +1040,30 @@ ActiveRecord::Schema.define(version: 20170108063925) do
 
   add_index "order_details", ["isin_info_id"], name: "index_order_details_on_isin_info_id", using: :btree
   add_index "order_details", ["order_id"], name: "index_order_details_on_order_id", using: :btree
+
+  create_table "order_request_details", force: :cascade do |t|
+    t.integer  "quantity"
+    t.integer  "rate"
+    t.integer  "status",           default: 0
+    t.integer  "isin_info_id"
+    t.integer  "order_request_id"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "branch_id"
+    t.integer  "fy_code"
+  end
+
+  add_index "order_request_details", ["isin_info_id"], name: "index_order_request_details_on_isin_info_id", using: :btree
+  add_index "order_request_details", ["order_request_id"], name: "index_order_request_details_on_order_request_id", using: :btree
+
+  create_table "order_requests", force: :cascade do |t|
+    t.integer  "client_account_id"
+    t.string   "date_bs"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "order_requests", ["client_account_id"], name: "index_order_requests_on_client_account_id", using: :btree
 
   create_table "orders", force: :cascade do |t|
     t.integer  "order_number"
@@ -1066,7 +1106,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8
@@ -1174,19 +1214,6 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   add_index "receipt_payment_slip", ["voucher_code"], name: "index_receipt_payment_slip_on_voucher_code", using: :btree
   add_index "receipt_payment_slip", ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no", using: :btree
 
-  create_table "sales_settlements", force: :cascade do |t|
-    t.decimal  "settlement_id",   precision: 18
-    t.integer  "status",                         default: 0
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.date     "settlement_date"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
-  end
-
-  add_index "sales_settlements", ["creator_id"], name: "index_sales_settlements_on_creator_id", using: :btree
-  add_index "sales_settlements", ["updater_id"], name: "index_sales_settlements_on_updater_id", using: :btree
-
   create_table "sector_parameter", force: :cascade do |t|
     t.string "sector_code"
     t.string "sector_name"
@@ -1211,8 +1238,8 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "branch_id"
     t.integer  "settlement_by_cheque_type",                          default: 0
     t.date     "date"
-    t.decimal  "cash_amount",               precision: 15, scale: 2
     t.boolean  "belongs_to_batch_payment"
+    t.decimal  "cash_amount",               precision: 15, scale: 2
   end
 
   add_index "settlements", ["client_account_id"], name: "index_settlements_on_client_account_id", using: :btree
@@ -1538,6 +1565,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
     t.integer  "user_access_role_id"
     t.string   "username"
     t.boolean  "pass_changed",           default: false
+    t.string   "temp_password"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -1702,7 +1730,7 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   end
 
   add_foreign_key "bank_payment_letters", "branches"
-  add_foreign_key "bank_payment_letters", "sales_settlements"
+  add_foreign_key "bank_payment_letters", "nepse_settlements"
   add_foreign_key "bank_payment_letters", "vouchers"
   add_foreign_key "bill_voucher_associations", "bills"
   add_foreign_key "bill_voucher_associations", "vouchers"
@@ -1712,6 +1740,8 @@ ActiveRecord::Schema.define(version: 20170108063925) do
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
+  add_foreign_key "order_request_details", "order_requests"
+  add_foreign_key "order_requests", "client_accounts"
   add_foreign_key "particular_settlement_associations", "particulars"
   add_foreign_key "particular_settlement_associations", "settlements"
   add_foreign_key "particulars_share_transactions", "particulars"

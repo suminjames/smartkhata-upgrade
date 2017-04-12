@@ -41,9 +41,6 @@ class BillsControllerTest < ActionController::TestCase
 
   test "should get index" do
     get :index
-    assert_redirected_to bills_path(search_by: "client_name")
-
-    get :index, search_by: 'client_name'
     assert_response :success
     assert_template 'bills/index'
   end
@@ -60,26 +57,21 @@ class BillsControllerTest < ActionController::TestCase
     assert_match 'we have Sold these undernoted stocks', response.body
   end
 
-  test "should show bill by bill number" do
-    get :show_by_number, number: "#{@bill.fy_code}-#{@bill.bill_number}"
-    assert_redirected_to bill_path(@bill)
-    assert_not_nil assigns(:bill)
-  end
-
   test "bill should show phone numbers when present" do
+    mobile_number = @bill.client_account.mobile_number
     phone = @bill.client_account.phone
     phone_permanent = @bill.client_account.phone_perm
+    assert_not_nil mobile_number
     assert_not_nil phone
     assert_not_nil phone_permanent
     get :show, id: @bill
-    # assert_match "#{phone_num", response.body
-    [phone, phone_permanent].each do |phone_num|
-      assert_select 'div.row.customer_details td', text: "#{phone_num}"
-    end
+    assert_select '.client-phone-numbers#first-row td:nth-child(2)', text: "#{mobile_number}"
+    assert_select '.client-phone-numbers#second-row td:nth-child(2)', text: "#{phone}, #{phone_permanent}"
 
     # Remove phone numbers
-    @bill.client_account.phone = @bill.client_account.phone_perm = nil
-    @bill.client_account.save
+    @bill.client_account.mobile_number = @bill.client_account.phone = @bill.client_account.phone_perm = nil
+    @bill.client_account.branch_id = 1
+    @bill.client_account.save!
     @bill.reload
     assert_nil @bill.client_account.phone
     assert_nil @bill.client_account.phone_perm
@@ -87,7 +79,7 @@ class BillsControllerTest < ActionController::TestCase
     get :show, id: @bill
     assert_response :success
     # assert_match 'N/A', response.body
-    assert_select 'div.row.customer_details td', text: "N/A", count: 2
+    assert_select '.row.customer_details td', text: "N/A", count: 2
   end
 
   test "should process selected bills" do
@@ -135,6 +127,20 @@ class BillsControllerTest < ActionController::TestCase
   test "should not create invalid bill: date without a share transaction" do
     @assert_block_via_invalid_post.call(nil, 'No Sales Transactions Found', date_bs: '2070-01-10')
   end
+
+  test "logged in client user should be able to see associated client's bill" do
+    sign_in users(:client_user)
+    @client_account = create(:client_account, :user_id => users(:client_user).id, :branch_id => 1)
+    @bill = bills(:one)
+    @bill.client_account_id = @client_account.id
+    @bill.save!
+    params = {id: @bill.id}
+    get :show, params
+    assert_response :success
+    assert_template "bills/show"
+    assert_not_nil assigns(:bill)
+  end
+
 
   # features not implemented
   test "should not update bill" do

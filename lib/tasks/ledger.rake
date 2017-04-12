@@ -1,5 +1,13 @@
 namespace :ledger do
 
+  def fy_codes
+    return [6869, 6970, 7071, 7273, 7374]
+  end
+
+  def current_fy_code
+    return 7374
+  end
+
   def patch_ledger_dailies(ledger, all_fiscal_years = false)
     # need to modify this in future to accomodate current fiscal year
     if all_fiscal_years
@@ -219,7 +227,8 @@ namespace :ledger do
     end
   end
 
-  task :fix_ledger,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+  # Fixes all ledgers
+  task :fix_ledger_all,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     ActiveRecord::Base.transaction do
       Ledger.find_each do |ledger|
@@ -229,41 +238,134 @@ namespace :ledger do
     end
   end
 
-  task :merge_ledgers, [:tenant, :merge_to, :merge_from]=> 'smartkhata:validate_tenant' do |task, args|
+  # Example syntax:
+  # ledger:fix_ledger_selected['trishakti',"3405 11938"]
+  task :fix_ledger_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    ledger_ids = args.ledger_ids.split(" ")
+    ActiveRecord::Base.transaction do
+      Ledger.where(id: ledger_ids).find_each do |ledger|
+        patch_ledger_dailies(ledger)
+        patch_closing_balance(ledger)
+      end
+    end
+  end
+
+  task :merge_ledgers, [:tenant, :merge_to, :merge_from, :override_nepse_code]=> 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     abort 'Please pass the ledger id to merge to' unless args.merge_to.present?
     abort 'Please pass the ledger id to merge from' unless args.merge_from.present?
 
     ledger_to_merge_to = Ledger.find(args.merge_to)
     ledger_to_merge_from = Ledger.find(args.merge_from)
+    all_fiscal_year = true
+    override_nepse_code = args.override_nepse_code || false
     abort 'Invalid or wrong ledgers' unless args.merge_from.present?
+    abort 'Ledger has opening balance' if ledger_to_merge_from.opening_balance > 0
 
     ActiveRecord::Base.transaction do
-      ledger_to_merge_from.particulars.update_all(ledger_id: ledger_to_merge_to.id)
 
+      particulars = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id)
+
+      if particulars.pluck(:fy_code).uniq.size != 0 && ( particulars.pluck(:fy_code).uniq.size > 1 || particulars.pluck(:fy_code).uniq.first != current_fy_code )
+        abort 'Need manual Intervention. It has previous fiscal year data'
+      end
+      particulars.update_all(ledger_id: ledger_to_merge_to.id)
 
       LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
       LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
 
-      ledger_to_merge_from.delete
-
-      patch_ledger_dailies(ledger_to_merge_to)
-      patch_closing_balance(ledger_to_merge_to)
+      patch_ledger_dailies(ledger_to_merge_to, all_fiscal_year)
+      patch_closing_balance(ledger_to_merge_to, all_fiscal_year)
 
       mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
       mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
 
+      # delete client accounts too
+      client_account_to_persist = ledger_to_merge_to.client_account
+      client_account_to_delete = ledger_to_merge_from.client_account
+      if client_account_to_delete
+        if client_account_to_persist
+          client_account_to_persist.mobile_number ||= client_account_to_delete.mobile_number
+          client_account_to_persist.email ||= client_account_to_delete.email
+          client_account_to_persist.skip_validation_for_system = true
+
+
+          nepse_code = client_account_to_delete.nepse_code
+          if override_nepse_code
+            abort 'no nepse code' if nepse_code.blank?
+            client_account_to_persist.nepse_code = nepse_code
+            ledger_to_merge_to.client_code = nepse_code
+          end
+
+          TransactionMessage.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+          client_account_to_delete.delete
+          client_account_to_persist.save!
+        else
+          ledger_to_merge_to.client_account = client_account_to_delete
+        end
+      end
+
+      ledger_to_merge_from.delete
+      ledger_to_merge_to.save!
+
       if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
-        abort 'Need manual Intervention'
+        abort 'Need manual Intervention both have relation to mandala'
       elsif mandala_mapping_for_deleted_ledger.present?
         mandala_mapping_for_deleted_ledger.ledger_id = args.merge_to
         mandala_mapping_for_deleted_ledger.save!
       end
 
-    #   current implementation does not account for the client acccount
-    #   and also the chart of account and the mandala mapping
+      #   current implementation does not account for the client acccount
+      #   and also the chart of account and the mandala mapping
 
     end
   end
+
+  desc "Fix name format of all ledgers."
+  task :fix_format_of_names,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+    count = 0
+    ActiveRecord::Base.transaction do
+      Ledger.unscoped.find_each do |ledger|
+        name_before = ledger.name.dup
+        if name_before != ledger.format_name
+          puts "Processing Ledger(id: #{ledger.id}) with name `#{ledger.name}`."
+          ledger.format_name
+          ledger.save! unless args.mimic.present?
+          count += 1
+          puts "Ledger(id: #{ledger.id})'s name changed from `#{name_before}` to `#{ledger.name}`."
+        end
+      end
+      puts "Total Ledger names formatted: #{count}"
+    end
+  end
+
+  desc "Fix client code format of all ledgers."
+  task :fix_format_of_client_codes,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+    count = 0
+    ActiveRecord::Base.transaction do
+      Ledger.unscoped.find_each do |ledger|
+        if ledger.client_code.present?
+          client_code_before = ledger.client_code.dup
+          if client_code_before != ledger.format_client_code
+            puts "Processing Ledger(id: #{ledger.id}) with client_code `#{ledger.client_code}`."
+            ledger.format_client_code
+            ledger.save! unless args.mimic.present?
+            count += 1
+            puts "Ledger(id: #{ledger.id})'s client code changed from `#{client_code_before}` to `#{ledger.client_code}`."
+          end
+        end
+      end
+      puts "Total Ledger client codes formatted: #{count}"
+    end
+  end
+
+  desc "Find ledgers with duplicate (case insensitive) client code."
+  task :find_ledgers_with_duplicate_client_code,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+    search_hash = Ledger.unscoped.select("LOWER(client_code)").group("LOWER(client_code)").having("count(*) > 1").count
+    search_hash.each do |client_code, occurrence|
+      p "#{client_code} => #{occurrence}"
+    end
+  end
+
 end
