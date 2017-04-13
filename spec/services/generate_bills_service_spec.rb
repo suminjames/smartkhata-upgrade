@@ -2,9 +2,9 @@ require 'rails_helper'
 
 RSpec.describe GenerateBillsService  do
   let(:nepse_settlement) {create(:nepse_settlement)}
-  let(:sales_share_transaction) {create(:sales_share_transaction, settlement_id: nepse_settlement.settlement_id)}
-  let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_with_closeout, settlement_id: nepse_settlement.settlement_id)}
-  let(:sales_share_transaction_with_full_closeout) {create(:sales_share_transaction_with_full_closeout, settlement_id: nepse_settlement.settlement_id)}
+  let(:sales_share_transaction) {create(:sales_share_transaction_processed, settlement_id: nepse_settlement.settlement_id)}
+  let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, settlement_id: nepse_settlement.settlement_id)}
+  let(:sales_share_transaction_with_full_closeout) {create(:sales_share_transaction_processed_with_full_closeout, settlement_id: nepse_settlement.settlement_id)}
 
   before do
     UserSession.user = create(:user)
