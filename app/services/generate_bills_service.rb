@@ -17,7 +17,6 @@ class GenerateBillsService
       share_transactions = ShareTransaction.where(settlement_id: @nepse_settlement.settlement_id, deleted_at: nil).includes([:client_account, :isin_info])
       settlement_date = @nepse_settlement.settlement_date
 
-
       share_transactions.each do |transaction|
         client_code = transaction.client_account_id
         # create a custom key to hold the similar isin transactionp per day per user in a same bill
@@ -44,7 +43,6 @@ class GenerateBillsService
         fy_code = get_fy_code(settlement_date)
         # get bill number
         bill_number = get_bill_number(fy_code)
-
 
 
         # raise error when them amounts dont match up
@@ -113,14 +111,16 @@ class GenerateBillsService
 
         description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
 
-        # update ledgers value
-        voucher = Voucher.create!(date: settlement_date)
-        voucher.bills_on_creation << bill if bill.present?
-        voucher.share_transactions << transaction
-        voucher.desc = description
-        voucher.branch_id = cost_center_id
-        voucher.complete!
-        voucher.save!
+        if transaction.quantity > 0
+          # update ledgers value
+          voucher = Voucher.create!(date: settlement_date)
+          voucher.bills_on_creation << bill if bill.present?
+          voucher.share_transactions << transaction
+          voucher.desc = description
+          voucher.branch_id = cost_center_id
+          voucher.complete!
+          voucher.save!
+        end
 
         # process_accounts(ledger,voucher, is_debit, amount)
 
