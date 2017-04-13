@@ -152,7 +152,7 @@ class ImportPayout < ImportFile
           # this is the case for close out
           # calculate the charges
           if transaction.closeout_amount > 0
-            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
+            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
           else
             transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
           end

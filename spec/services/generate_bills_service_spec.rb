@@ -21,7 +21,6 @@ RSpec.describe GenerateBillsService  do
     expect(Bill.count).to eq 1
     bill = Bill.first
     expect(bill.sales?).to be_truthy
-
     expect(Voucher.count).to eq 1
     expect(sales_share_transaction.client_account.ledger.closing_balance).to eq(-115130.6726)
     expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
@@ -48,9 +47,9 @@ RSpec.describe GenerateBillsService  do
     generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement)
     generate_bill_service.process
     expect(Bill.count).to eq 0
-    expect(Voucher.count).to eq 1
+    expect(Voucher.count).to eq 2
     expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance).to eq(23841.3274)
-    expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(1)
+    expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(2)
     closeout_ledger = Ledger.find_by(name: "Close Out")
     expect(closeout_ledger.present?).to be_truthy
     expect(closeout_ledger.closing_balance).to eq(0)
