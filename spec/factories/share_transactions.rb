@@ -37,7 +37,6 @@ FactoryGirl.define do
       transaction_type 1
 
       factory :sales_share_transaction_processed_with_closeout do
-        net_amount 100106.6726
         amount_receivable 100564.802
         closeout_amount 15024.0
         quantity 165
@@ -45,7 +44,6 @@ FactoryGirl.define do
 
       factory :sales_share_transaction_processed_with_full_closeout do
         quantity 0
-        net_amount "-23841.3274"
         amount_receivable "-23383.198"
         closeout_amount 138972
       end

@@ -48,7 +48,7 @@ class GenerateBillsService
 
         # raise error when them amounts dont match up
         # A voucher should always equal dr and cr particular amounts
-        raise NotImplementedError if (transaction.net_amount + sales_commission + transaction.dp_fee - transaction.amount_receivable - tds).abs > 0.01
+        raise NotImplementedError if (transaction.net_amount + sales_commission + transaction.dp_fee - transaction.amount_receivable - tds - transaction.closeout_amount).abs > 0.01
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
@@ -136,7 +136,7 @@ class GenerateBillsService
           # if quantity is zero meaning all transaction is shorted all the amount is moved to closeout
           # else partial amount is moved to closeout
           # in case of zero quantity two vouchers are created.
-          payable_to_client = transaction.net_amount + closeout_amount
+          payable_to_client = transaction.net_amount
           nepse_adjustment = transaction.amount_receivable + closeout_amount
 
           # Note all the commision amount is paid by client here
