@@ -99,3 +99,6 @@ rails_best_practises_output.html
 
 # Ignore .rspec
 .rspec
+
+# ignore misc
+logfile
