@@ -77,9 +77,9 @@
             %label
               Group By
             %br
-            = check_box_tag :group_by_company, "true", params[:group_by_company] == 'true'
+            = check_box_tag :group_by_company, "true", ( params[:group_by_company] ? params[:group_by_company] == 'true' : true )
             Company
     = render_filterrific_spinner
 
-= render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
+= render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions, client_account: @client_account} )
 

@@ -39,13 +39,18 @@
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
   %div#share_transaction_list
+    - if client_account
+      .highlighted-box
+        %h3.no-margin="Share Transaction details for #{client_account.name_and_nepse_code}"
     %table.table.table-striped
       %thead
         %th.text-center= 'SN'
         %th.text-center= 'Transaction<br>Date'.html_safe
         %th.text-center= 'Transaction No'
-        %th.col-sm-2.text-center= 'Company'
-        %th.text-center= 'Client'
+        - unless params[:group_by_company] == 'true'
+          %th.col-sm-2.text-center= 'Company'
+        - unless client_account
+          %th.text-center= 'Client'
         %th.text-center= 'Bill No'
         %th.text-center= 'Broker'
         %th.text-center= 'Qty<br>In'.html_safe
@@ -67,8 +72,10 @@
               %td.text-center= pagination_count + index
               %td.text-center= ad_to_bs_string(share_transaction.date)
               %td.text-center= share_transaction.contract_no
-              %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
-              %td.text-center= share_transaction.client_account.name_and_nepse_code
+              - unless params[:group_by_company] == 'true'
+                %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
+              - unless client_account
+                %td.text-center= share_transaction.client_account.name_and_nepse_code
               %td.text-center= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
               %td.text-center= share_transaction.selling? ? share_transaction.buyer : share_transaction.seller
               %td.quantity-in.text-right= arabic_number_integer(share_transaction.quantity) if share_transaction.buying?
@@ -95,10 +102,12 @@
               if break_group
                 isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific, share_transaction.isin_info_id)
               end
+              #making sure the column counts remain same
+              colspan = (client_account.present? && params[:group_by_company] == "true") ? 4 : ((client_account.present? || params[:group_by_company] == "true") ? 5 : 6)
 
             - if break_group
               %tr.total-row
-                %td.text-right{colspan: 6}= "Company: #{share_transaction.isin_info.isin}"
+                %td.text-right{colspan: colspan}= "Company: #{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
                 %td.text-right= 'Total'
                 %td.text-right= "Qty<br>In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
                 %td.text-right= "Qty<br>Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
