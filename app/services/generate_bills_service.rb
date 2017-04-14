@@ -52,46 +52,46 @@ class GenerateBillsService
 
         # check if the hash has value ( bill number) assigned to the custom key
         # if not create a bill and assign its number to the custom key of the hash for further processing
-        # if the transaction has no quantity (after closeout) dont create bill
-        if transaction.quantity > 0
-          if transaction.bill_id.present?
-            bill = transaction.bill
-            if bill.provisional?
-              bill.status = :pending
-              bill.net_amount = 0.0
-            end
-          elsif hash_dp.key?(custom_key)
-            # find bill by the bill number
-            bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id)
-          else
-            hash_dp[custom_key] = bill_number
-            # create a new bill
-            bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id) do |b|
-              b.bill_type = Bill.bill_types['sales']
 
-              # TODO possible error location check
-              b.client_name = transaction.client_account.name if !transaction.client_account.nil?
-              b.branch_id = cost_center_id
-            end
+        if transaction.bill_id.present?
+          bill = transaction.bill
+          if bill.provisional?
+            bill.status = :pending
+            bill.net_amount = 0.0
           end
+        elsif hash_dp.key?(custom_key)
+          # find bill by the bill number
+          bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id)
+        else
+          hash_dp[custom_key] = bill_number
+          # create a new bill
+          bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id) do |b|
+            b.bill_type = Bill.bill_types['sales']
 
-
-          # TODO possible error location
-          bill.share_transactions << transaction
-
-          # bill net amount should consider closeout
-          if transaction.closeout_amount.present? && transaction.closeout_amount > 0 && transaction.quantity > 0
-            bill.net_amount += transaction.net_amount
-            bill.closeout_charge += transaction.closeout_amount
-          else
-            bill.net_amount += transaction.net_amount
+            # TODO possible error location check
+            b.client_name = transaction.client_account.name if !transaction.client_account.nil?
+            b.branch_id = cost_center_id
           end
-
-
-          bill.balance_to_pay = bill.net_amount
-          bill.nepse_settlement_id = @nepse_settlement.id
-          bill.save!
         end
+
+
+        # TODO possible error location
+        bill.share_transactions << transaction
+
+        # bill net amount should consider closeout
+        if transaction.closeout_amount.present? && transaction.closeout_amount > 0
+          bill.net_amount += transaction.net_amount
+          bill.closeout_charge += transaction.closeout_amount
+        else
+          bill.net_amount += transaction.net_amount
+        end
+
+
+        bill.balance_to_pay = bill.net_amount
+        bill.nepse_settlement_id = @nepse_settlement.id
+        bill.save!
+
+
         # create client ledger if not exist
         # TODO(subas) This should have been an exception
         client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
