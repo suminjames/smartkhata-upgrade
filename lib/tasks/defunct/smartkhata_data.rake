@@ -118,13 +118,13 @@ namespace :smartkhata_data do
       UserSession.user= User.first
       UserSession.selected_branch_id = 1
       UserSession.selected_fy_code = 7374
-
+      current_tenant = Tenant.find_by_name(args.tenant)
       @nepse_settlements = NepseSettlement.all
 
       puts "Generating sales bills .."
       @nepse_settlements.each do |s|
         puts "Generating bills for settlement: #{s.settlement_id}"
-        GenerateBillsService.new(nepse_settlement: s).process if s.pending?
+        GenerateBillsService.new(nepse_settlement: s, current_tenant: current_tenant).process if s.pending?
       end
       puts "Task completed "
       Apartment::Tenant.switch!('public')

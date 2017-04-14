@@ -5,6 +5,7 @@ class GenerateBillsService
 
   def initialize(params)
     @nepse_settlement = params[:nepse_settlement]
+    @current_tenant = params[:current_tenant]
   end
 
   def process
@@ -80,7 +81,12 @@ class GenerateBillsService
 
         # bill net amount should consider closeout
         if transaction.closeout_amount.present? && transaction.closeout_amount > 0
-          bill.net_amount += transaction.net_amount
+          if @current_tenant.closeout_settlement_automatic
+            bill.net_amount += (transaction.net_amount - transaction.closeout_amount)
+          else
+            bill.net_amount += transaction.net_amount
+          end
+
           bill.closeout_charge += transaction.closeout_amount
         else
           bill.net_amount += transaction.net_amount
@@ -137,32 +143,34 @@ class GenerateBillsService
           # else partial amount is moved to closeout
           # in case of zero quantity two vouchers are created.
           payable_to_client = transaction.net_amount
-          nepse_adjustment = transaction.amount_receivable + closeout_amount
-
+          nepse_amount= transaction.amount_receivable
+          closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
           # Note all the commision amount is paid by client here
           process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, settlement_date)
-          process_accounts(nepse_ledger, voucher, true, nepse_adjustment, description, cost_center_id, settlement_date)
+
+          # some cases it is negative , like in full closeout
+          process_accounts(nepse_ledger, voucher, nepse_amount > 0 ? true : false, nepse_amount.abs, description, cost_center_id, settlement_date)
+
           # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
           process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name}"
-          voucher = Voucher.create!(date: settlement_date)
-          voucher.share_transactions << transaction
-          voucher.desc = description
-
-          closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
-
-          # closeout credit to nepse
-          process_accounts(nepse_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
           process_accounts(closeout_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
-          process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
-          process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
 
-
-          voucher.complete!
-          voucher.save!
+          if @current_tenant.closeout_settlement_automatic
+            # automatic settlement
+            voucher = Voucher.create!(date: settlement_date)
+            voucher.share_transactions << transaction
+            voucher.desc = description
+            process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
+            transaction.closeout_settled = true
+            transaction.save!
+            voucher.complete!
+            voucher.save!
+          end
 
         else
           process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, settlement_date)
