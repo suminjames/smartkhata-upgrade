@@ -13,7 +13,7 @@
 #  broker_code                   :string
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
-#  closeout_settlement_automatic :boolean          default(TRUE)
+#  closeout_settlement_automatic :boolean          default(FALSE)
 #
 
 class Tenant < ActiveRecord::Base

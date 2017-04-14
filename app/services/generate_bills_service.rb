@@ -162,7 +162,7 @@ class GenerateBillsService
           if @current_tenant.closeout_settlement_automatic
             # automatic settlement
             voucher = Voucher.create!(date: settlement_date)
-            voucher.share_transactions << transaction
+            # voucher.share_transactions << transaction
             voucher.desc = description
             process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
             process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)

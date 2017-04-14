@@ -19,7 +19,7 @@ class Files::Cm31Controller < Files::FilesController
     @settlement_date = params[:settlement_date]
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
-    cm31_upload = FilesImportServices::ImportCm31.new(@file, @settlement_date)
+    cm31_upload = FilesImportServices::ImportCm31.new(@file, current_tenant,@settlement_date, )
     cm31_upload.process
 
     if cm31_upload.error_message

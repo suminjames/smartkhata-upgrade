@@ -5,11 +5,12 @@ class FilesImportServices::ImportCm31 < ImportFile
 
   attr_reader :nepse_settlement_ids
 
-  def initialize(file, settlement_date = nil)
+  def initialize(file, current_tenant, settlement_date = nil)
     super(file)
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
+    @current_tenant = current_tenant
   end
 
   def process
@@ -35,7 +36,6 @@ class FilesImportServices::ImportCm31 < ImportFile
       ActiveRecord::Base.transaction do
         # list of settlement_ids for multiple settlements.
         settlement_ids = Set.new
-
         @processed_data.each do |hash|
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
@@ -104,17 +104,24 @@ class FilesImportServices::ImportCm31 < ImportFile
           voucher = Voucher.create!(date: @nepse_settlement_date)
           voucher.desc = description
 
-          closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
           nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
+          closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
+
           # closeout debit to nepse
           process_accounts(nepse_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
           process_accounts(closeout_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
-          process_accounts(closeout_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
-          process_accounts(client_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
-
           voucher.complete!
           voucher.save!
 
+          if @current_tenant.closeout_settlement_automatic
+            voucher = Voucher.create!(date: @nepse_settlement_date)
+            voucher.desc = description
+            process_accounts(closeout_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
+            voucher.complete!
+            transaction.closeout_settled = true
+            voucher.save!
+          end
           transaction.save!
         end
 

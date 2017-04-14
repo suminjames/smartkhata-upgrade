@@ -1503,9 +1503,9 @@ ActiveRecord::Schema.define(version: 20170413081703) do
     t.string   "pan_number"
     t.string   "fax_number"
     t.string   "broker_code"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
-    t.boolean  "closeout_settlement_automatic", default: true
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.boolean  "closeout_settlement_automatic", default: false
   end
 
   create_table "transaction_messages", force: :cascade do |t|
