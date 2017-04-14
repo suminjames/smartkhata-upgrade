@@ -40,6 +40,7 @@ RSpec.describe GenerateBillsService  do
       expect(Voucher.count).to eq 2
       expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance).to eq(-100106.6726)
       expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(2)
+      expect(sales_share_transaction_with_full_closeout.closeout_settled).to be_truthy
       closeout_ledger = Ledger.find_by(name: "Close Out")
       expect(closeout_ledger.present?).to be_truthy
       expect(closeout_ledger.closing_balance).to eq(0)
@@ -60,6 +61,7 @@ RSpec.describe GenerateBillsService  do
       expect(Voucher.count).to eq 2
       expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance).to eq(23841.3274)
       expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(2)
+      expect(sales_share_transaction_with_full_closeout.closeout_settled).to be_truthy
       closeout_ledger = Ledger.find_by(name: "Close Out")
       expect(closeout_ledger.present?).to be_truthy
       expect(closeout_ledger.closing_balance).to eq(0)
@@ -93,6 +95,7 @@ RSpec.describe GenerateBillsService  do
       expect(Voucher.count).to eq 1
       expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance).to eq(-115130.6726)
       expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(1)
+      expect(sales_share_transaction_with_full_closeout.closeout_settled).to_not be_truthy
       closeout_ledger = Ledger.find_by(name: "Close Out")
       expect(closeout_ledger.present?).to be_truthy
       expect(closeout_ledger.closing_balance).to eq(15024)
@@ -114,6 +117,7 @@ RSpec.describe GenerateBillsService  do
       expect(Voucher.count).to eq 1
       expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance).to eq(-115130.6726)
       expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(1)
+      expect(sales_share_transaction_with_full_closeout.closeout_settled).to_not be_truthy
       closeout_ledger = Ledger.find_by(name: "Close Out")
       expect(closeout_ledger.present?).to be_truthy
       expect(closeout_ledger.closing_balance).to eq(138972)
