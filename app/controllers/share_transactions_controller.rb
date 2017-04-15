@@ -136,6 +136,8 @@ class ShareTransactionsController < ApplicationController
 
 
   def securities_flow
+    # This @filterrific variable is not used for record fetching, but only for form state preservation in view.
+    # The record fetching happens through class method 'ShareTransaction.securities_flows'
     @filterrific = initialize_filterrific(
         ShareTransaction,
         params[:filterrific],

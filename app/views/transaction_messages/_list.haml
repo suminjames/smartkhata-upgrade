@@ -88,7 +88,7 @@
                 = transaction_message.bill.present? ? "#{transaction_message.bill.fy_code}-#{transaction_message.bill.bill_number}" : "<a class='no-hover warning-text' data-toggle='tooltip' title='The transaction does not have a bill yet.'>N/A</a>".html_safe
               %td.sms-message.break-word= transaction_message.sms_message
 
-    - if !transaction_messages || transaction_messages.empty?
+    - if transaction_messages.blank?
       %div.row.text-center.top-buffer-md
         There are no matching transaction messages.
 
