@@ -87,15 +87,15 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
   def report_header
     # Adds document headings and returns the filename conditionally
-    document_headings = ["Share Transactions details for"]
+    document_headings = ["Share Transactions details"]
     if @client_account && @isin_info
-      document_headings.push("\"#{@client_account.name_and_nepse_code}\" for \"#{@isin_info.company.strip}\"")
+      document_headings.push("of \"#{@client_account.name_and_nepse_code}\" for \"#{@isin_info.company.strip}\"")
       @file_name = "ClientCompany_ShareTransactionReport_#{@client_account.id}_#{@isin_info.id}_#{@date}"
     elsif @client_account
-      document_headings.push("\"#{@client_account.name_and_nepse_code}\"")
+      document_headings.push("of \"#{@client_account.name_and_nepse_code}\"")
       @file_name = "ClientWise_ShareTransactionReport_#{@client_account.id}_#{@date}"
     elsif @isin_info
-      document_headings.push("\"#{@isin_info.company.strip}\"")
+      document_headings.push("for \"#{@isin_info.company.strip}\"")
       @file_name = "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"
     else # full report
       sub_heading = "All transactions"
