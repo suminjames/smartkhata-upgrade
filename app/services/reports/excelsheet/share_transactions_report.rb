@@ -135,7 +135,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       row_style = index.even? ? normal_style_row : striped_style_row
       row_style = @actual_row_index_count.even? ? normal_style_row : striped_style_row
       row = [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt]
-      @sheet.add_row conditional_row(row), style: conditional_row_style(row_style.dup)
+      @sheet.add_row conditional_row(row), style: conditional_row_style(row_style)
       @actual_row_index_count += 1
 
       if @group_by_company
@@ -182,9 +182,8 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     add_total_row
   end
 
-  def conditional_row(row_arg)
-    row = row_arg
-    # row = [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt]
+  def conditional_row(row)
+    row = row.dup
     if @hide_company_column && @hide_client_account_column
       row.delete_at(3)
       row.delete_at(3)
@@ -198,9 +197,9 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     row
   end
 
-  def conditional_row_style(row_style_arg)
-    row_style = row_style_arg
+  def conditional_row_style(row_style)
     return row_style if row_style.class != Array
+    row_style = row_style.dup
     if @hide_company_column && @hide_client_account_column
       row_style.delete_at(3)
       row_style.delete_at(3)
@@ -257,6 +256,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     # sheet.column_widths 6, nil, nil, nil
   end
 
+  # Method override
   def populate_table_header
     # Adds table header row
     @sheet.add_row conditional_row(TABLE_HEADER), style: conditional_row_style(@styles[:table_header])
