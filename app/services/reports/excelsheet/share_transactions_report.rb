@@ -12,6 +12,9 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @transaction_type = params[:by_transaction_type]
     end
 
+    @hide_company_column =  @group_by_company
+    @hide_client_account_column = @client_account.present?
+
     generate_excelsheet if params_valid?
   end
 
@@ -36,25 +39,26 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
   def prepare_document
     # Adds document headings and returns the filename conditionally, before the real data table is inserted.
     report = 'ShareTransactionReport'
+    heading = "Share Transactions details"
     headings, @file_name = case
                              when @client_account && @isin_info
                                [
                                    [
-                                       "Client-Company Report", "of \"#{@client_account.name.strip}\" for \"#{@isin_info.company.strip}\""
+                                       heading, "of \"#{@client_account.name_and_nepse_code}\" for \"#{@isin_info.company.strip}\""
                                    ],
                                    "ClientCompany_#{report}_#{@client_account.id}_#{@isin_info.id}_#{@date}"
                                ]
                              when @client_account
                                [
                                    [
-                                       "Client Wise Report", "\"#{@client_account.name.strip}\""
+                                       heading, "\"#{@client_account.name_and_nepse_code}\""
                                    ],
                                    "ClientWise_#{report}_#{@client_account.id}_#{@date}"
                                ]
                              when @isin_info
                                [
                                    [
-                                       "Company Wise Report", "\"#{@isin_info.company.strip}\""
+                                       heading, "\"#{@isin_info.company.strip}\""
                                    ],
                                    "CompanyWise_#{report}_#{@isin_info.id}_#{@date}"
                                ]
@@ -63,7 +67,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
                                sub_heading << " of" if @date_query_present
                                [
                                    [
-                                       "Share Inventory Report", sub_heading
+                                       heading, sub_heading
                                    ],
                                    "#{report}_#{@date}"
                                ]
@@ -130,7 +134,8 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       comm_amt = st.commission_amount.to_f
       row_style = index.even? ? normal_style_row : striped_style_row
       row_style = @actual_row_index_count.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt], style: row_style
+      row = [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt]
+      @sheet.add_row conditional_row(row), style: conditional_row_style(row_style.dup)
       @actual_row_index_count += 1
 
       if @group_by_company
@@ -149,10 +154,10 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       if break_group
         isin_balances[:balance_sum] = isin_balances[:total_in_sum] - isin_balances[:total_out_sum]
         grouped_isin_total_row = [
+            "Company: #{st.isin_info.isin}\n(#{st.isin_info.company})",
             "",
             "",
             "",
-            "Company: #{st.isin_info.isin}",
             "",
             "",
             "Total",
@@ -164,7 +169,12 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
             ""
         ]
         row_style = isin_total_style_row
+        grouped_isin_total_row = conditional_row(grouped_isin_total_row)
         @sheet.add_row grouped_isin_total_row, style: row_style
+        first_data_row = @doc_header_row_count + 2
+        latest_data_row = first_data_row + @actual_row_index_count - 1
+        alphabets = ('A'..'Z').to_a
+        @sheet.merge_cells("A#{latest_data_row + 1}:#{alphabets[grouped_isin_total_row.find_index("Total") - 1]}#{latest_data_row +1}")
         @actual_row_index_count += 1
         isin_balances = Hash.new(0)
       end
@@ -172,17 +182,64 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
     add_total_row
   end
 
+  def conditional_row(row_arg)
+    row = row_arg
+    # row = [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt]
+    if @hide_company_column && @hide_client_account_column
+      row.delete_at(3)
+      row.delete_at(3)
+    elsif @hide_company_column && !@hide_client_account_column
+      row.delete_at(3)
+    elsif !@hide_company_column && @hide_client_account_column
+      row.delete_at(4)
+    else
+      # do nothing
+    end
+    row
+  end
+
+  def conditional_row_style(row_style_arg)
+    row_style = row_style_arg
+    return row_style if row_style.class != Array
+    if @hide_company_column && @hide_client_account_column
+      row_style.delete_at(3)
+      row_style.delete_at(3)
+    elsif @hide_company_column && !@hide_client_account_column
+      row_style.delete_at(3)
+    elsif !@hide_company_column && @hide_client_account_column
+      row_style.delete_at(4)
+    else
+      # do nothing
+    end
+    row_style
+  end
+
+ def conditional_columns_to_sum
+  columns_to_sum = [7, 8, 11, 12]
+    if @hide_company_column && @hide_client_account_column
+      columns_to_sum.map!{|e| e - 2}
+    elsif @hide_company_column && !@hide_client_account_column
+      columns_to_sum.map!{|e| e - 1}
+    elsif !@hide_company_column && @hide_client_account_column
+      columns_to_sum.map!{|e| e - 1}
+    else
+      # do nothing
+    end
+   columns_to_sum
+  end
+
   def add_total_row
-    columns_to_sum = [7, 8, 11, 12]
+    columns_to_sum = conditional_columns_to_sum
     alphabets = ('A'..'Z').to_a
-    first_data_row = @doc_header_row_count+2
+    first_data_row = @doc_header_row_count + 2
     last_data_row = first_data_row + @actual_row_index_count - 1
 
     totalled_cells = []
     columns_to_sum.each do |col|
       totalled_cells << "=SUM(#{alphabets[col]}#{first_data_row}:#{alphabets[col]}#{last_data_row})"
     end
-    @sheet.add_row totalled_cells.insert(0, 'Grand Total').insert(1, *['']*6).insert(9, *['']*2), style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12)
+    total_row = totalled_cells.insert(0, 'Grand Total').insert(1, *['']*6).insert(9, *['']*2)
+    @sheet.add_row conditional_row(total_row), conditional_row_style(style: [@styles[:total_keyword]].push(*[@styles[:total_values_float]]*12))
     @sheet.merge_cells("A#{last_data_row+1}:#{alphabets[columns_to_sum.min-1]}#{last_data_row+1}")
   end
 
@@ -198,5 +255,10 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       @sheet.column_info.fourth.width = @isin_info.name_and_code.strip.length
     end
     # sheet.column_widths 6, nil, nil, nil
+  end
+
+  def populate_table_header
+    # Adds table header row
+    @sheet.add_row conditional_row(TABLE_HEADER), style: conditional_row_style(@styles[:table_header])
   end
 end
