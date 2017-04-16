@@ -19,9 +19,10 @@ class ShareTransactionsController < ApplicationController
         !current_user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
       user_not_authorized and return
     end
-
     # this case is for the viewing of transaction by floorsheet date
     bs_date = params.dig(:filterrific, :by_date)
+    @client_account = ClientAccount.find_by(id: params.dig(:filterrific, :by_client_id))
+
     if bs_date.present? && is_valid_bs_date?(bs_date)
       # this instance variable used in view to generate 'create transaction messages' button
       @transaction_date = bs_to_ad(bs_date)
@@ -58,7 +59,7 @@ class ShareTransactionsController < ApplicationController
         # This hash maps isin_info_ids(keys) with their respective counts(values)
         # Notice the ommision of pagination the query below. This is to have an overall cardinality of the current search scope.
         # Eg: {2=>5, 29=>6, 98=>1, 103=>2, 111=>4, 133=>8, 145=>5, 209=>1, 219=>1, 444=>4}
-        @grouped_isins_cardinality_hash = @filterrific.find.order(:isin_info_id).group(:isin_info_id).count(:isin_info_id)
+        @grouped_isins_cardinality_hash = @filterrific.find.order(:isin_info_id).group(:isin_info_id).count
         # This hash maps isin_info_ids(keys) with their respective end positions(values) while the isins are serially queued.
         # This is crucial in finding when to insert the total quantity flow row of an isin, when share transactions are grouped by company
         # Eg: {2=>5, 29=>11, 98=>12, 103=>14, 111=>18, 133=>26, 145=>31, 209=>32, 219=>33, 444=>37}
@@ -135,6 +136,8 @@ class ShareTransactionsController < ApplicationController
 
 
   def securities_flow
+    # This @filterrific variable is not used for record fetching, but only for form state preservation in view.
+    # The record fetching happens through class method 'ShareTransaction.securities_flows'
     @filterrific = initialize_filterrific(
         ShareTransaction,
         params[:filterrific],

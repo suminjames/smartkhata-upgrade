@@ -2,7 +2,7 @@
 %div#filterrific_results
 
 
-  - if !(!securities_flows || securities_flows.empty?)
+  - if securities_flows.present?
     %div.bottom-buffer-sm
       .btn-group
         %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
@@ -49,7 +49,7 @@
                   %td.text-right= securities_flow["quantity_out_sum"]
                 %td.text-right= securities_flow["quantity_balance"]
 
-  - if !securities_flows || securities_flows.empty?
+  - if securities_flows.blank?
     %div.row.text-center.top-buffer-md
       There are no matching securities flows.
 

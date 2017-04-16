@@ -68,6 +68,6 @@
 
     = render 'shared/pagination', collection_to_paginate: share_transactions
 
-  - if (!share_transactions || share_transactions.empty?) && params.dig(:filterrific, :by_date).present?
+  - if share_transactions.blank? && params.dig(:filterrific, :by_date).present?
     %div.row.text-center.top-buffer-md
       There are no matching contract note details.

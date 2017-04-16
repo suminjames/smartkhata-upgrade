@@ -26,14 +26,20 @@
 #
 
 class Settlement < ActiveRecord::Base
+########################################
+# Constants
+
+########################################
+# Includes
+
   class << self
     include CustomDateModule
   end
   include Auditable
   include ::Models::UpdaterWithBranchFycode
 
-  before_create :assign_settlement_number
-  before_save :add_date_from_date_bs
+########################################
+# Relationships
 
   belongs_to :client_account
   belongs_to :vendor_account
@@ -48,19 +54,32 @@ class Settlement < ActiveRecord::Base
   has_many :particulars, through: :particular_settlement_associations
 
   belongs_to :voucher
-  #
+
   # # Father of all hacks :)
   # # careful with the mapping between the type i.e settlement and cr dr of association
   # has_many :for_cheque, -> { settlement_type == "receipt" ? cr : dr }, class_name: "ParticularSettlementAssociation"
   # has_many :cheque_particulars, through: :debited_particulars, source: :particular
   has_many :cheque_entries, through: :debited_particulars
 
-  ########################################
-  # Validation
+########################################
+# Callbacks
+
+  before_create :assign_settlement_number
+  before_save :add_date_from_date_bs
+
+########################################
+# Validations
+
   validates_presence_of :date_bs
+
+########################################
+# Enums
 
   enum settlement_type: [:receipt, :payment]
   enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
+
+########################################
+# Scopes
 
   # default_scope {where(fy_code: UserSession.selected_fy_code)}
 
@@ -72,18 +91,6 @@ class Settlement < ActiveRecord::Base
       where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
     end
   end
-
-  filterrific(
-      default_filter_params: {sorted_by: 'id'},
-      available_filters: [
-          :sorted_by,
-          :by_settlement_type,
-          :by_date,
-          :by_date_from,
-          :by_date_to,
-          :by_client_id
-      ]
-  )
 
   scope :by_settlement_type, -> (type) { by_branch_fy_code.where(:settlement_type => Settlement.settlement_types[type]) }
 
@@ -112,12 +119,31 @@ class Settlement < ActiveRecord::Base
     end
   }
 
-
   # Old implementation! Delete when successful migration to new implementation.
-  # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
+# scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
   scope :not_rejected, -> { joins( :particulars => [:voucher]).where(vouchers: {voucher_status: Voucher.voucher_statuses[:complete]}) }
 
+########################################
+# Attributes
+
+########################################
+# Delegations
+
+########################################
+# Methods
+
+  filterrific(
+      default_filter_params: {sorted_by: 'id'},
+      available_filters: [
+          :sorted_by,
+          :by_settlement_type,
+          :by_date,
+          :by_date_from,
+          :by_date_to,
+          :by_client_id
+      ]
+  )
 
   # TODO(sarojk): IMPORTANT! Older model implementation. Delete after migration and no hiccups.
   # def associated_cheque_entries

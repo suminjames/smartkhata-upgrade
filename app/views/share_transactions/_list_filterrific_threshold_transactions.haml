@@ -70,7 +70,7 @@
               %td
               %td
 
-    - if !share_transactions || share_transactions.empty?
+    - if share_transactions.blank?
       %div.row.text-center.top-buffer-md
         There are no matching share transactions.
 
