@@ -44,8 +44,8 @@ class UserSession
       Apartment::Tenant.switch!(tenant)
       UserSession.user = User.first
       UserSession.tenant = Tenant.find_by_name(tenant)
-      UserSession.selected_fy_code = 7374
-      UserSession.selected_branch_id = 1
+      UserSession.selected_fy_code = fy_code
+      UserSession.selected_branch_id = selected_branch_id
     end
 
     def destroy
