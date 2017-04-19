@@ -47,7 +47,7 @@ class Vouchers::Setup < Vouchers::Base
 
       ledger_list_financial << cash_ledger
 
-      ledger_list_financial.uniq!
+      ledger_list_financial = ledger_list_financial.uniq
 
       # default ledger selection for most of the cases
       if voucher.is_bank_related_receipt?
