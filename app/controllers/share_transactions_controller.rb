@@ -1,8 +1,8 @@
 class ShareTransactionsController < ApplicationController
-  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
+  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -495,6 +495,20 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions/1/edit
   def edit
   end
+
+  # POST /share_transactions/1/process_closeout.json
+  def process_closeout
+    settlement_by = params[:settlement_by]
+    closeout_settlement = CloseoutSettlementService.new(@share_transaction, settlement_by)
+    closeout_settlement.process
+    if closeout_settlement.error
+      render json: {error: closeout_settlement.error}, status: :unprocessable_entity
+    else
+      render json: {message: 'Successfully processed'}, status: :ok
+    end
+
+  end
+
 
   # POST /share_transactions
   # POST /share_transactions.json

@@ -1,12 +1,12 @@
-var Button = ReactBootstrap.Button
 class Closeout extends React.Component {
   constructor(props) {
-    debugger
     super(props);
     this.state = {
       transaction: this.props.transaction,
     }
   }
+
+
   render() {
     const transaction = this.state.transaction;
     return (
@@ -21,7 +21,7 @@ class Closeout extends React.Component {
         <td className="text-right">20</td>
         <td className="text-right">626.0</td>
         <td className="text-right">15,024</td>
-        <td>{ transaction.closeout_settled ? '': (<Button>Process</Button>)}
+        <td>{ transaction.closeout_settled ? '': (<Button onClick={() => this.props.process(transaction)} >Process</Button>)}
         </td>
       </tr>
     );

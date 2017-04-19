@@ -83,11 +83,14 @@ class GenerateBillsService
         if transaction.closeout_amount.present? && transaction.closeout_amount > 0
           if @current_tenant.closeout_settlement_automatic
             bill.net_amount += (transaction.net_amount - transaction.closeout_amount)
+            # since in automatic client pays
+            # it makes sense to make entry on the bill part
+            bill.closeout_charge += transaction.closeout_amount
           else
             bill.net_amount += transaction.net_amount
           end
 
-          bill.closeout_charge += transaction.closeout_amount
+
         else
           bill.net_amount += transaction.net_amount
         end

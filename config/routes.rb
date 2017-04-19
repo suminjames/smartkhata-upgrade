@@ -99,6 +99,9 @@ Rails.application.routes.draw do
       get 'closeouts'
       get 'make_closeouts_processed'
     end
+    member do
+      post 'process_closeout'
+    end
   end
   resources :bills do
     collection do
