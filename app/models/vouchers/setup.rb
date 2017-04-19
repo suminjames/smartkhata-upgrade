@@ -26,9 +26,12 @@ class Vouchers::Setup < Vouchers::Base
     bill_id_names = ""
     if voucher.is_payment_receipt?
       is_payment_receipt = true
-      ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
-      default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
-      default_bank_receive = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+      # ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
+      # default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
+      # default_bank_receive = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+      ledger_list_financial = BankAccount.all.uniq.collect(&:ledger)
+      default_bank_payment = BankAccount.where(:default_for_payment => true).first
+      default_bank_receive = BankAccount.where(:default_for_receipt => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
 
       ledger_list_financial << cash_ledger
