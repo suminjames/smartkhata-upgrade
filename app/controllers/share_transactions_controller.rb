@@ -1,8 +1,8 @@
 class ShareTransactionsController < ApplicationController
-  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout]
+  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout, :available_balancing_transactions]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -494,6 +494,12 @@ class ShareTransactionsController < ApplicationController
 
   # GET /share_transactions/1/edit
   def edit
+  end
+
+  # GET /share_transactions/1/available_balancing_transactions.json
+  def available_balancing_transactions
+    share_transactions = @share_transaction.available_balancing_transactions
+    render json: {share_transactions: share_transactions}, status: :ok
   end
 
   # POST /share_transactions/1/process_closeout.json

@@ -98,9 +98,11 @@ Rails.application.routes.draw do
       get 'securities_flow'
       get 'closeouts'
       get 'make_closeouts_processed'
+
     end
     member do
       post 'process_closeout'
+      get 'available_balancing_transactions'
     end
   end
   resources :bills do

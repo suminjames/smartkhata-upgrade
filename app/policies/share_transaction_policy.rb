@@ -6,5 +6,5 @@ class ShareTransactionPolicy < ApplicationPolicy
 
   permit_custom_access :employee_and_above, share_transactions_path, [:new, :show, :create, :update, :edit, :destroy, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow]
 
-  permit_custom_access :employee_and_above, closeouts_share_transactions_path, [:make_closeouts_processed, :process_closeout]
+  permit_custom_access :employee_and_above, closeouts_share_transactions_path, [:make_closeouts_processed, :process_closeout, :available_balancing_transactions]
 end
