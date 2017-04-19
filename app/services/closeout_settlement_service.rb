@@ -1,5 +1,6 @@
 # service to settle closeout
 class CloseoutSettlementService
+  include ApplicationHelper
   attr_reader :share_transaction, :error, :settlement_by, :balancing_transactions
 
   SETTLEMENT_TYPES = %w(client broker)
@@ -41,10 +42,26 @@ class CloseoutSettlementService
   def process_sales_closeout
     share_transaction.closeout_settled = true
     bill = share_transaction.bill
+    company_symbol = share_transaction.isin_info.isin
+    share_rate = share_transaction.share_rate
+    client_account = share_transaction.client_account
+    client_name = client_account.name
+    cost_center_id = client_account.branch_id
+    settlement_date = Time.now
+    closeout_ledger = Ledger.find_by(name: "Close Out")
+    client_ledger = Ledger.find_by(client_code: client_account.nepse_code)
+
     if settlement_by == 'client'
       bill.net_amount -= share_transaction.closeout_amount
       bill.closeout_charge += share_transaction.closeout_amount
       bill.save!
+      description = "Shortage Sales adjustment (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
+      voucher = Voucher.create!(date: settlement_date)
+      voucher.desc = description
+      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      process_accounts(client_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      voucher.complete!
+      voucher.save!
     end
     share_transaction.save!
   end
