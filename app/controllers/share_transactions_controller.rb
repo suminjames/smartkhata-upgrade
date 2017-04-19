@@ -417,18 +417,17 @@ class ShareTransactionsController < ApplicationController
       else
         @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
         # Needed for pagination to work
-        @share_transactions = @share_transactions.page(0).per(@share_transactions.size).decorate
+        @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
       # @share_transactions= ShareTransaction.with_closeout.filterrific_find(@filterrific).includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
-      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
+      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
 
 
     end
 
     @download_path_xlsx = closeouts_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
     @download_path_pdf = closeouts_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
-
     respond_to do |format|
       format.html
       format.js
