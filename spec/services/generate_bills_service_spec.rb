@@ -91,7 +91,7 @@ RSpec.describe GenerateBillsService  do
       bill = Bill.first
       expect(bill.sales?).to be_truthy
       expect(bill.net_amount).to eq  115130.6726
-      expect(bill.closeout_charge).to eq 15024
+      expect(bill.closeout_charge).to eq 0
       expect(Voucher.count).to eq 1
       expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance).to eq(-115130.6726)
       expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(1)
@@ -111,7 +111,7 @@ RSpec.describe GenerateBillsService  do
       bill = Bill.first
       expect(bill.sales?).to be_truthy
       expect(bill.net_amount).to eq  115130.6726
-      expect(bill.closeout_charge).to eq 138972
+      expect(bill.closeout_charge).to eq 0
 
 
       expect(Voucher.count).to eq 1
