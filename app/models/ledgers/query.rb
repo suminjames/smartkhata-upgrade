@@ -87,15 +87,15 @@ class Ledgers::Query
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
     if no_pagination
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC')
       else
-        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.order('transaction_date ASC','created_at ASC').includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills)
       end
     else
       if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.find_by_date_range(date_from_ad, date_to_ad).includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC').page(page).per(limit)
       else
-        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC').page(page).per(limit)
+        @ledger.particulars.complete.by_branch_fy_code.includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC').page(page).per(limit)
       end
     end
 
