@@ -62,6 +62,9 @@ Rails.application.routes.draw do
       get :show_multiple
     end
   end
+
+  match "/cheque_entries/combobox_ajax_filter_for_beneficiary_name" => "cheque_entries#combobox_ajax_filter_for_beneficiary_name", via: [:get]
+
   resources :cheque_entries do
     collection do
       get :get_cheque_number

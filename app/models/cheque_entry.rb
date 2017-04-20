@@ -93,6 +93,7 @@ class ChequeEntry < ActiveRecord::Base
           :by_date_from,
           :by_date_to,
           :by_client_id,
+          :by_beneficiary_name,
           :by_bank_account_id,
           :by_cheque_entry_status,
           :by_cheque_issued_type,
@@ -127,6 +128,8 @@ class ChequeEntry < ActiveRecord::Base
     ),ledger_id ])
   }
 
+  scope :by_beneficiary_name, -> (name) { where("beneficiary_name ILIKE ?", "%#{name}%") }
+
   scope :by_bank_account_id, -> (id) { where(bank_account_id: id) }
   scope :by_cheque_entry_status, lambda {|status|
     if status == 'assigned'
@@ -150,9 +153,22 @@ class ChequeEntry < ActiveRecord::Base
     end
   }
 
+  def self.find_beneficiary_name_similar_to_term(search_term)
+    search_term = search_term.present? ? search_term.to_s : ''
+    beneficiary_names = ChequeEntry.where("beneficiary_name ILIKE :search", search: "%#{search_term}%").order(:beneficiary_name).pluck_to_hash(:beneficiary_name)
+    beneficiary_names.uniq.collect { |beneficiary_name| {:text=> beneficiary_name[:beneficiary_name], :id=> beneficiary_name[:beneficiary_name]} }
+  end
 
   def self.options_for_bank_account_select
     BankAccount.by_branch_id.all.order(:bank_name)
+  end
+
+  def self.options_for_beneficiary_name(filterrific_params)
+    beneficiary_name_arr = []
+    if filterrific_params.present? && filterrific_params[:by_beneficiary_name].present?
+     beneficiary_name_arr << filterrific_params[:by_beneficiary_name]
+    end
+    beneficiary_name_arr
   end
 
   def self.options_for_cheque_entry_status
