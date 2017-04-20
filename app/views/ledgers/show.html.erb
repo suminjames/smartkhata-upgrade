@@ -112,7 +112,7 @@
                 <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
 
                 <td>
-                  <% if particular.bills.count > 0 %>
+                  <% if particular.bills.size> 0 %>
                       <% particular.bills.each do |bill| %>
                           <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
                           <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
@@ -121,7 +121,7 @@
                   <% end %>
                 </td>
                 <td>
-                  <% if particular.cheque_entries.count > 0 %>
+                  <% if particular.cheque_entries.size> 0 %>
                       <% particular.cheque_entries.each do |cheque| %>
                           <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true %> <br>
                       <% end %>
