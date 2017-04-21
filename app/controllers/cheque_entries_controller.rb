@@ -71,9 +71,6 @@ class ChequeEntriesController < ApplicationController
 
   def show_multiple
     @cheque_entry_ids = params[:cheque_entry_ids].present? ? params[:cheque_entry_ids].map(&:to_i) : []
-    # The incoming params will have sorted ids.
-    # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
-    @cheque_entry_ids.sort!
     respond_to do |format|
       format.html
       format.js
