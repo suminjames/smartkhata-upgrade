@@ -11,13 +11,11 @@ $(document).on 'page:change', ->
 
     # Store all cheque entries' ids in the DOM(window) right now.
     allChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox").not('.cheque-entry#select_all').not('.cheque-entry.unassigned-cheque').map(function(){return this.id}).get();`
-    allChequeEntriesIds = allChequeEntriesIds.sort()
 
     $(document).on 'change', 'input:checkbox', (event)->
       selectedChequeEntriesIds = `$("#filterrific_results .cheque-entry:input:checkbox:checked").not('.cheque-entry#select_all').not('.cheque-entry.unassigned-cheque').map(function(){return this.id}).get();`
       # The dom is parsed top to bottom, hence, the selectedChequeEntriesIds maintain a sort order.
       # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
-      selectedChequeEntriesIds = selectedChequeEntriesIds.sort()
       setButtonsActivenesses()
       console.log selectedChequeEntriesIds
 
@@ -104,8 +102,10 @@ $(document).on 'page:change', ->
         if print_status == 0
           $("#cheque_entry_" + id + " .print-status").html("To Be Printed")
           $("#cheque_entry_" + id).addClass('cheque-entry-not-printed').removeClass('cheque-entry-printed')
+          $(":checkbox#" + id).removeClass('unprintable-cheque')
       console.log 'Print Status Reflected'
       setButtonsActivenesses()
+
 
     setButtonsActivenesses= ->
       toggleAllButtons()
@@ -147,7 +147,7 @@ $(document).on 'page:change', ->
         $('.receipt-cheque-selected-warning').hide()
 
     setSelectAllCheckboxSelection = ->
-      isSelected = arraysEqual(selectedChequeEntriesIds, allChequeEntriesIds)
+      isSelected = arraysEqual(selectedChequeEntriesIds.sort(), allChequeEntriesIds.sort())
       $('.cheque-entry#select_all').prop('checked', isSelected)
 
     isAnyChequeSelected = ->
