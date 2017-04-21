@@ -99,21 +99,22 @@ class ShareTransaction < ActiveRecord::Base
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
 
   scope :find_by_date, -> (date) { where(
-      :date => date.beginning_of_day..date.end_of_day) }
+      :date => date.beginning_of_day..date.end_of_day)
+  }
   scope :find_by_date_range, -> (date_from, date_to) { where(
-      :date => date_from.beginning_of_day..date_to.end_of_day) }
-
+      :date => date_from.beginning_of_day..date_to.end_of_day)
+  }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    not_cancelled.where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date>= ?', date_ad.beginning_of_day)
+    not_cancelled.where('share_transactions.date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date<= ?', date_ad.end_of_day)
+    not_cancelled.where('share_transactions.date <= ?', date_ad.end_of_day)
   }
   scope :by_transaction_type, lambda { |type|
     not_cancelled.where(:transaction_type => ShareTransaction.transaction_types[type])
