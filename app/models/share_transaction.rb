@@ -201,7 +201,7 @@ class ShareTransaction < ActiveRecord::Base
 
 
   def available_balancing_transactions
-    self.class.where('date > ?', self.date).where(isin_info_id: self.isin_info_id, client_account_id: self.client_account_id)
+    self.class.where('date > ?', self.date).where(isin_info_id: self.isin_info_id, client_account_id: self.client_account_id, closeout_amount: 0, transaction_type: self.class.transaction_types[:buying])
   end
   #
   # Returns a hash with share quantity flows of an isin from the search scope that is provided in the `filterrific` ParamSet.
