@@ -10,8 +10,18 @@ namespace :branch do
 
         # make sure it is not migrated already,
         # only way to ensure is that currently, it should not have particulars for default branch
+        # also make sure the ledger being changed doesnot have opening balance
+
+        ledger_balances = LedgerBalance.unscoped.where(ledger_id: ledger.id, branch_id: branch_id)
+        opening_balance_set_for_branch = false
+        ledger_balances.each { |b| (opening_balance_set_for_branch = true; break ) if b.opening_balance > 0 }
+        break if opening_balance_set_for_branch
+
         if Particular.unscoped.where(ledger_id: ledger.id, branch_id: 1).count > 0
           LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all
+
+          
+
           LedgerBalance.unscoped.where(ledger_id: ledger.id, branch_id: branch_id).delete_all
           LedgerBalance.unscoped.where(ledger_id: ledger.id, branch_id: 1).update_all(branch_id: branch_id)
           Particular.unscoped.where(ledger_id: ledger.id).update_all(branch_id: branch_id)
@@ -32,6 +42,8 @@ namespace :branch do
           ledger_ids << ledger.id
         end
       end
+
+
 
       unless ledger_ids.blank?
         Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true, branch_id)
