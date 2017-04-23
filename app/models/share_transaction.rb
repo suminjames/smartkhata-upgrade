@@ -195,6 +195,14 @@ class ShareTransaction < ActiveRecord::Base
     # TODO
   end
 
+  def as_json(options={})
+    super.as_json(options).merge({:isin_info => isin_info, client_account: client_account.as_json})
+  end
+
+
+  def available_balancing_transactions
+    self.class.where('date > ?', self.date).where(isin_info_id: self.isin_info_id, client_account_id: self.client_account_id)
+  end
   #
   # Returns a hash with share quantity flows of an isin from the search scope that is provided in the `filterrific` ParamSet.
   # The passed in isin_info_id is bind with `by_isin_id filter, which might or might not have been initially set to some value in filterrific's search scope.
@@ -379,5 +387,7 @@ class ShareTransaction < ActiveRecord::Base
     end
     calculated_base_price.try(:to_i)
   end
+
+
 
 end

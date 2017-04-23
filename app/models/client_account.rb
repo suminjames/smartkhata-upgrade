@@ -476,4 +476,8 @@ class ClientAccount < ActiveRecord::Base
     end
     return_val
   end
+  def as_json(options={})
+    super.as_json(options).merge({:name_and_nepse_code => name_and_nepse_code})
+
+  end
 end

@@ -17,8 +17,8 @@ describe "Transaction" do
       client_account = create(:client_account, branch_id: user.branch_id)
       create(:share_transaction, client_account: client_account)
       visit share_transactions_path
-      expect(page).to have_content('1234')
-
+      expect(page).to have_content('201611284117936')
+      expect(page).to have_content('Displaying 1 share transaction')
     end
 
     it "should not show the list of message only for the branch" do
@@ -28,7 +28,7 @@ describe "Transaction" do
       create(:share_transaction, client_account: client_account)
 
       visit share_transactions_path
-      expect(page).to_not have_content('1234')
+      expect(page).to_not have_content('Displaying 1 share transaction')
     end
   end
 end

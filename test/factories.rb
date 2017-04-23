@@ -113,30 +113,6 @@ FactoryGirl.define do
     fy_code '7374'
   end
 
-  factory :bill do
-    sequence (:bill_number)
-    client_name 'Harold Hill'
-    net_amount '9000'
-    balance_to_pay  { net_amount }
-    bill_type 0
-    status :pending
-    special_case 0
-    fy_code '7374'
-    date { 3.day.ago.to_date }
-    date_bs { CustomDateModule.ad_to_bs(3.days.ago.to_date) } #replace this with 3 working days before
-    settlement_date { CustomDateModule.ad_to_bs(Time.now.to_date) }
-    client_account
-    branch_id 1
-
-    factory :sales_bill do
-      bill_type :sales
-    end
-
-    factory :purchase_bill do
-      bill_type :purchase
-    end
-  end
-
   factory :client_account do
     name 'Dedra Sorenson'
     phone '55555'
@@ -151,6 +127,7 @@ FactoryGirl.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
+    branch_id 1
   end
 
   factory :isin_info do
