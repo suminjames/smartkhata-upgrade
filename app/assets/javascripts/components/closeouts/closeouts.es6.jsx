@@ -72,7 +72,7 @@ class Closeouts extends React.Component {
 
     $.post(
         "/share_transactions/"+ self.state.transaction.id+"/process_closeout.json",
-        { 'settlement_by': self.state.settlement_by}
+        { 'settlement_by': self.state.settlement_by, balancing_transaction_ids: self.state.balancing_transactions_ids }
       )
       .done(function(data){
         var newTransactions = self.state.transactions.map(function (item) {
