@@ -111,8 +111,8 @@ class Mandala::DailyTransaction < ActiveRecord::Base
                                date: date_ad,
                                settlement_date: Date.parse(settlement_date),
                                sebo: total_amount.to_f * 0.00015   ,
+                               base_price: base_price.to_f,
                                cgt: 0,
-                               base_price: base_price,
                                dp_fee: dp_fee,
                                adjusted_sell_price: adjusted_purchase_price,
                                closeout_amount: closeout_amount,
@@ -123,7 +123,6 @@ class Mandala::DailyTransaction < ActiveRecord::Base
 
   def new_smartkhata_share_transaction(bill_no = nil)
     _bill_detail = bill_detail(bill_no)
-
     ::ShareTransaction.new({
         contract_no: transaction_no,
         quantity: final_quantity,

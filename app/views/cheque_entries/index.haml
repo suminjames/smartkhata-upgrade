@@ -56,7 +56,19 @@
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
           = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
           = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
-        .col-xs-2.col-xs-offset-3
+        .col-xs-3
+          %label
+            Beneficiary Name
+            %a{'data-toggle' => 'tooltip', 'title' => 'Beneficiary Name can be different from Client Account name, if the name of the beneficiary of cheque entry was changed.' }
+              %span.glyphicon.glyphicon-question-sign
+          = f.collection_select(                        |
+            :by_beneficiary_name,                              |
+            @filterrific.select_options[:by_beneficiary_name], |
+            :to_s,                                        |
+            :to_s,                                      |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select min-3', id: 'cheque_entries_index_beneficiary_name_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-2
           %label
             Date
           %br

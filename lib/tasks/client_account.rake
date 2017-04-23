@@ -335,4 +335,132 @@ namespace :client_account do
     return return_val, src_client_account_id_for_merge, dst_client_account_id_for_merge
   end
 
+  desc "Overwrite client_account attributes as per csv input"
+  task :sync_with_csv_data,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+    #
+    #  If there is match for nepse_code or ac_code in CSV file
+    #   -over-write attributes in db with that in CSV(if present in latter.)
+    #  Else
+    #   -leave as is
+    #
+
+    mimic = args[:mimic] == 'true' ? true : false
+
+    dir = "#{Rails.root}/test_files/"
+    client_account_csv_file =  dir + 'client_accounts.csv'
+
+    csv_text = File.read(client_account_csv_file)
+    csv = CSV.parse(csv_text, :headers => true)
+    client_accounts_from_csv_arr = []
+
+    csv.each do |row|
+      client_accounts_from_csv_arr << row.to_hash
+    end
+    relevant_attributes = [
+        "boid",
+        "nepse_code",
+        "client_type",
+        "name",
+        "address1",
+        "address1_perm",
+        "address2",
+        "address2_perm",
+        "address3",
+        "address3_perm",
+        "city",
+        "city_perm",
+        "state",
+        "state_perm",
+        "country",
+        "country_perm",
+        "phone",
+        "phone_perm",
+        "customer_product_no",
+        "dp_id",
+        "dob",
+        "sex",
+        "nationality",
+        "stmt_cycle_code",
+        "ac_suspension_fl",
+        "profession_code",
+        "income_code",
+        "electronic_dividend",
+        "dividend_curr",
+        "email",
+        "father_mother",
+        "citizen_passport",
+        "granfather_father_inlaw",
+        "purpose_code_add",
+        "add_holder",
+        "husband_spouse",
+        "citizen_passport_date",
+        "citizen_passport_district",
+        "pan_no",
+        "dob_ad",
+        "bank_name",
+        "bank_account",
+        "bank_address",
+        "company_name",
+        "company_address",
+        "company_id",
+        "invited",
+        "referrer_name",
+        "group_leader_id",
+        "branch_id",
+        "mobile_number",
+        "ac_code"
+    ]
+
+    integer_attrs = [
+        'client_type',
+        'group_leader_id',
+        'branch_id'
+    ]
+
+    ActiveRecord::Base.transaction do
+      client_accounts_from_csv_arr.each do |client_account_from_csv|
+
+        nepse_code_match = false
+        ac_code_match = false
+
+        if client_account_from_csv["nepse_code"].present?
+          client_account_match_in_db =  ClientAccount.find_by_nepse_code(client_account_from_csv["nepse_code"])
+          if client_account_match_in_db.present?
+            nepse_code_match = true
+          end
+        elsif client_account_from_csv["ac_code"].present?
+          client_account_match_in_db =  ClientAccount.find_by_ac_code(client_account_from_csv["ac_code"])
+          if client_account_match_in_db.present?
+            ac_code_match = true
+          end
+        else
+          # Do nothing
+        end
+
+        if nepse_code_match || ac_code_match
+          # Update relevant attributes from csv to db
+          relevant_attributes.each do |attr|
+            if client_account_from_csv[attr].present?
+              if integer_attrs.include?(attr)
+                client_account_from_csv[attr] =  client_account_from_csv[attr].to_i
+              end
+              client_account_match_in_db.send("#{attr}=", client_account_from_csv[attr])
+            end
+          end
+          if client_account_match_in_db.changed?
+            puts "Modifying ClientAccount (id: #{client_account_match_in_db.id})..."
+            puts "-Changed Attributes #{client_account_match_in_db.changed_attributes.to_s}"
+            puts "*" * 80
+            client_account_match_in_db.skip_validation_for_system = true
+            if not mimic
+              client_account_match_in_db.save!
+            end
+          end
+        end
+      end
+
+    end
+
+  end
+
 end

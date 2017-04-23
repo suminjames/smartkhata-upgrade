@@ -77,9 +77,12 @@
             %label
               Group By
             %br
-            = check_box_tag :group_by_company, "true", params[:group_by_company] == 'true'
+            -#http://stackoverflow.com/questions/20379311/how-to-get-blank-checkboxes-to-pass-as-false-to-params
+            = hidden_field_tag :group_by_company, ''
+            -# Have 'group_by_company' checkbox checked by default
+            = check_box_tag :group_by_company, "true", ( params[:group_by_company] ? params[:group_by_company] == 'true' : true )
             Company
     = render_filterrific_spinner
 
-= render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions} )
+= render(partial: 'share_transactions/list_filterrific', locals: { share_transactions: @share_transactions, client_account: @client_account} )
 

@@ -19,6 +19,7 @@ class ChequeEntriesController < ApplicationController
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_beneficiary_name: ChequeEntry.options_for_beneficiary_name(params[:filterrific]),
             by_bank_account_id: ChequeEntry.options_for_bank_account_select,
             by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status,
             by_cheque_issued_type: ChequeEntry.options_for_cheque_issued_type
@@ -70,9 +71,6 @@ class ChequeEntriesController < ApplicationController
 
   def show_multiple
     @cheque_entry_ids = params[:cheque_entry_ids].present? ? params[:cheque_entry_ids].map(&:to_i) : []
-    # The incoming params will have sorted ids.
-    # However, sort to (double) make sure they are sorted to ensure cheques maintain serial-ness while printing.
-    @cheque_entry_ids.sort!
     respond_to do |format|
       format.html
       format.js
@@ -330,6 +328,21 @@ class ChequeEntriesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to cheque_entries_url, notice: 'Cheque entry was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  #
+  # Entertains Ajax request made by combobox used in various views to populate clients.
+  #
+  def combobox_ajax_filter_for_beneficiary_name
+    search_term = params[:q]
+    beneficiary_names = []
+    # 3 is the minimum search_term length to invoke find_similar_to_name
+    if search_term && search_term.length >= 3
+      beneficiary_names = ChequeEntry.find_beneficiary_name_similar_to_term(search_term)
+    end
+    respond_to do |format|
+      format.json { render json: beneficiary_names, status: :ok }
     end
   end
 

@@ -26,12 +26,28 @@ class Vouchers::Setup < Vouchers::Base
     bill_id_names = ""
     if voucher.is_payment_receipt?
       is_payment_receipt = true
-      ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
-      default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
-      default_bank_receive = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+
+      bank_accounts_in_branch = BankAccount.by_branch_id
+
+      default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
+      default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first
+
+      # Check for availability of default bank accounts for payment and receipt in the current branch.
+      # If not available in the current branch, resort to using whichever is available from all available branches.
+      ledger_list_financial = bank_accounts_in_branch.uniq.collect(&:ledger).present? ? bank_accounts_in_branch.all.uniq.collect(&:ledger) : BankAccount.all.uniq.collect(&:ledger)
+      default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
+      default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
       cash_ledger = Ledger.find_by(name: "Cash")
 
+      # In case when a bank account in a branch has a ledger, but doesn't have either default_for_payment or
+      # default_for_receipt flagged on, the logic above resorts to searching the defaults from all available branches.
+      # For this purpose, ledgers of default_bank_payment and default_bank_receive are added to ledger_list_financial.
+      ledger_list_financial << default_bank_payment.ledger
+      ledger_list_financial << default_bank_receive.ledger
+
       ledger_list_financial << cash_ledger
+
+      ledger_list_financial = ledger_list_financial.uniq
 
       # default ledger selection for most of the cases
       if voucher.is_bank_related_receipt?

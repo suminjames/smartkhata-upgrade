@@ -9,6 +9,12 @@
 <p>Contact Number:
   <strong><%= @bank_account.bank.contact_no %></strong>
 </p>
+<p>Default for Payment:
+  <strong><%= @bank_account.default_for_payment.to_s.humanize %></strong>
+</p>
+<p>Default for Receipt:
+  <strong><%= @bank_account.default_for_receipt.to_s.humanize %></strong>
+</p>
 
 <%= link_to 'Edit', edit_bank_account_path(@bank_account) %> |
 <%= link_to 'Back', bank_accounts_path %> |
