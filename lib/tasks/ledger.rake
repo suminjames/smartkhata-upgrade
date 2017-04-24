@@ -109,8 +109,6 @@ namespace :ledger do
         ledger_blnc_cost_center.dr_amount = dr_amount
         ledger_blnc_cost_center.cr_amount = cr_amount
 
-
-        fy_code = 7374
         query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code}) AS subquery;"
         balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
         ledger_blnc_org.closing_balance = balance + ledger_blnc_org.opening_balance
@@ -242,7 +240,6 @@ namespace :ledger do
   task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_year, :branch_id] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     branch_id = args.branch_id || 1
-
     ledger_ids = args.ledger_ids.split(" ")
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
 

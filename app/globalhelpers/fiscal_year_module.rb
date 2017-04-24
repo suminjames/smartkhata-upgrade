@@ -100,6 +100,22 @@ module FiscalYearModule
   def get_fy_code_from_fiscal_year(fiscal_year)
     @@fiscal_year_mapping[fiscal_year]
   end
+
+  # get list of fiscal years after each date
+  def get_full_fy_codes_after_date(date, exclude = false)
+    fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
+    fy_code =  fiscal_year_breakpoint_single[0]
+    fy_codes = available_fy_codes
+    index = fy_codes.find_index(fy_code.to_i)
+    if index
+      if exclude
+        return fy_codes[(index +1) .. -1]
+      else
+        return fy_codes[index .. -1]
+      end
+    end
+  end
+
 end
 
 # # code kept for future reference
