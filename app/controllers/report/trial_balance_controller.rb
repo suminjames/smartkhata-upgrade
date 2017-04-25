@@ -100,9 +100,9 @@ class Report::TrialBalanceController < ApplicationController
         ledger_ids = balance.descendent_ledgers.pluck(:id)
 
         if branch_id == 0
-          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where(ledgers: {id: ledger_ids}).as_json
+          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR dr_amount != 0 OR cr_amount != 0').where(ledgers: {id: ledger_ids}).as_json
         else
-          b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where(ledgers: {id: ledger_ids}).order('ledgers.name asc').as_json
+          b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order('ledgers.name asc').as_json
         end
         @balance_report[balance.name] = b
       end
@@ -136,11 +136,14 @@ class Report::TrialBalanceController < ApplicationController
                   last_day_ledger_daily =  ledger.ledger_dailies.by_branch_fy_code.where('date <= ?', date_ad).order('date DESC').first
                   last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
-                  ledger.opening_balance_trial = first_day_opening_balance
-                  ledger.closing_balance_trial = last_day_balance
-                  ledger.cr_amount_trial = total_credit
-                  ledger.dr_amount_trial = total_debit
-                  modified_ledger_list << ledger
+                  # new dummy ledger balance
+                  # as we dont wont to messup with balances
+                  ledger_daily = LedgerBalance.new
+                  ledger_daily.opening_balance = first_day_opening_balance
+                  ledger_daily.closing_balance = last_day_balance
+                  ledger_daily.cr_amount = total_credit
+                  ledger_daily.dr_amount = total_debit
+                  modified_ledger_list << ledger_daily.as_json(ledger_name: ledger.name)
                 end
               end
               @balance_report[balance.name] = modified_ledger_list

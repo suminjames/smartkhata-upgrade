@@ -112,6 +112,8 @@ class LedgerBalance < ActiveRecord::Base
     end
   end
   def as_json(options={})
-    super.as_json(options).merge({:name=> name})
+    ledger_name = options[:ledger_name]
+    ledger_name ||= name
+    super.as_json(options).merge({:name=> ledger_name})
   end
 end
