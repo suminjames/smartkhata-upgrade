@@ -2,14 +2,12 @@ class TrialBalance extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      ledger_groups: this.props.ledger_groups
+      ledger_groups: this.props.ledger_groups,
     }
   }
   render() {
-
     var self = this;
-    var total_opening_balance_dr = 0, total_opening_balance_cr = 0, total_dr_amount = 0, total_cr_amount = 0, total_closing_balance_dr = 0, total_closing_balance_cr = 0;
-
+    let total_opening_balance_dr = 0, total_opening_balance_cr = 0, total_dr_amount = 0, total_cr_amount = 0, total_closing_balance_dr = 0, total_closing_balance_cr = 0;
     return (
       <table className="table">
         <thead><tr>
@@ -24,7 +22,8 @@ class TrialBalance extends React.Component {
           {
             Object.keys(this.state.ledger_groups).map(function (key, index) {
               var ledgers = self.state.ledger_groups[key];
-              var opening_balance_dr = 0, opening_balance_cr = 0, dr_amount = 0, cr_amount = 0, closing_balance_dr = 0, closing_balance_cr = 0;
+
+              let opening_balance_dr = 0, opening_balance_cr = 0, dr_amount = 0, cr_amount = 0, closing_balance_dr = 0, closing_balance_cr = 0;
 
               return(
                 <tbody className="ledger-group" key={index}>
@@ -32,8 +31,9 @@ class TrialBalance extends React.Component {
                     <td colSpan="7"><h4><strong>{key}</strong></h4></td>
                   </tr>
                   {
-                    ledgers.map(function(ledger){
-                      opening_balance_dr += ((ledger.opening_balance > 1) ? positive_currency_raw(ledger.opening_balance) : 0);
+                    ledgers.map(function(ledger, index_inner){
+
+                      opening_balance_dr += ((ledger.opening_balance > 1) ? positive_currency_raw(ledger.opening_balance) : 0.00);
                       opening_balance_cr += ((ledger.opening_balance < 0) ? positive_currency_raw(ledger.opening_balance) : 0);
                       dr_amount += positive_currency_raw(ledger.dr_amount);
                       cr_amount += positive_currency_raw(ledger.cr_amount);
@@ -49,30 +49,32 @@ class TrialBalance extends React.Component {
 
 
                       return(
-                        <tr className="ledger-single" key={ledger.id}>
+                        <tr className="ledger-single" key={index_inner}>
                           <td>{ ledger.name }</td>
-                          <td className="text-right">{ ledger.opening_balance > 1 ? number_to_currency(ledger.opening_balance) : 0 }</td>
-                          <td className="text-right">{ ledger.opening_balance < 0 ? number_to_currency(ledger.opening_balance) : 0 }</td>
+                          <td className="text-right">{ ledger.opening_balance > 1 ? number_to_currency(ledger.opening_balance) : '0.00' }</td>
+                          <td className="text-right">{ ledger.opening_balance < 0 ? number_to_currency(ledger.opening_balance) : '0.00' }</td>
                           <td className="text-right">{ number_to_currency(ledger.dr_amount) }</td>
                           <td className="text-right">{ number_to_currency(ledger.cr_amount) }</td>
-                          <td className="text-right">{ ledger.closing_balance > 1 ? number_to_currency(ledger.closing_balance) : 0 }</td>
-                          <td className="text-right">{ ledger.closing_balance < 0 ? number_to_currency(ledger.closing_balance) : 0 }</td>
+                          <td className="text-right">{ ledger.closing_balance > 1 ? number_to_currency(ledger.closing_balance) : '0.00' }</td>
+                          <td className="text-right">{ ledger.closing_balance < 0 ? number_to_currency(ledger.closing_balance) : '0.00' }</td>
                         </tr>
                       )
                     })
                   }
-                  <tr>
 
-                  </tr>
-                  <tr className="total-trial">
-                    <td>Total</td>
-                    <td className="text-right">{number_to_currency(opening_balance_dr)}</td>
-                    <td className="text-right">{number_to_currency(opening_balance_dr)}</td>
-                    <td className="text-right">{number_to_currency(dr_amount)}</td>
-                    <td className="text-right">{number_to_currency(cr_amount)}</td>
-                    <td className="text-right">{number_to_currency(closing_balance_dr)}</td>
-                    <td className="text-right">{number_to_currency(closing_balance_cr)}</td>
-                  </tr>
+                  {
+                    (
+                    <tr className="total-trial" key={"total"+ index}>
+                      <td>Total</td>
+                      <td className="text-right">{number_to_currency(opening_balance_dr)}</td>
+                      <td className="text-right">{number_to_currency(opening_balance_dr)}</td>
+                      <td className="text-right">{number_to_currency(dr_amount)}</td>
+                      <td className="text-right">{number_to_currency(cr_amount)}</td>
+                      <td className="text-right">{number_to_currency(closing_balance_dr)}</td>
+                      <td className="text-right">{number_to_currency(closing_balance_cr)}</td>
+                    </tr>
+                  )
+                  }
                 </tbody>
               )
             })
