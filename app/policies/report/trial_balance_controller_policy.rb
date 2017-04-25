@@ -1,4 +1,4 @@
 class Report::TrialBalanceControllerPolicy < ApplicationPolicy
   # the only action in menu as well as controller
-  permit_conditional_access_to_employee_and_above :index
+  permit_conditional_access_to_employee_and_above :index, :index_old
 end

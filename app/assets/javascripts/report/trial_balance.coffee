@@ -12,6 +12,15 @@
 @format_number = (data) ->
   return data.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,")
 
+@round_number = (data) ->
+  return parseFloat(data).toFixed(2)
+
+@positive_currency_raw = (data) ->
+  return Math.abs(round_number(data))
+
+@number_to_currency = (data) ->
+  return format_number(Math.abs(data))
+
 $ ->
   $(".ledger-group").each ->
     opening_balance_dr = 0
