@@ -204,7 +204,9 @@ Rails.application.routes.draw do
   namespace 'report' do
     resources :balancesheet
     resources :profitandloss
-    resources :trial_balance
+    resources :trial_balance do
+      collection { get :index_old}
+    end
   end
 
   get "/test" => "test#index"

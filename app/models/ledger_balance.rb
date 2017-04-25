@@ -38,6 +38,7 @@ class LedgerBalance < ActiveRecord::Base
 
   # dont know why it was used as 0
   # perhaps the selector wont return nil
+  delegate :name, to: :ledger
 
   default_scope do
     if UserSession.selected_branch_id == 0
@@ -109,5 +110,8 @@ class LedgerBalance < ActiveRecord::Base
         self.opening_balance_type = 'cr'
       end
     end
+  end
+  def as_json(options={})
+    super.as_json(options).merge({:name=> name})
   end
 end

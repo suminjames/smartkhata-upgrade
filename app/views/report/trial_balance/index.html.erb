@@ -35,6 +35,8 @@
 
 
 <% if @balance_report.present? %>
+
+
     <h2 class="text-center"><%= current_tenant.full_name %></h2>
     <h3 class="text-center">Trial Balance</h3>
     <h4 class="text-center"> <%= params[:search_term] ? "As on date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
@@ -55,39 +57,6 @@
     <br><br>
 
     <div class="box-body ledger trial">
-      <table class="table">
-        <thead>
-        <th>Name</th>
-        <th>Opening <br> Balance Dr</th>
-        <th>Opening <br> Balance Cr</th>
-        <th>Net Debit</th>
-        <th>Net Credit</th>
-        <th>Closing <br> Balance Dr</th>
-        <th>Closing <br> Balance Cr</th>
-
-
-        </thead>
-
-        <% @balance_report.each do |group, ledgers| %>
-            <tr class="">
-              <td colspan="7"><h4><strong><%= group %></strong></h4></td>
-
-            </tr>
-            <tbody class="ledger-group">
-            <% ledgers.each do |ledger| %>
-                <tr class="ledger-single">
-                  <td><%= ledger.name %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial) if ledger.opening_balance_trial > 1 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial.abs) if ledger.opening_balance_trial < 0 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.dr_amount_trial) %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.cr_amount_trial) %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial) if ledger.closing_balance_trial > 1 %></td>
-                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial.abs) if ledger.closing_balance_trial < 0 %></td>
-                </tr>
-            <% end %>
-            </tbody>
-        <% end %>
-        <tr class="end"></tr>
-      </table>
+      <%= react_component('TrialBalance', ledger_groups: @balance_report) %>
     </div>
 <% end %>
