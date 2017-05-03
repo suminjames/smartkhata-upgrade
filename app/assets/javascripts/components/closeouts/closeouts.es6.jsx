@@ -50,22 +50,27 @@ class Closeouts extends React.Component {
   submit() {
     var self = this;
 
+
     if (this.state.transaction.transaction_type == 'buying' ) {
-      //make sure the transactions are selected
-      if (this.state.balancing_transactions_ids.length < 1) {
-        self.setState({error: 'Select atleast one transaction'});
-        return false;
-      } else {
-      //  and the transactions have equal amount as that of the closeout transaction.
-        var transactions_qty = this.state.balancing_transactions.map(
-          function(e){
-            if(this == e.id){return e.quantity}
-            },this.state.balancing_transactions_ids
-        );
-        var total_quantity = transactions_qty.reduce( (prev, curr) => prev + curr );
-        if (total_quantity != (self.state.transaction.raw_quantity - self.state.transaction.quantity)) {
-          self.setState({error: 'The quantity does not match. Required quantity is: '+ (self.state.transaction.raw_quantity - self.state.transaction.quantity)});
+      if (this.state.settlement_by != 'client' ) {
+        //make sure the transactions are selected
+        if (this.state.balancing_transactions_ids.length < 1) {
+          self.setState({error: 'Select atleast one transaction'});
           return false;
+        } else {
+          //  and the transactions have equal amount as that of the closeout transaction.
+          var transactions_qty = this.state.balancing_transactions.map(
+            function (e) {
+              if (this == e.id) {
+                return e.quantity
+              }
+            }, this.state.balancing_transactions_ids
+          );
+          var total_quantity = transactions_qty.reduce((prev, curr) => prev + curr);
+          if (total_quantity != (self.state.transaction.raw_quantity - self.state.transaction.quantity)) {
+            self.setState({error: 'The quantity does not match. Required quantity is: ' + (self.state.transaction.raw_quantity - self.state.transaction.quantity)});
+            return false;
+          }
         }
       }
     }

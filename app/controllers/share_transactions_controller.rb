@@ -399,14 +399,14 @@ class ShareTransactionsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        ShareTransaction,
+        ShareTransaction.by_branch,
         params[:filterrific],
         select_options: {
             by_client_id_closeouts: ClientAccount.options_for_client_select_closeouts(params[:filterrific]),
             by_isin_id_closeouts: ShareTransaction.options_for_isin_select
         },
         persistence_id: false,
-        default_filter_params: { sorted_by_closeouts: 'date_asc' },
+        default_filter_params: { sorted_by_closeouts: 'date_desc' },
     ) or return
 
     # @filterrific.select_options[:sorted_by] = 'close_out_asc'
@@ -416,15 +416,15 @@ class ShareTransactionsController < ApplicationController
     # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
-        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC')
       else
-        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC')
         # Needed for pagination to work
         @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
       # @share_transactions= ShareTransaction.with_closeout.filterrific_find(@filterrific).includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
-      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC').page(params[:page]).per(items_per_page)
 
 
     end

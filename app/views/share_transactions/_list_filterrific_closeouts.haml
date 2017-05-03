@@ -26,13 +26,6 @@
           %span= 'Mark Selected as Pending'
           =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'closeout-mark-pending'
 
-        %div.col-xs-offset-9.col-xs-3.top-buffer-sm
-          %div.row
-            %div.col-xs-1
-              %div.box-sm.indicator-bg-light-red
-            %div.col-xs-8
-              Pending Processing
-
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
   %div#share_transaction_list.items-to-act-container
