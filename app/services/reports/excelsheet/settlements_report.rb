@@ -62,25 +62,26 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
     row_index = 0
     @settlements.each_with_index do |s, index|
       sn = index + 1
-      cheque_numbers, bank_codes = s.formatted_cheque_numbers_and_bank_codes(strip: false)
-                                    .values_at(:cheque_numbers, :bank_codes)
+      cheque_numbers, bank_codes, amounts = s.cheque_cash_details
+                                    .values_at(:cheque_numbers, :bank_codes, :amounts)
                                     .map{|d| d.split '<br>'}
 
       # shift: pops the first element. Empty string just in case..
       cheque_num = cheque_numbers.shift || ''
       bank_code = bank_codes.shift || ''
+      amount = amounts.shift || ''
       settlement_type = s.receipt? ? 'receipt' : 'payment'
-
       row_style = normal_style_row
-      @sheet.add_row [sn, s.name, s.amount, bank_code, cheque_num, s.date_bs, s.description, settlement_type], style: row_style
+      @sheet.add_row [sn, s.name, amount, bank_code, cheque_num, s.date_bs, s.description, settlement_type], style: row_style
       row_index += 1
 
       # Add additional bank names and cheque numbers as distinct rows
       bank_codes.each_with_index do |bank_code, sub_index|
         cheque_num = cheque_numbers[sub_index] || ''
-
+        amount = amounts[sub_index] || ''
         row_style = normal_style_row
-        @sheet.add_row (['']*6).insert(3, *[bank_code, cheque_num]), style: row_style
+        # make a row of 5 columns and insert 3 more, total columns 8
+        @sheet.add_row (['']*5).insert(2, *[amount, bank_code, cheque_num]), style: row_style
         row_index += 1
       end
     end
