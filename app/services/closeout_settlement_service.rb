@@ -26,7 +26,10 @@ class CloseoutSettlementService
 
   def validate?
   #   make sure the the balancing transactions are of same client
-
+    if @share_transaction.closeout_settled
+      @error = 'It has already been processed'
+      return false
+    end
   #   settlement by allowed is only client and broker
     unless SETTLEMENT_TYPES.include?(settlement_by)
       @error = 'This is not a valid request'
@@ -50,6 +53,11 @@ class CloseoutSettlementService
   def process_sales_closeout
     share_transaction.closeout_settled = true
     bill = share_transaction.bill
+
+    # bill should be present
+    (@error = 'Please make sure it is a correct branch';return false) unless bill
+
+
     company_symbol = share_transaction.isin_info.isin
     share_rate = share_transaction.share_rate
     client_account = share_transaction.client_account
@@ -76,6 +84,11 @@ class CloseoutSettlementService
 
   def process_buy_closeout
     share_transaction.closeout_settled = true
+    bill = share_transaction.bill
+
+    # bill should be present
+    (@error = 'Please make sure it is a correct branch';return false) unless bill
+
     company_symbol = share_transaction.isin_info.isin
     share_rate = share_transaction.share_rate
     client_account = share_transaction.client_account
