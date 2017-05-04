@@ -25,246 +25,249 @@ Note:
   </iframe>
 </div>
 
-<div id="printThis" class="clearfix bill-full printThis">
-  <div class="settlement-holder">
-    <% if bill.settled? && !has_voucher_pending_approval %>
-        <%= image_tag("settled.png") %>
-    <% end %>
-  </div>
-  <!-- Static Company Header BEGINS -->
-  <div class="clearfix">
-    <strong>
-      <%= current_tenant.full_name %><br>
-      <%= current_tenant.address %><br>
-    </strong>
-    <div class="row">
+<div class="bill-responsive">
+  <div id="printThis" class="clearfix bill-full printThis">
+    <div class="settlement-holder">
+      <% if bill.settled? && !has_voucher_pending_approval %>
+          <%= image_tag("settled.png") %>
+      <% end %>
+    </div>
+    <!-- Static Company Header BEGINS -->
+    <div class="clearfix">
       <strong>
-        <div class="col-xs-3">
-          Phone: <%= current_tenant.phone_number %>
+        <%= current_tenant.full_name %><br>
+        <%= current_tenant.address %><br>
+      </strong>
+      <div class="row">
+        <strong>
+          <div class="col-xs-3">
+            Phone: <%= current_tenant.phone_number %>
+            <br>
+            Fax: <%= current_tenant.fax_number %>
+            <br>
+            PAN: <%= current_tenant.pan_number %>
+            <br>
+          </div>
+        </strong>
+        <div class="col-xs-6 text-center">
+          Schedule-3
           <br>
-          Fax: <%= current_tenant.fax_number %>
+          Relating to Sub-Regulation(I) of Regulation 16
           <br>
-          PAN: <%= current_tenant.pan_number %>
+          Information note to cients on execution of transaction
           <br>
         </div>
-      </strong>
-      <div class="col-xs-6 text-center">
-        Schedule-3
-        <br>
-        Relating to Sub-Regulation(I) of Regulation 16
-        <br>
-        Information note to cients on execution of transaction
-        <br>
+      </div>
+      <div class="clearfix horizontal-line">
       </div>
     </div>
-    <div class="clearfix horizontal-line">
-    </div>
-  </div>
-  <!-- Static Company Header ENDS-->
+    <!-- Static Company Header ENDS-->
 
-  <!-- Bill No. and Bill Date BEGINS -->
-  <div class="row">
-    <div class="col-xs-4">
-      Bill No:
-      <%= bill.formatted_bill_number %>
+    <!-- Bill No. and Bill Date BEGINS -->
+    <div class="row">
+      <div class="col-xs-4">
+        Bill No:
+        <%= bill.formatted_bill_number %>
+      </div>
+      <div class="col-xs-5">
+        Bill Date:
+        <%= bill.formatted_bill_dates["ad"] %>
+        (<%= bill.formatted_bill_dates["bs"] %>)
+      </div>
+      <div class="col-xs-3 text-right">
+        Fiscal Year:
+        <%= bill.formatted_fy_code %>
+      </div>
     </div>
-    <div class="col-xs-5">
-      Bill Date:
-      <%= bill.formatted_bill_dates["ad"] %>
-      (<%= bill.formatted_bill_dates["bs"] %>)
-    </div>
-    <div class="col-xs-3 text-right">
-      Fiscal Year:
-      <%= bill.formatted_fy_code %>
-    </div>
-  </div>
-  <!-- Bill No. and Bill Date ENDS -->
+    <!-- Bill No. and Bill Date ENDS -->
 
-  <!-- Customer Details BEGINS -->
-  <div class="row customer_details">
-    <div class="col-xs-6">
-      <table class="table table-no-border">
-        <tr>
-          <td>Customer:</td>
-          <td><%= bill.formatted_client_name %></td>
-        </tr>
-        <tr>
-          <td>NEPSE Code:</td>
-          <td><%= @client.nepse_code %></td>
-        </tr>
-      </table>
-    </div>
-    <div class="col-xs-6 text-right">
-      <table class="table table-no-border">
-        <tr class="client-phone-numbers" id="first-row">
-          <td>Contact No.:</td>
-          <td><%= bill.formatted_client_phones_first_row %></td>
-        </tr>
-        <tr class="client-phone-numbers" id="second-row">
-          <td></td>
-          <td><%= bill.formatted_client_phones_second_row %></td>
-        </tr>
-      </table>
-    </div>
-  </div>
-  <!-- Customer Details ENDS -->
-
-  <!-- Transaction Details BEGINS -->
-  <div class="clearfix transactions-section">
-    <div class="clearfix bill-message">
-      <%= bill.formatted_bill_message %>
-    </div>
-    <table class="table table-bordered table-condensed text-center table-no-border">
-      <tr>
-        <th class="col-1">Transaction No</th>
-        <th class="col-2">No of Shares</th>
-        <th class="col-3">Company Code</th>
-        <th class="col-4">Share Rate</th>
-        <th class="col-5 <%= bill.formatted_visibility_class('base_price') %>">Base Price</th>
-        <th class="col-6">Amount</th>
-        <th class="col-7">Commission</th>
-        <th class="col-8 ">Commission Amount</th>
-        <th class="col-9 <%= bill.formatted_visibility_class('capital_gain') %>">Capital Gain Tax</th>
-      </tr>
-
-      <colgroup>
-
-      </colgroup>
-      <%
-        # bill.share_transactions.each do | share_transaction |
-        bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
-          # Only show those share transactions that haven't been 'deal cancelled'
-      %>
+    <!-- Customer Details BEGINS -->
+    <div class="row customer_details">
+      <div class="col-xs-6">
+        <table class="table table-no-border">
           <tr>
-            <!-- <th>Transaction No</th> -->
-            <td><%= formatted_share_transaction[:contract_no] %></td>
-            <!-- <th>No of Shares</th> -->
-            <td>
-              <%= "#{formatted_share_transaction[:raw_quantity]}#{formatted_share_transaction[:raw_quantity_description]}" %>
-            </td>
-            <!-- <th>Company Name</th> -->
-            <td><%= formatted_share_transaction[:isin] %></td>
-            <!-- <th>Share Rate</th> -->
-            <td><%= formatted_share_transaction[:share_rate] %></td>
-            <!-- <th>Base Price</th> -->
-            <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= formatted_share_transaction[:base_price] %></td>
-            <!-- <th>Amount</th> -->
-            <td><%= formatted_share_transaction[:share_amount] %></td>
-            <!-- <th>Commission Rate</th> -->
-            <td><%= formatted_share_transaction[:commission_rate] %></td>
-            <!-- <th>Commission Amount</th> -->
-            <td><%= formatted_share_transaction[:commission_amount] %></td>
-            <!-- <th>Capital Gain</th> -->
-            <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= formatted_share_transaction[:capital_gain] %></td>
+            <td>Customer:</td>
+            <td><%= bill.formatted_client_name %></td>
           </tr>
-      <%
-        end
-      %>
-    </table>
-  </div>
-  <!-- Transaction Details ENDS -->
-
-  <div class="clearfix calculation-section">
-    <!-- Calculations at the Bottom BEGINS -->
-    <div class="col-xs-5 text-center">
-      <table class="table table-no-border table-condensed text-right">
-        <tr>
-          <td>Share Amount:</td>
-          <td><%= bill.formatted_net_share_amount %></td>
-        </tr>
-        <tr>
-          <td>SEBO Commission:</td>
-          <td><%= bill.formatted_net_sebo_commission %></td>
-        </tr>
-        <tr>
-          <td>Net Commission Amount:</td>
-          <td><%= bill.formatted_net_commission %></td>
-        </tr>
-        <tr>
-          <td>DP Fee:</td>
-          <td><%= bill.formatted_net_dp_fee %></td>
-        </tr>
-        <tr class="<%= bill.formatted_visibility_class('capital_gain') %>">
-          <td>Capital Gain:</td>
-          <td><%= bill.formatted_net_cgt %></td>
-        </tr>
-        <tr class="<%= bill.formatted_visibility_class('net_receivable_amount') %>">
-          <td>Net Receivable Amount:</td>
-          <td><%= bill.formatted_net_receivable_amount %></td>
-        </tr>
-        <% if bill.sales? && bill.closeout_charge > 0 %>
-        <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
-          <td>CloseOut Deduction:</td>
-          <td><%= bill.formatted_net_closeout_amount %></td>
-        </tr>
-        <% end %>
-
-        <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
-          <td>Net Payable Amount:</td>
-          <td><%= bill.formatted_net_payable_amount %></td>
-        </tr>
-      </table>
-
-    </div>
-    <!-- Calculations at the Bottom ENDS-->
-
-    <div class="col-xs-6 col-xs-offset-1 ">
-      <!-- Dates section BEGINS -->
-      <div>
-        <table class="table table-no-border table-condensed text-right">
-          <% if bill.purchase? %>
-              <tr>
-                <td>Clearance Date:</td>
-                <td>
-                  <%= bill.formatted_clearance_dates['ad'] %>
-                  (<%= bill.formatted_clearance_dates['bs'] %>)
-                </td>
-              </tr>
-          <% end %>
           <tr>
-            <td>Transaction Date:</td>
-            <td>
-              <%= bill.formatted_transaction_dates['ad'] %>
-              (<%= bill.formatted_transaction_dates['bs'] %>)
-            </td>
+            <td>NEPSE Code:</td>
+            <td><%= @client.nepse_code %></td>
           </tr>
         </table>
       </div>
-      <!-- Dates section ENDS -->
+      <div class="col-xs-6 text-right">
+        <table class="table table-no-border">
+          <tr class="client-phone-numbers" id="first-row">
+            <td>Contact No.:</td>
+            <td><%= bill.formatted_client_phones_first_row %></td>
+          </tr>
+          <tr class="client-phone-numbers" id="second-row">
+            <td></td>
+            <td><%= bill.formatted_client_phones_second_row %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- Customer Details ENDS -->
 
-      <!-- Authorised Signature section BEGINS -->
-      <div class="row signature-section">
-        <div class="col-xs-8 col-xs-offset-4 text-center">
-          <div class="clearfix horizontal-line">
+    <!-- Transaction Details BEGINS -->
+    <div class="clearfix transactions-section">
+      <div class="clearfix bill-message">
+        <%= bill.formatted_bill_message %>
+      </div>
+      <table class="table table-bordered table-condensed text-center table-no-border">
+        <tr>
+          <th class="col-1">Transaction No</th>
+          <th class="col-2">No of Shares</th>
+          <th class="col-3">Company Code</th>
+          <th class="col-4">Share Rate</th>
+          <th class="col-5 <%= bill.formatted_visibility_class('base_price') %>">Base Price</th>
+          <th class="col-6">Amount</th>
+          <th class="col-7">Commission</th>
+          <th class="col-8 ">Commission Amount</th>
+          <th class="col-9 <%= bill.formatted_visibility_class('capital_gain') %>">Capital Gain Tax</th>
+        </tr>
+
+        <colgroup>
+
+        </colgroup>
+        <%
+          # bill.share_transactions.each do | share_transaction |
+          bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
+            # Only show those share transactions that haven't been 'deal cancelled'
+        %>
+            <tr>
+              <!-- <th>Transaction No</th> -->
+              <td><%= formatted_share_transaction[:contract_no] %></td>
+              <!-- <th>No of Shares</th> -->
+              <td>
+                <%= "#{formatted_share_transaction[:raw_quantity]}#{formatted_share_transaction[:raw_quantity_description]}" %>
+              </td>
+              <!-- <th>Company Name</th> -->
+              <td><%= formatted_share_transaction[:isin] %></td>
+              <!-- <th>Share Rate</th> -->
+              <td><%= formatted_share_transaction[:share_rate] %></td>
+              <!-- <th>Base Price</th> -->
+              <td class="<%= bill.formatted_visibility_class('base_price') %>"><%= formatted_share_transaction[:base_price] %></td>
+              <!-- <th>Amount</th> -->
+              <td><%= formatted_share_transaction[:share_amount] %></td>
+              <!-- <th>Commission Rate</th> -->
+              <td><%= formatted_share_transaction[:commission_rate] %></td>
+              <!-- <th>Commission Amount</th> -->
+              <td><%= formatted_share_transaction[:commission_amount] %></td>
+              <!-- <th>Capital Gain</th> -->
+              <td class="<%= bill.formatted_visibility_class('capital_gain') %>"><%= formatted_share_transaction[:capital_gain] %></td>
+            </tr>
+        <%
+          end
+        %>
+      </table>
+    </div>
+    <!-- Transaction Details ENDS -->
+
+    <div class="clearfix calculation-section">
+      <!-- Calculations at the Bottom BEGINS -->
+      <div class="col-xs-5 text-center">
+        <table class="table table-no-border table-condensed text-right">
+          <tr>
+            <td>Share Amount:</td>
+            <td><%= bill.formatted_net_share_amount %></td>
+          </tr>
+          <tr>
+            <td>SEBO Commission:</td>
+            <td><%= bill.formatted_net_sebo_commission %></td>
+          </tr>
+          <tr>
+            <td>Net Commission Amount:</td>
+            <td><%= bill.formatted_net_commission %></td>
+          </tr>
+          <tr>
+            <td>DP Fee:</td>
+            <td><%= bill.formatted_net_dp_fee %></td>
+          </tr>
+          <tr class="<%= bill.formatted_visibility_class('capital_gain') %>">
+            <td>Capital Gain:</td>
+            <td><%= bill.formatted_net_cgt %></td>
+          </tr>
+          <tr class="<%= bill.formatted_visibility_class('net_receivable_amount') %>">
+            <td>Net Receivable Amount:</td>
+            <td><%= bill.formatted_net_receivable_amount %></td>
+          </tr>
+          <% if bill.sales? && bill.closeout_charge > 0 %>
+              <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
+                <td>CloseOut Deduction:</td>
+                <td><%= bill.formatted_net_closeout_amount %></td>
+              </tr>
+          <% end %>
+
+          <tr class="<%= bill.formatted_visibility_class('net_payable_amount') %>">
+            <td>Net Payable Amount:</td>
+            <td><%= bill.formatted_net_payable_amount %></td>
+          </tr>
+        </table>
+
+      </div>
+      <!-- Calculations at the Bottom ENDS-->
+
+      <div class="col-xs-6 col-xs-offset-1 ">
+        <!-- Dates section BEGINS -->
+        <div>
+          <table class="table table-no-border table-condensed text-right">
+            <% if bill.purchase? %>
+                <tr>
+                  <td>Clearance Date:</td>
+                  <td>
+                    <%= bill.formatted_clearance_dates['ad'] %>
+                    (<%= bill.formatted_clearance_dates['bs'] %>)
+                  </td>
+                </tr>
+            <% end %>
+            <tr>
+              <td>Transaction Date:</td>
+              <td>
+                <%= bill.formatted_transaction_dates['ad'] %>
+                (<%= bill.formatted_transaction_dates['bs'] %>)
+              </td>
+            </tr>
+          </table>
+        </div>
+        <!-- Dates section ENDS -->
+
+        <!-- Authorised Signature section BEGINS -->
+        <div class="row signature-section">
+          <div class="col-xs-8 col-xs-offset-4 text-center">
+            <div class="clearfix horizontal-line">
+            </div>
+            (Authorized Signature)
+            <br>
+            <%= current_tenant.full_name %>
+            <br>
+            Broker Code No.: <%= current_tenant.broker_code %>
+            <br>
+            Nepal Stock Exchange
           </div>
-          (Authorized Signature)
-          <br>
-          <%= current_tenant.full_name %>
-          <br>
-          Broker Code No.: <%= current_tenant.broker_code %>
-          <br>
-          Nepal Stock Exchange
+        </div>
+        <!-- Authorised Signature section ENDS -->
+      </div>
+    </div>
+
+    <div class="clearfix">
+      <!-- Footnote BEGINS -->
+      <em>
+        <u>
+          Note: Please bring this bill for enquiry and further processing.
+        </u>
+      </em>
+      <!--Company Abbreviation Index BEGINS-->
+      <div class="clearfix text-left">
+        <div>
+          **Company Code Index =>
+          <i><%= bill.formatted_isin_abbreviation_index %></i>
         </div>
       </div>
-      <!-- Authorised Signature section ENDS -->
+      <!--Company Abbreviation Index ENDS-->
+      <!-- Footnote ENDS -->
     </div>
-  </div>
-
-  <div class="clearfix">
-    <!-- Footnote BEGINS -->
-    <em>
-      <u>
-        Note: Please bring this bill for enquiry and further processing.
-      </u>
-    </em>
-    <!--Company Abbreviation Index BEGINS-->
-    <div class="clearfix text-left">
-      <div>
-        **Company Code Index =>
-        <i><%= bill.formatted_isin_abbreviation_index %></i>
-      </div>
-    </div>
-    <!--Company Abbreviation Index ENDS-->
-    <!-- Footnote ENDS -->
   </div>
 </div>
+
