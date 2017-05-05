@@ -41,7 +41,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     # DO calculate these from the test files END
     # bill in (file + fixtures)
     @purchase_bills_expected_count = 2
-    @sales_bills_expected_count = 3
+    @sales_bills_expected_count = 4
 
     @additional_bank_id = Bank.first.id
     # Cash ledger expected in fixtures!
