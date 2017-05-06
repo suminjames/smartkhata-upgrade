@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Vouchers::Base do
 
+  include_context 'session_setup'
+
   let(:client_account) { create(:client_account)}
   let(:ledger) { client_account.ledger }
   let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
@@ -9,10 +11,6 @@ RSpec.describe Vouchers::Base do
 
   before do
     # user session needs to be set for doing any activity
-    UserSession.user = create(:user)
-    UserSession.selected_fy_code = 7374
-    UserSession.selected_branch_id =  1
-
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
