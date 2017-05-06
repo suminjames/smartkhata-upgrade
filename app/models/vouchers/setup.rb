@@ -42,8 +42,8 @@ class Vouchers::Setup < Vouchers::Base
       # In case when a bank account in a branch has a ledger, but doesn't have either default_for_payment or
       # default_for_receipt flagged on, the logic above resorts to searching the defaults from all available branches.
       # For this purpose, ledgers of default_bank_payment and default_bank_receive are added to ledger_list_financial.
-      ledger_list_financial << default_bank_payment.ledger
-      ledger_list_financial << default_bank_receive.ledger
+      ledger_list_financial << default_bank_payment.ledger if default_bank_payment
+      ledger_list_financial << default_bank_receive.ledger if default_bank_receive
 
       ledger_list_financial << cash_ledger
 
