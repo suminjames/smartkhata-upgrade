@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe CloseoutSettlementService do
+RSpec.describe ShortageSettlementService do
   let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, bill: create(:sales_bill, net_amount: 115130.6726))}
   # let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
   before do
@@ -17,7 +17,7 @@ RSpec.describe CloseoutSettlementService do
     context "partial closeout" do
       it "should settle by client" do
         transaction = sales_share_transaction_with_closeout
-        closeout_settlement_service = CloseoutSettlementService.new(transaction, 'client')
+        closeout_settlement_service = ShortageSettlementService.new(transaction, 'client')
         closeout_settlement_service.process
         expect(transaction.bill.reload.net_amount).to eq(100106.6726)
         expect(transaction.bill.reload.closeout_charge).to eq(15024)
@@ -29,7 +29,7 @@ RSpec.describe CloseoutSettlementService do
 
       it "should settle by broker appropriately" do
         transaction = sales_share_transaction_with_closeout
-        closeout_settlement_service = CloseoutSettlementService.new(transaction, 'broker')
+        closeout_settlement_service = ShortageSettlementService.new(transaction, 'broker')
         closeout_settlement_service.process
         expect(transaction.bill.reload.net_amount).to eq(115130.6726)
         expect(transaction.bill.reload.closeout_charge).to eq(0)
