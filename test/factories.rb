@@ -73,16 +73,7 @@ FactoryGirl.define do
     branch_id 1
   end
 
-  factory :bank_account do
-    sequence(:account_number)
-    bank_branch "chabahil"
-    branch_id 1
-    bank
 
-    ledger
-    # association :ledger, factory: :bank_ledger
-  #   the above line wont work as it will cause loop
-  end
 
   factory :branch do
     sequence(:code) { |n| "Branch-#{n}" }

@@ -79,8 +79,12 @@ class BankAccount < ActiveRecord::Base
     "#{self.bank.name}"
   end
 
+  def get_current_assets_group
+    Group.find_by(name: "Current Assets").id
+  end
+
   def save_custom
-    _group_id = Group.find_by(name: "Current Assets").id
+    _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?
       self.ledger.name = "Bank:"+_bank.name+"(#{self.account_number})"
