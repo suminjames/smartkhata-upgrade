@@ -65,11 +65,39 @@ RSpec.describe ShortageSettlementService do
 
         # since we have not made the entry to the client the amount will be credited to client
         # it should have debited exact amount making it zero
-        expect(transaction.client_account.ledger.closing_balance).to eq(-116489.27)
+        expect(transaction.client_account.ledger.closing_balance).to eq(-12818.351)
+        expect(transaction.client_account.ledger.particulars.last.hide_for_client).to be_truthy
+
         expect(transaction.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.closing_balance).to eq(0)
-        expect(broker_ledger.closing_balance).to eq(2205.649)
+        expect(broker_ledger.closing_balance).to eq(-2205.649)
+      end
+
+      it "should settle by broker appropriately" do
+        transaction = purchase_share_transaction_with_closeout
+        broker_ledger = create(:ledger, name: 'Broker 59')
+
+        closeout_settlement_service = ShortageSettlementService.new(transaction, 'broker', current_tenant, balancing_transaction_ids: [balancing_transaction.id])
+
+        allow(closeout_settlement_service).to receive(:receipt_bank_account_ledger).and_return(create(:bank_account).ledger)
+        allow(closeout_settlement_service).to receive(:counter_broker_ledger).and_return(broker_ledger)
+        allow(closeout_settlement_service).to receive(:get_client_reversal_amount).and_return(12818.351)
+
+        closeout_settlement_service.process
+        expect(closeout_settlement_service.error).to be_nil
+        # no change on bill amount
+        expect(transaction.bill.reload.net_amount).to eq(116489.27 )
+        expect(transaction.bill.reload.closeout_charge).to eq(0)
+
+        # since we have not made the entry to the client the amount will be credited to client
+        # it should have debited exact amount making it zero
+        expect(transaction.client_account.ledger.closing_balance).to eq(-12818.351)
+        expect(transaction.client_account.ledger.particulars.last.hide_for_client).to be_truthy
+
+        expect(transaction.reload.closeout_settled).to be_truthy
+        closeout_ledger = Ledger.find_by(name: "Close Out")
+        expect(closeout_ledger.closing_balance).to eq(-2205.649)
       end
     end
   end
