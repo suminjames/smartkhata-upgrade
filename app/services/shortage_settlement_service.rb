@@ -163,7 +163,6 @@ class ShortageSettlementService
       # add the quanity to the client in case it has to be hidden from the client
       # no change in bill
       share_transaction.quantity += @closeout_quantity
-      client_reversal_amount = 0
 
       # verify if bill needs to be generated or not
       bill_ids = balancing_transactions.pluck(:bill_id).uniq
@@ -184,23 +183,7 @@ class ShortageSettlementService
         end
       end
 
-      balancing_transactions.each do |b|
-        # also hide the particular from client for the new transactions.
-        b.quantity = 0
-        b.save
-
-        if new_bill
-          new_bill.share_transactions << b
-          new_bill.net_amount += b.net_amount
-        else
-          bill = b.bill
-          bill.client_account_id = account_for_bill.id
-          bill.save
-        end
-        particulars = Particular.unscoped.where(voucher_id: b.voucher_id, ledger_id: client_ledger)
-        particulars.update_all(hide_for_client: true)
-        client_reversal_amount += particulars.sum(:amount)
-      end
+      client_reversal_amount = get_client_reversal_amount(balancing_transactions)
 
       description = "Bill adjustment for Shortage Sales of (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
       voucher = Voucher.create!(date: settlement_date)
@@ -208,7 +191,6 @@ class ShortageSettlementService
 
       process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
       process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
-
       if (settlement_by == 'counter_broker')
         process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
 
@@ -229,5 +211,27 @@ class ShortageSettlementService
       voucher.save!
     end
     share_transaction.save!
+  end
+
+  def get_client_reversal_amount(balancing_transactions)
+    client_reversal_amount = 0
+    balancing_transactions.each do |b|
+      # also hide the particular from client for the new transactions.
+      b.quantity = 0
+      b.save
+
+      if new_bill
+        new_bill.share_transactions << b
+        new_bill.net_amount += b.net_amount
+      else
+        bill = b.bill
+        bill.client_account_id = account_for_bill.id
+        bill.save
+      end
+      particulars = Particular.unscoped.where(voucher_id: b.voucher_id, ledger_id: client_ledger)
+      particulars.update_all(hide_for_client: true)
+      client_reversal_amount += particulars.sum(:amount)
+    end
+    client_reversal_amount
   end
 end
