@@ -68,7 +68,13 @@ class Voucher < ActiveRecord::Base
 
   ########################################
   # scopes
-
+  scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
+    if branch_id == 0
+      unscoped.where(fy_code: fy_code)
+    else
+      unscoped.where(branch_id: branch_id, fy_code: fy_code)
+    end
+  end
 
   def voucher_code
     case self.voucher_type.to_sym
