@@ -67,6 +67,13 @@ class BankAccount < ActiveRecord::Base
     BankAccount.by_branch_id.where(:default_for_payment => true).first
   end
 
+  def self.default_receipt_account
+    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+    # Check for availability of default bank accounts for payment and receipt in the current branch.
+    # If not available in the current branch, resort to using whichever is available from all available branches.
+    default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
+  end
+
   def name
     "#{self.bank.bank_code }-#{self.account_number}"
   end

@@ -56,11 +56,11 @@ class BrokerProfilesController < ApplicationController
   # DELETE /broker_profiles/1
   # DELETE /broker_profiles/1.json
   def destroy
-    @broker_profile.destroy
-    respond_to do |format|
-      format.html { redirect_to broker_profiles_url, notice: 'Broker profile was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    # @broker_profile.destroy
+    # respond_to do |format|
+    #   format.html { redirect_to broker_profiles_url, notice: 'Broker profile was successfully destroyed.' }
+    #   format.json { head :no_content }
+    # end
   end
 
   private
@@ -71,6 +71,6 @@ class BrokerProfilesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def broker_profile_params
-      params.require(:broker_profile).permit(:broker_name, :broker_number, :address, :dp_code, :phone_number, :fax_number, :email, :pan_number, :profile_type, :locale)
+      params.require(:broker_profile).permit(:broker_name, :broker_number, :address, :dp_code, :phone_number, :fax_number, :email, :pan_number, :profile_type, :ledger_id)
     end
 end

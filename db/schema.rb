@@ -265,7 +265,7 @@ ActiveRecord::Schema.define(version: 20170504111722) do
 
   create_table "broker_profiles", force: :cascade do |t|
     t.string   "broker_name"
-    t.string   "broker_number"
+    t.integer  "broker_number"
     t.string   "address"
     t.integer  "dp_code"
     t.string   "phone_number"
@@ -276,6 +276,7 @@ ActiveRecord::Schema.define(version: 20170504111722) do
     t.integer  "locale"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.integer  "ledger_id"
   end
 
   add_index "broker_profiles", ["profile_type"], name: "index_broker_profiles_on_profile_type", using: :btree

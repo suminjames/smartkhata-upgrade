@@ -16,7 +16,8 @@ class Closeouts extends React.Component {
       settlement_by: null,
       processed: false,
       message: '',
-      error: ''
+      error: '',
+      information: ''
     }
     this.close = this.close.bind(this);
     this.submit = this.submit.bind(this);
@@ -29,8 +30,17 @@ class Closeouts extends React.Component {
   }
   prepareSettlement(transaction, settlement_type){
     var self = this;
+    var information = "";
+
+    if(settlement_type == 'client') {
+      information = "Client ledger will be dr/cr with full closeout amount";
+    } else if(settlement_type == 'broker') {
+      information = "Amount after settlement with client will remain at closeout ledger";
+    } else if(settlement_type == 'counter_broker') {
+      information = "Counter Broker will receive/pay remaining amount";
+    }
     // disable the settlement by
-    self.setState({settlement_by: null});
+    self.setState({settlement_by: null, information: information});
 
     if(transaction.transaction_type == 'buying' && settlement_type != 'client') {
       $.get(
@@ -162,6 +172,9 @@ class Closeouts extends React.Component {
                   :
                   <div>
                     <p>Beneficiary for the closeout amount</p>
+                    <div className="callout callout-info">
+                      <p>{this.state.information}</p>
+                    </div>
                     <FormGroup>
                       <Radio name="settlement_by" inline onClick={() => self.prepareSettlement(transaction, 'client')}>
                         Client
@@ -170,6 +183,13 @@ class Closeouts extends React.Component {
                       <Radio name="settlement_by" inline onClick={() => self.prepareSettlement(transaction, 'broker')}>
                         Broker
                       </Radio>
+                      {' '}
+                      { this.state.transaction.transaction_type == 'buying' &&
+                      <Radio name="settlement_by" inline
+                        onClick={() => self.prepareSettlement(transaction, 'counter_broker')}>
+                        Counter Broker
+                        </Radio>
+                      }
                     </FormGroup>
 
                     {/* Balancing Transaction list to select from for buy closeouts */}
