@@ -8,13 +8,25 @@
           <span class="label label-default">DEV</span>
         <% end %>
       </a>
+
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+        <i class="fa fa-bars"></i>
+      </button>
     </div>
 
     <!-- Navbar Right Menu -->
-    <div class="">
-      <ul class="nav navbar-nav navbar-right">
-        <%= render 'layouts/navigation_links_dynamic' %>
-      </ul>
-    </div>
+    <% if (user_signed_in? && current_user.client? ) %>
+        <div class="collapse navbar-collapse pull-right" id="navbar-collapse">
+          <ul class="nav navbar-nav">
+            <%= render 'layouts/navigation_links_dynamic' %>
+          </ul>
+        </div>
+    <% else %>
+        <div class="">
+          <ul class="nav navbar-nav navbar-right">
+            <%= render 'layouts/navigation_links_dynamic' %>
+          </ul>
+        </div>
+    <% end %>
   </div>
 </nav>

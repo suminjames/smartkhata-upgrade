@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170507155840) do
+ActiveRecord::Schema.define(version: 20170504111722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -371,6 +371,8 @@ ActiveRecord::Schema.define(version: 20170507155840) do
     t.integer  "fy_code"
     t.date     "bounce_date"
     t.text     "bounce_narration"
+    t.date     "void_date"
+    t.text     "void_narration"
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree

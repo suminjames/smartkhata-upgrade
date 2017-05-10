@@ -36,7 +36,7 @@ RSpec.describe ChequeEntries::BounceActivity do
   end
 
   # voucher with two particulars ie external dr to bank cr
-  it "should bounce the cheque for voucher wiht single cheque entry and no bills" do
+  it "should bounce the cheque for voucher with single cheque entry and no bills" do
 
     cheque_entry = create(:receipt_cheque_entry, status: :approved)
     dr_particular = create(:debit_particular, voucher: voucher)
@@ -53,7 +53,7 @@ RSpec.describe ChequeEntries::BounceActivity do
   end
 
 
-  it "should void the cheque for voucher with single cheque entry and bill with full amount" do
+  it "should bounce the cheque for voucher with single cheque entry and bill with full amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: cheque_date_ad)
     cheque_entry.cheque_date = cheque_date_ad
     dr_particular = create(:debit_particular, voucher: voucher, amount: 5000)
@@ -77,7 +77,7 @@ RSpec.describe ChequeEntries::BounceActivity do
     expect(cheque_entry.reload.vouchers.uniq.size).to eq(2)
   end
 
-  it "should void the cheque for voucher with single cheque entry and bill with partial amount" do
+  it "should bounce the cheque for voucher with single cheque entry and bill with partial amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 4000, cheque_date: cheque_date_ad)
     dr_particular = create(:debit_particular, voucher: voucher, amount: 4000)
     cr_particular = create(:credit_particular, voucher: voucher, amount: 4000)
@@ -101,7 +101,7 @@ RSpec.describe ChequeEntries::BounceActivity do
     expect(cheque_entry.reload.vouchers.uniq.size).to eq(2)
   end
 
-  it "should void the cheque for voucher with single cheque entry and bills with full amount" do
+  it "should bounce the cheque for voucher with single cheque entry and bills with full amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: cheque_date_ad)
     dr_particular = create(:debit_particular, voucher: voucher, amount: 5000)
     cr_particular = create(:credit_particular, voucher: voucher, amount: 5000)

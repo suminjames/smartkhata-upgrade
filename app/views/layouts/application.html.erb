@@ -17,7 +17,7 @@
   <![endif]-->
   <%= csrf_meta_tags %>
 </head>
-<body class="skin-blue layout-top-nav fixed-top">
+<body class="<%= (user_signed_in? && !current_user.client?) ? 'employee': 'client' %>  skin-blue layout-top-nav fixed-top">
 <div class="wrapper">
   <header class="main-header">
     <%= render 'layouts/navigation' %>
