@@ -24,6 +24,8 @@
 #  fy_code            :integer
 #  bounce_date        :date
 #  bounce_narration   :text
+#  void_date          :date
+#  void_narration     :text
 #
 
 class ChequeEntry < ActiveRecord::Base
@@ -36,6 +38,8 @@ class ChequeEntry < ActiveRecord::Base
   attr_accessor :skip_cheque_number_validation
   # For bounce activity view
   attr_accessor :bounce_date_bs
+  # For void activity view
+  attr_accessor :void_date_bs
   # For represent activity view
   attr_accessor :represent_date_bs
 
