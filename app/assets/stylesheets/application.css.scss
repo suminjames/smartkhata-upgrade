@@ -28,15 +28,31 @@ body {
   background-color: #222d32;
 }
 
-.container {
+.employee .container {
   min-width: 1170px;
   //max-width: none !important;
   max-width: 1366px;
   width: 100%;
 }
+.container {
+  //min-width: 1170px;
+  //max-width: none !important;
+  max-width: 1366px;
+  //width: 100%;
+}
+@media (max-width: 991px) {
+  .client .navbar-collapse {
+    float: none !important;
+  }
+  .client .bill-responsive {
+    overflow-x: auto;
+  }
+}
+
+
 
 .navbar-header {
-  float: left;
+  //float: left;
 }
 
 .content-wrapper, .right-side, .main-footer {
