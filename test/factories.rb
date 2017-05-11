@@ -119,6 +119,15 @@ FactoryGirl.define do
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
     branch_id 1
+
+    factory :client_account_without_nepse_code do
+      nepse_code nil
+
+      factory :corporate_client_account_without_nepse_code do
+        client_type 1 
+      end
+
+    end    
   end
 
   factory :isin_info do

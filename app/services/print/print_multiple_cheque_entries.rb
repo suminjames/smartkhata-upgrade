@@ -14,13 +14,17 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
   include ApplicationHelper
 
   def initialize(cheque_entry_ids, current_tenant)
+    # debugger
     super(:page_size => [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
     @current_tenant = current_tenant
 
     index = 0
-    cheque_entry_ids.each do |cheque_entry_id|
-      @cheque_entry = ChequeEntry.find(cheque_entry_id)
+
+    cheque_numbers = ChequeEntry.where(id: cheque_entry_ids).pluck(:cheque_number).sort
+    # cheque_entry_ids.each do |cheque_entry_id|
+    cheque_numbers.each do |cheque_number|
+      @cheque_entry = ChequeEntry.find_by_cheque_number(cheque_number)
 
       # Code borrowed from ChequeEntry#show action BEGINS
       # Important! Future changes to the aforementioned action should also be reflected (manually) here.
