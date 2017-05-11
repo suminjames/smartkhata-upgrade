@@ -7,6 +7,8 @@ RSpec.describe BankAccount, type: :model do
 
   describe "validations" do
     it { expect(subject).to be_valid }
+    it { expect(subject).not_to allow_values(29648592, -1, 0, 'quux').for(:bank_id) }
+  
     # it { should_not allow_values(29648592, -1, 0, 'quux').for(:bank_id) }
     it { should allow_value('S0M3VALU3').
         for(:account_number)}

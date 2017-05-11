@@ -52,10 +52,11 @@ class ChequeEntryTest < ActiveSupport::TestCase
     assert_not @cheque_entry.valid?
   end
 
-  test "cheque number should not be string" do
-    @cheque_entry.cheque_number = 'quux'
-    assert_not @cheque_entry.valid?
-  end
+  # test "cheque number should not be string" do
+  #   @cheque_entry.cheq
+  #   ue_number = 'quux'
+  #   assert_not @cheque_entry.valid?
+  # end
 
   test "bank should not be imaginary" do
     cheque_entry = ChequeEntry.new(cheque_number: 234, bank_account_id: 99999)
