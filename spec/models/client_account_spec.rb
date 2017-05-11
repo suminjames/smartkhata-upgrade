@@ -70,15 +70,22 @@ RSpec.describe ClientAccount, type: :model do
     end
   	
 
-    it "should  validate_uniqueness_of nepse_code" do
+    context "when nepse code is present" do
       subject{create(:client_account)}
-      new_account = build(:client_account, nepse_code: subject.nepse_code)
-      expect(new_account).to_not be_valid
+      it "should  validate_uniqueness_of nepse_code" do
+  
+        new_account = build(:client_account, nepse_code: subject.nepse_code)
+        expect(new_account).to_not be_valid
+      end
+    end 
+    it "nepse code can be blank" do
+      subject.nepse_code = ''
+      expect(subject).to be_truthy
+      subject.save!
     end
-    
   end
 
-  
+
 
   describe ".any_bank_field_present" do
     it "should return true if bank_account present" do
