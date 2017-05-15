@@ -9,7 +9,7 @@
       .form-inputs
         -#= f.input :cheque_issued_type, input_html: { value: f.object.cheque_issued_type }, :label => 'Cheque Type', :disabled => true
         = f.input :beneficiary_name, :disabled => true, :label => :beneficiary_name.to_s.titleize
-        = f.input :additional_bank, input_html: { value: f.object.bank_account.name }, :disabled => true, :label => 'Bank'
+        -#= f.input :additional_bank, input_html: { value: f.object.bank_account.name }, :disabled => true, :label => 'Bank'
         = f.input :cheque_number, :disabled => true, :label => :cheque_number.to_s.titleize, :required => false
         = f.input :amount, input_html: { value: arabic_number(f.object.amount) || 1 }, :disabled => true, as: :string
         = f.input :cheque_date_bs, input_html: { value: ad_to_bs(f.object.cheque_date) }, :disabled => true, :label => "Cheque Date(BS)"

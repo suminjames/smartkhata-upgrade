@@ -4,7 +4,7 @@
 #
 #  id            :integer          not null, primary key
 #  broker_name   :string
-#  broker_number :string
+#  broker_number :integer
 #  address       :string
 #  dp_code       :integer
 #  phone_number  :string
@@ -15,6 +15,7 @@
 #  locale        :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  ledger_id     :integer
 #
 
 # Note:
