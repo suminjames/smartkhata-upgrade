@@ -22,6 +22,8 @@ RSpec.describe User, type: :model do
     it { should validate_length_of(:password).is_at_least(4) }
   end
 
+    it { should validate_confirmation_of(:password)}
+
   describe "role" do
     it "allows the role to updated" do
       subject.save
