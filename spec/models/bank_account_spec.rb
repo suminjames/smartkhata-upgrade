@@ -7,16 +7,12 @@ RSpec.describe BankAccount, type: :model do
 
   describe "validations" do
     it { expect(subject).to be_valid }
-    # it { expect(subject).not_to allow_values(29648592, -1, 0, 'quux').for(:bank_id) }
-  
-    # it { should_not allow_values(29648592, -1, 0, 'quux').for(:bank_id) }
     it { should validate_uniqueness_of(:account_number)}
-    it { should allow_value('S0M3VALU3').
-        for(:account_number).with_message('should be numeric or alphanumeric')}
+    it { should allow_value('S0M3VALU3').for(:account_number)}
     it { should validate_presence_of(:bank)}
     it { should validate_presence_of(:account_number)}
     it { should validate_presence_of(:bank_branch)}
-    # it { should_not allow_values(1234, -947, 'quux', '@123#').for(:account_number) }
+    it { should_not allow_values(-947, 'quux', '@123#').for(:account_number).with_message('should be numeric or alphanumeric') }
 
     # it "should not allow opening balance to be negative" do
     #   subject.ledger.opening_blnc = -500
