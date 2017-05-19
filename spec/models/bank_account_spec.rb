@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {build(:bank_account, bank_branch: "kathmandu", account_number:'a2')}
+  subject {build(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
   let(:bank_account_1) {create(:bank_account)}
   include_context 'session_setup'
 
@@ -11,8 +11,7 @@ RSpec.describe BankAccount, type: :model do
   
     # it { should_not allow_values(29648592, -1, 0, 'quux').for(:bank_id) }
     it { should validate_uniqueness_of(:account_number)}
-    it { should allow_value('S0M3VALU3').
-        for(:account_number).with_message('should be numeric or alphanumeric')}
+    it { should allow_value('S0M3VALU3').for(:account_number)}
     it { should validate_presence_of(:bank)}
     it { should validate_presence_of(:account_number)}
     it { should validate_presence_of(:bank_branch)}

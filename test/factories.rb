@@ -150,4 +150,8 @@ FactoryGirl.define do
   factory :settlement do
     date_bs "hjhjhi"
   end
+
+  factory :branch_permission do
+  end
+  
 end

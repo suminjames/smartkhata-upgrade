@@ -207,7 +207,7 @@ class Bill < ActiveRecord::Base
 
   # Returns client associated to this bill
   def get_client
-    return ClientAccount.find(self.client_account_id)
+    return self.client_account
   end
 
   def make_provisional

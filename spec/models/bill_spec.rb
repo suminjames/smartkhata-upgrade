@@ -1,43 +1,42 @@
 require 'rails_helper'
 
 RSpec.describe Bill, type: :model do
-  subject {build(:bill)}
+  # we need share transactions for methods
+  subject {create(:sales_bill_with_transaction)}
   
   include_context 'session_setup'
 
   describe "validations" do
+    it { expect(subject).to be_valid }
   	it {should validate_presence_of (:client_account)}
   end
+  # it "client_account_id should not be empty" do
+  # 	subject.client_account_id = ''
+  # 	expect(subject).not_to be_valid
+  # end
 
-  it "should be valid" do
-  	expect(subject).to be_valid
-  end
-
-  it "client_account_id should not be empty" do
-  	subject.client_account_id = ''
-  	expect(subject).not_to be_valid
-  end
-
-  it "client_account_id should not be imaginary" do
-  	subject.client_account_id = '3740237'
-  	expect(subject).not_to be_valid
-  end
+  # it "client_account_id should not be imaginary" do
+  # 	subject.client_account_id = '3740237'
+  # 	expect(subject).not_to be_valid
+  # end
 
   describe ".get_net_share_amount" do
     it "should return total share amount" do
-      expect(subject.get_net_share_amount).to eq(subject.share_transactions.not_cancelled_for_bill.sum(:share_amount))
+      expect(subject.get_net_share_amount).to eq(115810.0)
     end
   end
 
+  
+
   describe ".get_net_sebo_commission" do
     it "should return total sebo commission" do
-      expect(subject.get_net_sebo_commission).to eq(subject.share_transactions.not_cancelled_for_bill.sum(:sebo))
+      expect(subject.get_net_sebo_commission).to eq(17.315)
     end
   end
 
   describe ".get_net_commission" do 
     it "should return total commission" do
-      expect(subject.get_net_commission).to eq(subject.share_transactions.not_cancelled_for_bill.sum(:commission_amount))
+      expect(subject.get_net_commission).to eq(636.955)
     end
   end
 
@@ -49,17 +48,13 @@ RSpec.describe Bill, type: :model do
 
   describe ".get_net_dp_fee" do
     it "should return total net dp fee" do
-      fee = subject.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
-      if(fee == 0)
-        fee = 25
-      end
-      expect(subject.get_net_dp_fee).to eq(fee)
+      expect(subject.get_net_dp_fee).to eq(25)
     end
   end
 
   describe ".get_net_cgt" do
     it "should return total net cgt" do
-      expect(subject.get_net_cgt).to eq(subject.share_transactions.not_cancelled_for_bill.sum(:cgt))
+      expect(subject.get_net_cgt).to eq(1)
     end
   end
 
@@ -70,25 +65,30 @@ RSpec.describe Bill, type: :model do
   end
 
   describe ".age" do
-    it "should return the age of purchase bill in days" do
-      age = nil
-      if(subject.purchase?)
-        age = (Date.today - subject.settlement_date).to_i
+    context "when sales_bill" do
+      it "should return nil" do
+        expect(subject.age).to eq(nil)
       end
-      expect(subject.age).to eq(age)
+    end
+    context "when purchase" do
+      it "should return date" do 
+        age = (Date.today - subject.settlement_date).to_i
+        expect(subject.age).to eq(age)
+      end
     end
   end
 
-  describe ".new_bill_number" do
-    it "should get new bill number" do
-      bill = Bill.unscoped.where(fy_code: subject.fy_code).order('bill_number DESC').first
-      # initialize the bill with 1 if bill is not present
-      if(bill.nil?)
-        1
-      else
-        bill.bill_number + 1
+  describe "#new_bill_number" do
+    context "when no previous bills are present for fycode" do
+      it "should return 1" do
+        expect(subject.class.new_bill_number(12)).to eq(1)
       end
     end
+    context "when previous bills are present for fycode" do
+      it "should get new bill number" do
+        expect(subject.class.new_bill_number(subject.fy_code)).to eq(subject.bill_number + 1 )
+      end
+    end  
   end
 
   describe ".full_bill_number" do
@@ -97,33 +97,116 @@ RSpec.describe Bill, type: :model do
     end
   end
 
-  describe ".strip_fy_code_from_full_bill_number" do
-    it "should return the actual bill number" do
-      full_bill_number ||= ''
-      full_bill_number_str = full_bill_number.to_s
-      hyphen_index = full_bill_number_str.index('-') || -1
-      full_bill_number_str[(hyphen_index + 1)..-1]
+  describe "#strip_fy_code_from_full_bill_number" do
+    context "when fycode is prepended" do
+      it "should return bill number" do
+        expect(subject.class.strip_fy_code_from_full_bill_number('7374-1509')).to eq('1509')
+      end
+    end 
+    context "when fycode is not prepended" do
+      it "should return bill number" do
+        expect(subject.class.strip_fy_code_from_full_bill_number('1509')).to eq('1509')
+      end
+    end  
+  end
+
+  # make provisional(sales bill only)
+  # wrong date expect error raise
+  # test for provisional base_price
+  # test for bill without share transactions
+  # test for bill with bill date different to share transactions
+  # make the share transaction with some bill id and test the failure
+  # verify the final lines 250 253
+  describe ".make_provisional" do
+    describe "validations" do
+      context "when date is invalid" do
+        subject { build(:bill, date_bs: '67544') } 
+        it "should be invalid " do
+          expect(subject.make_provisional.errors[:date_bs]).to include 'Invalid Transaction Date. Date format is YYYY-MM-DD'
+        end
+      end
+
+      context "when provisional base_price is blank" do
+        subject { build(:bill) } 
+        it "should be have errors " do
+          expect(subject.make_provisional.errors[:provisional_base_price]).to include 'Invalid Base Price'
+        end
+      end
+      
+
+       context "when share transaction size is less than 1" do
+        subject { build(:bill, provisional_base_price: 100) } 
+        it "should be have errors " do
+          expect(subject.make_provisional.errors[:date_bs]).to include 'No Sales Transactions Found'
+        end
+      end
+
+      context "when share transaction bill is present" do
+        subject { build(:bill, provisional_base_price: 100) } 
+
+        it "should be have errors " do
+          create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), bill: create(:bill), client_account_id: subject.client_account_id)
+
+          expect(subject.make_provisional.errors[:date_bs]).to include 'Sales Bill already Created for this date'
+        end
+      end
+    end
+
+    context "when valid" do
+      subject { build(:bill, provisional_base_price: 100) } 
+
+      before do
+        create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id)
+      end
+
+      it "should assign correct date" do
+        date = subject.bs_to_ad(subject.date_bs)
+        expect(subject.make_provisional.date).to eq date
+      end
+    end
+
+  end
+
+  # requires processing
+  # has incorrect fy code? true for current false for settlement date '2072-01-01'
+  describe ".requires_processing?" do
+    it "should return true if bill is pending" do
+      subject.pending!
+      expect(subject.requires_processing?).to be_truthy
+    end
+
+     it "should return true if bill is partial" do
+      subject.partial!
+      expect(subject.requires_processing?).to be_truthy
+    end
+
+     it "should return false if bill is settled" do
+      subject.settled!
+      expect(subject.requires_processing?).not_to be_truthy
     end
   end
 
   describe ".has_incorrect_fy_code?" do
-    it do
-      true_fy_code = subject.get_fy_code(subject.settlement_date)
-      if(true_fy_code != subject.fy_code)
+    context "when incorrect fy_code " do
+      it "should return true" do
+        allow(subject).to receive(:get_fy_code).and_return(234)
         expect(subject.has_incorrect_fy_code?).to be_truthy
-      else
+      end
+    end
+
+    context "when correct fy_code " do
+      it "should return false" do
+        allow(subject).to receive(:get_fy_code).and_return(7374)
         expect(subject.has_incorrect_fy_code?).not_to be_truthy
       end
-        
     end
+      # it {expect(subject.get_fy_code(subject.settlement_date)).not_to be_truthy}
+      # it {expect(subject.get_fy_code(subject.bs_to_ad('2072-01-01'))).to be_truthy}
+
   end
 
   describe ".process_bill" do
-    it do
-      subject.date ||= Time.now
-      subject.date_bs ||= ad_to_bs_string(subject.date)
-      subject.client_name ||= subject.client_account.name
-    end
+    
   end
 
 end

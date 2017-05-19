@@ -19,7 +19,7 @@ FactoryGirl.define do
 
       factory :sales_bill_with_transaction do
         after(:create) do |bill|
-          create_list(:sales_share_transaction, 1, bill: [bill])
+          create_list(:sales_share_transaction, 1, bill: bill)
         end
       end
     end
@@ -27,7 +27,7 @@ FactoryGirl.define do
     factory :sales_bill_with_closeout do
       bill_type :sales
       after(:create) do |bill|
-        create_list(:sales_share_transaction_with_closeout, 1, bill: [bill])
+        create_list(:sales_share_transaction_with_closeout, 1, bill: bill)
       end
     end
 
