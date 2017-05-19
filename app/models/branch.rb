@@ -31,7 +31,7 @@ class Branch < ActiveRecord::Base
         branches << Branch.new(code: 'ALL', id: 0)
       end
     end
-      branches
+    branches
   end
 
   def self.has_multiple_branches?

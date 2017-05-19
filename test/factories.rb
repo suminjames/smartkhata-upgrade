@@ -89,6 +89,7 @@ FactoryGirl.define do
 
   factory :ledger do
     name 'Ledger'
+    group_id 234
 
     factory :bank_ledger do
       name 'Bank'
@@ -135,4 +136,22 @@ FactoryGirl.define do
     sector 'technology'
     isin 'DAN'
   end
+ 
+  # factory :broker_profile do
+  #   broker_name "afggf"
+  #   broker_number "dggvfg"
+  # end
+
+  factory :employee_account do
+    name "ggghf"
+    email "test@example.com"
+  end
+
+  factory :settlement do
+    date_bs "hjhjhi"
+  end
+
+  factory :branch_permission do
+  end
+  
 end
