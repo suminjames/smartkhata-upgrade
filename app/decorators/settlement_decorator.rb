@@ -78,8 +78,7 @@ class SettlementDecorator < ApplicationDecorator
       end
     end
 
-
-    if object.cash_amount.present?
+    if object.cash_amount.present? && object.cash_amount > 0
       amounts << object.cash_amount
     else
     #   legacy code
