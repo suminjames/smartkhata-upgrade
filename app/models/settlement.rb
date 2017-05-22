@@ -119,10 +119,7 @@ class Settlement < ActiveRecord::Base
     end
   }
 
-  #   nothing
-  #   hack to manipulate the bank account id, done from controller
-  # scope :with_bank_account_id, ->(bank_account_id){ joins(:cheque_entries).where(cheque_entries: {:bank_account_id => bank_account_id})}
-  scope :with_bank_account_id, ->(bank_account_id){ }
+  scope :with_bank_account_id, ->(bank_account_id){ joins(:cheque_entries).where(cheque_entries: {:bank_account_id => bank_account_id}).distinct }
 
   # Old implementation! Delete when successful migration to new implementation.
 # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
