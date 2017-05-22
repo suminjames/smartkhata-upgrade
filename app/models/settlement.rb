@@ -119,6 +119,8 @@ class Settlement < ActiveRecord::Base
     end
   }
 
+  scope :with_bank_account_id, ->(bank_account_id){ joins(:cheque_entries).where(cheque_entries: {:bank_account_id => bank_account_id}).distinct }
+
   # Old implementation! Delete when successful migration to new implementation.
 # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
@@ -141,7 +143,8 @@ class Settlement < ActiveRecord::Base
           :by_date,
           :by_date_from,
           :by_date_to,
-          :by_client_id
+          :by_client_id,
+          :with_bank_account_id
       ]
   )
 
