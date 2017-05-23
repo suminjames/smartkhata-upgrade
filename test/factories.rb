@@ -66,13 +66,7 @@ FactoryGirl.define do
 
   end
 
-  factory :voucher do
-    fy_code 7374
-    date_bs '2073-09-24'
-    voucher_type 0
-    voucher_status 1
-    branch_id 1
-  end
+
 
 
 
@@ -153,6 +147,14 @@ FactoryGirl.define do
   end
 
   factory :branch_permission do
+  end
+
+  factory :tenant do
+    full_name 'Danphe'
+    address  'Kupondole'
+    phone_number '99999'
+    fax_number '0989'
+    pan_number '9909'
   end
   
 end
