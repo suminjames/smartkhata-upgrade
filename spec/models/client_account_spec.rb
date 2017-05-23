@@ -100,7 +100,132 @@ RSpec.describe ClientAccount, type: :model do
       subject.bank_address = "lalitpur"
       expect(subject.any_bank_field_present?).to be_truthy
     end
+  end
 
+  describe ".format_nepse_code" do
+    it "should store code in uppercase and remove space" do
+      subject.nepse_code = " danphe "
+     expect(subject.format_nepse_code).to eq("DANPHE")
+    end
+  end
+
+  describe ".format_name" do
+    it "should remove space" do
+      subject.name = " danphe"
+      expect(subject.format_name).to eq("danphe")
+    end
+
+    it "should reduce all whitespace to single space" do
+      subject.name = "danphe            infotech"
+      expect(subject.format_name).to eq("danphe infotech")
+    end
+
+    it "should return same" do
+      subject.name = "danphe"
+      expect(subject.format_name).to eq("danphe")
+    end
+  end
+
+  describe ".skip_or_nepse_code_present?" do
+    subject {build(:client_account, nepse_code: nil, skip_validation_for_system: nil)}
+
+    it "should return false" do
+      expect(subject.skip_or_nepse_code_present?).to_not
+       be_truthy
+    end
+
+
+    context "when nepse_code present" do
+      it "should return true" do
+        subject.nepse_code = 'adf'
+        expect(subject.skip_or_nepse_code_present?).to be_truthy
+      end
+    end
+
+    context "when skip_validation_for_system present" do
+      it "should return true" do
+        subject.skip_validation_for_system = true
+        expect(subject.skip_or_nepse_code_present?).to be_truthy
+      end
+    end
+  end
+
+  describe ".bank_details_present?" do
+    it "should have errors" do
+      subject.bank_account = "gutft"
+      subject.bank_name = " "
+      
+      subject.bank_details_present?
+      expect(subject.errors[:bank_account]).to include 'Please fill the required bank details'
+    end
+  end
+
+  describe ".find_or_create_ledger" do
+    let(:ledger){build(:ledger)}
+    context "when ledger is present" do
+      
+      it "should be true for ledger present" do
+        allow(subject).to receive(:ledger).and_return(ledger)
+        expect(subject.find_or_create_ledger).to eq(ledger)
+      end
+    end
+
+    context "when ledger isnot present" do
+      it "should return true" do 
+        allow(subject).to receive(:create_ledger).and_return(ledger)
+        expect(subject.find_or_create_ledger).to eq(ledger)
+      end
+    end
+  end
+
+  describe ".create_ledger" do
+    context "when nepse code is present" do
+      it "should create a ledger with same name" do
+        expect(subject.create_ledger.name).to eq(subject.name)
+      end
+
+      it "should create a ledger with same id" do
+        expect(subject.create_ledger.client_account_id).to eq(subject.id)
+      end
+
+      it "should assign client to clients group" do
+        client_group = Group.find_or_create_by!(name: "Clients")
+        expect(subject.create_ledger.group_id).to eq(client_group.id)
+      end
+    end
+
+    context "when nepse code is present" do
+      subject{build(:client_account, nepse_code: "tdytf")}
+      it "should match the value of client code to nepse code" do
+        expect(subject.create_ledger.client_code).to eq("TDYTF")
+      end
+    end
+  end
+
+  describe ".assign group" do
+    it ""
+  end
+
+  describe ".get_current_valuation" do
+    it "should return current evaluation" 
+
+  end
+
+  describe ".get_group_members_ledgers" do
+    subject{create(:client_account)}
+    
+    it "should return group member ledgers" do
+      group_member = create(:client_account, group_leader_id: subject.id)
+      expect(subject.get_group_members_ledgers).to include group_member.ledger
+    end
+  end
+
+  describe ".get_group_members_ledger_ids" do
+    subject{create(:client_account)}
+    it "should return group member ledger ids" do
+      group_member = create(:client_account, group_leader_id: subject.id)
+      expect(subject.get_group_members_ledger_ids).to include group_member.ledger.id
+    end
   end
 
 end

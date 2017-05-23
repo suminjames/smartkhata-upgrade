@@ -66,4 +66,24 @@ RSpec.describe Branch, type: :model do
   			expect(subject.code).to eq('DANPHE')
   		end
   	end
+
+    describe "#has_multiple_branches?" do
+      let(:branch_1) { Branch.first }
+      let(:branch_2) { create(:branch) }
+      
+      context "when branch size is greater than 1" do
+        it "should return true" do
+          branch_1
+          branch_2
+          expect(Branch.has_multiple_branches?).to be_truthy
+        end
+      end
+
+       context "when branch size is not greater than 1" do
+          it "should return false" do
+            branch_1
+            expect(Branch.has_multiple_branches?).not_to be_truthy
+          end
+        end
+    end
 end
