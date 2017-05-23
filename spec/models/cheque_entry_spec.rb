@@ -29,5 +29,95 @@ RSpec.describe ChequeEntry, type: :model do
       it { should validate_numericality_of(:cheque_number) }
     end
   end
+
+  describe "#find_beneficiary_name_similar_to_term" do
+    subject{create(:cheque_entry)}
+    it "should return beneficiary name when matched" do
+      subject
+      expect(ChequeEntry.find_beneficiary_name_similar_to_term('su')).to eq([{:text=>"subas", :id=>"subas"}])
+    end
+    it "should not return beneficiary name when  not matched" do
+      subject
+      expect(ChequeEntry.find_beneficiary_name_similar_to_term('subr')).to eq([])
+    end
+
+  end
+
+  describe "#options_for_bank_account_select" do
+    let(:bank_account1) { create(:bank_account)}
+    let(:bank_account2) { create(:bank_account, branch_id: 2)}
+
+    before do
+      bank_account2.bank.update_column(:name, 'alpha')
+      bank_account1.bank.update_column(:name, 'beta')
+    end
+
+    context "when view all branch is selected" do
+      it "should return both banks" do
+        UserSession.selected_branch_id = 0
+        expect(ChequeEntry.options_for_bank_account_select.count).to eq(2)
+      end
+      it "should return both banks in order by name" do
+        UserSession.selected_branch_id = 0
+        expect(ChequeEntry.options_for_bank_account_select.first).to eq(bank_account2)
+      end
+    end
+
+    context "when view  branch is selected" do
+      it "should return bank" do
+        UserSession.selected_branch_id = 2
+        expect(ChequeEntry.options_for_bank_account_select.count).to eq(1)
+      end
+      it "should return bank in order by name" do
+        UserSession.selected_branch_id = 2
+        expect(ChequeEntry.options_for_bank_account_select.first).to eq(bank_account2)
+      end
+    end
+  end
+
+  describe "#options_for_beneficiary_name" do
+    context "when filterrific params is not present" do
+      it "should return empty array" do
+        expect(subject.class.options_for_beneficiary_name(nil)).to eq([])
+      end
+    end
+
+    context "when filterrific params is present" do
+      it "should return baneficiary name array"
+        
+    end
+  end
+
+  describe ".can_print_cheque?" do
+    it "should return false if cheque issued type is receipt " do
+      subject.receipt!
+      expect(subject.can_print_cheque?).not_to be_truthy
+    end
+
+    it "should return false if print status is printed" do
+      subject.printed!
+      expect(subject.can_print_cheque?).not_to be_truthy
+    end
+
+    it "should return false if cheque status is unassigned" do
+      subject.unassigned!
+      expect(subject.can_print_cheque?).not_to be_truthy
+    end
+
+
+    it "should return false if cheque status is void" do
+      subject.void!
+      expect(subject.can_print_cheque?).not_to be_truthy
+    end
+  end
+
+  describe ".associated_bank_particulars" do
+    it "should return true" do
+      # subject {build(:cheque_entry, cheque_number: subject.cheque_number)}
+      allow(subject.associated_bank_particulars).to receive(:where).with({cheque_number: subject.cheque_number}).and_return(subject.particulars)
+      expect(subject.associated_bank_particulars).to be_truthy
+    end
+  end 
+
 end
 

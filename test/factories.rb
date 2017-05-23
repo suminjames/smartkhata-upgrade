@@ -36,6 +36,7 @@ FactoryGirl.define do
     bank_account
     cheque_date '2016-7-12'
     branch_id 1
+    beneficiary_name 'subas'
 
     factory :receipt_cheque_entry do
       cheque_issued_type :receipt
@@ -137,10 +138,10 @@ FactoryGirl.define do
     isin 'DAN'
   end
  
-  # factory :broker_profile do
-  #   broker_name "afggf"
-  #   broker_number "dggvfg"
-  # end
+  factory :broker_profile do
+    broker_name "afggf"
+    broker_number "dggvfg"
+  end
 
   factory :employee_account do
     name "ggghf"

@@ -54,7 +54,7 @@ RSpec.describe Bill, type: :model do
 
   describe ".get_net_cgt" do
     it "should return total net cgt" do
-      expect(subject.get_net_cgt).to eq(1)
+      expect(subject.get_net_cgt).to eq(0)
     end
   end
 
@@ -71,7 +71,8 @@ RSpec.describe Bill, type: :model do
       end
     end
     context "when purchase" do
-      it "should return date" do 
+      it "should return date" do
+        subject.purchase! 
         age = (Date.today - subject.settlement_date).to_i
         expect(subject.age).to eq(age)
       end
@@ -163,6 +164,19 @@ RSpec.describe Bill, type: :model do
         date = subject.bs_to_ad(subject.date_bs)
         expect(subject.make_provisional.date).to eq date
       end
+
+      it "should assign bill type" do
+        expect(subject.make_provisional.sales?).to be_truthy
+      end
+
+      it "should assign status" do
+        expect(subject.make_provisional.provisional?).to be_truthy
+      end
+
+      it "should assign bill number" do
+        bill_number = 144
+        expect(subject.make_provisional.bill_number).not_to eq bill_number
+      end
     end
 
   end
@@ -206,7 +220,16 @@ RSpec.describe Bill, type: :model do
   end
 
   describe ".process_bill" do
-    
+    it "should test private method" do
+      bill = build(:bill, date: nil, date_bs: nil, client_name: nil)
+      allow_any_instance_of(ClientAccount).to receive(:name).and_return('nistha')
+        bill.send(:process_bill)
+ 
+      # subject{build(:bill, date: '2074/02/05')}
+      expect(bill.date).to eq(Time.now.to_date)
+      expect(bill.date_bs).to eq(bill.ad_to_bs_string_public(Time.now.to_date))
+      expect(bill.client_name).to eq('nistha')
+    end
   end
 
 end

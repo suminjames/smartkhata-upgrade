@@ -18,4 +18,17 @@ RSpec.describe BrokerProfile, type: :model do
   	it { should validate_presence_of (:locale)}
   	it { should validate_uniqueness_of(:broker_number).scoped_to(:locale)}
   end
+
+  describe ".strip_blanks" do
+
+    it "should test private method" do
+      broker_profile = build(:broker_profile)
+      broker_profile.broker_name = "danphe "
+      broker_profile.broker_number = " 12334 "
+      broker_profile.send(:strip_blanks, :broker_name, :broker_number)
+
+      expect(broker_profile.broker_name).to eq('danphe')
+      expect(broker_profile.broker_number).to eq('12334')
+    end
+  end
 end

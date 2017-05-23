@@ -243,7 +243,6 @@ class ClientAccount < ActiveRecord::Base
       client_ledger.group_id = client_group.id
       client_ledger.save!
     end
-
     client_ledger
   end
 
