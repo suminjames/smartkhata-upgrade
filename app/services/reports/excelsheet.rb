@@ -11,9 +11,13 @@ class Reports::Excelsheet
       self.instance_variable_set("@#{parameters[i][1]}", val)
     end
     @date = ad_to_bs Date.today
-    @column_count = self.class::TABLE_HEADER.count
+    @column_count = get_column_count
     @last_column = @column_count-1 #starting from 0
     @doc_header_row_count = 0
+  end
+
+  def get_column_count
+    self.class::TABLE_HEADER.count
   end
 
   # external methods (called usually from controllers)

@@ -65,7 +65,20 @@
           </div>
 
         </div>
-
+        <div class="row">
+          <div class="col-xs-3">
+            <label>
+             Bank Account
+            </label>
+            <%= f.collection_select(
+                  :with_bank_account_id,
+                  @filterrific.select_options[:with_bank_account_id],
+                  :id,
+                  :name,
+                  {include_blank: true},
+                  {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) %>
+          </div>
+        </div>
         <div class="row top-buffer-sm">
           <div class="col-xs-3">
             <%= f.submit 'Search', class: 'btn btn-xs btn-primary btn-flat' %>

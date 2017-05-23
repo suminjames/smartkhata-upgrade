@@ -17,7 +17,7 @@
                   <div class="row">
                     <% menu['sub_menus'].each do |sub_menu| %>
                         <% if sub_menu['menu_items'].present? %>
-                            <ul class="col-xs-2 list-unstyled">
+                            <ul class="col-sm-2 list-unstyled">
                               <li><p><strong><%= sub_menu['name'] %></strong></p></li>
                               <% sub_menu['menu_items'].each do |menu_item| %>
                                   <% if menu_item['hide_on_main_navigation'].blank? || menu_item['hide_on_main_navigation'] == false %>

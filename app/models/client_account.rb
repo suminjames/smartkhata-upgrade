@@ -173,7 +173,7 @@ class ClientAccount < ActiveRecord::Base
 
   ########################################
   # Attributes
-  attr_accessor :skip_validation_for_system
+  attr_accessor :skip_validation_for_system, :skip_ledger_creation
   delegate :temp_password,:username, to: :user
 
   ########################################
@@ -229,21 +229,23 @@ class ClientAccount < ActiveRecord::Base
 
   # create client ledger
   def create_ledger
-    client_group = Group.find_or_create_by!(name: "Clients")
-    if self.nepse_code.present?
-      client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
-        ledger.name = self.name
-        ledger.client_account_id = self.id
-        ledger.group_id = client_group.id
+    unless self.skip_ledger_creation
+      client_group = Group.find_or_create_by!(name: "Clients")
+      if self.nepse_code.present?
+        client_ledger = Ledger.find_or_create_by!(client_code: self.nepse_code) do |ledger|
+          ledger.name = self.name
+          ledger.client_account_id = self.id
+          ledger.group_id = client_group.id
+        end
+      else
+        client_ledger = Ledger.new
+        client_ledger.name = self.name
+        client_ledger.client_account_id = self.id
+        client_ledger.group_id = client_group.id
+        client_ledger.save!
       end
-    else
-      client_ledger = Ledger.new
-      client_ledger.name = self.name
-      client_ledger.client_account_id = self.id
-      client_ledger.group_id = client_group.id
-      client_ledger.save!
+      client_ledger
     end
-    client_ledger
   end
 
   def find_or_create_ledger

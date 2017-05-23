@@ -335,6 +335,9 @@ class ShareTransaction < ActiveRecord::Base
     commission_amount * nepse_commission_rate(date)
   end
 
+  def counter_broker
+    self.buying? ? self.seller : self.buyer
+  end
   #
   # Calculation notes:
   # bp = > base price, pp => purchase price, x => commission rate(or amount if flat_25)

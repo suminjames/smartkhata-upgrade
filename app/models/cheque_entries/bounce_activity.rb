@@ -59,7 +59,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     ActiveRecord::Base.transaction do
       processed_bills.each(&:save)
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(@cheque_entry.bounce_date), date: @cheque_entry.bounce_date)
+      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date)
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
@@ -116,7 +116,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
       processed_bills.each(&:save)
 
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(@cheque_entry.bounce_date), date: @cheque_entry.bounce_date)
+      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date)
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."

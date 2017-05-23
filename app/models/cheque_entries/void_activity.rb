@@ -1,9 +1,28 @@
 class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
+  def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name)
+    super(cheque_entry, current_tenant_full_name)
+    @cheque_entry.void_date_bs = void_date_bs
+    @cheque_entry.void_narration = void_narration
+  end
+
   def can_activity_be_done?
     # only approved cheque can be made void
     unless @cheque_entry.approved? && @cheque_entry.payment?
-      @error_message = "The Cheque cant be made Void."
+      @error_message = "The cheque entry cant be made void."
+      return false
+    end
+
+    if is_valid_bs_date? @cheque_entry.void_date_bs
+      @cheque_entry.void_date = bs_to_ad(@cheque_entry.void_date_bs)
+    else
+      @error_message = "The void date is invalid."
+      return false
+    end
+
+    if @cheque_entry.void_date < @cheque_entry.cheque_date
+      @cheque_entry.void_date = bs_to_ad(@cheque_entry.void_date_bs)
+      @error_message = "The void date can not be earlier than the cheque date."
       return false
     end
 
@@ -15,8 +34,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
     # currently we dont pay by more than one cheque manually
     # only case where such happens is during sales bill payment
-    is_multi_cheque_voucher = false
-    is_multi_cheque_voucher = true if voucher.cheque_entries.uniq.count != 1
+    is_multi_cheque_voucher = voucher.cheque_entries.uniq.count != 1
 
 
     unless is_multi_cheque_voucher
@@ -42,10 +60,10 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         processed_bills.each(&:save)
 
         # create a new voucher and add the bill reference to it
-        new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+        new_voucher = Voucher.create!(date: @cheque_entry.void_date)
         new_voucher.bills_on_settlement = processed_bills
 
-        description = "Cheque number #{@cheque_entry.cheque_number} void"
+        description = "Cheque number #{@cheque_entry.cheque_number} voided at #{ad_to_bs(@cheque_entry.void_date)}. #{@cheque_entry.void_narration}"
 
         voucher.particulars.each do |particular|
           reverse_accounts(particular, new_voucher, description)
@@ -89,10 +107,10 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         processed_bills.each(&:save)
 
         # create a new voucher and add the bill reference to it
-        new_voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now))
+        new_voucher = Voucher.create!(date: @cheque_entry.void_date)
         new_voucher.bills_on_settlement = processed_bills
 
-        description = "Cheque number #{@cheque_entry.cheque_number} void"
+        description = "Cheque number #{@cheque_entry.cheque_number} voided at #{ad_to_bs(@cheque_entry.void_date)}. #{@cheque_entry.void_narration}"
 
         process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now)
         bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now)

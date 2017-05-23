@@ -47,5 +47,21 @@ FactoryGirl.define do
       end
 
     end
+
+    factory :buy_transaction_processed_with_closeout do
+      closeout_amount 15024.0
+      quantity 165
+    end
+
+    factory :balancing_transaction do
+      quantity 20
+      share_rate 637
+      share_amount 12740.0
+      commission_rate "0.60"
+      sebo 1.911
+      commission_amount 76.44
+      net_amount 12818.351 #that client pays or receives, pays in this case
+      bank_deposit 12766.3718 #that nepse needs in purchase case
+    end
   end
 end
