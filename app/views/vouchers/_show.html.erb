@@ -162,6 +162,8 @@
           </div>
         </div>
         <div class="box-body">
+          <% total_particular_dr_amount = 0  %>
+          <% total_particular_cr_amount = 0  %>
           <% @particulars.order('transaction_type ASC').each do |particular| %>
               <div class="row">
                 <div class="col-xs-6">
@@ -173,8 +175,44 @@
 
               </div>
               <br>
+            <% total_particular_dr_amount  += (particular.dr? ? particular.amount : 0) %>
+             <% total_particular_cr_amount  += (particular.cr? ? particular.amount : 0) %>
           <% end %>
+       
+        <hr class="grey-hr">
+       
+        <div class="row">
+          <strong>
+            <em>
+              <div class="col-xs-6">
+                Total
+              </div>
+
+              <div id ="total_dr" class="col-xs-3 text-right"><%=  arabic_number(total_particular_dr_amount) %></div>
+              <div id = "total_cr" class="col-xs-3 text-right"><%=arabic_number(total_particular_cr_amount) %></div>
+            </em>
+          </strong>
         </div>
+        <br>
+        <br>
+
+        <div class="row">
+          <div class="col-xs-3">
+            <div class="text-center name-section"><span><%= current_user.name %></span></div>
+            <hr class="clearfix horizontal-line">
+            <p class="text-center">Prepared By</p>
+          </div>
+          <div class="col-xs-3 col-xs-offset-1">
+            <div class="text-center name-section"><span></span></div>
+            <hr class="clearfix horizontal-line">
+            <p class="text-center">Approved By</p>
+          </div>
+          <div class="col-xs-3 col-xs-offset-1">
+            <div class="text-center name-section"><span><%= @voucher.beneficiary_name %></span></div>
+            <hr class="clearfix horizontal-line">
+            <p class="text-center">Received By</p>
+          </div>
+      </div>
       </div>
   <% end %>
 </div>

@@ -168,11 +168,7 @@ class ChequeEntry < ActiveRecord::Base
   end
 
   def self.options_for_beneficiary_name(filterrific_params)
-    beneficiary_name_arr = []
-    if filterrific_params.present? && filterrific_params[:by_beneficiary_name].present?
-     beneficiary_name_arr << filterrific_params[:by_beneficiary_name]
-    end
-    beneficiary_name_arr
+    [filterrific_params.try(:dig, :by_beneficiary_name)].compact
   end
 
   def self.options_for_cheque_entry_status
