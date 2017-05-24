@@ -134,7 +134,8 @@ FactoryGirl.define do
  
   factory :broker_profile do
     broker_name "afggf"
-    broker_number "dggvfg"
+    broker_number 123
+    locale 0
   end
 
   factory :employee_account do
@@ -147,6 +148,9 @@ FactoryGirl.define do
   end
 
   factory :branch_permission do
+  end
+
+  factory :particulars do
   end
 
   factory :tenant do

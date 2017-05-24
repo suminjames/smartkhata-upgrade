@@ -130,8 +130,7 @@ RSpec.describe ClientAccount, type: :model do
     subject {build(:client_account, nepse_code: nil, skip_validation_for_system: nil)}
 
     it "should return false" do
-      expect(subject.skip_or_nepse_code_present?).to_not
-       be_truthy
+      expect(subject.skip_or_nepse_code_present?).not_to be_truthy
     end
 
 
@@ -225,6 +224,22 @@ RSpec.describe ClientAccount, type: :model do
     it "should return group member ledger ids" do
       group_member = create(:client_account, group_leader_id: subject.id)
       expect(subject.get_group_members_ledger_ids).to include group_member.ledger.id
+    end
+  end
+
+  describe ".messageable_phone_number" do
+    context "when messageable phone number isnot present" do
+        it "should return nil" do
+          allow(subject).to receive(:messageable_phone_number).and_return(nil)
+          expect(subject.messageable_phone_number).to eq(nil)
+        end
+    end
+
+    context "when messageable phone number is present" do
+        it "should return mobile number" do
+          allow(subject).to receive(:messageable_phone_number).and_return("9841727272")
+          expect(subject.messageable_phone_number).to eq("9841727272")
+        end
     end
   end
 

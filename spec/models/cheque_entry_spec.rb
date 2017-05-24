@@ -83,7 +83,16 @@ RSpec.describe ChequeEntry, type: :model do
     end
 
     context "when filterrific params is present" do
-      it "should return baneficiary name array"
+      it "should return baneficiary name array" do
+       expect(subject.class.options_for_beneficiary_name({:by_name => "nistha"})).to eq([]) 
+      end
+        
+    end
+
+    context "when filterrific params is present" do
+      it "should return baneficiary name array" do
+       expect(subject.class.options_for_beneficiary_name({:by_beneficiary_name => "nistha"})).to eq(['nistha']) 
+      end
         
     end
   end
@@ -112,10 +121,12 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe ".associated_bank_particulars" do
-    it "should return true" do
-      # subject {build(:cheque_entry, cheque_number: subject.cheque_number)}
-      allow(subject.associated_bank_particulars).to receive(:where).with({cheque_number: subject.cheque_number}).and_return(subject.particulars)
-      expect(subject.associated_bank_particulars).to be_truthy
+    let(:particular) {create(:particular, cheque_number: subject.cheque_number)}
+    it "should return associated bank particulars" do
+      subject.particulars << particular
+      subject.save
+
+      expect(subject.associated_bank_particulars).to eq([particular])
     end
   end 
 
