@@ -171,7 +171,7 @@ class ChequeEntry < ActiveRecord::Base
     [filterrific_params.try(:dig, :by_beneficiary_name)].compact
   end
 
-  def self.options_for_cheque_entry_statuss
+  def self.options_for_cheque_entry_status
     [
         ["Assigned" ,"assigned"],
         ["Unassigned" ,"unassigned"],
