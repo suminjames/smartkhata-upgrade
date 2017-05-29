@@ -219,10 +219,19 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
       # group all the share transactions for a client for the day
       if hash_dp.key?(client_nepse_code+'buying')
-        bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[client_nepse_code+'buying'], fy_code: fy_code, date: @date, client_account_id: client.id)
+        bill = Bill.unscoped.find_or_create_by!(
+            bill_number: hash_dp[client_nepse_code+'buying'],
+            fy_code: fy_code,
+            date: @date,
+            client_account_id: client.id)
       else
         hash_dp[client_nepse_code+'buying'] = @bill_number
-        bill = Bill.unscoped.find_or_create_by!(bill_number: @bill_number, fy_code: fy_code, client_account_id: client.id, date: @date) do |b|
+        bill = Bill.unscoped.find_or_create_by!(
+            bill_number: @bill_number,
+            fy_code: fy_code,
+            client_account_id: client.id,
+            date: @date
+        ) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
@@ -463,7 +472,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # Also, account for share transactions already in the db.
       # `**_counted_from_db` is flag to check whether or not that group of share transaction has been accounted for.
       client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
-      if client?
+      if client.present?
         if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
           company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
           relevant_share_transactions_count = ShareTransaction.where(
@@ -532,7 +541,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
           transaction_type: ShareTransaction.transaction_types[share_transaction.transaction_type]
       ).size
       stale_dp_fee_for_st = share_transaction.dp_fee
-      stale_net_amount_for_st = share_transaction.dp_fee
       updated_dp_fee_for_st = 25.0 / relevant_share_transactions_count
       difference_of_dp_fee_for_st = stale_dp_fee_for_st - updated_dp_fee_for_st
       share_transaction.dp_fee =  updated_dp_fee_for_st
@@ -628,8 +636,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
             bill_number: hash_dp[client_nepse_code+'buying'],
             fy_code: fy_code,
             date: @date,
-            client_account_id: client.id
-        )
+            client_account_id: client.id)
       else
         # The following sets key for a client during her first purchase transaction iteration.
         # Account for pre-processed relevant share transactions' associate bill for the date.
@@ -723,7 +730,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     if type_of_transaction == ShareTransaction.transaction_types['buying']
       bill.share_transactions << transaction
       bill.net_amount += transaction.net_amount
-      bill.balance_to_pay = bill.net_amount
+      bill.balance_to_pay += transaction.net_amount
+      if bill.partial? || bill.settled?
+        bill.status = Bill.statuses[:partial]
+      end
       bill.settlement_date = settlement_date
       bill.save!
       bill_id = bill.id
