@@ -107,7 +107,7 @@ class ProcessSalesBillService
           # end
           amount_to_settle = bill_amount
 
-          voucher.bills_on_creation << bill
+          voucher.bills_on_settlement << bill
           _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
           # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
           closing_balance = client_ledger.closing_balance
