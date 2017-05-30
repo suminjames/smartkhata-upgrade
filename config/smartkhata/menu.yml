@@ -128,6 +128,12 @@ menus:
     - name: Brokers
       path: "<%= broker_profiles_path %>"
       code: RG_BER_BPP
+  - name: Vendor Register
+    code: RG_VDR
+    menu_items:
+    - name: Vendors
+      path: "<%= vendor_accounts_path %>"
+      code: RG_VDR_VAP
   - name: Company Register
     code: RG_CMP
     menu_items:
