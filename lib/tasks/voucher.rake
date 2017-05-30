@@ -74,10 +74,10 @@ namespace :voucher do
     abort 'Please voucher' unless args.id.present?
     abort 'Please valid date bs' unless args.new_date.split('-').size == 3
 
-    vouchers = [args.id]
+    voucher_ids = [args.id]
     new_date_bs = args.new_date
-    vouchers = Voucher.where(id: vouchers)
-    ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
+    vouchers = Voucher.where(id: voucher_ids)
+    ledgers = Particular.where(voucher_id: voucher_ids).pluck(:ledger_id).uniq.join(' ')
 
     ActiveRecord::Base.transaction do
       vouchers.each do |v|
