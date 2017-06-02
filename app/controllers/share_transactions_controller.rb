@@ -508,7 +508,7 @@ class ShareTransactionsController < ApplicationController
   # POST /share_transactions/1/process_closeout.json
   def process_closeout
     settlement_by = params[:settlement_by]
-    closeout_settlement = CloseoutSettlementService.new(@share_transaction, settlement_by, current_tenant, balancing_transaction_ids: params[:balancing_transaction_ids])
+    closeout_settlement = ShortageSettlementService.new(@share_transaction, settlement_by, current_tenant, balancing_transaction_ids: params[:balancing_transaction_ids])
     closeout_settlement.process
     if closeout_settlement.error
       render json: {error: closeout_settlement.error}, status: :unprocessable_entity

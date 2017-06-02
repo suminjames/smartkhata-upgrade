@@ -112,19 +112,15 @@
                 <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
 
                 <td>
-                  <% if particular.bills.count > 0 %>
-                      <% particular.bills.each do |bill| %>
-                          <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
+                  <% particular.bills.each do |bill| %>
+                      <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
                           <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
-                              <% end %>
                       <% end %>
                   <% end %>
                 </td>
                 <td>
-                  <% if particular.cheque_entries.count > 0 %>
-                      <% particular.cheque_entries.each do |cheque| %>
-                          <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true %> <br>
-                      <% end %>
+                  <% particular.cheque_entries.each do |cheque| %>
+                      <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true %> <br>
                   <% end %>
                   <% if particular.nepse_chalan.present? %>
                       <%= link_to particular.nepse_chalan.nepse_settlement_id, nepse_chalan_path(particular.nepse_chalan.id), :target => "_blank" %>
@@ -132,10 +128,8 @@
                   <% end %>
                 </td>
                 <td>
-                  <% if particular.settlements.size > 0 %>
-                      <% particular.settlements.each do |settlement| %>
-                          <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
-                      <% end %>
+                  <% particular.settlements.each do |settlement| %>
+                      <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
                   <% end %>
                 </td>
                   <td class='text-right'>

@@ -70,6 +70,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # normal_style_row = @styles[:normal_style]
     normal_style_row = ([@styles[:normal_style]]*(@column_count-4)).insert(1, @styles[:wrap]).insert(@transxn_amt_first_col, *[@styles[:float_format_right]]*2).push(@styles[:normal_right])
     striped_style_row = ([@styles[:striped_style]]*(@column_count-4)).insert(1, @styles[:wrap_striped]).insert(@transxn_amt_first_col, *[@styles[:float_format_right_striped]]*2).push(@styles[:striped_right])
+
     @particulars.each_with_index do |p, index|
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       date = p.date_bs
@@ -77,45 +78,19 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number}"
 
       bills = ""
-      if p.bills.size > 0
-        bill_count = p.bills.count
-          p.bills.each_with_index do |bill, bill_index|
-            if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id.nil?
-             bills << "#{bill.fy_code}-#{bill.bill_number}"
-             bills << ", " unless bill_index == bill_count-1
-            end
-          end
-      end
-
-      cheque_entries = ""
-      if p.cheque_entries.size > 0
-        cheque_count = p.cheque_entries.size
-        p.cheque_entries.each_with_index do |cheque, cheque_index|
-          cheque_entries << cheque.cheque_number.to_s
-          cheque_entries << ", " unless cheque_index == cheque_count-1
+      p.bills.each_with_index do |bill, bill_index|
+        if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id.nil?
+          bills << "#{bill.fy_code}-#{bill.bill_number}"
+          bills << ", "
         end
       end
-      if p.nepse_chalan.present?
-        cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})"
-      end
+      bills.chomp! ", "
 
-      settlements = ''
-      if p.voucher.settlements.size > 0
-        # The select & loop style makes the loop run twice
-        # filtered_settlements = p.voucher.settlements.select{ |s|
-        #   s.has_single_cheque? && @ledger.client_account_id == s.client_account_id || !s.has_single_cheque?
-        # }
+      cheque_entries = p.cheque_entries.map{|cheque_entry| cheque_entry.cheque_number.to_s}.join(", ")
 
-        p.voucher.settlements.each do |settlement|
-          # if settlement.has_single_cheque? && @ledger.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?
-          # simplified version of the redundant view logic (shown above)--
-          if @ledger.client_account_id == settlement.client_account_id || !settlement.has_single_cheque?
-            settlements << "#{settlement.id}, "
-          end
-        end
-        # Strip the excess comma at the end, if any!
-        settlements.chomp! ", "
-      end
+      cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})" if p.nepse_chalan.present?
+
+      settlements = p.settlements.map{ |settlement| "#{settlement.id}" }.join(", ")
 
       transaction_amt = p.amount
       transaction_amt_cr = p.cr? ? transaction_amt : ''
@@ -125,8 +100,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       p.running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_cr, transaction_amt_dr, balance],
-                     style: row_style
+      @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_cr, transaction_amt_dr, balance], style: row_style
     end
   end
 

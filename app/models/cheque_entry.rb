@@ -24,6 +24,8 @@
 #  fy_code            :integer
 #  bounce_date        :date
 #  bounce_narration   :text
+#  void_date          :date
+#  void_narration     :text
 #
 
 class ChequeEntry < ActiveRecord::Base
@@ -36,6 +38,8 @@ class ChequeEntry < ActiveRecord::Base
   attr_accessor :skip_cheque_number_validation
   # For bounce activity view
   attr_accessor :bounce_date_bs
+  # For void activity view
+  attr_accessor :void_date_bs
   # For represent activity view
   attr_accessor :represent_date_bs
 
@@ -164,11 +168,7 @@ class ChequeEntry < ActiveRecord::Base
   end
 
   def self.options_for_beneficiary_name(filterrific_params)
-    beneficiary_name_arr = []
-    if filterrific_params.present? && filterrific_params[:by_beneficiary_name].present?
-     beneficiary_name_arr << filterrific_params[:by_beneficiary_name]
-    end
-    beneficiary_name_arr
+    [filterrific_params.try(:dig, :by_beneficiary_name)].compact
   end
 
   def self.options_for_cheque_entry_status

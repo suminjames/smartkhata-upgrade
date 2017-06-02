@@ -23,9 +23,13 @@ namespace :demo do
       email ||= nil
 
       branch = Branch.find_or_create_by!(code: "CHI", address: "Chitwan")
-      if code == 'SK1'
+      if code == 'SK1' || code == 'SK3'
         branch_id = branch.id
         boid = '101010100001234'
+      end
+
+      if code == 'SK3'
+        branch_id = branch.id
       end
 
       client = ClientAccount.find_or_create_by!(nepse_code: code) do |client|

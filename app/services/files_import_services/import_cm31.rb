@@ -113,15 +113,16 @@ class FilesImportServices::ImportCm31 < ImportFile
           voucher.complete!
           voucher.save!
 
-          if @current_tenant.closeout_settlement_automatic
-            voucher = Voucher.create!(date: @nepse_settlement_date)
-            voucher.desc = description
-            process_accounts(closeout_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
-            process_accounts(client_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
-            voucher.complete!
-            transaction.closeout_settled = true
-            voucher.save!
-          end
+          # if @current_tenant.closeout_settlement_automatic
+          #   voucher = Voucher.create!(date: @nepse_settlement_date)
+          #   voucher.desc = description
+          #   process_accounts(closeout_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
+          #   process_accounts(client_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
+          #   voucher.complete!
+          #   transaction.closeout_settled = true
+          #   voucher.save!
+          # end
+
           transaction.save!
         end
 

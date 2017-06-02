@@ -82,4 +82,51 @@ namespace :branch do
 
     end
   end
+
+  # move from one branch to another current fiscal year
+  task :move_particulars_to,[:tenant, :branch_id, :dry_run]  => 'smartkhata:validate_tenant' do |task, args|
+    include FiscalYearModule
+    include CustomDateModule
+
+    branch_id = args.branch_id
+    tenant = args.tenant
+    dry_run = args.dry_run
+    ledger_ids = []
+    fy_code = get_fy_code
+
+    count = 0
+
+    ActiveRecord::Base.transaction do
+      ClientAccount.where(branch_id: branch_id).find_each do |client_account|
+        ledger = client_account.ledger
+        particulars =  Particular.unscoped.where(ledger_id: ledger.id, branch_id: 1, fy_code: fy_code)
+        particular_on_main_branch_count = particulars.count
+
+        count += particular_on_main_branch_count
+        if particular_on_main_branch_count > 0 && !dry_run
+          particulars.update_all(branch_id: branch_id)
+
+          particulars.find_each do |particular|
+            # # this case fails in case of payment voucher
+            voucher = particular.voucher
+            other_particulars = Particular.unscoped.where(voucher_id: voucher.id)
+            other_ledger_ids =  other_particulars.pluck(:ledger_id)
+            if (Ledger.where(id: other_ledger_ids).where.not(client_account_id: nil).count == 1)
+              other_particulars.update_all(branch_id: branch_id)
+              ledger_ids += other_ledger_ids
+            end
+          end
+          ledger_ids << ledger.id
+        end
+      end
+
+      unless ledger_ids.blank?
+        Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true, branch_id)
+        Rake::Task["ledger:fix_ledger_selected"].reenable
+        Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true)
+      end
+
+      puts "#{count} particulars affected"
+    end
+  end
 end

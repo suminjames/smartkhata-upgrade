@@ -38,7 +38,7 @@
 
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
-  %div#share_transaction_list
+  %div#share_transaction_list.table-responsive
     - if client_account
       .highlighted-box
         %h3.no-margin="Share Transaction details for #{client_account.name_and_nepse_code}"

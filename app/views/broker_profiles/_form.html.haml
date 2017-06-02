@@ -5,12 +5,20 @@
     = f.input :broker_name
     = f.input :broker_number
     = f.input :address
-    = f.input :dp_code
+    -#= f.input :dp_code
     = f.input :phone_number
     = f.input :fax_number
     = f.input :email
     = f.input :pan_number
-    = f.input :locale, label: 'Language' do
-      = f.select :locale, options_for_select(BrokerProfile.locales.keys.to_a, f.object.locale), {}
+    -#= f.input :locale, label: 'Language' do
+    -#  = f.select :locale, options_for_select(BrokerProfile.locales.keys.to_a, f.object.locale), {}
+    = f.input :ledger_id do
+      = f.collection_select(                            |
+            :ledger_id,                                 |
+            f.object.ledger_map,                        |
+            :id,                                        |
+            :name_and_identifier,                       |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -' }) |
   .form-actions
     = f.button :submit

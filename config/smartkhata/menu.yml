@@ -122,12 +122,18 @@ menus:
       path: "<%= employee_accounts_employee_access_path %>"
       code: RG_EMR_EEP
       hide_on_main_navigation: true
+  - name: Broker Register
+    code: RG_BER
+    menu_items:
+    - name: Brokers
+      path: "<%= broker_profiles_path %>"
+      code: RG_BER_BPP
   - name: Vendor Register
-    code: RG_VER
+    code: RG_VDR
     menu_items:
     - name: Vendors
       path: "<%= vendor_accounts_path %>"
-      code: RG_VER_VEN
+      code: RG_VDR_VAP
   - name: Company Register
     code: RG_CMP
     menu_items:

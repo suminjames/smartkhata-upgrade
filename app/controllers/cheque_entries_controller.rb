@@ -1,7 +1,7 @@
 class ChequeEntriesController < ApplicationController
-  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :make_void]
-  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :make_void]
-  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do]
+  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
 
   # GET /cheque_entries
   # GET /cheque_entries.json
@@ -138,14 +138,25 @@ class ChequeEntriesController < ApplicationController
 #     else
 #       reject(:bounce, @back_path, @back_path)
 
-  def make_void
-    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, current_tenant.full_name)
+  # get
+  def void_show
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+  end
+
+  # patch
+  def void_do
+    void_date_bs = params.dig(:cheque_entry, :void_date)
+    void_narration = params.dig(:cheque_entry, :void_narration)
+    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, void_date_bs, void_narration, current_tenant.full_name)
     cheque_activity.process
     if cheque_activity.error_message.present?
-      redirect_to @cheque_entry, flash: {:error => cheque_activity.error_message } and return
+      @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
+      flash[:alert] = cheque_activity.error_message
+      render :void_show  and return
     end
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    redirect_to @cheque_entry, :flash => {:notice => 'Cheque void recorded succesfully'} and return
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque voided succesfully'} and return
   end
 
   # get

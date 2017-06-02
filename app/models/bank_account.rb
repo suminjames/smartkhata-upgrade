@@ -67,6 +67,13 @@ class BankAccount < ActiveRecord::Base
     BankAccount.by_branch_id.where(:default_for_payment => true).first
   end
 
+  def self.default_receipt_account
+    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+    # Check for availability of default bank accounts for payment and receipt in the current branch.
+    # If not available in the current branch, resort to using whichever is available from all available branches.
+    default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
+  end
+
   def name
     "#{self.bank.bank_code }-#{self.account_number}"
   end
@@ -79,8 +86,12 @@ class BankAccount < ActiveRecord::Base
     "#{self.bank.name}"
   end
 
+  def get_current_assets_group
+    Group.find_by(name: "Current Assets").id
+  end
+
   def save_custom
-    _group_id = Group.find_by(name: "Current Assets").id
+    _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?
       self.ledger.name = "Bank:"+_bank.name+"(#{self.account_number})"
