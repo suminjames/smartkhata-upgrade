@@ -37,6 +37,7 @@ class Vouchers::Setup < Vouchers::Base
       ledger_list_financial = bank_accounts_in_branch.uniq.collect(&:ledger).present? ? bank_accounts_in_branch.all.uniq.collect(&:ledger) : BankAccount.all.uniq.collect(&:ledger)
       default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
       default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
+
       cash_ledger = Ledger.find_by(name: "Cash")
 
       # In case when a bank account in a branch has a ledger, but doesn't have either default_for_payment or

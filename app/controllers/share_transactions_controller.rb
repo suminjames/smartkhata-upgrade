@@ -1,8 +1,8 @@
 class ShareTransactionsController < ApplicationController
-  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy]
+  before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout, :available_balancing_transactions]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -399,14 +399,14 @@ class ShareTransactionsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        ShareTransaction,
+        ShareTransaction.by_branch,
         params[:filterrific],
         select_options: {
             by_client_id_closeouts: ClientAccount.options_for_client_select_closeouts(params[:filterrific]),
             by_isin_id_closeouts: ShareTransaction.options_for_isin_select
         },
         persistence_id: false,
-        default_filter_params: { sorted_by_closeouts: 'date_asc' },
+        default_filter_params: { sorted_by_closeouts: 'date_desc' },
     ) or return
 
     # @filterrific.select_options[:sorted_by] = 'close_out_asc'
@@ -416,22 +416,21 @@ class ShareTransactionsController < ApplicationController
     # In addtition to report generation, paginate is set to false by link used in #new view's view link.
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
-        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC')
       else
-        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC')
         # Needed for pagination to work
-        @share_transactions = @share_transactions.page(0).per(@share_transactions.size).decorate
+        @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
       # @share_transactions= ShareTransaction.with_closeout.filterrific_find(@filterrific).includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
-      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page).decorate
+      @share_transactions= @filterrific.find.includes(:isin_info, :client_account).order('share_transactions.date DESC, contract_no ASC').page(params[:page]).per(items_per_page)
 
 
     end
 
     @download_path_xlsx = closeouts_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
     @download_path_pdf = closeouts_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
-
     respond_to do |format|
       format.html
       format.js
@@ -499,6 +498,26 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions/1/edit
   def edit
   end
+
+  # GET /share_transactions/1/available_balancing_transactions.json
+  def available_balancing_transactions
+    share_transactions = @share_transaction.available_balancing_transactions
+    render json: {share_transactions: share_transactions}, status: :ok
+  end
+
+  # POST /share_transactions/1/process_closeout.json
+  def process_closeout
+    settlement_by = params[:settlement_by]
+    closeout_settlement = ShortageSettlementService.new(@share_transaction, settlement_by, current_tenant, balancing_transaction_ids: params[:balancing_transaction_ids])
+    closeout_settlement.process
+    if closeout_settlement.error
+      render json: {error: closeout_settlement.error}, status: :unprocessable_entity
+    else
+      render json: {message: 'Successfully processed'}, status: :ok
+    end
+
+  end
+
 
   # POST /share_transactions
   # POST /share_transactions.json

@@ -56,4 +56,40 @@ class SettlementDecorator < ApplicationDecorator
         :bank_codes => bank_codes.join("<br>")
     }
   end
+
+  def cheque_cash_details
+    cheque_numbers = []
+    bank_codes = []
+    amounts = []
+
+    total_amount = 0
+    object.cheque_entries.each do |cheque_entry|
+      if cheque_entry.additional_bank.present?
+        bank_code = cheque_entry.additional_bank.bank_code
+      else
+        bank_code = cheque_entry.bank.bank_code
+      end
+
+      unless cheque_numbers.include? cheque_entry.cheque_number
+        bank_codes << bank_code
+        amounts <<  cheque_entry.amount
+        total_amount += cheque_entry.amount
+        cheque_numbers <<  cheque_entry.cheque_number
+      end
+    end
+
+    if object.cash_amount.present? && object.cash_amount > 0
+      amounts << object.cash_amount
+    else
+    #   legacy code
+      cash_amount  = object.amount - total_amount
+      amounts << cash_amount if cash_amount > 0
+    end
+
+    return {
+        :cheque_numbers => cheque_numbers.join("<br>"),
+        :bank_codes => bank_codes.join("<br>"),
+        :amounts => amounts.join("<br>")
+    }
+  end
 end

@@ -62,6 +62,9 @@ Rails.application.routes.draw do
       get :show_multiple
     end
   end
+
+  match "/cheque_entries/combobox_ajax_filter_for_beneficiary_name" => "cheque_entries#combobox_ajax_filter_for_beneficiary_name", via: [:get]
+
   resources :cheque_entries do
     collection do
       get :get_cheque_number
@@ -69,12 +72,12 @@ Rails.application.routes.draw do
       get :bills_associated_with_cheque_entries
       get :settlements_associated_with_cheque_entries
       get :make_cheque_entries_unprinted
-      get :make_void
       get :bounce_show
       get :represent_show
       get :show_multiple
-      get :make_void
+      get :void_show
       patch :bounce_do
+      patch :void_do
       # patch :represent_do
     end
   end
@@ -98,6 +101,11 @@ Rails.application.routes.draw do
       get 'securities_flow'
       get 'closeouts'
       get 'make_closeouts_processed'
+
+    end
+    member do
+      post 'process_closeout'
+      get 'available_balancing_transactions'
     end
   end
   resources :bills do
@@ -196,7 +204,9 @@ Rails.application.routes.draw do
   namespace 'report' do
     resources :balancesheet
     resources :profitandloss
-    resources :trial_balance
+    resources :trial_balance do
+      collection { get :index_old}
+    end
   end
 
   get "/test" => "test#index"

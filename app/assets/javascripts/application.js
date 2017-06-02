@@ -233,6 +233,27 @@ $(document).on("ready page:load", function(){
         }
     });
 
+  $('#cheque_entries_index_beneficiary_name_combobox').select2({
+    theme: 'bootstrap',
+    allowClear: true,
+    minimumInputLength: 3,
+    ajax: {
+      url: "/cheque_entries/combobox_ajax_filter_for_beneficiary_name",
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term // search term
+        };
+      },
+      processResults: function (data, params) {
+        return {
+          results: data
+        };
+      }
+    }
+  });
+
     // HACK!!!
     // Errorenous redirect from voucher#create renders voucher#new which might have unknown numbers of particular fields. Combobox ajax filter needs to be binded to all of this particular fields' ledger select tag. As the number of particulars is unknown to the javascript, bind combobox ajax to a lot of particular fields' select tag.
     // However, this doesn't affect while 'Add Particular' button is clicked to add particular row. In this case, any number of additions will have ajax binded.

@@ -16,7 +16,8 @@ class Branch < ActiveRecord::Base
   validates :code, uniqueness: {case_sensitive: false}
   include Auditable
   def code=(val)
-    write_attribute :code, val.upcase
+    write_attribute :code, val.try(
+      :upcase)
   end
 
   def self.permitted_branches_for_user(user)
@@ -30,7 +31,7 @@ class Branch < ActiveRecord::Base
         branches << Branch.new(code: 'ALL', id: 0)
       end
     end
-      branches
+    branches
   end
 
   def self.has_multiple_branches?

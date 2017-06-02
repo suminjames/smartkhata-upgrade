@@ -54,7 +54,6 @@ class ImportPayout < ImportFile
         # list of settlement_ids for multiple settlements.
         settlement_ids = Set.new
 
-
         @processed_data.each do |hash|
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
@@ -92,7 +91,6 @@ class ImportPayout < ImportFile
           end
 
           # @date = Date.parse(hash['TRADE_DATE'])
-
 
 
 
@@ -154,7 +152,7 @@ class ImportPayout < ImportFile
           # this is the case for close out
           # calculate the charges
           if transaction.closeout_amount > 0
-            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
+            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
           else
             transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
           end

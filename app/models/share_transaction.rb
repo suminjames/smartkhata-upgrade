@@ -99,21 +99,22 @@ class ShareTransaction < ActiveRecord::Base
   enum transaction_cancel_status: [:no_deal_cancel, :deal_cancel_pending, :deal_cancel_complete]
 
   scope :find_by_date, -> (date) { where(
-      :date => date.beginning_of_day..date.end_of_day) }
+      :date => date.beginning_of_day..date.end_of_day)
+  }
   scope :find_by_date_range, -> (date_from, date_to) { where(
-      :date => date_from.beginning_of_day..date_to.end_of_day) }
-
+      :date => date_from.beginning_of_day..date_to.end_of_day)
+  }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    not_cancelled.where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date>= ?', date_ad.beginning_of_day)
+    not_cancelled.where('share_transactions.date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    not_cancelled.where('date<= ?', date_ad.end_of_day)
+    not_cancelled.where('share_transactions.date <= ?', date_ad.end_of_day)
   }
   scope :by_transaction_type, lambda { |type|
     not_cancelled.where(:transaction_type => ShareTransaction.transaction_types[type])
@@ -194,6 +195,14 @@ class ShareTransaction < ActiveRecord::Base
     # TODO
   end
 
+  def as_json(options={})
+    super.as_json(options).merge({:isin_info => isin_info, client_account: client_account.as_json})
+  end
+
+
+  def available_balancing_transactions
+    self.class.where('date > ?', self.date).where(isin_info_id: self.isin_info_id, client_account_id: self.client_account_id, closeout_amount: 0, transaction_type: self.class.transaction_types[:buying])
+  end
   #
   # Returns a hash with share quantity flows of an isin from the search scope that is provided in the `filterrific` ParamSet.
   # The passed in isin_info_id is bind with `by_isin_id filter, which might or might not have been initially set to some value in filterrific's search scope.
@@ -326,6 +335,9 @@ class ShareTransaction < ActiveRecord::Base
     commission_amount * nepse_commission_rate(date)
   end
 
+  def counter_broker
+    self.buying? ? self.seller : self.buyer
+  end
   #
   # Calculation notes:
   # bp = > base price, pp => purchase price, x => commission rate(or amount if flat_25)
@@ -378,5 +390,7 @@ class ShareTransaction < ActiveRecord::Base
     end
     calculated_base_price.try(:to_i)
   end
+
+
 
 end

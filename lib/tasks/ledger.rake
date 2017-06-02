@@ -8,17 +8,14 @@ namespace :ledger do
     return 7374
   end
 
-  def patch_ledger_dailies(ledger, all_fiscal_years = false)
+  def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1)
     # need to modify this in future to accomodate current fiscal year
     if all_fiscal_years
       fy_codes = [6869, 6970, 7071, 7273, 7374]
     else
       fy_codes = [7374]
     end
-
-    branch_id = 1
     fy_codes.each do |fy_code|
-
       UserSession.selected_branch_id = branch_id
       UserSession.selected_fy_code = fy_code
 
@@ -31,8 +28,8 @@ namespace :ledger do
 
       first_daily = true
       opening_balance = 0
-      LedgerDaily.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
-      LedgerDaily.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
+      LedgerDaily.unscoped.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
+      LedgerDaily.unscoped.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
 
       transaction_dates_org.each do |date|
         balance = 0
@@ -82,17 +79,19 @@ namespace :ledger do
   end
 
   # for now we are not concerned about multiple branches
-  def patch_closing_balance(ledger, all_fiscal_years = false)
+  def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1)
     if all_fiscal_years
       fy_codes = [6869, 6970, 7071, 7273, 7374]
     else
       fy_codes = [7374]
     end
-    branch_id = 1
 
     fy_codes.each do |fy_code|
+      UserSession.selected_branch_id = branch_id
+      UserSession.selected_fy_code = fy_code
+
       ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
-      ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
+      ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
 
       if ledger_blnc_org.present?
         query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id}) AS subquery;"
@@ -110,8 +109,6 @@ namespace :ledger do
         ledger_blnc_cost_center.dr_amount = dr_amount
         ledger_blnc_cost_center.cr_amount = cr_amount
 
-
-        fy_code = 7374
         query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code}) AS subquery;"
         balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
         ledger_blnc_org.closing_balance = balance + ledger_blnc_org.opening_balance
@@ -240,13 +237,16 @@ namespace :ledger do
 
   # Example syntax:
   # ledger:fix_ledger_selected['trishakti',"3405 11938"]
-  task :fix_ledger_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_year, :branch_id] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
     ledger_ids = args.ledger_ids.split(" ")
+    all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
+
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_ledger_dailies(ledger)
-        patch_closing_balance(ledger)
+        patch_ledger_dailies(ledger, all_fiscal_year, branch_id )
+        patch_closing_balance(ledger, all_fiscal_year, branch_id)
       end
     end
   end

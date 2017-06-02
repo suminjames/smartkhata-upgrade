@@ -1,0 +1,93 @@
+<% provide(:section_title, "Reports: Trial Balance") %>
+<%
+  @date = ad_to_bs_string(Date.today)
+%>
+<div class="clearfix submenu">
+  <%
+    def is_active_sub_menu_option(option)
+      return params[:search_by] == option
+    end
+  %>
+  <h5>
+    <%= link_to "Full Report", index_old_report_trial_balance_index_path(search_by: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
+    |
+    <%= link_to "Search by Date", index_old_report_trial_balance_index_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
+  </h5>
+</div>
+
+
+<div class="clearfix search-form">
+  <%
+    if params[:search_by] == 'date'
+  %>
+      <%= form_tag(index_old_report_trial_balance_index_path, :method => "get", id: "search-form") do %>
+          <%= hidden_field_tag :search_by, "date" %>
+          <%= text_field_tag :search_term, params[:search_term], placeholder: "YYYY-MM-DD" %>
+          <%= submit_tag "Search" %>
+      <% end %>
+  <% end %>
+</div>
+
+<% # OPTIMIZE Incorporate search term specific message %>
+<% if !params[:search_by].blank? && !params[:commit].blank? && !@balance_report.present? %>
+    <p>No results to display matching the date  <%= params[:search_term] %>.</p>
+<% end %>
+
+
+<% if @balance_report.present? %>
+    <h2 class="text-center"><%= current_tenant.full_name %></h2>
+    <h3 class="text-center">Trial Balance</h3>
+    <h4 class="text-center"> <%= params[:search_term] ? "As on date #{params[:search_term]}" : "As on #{@date.to_s}" %></h4>
+
+    <div class="bottom-buffer-sm">
+      <div class="btn-group">
+        <button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false", aria-haspopup="true", data-toggle="dropdown" type="button">
+          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+          Download
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><%= link_to "xlsx", @download_path_xlsx %></li>
+        </ul>
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class="box-body ledger trial">
+      <table class="table">
+        <thead>
+        <th>Name</th>
+        <th>Opening <br> Balance Dr</th>
+        <th>Opening <br> Balance Cr</th>
+        <th>Net Debit</th>
+        <th>Net Credit</th>
+        <th>Closing <br> Balance Dr</th>
+        <th>Closing <br> Balance Cr</th>
+
+
+        </thead>
+
+        <% @balance_report.each do |group, ledgers| %>
+            <tr class="">
+              <td colspan="7"><h4><strong><%= group %></strong></h4></td>
+
+            </tr>
+            <tbody class="ledger-group">
+            <% ledgers.each do |ledger| %>
+                <tr class="ledger-single">
+                  <td><%= ledger.name %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial) if ledger.opening_balance_trial > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.opening_balance_trial.abs) if ledger.opening_balance_trial < 0 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.dr_amount_trial) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.cr_amount_trial) %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial) if ledger.closing_balance_trial > 1 %></td>
+                  <td class="text-right"><%= number_to_currency(ledger.closing_balance_trial.abs) if ledger.closing_balance_trial < 0 %></td>
+                </tr>
+            <% end %>
+            </tbody>
+        <% end %>
+        <tr class="end"></tr>
+      </table>
+    </div>
+<% end %>

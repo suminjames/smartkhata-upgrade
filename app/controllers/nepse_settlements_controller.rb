@@ -99,7 +99,7 @@ class NepseSettlementsController < ApplicationController
     end
 
     # process the sale settlement
-    @status = GenerateBillsService.new(nepse_settlement: @nepse_settlement).process
+    @status = GenerateBillsService.new(nepse_settlement: @nepse_settlement, current_tenant: current_tenant).process
   end
 
 

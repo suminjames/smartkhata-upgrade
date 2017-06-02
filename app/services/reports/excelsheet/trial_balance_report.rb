@@ -59,13 +59,15 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
       total_blnc_cr = total_blnc_dr = total_net_credit = total_net_debit = total_closing_blnc_cr = total_closing_blnc_dr = 0
 
       ledgers.each_with_index do |ledger, index|
-        name = ledger.name
-        blnc_dr = ledger.opening_balance_trial > 1 ? ledger.opening_balance_trial.round(2) : ''
-        blnc_cr = ledger.opening_balance_trial < 0 ? ledger.opening_balance_trial.abs.round(2) : ''
-        net_debit = ledger.dr_amount_trial.round(2)
-        net_credit = ledger.cr_amount_trial.round(2)
-        closing_blnc_dr = ledger.closing_balance_trial > 1 ? ledger.closing_balance_trial.round(2) : ''
-        closing_blnc_cr = ledger.closing_balance_trial < 0 ? ledger.closing_balance_trial.abs.round(2) : ''
+        name = ledger[:name]
+        ledger = LedgerBalance.new(ledger.except(:name))
+
+        blnc_dr = ledger.opening_balance > 1 ? ledger.opening_balance.round(2) : ''
+        blnc_cr = ledger.opening_balance < 0 ? ledger.opening_balance.abs.round(2) : ''
+        net_debit = ledger.dr_amount.round(2)
+        net_credit = ledger.cr_amount.round(2)
+        closing_blnc_dr = ledger.closing_balance > 1 ? ledger.closing_balance.round(2) : ''
+        closing_blnc_cr = ledger.closing_balance < 0 ? ledger.closing_balance.abs.round(2) : ''
 
         row_style = index.even? ? striped_style_row : normal_style_row
         @sheet.add_row [name, blnc_dr, blnc_cr, net_debit, net_credit, closing_blnc_dr, closing_blnc_cr],

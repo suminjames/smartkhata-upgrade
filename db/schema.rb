@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170406051042) do
+ActiveRecord::Schema.define(version: 20170507155840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -265,7 +265,7 @@ ActiveRecord::Schema.define(version: 20170406051042) do
 
   create_table "broker_profiles", force: :cascade do |t|
     t.string   "broker_name"
-    t.string   "broker_number"
+    t.integer  "broker_number"
     t.string   "address"
     t.integer  "dp_code"
     t.string   "phone_number"
@@ -276,6 +276,7 @@ ActiveRecord::Schema.define(version: 20170406051042) do
     t.integer  "locale"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.integer  "ledger_id"
   end
 
   add_index "broker_profiles", ["profile_type"], name: "index_broker_profiles_on_profile_type", using: :btree
@@ -370,6 +371,8 @@ ActiveRecord::Schema.define(version: 20170406051042) do
     t.integer  "fy_code"
     t.date     "bounce_date"
     t.text     "bounce_narration"
+    t.date     "void_date"
+    t.text     "void_narration"
   end
 
   add_index "cheque_entries", ["bank_account_id"], name: "index_cheque_entries_on_bank_account_id", using: :btree
@@ -1503,8 +1506,9 @@ ActiveRecord::Schema.define(version: 20170406051042) do
     t.string   "pan_number"
     t.string   "fax_number"
     t.string   "broker_code"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.boolean  "closeout_settlement_automatic", default: false
   end
 
   create_table "transaction_messages", force: :cascade do |t|

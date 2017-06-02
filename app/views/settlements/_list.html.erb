@@ -39,9 +39,9 @@
             <tr>
               <td><%= pagination_count + index %></td>
               <td><%= settlement.name %></td>
-              <td class="text-right"><%= arabic_number(settlement.amount) %></td>
-              <td><%= settlement.formatted_cheque_numbers_and_bank_codes[:bank_codes].html_safe %></td>
-              <td><%= settlement.formatted_cheque_numbers_and_bank_codes[:cheque_numbers].html_safe %></td>
+              <td class="text-right"><%= settlement.cheque_cash_details[:amounts].html_safe %></td>
+              <td><%= settlement.cheque_cash_details[:bank_codes].html_safe %></td>
+              <td><%= settlement.cheque_cash_details[:cheque_numbers].html_safe %></td>
               <td><%= settlement.date_bs %></td>
               <td><%= settlement.description %></td>
               <td><%= pretty_enum(settlement.settlement_type) %></td>

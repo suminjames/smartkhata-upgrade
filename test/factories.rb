@@ -36,6 +36,7 @@ FactoryGirl.define do
     bank_account
     cheque_date '2016-7-12'
     branch_id 1
+    beneficiary_name 'subas'
 
     factory :receipt_cheque_entry do
       cheque_issued_type :receipt
@@ -65,24 +66,9 @@ FactoryGirl.define do
 
   end
 
-  factory :voucher do
-    fy_code 7374
-    date_bs '2073-09-24'
-    voucher_type 0
-    voucher_status 1
-    branch_id 1
-  end
 
-  factory :bank_account do
-    sequence(:account_number)
-    bank_branch "chabahil"
-    branch_id 1
-    bank
 
-    ledger
-    # association :ledger, factory: :bank_ledger
-  #   the above line wont work as it will cause loop
-  end
+
 
   factory :branch do
     sequence(:code) { |n| "Branch-#{n}" }
@@ -98,6 +84,7 @@ FactoryGirl.define do
 
   factory :ledger do
     name 'Ledger'
+    group_id 234
 
     factory :bank_ledger do
       name 'Bank'
@@ -111,30 +98,6 @@ FactoryGirl.define do
     dr_amount 5000
     branch_id 1
     fy_code '7374'
-  end
-
-  factory :bill do
-    sequence (:bill_number)
-    client_name 'Harold Hill'
-    net_amount '9000'
-    balance_to_pay  { net_amount }
-    bill_type 0
-    status :pending
-    special_case 0
-    fy_code '7374'
-    date { 3.day.ago.to_date }
-    date_bs { CustomDateModule.ad_to_bs(3.days.ago.to_date) } #replace this with 3 working days before
-    settlement_date { CustomDateModule.ad_to_bs(Time.now.to_date) }
-    client_account
-    branch_id 1
-
-    factory :sales_bill do
-      bill_type :sales
-    end
-
-    factory :purchase_bill do
-      bill_type :purchase
-    end
   end
 
   factory :client_account do
@@ -151,6 +114,16 @@ FactoryGirl.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
+    branch_id 1
+
+    factory :client_account_without_nepse_code do
+      nepse_code nil
+
+      factory :corporate_client_account_without_nepse_code do
+        client_type 1 
+      end
+
+    end    
   end
 
   factory :isin_info do
@@ -158,4 +131,34 @@ FactoryGirl.define do
     sector 'technology'
     isin 'DAN'
   end
+ 
+  factory :broker_profile do
+    broker_name "afggf"
+    broker_number 123
+    locale 0
+  end
+
+  factory :employee_account do
+    name "ggghf"
+    email "test@example.com"
+  end
+
+  factory :settlement do
+    date_bs "hjhjhi"
+  end
+
+  factory :branch_permission do
+  end
+
+  factory :particulars do
+  end
+
+  factory :tenant do
+    full_name 'Danphe'
+    address  'Kupondole'
+    phone_number '99999'
+    fax_number '0989'
+    pan_number '9909'
+  end
+  
 end
