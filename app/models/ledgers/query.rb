@@ -59,13 +59,13 @@ class Ledgers::Query
             last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
 
             @closing_balance_sorted = last_day_balance
-            # @opening_balance_sorted = previous_day_balance
+            @opening_balance_sorted = previous_day_balance
 
             # make the adjustment for the carryover balance
             # adjustment for the pagination and running total
-            opening_balance += previous_day_balance
+            opening_balance = previous_day_balance
             opening_balance =  opening_balance_for_page(opening_balance, page, date_from_ad, date_to_ad) if  page > 0
-            @opening_balance_sorted = opening_balance
+            # @opening_balance_sorted = opening_balance
           else
             @error_message = "Invalid Date"
           end
