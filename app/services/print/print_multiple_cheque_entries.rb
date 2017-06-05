@@ -21,11 +21,11 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
     index = 0
 
-    cheque_numbers = ChequeEntry.where(id: cheque_entry_ids).pluck(:cheque_number).sort
+    cheque_entries= ChequeEntry.where(id: cheque_entry_ids).order(:cheque_number)
     # cheque_entry_ids.each do |cheque_entry_id|
-    cheque_numbers.each do |cheque_number|
-      @cheque_entry = ChequeEntry.find_by_cheque_number(cheque_number)
-
+    cheque_entries.each do |cheque|
+      # @cheque_entry = ChequeEntry.where(id: cheque_entry_ids, cheque_number: cheque_number).first
+      @cheque_entry = cheque
       # Code borrowed from ChequeEntry#show action BEGINS
       # Important! Future changes to the aforementioned action should also be reflected (manually) here.
       if @cheque_entry.additional_bank_id.present?
