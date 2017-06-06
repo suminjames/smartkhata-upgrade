@@ -51,7 +51,6 @@ class LedgerBalance < ActiveRecord::Base
   def update_opening_closing_balance
 
     unless self.opening_balance.blank?
-      # debugger
       if self.opening_balance_type == 'cr'
         if self.opening_balance > 0
           self.opening_balance = self.opening_balance * -1

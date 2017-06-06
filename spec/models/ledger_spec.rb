@@ -101,7 +101,46 @@ RSpec.describe Ledger, type: :model do
   	end
 
   	describe ".save_custom" do
-  		it " "
+  		context "when valid" do
+        context "and params is nil" do
+        #   incase of create
+          it "should create ledger balance for org" do
+						ledger = build(:ledger)
+            ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+            ledger.ledger_balances << build(:ledger_balance, branch_id: 2, opening_balance: "5000")
+          	expect { ledger.save_custom }.to change {LedgerBalance.unscoped.count }.by(3)
+            expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(10000)
+          end
+        end
+
+        context "and params is present" do
+          it "should update ledger balance for org" do
+						ledger = create(:ledger)
+						ledger.ledger_balances << create(:ledger_balance, branch_id: 2, opening_balance: "5000")
+            ledger_balance = create(:ledger_balance, branch_id: 1, opening_balance: "5000")
+						ledger.ledger_balances << ledger_balance
+						ledger.ledger_balances << create(:ledger_balance, branch_id: nil, opening_balance: "10000")
+
+            params = {"ledger_balances_attributes"=>{"0"=>{"opening_balance"=>"6000.0", "opening_balance_type"=>"dr", "branch_id"=>"1", "id"=> ledger_balance.id }}}
+
+						expect { ledger.save_custom(params) }.to change {LedgerBalance.unscoped.count }.by(0)
+            # edit on individual balance should update org balance too
+            # org balance has branch id nil
+						expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(11000)
+						expect(LedgerBalance.unscoped.where(branch_id: 1, ledger_id: ledger.reload.id).first.closing_balance).to eq(6000)
+          end
+        end
+      end
+      context "when invalid" do
+				context "and params is nil" do
+					it "should add errors" do
+						ledger = build(:ledger)
+						ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+						ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+						expect(ledger.save_custom).not_to be_truthy
+					end
+        end
+      end
   	end
 
   	describe ".update_custom_old" do
@@ -122,27 +161,87 @@ RSpec.describe Ledger, type: :model do
   	end
 
   	describe ".closing_balance" do
-  	 	it "should return closing balance" do
-  	 		expect(subject.closing_balance).to eq(0)
-  	 	end
+      before do
+        UserSession.selected_fy_code = 7374
+      end
+      context "when session branch is head office" do
+        context "and ledger has activities" do
+					it "should return correct closing balance" do
+            UserSession.selected_branch_id = 0
+						subject
+						create(:ledger_balance, ledger: subject, fy_code: 7374, branch_id: nil, opening_balance: 5000)
+            expect(subject.closing_balance).to eq(5000)
+          end
+          context "and ledger has no activity" do
+						it "should return 0 as closing balance" do
+							UserSession.selected_branch_id = 0
+							subject
+							expect(subject.closing_balance).to eq(0)
+            end
+          end
+        end
+
+      end
+
+      context "when session branch is branch office" do
+				it "should return closing balance" do
+					UserSession.selected_branch_id = 1
+					subject
+					create(:ledger_balance, ledger: subject, fy_code: 7374, branch_id: 1, opening_balance: 3000)
+					expect(subject.closing_balance).to eq(3000)
+				end
+      end
+
+
   	end
 
   	describe ".opening_balance" do
-  		it "should return opening balance" do
-  			expect(subject.opening_balance).to eq(0)
-  		end
+      context "when ledger has ledger balance" do
+				let(:ledger_balance) {build(:ledger_balance, opening_balance: 5000)}
+        it "should return opening balance" do
+          allow(LedgerBalance).to receive(:by_branch_fy_code).and_return([ledger_balance])
+					expect(subject.opening_balance).to eq(5000)
+				end
+      end
+
+      context "when ledger has no ledger balance" do
+				it "should return opening balance" do
+					expect(subject.opening_balance).to eq(0)
+				end
+      end
+
   	end
 
   	describe ".dr_amount" do
-  		it "should return dr amount" do
-  			expect(subject.dr_amount).to eq(5000)
-  		end
+			context "when ledger has ledger balance" do
+				let(:ledger_balance) {build(:ledger_balance, dr_amount: 5000)}
+				it "should return dr amount" do
+					allow(LedgerBalance).to receive(:by_branch_fy_code).and_return([ledger_balance])
+					expect(subject.dr_amount).to eq(5000)
+				end
+			end
+
+			context "when ledger has no ledger balance" do
+				it "should return opening balance" do
+					expect(subject.dr_amount).to eq(0)
+				end
+			end
   	end
 
   	describe ".cr_amount" do
-  		it "should return cr amount" do
-  			expect(subject.cr_amount).to eq(0)
-  		end
+			context "when ledger has ledger balance" do
+				let(:ledger_balance) {build(:ledger_balance, cr_amount: 5000)}
+				it "should return cr amount" do
+					allow(LedgerBalance).to receive(:by_branch_fy_code).and_return([ledger_balance])
+					expect(subject.cr_amount).to eq(5000)
+				end
+			end
+
+			context "when ledger has no ledger balance" do
+				it "should return opening balance" do
+					expect(subject.cr_amount).to eq(0)
+				end
+			end
   	end
 
   	describe ".descendent_ledgers" do
