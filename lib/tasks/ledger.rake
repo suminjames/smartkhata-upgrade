@@ -304,6 +304,9 @@ namespace :ledger do
           Settlement.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
 
           client_account_to_delete.delete
+
+          client_account_to_persist.name = client_account_to_persist.name.squish
+          client_account_to_persist.nepse_code = client_account_to_persist.nepse_code.squish
           client_account_to_persist.save!
         else
           ledger_to_merge_to.client_account = client_account_to_delete
@@ -311,6 +314,9 @@ namespace :ledger do
       end
 
       ledger_to_merge_from.delete
+
+      ledger_to_merge_to.client_code = ledger_to_merge_to.client_code.to_s.squish
+      ledger_to_merge_to.name = ledger_to_merge_to.name.to_s.squish
       ledger_to_merge_to.save!
 
       if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
