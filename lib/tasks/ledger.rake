@@ -299,6 +299,10 @@ namespace :ledger do
           end
 
           TransactionMessage.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+          ShareTransaction.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+          Bill.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+          Settlement.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
+
           client_account_to_delete.delete
           client_account_to_persist.save!
         else
