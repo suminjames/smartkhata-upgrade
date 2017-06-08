@@ -37,8 +37,16 @@ class IsinInfo < ActiveRecord::Base
 
   # Used by combobox in view
   # In rare circumstances, the data crawled from nepse's site has (apparently errorenous) numeric(eg: 001) value as isin code for a company. This method makes it easier to identify a company in these cases.
-  def name_and_code
-    "#{self.isin} (#{self.company})"
+  def name_and_code(opts={})
+    if opts[:line_break] == true
+      _str =  self.company.present? ? "#{self.isin}\n(#{self.company})" : "#{self.isin}"
+      if opts[:html_safe] == true
+        _str = _str.gsub("\n", "<br>").html_safe
+      end
+    else
+      _str = self.company.present? ? "#{self.isin} (#{self.company})" : "#{self.isin}"
+    end
+    _str
   end
 
   def self.options_for_isin_info_select(filterrific_params)

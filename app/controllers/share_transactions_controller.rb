@@ -286,7 +286,7 @@ class ShareTransactionsController < ApplicationController
 
   def capital_gain_report
     @filterrific = initialize_filterrific(
-        ShareTransaction.selling.settled,
+        ShareTransaction.selling.settled.cgt_gt_zero,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -294,7 +294,10 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
+    # @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).where('bills.fy_code' => UserSession.selected_fy_code).references(:bill).decorate
+    # @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).where('bills.fy_code' => UserSession.selected_fy_code).references(:bill).decorate
     @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
+
 
     @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf'}.merge params)
@@ -306,7 +309,7 @@ class ShareTransactionsController < ApplicationController
       # end
       format.pdf do
         pdf = Reports::Pdf::CustomerCapitalGainReport.new(@share_transactions, current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
-        send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf'
+        send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf', :disposition => 'inline'
       end
     end
 

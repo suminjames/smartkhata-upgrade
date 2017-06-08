@@ -180,6 +180,7 @@ class ShareTransaction < ActiveRecord::Base
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
   scope :settled, lambda{ where.not(settlement_id: nil)}
+  scope :cgt_gt_zero, lambda{ where('cgt > ?', 0.0)}
 
   # used for bill ( it eradicates only with deal cancelled not the closeout onces)
   # data needs to be hidden from client for deal cancel only as it happens between brokers.
