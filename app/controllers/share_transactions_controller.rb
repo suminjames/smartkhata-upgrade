@@ -71,7 +71,9 @@ class ShareTransactionsController < ApplicationController
           @grouped_isins_serialized_position_hash[isin] = sum
         end
       else
+
         @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        @total_count = @filterrific.find.count if params.dig(:filterrific, :by_client_id)
       end
     end
 
