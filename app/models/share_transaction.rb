@@ -179,11 +179,12 @@ class ShareTransaction < ActiveRecord::Base
   # used for inventory (it selects only those which are not cancelled and have more than 1 share quantity)
   # deleted at is set for deal cancelled and quantity 0 is the case where closeout occurs
   scope :not_cancelled, -> { where(deleted_at: nil).where.not(quantity: 0) }
-  scope :settled, lambda{ where.not(bill_id: nil)}
+  scope :settled_with_bill, lambda{ where.not(bill_id: nil)}
+  scope :settled, lambda{ where.not(settlement_id: nil)}
   scope :cgt_gt_zero, lambda{ where('cgt > ?', 0.0)}
 
   scope :for_cgt, ->(fy_code = UserSession.selected_fy_code) do
-    includes(:bill).selling.settled.cgt_gt_zero.where.not(bill_id: nil).where('bills.fy_code =  ?', fy_code).references(:bills)
+    includes(:bill).selling.settled_with_bill.cgt_gt_zero.where('bills.fy_code =  ?', fy_code).references(:bills)
   end
 
 

@@ -10,7 +10,7 @@
             %span.caret
           %ul.dropdown-menu
             %li
-              = link_to 'PDF', @download_path_pdf
+              = link_to 'PDF', @download_path_pdf, target: :_blank
 
     %div
       %h4.text-center= ClientAccount.find_by_id(params.dig(:filterrific, :by_client_id)).name_and_nepse_code
