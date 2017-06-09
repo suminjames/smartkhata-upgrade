@@ -70,7 +70,7 @@
           -share_transactions.each_with_index do |share_transaction, index|
             %tr
               %td.text-center= pagination_count + index
-              %td.text-center= ad_to_bs_string(share_transaction.date)
+              %td.text-center= "#{ad_to_bs_string(share_transaction.date)} <br> #{share_transaction.date}".html_safe
               %td.text-center= share_transaction.contract_no
               - unless params[:group_by_company] == 'true'
                 %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
@@ -96,7 +96,7 @@
             :ruby
               # Check if current isin is the last one in the overall (non-paginated) share_transaction.
               # If it is, break group and insert a total row.
-              if params[:group_by_company] == "true" &&  @grouped_isins_serialized_position_hash[share_transaction.isin_info_id] == (share_transactions.offset_value + index + 1)
+              if (params.dig(:filterrific, :by_client_id).present? && @total_count == share_transactions.offset_value + index + 1) || ( params[:group_by_company] == "true" &&  @grouped_isins_serialized_position_hash[share_transaction.isin_info_id] == (share_transactions.offset_value + index + 1) )
                 break_group = true
               end
               if break_group
@@ -107,7 +107,7 @@
 
             - if break_group
               %tr.total-row
-                %td.text-right{colspan: colspan}= "Company: #{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
+                %td.text-right{colspan: colspan}= "Company: #{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe if params[:group_by_company] == "true"
                 %td.text-right= 'Total'
                 %td.text-right= "Qty<br>In:<br>#{isin_balances[:total_in_sum].to_i}".html_safe
                 %td.text-right= "Qty<br>Out:<br>#{isin_balances[:total_out_sum].to_i}".html_safe
