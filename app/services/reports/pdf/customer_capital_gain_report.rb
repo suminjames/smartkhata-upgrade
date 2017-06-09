@@ -67,37 +67,43 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(12)) do
       data = []
-      th_data = ["Bill No.", "Company", "Transaction No.", "Transaction\nDate", "Capital Gain"]
+      th_data = ["Bill No.", "Company", "Transaction No.", "Transaction\nDate", "Capital\nGain Tax"]
       data << th_data
-      @share_transactions = sort_by_bill_and_isin_info(@share_transactions)
-      total_capital_gain = 0
 
+      total_capital_gain = 0
       previous_row_bill = nil
-      previous_row_isin_info = nil
+
+      @share_transactions = sort_by_bill_and_isin_info(@share_transactions)
       @share_transactions.each do |share_transaction|
         current_bill = share_transaction.bill
-        current_isin_info = share_transaction.isin_info
 
-        if current_bill != previous_row_bill
-          previous_row_bill = current_bill
-          bill_row_span = @share_transactions.select{|e| e.bill_id == current_bill.id}.size
+        if current_bill.blank? || current_bill != previous_row_bill
+          if current_bill.blank?
+            bill_row_span = 1
+          else
+            previous_row_bill = current_bill
+            bill_row_span = @share_transactions.select{|e| e.bill_id == current_bill.id}.size
+          end
           row_data = [
-              {:content => share_transaction.bill.full_bill_number, :rowspan => bill_row_span },
+              {
+                  :content => share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A',
+                  :rowspan => bill_row_span
+              },
               share_transaction.isin_info.name_and_code,
               share_transaction.contract_no,
               "#{ad_to_bs(share_transaction.date)} BS" ,
-              arabic_number(share_transaction.capital_gain)
+              arabic_number(share_transaction.cgt)
           ]
-          else
-            row_data = [
-                share_transaction.isin_info.name_and_code,
-                share_transaction.contract_no,
-                "#{ad_to_bs(share_transaction.date)} BS" ,
-                arabic_number(share_transaction.capital_gain)
-            ]
+        else
+          row_data = [
+              share_transaction.isin_info.name_and_code,
+              share_transaction.contract_no,
+              "#{ad_to_bs(share_transaction.date)} BS" ,
+              arabic_number(share_transaction.cgt)
+          ]
         end
 
-        total_capital_gain += share_transaction.capital_gain
+        total_capital_gain += share_transaction.cgt
         data << row_data
       end
       last_row_data = ["", "", "", "Total", arabic_number(total_capital_gain)]
@@ -118,7 +124,6 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
         t.row(0).style(:align => :center)
       end
     end
-
   end
 
   def client_info

@@ -10,46 +10,45 @@
             %span.caret
           %ul.dropdown-menu
             %li
-              = link_to 'PDF', @download_path_pdf
+              = link_to 'PDF', @download_path_pdf, target: :_blank
+
+    %div
+      %h4.text-center= ClientAccount.find_by_id(params.dig(:filterrific, :by_client_id)).name_and_nepse_code
 
     %div#share_transaction_list
       %table.table
         %thead
-          %th.text-center= 'Customer<br>Name'.html_safe
           %th.text-center= 'Bill No'
           %th.text-center= 'Company'
           %th.text-center= 'Transaction No'
           %th.text-center= 'Transaction<br>Date'.html_safe
           %th.text-center= 'Customer<br>Type'.html_safe
-          %th.text-center= 'Capital<br>Gain'.html_safe
+          %th.text-center= 'Capital<br>Gain Tax'.html_safe
         %tbody
           -if share_transactions.present?
             - total_capital_gain = 0
-            - previous_row_client = nil
             - previous_row_bill = nil
             - share_transactions = sort_by_bill_and_isin_info(share_transactions)
             - share_transactions.each_with_index do |share_transaction, index|
-              - current_client = share_transaction.client_account
               - current_bill = share_transaction.bill
 
               %tr
-                - if current_client != previous_row_client
-                  - previous_row_client = current_client
-                  - client_row_span = share_transactions.size
-                  %td.text-center{rowspan: client_row_span}= share_transaction.client_account.name_and_nepse_code
-                - if current_bill != previous_row_bill
-                  - previous_row_bill = current_bill
-                  - bill_row_span = share_transactions.select{|e| e.bill_id == current_bill.id}.size
+                -if current_bill.blank? || current_bill != previous_row_bill
+                  -if current_bill.blank?
+                    - bill_row_span = 1
+                  -else
+                    - previous_row_bill = current_bill
+                    - bill_row_span = share_transactions.select{|e| e.bill_id == current_bill.id}.size
                   %td.text-center{rowspan: bill_row_span}= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
-                %td.text-center= "#{share_transaction.isin_info.isin}<br>(#{share_transaction.isin_info.company})".html_safe
+                %td.text-center= share_transaction.isin_info.name_and_code(:line_break => true, :html_safe => true)
                 %td.text-center= share_transaction.contract_no
                 %td.text-center= ad_to_bs_string(share_transaction.date)
                 %td.text-center= share_transaction.client_account.client_type.titleize
-                %td.text-right= arabic_number(share_transaction.capital_gain)
-                - total_capital_gain += share_transaction.capital_gain
+                %td.text-right= arabic_number(share_transaction.cgt)
+                - total_capital_gain += share_transaction.cgt
             -if share_transactions.present?
               %tr
-                - last_row_colspan = 6
+                - last_row_colspan = 5
                 %td.text-right{colspan: last_row_colspan}
                   %strong= 'Total:'
                 %td.text-right
