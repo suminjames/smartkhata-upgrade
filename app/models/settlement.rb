@@ -65,7 +65,7 @@ class Settlement < ActiveRecord::Base
 # Callbacks
 
   before_create :assign_settlement_number
-  before_save :add_date_from_date_bs
+  before_validation :add_date_from_date_bs
 
 ########################################
 # Validations

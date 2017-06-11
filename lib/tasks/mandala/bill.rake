@@ -1,6 +1,6 @@
 namespace :mandala do
   desc "sync bills"
-  task :sync_bills,[:tenant, :fiscal_year] => 'mandala:validate_tenant' do |task,args|
+  task :sync_bills,[:tenant, :fiscal_year, :assign_new_number] => 'mandala:validate_tenant' do |task,args|
 
     def time_diff_more?(start_time, end_time, second)
       seconds_diff = (start_time - end_time).to_i.abs
@@ -17,6 +17,7 @@ namespace :mandala do
       bills = bills.where('fiscal_year = ?', fiscal_year)
     end
 
+    assign_new_number = args.assign_new_number == true ? true : false
     bills.find_each do |bill|
       begin
         ActiveRecord::Base.transaction do
@@ -28,6 +29,14 @@ namespace :mandala do
           if new_bill.has_incorrect_fy_code?
             # puts "#{bill.bill_no}"
           else
+            if assign_new_number
+              unless new_bill.valid?
+                old_bill = Bill.where(bill_number: new_bill.bill_number, fy_code: new_bill.fy_code).first
+                old_bill.bill_number = Bill.new_bill_number(new_bill.fy_code)
+                old_bill.save!
+              end
+            end
+
             new_bill.save!
             bill.bill_id= new_bill.id
             bill.save!
@@ -39,14 +48,16 @@ namespace :mandala do
               daily_transaction.share_transaction_id = share_transaction.id
               daily_transaction.save!
             end
+
+            puts "#{bill.bill_no}"
+            count += 1
+            puts "#{count} bill processed"
           end
-          puts "#{bill.bill_no}"
-          count += 1
-          puts "#{count} bill processed"
         end
       rescue Exception => e
         # debugger
         puts e.message
+        puts "#{bill.bill_no}"
       end
     end
     puts "bills synched"

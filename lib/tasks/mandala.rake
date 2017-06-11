@@ -240,7 +240,7 @@ namespace :mandala do
 
   # converts the voucher date which is string to date for future reference
   task :parse_voucher_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
-    Mandala::Voucher.where(voucher_id: nil).each do |voucher|
+    Mandala::Voucher.where(voucher_id: nil).find_each do |voucher|
       voucher.voucher_date_parsed = Date.parse(voucher.voucher_date)
       voucher.save!
     end
@@ -249,7 +249,7 @@ namespace :mandala do
 
   # converts the string bill date which is string to date for future reference
   task :parse_bill_date,[:tenant] => 'mandala:validate_tenant' do |task, args|
-    Mandala::Bill.all.each do |bill|
+    Mandala::Bill.where(bill_id: nil).find_each do |bill|
       bill.bill_date_parsed = Date.parse(bill.bill_date)
       bill.save!
     end

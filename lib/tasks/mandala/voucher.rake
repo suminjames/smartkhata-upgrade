@@ -1,6 +1,6 @@
 namespace :mandala do
   desc "synch_vouchers"
-  task :sync_vouchers,[:tenant, :fiscal_year] => 'mandala:validate_tenant' do |task,args|
+  task :sync_vouchers,[:tenant, :fiscal_year, :assign_new_number] => 'mandala:validate_tenant' do |task,args|
 
     def time_diff_more?(start_time, end_time, second)
       seconds_diff = (start_time - end_time).to_i.abs
@@ -23,7 +23,7 @@ namespace :mandala do
       vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
     end
 
-
+    assign_new_number = args.assign_new_number == true ? true : false
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
 
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
@@ -39,10 +39,17 @@ namespace :mandala do
           else
             # skip cheque assign step
             new_voucher.skip_cheque_assign = true
+            if assign_new_number
+              unless new_voucher.valid?
+                old_voucher = Voucher.where(fy_code: new_voucher.fy_code, voucher_number: new_voucher.voucher_number, voucher_type: Voucher.voucher_types[new_voucher.voucher_type]).first
+                old_voucher.voucher_number = nil
+                old_voucher.save!
+              end
+            end
+
             new_voucher.save!
             voucher.voucher_id = new_voucher.id
             voucher.migration_completed = true
-
             voucher.save!
             fy_code = new_voucher.fy_code
 
@@ -139,9 +146,9 @@ namespace :mandala do
 
             end
 
-            puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
+            # puts "#{voucher.voucher_no} ** #{voucher.voucher_code}"
             count += 1
-            puts "Total processed: #{count}"
+            # puts "Total processed: #{count}"
 
             end_time = Time.now
             vouchers_taking_time << voucher if time_diff_more?(start_time, end_time, 5)
@@ -185,7 +192,6 @@ namespace :mandala do
       # the mandala voucher were imported before this date
       Voucher.where('date > ?', Date.parse('2016-9-14') ).order(date: :asc).find_each do |voucher|
         voucher.map_payment_receipt_to_new_types
-        # voucher.voucher_number = nil
         voucher.skip_cheque_assign = true
 
         voucher.save!
