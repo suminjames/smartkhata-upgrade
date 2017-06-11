@@ -65,7 +65,7 @@ class Voucher < ActiveRecord::Base
   ########################################
   # Validations
   # validate :date_valid_for_fy_code?
-
+  validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
   ########################################
   # scopes
   scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do

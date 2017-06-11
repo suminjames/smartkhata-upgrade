@@ -56,6 +56,7 @@ class Bill < ActiveRecord::Base
 
   # callbacks
   before_save :process_bill
+  validates_uniqueness_of :bill_number, :scope => [:fy_code ]
 
 
   # verify this with views everytime before changing
