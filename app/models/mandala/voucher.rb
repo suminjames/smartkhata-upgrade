@@ -32,7 +32,7 @@ class Mandala::Voucher < ActiveRecord::Base
 
   include FiscalYearModule
 
-  validates_uniqueness_of :voucher_no, :scope => [ :voucher_code, :fiscal_year ]
+  # validates_uniqueness_of :voucher_no, :scope => [ :voucher_code, :fiscal_year ]
 
   self.table_name = "voucher"
   belongs_to :voucher
