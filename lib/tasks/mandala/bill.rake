@@ -26,33 +26,36 @@ namespace :mandala do
           bills_taking_time = []
 
           new_bill = bill.new_smartkhata_bill
-          if new_bill.has_incorrect_fy_code?
-            # puts "#{bill.bill_no}"
-          else
-            if assign_new_number
-              unless new_bill.valid?
-                old_bill = Bill.where(bill_number: new_bill.bill_number, fy_code: new_bill.fy_code).first
-                old_bill.bill_number = Bill.new_bill_number(new_bill.fy_code)
-                old_bill.save!
-              end
-            end
+          # if new_bill.has_incorrect_fy_code?
+          #   # puts "#{bill.bill_no}"
+          # else
+          #
+          # end
+          #TODO:SUBAS keep transaction date too
 
-            new_bill.save!
-            bill.bill_id= new_bill.id
-            bill.save!
-            bill.bill_details.each do |bill_detail|
-              daily_transaction = bill_detail.daily_transaction
-              share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
-              share_transaction.bill_id = new_bill.id
-              share_transaction.save!
-              daily_transaction.share_transaction_id = share_transaction.id
-              daily_transaction.save!
+          if assign_new_number
+            unless new_bill.valid?
+              old_bill = Bill.where(bill_number: new_bill.bill_number, fy_code: new_bill.fy_code).first
+              old_bill.bill_number = Bill.new_bill_number(new_bill.fy_code)
+              old_bill.save!
             end
-
-            puts "#{bill.bill_no}"
-            count += 1
-            puts "#{count} bill processed"
           end
+
+          new_bill.save!
+          bill.bill_id= new_bill.id
+          bill.save!
+          bill.bill_details.each do |bill_detail|
+            daily_transaction = bill_detail.daily_transaction
+            share_transaction = daily_transaction.new_smartkhata_share_transaction(bill.bill_no)
+            share_transaction.bill_id = new_bill.id
+            share_transaction.save!
+            daily_transaction.share_transaction_id = share_transaction.id
+            daily_transaction.save!
+          end
+
+          puts "#{bill.bill_no}"
+          count += 1
+          puts "#{count} bill processed"
         end
       rescue Exception => e
         # debugger
