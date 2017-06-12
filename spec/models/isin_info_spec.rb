@@ -16,6 +16,20 @@ RSpec.describe IsinInfo, type: :model do
   		end
   	end
 
+    describe "#options_for_isin_info_select" do
+      context "when filterrific params present" do
+        it "should return isin info" do
+          expect(subject.class.options_for_isin_info_select(:by_isin_info_id => subject.id)).to eq([subject])
+        end
+      end
+
+      context "when filterrific params not present" do
+        it "should return empty array" do
+          expect(subject.class.options_for_isin_info_select(:by_isin_info_id => nil)).to eq([])
+        end
+      end
+    end
+
   	describe "#options_for_sector_select" do
   		context "when isin info sector isnot present" do
   			it "should return empty array" do

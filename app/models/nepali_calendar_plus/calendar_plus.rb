@@ -107,7 +107,7 @@ class NepaliCalendarPlus::CalendarPlus
   class << self
     def today
       today = Date.today
-      date = CalendarPlus.new.ad_to_bs_hash(today.year, today.month, today.day)
+      date = self.new.ad_to_bs_hash(today.year, today.month, today.day)
     end
   end
 

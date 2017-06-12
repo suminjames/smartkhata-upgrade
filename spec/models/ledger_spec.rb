@@ -37,7 +37,7 @@ RSpec.describe Ledger, type: :model do
   	describe ".format_name" do
   		context "when name is present" do
   			
-  			context "and is stippable" do
+  			context "and is stripable" do
   				it "should reduce space" do
   					subject.name = " danphe"
   					expect(subject.format_name).to eq("danphe")
@@ -73,23 +73,53 @@ RSpec.describe Ledger, type: :model do
 
   	describe ".update_closing_blnc" do
   		context "when opening balance is not blank" do
-  			it "should return closing balance" do
-  				subject.opening_blnc = 800
-  				subject.opening_balance_type = 1
-  				expect(subject.update_closing_blnc).to eq(-800)
-  			end
+        context "and opening balance type is cr" do
+          it "should return closing balance" do
+            subject.opening_blnc = 800
+            subject.opening_balance_type = 1
+            subject.update_closing_blnc
+            expect(subject.closing_blnc).to eq(-800)
+            expect(subject.opening_blnc).to eq(-800)
+          end
+        end
+
+        context "and opening balance type is dr" do
+          it "should return closing balance" do
+            subject.opening_blnc = 800
+            subject.opening_balance_type = 0
+            subject.update_closing_blnc
+            expect(subject.closing_blnc).to eq(800)
+            expect(subject.opening_blnc).to eq(800)
+          end
+        end
   		end	
+      context "when opening balance is blank" do
+        it "should return opening balance equal to 0" do
+          expect(subject.opening_blnc).to eq(0)
+        end
+      end
   	end
 
   	describe ".has_editable_balance?" do
-  		it "should return true" do
-  			expect(subject.has_editable_balance?).to be_truthy
-  		end
-  	end
+      context "when particulars size is more than 0" do
+        let(:particular1){create(:particular)}
+        it "should return false" do
+          ledger = create(:ledger)
+          ledger.particulars << particular1
+          expect(ledger.has_editable_balance?).not_to be_truthy
+        end
+      end
+      
+      context "when particulars size is 0"
+      it "should return true" do
+        expect(subject.has_editable_balance?).to be_truthy
+      end
+    end
 
   	describe ".update_custom" do
   		it "should return true" do
-  			expect(subject.update_custom(name: "efrqf")).to be_truthy 
+        allow(subject).to receive(:save_custom).and_return(true)
+  			expect(subject.update_custom(true)).to be_truthy 
   		end
   	end
 
@@ -142,13 +172,21 @@ RSpec.describe Ledger, type: :model do
         end
       end
   	end
-
-  	describe ".update_custom_old" do
-  		it " "
-  	end
-
+  
   	describe ".particulars_with_running_balance" do
-  		it " "
+      let(:particular1){create(:particular, amount: 1000)}
+        let(:particular2){create(:particular, amount: 3000)}
+  		it "should return particulars with running balance" do
+        ledger = create(:ledger)
+        # particular1
+        # particular2
+        ledger.particulars << particular1
+        ledger.particulars << particular2
+        particulars = ledger.particulars_with_running_balance
+        expect(particulars.count).to eq(2)
+        expect(particulars.first.running_total).to eq(particular1.amount)
+        expect(particulars.last.running_total).to eq(particular1.amount + particular2.amount)
+      end
   	end
 
   	describe ".positive_amount" do
@@ -205,7 +243,7 @@ RSpec.describe Ledger, type: :model do
       end
 
       context "when ledger has no ledger balance" do
-				it "should return opening balance" do
+				it "should return 0 as opening balance" do
 					expect(subject.opening_balance).to eq(0)
 				end
       end
@@ -222,7 +260,7 @@ RSpec.describe Ledger, type: :model do
 			end
 
 			context "when ledger has no ledger balance" do
-				it "should return opening balance" do
+				it "should return 0 as dr amount" do
 					expect(subject.dr_amount).to eq(0)
 				end
 			end
@@ -238,7 +276,7 @@ RSpec.describe Ledger, type: :model do
 			end
 
 			context "when ledger has no ledger balance" do
-				it "should return opening balance" do
+				it "should return 0 as cr amount" do
 					expect(subject.cr_amount).to eq(0)
 				end
 			end
@@ -248,5 +286,138 @@ RSpec.describe Ledger, type: :model do
   		it "should get descendents ledgers" 
   		# code might not be necessary
   	end
+
+    describe ".name_and_code" do
+      context "when client code is present" do
+        it "should return client code and name" do
+          subject.client_code = "code"
+          subject.name = "client"
+          expect(subject.name_and_code).to eq("client (code)")
+        end
+      end
+     
+      context "when client code is not present" do
+        it "should return only name" do
+          subject.name = "client"
+          expect(subject.name_and_code).to eq("client")
+        end
+      end
+    end
+
+    describe "#find_similar_to_term" do
+      context "when search term is present" do
+        context "and client account id is present" do
+          context "and client code is present" do
+            let(:client_account){create(:client_account, name: "nistha", nepse_code: 'kkl')}
+            it "should return attributes for client acount" do
+          
+              client_account.ledger.client_code = "code" 
+              expect(Ledger.find_similar_to_term("ni",nil)).to eq([{:text=>"nistha (KKL)", :id=>"#{client_account.ledger.id}"}])
+            end
+          end
+        end
+
+        context "when bank account id is present" do
+          let(:bank_account){create(:bank_account,bank_name: "RBB")}
+          it "should return attributes for bank account" do
+            bank_account
+            expect(Ledger.find_similar_to_term("Le", nil)).to eq([{:text=>"Ledger (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
+          end
+        end
+
+         context "when employee account id is present" do
+          subject{create(:ledger, name: "nistha")}
+          let(:employee_account){create(:employee_account, name: "john")}
+          it "should return attributes for employee account"
+            
+        end
+
+        context "when vendor account id is present" do
+          let(:vendor_account){create(:vendor_account)}
+          subject{create(:ledger, name: "nistha", vendor_account_id: vendor_account.id)}
+          it "should return attributes for vendor account" do
+            vendor_account
+            subject.vendor_account = vendor_account
+            expect(Ledger.find_similar_to_term("ni", nil)).to eq([{:text=>"nistha (**Vendor**)", :id=>"#{subject.id}"}])
+          end
+        end
+
+        context "when none of these accounts present" do
+          subject{create(:ledger)}
+          it "should return attributes for internal ledger" do
+            subject
+            expect(Ledger.find_similar_to_term("Le", nil)).to eq([{:text=>"Ledger (**Internal**)", :id=>"#{subject.id}"}])
+          end
+        end
+      end
+    end
+
+    describe ".name_and_identifier" do
+      context "when client account id is present" do
+        context "and client code is present" do
+          subject{build(:ledger, client_code: "code")}
+          let(:client_account){create(:client_account, ledger: subject)}
+          it "should return name and identifier for client account" do
+            subject
+            client_account
+            expect(subject.name_and_identifier).to eq("Ledger (CODE)")
+          end
+        end
+      end
+
+      context "when bank account id is present" do
+        subject{build(:ledger)}
+        let(:bank_account){create(:bank_account, ledger: subject)}
+        it "should return name and identifier for bank account" do
+          subject
+          bank_account
+          expect(subject.name_and_identifier).to eq("Ledger (**Bank Account**)")
+        end
+      end
+
+      context "when employee account id is present" do
+        subject{build(:ledger)}
+        let(:employee_account){create(:employee_account, ledger: subject)}
+        it "should return name and identifier for employee account"
+
+      end
+
+      context "when vendor account id is present" do
+        let(:vendor_account){create(:vendor_account)}
+        subject{create(:ledger, vendor_account_id: vendor_account.id)}
+        it "should return name and identifier for vendor account" do
+          vendor_account
+          subject.vendor_account = vendor_account
+          expect(subject.name_and_identifier).to eq("Ledger (**Vendor**)")
+        end
+      end
+
+      context "when none of these accounts present" do
+        subject{create(:ledger)}
+        it "should return attributes for internal ledger" do
+          subject
+          expect(subject.name_and_identifier).to eq("Ledger (**Internal**)")
+        end
+      end
+    end
+
+    describe ".delete_associated_records" do
+      subject{create(:ledger)}
+      let(:ledger_balance){create(:ledger_balance)}
+      let(:ledger_daily){create(:ledger_daily, date: Date.today)}
+      it "should delete ledger balance" do
+        subject
+        subject.ledger_balances << ledger_balance
+        subject.delete_associated_records
+        expect(LedgerBalance.unscoped.where(ledger_id: subject.id).count).to eq(0)
+      end
+
+       it "should delete ledger daily" do
+        subject
+        subject.ledger_dailies << ledger_daily
+        subject.delete_associated_records
+        expect(LedgerDaily.unscoped.where(ledger_id: subject.id).count).to eq(0)
+      end
+    end
 
 end

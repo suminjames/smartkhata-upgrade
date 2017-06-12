@@ -88,6 +88,7 @@ class LedgerBalance < ActiveRecord::Base
   def self.update_or_create_org_balance(ledger_id)
     ledger_balance_org = LedgerBalance.unscoped.by_fy_code.find_or_create_by!(ledger_id: ledger_id, branch_id: nil)
     ledger_balance = LedgerBalance.unscoped.by_fy_code.where(ledger_id: ledger_id).where.not(branch_id: nil).sum(:opening_balance)
+    # debugger
     balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
     ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
   end
@@ -111,8 +112,7 @@ class LedgerBalance < ActiveRecord::Base
     end
   end
   def as_json(options={})
-    ledger_name = options[:ledger_name]
-    ledger_name ||= name
+    ledger_name = options[:ledger_name] || name
     super.as_json(options).merge({:name=> ledger_name})
   end
 end
