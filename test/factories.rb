@@ -96,6 +96,7 @@ FactoryGirl.define do
     # opening_balance_type "dr"
     # closing_balance 5000  taken care in callback
     dr_amount 5000
+    cr_amount 0
     branch_id 1
     fy_code '7374'
   end

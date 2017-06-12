@@ -337,14 +337,16 @@ class ClientAccount < ActiveRecord::Base
   end
 
   def commaed_contact_numbers
-    str = ''
-    str += self.mobile_number + ', ' if self.mobile_number.present?
-    str += self.phone + ', ' if self.phone.present?
-    str += self.phone_perm if self.phone_perm.present?
-    # strip leading or trailing comma ','
-    str[0..1]= '' if str[0..1] == ', '
-    str[-2..-1]= '' if str[-2..-1] == ', '
-    str
+    # str = ''
+    # str += self.mobile_number + ', ' if self.mobile_number.present?
+    # str += self.phone + ', ' if self.phone.present?
+    # str += self.phone_perm if self.phone_perm.present?
+    # # strip leading or trailing comma ','
+    # str[0..1]= '' if str[0..1] == ', '
+    # str[-2..-1]= '' if str[-2..-1] == ', '
+
+    [self.mobile_number, self.phone, self.phone_perm].compact.join(', ')
+
   end
 
   def pending_bills_path
@@ -414,7 +416,7 @@ class ClientAccount < ActiveRecord::Base
   # Attributes include id and name(identifier)
   #
   def self.find_similar_to_term(search_term, branch_id)
-    search_term = search_term.present? ? search_term.to_s : ''
+    search_term = search_term.present? ? search_term.to_s : ""
     client_accounts = ClientAccount.by_selected_session_branch_id(branch_id).where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
       if client_account['nepse_code'].present?

@@ -86,22 +86,6 @@ RSpec.describe ClientAccount, type: :model do
   end
 
 
-
-  describe ".any_bank_field_present" do
-    it "should return true if bank_account present" do
-      subject.bank_account = "456"
-      expect(subject.any_bank_field_present?).to be_truthy
-    end
-    it "should return true if bank_name present" do
-      subject.bank_name = "RBB"
-      expect(subject.any_bank_field_present?).to be_truthy
-    end
-    it "should return true if bank_address present" do
-      subject.bank_address = "lalitpur"
-      expect(subject.any_bank_field_present?).to be_truthy
-    end
-  end
-
   describe ".format_nepse_code" do
     it "should store code in uppercase and remove space" do
       subject.nepse_code = " danphe "
@@ -210,6 +194,28 @@ RSpec.describe ClientAccount, type: :model do
 
   end
 
+  describe ".get_all_related_bills" do
+    subject{create(:client_account)}
+      let(:group_member) {create(:client_account, group_leader_id: subject.id)}
+    it "should return  all related bills"  do
+      
+      bill1 = create(:bill, client_account_id: subject.id)
+      bill2 = create(:bill, client_account_id: group_member.id )
+      expect(subject.get_all_related_bills).to eq([bill1, bill2])
+    end
+  end
+
+  describe ".get_all_related_bills_ids" do
+      subject{create(:client_account)}
+      let(:group_member) {create(:client_account, group_leader_id: subject.id)}
+    it "should return  all related bills ids"  do
+      
+      bill1 = create(:bill, client_account_id: subject.id)
+      bill2 = create(:bill, client_account_id: group_member.id )
+      expect(subject.get_all_related_bill_ids).to eq([subject.id, group_member.id])
+    end
+  end
+
   describe ".get_group_members_ledgers" do
     subject{create(:client_account)}
     
@@ -230,16 +236,220 @@ RSpec.describe ClientAccount, type: :model do
   describe ".messageable_phone_number" do
     context "when messageable phone number isnot present" do
         it "should return nil" do
-          allow(subject).to receive(:messageable_phone_number).and_return(nil)
+          allow(SmsMessage).to receive(:messageable_phone_number?).and_return(nil)
           expect(subject.messageable_phone_number).to eq(nil)
         end
     end
 
     context "when messageable phone number is present" do
-        it "should return mobile number" do
-          allow(subject).to receive(:messageable_phone_number).and_return("9841727272")
-          expect(subject.messageable_phone_number).to eq("9841727272")
+      before do
+        allow(SmsMessage).to receive(:messageable_phone_number?).and_call_original
+      end
+
+      it "should return mobile number" do
+        subject.mobile_number = '9841727272'
+        allow(SmsMessage).to receive(:messageable_phone_number?).with('9841727272').and_return(true)
+        expect(subject.messageable_phone_number).to eq("9841727272")
+      end
+      
+      it "should return phone number" do
+        subject.phone = '56524728'
+        allow(SmsMessage).to receive(:messageable_phone_number?).with('56524728').and_return(true)
+        expect(subject.messageable_phone_number).to eq("56524728")
+      end
+        
+      it "should return phone perm number" do
+        subject.phone_perm = '7664535'
+        allow(SmsMessage).to receive(:messageable_phone_number?).with('7664535').and_return(true)
+        expect(subject.messageable_phone_number).to eq("7664535")
+      end  
+    end
+  end
+
+  describe ".can_be_invited_by_email?" do
+    context "when email is present" do
+      it "should invite by email" do
+         allow(subject).to receive(:user_id).and_return(nil)
+        expect(subject.can_be_invited_by_email?).to be_truthy
+      end
+    end
+  end
+
+  describe ".can_assign_username?" do
+    context "when nepse code is present" do
+      it "should assign username" do
+        allow(subject).to receive(:user_id).and_return(nil)
+        expect(subject.can_assign_username?).to be_truthy
+      end
+    end
+  end
+
+  describe ".has_sufficient_bank_account_info?" do
+    context "when bank name and bank account are present" do
+        it "should provide bank account info" do
+          subject.bank_name = "RBB"
+          subject.bank_account = "123"
+          expect(subject.has_sufficient_bank_account_info?).to be_truthy
         end
+    end
+  end
+
+  describe ".any_bank_field_present" do
+    it "should return true if bank_account present" do
+      subject.bank_account = "456"
+      expect(subject.any_bank_field_present?).to be_truthy
+    end
+    it "should return true if bank_name present" do
+      subject.bank_name = "RBB"
+      expect(subject.any_bank_field_present?).to be_truthy
+    end
+    it "should return true if bank_address present" do
+      subject.bank_address = "lalitpur"
+      expect(subject.any_bank_field_present?).to be_truthy
+    end
+  end
+
+  describe ".name_and_nepse_code" do
+    context "when nepse code is present" do
+      it "should titleize name with nepse code"  do
+        subject.nepse_code = "123"
+        subject.name = "danphe infotech"
+        expect(subject.name_and_nepse_code).to eq("Danphe Infotech (123)")
+      end
+    end
+
+    context "when nepse code is not present" do
+      it "should titleize name"  do
+        subject.nepse_code = nil
+        subject.name = "danphe infotech"
+        expect(subject.name_and_nepse_code).to eq("Danphe Infotech")
+      end
+    end
+  end
+
+  describe ".commaed_contact_numbers" do
+    context "when contact numbers are present" do
+      it "strip leading or trailing comma " do
+        subject.mobile_number = "988654324"
+        subject.phone = "666676886"
+        subject.phone_perm = "56596776"
+        expect(subject.commaed_contact_numbers).to eq("988654324, 666676886, 56596776")
+      end
+    end
+
+    context "when mobile and phone numbers are present" do
+      it "strip leading or trailing comma " do
+        subject.mobile_number = "988654324"
+        subject.phone = "666676886"
+        subject.phone_perm = nil
+        expect(subject.commaed_contact_numbers).to eq("988654324, 666676886")
+      end
+    end
+  end
+
+  describe ".pending_bills_path" do
+    it "should return path for pending bills" do
+      expect(subject.pending_bills_path).to eq("/bills?filterrific%5Bby_bill_status%5D=pending&filterrific%5Bby_client_id%5D=#{subject.id}")
+    end
+  end
+
+  describe ".share_inventory_path" do
+    it "should return share inventory path" do
+      expect(subject.share_inventory_path).to eq("/share_transactions?filterrific%5Bby_client_id%5D=#{subject.id}")
+    end
+  end
+
+  describe ".ledger_closing_balance" do
+    it "should return ledger closing balance" do
+      allow_any_instance_of(Ledger).to receive(:closing_balance).and_return(5000)
+      expect(subject.ledger_closing_balance).to eq(5000)
+    end
+  end
+
+  describe "#existing_referrers_names" do
+    it "should return existing referrers names" do
+      create(:client_account, referrer_name: 'subas')
+      create(:client_account, referrer_name: '')   
+      create(:client_account, referrer_name: 'nistha')  
+
+      expect(subject.class.existing_referrers_names).to eq(["nistha", "subas"])
+    end
+  end
+
+  describe "#options_for_client_select" do
+    context "when client id isnot present" do
+      it "should return empty array" do 
+       expect(subject.class.options_for_client_select(:by_client_id => nil)).to eq([])
+      end
+    end
+
+    context "when client id is present" do
+      subject{create(:client_account)}
+      it "should return options for client select" do 
+       expect(subject.class.options_for_client_select(:by_client_id => subject.id)).to eq([subject])
+      end
+    end
+  end
+
+  describe "#pretty_string_of_filter_identifier" do
+    context "when filter identifier isnot present" do
+      it "should return empty" do
+        expect(subject.class.pretty_string_of_filter_identifier(nil)).to eq("")
+      end
+    end
+
+    context "when random filter identifier is present" do
+      it "should return empty" do
+        expect(subject.class.pretty_string_of_filter_identifier("danphe")).to eq("")
+      end
+    end
+
+    context "when filter identifier is present from array" do
+      it "should return pretty string of filter identifier" do
+        expect(subject.class.pretty_string_of_filter_identifier("no_mobile_number")).to eq("without Mobile Number")
+      end
+    end
+  end
+
+  describe "#find_similar_to_term" do
+    subject {create(:client_account)}
+    context "when search term is present and matches name" do
+      context "and nepse code is not present" do
+        it "should return  attributes with nepse code" do
+          subject.update_column(:nepse_code, nil)
+          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson", :id => "#{subject.id}"])
+        end
+      end
+
+      context "and nepse code is present" do
+        it "should return  attributes with nepse code" do
+          subject.update_column(:nepse_code, "123")
+          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson (123)", :id => "#{subject.id}"])
+        end
+      end
+    end
+
+    context "when search term is present and matches nepse_code" do
+      it "should return  attributes with nepse code" do
+        subject.update_column(:nepse_code, "nps")
+        expect(subject.class.find_similar_to_term("np",1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+      end
+    end
+
+    context "when search term is not present" do
+      it "should return  attributes with nepse code" do
+        subject.update_column(:nepse_code, "nps")
+        expect(subject.class.find_similar_to_term(nil,1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+      end
+    end
+
+  end
+
+  describe '.as_json' do
+
+    it "adds method to json response" do
+      expect(subject.as_json.keys).to include :name_and_nepse_code
+      expect(subject.as_json[:name_and_nepse_code]).to eq ('Dedra Sorenson (Nepse-1)')
     end
   end
 
