@@ -159,11 +159,11 @@ namespace :mandala_alt do
 
       puts "syncing data in alt mode"
       bench = Benchmark.measure do
-        Rake::Task["mandala:sync_vouchers"].invoke(tenant,'2073/2074',true)
-        Rake::Task["mandala:sync_bills"].invoke(tenant,'2073/2074',true)
+        Rake::Task["mandala:sync_vouchers"].invoke(tenant,nil,true)
+        Rake::Task["mandala:sync_bills"].invoke(tenant,nil,true)
 
-        Rake::Task["ledger:populate_ledger_dailies"].invoke(tenant,'true')
-        Rake::Task["ledger:populate_closing_balance"].invoke(tenant,'true')
+        Rake::Task["ledger_alt:populate_ledger_dailies"].invoke(tenant,'true')
+        Rake::Task["ledger_alt:populate_closing_balance"].invoke(tenant,'true')
       end
       puts "#{bench}"
 
