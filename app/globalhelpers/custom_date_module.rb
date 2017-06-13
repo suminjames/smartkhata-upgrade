@@ -50,6 +50,7 @@ module CustomDateModule
 
   # Checks whether or not a date_bs is valid
   def is_valid_bs_date? (bs_date)
+    return false if bs_date.blank?
     begin
       bs_to_ad(bs_date)
     rescue RuntimeError
