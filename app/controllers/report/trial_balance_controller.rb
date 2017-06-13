@@ -100,13 +100,12 @@ class Report::TrialBalanceController < ApplicationController
         ledger_ids = balance.descendent_ledgers.pluck(:id)
 
         if branch_id == 0
-          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR dr_amount != 0 OR cr_amount != 0').where(ledgers: {id: ledger_ids}).as_json
+          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order('ledgers.name asc').as_json
         else
           b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order('ledgers.name asc').as_json
         end
         @balance_report[balance.name] = b
       end
-
     elsif params[:search_by] && params[:search_term]
       search_by = params[:search_by]
       search_term = params[:search_term]
