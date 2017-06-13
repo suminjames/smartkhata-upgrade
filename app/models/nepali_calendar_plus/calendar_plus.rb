@@ -124,7 +124,7 @@ class NepaliCalendarPlus::CalendarPlus
 
   def ad_to_bs_string(year, month, day)
     bs_date_hash = ad_to_bs_hash(year, month, day)
-    return bs_date_hash[:year].to_s + '-' + bs_date_hash[:month].to_s + '-' + bs_date_hash[:day].to_s
+    return bs_date_hash[:year].to_s + '-' + bs_date_hash[:month].to_s + '-' + bs_date_hash[:day].to_s if bs_date_hash
   end
 
   # returns a bs_date hash with signature {:year=> 2072, :month => 2, :day => 32}
@@ -160,12 +160,12 @@ class NepaliCalendarPlus::CalendarPlus
   end
 
   def bs_to_ad(year, month, day)
-    fail 'Invalid date!' unless valid_bs_date?(year, month, day)
-
     ref_day_nep = ref_date['bs_to_ad']['bs']
 
-    date_bs = {:year => year, :month => month, :day => day}
+    date_bs = {:year => year.to_i, :month => month.to_i, :day => day.to_i}
     return unless bs_date_in_range?(date_bs, Date.parse(ref_day_nep))
+
+    fail 'Invalid date!' unless valid_bs_date?(year, month, day)
 
     get_ad_date(year, month, day, ref_day_nep)
   end
@@ -218,7 +218,7 @@ class NepaliCalendarPlus::CalendarPlus
       if date[:month] > reference_date.month
         return_value = true
       elsif date[:month] == reference_date.month
-        if date[:year] >= reference_date.day
+        if date[:day] >= reference_date.day
           return_value = true
         end
       end

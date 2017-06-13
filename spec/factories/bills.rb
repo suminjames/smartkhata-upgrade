@@ -10,7 +10,7 @@ FactoryGirl.define do
     fy_code '7374'
     date { 3.day.ago.to_date }
     date_bs { CustomDateModule.ad_to_bs(3.days.ago.to_date) } #replace this with 3 working days before
-    settlement_date { CustomDateModule.ad_to_bs(Time.now.to_date) }
+    settlement_date { Time.now.to_date }
     client_account
     branch_id 1
 
