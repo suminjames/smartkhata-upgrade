@@ -8,7 +8,7 @@ class LedgersController < ApplicationController
   # GET /ledgers
   # GET /ledgers.json
   def index
-    #default landing action for '/ledgers'
+    #default landing action for '/ledgers'f
       @filterrific = initialize_filterrific(
           Ledger,
           params[:filterrific],
