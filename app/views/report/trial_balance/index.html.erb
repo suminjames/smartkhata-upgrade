@@ -12,9 +12,17 @@
     <%= link_to "Full Report", report_trial_balance_index_path(search_by: "all"), {:class => (is_active_sub_menu_option("all") ? "active-link" : "")} %>
     |
     <%= link_to "Search by Date", report_trial_balance_index_path(search_by: "date"), {:class => (is_active_sub_menu_option("date") ? "active-link" : "")} %>
+
+    <%
+      if params[:search_by] == 'all'
+    %>
+        <span class="pull-right">Sort by:
+          <%= link_to "Ledger Name", report_trial_balance_index_path(search_by: "all", sort_by: "name") %> |
+          <%= link_to "Closing Balance", report_trial_balance_index_path(search_by: "all", sort_by: "closing_balance") %>
+        </span>
+    <% end %>
   </h5>
 </div>
-
 
 <div class="clearfix search-form">
   <%
