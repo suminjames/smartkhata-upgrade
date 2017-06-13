@@ -51,7 +51,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # Override base method to add condition
     TABLE_HEADER[4] = "Settlement ID" if @ledger.name == "Nepse Purchase"
     @sheet.add_row TABLE_HEADER, style: @styles[:table_header]
-    @sheet.add_row (['']*(@column_count-2)).insert(@transxn_amt_first_col, *['cr', 'dr']), style: @styles[:table_header]
+    @sheet.add_row (['']*(@column_count-2)).insert(@transxn_amt_first_col, *['dr', 'cr']), style: @styles[:table_header]
 
     # Merge the vertical cells through range
     # table header rows to merge
@@ -93,14 +93,15 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       settlements = p.settlements.map{ |settlement| "#{settlement.id}" }.join(", ")
 
       transaction_amt = p.amount
-      transaction_amt_cr = p.cr? ? transaction_amt : ''
       transaction_amt_dr = p.dr? ? transaction_amt : ''
+      transaction_amt_cr = p.cr? ? transaction_amt : ''
+      
 
       balance = number_to_currency(p.running_total.abs).to_s
       p.running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_cr, transaction_amt_dr, balance], style: row_style
+      @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style
     end
   end
 
