@@ -72,9 +72,8 @@ RSpec.describe Bill, type: :model do
     end
     context "when purchase" do
       it "should return date" do
-        subject.purchase! 
-        age = (Date.today - subject.settlement_date).to_i
-        expect(subject.age).to eq(age)
+        subject.purchase!
+        expect(subject.age).to eq(0)
       end
     end
   end
