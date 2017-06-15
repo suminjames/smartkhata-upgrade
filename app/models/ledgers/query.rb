@@ -39,7 +39,7 @@ class Ledgers::Query
           date_from_bs = search_term['date_from']
           date_to_bs = search_term['date_to']
           # OPTIMIZE: Notify front-end of the particular date(s) invalidity
-          if parsable_date?(date_from_bs) && parsable_date?(date_to_bs)
+          if is_valid_bs_date?(date_from_bs) && is_valid_bs_date?(date_to_bs)
             date_from_ad = bs_to_ad(date_from_bs)
             date_to_ad = bs_to_ad(date_to_bs)
 
