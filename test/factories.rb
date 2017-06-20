@@ -72,7 +72,7 @@ FactoryGirl.define do
 
   factory :branch do
     sequence(:code) { |n| "Branch-#{n}" }
-    address 'MyString'
+    address 'KTM'
   end
 
   factory :bank do
