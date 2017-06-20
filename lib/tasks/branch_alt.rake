@@ -24,9 +24,9 @@ namespace :branch_alt do
         ledger_ids << ledger.id
       end
       unless ledger_ids.blank?
-        Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true, branch_id)
-        Rake::Task["ledger:fix_ledger_selected"].reenable
-        Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true)
+        Rake::Task["ledger_alt:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true, branch_id)
+        Rake::Task["ledger_alt:fix_ledger_selected"].reenable
+        Rake::Task["ledger_alt:fix_ledger_selected"].invoke(tenant, ledger_ids.uniq.join(" "), true)
       end
     end
   end

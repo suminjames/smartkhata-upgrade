@@ -65,7 +65,7 @@ class EmployeeAccountsController < ApplicationController
         # Assign to Employee group
         @employee_account.assign_group("Employees")
         # and invite the user
-        user = User.invite!(:email => @employee_account.email, role: :employee)
+        user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
         @employee_account.user_id = user.id
         @employee_account.save!
         res = true

@@ -14,14 +14,14 @@ RSpec.describe Branch, type: :model do
 	describe "#permitted_branches_for_user" do
 		# since session setup creates a branch which is necessary due to app logic
 		# same case with user
-		let(:branch_1) { Branch.first }
-		let(:branch_2) { create(:branch) }
+		let!(:branch_1) { Branch.first }
+		let!(:branch_2) { create(:branch) }
 		let(:user) { @user }
 
-		before do
-			branch_1
-			branch_2
-		end
+		# before do
+		# 	branch_1
+		# 	branch_2
+		# end
 
 
 		context "when admin" do

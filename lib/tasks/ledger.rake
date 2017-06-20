@@ -24,7 +24,7 @@ namespace :ledger do
 
       # needed for entering the data balance
       # here we are migrating only single branch so need not concern about the multiple branches
-      transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id).order(:transaction_date).pluck(:transaction_date).uniq
+      transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id, fycode: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
 
       first_daily = true
       opening_balance = 0
