@@ -102,11 +102,10 @@ RSpec.describe Ledger, type: :model do
 
   	describe ".has_editable_balance?" do
       context "when particulars size is more than 0" do
-        let(:particular1){create(:particular)}
         it "should return false" do
           ledger = create(:ledger)
-          ledger.particulars << particular1
-          expect(ledger.has_editable_balance?).not_to be_truthy
+          create(:particular, ledger_id: ledger.id)
+          expect(ledger.reload.has_editable_balance?).not_to be_truthy
         end
       end
       
