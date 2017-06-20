@@ -28,10 +28,8 @@ class Print::PrintVoucher< Prawn::Document
       else
         non_payment_bank_particular_list
       end
-      if is_payment_bank?
-        move_down(35)
-        signature_fields
-      end
+      move_down(35)
+      signature_fields
     end
   end
 
@@ -133,11 +131,23 @@ class Print::PrintVoucher< Prawn::Document
         ["Ledger Details", "Dr", "Cr"]
     ]
 
+    total_debit_amount = 0
+    total_credit_amount = 0
+
     @particulars.each do |particular|
       dr_desc = (particular.dr?) ? arabic_number(particular.amount) : ""
       cr_desc = (particular.cr?) ? arabic_number(particular.amount) : ""
       data << [particular.ledger.name, dr_desc, cr_desc]
+      if particular.dr?
+        total_debit_amount += particular.amount
+      else
+        total_credit_amount += particular.amount
+      end
     end
+
+    total_row = [{:content => 'Total Amount'}, arabic_number(total_debit_amount), arabic_number(total_credit_amount)]
+    data << total_row
+
 
     table_width = page_width - 2
     column_widths = {0 => table_width * 6/12.0, 1 => table_width * 3/12.0, 2 => table_width * 3/12.0}
@@ -148,9 +158,11 @@ class Print::PrintVoucher< Prawn::Document
       t.columns(0..-1).borders = [:left]
       t.columns(-1).borders = [:left, :right]
       t.rows(0).borders = [:top, :bottom, :left, :right]
-      t.rows(-1).borders = [:bottom, :left, :right]
+      t.rows(-1).borders = [:top, :bottom, :left, :right]
       t.column_widths = column_widths
     end
+
+
 
   end
 
