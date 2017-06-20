@@ -145,7 +145,7 @@ FactoryGirl.define do
   end
 
   factory :settlement do
-    date_bs "hjhjhi"
+    date_bs "2074/03/05"
   end
 
   factory :branch_permission do
