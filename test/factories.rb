@@ -137,6 +137,9 @@ FactoryGirl.define do
     broker_name "afggf"
     broker_number 123
     locale 0
+
+    factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
+    end
   end
 
   factory :employee_account do
