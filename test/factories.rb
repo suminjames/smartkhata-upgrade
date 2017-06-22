@@ -103,6 +103,7 @@ FactoryGirl.define do
 
   factory :client_account do
     name 'Dedra Sorenson'
+    mobile_number '9851182852'
     phone '55555'
     phone_perm '666666'
     citizen_passport '6789'

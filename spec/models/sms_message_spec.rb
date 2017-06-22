@@ -19,11 +19,58 @@ RSpec.describe SmsMessage, type: :model do
   	end
 
   	describe "#sparrow_push_sms" do
-  		it ""
+  		it "sends sms using sparrow" do
+				VCR.use_cassette('sparrow_sms') do
+          message = "Saroj bought EBL,100@2900;On 1/23 Bill No7273-79 .Pay Rs 292678.5.BNo 48. sarojk@dandpheit.com"
+					mobile_number = '9851182852'
+          expect(SmsMessage.sparrow_push_sms(mobile_number, message)).to eq(200)
+				end
+      end
   	end
 
   	describe "#sparrow_send_bill_sms" do
-  		it ""
+      context "successfully sending single sms" do
+				before do
+					@transaction_message = create(:transaction_message)
+					VCR.use_cassette('sparrow_sms') do
+						SmsMessage.sparrow_send_bill_sms(@transaction_message.id)
+					end
+				end
+
+				it "sends sms using sparrow" do
+					expect(@transaction_message.reload.sms_sent?).to be_truthy
+					expect(@transaction_message.reload.sent_sms_count).to eq 1
+				end
+
+				it "stores sms credit" do
+					expect(SmsMessage.last.credit_used).to eq(1)
+				end
+      end
+
+      context "when sending multiple sms" do
+        before do
+					allow(SmsMessage).to receive(:sparrow_push_sms).and_return(200)
+        end
+        context "and message length is greater than 459" do
+					it "updates sms credit" do
+						@transaction_message = create(:transaction_message, sms_message: "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
+						SmsMessage.sparrow_send_bill_sms(@transaction_message.id)
+						expect(@transaction_message.reload.sms_sent?).to be_truthy
+						expect(@transaction_message.reload.sent_sms_count).to eq 1
+						expect(SmsMessage.last.credit_used).to eq(4)
+          end
+        end
+      end
+
+      context "error on sms sending" do
+				before do
+					@transaction_message = create(:transaction_message)
+          allow(SmsMessage).to receive(:sparrow_push_sms).and_return(300)
+        end
+
+        it "	"
+      end
+
   	end
 
   	describe "#message=" do
@@ -65,7 +112,10 @@ RSpec.describe SmsMessage, type: :model do
 
 		context "when message length is greater than single page length" do
 			it "returns credit required" do
-				expect(SmsMessage.sparrow_credit_required('this is sample message whose message length should be greater than single page length.this is sample message whose message length should be greater than single page length.')).to eq(2)
+        # 161 = 153 + 8
+				expect(SmsMessage.sparrow_credit_required("a"*161)).to eq(2)
+        # 160+153 = 153 + 153 + 7
+				expect(SmsMessage.sparrow_credit_required("a"*313)).to eq(3)
 			end
 		end
 	end
