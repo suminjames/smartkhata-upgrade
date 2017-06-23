@@ -100,7 +100,13 @@
                 break_group = true
               end
               if break_group
-                isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific, share_transaction.isin_info_id)
+                if (params[:group_by_company] == "true" )
+                  isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific, share_transaction.isin_info_id)
+                else
+                  isin_balances = ShareTransaction.quantity_flows_for_isin(@filterrific)
+                end
+
+
               end
               #making sure the column counts remain same
               colspan = (client_account.present? && params[:group_by_company] == "true") ? 4 : ((client_account.present? || params[:group_by_company] == "true") ? 5 : 6)
