@@ -10,14 +10,6 @@ RSpec.describe SmsMessage, type: :model do
   		end
   	end
 
-  	describe "#sparrow_test_message" do
-  		it ""
-  	end
-
-  	describe "#sparrow_credit" do
-  		it ""
-  	end
-
   	describe "#sparrow_push_sms" do
   		it "sends sms using sparrow" do
 				VCR.use_cassette('sparrow_sms') do
@@ -64,11 +56,13 @@ RSpec.describe SmsMessage, type: :model do
 
       context "error on sms sending" do
 				before do
-					@transaction_message = create(:transaction_message)
+					@transaction_message = create(:transaction_message, sent_sms_count: 0)
           allow(SmsMessage).to receive(:sparrow_push_sms).and_return(300)
         end
 
-        it "	"
+        it "returns true for transaction message unsent" do
+          expect(@transaction_message.reload.sms_unsent?).to be_truthy
+        end
       end
 
   	end
@@ -123,7 +117,7 @@ RSpec.describe SmsMessage, type: :model do
 	describe "#get_phone_type" do
     context "when non country code starts with 984,985,986" do
       it "gets phone type as ntc" do
-       expect(SmsMessage.get_phone_type('9779849876876')).to eq(1)
+       expect(SmsMessage.get_phone_type('9849876876')).to eq(1)
       end
     end
 

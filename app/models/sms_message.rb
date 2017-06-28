@@ -204,24 +204,13 @@ class SmsMessage < ActiveRecord::Base
       reply_code = self.sparrow_push_sms(_mobile_number, message)
       if reply_code != 200
         sms_failed = true
-        if transaction_message.sms_message.length >  SPARROW_MAX_MESSAGE_BLOCK_LENGTH
-          sms_message_obj.remarks = "Not all valid length blocks succesfully sent of this message which is greater than  #{SPARROW_MAX_MESSAGE_BLOCK_LENGTH} characters."
-        end
-        break
       else
         sms_message_obj.credit_used += self.sparrow_credit_required(message)
       end
     end
 
     if sms_failed
-      # If sms has been not been sent before (ie. sms_count == 0), then only set status to sms_unsent.
-      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_unsent
-      if transaction_message.sent_sms_count == 0
-        transaction_message.sms_unsent!
-      else
-        # As the transaction message sms_status has been earlier(see above) set to sms_queued, set it back to sms_sent because it is for messages which have sms_sent_count != 0 (ie. the sms_sent successfully in the past.)
-        transaction_message.sms_sent!
-      end
+      transaction_message.sms_unsent!
     else # sms success
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!

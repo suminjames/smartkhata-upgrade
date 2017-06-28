@@ -42,8 +42,7 @@ RSpec.describe Settlement, type: :model do
   		context "when settlement is present" do
   			subject{create(:settlement, branch_id: 1, settlement_type: 0, date_bs: "2074-03-05")}
   			it "should get new settlement number" do
-  				allow(Settlement).to receive(:new_settlement_number).and_return("7374",subject.branch_id,subject.settlement_type)
-  				expect(subject.settlement_number).to eq(1)
+          expect(Settlement.new_settlement_number("7374",subject.branch_id,subject.settlement_type)).to eq(2)
   			end	
   		end
   	end
