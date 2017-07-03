@@ -59,11 +59,24 @@ FactoryGirl.define do
       ledger
     end
 
+    factory :credit_particular_non_bank do
+      transaction_type 1
+      ledger
+    end
+
+    # due to excessive usage did not refactored
     factory :credit_particular do
       transaction_type 1
       association :ledger, factory: :bank_ledger
     end
 
+    factory :bank_particular do
+      association :ledger, factory: :bank_ledger
+
+      factory :bank_cr_particular do
+        transaction_type 1
+      end
+    end
   end
 
 
