@@ -335,7 +335,6 @@ class Bill < ActiveRecord::Base
   end
 
   def has_incorrect_fy_code?
-    debugger
     true_fy_code = get_fy_code(self.settlement_date)
     return true if true_fy_code != self.fy_code
     false
