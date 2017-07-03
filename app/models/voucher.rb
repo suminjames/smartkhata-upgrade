@@ -173,6 +173,7 @@ class Voucher < ActiveRecord::Base
     if self.is_payment?
       cheque_entries = self.cheque_entries.payment.uniq
       dr_particulars = self.particulars.select{ |x| x.dr? }
+
       dr_particulars.each do |particular|
         if particular.cheque_entries_on_payment.size <= 0
           particular.cheque_entries_on_payment << cheque_entries
@@ -182,6 +183,7 @@ class Voucher < ActiveRecord::Base
 
       cheque_entries.each do |cheque|
         if dr_particulars.size > 0
+
           if dr_particulars.first.has_bank?
             beneficiary_name = UserSession.tenant.full_name
           else
@@ -192,7 +194,7 @@ class Voucher < ActiveRecord::Base
         cheque.save!
       end
       # Check to see if transaction between internal banks.
-      # If so, add beneficiary names to both as current tenant's full name.
+      # If so, add beneficiary names to the other as current tenant's full name.
       cr_particulars = self.particulars.select{ |x| x.cr? }
       if dr_particulars.size > 0 && cr_particulars.size > 0 && dr_particulars.first.has_bank? && cr_particulars.first.has_bank?
         cheque_entries = self.cheque_entries.receipt.uniq

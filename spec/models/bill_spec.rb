@@ -213,8 +213,6 @@ RSpec.describe Bill, type: :model do
         expect(subject.has_incorrect_fy_code?).not_to be_truthy
       end
     end
-      # it {expect(subject.get_fy_code(subject.settlement_date)).not_to be_truthy}
-      # it {expect(subject.get_fy_code(subject.bs_to_ad('2072-01-01'))).to be_truthy}
 
   end
 

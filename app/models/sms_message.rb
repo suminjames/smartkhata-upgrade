@@ -180,53 +180,37 @@ class SmsMessage < ActiveRecord::Base
     response_json['credits_available']
   end
 
-  def self.sparrow_push_sms
-    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{@mobile_number}&text=#{CGI.escape(@message)}"
+  def self.sparrow_push_sms(mobile_number, message)
+    mobile_number= self.manipulate_phone_number(mobile_number)
+    api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{mobile_number}&text=#{CGI.escape(message)}"
     response = Net::HTTP.get_response(URI.parse(api_url)).body
     response_json = JSON.parse(response)
     response_json['response_code']
   end
 
+  # force fail is to test the failing nature of the sms sending
   def self.sparrow_send_bill_sms(transaction_message_id)
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
-    self.mobile_number = transaction_message.client_account.messageable_phone_number
-    sms_message_obj = SmsMessage.new(phone: @mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
-    self.message = transaction_message.sms_message
+    _mobile_number = transaction_message.client_account.messageable_phone_number
+    sms_message_obj = SmsMessage.new(phone: _mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
+    _full_message = transaction_message.sms_message
 
 
     # 459 is size of max block sendable via sparrow sms
-    valid_message_blocks = @message.scan(/.{1,459}/)
+    valid_message_blocks = _full_message.scan(/.{1,459}/)
     sms_failed = false
     transaction_message.sms_queued!
-
     valid_message_blocks.each do |message|
-      self.message = message
-      if !Rails.env.production?
-        reply_code = Random.rand(2) + 200
-      else
-        reply_code = self.sparrow_push_sms
-      end
-
+      reply_code = self.sparrow_push_sms(_mobile_number, message)
       if reply_code != 200
         sms_failed = true
-        if transaction_message.sms_message.length >  SPARROW_MAX_MESSAGE_BLOCK_LENGTH
-          sms_message_obj.remarks = "Not all valid length blocks succesfully sent of this message which is greater than  #{SPARROW_MAX_MESSAGE_BLOCK_LENGTH} characters."
-        end
-        break
       else
-        sms_message_obj.credit_used += self.sparrow_credit_required(@message)
+        sms_message_obj.credit_used += self.sparrow_credit_required(message)
       end
     end
 
     if sms_failed
-      # If sms has been not been sent before (ie. sms_count == 0), then only set status to sms_unsent.
-      # In case, where the sms has been sent before, and a retry is attempted which failed, don't set the sms_unsent
-      if transaction_message.sent_sms_count == 0
-        transaction_message.sms_unsent!
-      else
-        # As the transaction message sms_status has been earlier(see above) set to sms_queued, set it back to sms_sent because it is for messages which have sms_sent_count != 0 (ie. the sms_sent successfully in the past.)
-        transaction_message.sms_sent!
-      end
+      transaction_message.sms_unsent!
     else # sms success
       transaction_message.increase_sent_sms_count!
       transaction_message.sms_sent!

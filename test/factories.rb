@@ -103,6 +103,7 @@ FactoryGirl.define do
 
   factory :client_account do
     name 'Dedra Sorenson'
+    mobile_number '9851182852'
     phone '55555'
     phone_perm '666666'
     citizen_passport '6789'
@@ -137,6 +138,9 @@ FactoryGirl.define do
     broker_name "afggf"
     broker_number 123
     locale 0
+
+    factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
+    end
   end
 
   factory :employee_account do
@@ -145,7 +149,7 @@ FactoryGirl.define do
   end
 
   factory :settlement do
-    date_bs "hjhjhi"
+    date_bs "2074/03/05"
   end
 
   factory :branch_permission do

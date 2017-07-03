@@ -46,5 +46,13 @@ RSpec.describe Particular, type: :model do
   		end
   	end
 
-  	describe ".process_particular"
+  	describe ".process_particular" do
+      subject{create(:particular)}
+      it "should return date" do
+        subject
+        subject.send(:process_particular)
+        expect(subject.transaction_date).to eq(Time.now.to_date)
+        expect(subject.date_bs).to eq(subject.ad_to_bs_string_public(Time.now.to_date))
+      end
+    end
 end

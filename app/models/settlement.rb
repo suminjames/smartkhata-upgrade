@@ -183,7 +183,7 @@ class Settlement < ActiveRecord::Base
 
   def add_date_from_date_bs
     self.date ||= self.class.bs_to_ad(self.date_bs)
-    self.date_bs ||= self.class.ad_to_bs_string_public(self.date)
+    self.date_bs ||= self.class.ad_to_bs_string_public(self.date) if self.date.present?
   end
 
   def self.options_for_settlement_type_select
