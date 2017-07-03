@@ -277,7 +277,7 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".can_assign_username?" do
     context "when nepse code is present" do
-      it "should assign username" do
+      it "should return true" do
         allow(subject).to receive(:user_id).and_return(nil)
         expect(subject.can_assign_username?).to be_truthy
       end
@@ -360,6 +360,9 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".ledger_closing_balance" do
+    # subject{create(:client_account)}
+    # let!(:ledger){create(:ledger, client_account_id: subject.id)}
+    # let!(:ledger_balance){create(:ledger_balance, ledger_id: ledger.id, closing_balance: 5000)}
     it "should return ledger closing balance" do
       allow_any_instance_of(Ledger).to receive(:closing_balance).and_return(5000)
       expect(subject.ledger_closing_balance).to eq(5000)

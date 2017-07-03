@@ -68,13 +68,6 @@ RSpec.describe Voucher, type: :model do
   				expect(subject.voucher_code).to eq("CDB")
   			end
   		end
-
-  		# context "when voucher type is none of the above" do
-  		# 	subject{create(:voucher, voucher_type: nil)}
-  		# 	it "returns voucher code as NA" do
-  		# 		expect(subject.voucher_code).to eq("NA")
-  		# 	end
-  		# end
   	end
 
   	describe ".is_payment_receipt?" do
@@ -220,46 +213,48 @@ RSpec.describe Voucher, type: :model do
   		end
   	end
 
-  	# describe ".map_payment_receipt_to_new_types" do
-  	# 	context "when voucher type is receipt" do
-  	# 		subject{create(:voucher, voucher_type: "receipt")}
-  	# 		let!(:cheque_entry1){create(:cheque_entry, voucher_id: subject.id)}
-   #      let!(:cheque_entry2){create(:cheque_entry, voucher_id: subject.id)}
-  	# 		context "and cheque entries count is greater than 0" do
-  	# 			it "returns voucher type as receipt bank" do
-  	# 				subject.cheque_entries << cheque_entry1
-  	# 				subject.map_payment_receipt_to_new_types
-  	# 				expect(subject.cheque_entries.count).to eq("")
-  	# 			end
-  	# 		end
+  	describe ".map_payment_receipt_to_new_types" do
+  		context "when voucher type is receipt" do
+  			subject{create(:voucher, voucher_type: "receipt")}
+        let!(:particular){create(:particular, voucher_id: subject.id)}
+  			let!(:cheque_entry1){create(:cheque_entry)}
+  			context "and cheque entries count is greater than 0" do
+  				it "returns voucher type as receipt bank" do
+  					particular.cheque_entries << cheque_entry1
+  					subject.map_payment_receipt_to_new_types
+            # expect(subject.cheque_entries.count).to eq(1)
+  					expect(subject.voucher_type).to eq("receipt_bank")
+  				end
+  			end
 
-        # context "and cheque entries count is not greater than 0" do
-        #   it "returns voucher type as receipt cash" do
-        #     subject.map_payment_receipt_to_new_types
-        #     expect(subject.voucher_type).to eq("receipt_cash")
-        #   end
-        # end
+        context "and cheque entries count is not greater than 0" do
+          it "returns voucher type as receipt cash" do
+            subject.map_payment_receipt_to_new_types
+            expect(subject.voucher_type).to eq("receipt_cash")
+          end
+        end
   		end
 
-      # context "when voucher type is payment" do
-      #   subject{create(:voucher, voucher_type: "payment")}
-      #   let!(:cheque_entry1){create(:cheque_entry, voucher_id: subject.id)}
-      #   let!(:cheque_entry2){create(:cheque_entry, voucher_id: subject.id)}
-      #   context "and cheque entries count is greater than 0" do
-      #     it "returns voucher type as payment bank" do
-      #       subject.cheque_entries << cheque_entry1
-      #       subject.map_payment_receipt_to_new_types
-      #       expect(subject.cheque_entries.count).to eq("")
-      #     end
-      #   end
+      context "when voucher type is payment" do
+        subject{create(:voucher, voucher_type: "payment")}
+        let!(:particular){create(:particular, voucher_id: subject.id)}
+        let!(:cheque_entry1){create(:cheque_entry)}
+        context "and cheque entries count is greater than 0" do
+          it "returns voucher type as payment bank" do
+            particular.cheque_entries << cheque_entry1
+            subject.map_payment_receipt_to_new_types
+              # expect(subject.cheque_entries.count).to eq(1)
+            expect(subject.voucher_type).to eq("payment_bank")
+          end
+        end
 
-      #   context "and cheque entries count is not greater than 0" do
-      #     it "returns voucher type as payment cash" do
-      #       subject.map_payment_receipt_to_new_types
-      #       expect(subject.voucher_type).to eq("payment_cash")
-      #     end
-      #   end
-      # end
+        context "and cheque entries count is not greater than 0" do
+          it "returns voucher type as payment cash" do
+            subject.map_payment_receipt_to_new_types
+            expect(subject.voucher_type).to eq("payment_cash")
+          end
+        end
+      end
   	end
 
   	describe ".has_incorrect_fy_code?" do
@@ -331,6 +326,83 @@ RSpec.describe Voucher, type: :model do
         it "returns fy code" do
           subject.send(:process_voucher)
           expect(subject.fy_code).to eq(7374)
+        end
+      end
+    end
+
+    describe ".assign_cheque" do
+      subject{create(:voucher)}
+      let!(:particular_dr){create(:particular, voucher_id: subject.id, transaction_type: "dr")}
+      let!(:particular_cr){create(:particular, voucher_id: subject.id, transaction_type: "cr")}
+      let!(:cheque_entry){create(:cheque_entry)}
+
+      context "when voucher is payment voucher" do
+        before do
+          subject.payment_bank!
+          cheque_entry.particulars_on_payment << particular_cr
+
+          allow(UserSession).to receive(:tenant).and_return(Tenant.new(full_name: 'Danphe'))
+        end
+
+        it "assigns cheque" do
+          subject.send(:assign_cheque)
+          expect(particular_dr.cheque_entries_on_payment.size).to eq(1)
+          expect(particular_cr.cheque_entries_on_payment.size).to eq(1)
+        end
+
+        context "and cheque_beneficiary name is not present" do
+          it "should assign beneficiary name from first dr particular" do
+            cheque_entry.update_attributes(beneficiary_name: nil)
+            subject.send(:assign_cheque)
+            expect(cheque_entry.reload.beneficiary_name).to eq(particular_dr.ledger.name)
+          end
+
+        end
+
+        context "and internal bank payments" do
+          it "should assign beneficiary name to both cheques as company" do
+            receipt_cheque_entry = create(:receipt_cheque_entry)
+            receipt_cheque_entry.particulars_on_receipt << particular_dr
+
+            cheque_entry.update_attributes(beneficiary_name: nil)
+            receipt_cheque_entry.update_attributes(beneficiary_name: nil)
+            # particulars with bank ledger
+            particular_dr.has_bank!
+            particular_cr.has_bank!
+
+            # debugger
+            subject.reload.send(:assign_cheque)
+            
+            expect(particular_dr.cheque_entries_on_payment.size).to eq(1)
+
+            expect(cheque_entry.reload.beneficiary_name).to eq('Danphe')
+            expect(receipt_cheque_entry.reload.beneficiary_name).to eq('Danphe')
+
+          end
+        end
+      end
+
+      context "when voucher is receipt voucher" do
+        before do
+          subject.receipt_bank!
+          cheque_entry.receipt!
+
+          cheque_entry.particulars_on_receipt << particular_dr
+          allow(UserSession).to receive(:tenant).and_return(Tenant.new(full_name: 'Danphe'))
+        end
+
+        it "assigns cheque" do
+          subject.send(:assign_cheque)
+          expect(particular_dr.cheque_entries_on_receipt.size).to eq(1)
+          expect(particular_cr.cheque_entries_on_receipt.size).to eq(1)
+        end
+
+        context "and cheque_beneficiary name is not present" do
+          it "should assign beneficiary name from first cr particular" do
+            cheque_entry.update_attributes(beneficiary_name: nil)
+            subject.send(:assign_cheque)
+            expect(cheque_entry.reload.beneficiary_name).to eq(particular_cr.ledger.name)
+          end
         end
       end
     end

@@ -5,14 +5,18 @@ RSpec.describe TransactionMessage, type: :model do
   	include_context 'session_setup'
 
   	describe ".soft_delete" do
+      subject{create(:transaction_message)}
   		it "returns true" do
-  			expect(subject.soft_delete).to be_truthy
+        subject.soft_delete
+  			expect(subject.deleted_at).not_to be_nil
   		end
   	end
 
   	describe ".soft_undelete" do
+      subject{create(:transaction_message)}
   		it "returns true" do
-  			expect(subject.soft_undelete).to be_truthy
+        subject.soft_undelete
+  			expect(subject.deleted_at).to be_nil
   		end
   	end
 
@@ -25,6 +29,8 @@ RSpec.describe TransactionMessage, type: :model do
   	end
 
     describe ".can_email?" do
+      let!(:client_account){create(:client_account, email: "jnjn@gmail.com")}
+      subject{create(:transaction_message, client_account_id: client_account.id)}
       it "returns true" do
         expect(subject.can_email?).to be_truthy
       end
@@ -32,14 +38,20 @@ RSpec.describe TransactionMessage, type: :model do
 
     describe ".can_sms?" do
       it "returns true" do
-        allow_any_instance_of(ClientAccount).to receive(:messageable_phone_number).and_return(true)
+        allow_any_instance_of(ClientAccount).to receive(:messageable_phone_number).and_return("9841266550")
         expect(subject.can_sms?).to be_truthy
       end
     end
 
     describe ".increase_sent_email_count" do
       it "increases sent email count" do
-        expect()
+        expect{subject.increase_sent_email_count!}.to change{subject.sent_email_count}.by(1)
+      end
+    end
+
+     describe ".increase_sent_sms_count" do
+      it "increases sent sms count" do
+        expect{subject.increase_sent_sms_count!}.to change{subject.sent_sms_count}.by(1)
       end
     end
 end

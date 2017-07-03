@@ -48,14 +48,18 @@ RSpec.describe ShareTransaction, type: :model do
     end
 
     describe ".soft_delete" do
+      subject{create(:share_transaction)}
       it "returns true" do
-        expect(subject.soft_delete).to be_truthy
+        subject.soft_delete
+        expect(subject.deleted_at).not_to be_nil
       end
     end
 
     describe ".soft_undelete" do
+      subject{create(:share_transaction)}
       it "returns true" do
-       expect(subject.soft_undelete).to be_truthy 
+        subject.soft_undelete
+        expect(subject.deleted_at).to be_nil 
       end
     end
 
@@ -85,11 +89,12 @@ RSpec.describe ShareTransaction, type: :model do
       end
     end
 
-    # describe ".deal_cancelled" do
-    #   it "returns true" do
-    #     expect(subject.deal_cancelled).to be_truthy
-    #   end
-    # end
+    describe ".deal_cancelled" do
+      it "returns true" do
+        subject.deleted_at = "2017-06-30"
+        expect(subject.deal_cancelled).to be_truthy
+      end
+    end
 
     describe "#options_for_isin_select" do
       it "returns options for isin select" do
