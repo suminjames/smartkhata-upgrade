@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout, :available_balancing_transactions]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions, :sebo_report]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -209,6 +209,10 @@ class ShareTransactionsController < ApplicationController
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
 
+  end
+
+  def sebo_report
+    @share_transactions = ShareTransaction.sebo_report
   end
 
   def threshold_transactions
