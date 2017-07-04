@@ -72,7 +72,6 @@ class ShareTransaction < ActiveRecord::Base
 
   # before_update :calculate_cgt
   validates :base_price, numericality: true
-
   filterrific(
       default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [
@@ -286,6 +285,10 @@ class ShareTransaction < ActiveRecord::Base
       result_arr << rec
     end
     result_arr
+  end
+
+  def sebo_report
+    ShareTransaction.where('isin_info_id < 5').group(:isin_info_id).select(:isin_info_id, "SUM(cgt) as total_cgt", "SUM(net_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum", "SUM(net_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it
