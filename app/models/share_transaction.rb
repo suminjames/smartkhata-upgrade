@@ -139,6 +139,8 @@ class ShareTransaction < ActiveRecord::Base
         not_cancelled.order("share_transactions.id #{ direction }")
       when /^date/
         not_cancelled.order("share_transactions.date #{ direction }")
+      when /^isin_info/
+        not_cancelled.order("isin_infos.company #{ direction }")  
       when /^close_out/
         order("share_transactions.date asc")
       else
@@ -288,7 +290,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def self.sebo_report
-    ShareTransaction.group(:isin_info_id).select(:isin_info_id, 
+    ShareTransaction.includes(:isin_info).group(:isin_info_id).select(:isin_info_id, 
       "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
       "SUM(CASE WHEN transaction_type = 0 THEN net_amount ELSE 0 END ) as buying_amount",
