@@ -227,6 +227,27 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_date_from),
         params.dig(:filterrific, :by_date_to)
     )
+    @download_path_xlsx = securities_flow_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Reports::Pdf::SecuritiesFlowsReport.new(@securities_flows, @is_securities_balance_view, params, current_tenant)
+        send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf'
+      end
+      format.xlsx do
+        report = Reports::Excelsheet::SeboReport.new(@share_transactions)
+        if report.generated_successfully?
+          # send_file(report.path, type: report.type)
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
+        else
+          # This should be ideally an ajax notification!
+          # preserve params??
+          redirect_to share_transactions_path, flash: { error: report.error }
+        end
+      end
+    end
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
