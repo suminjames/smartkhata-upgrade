@@ -1,5 +1,5 @@
 class Reports::Excelsheet::SeboReport < Reports::Excelsheet
-  TABLE_HEADER = ["SN.", "Company", "Quantity In", "Quantity Out", "Quantity Balance"]
+  TABLE_HEADER = ["SN.", "Company", "Buying Trans", "Buying Qty", "Buying Amt", "Sebo Comm"]
 
   include ShareTransactionsHelper
 
@@ -8,29 +8,15 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
     generate_excelsheet
   end
 
-
   def prepare_document
-    # Adds document headings and returns the filename conditionally, before the real data table is inserted.
-    @file_name = 'Sebo Report'
-    report_headings = report_headings_for_securities_flow(@params, @is_securities_balance_view)
-    headings = []
-    report_headings.each_with_index do |heading, index|
-      if index == 0
-        headings[0] = heading
-      else
-        headings[1] = "#{headings[1]} #{heading}"
-      end
-    end
-    if report_headings.size < 2
-      headings[1] = ''
-    end
-
-    add_document_headings(*headings)
+    # Adds document headings and sets the filename, before the real data table is inserted.
+    add_document_headings("Sebo Report")
+    @file_name = "SeboReport_#{@date}"
   end
 
-  def add_document_headings(heading, sub_heading)
+  def add_document_headings(heading)
     # Adds rows with document headings.
-    add_document_headings_base(heading, sub_heading) {
+    add_document_headings_base(heading) {
       if @date_query_present
         date_info = "" # needed for lambda
         add_date_info = lambda {
@@ -52,25 +38,18 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
 
   def populate_data_rows
     # inserts the actual data rows through iteration.
-    normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format_left], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
-    striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:int_format_left_striped], *[@styles[:wrap_striped]]*2, *[@styles[:striped_style]]*2, *[@styles[:int_with_commas_striped]]*5, @styles[:float_format_striped]]
+    row_style = [@styles[:normal_center], @styles[:wrap], @styles[:int_format_right], *[@styles[:float_format]]*3]
 
-    @securities_flows.each_with_index do |securities_flow, index|
-      isin_info = IsinInfo.find(securities_flow["isin_info_id"])
+    @share_transactions.each_with_index do |share_transaction, index|
       sn = index + 1
-      isin_info = isin_info.name_and_code
+      company = share_transaction.isin_info.company
+      buy_transaction_count = share_transaction["buy_transaction_count"]
+      buying_amount = share_transaction["buying_amount"]
+      buy_sebo_comm = share_transaction["buy_sebo_comm"]
 
-      qty_in = securities_flow["quantity_in_sum"]
-      qty_out = securities_flow["quantity_out_sum"]
-      qty_balance = securities_flow["quantity_balance"]
-
-      row_style = index.even? ? normal_style_row : striped_style_row
-      if @is_securities_balance_view
-        conditional_row = [sn, isin_info, qty_balance]
-      else
-        conditional_row = [sn, isin_info, qty_in, qty_out, qty_balance]
-      end
-      @sheet.add_row conditional_row, style: row_style
+      # row_style = index.even? ? normal_style_row : striped_style_row
+      row = [sn, company, buy_transaction_count, buying_amount, buy_sebo_comm]
+      @sheet.add_row row, style: row_style
     end
   end
 
@@ -78,5 +57,6 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
     # Sets fixed widths for a few required columns
     # Fixed width for first column which may be elongated by document headers
     @sheet.column_info.first.width = 6
+    @sheet.column_info.second.width = 25
   end
 end

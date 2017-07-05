@@ -66,7 +66,7 @@ class Reports::Excelsheet::SecuritiesFlowsReport < Reports::Excelsheet
   def populate_data_rows
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format_left], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
-    striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:int_format_left_striped], *[@styles[:wrap_striped]]*2, *[@styles[:striped_style]]*2, *[@styles[:int_with_commas_striped]]*5, @styles[:float_format_striped]]
+    striped_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format_left], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
 
     @securities_flows.each_with_index do |securities_flow, index|
       isin_info = IsinInfo.find(securities_flow["isin_info_id"])

@@ -227,7 +227,7 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_date_from),
         params.dig(:filterrific, :by_date_to)
     )
-    @download_path_xlsx = securities_flow_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
     respond_to do |format|
       format.html
       format.js
@@ -244,7 +244,7 @@ class ShareTransactionsController < ApplicationController
         else
           # This should be ideally an ajax notification!
           # preserve params??
-          redirect_to share_transactions_path, flash: { error: report.error }
+          redirect_to sebo_report_share_transactions_path, flash: { error: report.error }
         end
       end
     end
