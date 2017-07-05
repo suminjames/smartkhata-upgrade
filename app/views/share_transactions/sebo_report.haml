@@ -1,3 +1,48 @@
+%p#notice= notice
+- provide(:section_title, sebo_report)
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+	= hidden_field_tag(:only_balance, params[:only_balance])
+	.panel.panel-default.filter-form
+		.panel-body
+      		.row
+        		.col-sm-3
+		        	%label
+			          Company
+			        = f.collection_select(                        |
+			          :by_isin_id,                              |
+			          @filterrific.select_options[:by_isin_id], |
+			          :id,                                        |
+			          :name_and_code,                                      |
+			          {include_blank: true},                 |
+			          {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+		          	%div.top-buffer-sm
+			            = f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
+			            = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+
+		        .col-sm-2
+		        	%label
+		            	Date
+		          	%br
+	       			= f.text_field(                 |
+			          :by_date,                     |
+			          :placeholder => 'YYYY-MM-DD', |
+			          class: 'form-control' )       |
+		        .col-sm-2.text-center
+		        	%label
+		            	Date Range
+		          	.clearfix
+		            	.row
+			            	= f.text_field(                 |
+				              :by_date_from,                |
+				              :placeholder => 'YYYY-MM-DD', |
+				              class: 'form-control' )       |
+		            	.row.top-buffer-sm
+			            	= f.text_field(                 |
+				              :by_date_to,                  |
+				              :placeholder => 'YYYY-MM-DD', |
+				               class: 'form-control' ) |
+    	= render_filterrific_spinner
 %div#sebo_report_list
 	-if @share_transactions.present?
 		%div.table-responsive
@@ -28,28 +73,28 @@
 				%tbody
 					-@share_transactions.each_with_index do |share_transaction, index|
 						%tr
-							%td= index+1
-							%td=share_transaction.isin_info.company
-							%td=share_transaction.buy_transaction_count
-							%td=share_transaction.buy_quantity 
-							%td=share_transaction.buying_amount
-							%td=share_transaction.buy_sebo_comm
-							%td=share_transaction.buy_comm_amount
-							%td=share_transaction.buy_nepse_comm
-							%td=share_transaction.buy_tds
-							%td=share_transaction.amount_to_nepse
-							%td=share_transaction.selling_transaction_count
-							%td=share_transaction.selling_quantity
-							%td=share_transaction.selling_amount
-							%td=share_transaction.selling_comm_amount
-							%td=share_transaction.selling_tds
-							%td=share_transaction.selling_sebo_comm
-							%td=share_transaction.selling_nepse_comm
-							%td=share_transaction.total_cgt
-							%td=share_transaction.amount_from_nepse
-							%td=share_transaction.total_transaction_count
-							%td=share_transaction.total_quantity
-							%td=share_transaction.total_amount
+							%td.text-center= index+1
+							%td=share_transaction.isin_info.try(:company)
+							%td.text-center=share_transaction.buy_transaction_count
+							%td.text-center=share_transaction.buy_quantity 
+							%td.text-right=monetary_decimal(share_transaction.buying_amount)
+							%td.text-right=monetary_decimal(share_transaction.buy_sebo_comm)
+							%td.text-right=monetary_decimal(share_transaction.buy_comm_amount)
+							%td.text-right=monetary_decimal(share_transaction.buy_nepse_comm)
+							%td.text-right=monetary_decimal(share_transaction.buy_tds)
+							%td.text-right=monetary_decimal(share_transaction.amount_to_nepse)
+							%td.text-center=share_transaction.selling_transaction_count
+							%td.text-center=share_transaction.selling_quantity
+							%td.text-right=monetary_decimal(share_transaction.selling_amount)
+							%td.text-right=monetary_decimal(share_transaction.selling_comm_amount)
+							%td.text-right=monetary_decimal(share_transaction.selling_tds)
+							%td.text-right=monetary_decimal(share_transaction.selling_sebo_comm)
+							%td.text-right=monetary_decimal(share_transaction.selling_nepse_comm)
+							%td.text-right=monetary_decimal(share_transaction.total_cgt)
+							%td.text-right=monetary_decimal(share_transaction.amount_from_nepse)
+							%td.text-right=share_transaction.total_transaction_count
+							%td.text-right=share_transaction.total_quantity
+							%td.text-right=monetary_decimal(share_transaction.total_amount)
 	-else
 		%div.row.text-center.top-buffer-md
 			There are no matching securities flows.
