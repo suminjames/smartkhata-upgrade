@@ -9,12 +9,13 @@ module NumberFormatterModule
     # Calling arabic number to get the number and wording consistent with rounding off issues.
     decimal = arabic_number(decimal).gsub(',','').to_f
     paisa = (('%.2f' % decimal.round(2))[-2..-1]).to_i
+    paisa_formatted = "%02d" % paisa
     word = decimal.to_f.to_words
     if word.kind_of?(Array)
       word_before_decimal = word[0]
       word_before_decimal = (word_before_decimal.sub! 'And', '') || word_before_decimal
       word_before_decimal = "#{word_before_decimal} Rupees"
-      word_after_decimal = "And #{paisa}/100" if paisa > 0
+      word_after_decimal = "And #{paisa_formatted}/100" if paisa > 0
       word = "#{word_before_decimal} #{word_after_decimal}"
     else
       word = "#{word} Rupees"
