@@ -213,7 +213,7 @@ class ShareTransactionsController < ApplicationController
 
   def sebo_report
     @filterrific = initialize_filterrific(
-        ShareTransaction.sebo_report,
+        ShareTransaction,
         params[:filterrific],
         default_filter_params: { sorted_by: 'isin_info_asc' },
         select_options: {
@@ -221,7 +221,12 @@ class ShareTransactionsController < ApplicationController
         },
         persistence_id: false
     ) or return
-    @share_transactions = @filterrific.find
+
+    @share_transactions = ShareTransaction.sebo_report(
+        params.dig(:filterrific, :by_isin_id),
+        params.dig(:filterrific, :by_date_from),
+        params.dig(:filterrific, :by_date_to)
+    )
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|

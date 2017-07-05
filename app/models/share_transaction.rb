@@ -47,6 +47,7 @@
 class ShareTransaction < ActiveRecord::Base
   include Auditable
   include CommissionModule
+  extend FiscalYearModule
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
@@ -289,9 +290,30 @@ class ShareTransaction < ActiveRecord::Base
     result_arr
   end
 
-  def self.sebo_report
-    ShareTransaction.includes(:isin_info).group(:isin_info_id).select(:isin_info_id, 
-      "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
+  def self.sebo_report isin_id, date_from_bs, date_to_bs
+    ar_connection = ActiveRecord::Base.connection
+    where_conditions =  []
+
+    if isin_id.present?
+      isin_id = ar_connection.quote(isin_id)
+      where_conditions << "isin_info_id = #{isin_id}"
+    end
+    
+    if date_from_bs.present? || date_to_bs.present?
+      date_from_ad = bs_to_ad(date_from_bs)
+      date_to_ad = bs_to_ad(date_to_bs)
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    else
+      date_from_ad = fiscal_year_first_day
+      date_to_ad = fiscal_year_last_day
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    end
+
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+
+    ShareTransaction.includes(:isin_info).where(where_condition_str).group(:isin_info_id).select(
+        :isin_info_id,
+        "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
       "SUM(CASE WHEN transaction_type = 0 THEN net_amount ELSE 0 END ) as buying_amount",
       "SUM(CASE WHEN transaction_type = 0 THEN sebo ELSE 0 END ) as buy_sebo_comm",
@@ -310,7 +332,9 @@ class ShareTransaction < ActiveRecord::Base
       "SUM(bank_deposit) as amount_from_nepse",
       "COUNT(*) as total_transaction_count",
       "SUM(raw_quantity) as total_quantity",
-      "SUM(net_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum","SUM(net_amount) as total_amount", "SUM(net_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
+      "SUM(net_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum",
+        "SUM(net_amount) as total_amount",
+        "SUM(net_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it
