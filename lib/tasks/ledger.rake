@@ -264,7 +264,6 @@ namespace :ledger do
     abort 'Ledger has opening balance' if ledger_to_merge_from.opening_balance > 0
 
     ActiveRecord::Base.transaction do
-
       particulars = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id)
 
       if particulars.pluck(:fy_code).uniq.size != 0 && ( particulars.pluck(:fy_code).uniq.size > 1 || particulars.pluck(:fy_code).uniq.first != current_fy_code )
@@ -285,19 +284,16 @@ namespace :ledger do
       client_account_to_persist = ledger_to_merge_to.client_account
       client_account_to_delete = ledger_to_merge_from.client_account
       if client_account_to_delete
-        if client_account_to_persist
+        if client_account_to_persist && client_account_to_persist != client_account_to_delete
           client_account_to_persist.mobile_number ||= client_account_to_delete.mobile_number
           client_account_to_persist.email ||= client_account_to_delete.email
           client_account_to_persist.skip_validation_for_system = true
-
-
           nepse_code = client_account_to_delete.nepse_code
           if override_nepse_code
             abort 'no nepse code' if nepse_code.blank?
             client_account_to_persist.nepse_code = nepse_code
             ledger_to_merge_to.client_code = nepse_code
           end
-
           TransactionMessage.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
           ShareTransaction.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
           Bill.unscoped.where(client_account_id: client_account_to_delete.id).update_all(client_account_id: client_account_to_persist.id)
@@ -373,10 +369,83 @@ namespace :ledger do
 
   desc "Find ledgers with duplicate (case insensitive) client code."
   task :find_ledgers_with_duplicate_client_code,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
-    search_hash = Ledger.unscoped.select("LOWER(client_code)").group("LOWER(client_code)").having("count(*) > 1").count
-    search_hash.each do |client_code, occurrence|
-      p "#{client_code} => #{occurrence}"
-    end
+
+    search_hash = Ledger.unscoped.select("LOWER(client_code)").group("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count
+
+    client_hash = ClientAccount.unscoped.select("LOWER(nepse_code)").group("trim(regexp_replace(LOWER(nepse_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count
+
+    search_hash.each {|client_code, occurrence| p "#{client_code} => #{occurrence}"}
+    client_hash.each {|client_code, occurrence| p "#{client_code} => #{occurrence}"}
+    puts search_hash.size
+    puts client_hash.size
   end
 
+
+  # take file from trishakti with duplicate names and merge them
+  task :merge_ledgers_with_duplicate_name,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+    tenant = args.tenant
+
+    dir = "#{Rails.root}/test_files/"
+    file_with_duplicate_ledger = dir + 'duplicate_ledger.csv'
+    ledger_array = []
+    csv_text = File.read(file_with_duplicate_ledger)
+    csv = CSV.parse(csv_text, :headers => true)
+    csv.each do |row|
+      ledger_array << row.to_hash["ledger"]
+    end
+    count_cant_solve = 0
+    count_solved = 0
+    count_already_solved = 0
+    solved_ledgers = []
+    unsolved_ledgers = []
+
+    ledger_array.uniq.each do |ledger_name|
+
+      ledgers = Ledger.where("trim(regexp_replace(name, '\\s+', ' ', 'g')) ilike ?", ledger_name.squish)
+
+      unique_client_count = ledgers.pluck(:client_code).compact.size
+      if unique_client_count > 1
+        # puts ledger_name
+        count_cant_solve += 1
+      elsif ledgers.size > 1
+        ledger_to_consider = ledgers.detect{|x| x.opening_balance != 0}
+        unless ledger_to_consider
+          ledger_to_consider = ledgers.detect{|x| Particular.unscoped.where(ledger_id: x.id).where.not(fy_code: UserSession.selected_fy_code).count > 1}
+
+          unless ledger_to_consider
+            ledger_to_consider = ledgers.detect{|x| x.client_code.present? }
+          end
+        end
+
+        ledgers_to_merge = ledgers.select{|x| x unless x.id == ledger_to_consider.id }
+
+        if ledgers_to_merge.size != 1
+          unsolved_ledgers << ledger_to_consider.name
+          next
+        end
+
+        merge_ledger = ledgers_to_merge.first
+
+        particulars_count = Particular.unscoped.where(ledger_id: merge_ledger.id).where.not(fy_code: UserSession.selected_fy_code).count
+        if particulars_count > 0
+          raise "Has previous fy data"
+        end
+
+        override_fy_code = merge_ledger.client_code.present? ? true : false
+        solved_ledgers << ledger_to_consider.name
+
+        Rake::Task["ledger:merge_ledgers"].invoke(tenant, ledger_to_consider.id, merge_ledger.id, override_fy_code)
+        Rake::Task["ledger:merge_ledgers"].reenable
+      else
+        count_solved += 1
+      end
+    end
+
+    puts "#{count_cant_solve} ambiguous out of #{ledger_array.uniq.size}"
+    puts "#{count_solved} already solved out of #{ledger_array.uniq.size}"
+    puts "unsolved ledgers due to multiple"
+    puts unsolved_ledgers.join(',')
+    puts "solved ledgers"
+    puts solved_ledgers.join(',')
+  end
 end
