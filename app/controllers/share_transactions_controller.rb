@@ -227,16 +227,18 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_date_from),
         params.dig(:filterrific, :by_date_to)
     )
+    fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
     @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        pdf = Reports::Pdf::SecuritiesFlowsReport.new(@securities_flows, @is_securities_balance_view, params, current_tenant)
-        send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf'
+        pdf = Reports::Pdf::SeboReport.new(@share_transactions, params[:filterrific], current_tenant, fiscal_year)
+        send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf', disposition: "inline"
       end
       format.xlsx do
-        report = Reports::Excelsheet::SeboReport.new(@share_transactions)
+        report = Reports::Excelsheet::SeboReport.new(@share_transactions, params[:filterrific])
         if report.generated_successfully?
           # send_file(report.path, type: report.type)
           send_data report.file, type: report.type, filename: report.filename
