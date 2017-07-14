@@ -238,7 +238,7 @@ class ShareTransactionsController < ApplicationController
         send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf', disposition: "inline"
       end
       format.xlsx do
-        report = Reports::Excelsheet::SeboReport.new(@share_transactions, params[:filterrific])
+        report = Reports::Excelsheet::SeboReport.new(@share_transactions, params[:filterrific],current_tenant)
         if report.generated_successfully?
           # send_file(report.path, type: report.type)
           send_data report.file, type: report.type, filename: report.filename

@@ -3,8 +3,9 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
 
   include ShareTransactionsHelper
 
-  def initialize(share_transactions, params)
-    super
+  def initialize(share_transactions, params,current_tenant)
+    @custom_current_tenant = current_tenant
+    super(share_transactions, params)
     if params
       @date_query_present = [:by_date, :by_date_from, :by_date_to].any? {|x| params[x].present?}
     end
@@ -16,6 +17,14 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
     # Adds document headings and sets the filename, before the real data table is inserted.
     add_document_headings("Sebo Report")
     @file_name = "SeboReport_#{@date}"
+  end
+
+  def populate_company_info
+    # @sheet.add_row ["test"],style: @styles[:sub_heading]
+    add_header_row("#{@custom_current_tenant.full_name}", :info)
+    add_header_row("#{@custom_current_tenant.address}", :info)
+    add_header_row("phone:#{@custom_current_tenant.phone_number}", :info)
+    add_header_row("Fax:#{@custom_current_tenant.fax_number}", :info)
   end
 
   def add_document_headings(heading)
@@ -42,6 +51,27 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
   def populate_data_rows
     # inserts the actual data rows through iteration.
     row_style = [@styles[:normal_center], @styles[:wrap], *[@styles[:int_format_right]]*2, *[@styles[:float_format]]*6, *[@styles[:int_format_right]]*2, *[@styles[:float_format]]*7, *[@styles[:int_format_right]]*2, @styles[:int_format_right]]
+
+    net_buy_transaction_count = 0
+    net_buy_quantity = 0
+    net_buying_amount = 0
+    net_buy_sebo_comm = 0
+    net_buy_comm_amount = 0
+    net_buy_nepse_comm = 0
+    net_buy_tds = 0
+    net_amount_to_nepse = 0
+    net_selling_transaction_count = 0
+    net_selling_quantity = 0
+    net_selling_amount = 0
+    net_selling_comm_amount = 0 
+    net_selling_tds = 0
+    net_selling_sebo_comm = 0
+    net_selling_nepse_comm = 0
+    net_cgt = 0
+    net_amount_from_nepse = 0
+    net_transaction_count = 0
+    net_quantity = 0
+    net_amount = 0
 
     @share_transactions.each_with_index do |share_transaction, index|
       sn = index + 1
@@ -70,7 +100,52 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
       # row_style = index.even? ? normal_style_row : striped_style_row
       row = [sn, company, buy_transaction_count, buy_quantity,buying_amount, buy_sebo_comm, buy_comm_amount, buy_nepse_comm, buy_tds, amount_to_nepse, selling_transaction_count, selling_quantity, selling_amount, selling_comm_amount, selling_tds, selling_sebo_comm, selling_nepse_comm, total_cgt, amount_from_nepse, total_transaction_count, total_quantity, total_amount]
       @sheet.add_row row, style: row_style
+      net_buy_transaction_count+=buy_transaction_count
+      net_buy_quantity +=buy_quantity
+      net_buying_amount +=buying_amount
+      net_buy_sebo_comm +=buy_sebo_comm
+      net_buy_comm_amount +=buy_comm_amount
+      net_buy_nepse_comm +=buy_nepse_comm
+      net_buy_tds +=buy_tds
+      net_amount_to_nepse +=amount_to_nepse
+      net_selling_transaction_count +=selling_transaction_count
+      net_selling_quantity +=selling_quantity
+      net_selling_amount +=selling_amount
+      net_selling_comm_amount +=selling_comm_amount 
+      net_selling_tds +=selling_tds
+      net_selling_sebo_comm +=selling_sebo_comm
+      net_selling_nepse_comm +=selling_nepse_comm
+      net_cgt +=total_cgt
+      net_amount_from_nepse +=amount_from_nepse
+      net_transaction_count +=total_transaction_count
+      net_quantity +=total_quantity
+      net_amount +=total_amount
     end
+    row = [
+      "",
+      "Totals",
+      net_buy_transaction_count,
+      net_buy_quantity,
+      net_buying_amount,
+      net_buy_sebo_comm,
+      net_buy_comm_amount,
+      net_buy_nepse_comm,
+      net_buy_tds,
+      net_amount_to_nepse,
+      net_selling_transaction_count,
+      net_selling_quantity,
+      net_selling_amount,
+      net_selling_comm_amount, 
+      net_selling_tds,
+      net_selling_sebo_comm,
+      net_selling_nepse_comm,
+      net_cgt,
+      net_amount_from_nepse,
+      net_transaction_count,
+      net_quantity,
+      net_amount
+    ]
+    @sheet.add_row row, style: row_style
   end
 
   def set_column_widths

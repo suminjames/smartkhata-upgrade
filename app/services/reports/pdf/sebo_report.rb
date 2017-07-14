@@ -28,7 +28,9 @@ class Reports::Pdf::SeboReport < Prawn::Document
   def draw
     font_size(7) do
       move_down(3)
+      # repeat(:all) do
       company_header unless @print_in_letter_head
+      # end
       report_header
       move_down(3)
       securities_flows_list
@@ -78,13 +80,14 @@ class Reports::Pdf::SeboReport < Prawn::Document
     #   t.column_widths = column_widths
     # end
 
-    "Sebo Report.pdf"
+    # text "Sebo Report.pdf"
 
   end
 
 
   def securities_flows_list
     table_data = []
+    # table_data.unshift %w(id name address)
     th_data = [
         "S.no",
         "Company Name",
@@ -133,28 +136,28 @@ class Reports::Pdf::SeboReport < Prawn::Document
 
     @share_transactions.each_with_index do |share_transaction, index|
       td_data = [
-          index + 1,
-          share_transaction.isin_info.company,
-          share_transaction["buy_transaction_count"],
-          share_transaction["buy_quantity"],
-          monetary_decimal(share_transaction["buying_amount"]),
-          monetary_decimal(share_transaction["buy_sebo_comm"]),
-          monetary_decimal(share_transaction["buy_comm_amount"]),
-          monetary_decimal(share_transaction["buy_nepse_comm"]),
-          monetary_decimal(share_transaction["buy_tds"]),
-          monetary_decimal(share_transaction["amount_to_nepse"]),
-          share_transaction["selling_transaction_count"],
-          share_transaction["selling_quantity"],
-          monetary_decimal(share_transaction["selling_amount"]),
-          monetary_decimal(share_transaction["selling_comm_amount"]),
-          monetary_decimal(share_transaction["selling_tds"]),
-          monetary_decimal(share_transaction["selling_sebo_comm"]),
-          monetary_decimal(share_transaction["selling_nepse_comm"]),
-          monetary_decimal(share_transaction["total_cgt"]), 
-          monetary_decimal(share_transaction["amount_from_nepse"]),
-          share_transaction["total_transaction_count"],
-          share_transaction["total_quantity"],
-          monetary_decimal(share_transaction["total_amount"])
+        index + 1,
+        share_transaction.isin_info.company,
+        share_transaction["buy_transaction_count"],
+        share_transaction["buy_quantity"],
+        monetary_decimal(share_transaction["buying_amount"]),
+        monetary_decimal(share_transaction["buy_sebo_comm"]),
+        monetary_decimal(share_transaction["buy_comm_amount"]),
+        monetary_decimal(share_transaction["buy_nepse_comm"]),
+        monetary_decimal(share_transaction["buy_tds"]),
+        monetary_decimal(share_transaction["amount_to_nepse"]),
+        share_transaction["selling_transaction_count"],
+        share_transaction["selling_quantity"],
+        monetary_decimal(share_transaction["selling_amount"]),
+        monetary_decimal(share_transaction["selling_comm_amount"]),
+        monetary_decimal(share_transaction["selling_tds"]),
+        monetary_decimal(share_transaction["selling_sebo_comm"]),
+        monetary_decimal(share_transaction["selling_nepse_comm"]),
+        monetary_decimal(share_transaction["total_cgt"]), 
+        monetary_decimal(share_transaction["amount_from_nepse"]),
+        share_transaction["total_transaction_count"],
+        share_transaction["total_quantity"],
+        monetary_decimal(share_transaction["total_amount"])
       ]
       table_data << td_data
       buy_transaction_count+=share_transaction["buy_transaction_count"]
@@ -231,7 +234,8 @@ class Reports::Pdf::SeboReport < Prawn::Document
         21 => table_width * 1.3/22.0,  #total amt
     }
 
-    table table_data do |t|
+    #:header => true as an option repeats first row(header) of an array on subsequent pages
+    table(table_data, header: true) do |t|
       t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
       t.column(0).style(:align => :center)
       t.column(1).style(:align => :left)
@@ -257,7 +261,12 @@ class Reports::Pdf::SeboReport < Prawn::Document
       t.column(21).style(:align => :right)
       t.row(0).style(:align => :center, :size => 9, :background_color => "C0C0C0")
       t.row(0).font_style = :bold
-      t.row(-1).style(:borders => [:bottom, :top, :right, :left]) #:background_color => "C0C0C0"
+      # t.row(-1).style(:borders => [:bottom, :top, :right, :left]) #:background_color => "C0C0C0"
+      t.row(-1).columns(1..20).borders = [:bottom, :top]
+      t.row(-1).columns(0).borders = [:bottom, :left, :top]
+      t.row(-1).columns(21).borders = [:right, :bottom, :top]
+      t.row(-1).columns(1).style(:align => :right)
+      t.row(-1).columns(1).font_style = :bold
       t.column_widths = column_widths
     end
 
