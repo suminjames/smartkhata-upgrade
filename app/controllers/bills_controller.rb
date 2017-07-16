@@ -102,7 +102,7 @@ class BillsController < ApplicationController
   def ageing_analysis
     @filterrific = initialize_filterrific(
         # Show only purchase and unsettled bills. Used for ageing analysis report.
-        Bill.by_branch_fy_code.find_not_settled.purchase,
+        Bill.find_not_settled.purchase,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),

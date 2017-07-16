@@ -151,6 +151,7 @@ class BasicAppFlowTest < ActionDispatch::IntegrationTest
     purchase_bills = Bill.purchase
     sales_bills =    Bill.sales
     # verify bills count
+    # FIXME: The following two lines fail because of changes in 'default_scope' of bill.rb, which previously scoped by fy_code. Upon removal of scoping by fy_code, the bills from fixtures/bills.yml is also being picked up.
     assert_equal @purchase_bills_expected_count, purchase_bills.count
     assert_equal @sales_bills_expected_count, sales_bills.count
 

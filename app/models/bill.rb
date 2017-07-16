@@ -87,9 +87,10 @@ class Bill < ActiveRecord::Base
   # scope based on the branch and fycode selection
   default_scope do
     if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
+      # where(fy_code: UserSession.selected_fy_code)
     else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+      where(branch_id: UserSession.selected_branch_id)
+      # where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
     end
   end
   # not settled bill will not account provisional bill
