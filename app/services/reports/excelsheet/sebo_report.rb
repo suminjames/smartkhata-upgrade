@@ -4,10 +4,11 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
   include ShareTransactionsHelper
 
   def initialize(share_transactions, params,current_tenant)
-    @custom_current_tenant = current_tenant
-    super(share_transactions, params)
+    @current_tenant = current_tenant
+    super
     if params
       @date_query_present = [:by_date, :by_date_from, :by_date_to].any? {|x| params[x].present?}
+      @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
     end
 
     generate_excelsheet
@@ -15,21 +16,25 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
 
   def prepare_document
     # Adds document headings and sets the filename, before the real data table is inserted.
-    add_document_headings("Sebo Report")
+    if @isin_info.present?
+      add_document_headings("Sebo Report","\"#{@isin_info.company}\"")
+    else
+      add_document_headings("Sebo Report","\"All transactions\"")
+    end
     @file_name = "SeboReport_#{@date}"
   end
 
-  def populate_company_info
-    # @sheet.add_row ["test"],style: @styles[:sub_heading]
-    add_header_row("#{@custom_current_tenant.full_name}", :info)
-    add_header_row("#{@custom_current_tenant.address}", :info)
-    add_header_row("phone:#{@custom_current_tenant.phone_number}", :info)
-    add_header_row("Fax:#{@custom_current_tenant.fax_number}", :info)
-  end
+  # def populate_company_info
+  #   @sheet.add_row ["test"],style: @styles[:sub_heading]
+  #   add_header_row("#{@custom_current_tenant.full_name}", :info)
+  #   add_header_row("#{@custom_current_tenant.address}", :info)
+  #   add_header_row("phone:#{@custom_current_tenant.phone_number}", :info)
+  #   add_header_row("Fax:#{@custom_current_tenant.fax_number}", :info)
+  # end
 
-  def add_document_headings(heading)
+  def add_document_headings(heading,sub_heading)
     # Adds rows with document headings.
-    add_document_headings_base(heading) {
+    add_document_headings_base(heading,sub_heading) {
       if @date_query_present
         date_info = "" # needed for lambda
         add_date_info = lambda {
