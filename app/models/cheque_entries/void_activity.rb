@@ -6,6 +6,10 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
     @cheque_entry.void_narration = void_narration
   end
 
+  def valid_for_the_fiscal_year?
+    UserSession.selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.void_date_bs)
+  end
+
   def can_activity_be_done?
     # only approved cheque can be made void
     unless @cheque_entry.approved? && @cheque_entry.payment?

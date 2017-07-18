@@ -6,6 +6,10 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     @cheque_entry.bounce_narration = bounce_narration
   end
 
+  def valid_for_the_fiscal_year?
+    UserSession.selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.bounce_date_bs)
+  end
+
   def can_activity_be_done?
     if @cheque_entry.payment? || ( @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced? )
       @error_message = "The cheque can not be bounced."
