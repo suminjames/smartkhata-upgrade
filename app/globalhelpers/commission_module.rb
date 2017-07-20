@@ -119,7 +119,7 @@ module CommissionModule
   #
   #   get nepse commission
   #
-  def nepse_commission(commission, commission_info)
+  def nepse_commission_amount(commission, commission_info)
     commission * commission_info.nepse_commission_rate  * 0.01
   end
 

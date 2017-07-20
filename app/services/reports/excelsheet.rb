@@ -63,7 +63,7 @@ class Reports::Excelsheet
       workbook.styles do |s|
         define_styles(s)
         prepare_document
-
+      
         populate_table_header #child method
         populate_data_rows #child method
 

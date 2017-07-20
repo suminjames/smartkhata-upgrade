@@ -1,0 +1,99 @@
+%p#notice= notice
+- provide(:section_title, "Sebo Report")
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+	= hidden_field_tag(:only_balance, params[:only_balance])
+	.panel.panel-default.filter-form
+		.panel-body
+			.row
+				.col-sm-3
+					%label
+						Company
+					= f.collection_select(                        |
+					  :by_isin_id,                              |
+					  @filterrific.select_options[:by_isin_id], |
+					  :id,                                        |
+					  :name_and_code,                                      |
+					  {include_blank: true},                 |
+					  {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+					%div.top-buffer-sm
+						= f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
+						= link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+
+				.col-sm-4.text-center
+					%label
+						Date Range
+					.clearfix
+						.col-sm-6
+							= f.text_field(:by_date_from,:placeholder => 'YYYY-MM-DD',class: 'form-control' )
+						.col-sm-6
+							= f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+		= render_filterrific_spinner
+
+%div.bottom-buffer-sm
+	.btn-group
+		%button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+			%span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+			Download
+			%span.caret
+		%ul.dropdown-menu
+			%li
+				= link_to 'Excelsheet', @download_path_xlsx
+			%li
+				= link_to 'PDF', @download_path_pdf, :target => "_blank"
+
+%div#sebo_report_list
+	-if @share_transactions.present?
+		%div.table-responsive
+			%table.table.table-bordered
+				%thead
+					%th.text-center= 'S.no'
+					%th.text-center= 'Company Name'
+					%th.text-center= 'Buying Trans'
+					%th.text-center= 'Buying Qty'
+					%th.text-center= 'Buying Amt'
+					%th.text-center= 'Sebo Comm'
+					%th.text-center= 'Comm. Amt'
+					%th.text-center= 'Nepse Comm'
+					%th.text-center= 'TDS'
+					%th.text-center= 'Amount to Nepse'
+					%th.text-center= 'Selling Trans'
+					%th.text-center= 'Selling Qty'
+					%th.text-center= 'Selling Amt'
+					%th.text-center= 'Comm Amt'
+					%th.text-center= 'TDS'
+					%th.text-center= 'Sebo Comm'
+					%th.text-center= 'Nepse Comm'
+					%th.text-center= 'Capital Gain'
+					%th.text-center= 'Amt. From Nepse'
+					%th.text-center= 'Total Trans'
+					%th.text-center= 'Total Qty'
+					%th.text-center= 'Total Amount'
+				%tbody
+					-@share_transactions.each_with_index do |share_transaction, index|
+						%tr
+							%td.text-center= index+1
+							%td=share_transaction.isin_info.try(:company)
+							%td.text-center=share_transaction.buy_transaction_count
+							%td.text-center=share_transaction.buy_quantity 
+							%td.text-right=monetary_decimal(share_transaction.buying_amount)
+							%td.text-right=monetary_decimal(share_transaction.buy_sebo_comm)
+							%td.text-right=monetary_decimal(share_transaction.buy_comm_amount)
+							%td.text-right=monetary_decimal(share_transaction.buy_nepse_comm)
+							%td.text-right=monetary_decimal(share_transaction.buy_tds)
+							%td.text-right=monetary_decimal(share_transaction.amount_to_nepse)
+							%td.text-center=share_transaction.selling_transaction_count
+							%td.text-center=share_transaction.selling_quantity
+							%td.text-right=monetary_decimal(share_transaction.selling_amount)
+							%td.text-right=monetary_decimal(share_transaction.selling_comm_amount)
+							%td.text-right=monetary_decimal(share_transaction.selling_tds)
+							%td.text-right=monetary_decimal(share_transaction.selling_sebo_comm)
+							%td.text-right=monetary_decimal(share_transaction.selling_nepse_comm)
+							%td.text-right=monetary_decimal(share_transaction.total_cgt)
+							%td.text-right=monetary_decimal(share_transaction.amount_from_nepse)
+							%td.text-right=share_transaction.total_transaction_count
+							%td.text-right=share_transaction.total_quantity
+							%td.text-right=monetary_decimal(share_transaction.total_amount)
+	-else
+		%div.row.text-center.top-buffer-md
+			There are no matching securities flows.

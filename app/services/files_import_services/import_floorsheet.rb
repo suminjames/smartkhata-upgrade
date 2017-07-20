@@ -256,7 +256,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # compliance_fee = compliance_fee(commission, @date)
     # commission for broker for the transaction
     broker_purchase_commission = broker_commission(commission, commission_info)
-    nepse = nepse_commission(commission, commission_info)
+    nepse = nepse_commission_amount(commission, commission_info)
 
     tds = broker_purchase_commission * 0.15
 
@@ -682,7 +682,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # compliance_fee = compliance_fee(commission, @date)
     # commission for broker for the transaction
     broker_purchase_commission = broker_commission(commission, commission_info)
-    nepse = nepse_commission(commission, commission_info)
+    nepse = nepse_commission_amount(commission, commission_info)
 
     tds = broker_purchase_commission * 0.15
 

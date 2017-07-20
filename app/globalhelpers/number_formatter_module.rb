@@ -29,6 +29,10 @@ module NumberFormatterModule
     decimal.to_f.round(2).to_amount
   end
 
+  def monetary_decimal(decimal)
+    '%.2f' % decimal.to_f.round(2)
+  end
+
   # This method is relevant to numbers other than monetary numbers like quantity.
   # The return string doesn't have decimal value.
   def arabic_number_integer(decimal)

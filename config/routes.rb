@@ -101,6 +101,7 @@ Rails.application.routes.draw do
       get 'securities_flow'
       get 'closeouts'
       get 'make_closeouts_processed'
+      get 'sebo_report'
 
     end
     member do
