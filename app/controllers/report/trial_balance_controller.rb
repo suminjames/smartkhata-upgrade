@@ -88,6 +88,7 @@ class Report::TrialBalanceController < ApplicationController
     @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params))
 
     @sort_by = ['name', 'closing_balance'].include?(params[:sort_by]) ? params[:sort_by] : 'name';
+    _order = @sort_by == 'closing_balance' ? 'desc' : 'asc'
 
     if params[:search_by] == 'all'
       @balance = Group.trial_balance
@@ -102,9 +103,9 @@ class Report::TrialBalanceController < ApplicationController
         ledger_ids = balance.descendent_ledgers.pluck(:id)
 
         if branch_id == 0
-          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by } asc").as_json
+          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by } #{_order}").as_json
         else
-          b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} asc").as_json
+          b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
         end
         @balance_report[balance.name] = b
       end
