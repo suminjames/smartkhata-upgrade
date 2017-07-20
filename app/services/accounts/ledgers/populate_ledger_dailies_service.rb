@@ -1,13 +1,20 @@
 module Accounts
   module Ledgers
     class PopulateLedgerDailiesService
+      include FiscalYearModule
+
+      def fiscal_years all_fiscal_years
+        if all_fiscal_years
+          fy_codes = available_fy_codes
+        else
+          fy_codes = [get_fy_code]
+        end
+        fy_codes
+      end
+
       def patch_ledger_dailies(ledger, all_fiscal_years, branch_id)
         # need to modify this in future to accomodate current fiscal year
-        if all_fiscal_years
-          fy_codes = [6869, 6970, 7071, 7273, 7374]
-        else
-          fy_codes = [7374]
-        end
+        fy_codes = fiscal_years all_fiscal_years
 
         fy_codes.each do |fy_code|
           UserSession.selected_branch_id = branch_id

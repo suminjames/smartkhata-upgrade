@@ -22,6 +22,8 @@ module FiscalYearModule
       '2072/2073' => 7273,
       '2073/2074' => 7374,
       '2074/2075' => 7475,
+      '2075/2076' => 7676,
+      '2076/2077' => 7677,
   }
 
 
@@ -31,6 +33,24 @@ module FiscalYearModule
 
   def available_fy_codes
     return @@fiscal_year_breakpoint.map { |row| row[0] }
+  end
+
+  def get_previous_fy_code fy_code = nil
+    fy_code ||= get_fy_code
+    fy_codes =  available_fy_codes
+    index = fy_codes.index(fy_code)
+    if index && (index != 0)
+      return fy_codes[index - 1]
+    end
+  end
+
+  def get_next_fy_code fy_code = nil
+    fy_code ||= get_fy_code
+    fy_codes =  available_fy_codes
+    index = fy_codes.index(fy_code)
+    if index && (index != fy_codes.size-1)
+      return fy_codes[index + 1]
+    end
   end
 
   # Get fy code based on current year
