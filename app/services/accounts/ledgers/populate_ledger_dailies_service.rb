@@ -16,6 +16,8 @@ module Accounts
         # need to modify this in future to accomodate current fiscal year
         fy_codes = fiscal_years all_fiscal_years
 
+        puts "Patching for #{ledger.name}"
+
         fy_codes.each do |fy_code|
           UserSession.selected_branch_id = branch_id
           UserSession.selected_fy_code = fy_code
@@ -25,7 +27,7 @@ module Accounts
 
           # needed for entering the data balance
           # here we are migrating only single branch so need not concern about the multiple branches
-          transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id).order(:transaction_date).pluck(:transaction_date).uniq
+          transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id, fy_code: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
 
           first_daily = true
           opening_balance = 0
