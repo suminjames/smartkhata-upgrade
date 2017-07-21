@@ -30,7 +30,7 @@ class BillsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        Bill,
+        Bill.by_branch_fy_code,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),

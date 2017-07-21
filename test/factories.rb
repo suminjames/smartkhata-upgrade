@@ -112,6 +112,10 @@ FactoryGirl.define do
     cr_amount 0
     branch_id 1
     fy_code '7374'
+
+    factory :ledger_balance_org do
+      branch_id nil
+    end
   end
 
   factory :client_account do

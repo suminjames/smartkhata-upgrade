@@ -49,7 +49,6 @@ class LedgerBalance < ActiveRecord::Base
   end
 
   def update_opening_closing_balance
-
     unless self.opening_balance.blank?
       if self.opening_balance_type == 'cr'
         if self.opening_balance > 0

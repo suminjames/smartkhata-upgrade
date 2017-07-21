@@ -467,4 +467,10 @@ namespace :ledger do
     puts "solved ledgers"
     puts solved_ledgers.join(',')
   end
+
+  task :pull_opening_balance,[:tenant, :branch] => 'smartkhata:validate_tenant' do |task, args|
+    tenant = args.tenant
+    branch = args.branch
+    Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch).process
+  end
 end
