@@ -293,7 +293,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         bank_deposit: bank_deposit,
         transaction_type: type_of_transaction,
         date: @date,
-        client_account_id: client.id
+        client_account_id: client.id,
+        tds: tds,
+        nepse_commission: nepse
     )
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
     update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)

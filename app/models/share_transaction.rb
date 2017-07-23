@@ -315,7 +315,7 @@ class ShareTransaction < ActiveRecord::Base
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
-      "SUM(CASE WHEN transaction_type = 0 THEN net_amount ELSE 0 END ) as buying_amount",
+      "SUM(CASE WHEN transaction_type = 0 THEN share_amount ELSE 0 END ) as buying_amount",
       "SUM(CASE WHEN transaction_type = 0 THEN sebo ELSE 0 END ) as buy_sebo_comm",
       "SUM(CASE WHEN transaction_type = 0 THEN commission_amount ELSE 0 END ) as buy_comm_amount",
       "SUM(CASE WHEN transaction_type = 0 THEN nepse_commission ELSE 0 END ) as buy_nepse_comm",
@@ -323,18 +323,18 @@ class ShareTransaction < ActiveRecord::Base
       "SUM(CASE WHEN transaction_type = 0 THEN bank_deposit ELSE 0 END ) as amount_to_nepse",
       "COUNT(CASE WHEN transaction_type = 1 THEN 1 ELSE NULL END) as selling_transaction_count",
       "SUM(CASE WHEN transaction_type = 1 THEN raw_quantity ELSE 0 END ) as selling_quantity",
-      "SUM(CASE WHEN transaction_type = 1 THEN net_amount ELSE 0 END ) as selling_amount",
+      "SUM(CASE WHEN transaction_type = 1 THEN share_amount ELSE 0 END ) as selling_amount",
       "SUM(CASE WHEN transaction_type = 1 THEN commission_amount ELSE 0 END ) as selling_comm_amount",
       "SUM(CASE WHEN transaction_type = 1 THEN tds ELSE 0 END ) as selling_tds",
       "SUM(CASE WHEN transaction_type = 1 THEN sebo ELSE 0 END ) as selling_sebo_comm",
       "SUM(CASE WHEN transaction_type = 1 THEN nepse_commission ELSE 0 END ) as selling_nepse_comm",
       "SUM(cgt) as total_cgt",
-      "SUM(bank_deposit) as amount_from_nepse",
+      "SUM(CASE WHEN transaction_type = 1 THEN bank_deposit ELSE 0 END) as amount_from_nepse",
       "COUNT(*) as total_transaction_count",
       "SUM(raw_quantity) as total_quantity",
-      "SUM(net_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum",
-        "SUM(net_amount) as total_amount",
-        "SUM(net_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
+      "SUM(share_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum",
+        "SUM(share_amount) as total_amount",
+        "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it
