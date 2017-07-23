@@ -45,7 +45,7 @@
 #
 
 class ShareTransaction < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   include CommissionModule
   extend FiscalYearModule
   extend CustomDateModule
