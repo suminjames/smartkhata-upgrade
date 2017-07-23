@@ -101,6 +101,11 @@ module FiscalYearModule
     @@fiscal_year_mapping[fiscal_year]
   end
 
+  def get_fiscal_year_from_fycode(fycode)
+    fymapping = @@fiscal_year_mapping.detect{|x,v| v == fycode}
+    fymapping[0] if fymapping
+  end
+
   # get list of fiscal years after each date
   def get_full_fy_codes_after_date(date, exclude = false)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
