@@ -25,7 +25,7 @@ namespace :ledger do
 
       # needed for entering the data balance
       # here we are migrating only single branch so need not concern about the multiple branches
-      transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id, fycode: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
+      transaction_dates_org = Particular.unscoped.where(particular_status: 1, ledger_id: ledger.id, fy_code: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
 
       first_daily = true
       opening_balance = 0
@@ -87,7 +87,6 @@ namespace :ledger do
     else
       fy_codes = [fy_code]
     end
-
     fy_codes.each do |fy_code|
       UserSession.selected_branch_id = branch_id
       UserSession.selected_fy_code = fy_code
@@ -244,7 +243,6 @@ namespace :ledger do
     branch_id = args.branch_id || 1
     ledger_ids = args.ledger_ids.split(" ")
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
-
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
         patch_ledger_dailies(ledger, all_fiscal_year, branch_id )
