@@ -192,6 +192,9 @@ menus:
     - name: Securities In/Out
       path: "<%= securities_flow_share_transactions_path %>"
       code: RS_TRO_SIO
+    - name: SEBO Report
+      path: "<%= sebo_report_share_transactions_path %>"
+      code: RS_TRO_SBO
   - name: Settlements
     code: RS_SET
     menu_items:

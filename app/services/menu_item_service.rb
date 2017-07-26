@@ -53,9 +53,8 @@ class MenuItemService
               menu_item['menu_item_id'] = _menu_item.id
             end
           end
-
-          MenuItem.where.not(id: new_menu_lists).delete_all
         end
+        MenuItem.where.not(id: new_menu_lists).destroy_all
       rescue => error
         puts error.message  if verbose
         puts "Tenant #{t.name} exists"  if verbose
