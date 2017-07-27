@@ -350,7 +350,7 @@ class ImportOrder < ImportFile
 
     # Parsing the rows complete
     # Return error if totals of rows doesn't equal those in grand total row
-    if grand_total_row_hash(excel_sheet) != $runtime_totals
+    unless verified_grand_total_row_hash? excel_sheet, $runtime_totals
       @error_message = "The sum of totals of rows doesn't add up to those in grand total row! Please upload a valid file." and return
     end
 
@@ -361,4 +361,10 @@ class ImportOrder < ImportFile
 
   end
 
+  def verified_grand_total_row_hash?(excel_sheet, runtime_totals)
+    grand_total_row_hash(excel_sheet).each do |key, value|
+      return false if (value - runtime_totals[key].round(2)).abs > margin_of_error_amount
+    end
+    return true
+  end
 end

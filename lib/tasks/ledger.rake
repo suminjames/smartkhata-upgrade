@@ -1,6 +1,6 @@
 namespace :ledger do
 
-  def fy_codes
+  def all_fy_codes
     return [6869, 6970, 7071, 7273, 7374, 7475]
   end
 
@@ -11,7 +11,7 @@ namespace :ledger do
   def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
     # need to modify this in future to accomodate current fiscal year
     if all_fiscal_years
-      fy_codes = fy_codes
+      fy_codes = all_fy_codes
     else
       fy_codes = [fy_code]
     end
@@ -83,7 +83,7 @@ namespace :ledger do
   def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
     # need to modify this in future to accomodate current fiscal year
     if all_fiscal_years
-      fy_codes = fy_codes
+      fy_codes = all_fy_codes
     else
       fy_codes = [fy_code]
     end
