@@ -309,18 +309,18 @@ class BillsController < ApplicationController
     amount_to_receive_or_pay = amount_to_receive - amount_to_pay
 
     @processed_bills = []
-    if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
-      Bill.transaction do
-        bill_list.each do |bill|
-          bill.balance_to_pay = 0
-          bill.status = Bill.statuses[:settled]
-          bill.save!
-          @processed_bills << bill
-        end
-      end
-    else
+    # if amount_to_receive_or_pay + amount_margin_error >= 0 && ledger_balance - amount_margin_error <= 0 || amount_to_receive_or_pay - amount_margin_error < 0 && ledger_balance + amount_margin_error >= 0
+    #   Bill.transaction do
+    #     bill_list.each do |bill|
+    #       bill.balance_to_pay = 0
+    #       bill.status = Bill.statuses[:settled]
+    #       bill.save!
+    #       @processed_bills << bill
+    #     end
+    #   end
+    # else
       redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
-    end
+    # end
   end
 
   private
