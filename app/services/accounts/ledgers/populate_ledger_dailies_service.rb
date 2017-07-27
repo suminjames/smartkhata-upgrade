@@ -3,18 +3,20 @@ module Accounts
     class PopulateLedgerDailiesService
       include FiscalYearModule
 
-      def fiscal_years all_fiscal_years
+      def fiscal_years all_fiscal_years, fy_code
         if all_fiscal_years
           fy_codes = available_fy_codes
+        elsif fy_code
+          fy_codes = [fy_code]
         else
           fy_codes = [get_fy_code]
         end
         fy_codes
       end
 
-      def patch_ledger_dailies(ledger, all_fiscal_years, branch_id)
+      def patch_ledger_dailies(ledger, all_fiscal_years, branch_id = 1, fy_code = nil)
         # need to modify this in future to accomodate current fiscal year
-        fy_codes = fiscal_years all_fiscal_years
+        fy_codes = fiscal_years(all_fiscal_years, fy_code)
 
         puts "Patching for #{ledger.name}"
 
@@ -80,6 +82,7 @@ module Accounts
           end
         end
       end
+
 
       def process(ledger_ids, all_fiscal_years = false, branch_id = 1)
         Ledger.where(id: ledger_ids).find_each do |ledger|
