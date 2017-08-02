@@ -70,8 +70,21 @@ RSpec.describe CustomDateModule, type: :helper do
 
     context "when date is invalid" do
       it "should return false" do
-        allow(dummy_class).to receive(:bs_to_ad).and_raise("Invalid date!")
+        # allow(dummy_class).to receive(:bs_to_ad).and_raise("Invalid date!")
         expect(dummy_class.is_valid_bs_date?("2074-04-33")).not_to be_truthy
+      end
+    end
+  end
+
+  describe "#parsable_date?" do
+    context "when date is valid" do
+      it "should return true" do
+        expect(dummy_class.parsable_date?("2017-08-01")).to eq(true)
+      end
+    end
+    context "when date is invalid" do
+      it "should return false" do
+        expect(dummy_class.parsable_date?("2017-02-33")).to eq(false)
       end
     end
   end
