@@ -128,6 +128,15 @@ class Vouchers::Base
           #   raise SmartKhataError
           # end
 
+          # # consider this when user specifically asks to enter the amount
+          # # add an interface to do so while selecting bills
+          # if ledger_balance + @amount_margin_error >= 0
+          #   unless (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
+          #     bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
+          #   end
+          # end
+
+
           voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment, *bills_receive]
           amount = (amount_to_receive_or_pay).abs
@@ -160,6 +169,13 @@ class Vouchers::Base
           #   amount = ledger_balance.abs
           #   bill_ledger_adjustment = (ledger_balance - amount_to_receive_or_pay).abs
           # end
+
+          # # consider this when user specifically asks to enter the amount
+          # # add an interface to do so while selecting bills
+          # if ledger_balance + @amount_margin_error < 0 && ledger_balance > amount_to_receive_or_pay
+          #   bill_ledger_adjustment = (ledger_balance - amount_to_receive_or_pay).abs
+          # end
+
           voucher_type = Voucher.voucher_types[:payment]
           bills = [*bills_receive, *bills_payment]
           amount = (amount_to_receive_or_pay).abs
