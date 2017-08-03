@@ -102,60 +102,83 @@ class Vouchers::Base
         if amount_to_receive_or_pay + @amount_margin_error >= 0
           # ledger balance is positive implies client has something to pay
 
-          if ledger_balance + @amount_margin_error >= 0
-            voucher_type = Voucher.voucher_types[:receipt]
-            bills = [*bills_payment, *bills_receive]
+          # if ledger_balance + @amount_margin_error >= 0
+          #   voucher_type = Voucher.voucher_types[:receipt]
+          #   bills = [*bills_payment, *bills_receive]
+          #
+          #   # if ledger balance is equal to bills amount or greater than bills amount
+          #   # client pays only the bills amount
+          #
+          #   # eg. if >= 5000 ledger balance , 5000 amount to pay => get 5000
+          #   if (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
+          #     amount = (amount_to_receive_or_pay).abs
+          #   else
+          #     #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
+          #     #   case of advance payment
+          #
+          #     amount = ledger_balance
+          #     bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
+          #   end
+          # else
+          #   # this condition should not be true
+          #
+          #   # this should be avoided
+          #   # when user have less than 0 debit amount ie needs to be paid, client should not pay
+          #   # this action should not be attempted, perform other strategies
+          #   raise SmartKhataError
+          # end
 
-            # if ledger balance is equal to bills amount or greater than bills amount
-            # client pays only the bills amount
+          # # consider this when user specifically asks to enter the amount
+          # # add an interface to do so while selecting bills
+          # if ledger_balance + @amount_margin_error >= 0
+          #   unless (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
+          #     bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
+          #   end
+          # end
 
-            # eg. if >= 5000 ledger balance , 5000 amount to pay => get 5000
-            if (ledger_balance - amount_to_receive_or_pay).abs <= @amount_margin_error || ledger_balance > amount_to_receive_or_pay
-              amount = (amount_to_receive_or_pay).abs
-            else
-              #  eg. 1000 ledger balance , 5000 amount to pay => get 1000
-              #   case of advance payment
 
-              amount = ledger_balance
-              bill_ledger_adjustment = amount_to_receive_or_pay - ledger_balance
-            end
-          else
-            # this condition should not be true
-
-            # this should be avoided
-            # when user have less than 0 debit amount ie needs to be paid, client should not pay
-            # this action should not be attempted, perform other strategies
-            raise SmartKhataError
-          end
+          voucher_type = Voucher.voucher_types[:receipt]
+          bills = [*bills_payment, *bills_receive]
+          amount = (amount_to_receive_or_pay).abs
         else
           # this case for condition when amount to pay is greater than amount to receive
 
-          # ledger balance is positive implies client has due to pay
-          # even if the current selection of bills imply we need to pay to client
-          # we need to receive amount from client
+          # # ledger balance is positive implies client has due to pay
+          # # even if the current selection of bills imply we need to pay to client
+          # # we need to receive amount from client
+          #
+          #
+          # # this condition should not be true
+          #
+          # # this should be avoided
+          # # when user have more than 0 debit amount ie needs to pay, we should not be paying them
+          # # this action should not be attempted, perform other strategies
+          # if ledger_balance + @amount_margin_error >= 0
+          #   raise SmartKhataError
+          #
+          #   #   eg -10000 ledger balance, -5000 amount to pay now => pay only 5000
+          # elsif ledger_balance <= amount_to_receive_or_pay
+          #   voucher_type = Voucher.voucher_types[:payment]
+          #   bills = [*bills_receive, *bills_payment]
+          #   amount = (amount_to_receive_or_pay).abs
+          #
+          #   #   eg -3000 ledger balance, -5000 amount to pay now => pay only 3000
+          # else
+          #   voucher_type = Voucher.voucher_types[:payment]
+          #   bills = [*bills_receive, *bills_payment]
+          #   amount = ledger_balance.abs
+          #   bill_ledger_adjustment = (ledger_balance - amount_to_receive_or_pay).abs
+          # end
 
+          # # consider this when user specifically asks to enter the amount
+          # # add an interface to do so while selecting bills
+          # if ledger_balance + @amount_margin_error < 0 && ledger_balance > amount_to_receive_or_pay
+          #   bill_ledger_adjustment = (ledger_balance - amount_to_receive_or_pay).abs
+          # end
 
-          # this condition should not be true
-
-          # this should be avoided
-          # when user have more than 0 debit amount ie needs to pay, we should not be paying them
-          # this action should not be attempted, perform other strategies
-          if ledger_balance + @amount_margin_error >= 0
-            raise SmartKhataError
-
-            #   eg -10000 ledger balance, -5000 amount to pay now => pay only 5000
-          elsif ledger_balance <= amount_to_receive_or_pay
-            voucher_type = Voucher.voucher_types[:payment]
-            bills = [*bills_receive, *bills_payment]
-            amount = (amount_to_receive_or_pay).abs
-
-            #   eg -3000 ledger balance, -5000 amount to pay now => pay only 3000
-          else
-            voucher_type = Voucher.voucher_types[:payment]
-            bills = [*bills_receive, *bills_payment]
-            amount = ledger_balance.abs
-            bill_ledger_adjustment = (ledger_balance - amount_to_receive_or_pay).abs
-          end
+          voucher_type = Voucher.voucher_types[:payment]
+          bills = [*bills_receive, *bills_payment]
+          amount = (amount_to_receive_or_pay).abs
         end
       end
     else
