@@ -2,6 +2,12 @@ class ImportOrder < ImportFile
   include ApplicationHelper
 
   attr_accessor :error, :error_type, :new_client_accounts, :error_message
+
+  def initialize(file)
+    super(file)
+    @runtime_totals = Hash.new(0)
+  end
+
 # process the file
   def process
     open_file(@file)
@@ -279,14 +285,14 @@ class ImportOrder < ImportFile
 # runtime_total = Hash.new(0)
 #initialize runtime_totals as a global variable
 # $runtime_totals = {:total_quantity => 0, :total_amount => 0, :total_pending_quantity => 0 }
-  $runtime_totals = Hash.new(0)
+
 
 # Runtime_total's signature similar to Grand Total row hash Signature
 # {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
   def update_runtime_totals(hashed_row)
-    $runtime_totals[:total_quantity] +=hashed_row[:QUANTITY]
-    $runtime_totals[:total_amount] += hashed_row[:AMOUNT]
-    $runtime_totals[:total_pending_quantity] += hashed_row[:PENDING_QUANTITY]
+    @runtime_totals[:total_quantity] +=hashed_row[:QUANTITY]
+    @runtime_totals[:total_amount] += hashed_row[:AMOUNT]
+    @runtime_totals[:total_pending_quantity] += hashed_row[:PENDING_QUANTITY]
   end
 
 # Grand Total row hash Signature
@@ -373,7 +379,7 @@ class ImportOrder < ImportFile
 
     # Parsing the rows complete
     # Return error if totals of rows doesn't equal those in grand total row
-    unless verified_grand_total_row_hash? excel_sheet, $runtime_totals
+    unless verified_grand_total_row_hash? excel_sheet, @runtime_totals
       @error_message = "The sum of totals of rows doesn't add up to those in grand total row! Please upload a valid file." and return
     end
 
