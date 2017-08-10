@@ -1,6 +1,19 @@
 - provide(:section_title, "Order Details")
-= link_to "Go Back", new_files_order_path
-- unless @error
+- if @order_upload.error
+  = link_to 'Upload Order', new_files_order_path
+  - if @order_upload.error_type == 'new_client_accounts_present'
+    %h3 New client accounts to be created in the system
+    %table.table.table-striped
+      %thead
+        %th.col-xs-3= 'Client Name'
+        %th.col-xs-2= 'Client Nepse Code'
+      %tbody
+      - @order_upload.new_client_accounts.each do |new_client_account|
+        %tr
+          %td= new_client_account[:client_name]
+          %td= new_client_account[:client_nepse_code]
+- else
+  = link_to "Go Back", new_files_order_path
   %table.table.table-striped
     %thead
       %th.col-xs-1= "#"
@@ -35,5 +48,3 @@
           %td= item_hash['ORDER_CONDITION']
           %td= item_hash['ORDER_STATE']
   = link_to "Go Back", new_files_order_path
-- else
-  = link_to "Upload Order", new_files_order_path

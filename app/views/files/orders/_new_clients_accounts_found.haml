@@ -1,0 +1,11 @@
+%div
+  %h3 New client accounts to be created in the system
+  %table.table.table-striped
+    %thead
+      %th.col-xs-3= 'Client Name'
+      %th.col-xs-2= 'Client Nepse Code'
+    %tbody
+    - @new_client_accounts.each do |new_client_account|
+      %tr
+        %td= new_client_account[:client_name]
+        %td= new_client_account[:client_nepse_code]

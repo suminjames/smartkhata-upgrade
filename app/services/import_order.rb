@@ -1,6 +1,7 @@
 class ImportOrder < ImportFile
   include ApplicationHelper
 
+  attr_accessor :error, :error_type, :new_client_accounts, :error_message
 # process the file
   def process
     open_file(@file)
@@ -24,8 +25,7 @@ class ImportOrder < ImportFile
 
           # Get client reference
           # -If client doesn't exist, create one.
-          client_account_obj = ClientAccount.create_with(name: hash['CLIENT_NAME']).find_or_create_by(nepse_code: hash['CLIENT_CODE'])
-          client_account_id = client_account_obj.id
+          client_account_id = ClientAccount.find_by(nepse_code: hash['CLIENT_CODE']).id
 
           # Get order reference
           date = Date.parse(hash['ORDER_DATE_TIME'].to_s)
@@ -318,6 +318,7 @@ class ImportOrder < ImportFile
   def extract_xls(file)
     @rows = []
     @processed_data = []
+    new_client_accounts = []
     # begin
     xlsx = Roo::Spreadsheet.open(file, extension: :xls)
     excel_sheet = xlsx.sheet(0)
@@ -329,9 +330,11 @@ class ImportOrder < ImportFile
     if order_end_row != -1
       (ORDER_BEGIN_ROW..order_end_row).each do |i|
         row = excel_sheet.row(i)
+
         if is_valid_row?(row)
           stripped_row = strip_row_of_nil_entries(row)
           hashed_row = get_hash_equivalent_of_row(stripped_row)
+          hashed_row[:CLIENT_CODE] = ClientAccount.new(nepse_code: hashed_row[:CLIENT_CODE]).format_nepse_code
           update_runtime_totals(hashed_row)
           # Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
           #if i == ORDER_BEGIN_ROW
@@ -343,9 +346,29 @@ class ImportOrder < ImportFile
         else
           @error_message = "Row #{i.to_s} is invalid! Please upload a valid file." and return
         end
+
+        # Maintain list of new client accounts not in the system yet.
+        _client_name = hashed_row[:CLIENT_NAME]
+        _client_nepse_code = hashed_row[:CLIENT_CODE]
+        unless ClientAccount.unscoped.find_by(nepse_code: _client_nepse_code)
+          client_account_hash = {client_name: _client_name, client_nepse_code: _client_nepse_code}
+          unless new_client_accounts.include?(client_account_hash)
+            new_client_accounts << client_account_hash
+          end
+        end
+
       end
     else
       @error_message = "One of the rows is invalid! Please upload a valid file." and return
+    end
+
+
+    # Client information should be available before file upload.
+    if new_client_accounts.present?
+      @error = true
+      @error_type = 'new_client_accounts_present'
+      @new_client_accounts = new_client_accounts
+      import_error(new_client_accounts_error_message(new_client_accounts)) and return
     end
 
     # Parsing the rows complete
@@ -367,4 +390,12 @@ class ImportOrder < ImportFile
     end
     return true
   end
+
+  def new_client_accounts_error_message(new_client_accounts)
+    error_message = "ORDER IMPORT CANCELLED!<br>New client accounts found in the file!<br>"
+    error_message += "Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>"
+    error_message += "If applicable, please make sure to assign the correct branch to the client account so that orders are tagged to the appropriate branches.<br>"
+    error_message.html_safe
+  end
+
 end
