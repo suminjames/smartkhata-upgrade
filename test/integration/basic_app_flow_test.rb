@@ -9,8 +9,8 @@
 # # Further work[maybe]:
 # #          calculate the bills count dynamically.. making the test work with different test files?
 #
-require 'test_helper'
 require "#{Rails.root}/app/globalhelpers/custom_date_module"
+require 'test_helper'
 
 class BasicAppFlowTest < ActionDispatch::IntegrationTest
   include CustomDateModule

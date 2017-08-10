@@ -72,7 +72,7 @@
                         <%= @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{paid_to}" %>
                     <% end %>
                   </div>
-                  <div class="col-xs-3">
+                  <div id="cheque_number" class="col-xs-3">
                     <%= particular.cheque_entries.try(:first).try(:cheque_number) %>
                   </div>
                   <div class="col-xs-2 text-right">
@@ -87,7 +87,7 @@
               <strong>
                 <em>
                   <div class="col-xs-3 col-xs-offset-7 text-right">Total Amount</div>
-                  <div class="col-xs-2 text-right"><%= arabic_number(total_particular_amount) %></div>
+                  <div id="total_amount" class="col-xs-2 text-right"><%= arabic_number(total_particular_amount) %></div>
                 </em>
               </strong>
             </div>
@@ -212,6 +212,7 @@
             <hr class="clearfix horizontal-line">
             <p class="text-center">Received By</p>
           </div>
+      </div>
       </div>
       </div>
   <% end %>
