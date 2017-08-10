@@ -386,11 +386,12 @@ class ImportOrder < ImportFile
 
   def verified_grand_total_row_hash?(excel_sheet, runtime_totals)
     grand_total_row_hash(excel_sheet).each do |key, value|
-      puts "testing random here"
-      puts value
-      puts "runtime total"
-      puts runtime_totals[key]
-      
+
+      my_logger = Logger.new("#{Rails.root}/log/my.log")
+      my_logger.info("uploading order file")
+      my_logger.info("file #{value}")
+      my_logger.info("runtime #{runtime_totals[key]}")
+
       return false if (value - runtime_totals[key].round(2)).abs > margin_of_error_amount
     end
     return true
