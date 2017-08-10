@@ -5,5 +5,6 @@ FactoryGirl.define do
     voucher_type 0
     voucher_status 1
     branch_id 1
+    desc nil
   end
 end
