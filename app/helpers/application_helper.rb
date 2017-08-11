@@ -21,7 +21,7 @@ module ApplicationHelper
   # The returned order number is an increment (by 1) of the previously stored order number.
   def get_new_order_number
     order = Order.where(fy_code: get_fy_code).last
-    # initialize the orer with 1 if no order is present
+    # initialize the order with 1 if no order is present
     if order.nil?
       1
     else

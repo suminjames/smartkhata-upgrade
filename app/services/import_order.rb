@@ -14,23 +14,13 @@ class ImportOrder < ImportFile
     unless @error_message
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
-
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
-
-          # # Each order_id listed in the excel sheet should be checked for duplicate entry in the database.
-          # if is_record_available_in_db(hash['ORDER_ID'])
-          #   import_error("File upload cancelled! An order with order id " + hash['ORDER_ID'].to_s + " seems to have been previously uploaded! Please double check and upload.")
-          #   raise ActiveRecord::Rollback
-          #   break
-          # end
-
           # Get isin reference
           # TODO(sarojk): Check if isin is valid and throw error accordingly
           isin_info_id = get_isin_id(hash['SYMBOL'])
 
           # Get client reference
-          # -If client doesn't exist, create one.
           client_account_id = ClientAccount.find_by(nepse_code: hash['CLIENT_CODE']).id
 
           # Get order reference
@@ -85,20 +75,7 @@ class ImportOrder < ImportFile
   end
 
   def get_isin_id(symbol)
-    isin_obj = IsinInfo.find_by(isin: symbol)
-    if isin_obj.nil?
-      return -1
-    else
-      return isin_obj.id
-    end
-  end
-
-# Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
-# This is not perfect implementation to avoid record duplication.
-# Instead, each order_id listed in the excel sheet should be checked for duplicate entry in the database.
-  def is_previously_uploaded_file(order_id)
-    record = Order.find_by(order_id: order_id)
-    !record.nil?
+    IsinInfo.find_or_create_new_by_symbol(symbol).id
   end
 
 # This is an almost perfect implementation to avoid record duplication.
