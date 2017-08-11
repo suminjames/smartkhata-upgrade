@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170703112935) do
+ActiveRecord::Schema.define(version: 20170811174639) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1746,8 +1746,10 @@ ActiveRecord::Schema.define(version: 20170703112935) do
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
   add_foreign_key "nepse_chalans", "vouchers"
+  add_foreign_key "order_details", "isin_infos"
   add_foreign_key "order_request_details", "order_requests"
   add_foreign_key "order_requests", "client_accounts"
+  add_foreign_key "orders", "client_accounts"
   add_foreign_key "particular_settlement_associations", "particulars"
   add_foreign_key "particular_settlement_associations", "settlements"
   add_foreign_key "particulars_share_transactions", "particulars"

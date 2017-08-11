@@ -19,6 +19,8 @@ class Order < ActiveRecord::Base
   belongs_to :client_account
   has_many :order_details
 
+  validates_presence_of :client_account_id
+
   # TODO(sarojk): Implement find by OrderSegment, OrderCondition, OrderState?
   scope :find_by_order_type, -> (type) { where(order_type: order_types[:"#{type}"]) }
 
