@@ -102,7 +102,7 @@ class Print::PrintVoucher< Prawn::Document
       else
         paid_to = particular.cheque_entries.first.beneficiary_name if particular.cheque_entries.first.present?
         paid_to ||= particular.ledger.name
-        particular_desc += @voucher.desc.present? ? "#{@voucher.desc}" : "Being paid to #{paid_to}"
+        particular_desc += particular.description.present? ? particular.description : "Being paid to #{paid_to}"
       end
       data << [particular.ledger.name, particular_desc, particular.cheque_entries.first.cheque_number, arabic_number(particular.amount)]
       total_particular_amount += particular.amount
@@ -128,7 +128,7 @@ class Print::PrintVoucher< Prawn::Document
 
   def non_payment_bank_particular_list
     data= [
-        ["Ledger Details", "Dr", "Cr"]
+        ["Ledger Details", "Particular", "Dr", "Cr"]
     ]
 
     total_debit_amount = 0
@@ -137,7 +137,7 @@ class Print::PrintVoucher< Prawn::Document
     @particulars.each do |particular|
       dr_desc = (particular.dr?) ? arabic_number(particular.amount) : ""
       cr_desc = (particular.cr?) ? arabic_number(particular.amount) : ""
-      data << [particular.ledger.name, dr_desc, cr_desc]
+      data << [particular.ledger.name, particular.description, dr_desc, cr_desc]
       if particular.dr?
         total_debit_amount += particular.amount
       else
@@ -145,12 +145,12 @@ class Print::PrintVoucher< Prawn::Document
       end
     end
 
-    total_row = [{:content => 'Total Amount'}, arabic_number(total_debit_amount), arabic_number(total_credit_amount)]
+    total_row = [{:content => 'Total Amount', :colspan => 2}, arabic_number(total_debit_amount), arabic_number(total_credit_amount)]
     data << total_row
 
 
     table_width = page_width - 2
-    column_widths = {0 => table_width * 6/12.0, 1 => table_width * 3/12.0, 2 => table_width * 3/12.0}
+    column_widths = {0 => table_width * 4/12.0, 1 => table_width * 4/12.0, 2 => table_width * 2/12.0, 3 => table_width * 2/12.0}
     table data do |t|
       t.header = true
       t.cell_style = {:border_width => 1, :padding => [1, 2, 1, 2], :align => :left}
