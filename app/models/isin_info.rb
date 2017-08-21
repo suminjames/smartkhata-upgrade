@@ -81,7 +81,8 @@ class IsinInfo < ActiveRecord::Base
   end
 
   def self.find_or_create_new_by_symbol(company_symbol)
-    company_info = IsinInfo.find_by_isin(company_symbol)
+    # company_info = IsinInfo.find_by_isin(company_symbol)
+    company_info = IsinInfo.where('isin ilike ?', company_symbol).first
     unless company_info.present?
       new_isin_info = IsinInfo.new
       new_isin_info.skip_company_validation = true
