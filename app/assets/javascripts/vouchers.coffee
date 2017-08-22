@@ -303,7 +303,6 @@ $ ->
   $('input:radio[name="payment_mode"]').on 'change', (event) ->
     manage_cheque_all_select()
 
-#    current implementation supports only receipt
 $(document).on 'click', '.add-to-caller', (event) ->
   $this = $(this)
   skId = $this.data('id')
@@ -312,13 +311,19 @@ $(document).on 'click', '.add-to-caller', (event) ->
   $amount = parseFloat($modal.find('.numeric-amount').text())
   $bill_list = $modal.find('.selected-bill-name-list').text()
   $bill_ids = $modal.find('.selected-bill-id-list').text()
+  $error = false
+  $message = "Please Proceed with Payment voucher to continue this action"
 #  make sure it is not a negative amount
 
   if ( $particular.find('.type-selector select').val() == 'dr' )
-    $amount = Math.abs($amount)
+    if ($amount > 0 )
+      $error = true
+      $message = "Please Proceed with Receipt voucher to continue this action"
+    else
+      $amount = Math.abs($amount)
 
-  if ($amount <= 0)
-    alert('Amount cant be negative or zero')
+  if ($amount <= 0 || $error == true)
+    alert($message)
     $particular.find('.voucher_particulars_amount input').val(0)
     $particular.find('.particular-bill-container .info').text('')
     $particular.find('.particular-bill-container .selected-bill-names input').val("")

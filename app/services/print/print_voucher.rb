@@ -65,10 +65,9 @@ class Print::PrintVoucher< Prawn::Document
 
     if is_payment_bank?
       cell_1_1_data = "Cr Account Name: #{@bank_account.account_number} #{@bank_account.bank_name}"
-    else
-      if @voucher.desc.present?
-        cell_0_1_data = "Description: #{@voucher.desc}"
-      end
+    end
+    if @voucher.desc.present? && @voucher.desc.length < 200
+      cell_0_1_data = "Description: #{@voucher.desc}"
     end
     data = [
         ["Voucher Number: #{@voucher.voucher_code} #{@voucher.fy_code}-#{@voucher.voucher_number}", "Voucher Date : #{@voucher.date_bs}"],

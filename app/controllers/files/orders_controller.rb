@@ -18,26 +18,27 @@ class Files::OrdersController < Files::FilesController
   def import
     # TODO(subas): authorize self
     @file = params[:file]
+    @order_upload = ImportOrder.new(@file)
 
     # Redirect to request origination page /new rather than redirecting to import
     if is_invalid_file(@file, @@file_name_contains)
-      respond_to do |format|
-        format.html { redirect_to action: 'new' and return }
-        file_error('Please Upload a valid file')
+      @order_upload.error = true
+      @order_upload.error_message = 'Please upload a valid file.'
+    else
+      @processed_data = @order_upload.process
+    end
+
+    if @order_upload.error_message
+      if @order_upload.error_type == 'new_client_accounts_present'
+        flash.now[:error] = @order_upload.error_message
+      else
+        respond_to do |format|
+          flash[:error] = @order_upload.error_message
+          format.html { redirect_to action: 'new' and return }
+        end
       end
     end
 
-    order_upload = ImportOrder.new(@file)
-    @processed_data = order_upload.process
-
-    if order_upload.error_message
-      respond_to do |format|
-        flash[:error] = order_upload.error_message
-        format.html { redirect_to action: 'new' and return }
-      end
-    end
-
-    flash.now[:notice] = 'Successfully uploaded and processed the file.'
   end
 
 end

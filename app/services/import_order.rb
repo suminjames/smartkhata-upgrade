@@ -1,31 +1,27 @@
 class ImportOrder < ImportFile
   include ApplicationHelper
 
+  attr_accessor :error, :error_type, :new_client_accounts, :error_message
+
+  def initialize(file)
+    super(file)
+    @runtime_totals = Hash.new(0)
+  end
+
 # process the file
   def process
     open_file(@file)
     unless @error_message
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
-
           # to incorporate the symbol to string
           hash = hash.deep_stringify_keys!
-
-          # # Each order_id listed in the excel sheet should be checked for duplicate entry in the database.
-          # if is_record_available_in_db(hash['ORDER_ID'])
-          #   import_error("File upload cancelled! An order with order id " + hash['ORDER_ID'].to_s + " seems to have been previously uploaded! Please double check and upload.")
-          #   raise ActiveRecord::Rollback
-          #   break
-          # end
-
           # Get isin reference
           # TODO(sarojk): Check if isin is valid and throw error accordingly
           isin_info_id = get_isin_id(hash['SYMBOL'])
 
           # Get client reference
-          # -If client doesn't exist, create one.
-          client_account_obj = ClientAccount.create_with(name: hash['CLIENT_NAME']).find_or_create_by(nepse_code: hash['CLIENT_CODE'])
-          client_account_id = client_account_obj.id
+          client_account_id = ClientAccount.find_by(nepse_code: hash['CLIENT_CODE']).id
 
           # Get order reference
           date = Date.parse(hash['ORDER_DATE_TIME'].to_s)
@@ -79,20 +75,7 @@ class ImportOrder < ImportFile
   end
 
   def get_isin_id(symbol)
-    isin_obj = IsinInfo.find_by(isin: symbol)
-    if isin_obj.nil?
-      return -1
-    else
-      return isin_obj.id
-    end
-  end
-
-# Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
-# This is not perfect implementation to avoid record duplication.
-# Instead, each order_id listed in the excel sheet should be checked for duplicate entry in the database.
-  def is_previously_uploaded_file(order_id)
-    record = Order.find_by(order_id: order_id)
-    !record.nil?
+    IsinInfo.find_or_create_new_by_symbol(symbol).id
   end
 
 # This is an almost perfect implementation to avoid record duplication.
@@ -279,14 +262,14 @@ class ImportOrder < ImportFile
 # runtime_total = Hash.new(0)
 #initialize runtime_totals as a global variable
 # $runtime_totals = {:total_quantity => 0, :total_amount => 0, :total_pending_quantity => 0 }
-  $runtime_totals = Hash.new(0)
+
 
 # Runtime_total's signature similar to Grand Total row hash Signature
 # {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
   def update_runtime_totals(hashed_row)
-    $runtime_totals[:total_quantity] +=hashed_row[:QUANTITY]
-    $runtime_totals[:total_amount] += hashed_row[:AMOUNT]
-    $runtime_totals[:total_pending_quantity] += hashed_row[:PENDING_QUANTITY]
+    @runtime_totals[:total_quantity] +=hashed_row[:QUANTITY]
+    @runtime_totals[:total_amount] += hashed_row[:AMOUNT]
+    @runtime_totals[:total_pending_quantity] += hashed_row[:PENDING_QUANTITY]
   end
 
 # Grand Total row hash Signature
@@ -318,6 +301,7 @@ class ImportOrder < ImportFile
   def extract_xls(file)
     @rows = []
     @processed_data = []
+    new_client_accounts = []
     # begin
     xlsx = Roo::Spreadsheet.open(file, extension: :xls)
     excel_sheet = xlsx.sheet(0)
@@ -329,9 +313,11 @@ class ImportOrder < ImportFile
     if order_end_row != -1
       (ORDER_BEGIN_ROW..order_end_row).each do |i|
         row = excel_sheet.row(i)
+
         if is_valid_row?(row)
           stripped_row = strip_row_of_nil_entries(row)
           hashed_row = get_hash_equivalent_of_row(stripped_row)
+          hashed_row[:CLIENT_CODE] = ClientAccount.new(nepse_code: hashed_row[:CLIENT_CODE]).format_nepse_code
           update_runtime_totals(hashed_row)
           # Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
           #if i == ORDER_BEGIN_ROW
@@ -343,14 +329,34 @@ class ImportOrder < ImportFile
         else
           @error_message = "Row #{i.to_s} is invalid! Please upload a valid file." and return
         end
+
+        # Maintain list of new client accounts not in the system yet.
+        _client_name = hashed_row[:CLIENT_NAME]
+        _client_nepse_code = hashed_row[:CLIENT_CODE]
+        unless ClientAccount.unscoped.find_by(nepse_code: _client_nepse_code)
+          client_account_hash = {client_name: _client_name, client_nepse_code: _client_nepse_code}
+          unless new_client_accounts.include?(client_account_hash)
+            new_client_accounts << client_account_hash
+          end
+        end
+
       end
     else
       @error_message = "One of the rows is invalid! Please upload a valid file." and return
     end
 
+
+    # Client information should be available before file upload.
+    if new_client_accounts.present?
+      @error = true
+      @error_type = 'new_client_accounts_present'
+      @new_client_accounts = new_client_accounts
+      import_error(new_client_accounts_error_message(new_client_accounts)) and return
+    end
+
     # Parsing the rows complete
     # Return error if totals of rows doesn't equal those in grand total row
-    unless verified_grand_total_row_hash? excel_sheet, $runtime_totals
+    unless verified_grand_total_row_hash? excel_sheet, @runtime_totals
       @error_message = "The sum of totals of rows doesn't add up to those in grand total row! Please upload a valid file." and return
     end
 
@@ -363,8 +369,22 @@ class ImportOrder < ImportFile
 
   def verified_grand_total_row_hash?(excel_sheet, runtime_totals)
     grand_total_row_hash(excel_sheet).each do |key, value|
+
+      my_logger = Logger.new("#{Rails.root}/log/my.log")
+      my_logger.info("uploading order file")
+      my_logger.info("file #{value}")
+      my_logger.info("runtime #{runtime_totals[key]}")
+
       return false if (value - runtime_totals[key].round(2)).abs > margin_of_error_amount
     end
     return true
   end
+
+  def new_client_accounts_error_message(new_client_accounts)
+    error_message = "ORDER IMPORT CANCELLED!<br>New client accounts found in the file!<br>"
+    error_message += "Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>"
+    error_message += "If applicable, please make sure to assign the correct branch to the client account so that orders are tagged to the appropriate branches.<br>"
+    error_message.html_safe
+  end
+
 end

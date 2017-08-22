@@ -14,8 +14,14 @@ describe "Voucher show" do
     Warden.test_reset!
   end
 
+  shared_examples_for "shows voucher narration" do
+    it "shows voucher narration" do
+      expect(page).to have_content('Description')
+      expect(page).to have_content(subject.desc)
+    end
+  end
   context "when jvr" do
-    subject { create(:voucher)}
+    subject { create(:voucher, desc: "random text")}
 
     before do
       login_as(user, scope: :user)
@@ -24,7 +30,7 @@ describe "Voucher show" do
       visit voucher_path(subject)
     end
 
-    
+    it_behaves_like "shows voucher narration"
 
     it "should contain company information" do
       expect(page).to have_content('Danphe')
@@ -47,5 +53,21 @@ describe "Voucher show" do
       expect(page).to have_content('Approved By')
       expect(page).to have_content('Received By')
     end
+  end
+  # description's length should be less than 200
+  context "when payment voucher" do
+    subject{create(:voucher,
+                   voucher_type: Voucher.voucher_types["payment"],
+                   is_payment_bank: true,
+                   desc: "*"*150)}
+    before do
+      login_as(user, scope: :user)
+      particular1 = create(:debit_particular, voucher: subject, branch_id: user.branch_id)
+      particular2 =create(:credit_particular, voucher: subject, branch_id: user.branch_id, ledger_type: 1)
+      ledger = create(:ledger)
+      particular2.ledger = ledger
+      visit voucher_path(subject)
+    end
+    it_behaves_like "shows voucher narration"
   end
 end
