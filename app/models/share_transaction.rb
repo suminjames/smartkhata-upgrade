@@ -91,7 +91,9 @@ class ShareTransaction < ActiveRecord::Base
           :by_date_from_closeouts,
           :by_date_to_closeouts,
           :by_client_id_closeouts,
+          :by_transaction_type_closeouts,
           :by_isin_id_closeouts,
+          :by_other_broker_number_closeouts
       ]
   )
 
@@ -166,7 +168,12 @@ class ShareTransaction < ActiveRecord::Base
   scope :by_client_id_closeouts, -> (id) { with_closeout.where(client_account_id: id) }
   scope :by_isin_id_closeouts, -> (id) { with_closeout.where(isin_info_id: id) }
 
-
+  scope :by_transaction_type_closeouts, lambda { |type|
+    with_closeout.where(:transaction_type => ShareTransaction.transaction_types[type])
+  }
+  scope :by_other_broker_number_closeouts, ->(number) {
+    with_closeout.where("? = CASE WHEN share_transactions.transaction_type = 1 THEN share_transactions.buyer ELSE share_transactions.seller END", number)
+  }
   scope :sorted_by_closeouts, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
@@ -199,6 +206,7 @@ class ShareTransaction < ActiveRecord::Base
   # deleted transactions fall under deal cancel
   scope :with_closeout, -> { where(deleted_at: nil).where.not(closeout_amount: 0.0)}
   scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
+
 
   def do_as_per_params (params)
     # TODO
