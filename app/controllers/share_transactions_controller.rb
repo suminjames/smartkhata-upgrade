@@ -465,7 +465,8 @@ class ShareTransactionsController < ApplicationController
         params[:filterrific],
         select_options: {
             by_client_id_closeouts: ClientAccount.options_for_client_select_closeouts(params[:filterrific]),
-            by_isin_id_closeouts: ShareTransaction.options_for_isin_select
+            by_isin_id_closeouts: ShareTransaction.options_for_isin_select,
+            by_transaction_type: ShareTransaction.options_for_transaction_type_select
         },
         persistence_id: false,
         default_filter_params: { sorted_by_closeouts: 'date_desc' },
