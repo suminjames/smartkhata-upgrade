@@ -4,6 +4,8 @@ FactoryGirl.define do
     bank_branch "chabahil"
     branch_id 1
     bank
+    default_for_payment true
+    default_for_receipt true
 
     ledger
     # association :ledger, factory: :bank_ledger

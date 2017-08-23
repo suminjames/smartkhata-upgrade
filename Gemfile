@@ -91,6 +91,7 @@ end
 group :test do
   gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'capybara'
+  gem 'capybara-screenshot'
   gem "database_cleaner"
   gem "poltergeist"
   gem "shoulda-matchers"

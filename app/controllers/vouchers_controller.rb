@@ -129,7 +129,6 @@ class VouchersController < ApplicationController
         if voucher_creation.error_message
           flash.now[:error] = voucher_creation.error_message
         end
-
         format.html { render :new }
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end

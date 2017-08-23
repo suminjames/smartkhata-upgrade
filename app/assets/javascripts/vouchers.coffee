@@ -249,7 +249,7 @@ $ ->
 $ ->
   $('form').on 'click', '.removeThisParticular', (event) ->
 
-    $(this).closest('div.row.particular').remove()
+    $(this).closest('div.particular-container').remove()
     event.preventDefault()
 
 
@@ -259,7 +259,7 @@ $(document).on 'click', '.add_fields', (event) ->
   regexp = new RegExp($(this).data('id'), 'g')
   $(this).before($(this).data('fields').replace(regexp, time))
 
-  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
+#  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
 
   $('select.select2simple').skInitializeSelect2Simple()
   $('select.select2-ajax-ledger').skInitializeSelect2Ledger()
@@ -336,3 +336,9 @@ $(document).on 'click', '.add-to-caller', (event) ->
     $modal.modal('hide')
 
   display_balance_total($particular)
+
+$(document).on 'click', '.narration-display', (event) ->
+ $this =  $(this)
+ $narration = $this.closest('.particular-narration')
+ $this.addClass("hidden")
+ $narration.find('input').removeClass("hidden")
