@@ -159,11 +159,11 @@ class ShareTransaction < ActiveRecord::Base
   }
   scope :by_date_from_closeouts, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    with_closeout.where('date>= ?', date_ad.beginning_of_day)
+    with_closeout.where('share_transactions.date>= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to_closeouts, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    with_closeout.where('date<= ?', date_ad.end_of_day)
+    with_closeout.where('share_transactions.date<= ?', date_ad.end_of_day)
   }
   scope :by_client_id_closeouts, -> (id) { with_closeout.where(client_account_id: id) }
   scope :by_isin_id_closeouts, -> (id) { with_closeout.where(isin_info_id: id) }

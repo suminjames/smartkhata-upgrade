@@ -218,23 +218,6 @@ class GenerateBillsService
             process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
             process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
             process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
-
-            # in case of sales transaction greater than 5000000 it has to be settled seperately
-            # not with nepse
-            if transaction.share_amount > 5000000
-            description = "Sales Adjustment with Broker No. #{transaction.buyer} (#{share_quantity}*#{company_symbol}@#{share_rate})"
-            voucher = Voucher.create!(date: settlement_date)
-            # voucher.share_transactions << transaction
-            voucher.desc = description
-
-            clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
-            # credit nepse
-            net_adjustment_amount = transaction.share_amount
-            process_accounts(nepse_ledger, voucher, false, net_adjustment_amount, description, cost_center_id, settlement_date)
-            process_accounts(clearing_ledger, voucher, true, net_adjustment_amount, description, cost_center_id, settlement_date)
-            voucher.complete!
-            voucher.save!
-            end
           end
         end
       end

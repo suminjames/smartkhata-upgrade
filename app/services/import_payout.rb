@@ -143,11 +143,9 @@ class ImportPayout < ImportFile
           #   - dp fee
           # client pays the commission_amount
 
-          if transaction.share_amount >= 5000000
-            # amount receivable generally includes only cgt
-            # calculate the amount_receivable
-            amount_receivable = transaction.share_amount - ( transaction.sebo + transaction.commission_amount * chargeable_by_nepse + transaction.cgt )
-          end
+          # if transaction.share_amount >= 5000000
+          #   amount_receivable = transaction.share_amount - ( transaction.sebo + transaction.commission_amount * chargeable_by_nepse + transaction.cgt + transaction.closeout_amount)
+          # end
 
           # this is the case for close out
           # calculate the charges
