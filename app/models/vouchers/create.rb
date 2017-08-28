@@ -142,7 +142,7 @@ class Vouchers::Create < Vouchers::Base
         net_cash_amount += particular.amount if particular.ledger_id == cash_ledger_id
       end
 
-      particular.description ||= voucher.desc
+      particular.description = voucher.desc if particular.description.blank?
       particular.amount = particular.amount || 0
       if particular.amount <= 0
         has_error = true
