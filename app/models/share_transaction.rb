@@ -384,10 +384,11 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def self.options_for_transaction_type_select
-    [
-        ['Buying', 'buying'],
-        ['Selling', 'selling'],
-    ]
+    # [
+    #     ['Buying', 'buying'],
+    #     ['Selling', 'selling'],
+    # ]
+    ShareTransaction.transaction_types.except(:unknown).map{|v,i| [v.titleize,v]}
   end
 
 
