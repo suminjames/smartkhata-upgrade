@@ -18,8 +18,117 @@ RSpec.describe Vouchers::Create do
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
-    create( :ledger, name: "Cash")
+     # create( :ledger, name: "Cash")
   end
+
+  describe "vouchers" do
+    context "when journal voucher" do
+      context "when particular description is not present" do
+        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        it "should display voucher narration" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                  voucher: voucher,
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
+        end
+      end
+
+      context "when particular description is  present" do
+        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        it "should display particular description" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                  voucher: voucher,
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+        end
+      end
+    end
+
+    context "when payment voucher" do
+      context "when particular description is not present" do
+        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        it "should display voucher narration" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 1,
+                                                  voucher: voucher,
+                                                  voucher_settlement_type: "default",
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
+        end
+      end
+
+      context "when particular description is  present" do
+        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        it "should display particular description" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 1,
+                                                  voucher: voucher,
+                                                  voucher_settlement_type: "default",
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+        end
+      end
+    end
+
+    context "when receipt voucher" do
+      context "when particular description is not present" do
+        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        it "should display voucher narration" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                  voucher: voucher,
+                                                  voucher_settlement_type: "default",
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
+        end
+      end
+
+      context "when particular description is  present" do
+        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration")}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        it "should display particular description" do
+          voucher.particulars << d_particular
+          voucher.particulars << c_particular
+          voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                  voucher: voucher,
+                                                  voucher_settlement_type: "default",
+                                                  tenant_full_name: "Trishakti")
+          expect(voucher_creation.process).to be_truthy
+          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
+          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+        end
+      end
+    end
+  end
+
 
   describe "basic vouchers" do
     it "should create a journal voucher" do
