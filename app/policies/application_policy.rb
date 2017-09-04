@@ -162,15 +162,15 @@ class ApplicationPolicy
   def self.permit_custom_access(privilege, path, actions)
     actions.each do |action|
       define_method("#{action}?") do
+        # return false if user cant read write
+        unless @user.can_read_write?
+          return false
+        end
         privilege = privilege.to_s
-
         # mapping privilege text to original method
-        # when :employee_and_above => path_authorized_to_employee_and_above?()
         if privilege == 'employee_and_above'
           privilege.prepend "path_authorized_to_"
         end
-        # other CONDITIONAL privilege methods not implemented/used yet: map to default methods
-
         self.send("#{privilege}?", path)
       end
     end
