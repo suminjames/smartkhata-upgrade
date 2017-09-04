@@ -95,7 +95,6 @@ class ApplicationController < ActionController::Base
     session[:user_selected_fy_code] ||= get_fy_code
 
     branch_id = get_preferrable_branch_id
-
     branch_access_error unless branch_id.present?
 
     session[:user_selected_branch_id] ||= branch_id

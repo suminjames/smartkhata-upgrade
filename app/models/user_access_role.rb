@@ -8,7 +8,7 @@
 #  description :text
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
-#
+#  access_level  :integer        default: 0
 
 class UserAccessRole < ActiveRecord::Base
   has_many :menu_permissions, dependent: :destroy
@@ -24,4 +24,5 @@ class UserAccessRole < ActiveRecord::Base
   def self.access_level_types_select
     self.access_levels.keys.map {|x| [x.titleize, x]}
   end
+
 end

@@ -91,7 +91,8 @@ module ApplicationHelper
 
   # get available branches
   def available_branches
-    available_branches_for_user(current_user)
+    # available_branches_for_user(current_user)
+    current_user.available_branches
   end
 
   # get the branches that are available for the user

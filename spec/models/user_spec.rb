@@ -179,4 +179,24 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe ".can_read_write?" do
+    context "when role is admin" do
+      it "should return true" do
+        subject.admin!
+        expect(subject.can_read_write?).to be_truthy
+      end
+    end
+
+    context "when role is employee" do
+      context "and access level is read and write" do
+        let(:user_access_role){create(:user_access_role, access_level: 1)}
+        subject{create(:user, user_access_role_id: user_access_role.id, role: 3, username: "john", email: "john@gmail.com")}
+        it "should return true" do
+          subject
+          expect(subject.can_read_write?).to be_truthy
+        end
+      end
+    end
+  end
 end
