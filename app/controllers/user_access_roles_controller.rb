@@ -91,6 +91,6 @@ class UserAccessRolesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_access_role_params
-      params.require(:user_access_role).permit(:role_type, :role_name, :description, :menu_item_ids => [])
+      params.require(:user_access_role).permit(:role_type, :role_name, :description, :access_level, :menu_item_ids => [])
     end
 end
