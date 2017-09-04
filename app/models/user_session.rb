@@ -48,6 +48,12 @@ class UserSession
       UserSession.selected_branch_id = selected_branch_id
     end
 
+    def set_usersession_for_test(fy_code = 7475, selected_branch_id = 1, user = nil)
+      UserSession.user = user || User.first
+      UserSession.selected_fy_code = fy_code
+      UserSession.selected_branch_id = selected_branch_id
+    end
+
     def destroy
       @user = nil
     end

@@ -56,7 +56,6 @@ class User < ActiveRecord::Base
   has_many :branch_permissions
   belongs_to :user_access_role
 
-
   ########################################
   # Validation
   validates_uniqueness_of :username, case_sensitive: false, allow_blank: true
@@ -132,5 +131,23 @@ class User < ActiveRecord::Base
 
   def name_for_user
     self.email || self.username
+  end
+
+  def can_read_write?
+    self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?))
+  end
+
+  # get the branches that are available for the user
+  # for admin and client all the branch are available
+  # for employee only those assigned on the permission
+  def available_branches
+    _available_branches = []
+    if self.admin? || self.client?
+      _available_branches = Branch.all
+    else
+      branch_ids = self.branch_permissions.pluck(:branch_id)
+      _available_branches = Branch.where(id: branch_ids)
+    end
+    _available_branches
   end
 end

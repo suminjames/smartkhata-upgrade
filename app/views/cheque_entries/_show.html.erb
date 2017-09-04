@@ -50,7 +50,8 @@
     <p class="hide-on-print">" <%= @cheque_entry.cheque_number %> "</p>
   </div>
 </div>
-
+<% if current_user.can_read_write?%>
 <%= link_to "Make Void", void_show_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat'  if @cheque_entry.payment? && !@cheque_entry.void? %>
 <%= link_to "Make Bounced", bounce_show_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && !@cheque_entry.bounced? %>
 <%= link_to "Represent", represent_show_cheque_entries_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat' if @cheque_entry.receipt? && @cheque_entry.bounced? %>
+<% end %>

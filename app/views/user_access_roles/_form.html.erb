@@ -7,12 +7,21 @@
     </div>
 
   </div>
-    <div class="form-inputs row">
-      <div class="col-sm-4">
-        <%= f.input :description %>
-      </div>
 
+  <div class="form-inputs row">
+    <div class="col-sm-4">
+      <%= f.select :access_level, options_for_select(UserAccessRole.access_level_types_select, f.object.access_level), {}, class: 'form-control'
+      %>
     </div>
+
+  </div>
+  <br>
+  <div class="form-inputs row">
+    <div class="col-sm-4">
+      <%= f.input :description %>
+    </div>
+
+  </div>
     <br><br>
   <div>
     <% hidden_field_tag 'user_access_role[menu_item_ids][]', nil %>

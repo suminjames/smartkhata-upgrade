@@ -24,7 +24,6 @@ describe "Ledger" do
         expect(page).to have_content("There are no particulars matching the date range '2074/02/28' to '2074/02/29'.")
       end
 
-
     end
   end
 end
