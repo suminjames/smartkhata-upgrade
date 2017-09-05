@@ -4,7 +4,11 @@ class VoucherPolicy < ApplicationPolicy
   permit_conditional_access_to_employee_and_above :new, :pending_vouchers
 
   permit_custom_access :employee_and_above, new_voucher_path, [:create, :update, :edit, :destroy]
-  permit_custom_access :employee_and_above, new_voucher_path, [:index, :show, :finalize_payment, :set_bill_client]
+  permit_custom_access :employee_and_above, new_voucher_path, [:index, :finalize_payment, :set_bill_client]
+
+  def show?
+    employee_and_above?
+  end
 
   class Scope < Scope
     def resolve
