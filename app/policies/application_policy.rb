@@ -163,7 +163,8 @@ class ApplicationPolicy
     actions.each do |action|
       define_method("#{action}?") do
         # return false if user cant read write
-        unless @user.can_read_write?
+        # hack for show action
+        unless( action == :show) || (@user.can_read_write?)
           return false
         end
         privilege = privilege.to_s
