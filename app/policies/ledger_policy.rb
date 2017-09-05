@@ -8,6 +8,9 @@ class LedgerPolicy < ApplicationPolicy
   permit_custom_access :employee_and_above, group_member_ledgers_path, [:transfer_group_member_balance]
   permit_custom_access :employee_and_above, ledgers_path, [:show, :combobox_ajax_filter]
 
+  def combobox_ajax_filter?
+    employee_and_above?
+  end
   # actions remaining to be added: :cashbook, :daybook
   def show_all?
     @user.admin?
