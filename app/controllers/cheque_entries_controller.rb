@@ -290,8 +290,8 @@ class ChequeEntriesController < ApplicationController
       "Last cheque number should be greater than the first"
     when (@end_cheque_number - @start_cheque_number) > 501
       "Maximum of 500 cheque entries allowed"
-    when existing_cheque_numbers.any? {|n| n.between? @start_cheque_number, @end_cheque_number }
-      "Cheque number cannot be duplicate for a bank"
+    # when existing_cheque_numbers.any? {|n| (n.between?(@start_cheque_number, @end_cheque_number) && (n.bank_account_id == @bank_account_id) )}
+    #   "Cheque number cannot be duplicate for a bank"
     else
       has_error = false
     end
@@ -299,10 +299,19 @@ class ChequeEntriesController < ApplicationController
     if !has_error
       ActiveRecord::Base.transaction do
         (@start_cheque_number..@end_cheque_number).each do |cheque_number|
-          ChequeEntry.create!(cheque_number: cheque_number, bank_account_id: @bank_account_id)
+          cheque_entry = ChequeEntry.new(cheque_number: cheque_number, bank_account_id: @bank_account_id)
+          if cheque_entry.valid?
+            cheque_entry.save
+          else
+            has_error = true
+            error_message = "Something went wrong!"
+            raise ActiveRecord::Rollback
+            break
+          end
         end
       end
-    else
+    end
+    if has_error
       flash.now[:error] = error_message
     end
 
