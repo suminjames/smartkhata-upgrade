@@ -164,6 +164,8 @@ class Ledgers::ParticularEntry
           ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
           ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
           ledger_blnc_cost_center_current_fy.save!
+
+
         end
       end
     end
