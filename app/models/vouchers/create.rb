@@ -60,6 +60,7 @@ class Vouchers::Create < Vouchers::Base
 
     @voucher.date = date_ad
     @voucher.fy_code = get_fy_code(date_ad)
+    @voucher.branch_id = UserSession.selected_branch_id
     # check if the user entered date is valid for that fiscal year
     unless date_valid_for_fy_code( @voucher.date , UserSession.selected_fy_code)
       @error_message = "Invalid Date for fiscal year!"
@@ -541,7 +542,7 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
@@ -549,7 +550,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code)
       # settlement.client_account = client_account
     end
     settlement

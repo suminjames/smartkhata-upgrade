@@ -6,6 +6,8 @@ RSpec.describe Settlement, type: :model do
 
   	describe "validations" do
   		it {should validate_presence_of(:date_bs)}
+  		it {should validate_presence_of(:branch_id)}
+  		it {should validate_presence_of(:fy_code)}
   	end
 
   	describe ".add_date_from_date_bs" do
