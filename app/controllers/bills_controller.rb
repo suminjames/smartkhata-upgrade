@@ -252,7 +252,7 @@ class BillsController < ApplicationController
       cheque_entry = ChequeEntry.next_available_serial_cheque(bank_account.id) if bank_account.present?
       @cheque_number = cheque_entry.cheque_number if cheque_entry.present?
 
-      @nepse_settlement = NepseSettlement.find_by(settlement_id: params[:settlement_id])
+      @nepse_settlement = NepseSaleSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
       @bills = @nepse_settlement.bills_for_sales_payment_list if @nepse_settlement.present?
       @is_searched = true
@@ -263,7 +263,7 @@ class BillsController < ApplicationController
   def sales_payment_process
     @settlement_id = params[:settlement_id]
     @cheque_number = params[:cheque_number].to_i
-    @nepse_settlement = NepseSettlement.find_by(id: params[:nepse_settlement_id])
+    @nepse_settlement = NepseSaleSettlement.find_by(id: params[:nepse_settlement_id])
     @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
