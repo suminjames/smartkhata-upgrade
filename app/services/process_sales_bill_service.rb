@@ -196,7 +196,7 @@ class ProcessSalesBillService
       settler_name = ledger.name
     end
 
-    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque], belongs_to_batch_payment: true, branch_id: branch_id)
+    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque], belongs_to_batch_payment: true, branch_id: branch_id, fy_code: voucher.fy_code)
     settlement.client_account = client_account
     settlement
   end

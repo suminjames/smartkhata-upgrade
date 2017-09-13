@@ -36,7 +36,8 @@ class Settlement < ActiveRecord::Base
     include CustomDateModule
   end
   include Auditable
-  include ::Models::UpdaterWithBranchFycode
+  include ::Models::Updater
+  include ::Models::SearchableByBranchFycode
 
 ########################################
 # Relationships
@@ -71,6 +72,7 @@ class Settlement < ActiveRecord::Base
 # Validations
 
   validates_presence_of :date_bs
+  validates_presence_of :branch_id , :fy_code
 
 ########################################
 # Enums
@@ -84,13 +86,13 @@ class Settlement < ActiveRecord::Base
   # default_scope {where(fy_code: UserSession.selected_fy_code)}
 
   # scope based on the branch and fycode selection
-  default_scope do
-    if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-    end
-  end
+  # default_scope do
+  #   if UserSession.selected_branch_id == 0
+  #     where(fy_code: UserSession.selected_fy_code)
+  #   else
+  #     where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+  #   end
+  # end
 
   scope :by_settlement_type, -> (type) { by_branch_fy_code.where(:settlement_type => Settlement.settlement_types[type]) }
 

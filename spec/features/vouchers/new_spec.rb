@@ -114,6 +114,24 @@
           expect(page).to have_content('Prepared By')
           expect(page).to have_content('Approved By')
           expect(page).to have_content('Received By')
+          expect(page).to have_content('Approve')
+          click_on 'Approve'
+          expect(page).to have_content('Payment Voucher was successfully approved')
+
+          #for settlements
+          visit settlements_path
+          expect(page).to have_content("Settlements")
+          page.execute_script(%Q($('select#client_accounts_index_combobox').select2('open')))
+          page.execute_script(%Q($(".select2-search__field").val('#{@client_account.name}')))
+          page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
+          sleep(1)
+          # wait_until_page_has_selector('.select2-results__option--highlighted')
+          page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
+          click_on "Search"
+          expect(page).to have_content('Subash Adhikari')
+          expect(page).to have_content('Show')
+          # click_on "Show"
+          # expect(page).to have_content('Settlement Details')
         end
       end
 
@@ -274,6 +292,21 @@
           expect(page).to have_content('Prepared By')
           expect(page).to have_content('Approved By')
           expect(page).to have_content('Received By')
+
+          #for settlements
+          visit settlements_path
+          expect(page).to have_content("Settlements")
+          page.execute_script(%Q($('select#client_accounts_index_combobox').select2('open')))
+          page.execute_script(%Q($(".select2-search__field").val('#{@client_account.name}')))
+          page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
+          sleep(1)
+          # wait_until_page_has_selector('.select2-results__option--highlighted')
+          page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
+          click_on "Search"
+          expect(page).to have_content('ANITA ADHIKARI')
+          expect(page).to have_content('Show')
+          # click_on "Show"
+          # expect(page).to have_content('Settlement Details')
         end
       end
 
