@@ -14,7 +14,7 @@ namespace :ledger do
 
   # for now we are not concerned about multiple branches
   def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
-    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: 1, fy_code: get_fy_code)
+    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: 1, fy_code: current_fy_code)
   end
 
 
