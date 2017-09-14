@@ -9,12 +9,12 @@ namespace :ledger do
   end
 
   def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = nil)
-    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, fy_code)
+    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code)
   end
 
   # for now we are not concerned about multiple branches
   def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
-    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: 1, fy_code: current_fy_code)
+    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code)
   end
 
 
@@ -120,12 +120,15 @@ namespace :ledger do
   end
 
   # Fixes all ledgers
-  task :fix_ledger_all,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_all,[:tenant, :all_fiscal_years] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    all_fiscal_years = args.all_fiscal_years || false
     ActiveRecord::Base.transaction do
-      Ledger.find_each do |ledger|
-        patch_ledger_dailies(ledger)
-        patch_closing_balance(ledger)
+      Branch.all.each do |branch|
+        Ledger.find_each do |ledger|
+          patch_ledger_dailies(ledger, all_fiscal_years, branch.id)
+          patch_closing_balance(ledger, all_fiscal_years, branch.id)
+        end
       end
     end
   end
