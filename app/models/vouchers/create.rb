@@ -60,7 +60,7 @@ class Vouchers::Create < Vouchers::Base
 
     @voucher.date = date_ad
     @voucher.fy_code = get_fy_code(date_ad)
-    @voucher.branch_id = UserSession.selected_branch_id
+    @voucher.branch_id = get_branch_id_from_session
     # check if the user entered date is valid for that fiscal year
     unless date_valid_for_fy_code( @voucher.date , UserSession.selected_fy_code)
       @error_message = "Invalid Date for fiscal year!"
@@ -583,5 +583,10 @@ class Vouchers::Create < Vouchers::Base
     end
 
     return client_account, bills
+  end
+
+
+  def get_branch_id_from_session
+    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
   end
 end
