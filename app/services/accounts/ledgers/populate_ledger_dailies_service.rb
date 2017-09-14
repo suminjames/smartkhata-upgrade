@@ -33,6 +33,7 @@ module Accounts
 
           first_daily = true
           opening_balance = 0
+          opening_balance_org = 0
           LedgerDaily.unscoped.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
           LedgerDaily.unscoped.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
 
