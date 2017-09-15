@@ -156,12 +156,14 @@ class Ledgers::ParticularEntry
 
         if ledger_blnc_org_current_fy
           ledger_blnc_org_current_fy.opening_balance += adjustment_amount
+          ledger_blnc_org_current_fy.opening_balance_type = ledger_blnc_org_current_fy.opening_balance >= 0 ? 'dr': 'cr'
           # ledger_blnc_org_current_fy.closing_balance += adjustment_amount
           ledger_blnc_org_current_fy.save!
 
 
           ledger_blnc_cost_center_current_fy =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
           ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
+          ledger_blnc_cost_center_current_fy.opening_balance_type = ledger_blnc_cost_center_current_fy.opening_balance >= 0 ? 'dr': 'cr'
           # ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
           ledger_blnc_cost_center_current_fy.save!
 
