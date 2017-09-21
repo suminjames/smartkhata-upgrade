@@ -49,6 +49,7 @@ module Accounts
               first_daily = false
             end
 
+
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}') AS subquery;"
             balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
@@ -73,28 +74,29 @@ module Accounts
             daily_report_cost_center.opening_balance = opening_balance
             daily_report_cost_center.save!
 
-            query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}') AS subquery;"
-            balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
+            query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND transaction_date= '#{date}') AS subquery;"
+            balance_org = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
             # total dr
-            query = "SELECT SUM( amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND transaction_type = 0"
-            dr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
+            query = "SELECT SUM( amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code}  AND transaction_date= '#{date}' AND transaction_type = 0"
+            dr_amount_org = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
-            query = "SELECT SUM(amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}' AND transaction_type = 1"
-            cr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
+            query = "SELECT SUM(amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND transaction_date= '#{date}' AND transaction_type = 1"
+            cr_amount_org = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 
-            if (dr_amount - cr_amount - balance).abs > 0.01
+            if (dr_amount_org - cr_amount_org - balance_org).abs > 0.01
               raise ArgumentError
             end
-            closing_balance = opening_balance_org + balance
-            daily_report_org.dr_amount = dr_amount
-            daily_report_org.cr_amount = cr_amount
-            daily_report_org.closing_balance = closing_balance
-            daily_report_org.opening_balance = opening_balance
+            closing_balance_org = opening_balance_org + balance_org
+            daily_report_org.dr_amount = dr_amount_org
+            daily_report_org.cr_amount = cr_amount_org
+            daily_report_org.closing_balance = closing_balance_org
+            daily_report_org.opening_balance = opening_balance_org
             daily_report_org.save!
 
             # closing balance of one is opening of next
             opening_balance = closing_balance
+            opening_balance_org =  closing_balance_org
           end
         end
       end

@@ -120,14 +120,15 @@ namespace :ledger do
   end
 
   # Fixes all ledgers
-  task :fix_ledger_all,[:tenant, :all_fiscal_years] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_all,[:tenant, :all_fiscal_years, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     all_fiscal_years = args.all_fiscal_years || false
+    fy_code = args.fy_code
     ActiveRecord::Base.transaction do
       Branch.all.each do |branch|
         Ledger.find_each do |ledger|
-          patch_ledger_dailies(ledger, all_fiscal_years, branch.id)
-          patch_closing_balance(ledger, all_fiscal_years, branch.id)
+          patch_ledger_dailies(ledger, all_fiscal_years, branch.id, fy_code)
+          patch_closing_balance(ledger, all_fiscal_years, branch.id, fy_code)
         end
       end
     end
@@ -135,15 +136,16 @@ namespace :ledger do
 
   # Example syntax:
   # ledger:fix_ledger_selected['trishakti',"3405 11938"]
-  task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_year, :branch_id] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_years, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     branch_id = args.branch_id || 1
     ledger_ids = args.ledger_ids.split(" ")
-    all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
+    all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
+    fy_code = args.fy_code
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_ledger_dailies(ledger, all_fiscal_year, branch_id )
-        patch_closing_balance(ledger, all_fiscal_year, branch_id)
+        patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code )
+        patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code )
       end
     end
   end
