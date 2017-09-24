@@ -48,8 +48,10 @@ namespace :voucher do
       Voucher.where(id: vouchers).delete_all
 
       # update the ledgers with new balances
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
+      branch_id = Voucher.where(id: vouchers).first.branch_id
+      fy_code = Voucher.where(id: vouchers).first.fy_code
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
     end
 
   end
@@ -60,10 +62,11 @@ namespace :voucher do
     ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
     ActiveRecord::Base.transaction do
       Particular.where(voucher_id: vouchers).delete_all
+      branch_id = Voucher.where(id: vouchers).first.branch_id
+      fy_code = Voucher.where(id: vouchers).first.fy_code
       Voucher.where(id: vouchers).delete_all
-
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
     end
   end
 

@@ -81,7 +81,7 @@ class ProcessSalesBillService
             manual_cheque = false
           else
             @cheque_number += 1
-            cheque_entry = ChequeEntry.where(bank_account_id: bank_account.id, cheque_number: @cheque_number).first
+            cheque_entry = ChequeEntry.where(bank_account_id: bank_account.id, cheque_number: @cheque_number, additional_bank_id: nil).first
           end
 
           if cheque_entry.blank?
