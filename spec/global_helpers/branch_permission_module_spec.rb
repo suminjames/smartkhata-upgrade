@@ -5,7 +5,7 @@ RSpec.describe BranchPermissionModule, type: :helper do
 
   describe "#permitted_branches" do
     let(:branch){create(:branch)}
-    let!(:user1){create(:user,role: 4)}
+    let(:user1){create(:user,role: 4)}
     let(:user2){create(:user, role: 1, branch_id: branch.id, username: "nistha", email: "sample@gmail.com")}
     context "when user is not present" do
       it "should return empty array" do
@@ -23,7 +23,6 @@ RSpec.describe BranchPermissionModule, type: :helper do
 
       context "and user is client" do
         it "should return branch" do
-          user2
           expect(dummy_class.permitted_branches(user2)).to eq([branch])
         end
       end

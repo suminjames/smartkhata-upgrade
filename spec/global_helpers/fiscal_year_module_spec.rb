@@ -62,7 +62,7 @@ RSpec.describe FiscalYearModule, type: :helper do
     end
     context "when fy_code is nil" do
       it "should return todays date" do
-        expect(dummy_class.fiscal_year_first_day(nil)).to eq("2017-08-02".to_date)
+        expect(dummy_class.fiscal_year_first_day(nil)).to eq(Date.today)
       end
     end
   end
@@ -76,7 +76,7 @@ RSpec.describe FiscalYearModule, type: :helper do
     end
     context "when fy_code is nil" do
       it "should return todays date" do
-        expect(dummy_class.fiscal_year_last_day(nil)).to eq("2017-08-02".to_date)
+        expect(dummy_class.fiscal_year_last_day(nil)).to eq(Date.today)
       end
     end
   end
