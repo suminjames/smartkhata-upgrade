@@ -21,11 +21,8 @@ module Accounts
 
 
         # need to modify this in future to accomodate current fiscal year
-        if all_fiscal_years
-          fy_codes = all_fy_codes
-        else
-          fy_codes = [fy_code]
-        end
+        fy_codes = fiscal_years(all_fiscal_years, fy_code)
+
         fy_codes.each do |fy_code|
           UserSession.selected_branch_id = branch_id
           UserSession.selected_fy_code = fy_code

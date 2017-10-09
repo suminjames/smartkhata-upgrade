@@ -194,7 +194,7 @@ class ClientAccount < ActiveRecord::Base
 
 
   def format_nepse_code
-    self.nepse_code = self.nepse_code.try(:strip).try(:upcase)
+    self.nepse_code = self.nepse_code.try(:squish).try(:upcase)
   end
 
   #
@@ -204,15 +204,7 @@ class ClientAccount < ActiveRecord::Base
   #
   def format_name
     if self.name.present?
-      name_is_strippable = self.name.strip != self.name
-      name_has_more_than_one_space_in_between_words = (self.name.split(" ").count - 1 ) != self.name.count(" ")
-      if name_is_strippable
-        self.name =  self.name.strip
-      end
-      if name_has_more_than_one_space_in_between_words
-        # http://stackoverflow.com/questions/4662015/ruby-reduce-all-whitespace-to-single-spaces
-        self.name = self.name.gsub(/\s+/, ' ')
-      end
+      self.name.squish!
     end
     self.name
   end

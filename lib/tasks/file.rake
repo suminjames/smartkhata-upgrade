@@ -65,6 +65,10 @@ namespace :file do
       new_tag = meta_tags.sample(1)[0]
       line = "@meta_tag = #{new_tag}\n" # added the newline
     end
+
+    task :test_me => :environment do
+      TestService.new.call
+    end
 end
 
 #
