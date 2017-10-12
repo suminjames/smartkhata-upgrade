@@ -17,7 +17,6 @@ module Accounts
           ledger_to_merge_from.delete
           ledger_to_merge_to.client_code = ledger_to_merge_to.client_code.to_s.squish
           ledger_to_merge_to.name = ledger_to_merge_to.name.to_s.squish
-          debugger
           ledger_to_merge_to.save!
 
           mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
