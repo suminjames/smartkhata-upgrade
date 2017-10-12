@@ -209,10 +209,9 @@ RSpec.describe ClientAccount, type: :model do
       subject{create(:client_account)}
       let(:group_member) {create(:client_account, group_leader_id: subject.id)}
     it "should return  all related bills ids"  do
-      
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
-      expect(subject.get_all_related_bill_ids).to eq([subject.id, group_member.id])
+      expect(subject.get_all_related_bill_ids).to eq([bill1.id, bill2.id])
     end
   end
 
@@ -253,12 +252,14 @@ RSpec.describe ClientAccount, type: :model do
       end
       
       it "should return phone number" do
+        subject.mobile_number = nil
         subject.phone = '56524728'
         allow(SmsMessage).to receive(:messageable_phone_number?).with('56524728').and_return(true)
         expect(subject.messageable_phone_number).to eq("56524728")
       end
         
       it "should return phone perm number" do
+        subject.mobile_number = nil
         subject.phone_perm = '7664535'
         allow(SmsMessage).to receive(:messageable_phone_number?).with('7664535').and_return(true)
         expect(subject.messageable_phone_number).to eq("7664535")
@@ -360,10 +361,8 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".ledger_closing_balance" do
-    # subject{create(:client_account)}
-    # let!(:ledger){create(:ledger, client_account_id: subject.id)}
-    # let!(:ledger_balance){create(:ledger_balance, ledger_id: ledger.id, closing_balance: 5000)}
     it "should return ledger closing balance" do
+      allow(subject).to receive(:ledger).and_return(create(:ledger))
       allow_any_instance_of(Ledger).to receive(:closing_balance).and_return(5000)
       expect(subject.ledger_closing_balance).to eq(5000)
     end
@@ -452,7 +451,7 @@ RSpec.describe ClientAccount, type: :model do
 
     it "adds method to json response" do
       expect(subject.as_json.keys).to include :name_and_nepse_code
-      expect(subject.as_json[:name_and_nepse_code]).to eq ('Dedra Sorenson (Nepse-1)')
+      expect(subject.as_json[:name_and_nepse_code]).to eq (subject.name_and_nepse_code)
     end
   end
 
