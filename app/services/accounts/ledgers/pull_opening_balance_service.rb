@@ -23,17 +23,19 @@ module Accounts
           LedgerBalance.unscoped.where(fy_code: previous_fy_code, ledger_id: ledger.id).find_each do |ledger_balance|
             if ledger_balance.closing_balance != 0
               lb = LedgerBalance.unscoped.find_or_create_by!(fy_code: fy_code, ledger_id: ledger_balance.ledger_id, branch_id: ledger_balance.branch_id)
-              lb.update_attributes(opening_balance: ledger_balance.closing_balance)
-              has_closing_balance = true
+              if (lb.opening_balance !=  ledger_balance.closing_balance)
+                lb.update_attributes(opening_balance: ledger_balance.closing_balance, opening_balance_type: ledger_balance.closing_balance >= 0 ? 'dr': 'cr')
+                has_closing_balance = true
+              end
             end
           end
           pulled_ledger_ids << ledger.id if has_closing_balance
         end
 
         puts "Populating closing balance for #{pulled_ledger_ids.size}"
-
         branch_ids.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids, false, branch_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, false, branch_id)
+          Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, false, branch_id)
         end
       end
     end
