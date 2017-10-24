@@ -84,6 +84,10 @@ class Report::TrialBalanceController < ApplicationController
   end
 
   def index
+    @date = ad_to_bs_string(Date.today)
+    if UserSession.selected_fy_code != get_fy_code
+      @date = ad_to_bs_string(fiscal_year_last_day)
+    end
 
     @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params))
 
@@ -120,7 +124,7 @@ class Report::TrialBalanceController < ApplicationController
             @balance = Group.balance_sheet
             @balance_report = Hash.new
             date_ad = bs_to_ad(date_bs)
-
+            @date = date_bs
             @balance.each do |balance|
               modified_ledger_list = []
               b = balance.descendent_ledgers

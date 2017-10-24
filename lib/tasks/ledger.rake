@@ -122,7 +122,7 @@ namespace :ledger do
   # Fixes all ledgers
   task :fix_ledger_all,[:tenant, :all_fiscal_years, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
-    all_fiscal_years = args.all_fiscal_years || false
+    all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
     fy_code = args.fy_code
     ActiveRecord::Base.transaction do
       Branch.all.each do |branch|
