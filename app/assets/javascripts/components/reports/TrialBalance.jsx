@@ -66,12 +66,12 @@ class TrialBalance extends React.Component {
                     (
                     <tr className="total-trial" key={"total"+ index}>
                       <td>Total</td>
-                      <td className="text-right">{ opening_balance_dr >= opening_balance_cr ? number_to_currency(opening_balance_dr - opening_balance_cr) : '0.00'}</td>
-                      <td className="text-right">{ opening_balance_cr >= opening_balance_dr ? number_to_currency(opening_balance_cr - opening_balance_dr) : '0.00'}</td>
-                      <td className="text-right">{ dr_amount >= cr_amount ? number_to_currency(dr_amount - cr_amount) : '0.00'}</td>
-                      <td className="text-right">{ cr_amount >= dr_amount ? number_to_currency(cr_amount - dr_amount) : '0.00'}</td>
-                      <td className="text-right">{ closing_balance_dr >= closing_balance_cr ? number_to_currency(closing_balance_dr-closing_balance_cr) : '0.00'}</td>
-                      <td className="text-right">{ closing_balance_cr >= closing_balance_dr ? number_to_currency(closing_balance_cr-closing_balance_dr) : '0.00'}</td>
+                      <td className="text-right">{ number_to_currency(opening_balance_dr)}</td>
+                      <td className="text-right">{ number_to_currency(opening_balance_cr )}</td>
+                      <td className="text-right">{ number_to_currency(dr_amount)}</td>
+                      <td className="text-right">{ number_to_currency(cr_amount)}</td>
+                      <td className="text-right">{ number_to_currency(closing_balance_dr)}</td>
+                      <td className="text-right">{ number_to_currency(closing_balance_cr)}</td>
                     </tr>
                   )
                   }
@@ -82,12 +82,12 @@ class TrialBalance extends React.Component {
           <tbody>
             <tr className="end">
               <td>Grand Total</td>
-              <td className="text-right">{ total_opening_balance_dr >= total_opening_balance_cr ? number_to_currency(total_opening_balance_dr - total_opening_balance_cr) : '0.00'}</td>
-              <td className="text-right">{ total_opening_balance_cr >= total_opening_balance_dr ? number_to_currency(total_opening_balance_cr - total_opening_balance_dr) : '0.00'}</td>
-              <td className="text-right">{ total_dr_amount >= total_cr_amount ? number_to_currency(total_dr_amount - total_cr_amount) : '0.00'}</td>
-              <td className="text-right">{ total_cr_amount >= total_dr_amount ? number_to_currency(total_cr_amount - total_dr_amount) : '0.00'}</td>
-              <td className="text-right">{ total_closing_balance_dr >= total_closing_balance_cr ? number_to_currency(total_closing_balance_dr-total_closing_balance_cr) : '0.00'}</td>
-              <td className="text-right">{ total_closing_balance_cr >= total_closing_balance_dr ? number_to_currency(total_closing_balance_cr-total_closing_balance_dr) : '0.00'}</td>
+              <td className="text-right">{ number_to_currency(total_opening_balance_dr)}</td>
+              <td className="text-right">{ number_to_currency(total_opening_balance_cr)}</td>
+              <td className="text-right">{ number_to_currency(total_dr_amount)}</td>
+              <td className="text-right">{ number_to_currency(total_cr_amount)}</td>
+              <td className="text-right">{ number_to_currency(total_closing_balance_dr)}</td>
+              <td className="text-right">{ number_to_currency(total_closing_balance_cr)}</td>
             </tr>
           </tbody>
       </table>
