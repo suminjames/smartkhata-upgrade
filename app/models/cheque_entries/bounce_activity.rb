@@ -36,7 +36,6 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     voucher = @cheque_entry.vouchers.uniq.first
     # particular_ids = ChequeEntryParticularAssociation.where(cheque_entry_id: @cheque_entry).pluck(:particular_id)
     # voucher = Particular.unscoped.where(id: particular_ids).first.try(:voucher)
-
     if voucher.cheque_entries.uniq.count != 1
       bounce_for_multiple_associated_cheques voucher
     else
@@ -74,6 +73,11 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
         reverse_accounts(particular, new_voucher, description)
       end
 
+      if new_voucher.particulars.size != voucher.particulars.size
+        set_error('The cheque can not be bounced...Please contact technical support.')
+        raise ActiveRecord::Rollback
+      end
+
       @cheque_entry.bounced!
       new_voucher.complete!
       voucher.reversed!
@@ -93,9 +97,13 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     particulars_for_reverse_entry = [dr_particular]
     processed_bills = []
 
-
     # case when single payee && multiple cheque
     if cr_particulars.count == 1
+      # reverse the cheque amount only
+      particular = cr_particulars.first
+      particular.amount = cheque_amount
+      particulars_for_reverse_entry << particular
+
       @bills = voucher.bills.purchase.order(id: :desc)
       @bills.each do |bill|
         if cheque_amount + @margin_of_error_amount < bill.net_amount
@@ -110,11 +118,6 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
           processed_bills << bill
         end
       end
-
-      # reverse the cheque amount only
-      particular = cr_particulars.first
-      particular.amount = cheque_amount
-      particulars_for_reverse_entry << particular
     else
       set_error('The cheque can not be bounced...Please contact technical support.') and return
     end
@@ -130,6 +133,12 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
       particulars_for_reverse_entry.each do |particular|
         reverse_accounts(particular, new_voucher, description, 0.0, cheque_entry)
       end
+
+      if new_voucher.particulars.size != particulars_for_reverse_entry.size
+        set_error('The cheque can not be bounced...Please contact technical support.')
+        raise ActiveRecord::Rollback
+      end
+
       @cheque_entry.bounced!
       new_voucher.complete!
       voucher.reversed!
