@@ -349,20 +349,20 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date)
 
-      #   special case for nepse incase of a threshold transfer
-      #   settlement is done with the broker itself and not the nepse
-      #   only settlement done is the commission and tds.
-      unless share_net_amount < THRESHOLD_NEPSE_AMOUNT_LIMIT
-        new_description = "Buy Adjustment with Broker #{seller_broking_firm_code} (#{share_quantity}*#{company_symbol}@#{share_rate})"
-        additional_voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
-        additional_voucher.share_transactions << transaction
-        additional_voucher.desc = description
-        clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
-        process_accounts(nepse_ledger, voucher, true, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
-        process_accounts(clearing_ledger, voucher, false, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
-        additional_voucher.complete!
-        additional_voucher.save!
-      end
+      # #   special case for nepse incase of a threshold transfer
+      # #   settlement is done with the broker itself and not the nepse
+      # #   only settlement done is the commission and tds.
+      # unless share_net_amount < THRESHOLD_NEPSE_AMOUNT_LIMIT
+      #   new_description = "Buy Adjustment with Broker #{seller_broking_firm_code} (#{share_quantity}*#{company_symbol}@#{share_rate})"
+      #   additional_voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
+      #   additional_voucher.share_transactions << transaction
+      #   additional_voucher.desc = description
+      #   clearing_ledger = Ledger.find_or_create_by!(name: "Clearing Account")
+      #   process_accounts(nepse_ledger, voucher, true, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
+      #   process_accounts(clearing_ledger, voucher, false, THRESHOLD_NEPSE_AMOUNT_LIMIT, description, client_branch_id, transaction.date)
+      #   additional_voucher.complete!
+      #   additional_voucher.save!
+      # end
     end
 
 
