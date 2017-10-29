@@ -95,4 +95,41 @@ namespace :voucher do
       Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
     end
   end
+
+  task :fix_large_transactions, [:tenant, :fy_code] => 'smartkhata:validate_tenant' do |tasks, args|
+    fy_code = args.fy_code
+    particulars = Particular.dr.where(ledger_id: 4, amount: 5000000).where(fy_code: fy_code)
+
+    voucher_ids = particulars.pluck(:voucher_id)
+    count = 0
+    Voucher.where(id: voucher_ids).find_each do |v|
+      bills = v.bills.includes(:share_transactions).where('share_transactions.share_amount > 5000000').references('share_transactions')
+      if bills.size != 1
+        puts 'wrong calculation'
+      end
+
+      if bills.size == 1
+        share_transactions = bills.first.share_transactions.where('share_transactions.share_amount >= 5000000')
+        if share_transactions.size != 1
+          puts v.id
+        else
+          share_amount  = share_transactions.first.share_amount
+
+          if share_amount > 0
+            particulars_to_change = v.particulars.where(amount: 5000000)
+            if particulars_to_change.dr.first.ledger_id != 4 || particulars_to_change.cr.first.ledger_id != 6
+              puts 'something seriously wrong here'
+            else
+              count += 1
+              particulars_to_change.update_all(amount: share_amount)
+            end
+          else
+            puts 'wrong again'
+          end
+        end
+      end
+    end
+    puts particulars.size
+    puts "#{count} patched"
+  end
 end
