@@ -758,7 +758,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
       # update description
-      description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate})"
+      description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier

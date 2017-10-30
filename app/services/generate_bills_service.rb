@@ -155,7 +155,7 @@ class GenerateBillsService
           dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
           # compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
 
-          description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate})"
+          description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
 
           voucher = Voucher.create!(date: settlement_date)
           voucher.bills_on_creation << bill if bill.present?
