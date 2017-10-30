@@ -136,11 +136,12 @@ namespace :voucher do
   task :client_info_sales_purchase, [:tenant, :fy_code, :start_date] => 'smartkhata:validate_tenant' do |tasks, args|
     abort 'Please fy code' unless args.fy_code.present?
 
-    [4,5].each do |ledger_id|
+    [4, 5].each do |ledger_id|
       particulars = Particular.unscoped.where(fy_code: args.fy_code, ledger_id: ledger_id)
 
       if args.start_date.present?
         particulars = particulars.where('transaction_date >=  ?', args.start_date)
+        # particulars = particulars.where('transaction_date =  ', '2016-07-17')
       end
 
       particulars =  ledger_id == 4 ? particulars.cr : particulars.dr
@@ -153,9 +154,10 @@ namespace :voucher do
         end
         if client_names.size != 1
           puts particular.id
+          puts client_names
         else
           name = particular.name << " for #{client_names.first.humanize}"
-          particular.update_column(:name, name)
+          particular.update_attribute(:name, name)
         end
       end
     end
