@@ -132,4 +132,34 @@ namespace :voucher do
     puts particulars.size
     puts "#{count} patched"
   end
+
+  task :client_info_sales_purchase, [:tenant, :fy_code, :start_date] => 'smartkhata:validate_tenant' do |tasks, args|
+    abort 'Please fy code' unless args.fy_code.present?
+
+    [4, 5].each do |ledger_id|
+      particulars = Particular.unscoped.where(fy_code: args.fy_code, ledger_id: ledger_id)
+
+      if args.start_date.present?
+        particulars = particulars.where('transaction_date >=  ?', args.start_date)
+        # particulars = particulars.where('transaction_date =  ', '2016-07-17')
+      end
+
+      particulars =  ledger_id == 4 ? particulars.cr : particulars.dr
+
+      particulars.find_each do |particular|
+        client_names = particular.bills.pluck(:client_name).uniq
+        if client_names.size != 1
+          bill_ids = BillVoucherAssociation.where(voucher_id:  particular.voucher.id).pluck(:bill_id)
+          client_names = Bill.unscoped.where(id: bill_ids).pluck(:client_name).uniq
+        end
+        if client_names.size != 1
+          puts particular.id
+          puts client_names
+        else
+          name = particular.name << " for #{client_names.first.humanize}"
+          particular.update_attribute(:name, name)
+        end
+      end
+    end
+  end
 end
