@@ -47,11 +47,13 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   end
 
   def bank_id(bank_code)
-    bank = Bank.find_by(bank_code: bank_code)
-    unless bank.present?
-      bank = Bank.create!(bank_code: bank_code, name: "Unknown", skip_name_validation: true)
-    end  
-    bank.id
+    if bank_code.present?
+      bank = Bank.find_by(bank_code: bank_code)
+      unless bank.present?
+        bank = Bank.create!(bank_code: bank_code, name: "Unknown", skip_name_validation: true)
+      end
+      bank.id
+    end
   end
 
   def cheque_issued_type
@@ -59,6 +61,6 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   end
 
   def valid_cheque?
-      /\A[-+]?\d+\z/ === cheque_no && cheque_no != 'cash'
+    /\A[-+]?\d+\z/ === cheque_no && cheque_no != 'cash' && bank_code.present?
   end
 end

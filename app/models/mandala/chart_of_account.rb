@@ -58,6 +58,7 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
       end
 
     end
+    puts ledger.try(:id)
     ledger
   end
 
