@@ -62,7 +62,6 @@ namespace :mandala do
 
               ledger.particular = particular
               ledger.save!
-
               dr_particulars << particular if particular.dr?
               cr_particulars << particular if particular.cr?
             end
