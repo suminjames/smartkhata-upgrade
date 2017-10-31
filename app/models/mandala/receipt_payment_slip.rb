@@ -45,7 +45,8 @@ class Mandala::ReceiptPaymentSlip < ActiveRecord::Base
                              date: Date.parse(self.slip_date),
                              settlement_type: self.settlement_type,
                              voucher_id: voucher_id,
-                             fy_code: fy_code
+                             fy_code: fy_code,
+                             branch_id: 1
     )
   end
 

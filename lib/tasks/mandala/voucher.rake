@@ -23,7 +23,7 @@ namespace :mandala do
       vouchers = vouchers.where('fiscal_year = ?', fiscal_year)
     end
 
-    assign_new_number = args.assign_new_number == true ? true : false
+    assign_new_number = args.assign_new_number == 'true' ? true : false
     # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
 
       # Mandala::Voucher.where('voucher_date_parsed > ?', Date.parse('2016-7-15') ).find_each do |voucher|
@@ -62,7 +62,6 @@ namespace :mandala do
 
               ledger.particular = particular
               ledger.save!
-
               dr_particulars << particular if particular.dr?
               cr_particulars << particular if particular.cr?
             end
@@ -97,7 +96,6 @@ namespace :mandala do
                     if cheque_entry.present?
                       cheque_entry.skip_cheque_number_validation = true
                       cheque_entry.save!
-  
                       detail.cheque_entry_id = cheque_entry.id
                       detail.save!
                       cheque_entries << cheque_entry unless multi_detailed_cheque
