@@ -17,6 +17,7 @@ RSpec.describe MenuItem, type: :model do
   		subject
       menu_item
   		subject.menu_permissions << menu_permission
+      debugger
   		expect(MenuItem.black_listed_paths_for_user(user_access_role.id)).to eq(["nuhg"])
   	end
 
