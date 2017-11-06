@@ -290,5 +290,15 @@ class SmsMessage < ActiveRecord::Base
     number
   end
 
+  def self.check_for_sms_credit_shortage
+    notification_threshold = 500
+    current_credit = SmsMessage.sparrow_credit.to_i rescue nil
+    if current_credit.blank? || current_credit <= notification_threshold
+      puts "SMS shortage notification: current_credit: #{current_credit.try(:to_s)}"
+      # Rails.logger.info "SMS shortage notification: current_credit: #{current_credit.try(:to_s)}"
+      # TODO Email admin(saroj, subas) about the shortage
+    end
+  end
+
 end
 

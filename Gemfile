@@ -49,6 +49,7 @@ gem 'sankhya'
 gem 'apartment'
 gem 'react-rails'
 gem 'slim'
+gem 'whenever', :require => false
 
 group :production do
   gem 'puma'
