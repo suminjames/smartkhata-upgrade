@@ -48,7 +48,7 @@ selectedBillsIds= []
 allBillsIds= []
 
 $(document).on 'change', 'input:checkbox', (event)->
-  selectedBillsIds = `$("#filterrific_results .bill:input:checkbox:checked").not('.bill#select_all').map(function(){return this.id}).get();`
+  selectedBillsIds = `$("#filterrific_results .bill:input:checkbox:checked").not('.bill#select_all').map(function(){return $(this).attr('data-id')}).get();`
   setButtonsActivenesses()
   console.log selectedBillsIds
 
