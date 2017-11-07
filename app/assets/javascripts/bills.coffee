@@ -57,6 +57,10 @@ $(document).on 'click', '.bill#select_all', (event) ->
   $(".bill:input:checkbox").prop('checked', $(this).prop("checked"))
   $(".bill:input:checkbox").attr('disabled', false)
 
+$(document).off('click', '.download-selected_bill').on 'click', ".download-selected_bill", (event) ->
+  bills_ids_argument = $.param({bill_ids: selectedBillsIds})
+  window.open("/bills/show_multiple.pdf?" + bills_ids_argument, '_blank')
+
 setButtonsActivenesses= ->
   toggleAllButtons()
 
