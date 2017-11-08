@@ -6,7 +6,7 @@ RSpec.describe MenuPermissionModule, type: :helper do
   MenuField =
       Class.new do
         include MenuPermissionModule
-
+        include ApplicationHelper
         attr_accessor :current_user
       end
   let(:dummy_class) { MenuField.new }
@@ -15,6 +15,17 @@ RSpec.describe MenuPermissionModule, type: :helper do
   let(:user_access_role){create(:user_access_role)}
   let(:user) {create(:user, user_access_role_id: user_access_role.id, role: 0, username: 'john', email: 'jhn@gmail.com', branch_id: 1)}
   let(:user1) {create(:user, user_access_role_id: user_access_role.id, username: 'ram', email: 'ram@gmail.com', branch_id: 1)}
+  let(:menu1) {create(:menu_item, path: 'path1')}
+  let(:menu2) {create(:menu_item, path: 'path2')}
+
+  describe '.permitted_menu_list' do
+    it 'should return menu list' do
+      # blocked_path_list = ['path1']
+      allow(dummy_class).to receive(:current_user).and_return(user)
+      # allow(dummy_class).to receive(:is_blocked_path).and_return(true)
+      expect(dummy_class.permitted_menu_list([menu1, menu2], user.id)).to eq([])
+    end
+  end
 
   describe '.get_blocked_path_list' do
     it 'should return blocked path list' do
@@ -53,11 +64,36 @@ RSpec.describe MenuPermissionModule, type: :helper do
     end
   end
 
-  # describe '.user_has_access_to?' do
-  #   it 'should return true' do
-  #     allow(dummy_class).to receive(:current_user).and_return(user1)
-  #     allow(ApplicationHelper).to receive(:admin_and_above?).and_return(true)
-  #     expect(dummy_class.user_has_access_to?('test.com')).to eq(true)
-  #   end
-  # end
+  describe '.user_has_access_to?' do
+    context 'when user is admin' do
+      it 'should return true' do
+        allow(dummy_class).to receive(:current_user).and_return(user1)
+        expect(dummy_class.user_has_access_to?('test.com')).to eq(true)
+      end
+    end
+
+    context 'when user is client' do
+      it 'should return true' do
+        user_client = create(:user, user_access_role_id: user_access_role.id, role: 1, username: 'Aakash', email: 'aakash@gmail.com', branch_id: 1)
+        allow(dummy_class).to receive(:current_user).and_return(user_client)
+        expect(dummy_class.user_has_access_to?('test.com')).to eq(true)
+      end
+    end
+
+    context 'when blocked path list doesnot include link' do
+      it 'should return true' do
+        allow(dummy_class).to receive(:current_user).and_return(user)
+        allow(user).to receive(:blocked_path_list).and_return(['testlink.com'])
+        expect(dummy_class.user_has_access_to?('test.com')).to eq(true)
+      end
+    end
+
+    context 'when blocked path list includes link' do
+      it 'should return false' do
+        allow(dummy_class).to receive(:current_user).and_return(user)
+        allow(user).to receive(:blocked_path_list).and_return(['test.com'])
+        expect(dummy_class.user_has_access_to?('test.com')).to eq(false)
+      end
+    end
+  end
 end
