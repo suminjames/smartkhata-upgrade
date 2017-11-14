@@ -2,7 +2,7 @@ class ShareTransactionsController < ApplicationController
   before_action :set_share_transaction, only: [:show, :edit, :update, :destroy, :process_closeout, :available_balancing_transactions]
 
   before_action -> {authorize @share_transaction}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions, :sebo_report]
+  before_action -> {authorize ShareTransaction}, only: [:index, :new, :create, :deal_cancel, :pending_deal_cancel, :capital_gain_report, :threshold_transactions, :contract_note_details, :securities_flow, :closeouts, :make_closeouts_processed, :process_closeout, :available_balancing_transactions, :sebo_report, :commission_report]
 
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
@@ -266,6 +266,70 @@ class ShareTransactionsController < ApplicationController
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
 
+  end
+
+  def commission_report
+    @filterrific = initialize_filterrific(
+        ShareTransaction,
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific])
+        },
+        persistence_id: false
+    ) or return
+
+    @items_per_page = 20
+
+    @commission_reports = ShareTransaction.commission_report(
+        params.dig(:filterrific, :by_client_id),
+        params.dig(:filterrific, :by_date_from),
+        params.dig(:filterrific, :by_date_to)
+    )
+
+    unless (params[:total_count])
+      @total_count = ShareTransaction.pluck(:client_account_id).uniq.count
+    end
+
+    # @commission_reports.instance_variable_set(:@total_count, 100)
+    @commission_reports = Kaminari::paginate_array(@commission_reports).page(params[:page]).per(@items_per_page)
+
+    @download_path_xlsx = commission_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+    @download_path_pdf = commission_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    respond_to do |format|
+      format.html
+      format.js
+      format.pdf do
+        pdf = Reports::Pdf::CommissionReport.new(@commission_reports, params[:filterrific], current_tenant)
+        send_data pdf.render, filename:  pdf.file_name, type: 'application/pdf', disposition: "inline"
+      end
+      format.xlsx do
+        report = Reports::Excelsheet::CommissionReport.new(@commission_reports, params[:filterrific],current_tenant)
+        if report.generated_successfully?
+          # send_file(report.path, type: report.type)
+          send_data report.file, type: report.type, filename: report.filename
+          report.clear
+        else
+          # This should be ideally an ajax notification!
+          # preserve params??
+          redirect_to commission_report_share_transactions_path, flash: { error: report.error }
+        end
+      end
+    end
+  rescue RuntimeError => e
+    puts "Had to reset filterrific params: #{ e.message }"
+    respond_to do |format|
+      flash.now[:error] = e.message
+      format.html { render :commission_report}
+      format.json { render json: flash.now[:error], status: :unprocessable_entity }
+    end
+
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   def threshold_transactions
