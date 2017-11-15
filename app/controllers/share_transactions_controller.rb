@@ -287,7 +287,11 @@ class ShareTransactionsController < ApplicationController
     )
 
     unless (params[:total_count])
-      @total_count = ShareTransaction.pluck(:client_account_id).uniq.count
+      @total_count = ShareTransaction.total_count_for_commission_report(
+          params.dig(:filterrific, :by_client_id),
+          params.dig(:filterrific, :by_date_from),
+          params.dig(:filterrific, :by_date_to)
+      )
     end
 
     # @commission_reports.instance_variable_set(:@total_count, 100)

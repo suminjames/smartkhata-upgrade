@@ -347,10 +347,9 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
-  def self.commission_report client_id, date_from_bs, date_to_bs
-    ar_connection = ActiveRecord::Base.connection
+  def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
     where_conditions =  []
-
+    ar_connection = ActiveRecord::Base.connection
     if client_id.present?
       client_id = ar_connection.quote(client_id)
       where_conditions << "client_account_id = #{client_id}"
@@ -365,7 +364,12 @@ class ShareTransaction < ActiveRecord::Base
       date_to_ad = fiscal_year_last_day
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
+    where_conditions
+  end
 
+  def self.commission_report client_id, date_from_bs, date_to_bs
+
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
     where_condition_str = "#{where_conditions.join(" AND ")}"
     ShareTransaction.includes(:client_account).where(where_condition_str).group(:client_account_id).select(
         :client_account_id,
@@ -373,6 +377,12 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(raw_quantity) as total_quantity",
         "SUM(share_amount) as total_amount",
         "SUM(commission_amount-nepse_commission) as total_commission_amount").order("total_commission_amount DESC")
+  end
+
+  def self.total_count_for_commission_report client_id, date_from_bs, date_to_bs
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+    ShareTransaction.where(where_condition_str).pluck(:client_account_id).uniq.count
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it
