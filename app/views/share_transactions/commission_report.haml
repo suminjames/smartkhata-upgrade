@@ -66,8 +66,8 @@
               %td=share_transaction.client_account.try(:name)
               %td.text-center=share_transaction.transaction_count
               %td.text-center=share_transaction.total_quantity
-              %td.text-right=monetary_decimal(share_transaction.total_amount)
-              %td.text-right=monetary_decimal(share_transaction.total_commission_amount)
+              %td.text-right=arabic_number(share_transaction.total_amount)
+              %td.text-right=arabic_number(share_transaction.total_commission_amount)
   -else
     %div.row.text-center.top-buffer-md
       There are no matching securities flows.
