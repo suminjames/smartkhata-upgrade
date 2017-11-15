@@ -278,7 +278,7 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-    @items_per_page = 20
+    @items_per_page = 50
 
     @commission_reports = ShareTransaction.commission_report(
         params.dig(:filterrific, :by_client_id),

@@ -59,9 +59,10 @@
           %th.text-center= 'Total Amount'
           %th.text-center= 'Total Commission Paid'
         %tbody
+          -pagination_count = kaminari_serial_number(params[:page], @commission_reports.limit_value)
           -@commission_reports.each_with_index do |share_transaction, index|
             %tr
-              %td.text-center= index+1
+              %td.text-center= pagination_count + index
               %td=share_transaction.client_account.try(:name)
               %td.text-center=share_transaction.transaction_count
               %td.text-center=share_transaction.total_quantity

@@ -85,30 +85,28 @@ class Reports::Pdf::CommissionReport < Prawn::Document
           share_transaction["total_commission_amount"]
       ]
       table_data << td_data
+    end
+    table_width = page_width - 2
+    column_widths = {
+        0 => table_width * 1/12.0,   #sn
+        1 => table_width * 3/12.0,     #name
+        2 => table_width * 2/12.0,   #trans
+        3 => table_width * 2/12.0,   #qty
+        4 => table_width * 2/12.0,   #amt
+        5 => table_width * 2/12.0,   #comm paid
+    }
 
-      table_width = page_width - 2
-      column_widths = {
-          0 => table_width * 1/12.0,   #sn
-          1 => table_width * 3/12.0,     #name
-          2 => table_width * 2/12.0,   #trans
-          3 => table_width * 2/12.0,   #qty
-          4 => table_width * 2/12.0,   #amt
-          5 => table_width * 2/12.0,   #comm paid
-      }
-
-      table table_data do |t|
-        t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
-        t.column(0).style(:align => :center)
-        t.column(1).style(:align => :left)
-        t.column(2).style(:align => :center)
-        t.column(3).style(:align => :center)
-        t.column(4).style(:align => :right)
-        t.column(5).style(:align => :right)
-        t.row(0).style(:align => :center)
-        t.row(0).font_style = :bold
-        t.column_widths = column_widths
-      end
-
+    table table_data do |t|
+      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
+      t.column(0).style(:align => :center)
+      t.column(1).style(:align => :left)
+      t.column(2).style(:align => :center)
+      t.column(3).style(:align => :center)
+      t.column(4).style(:align => :right)
+      t.column(5).style(:align => :right)
+      t.row(0).style(:align => :center)
+      t.row(0).font_style = :bold
+      t.column_widths = column_widths
     end
   end
 

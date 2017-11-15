@@ -367,7 +367,7 @@ class ShareTransaction < ActiveRecord::Base
     end
 
     where_condition_str = "#{where_conditions.join(" AND ")}"
-    ShareTransaction.by_branch.includes(:client_account).where(where_condition_str).group(:client_account_id).select(
+    ShareTransaction.includes(:client_account).where(where_condition_str).group(:client_account_id).select(
         :client_account_id,
         "COUNT(transaction_type) as transaction_count",
         "SUM(raw_quantity) as total_quantity",
