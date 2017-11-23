@@ -75,12 +75,12 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       date = p.date_bs
       desc = p.get_description
-      voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number}"
+      voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number.to_s.rjust(5,'0')}"
 
       bills = ""
       p.bills.each_with_index do |bill, bill_index|
         if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id.nil?
-          bills << "#{bill.fy_code}-#{bill.bill_number}"
+          bills << "#{bill.fy_code}-#{bill.bill_number.to_s.rjust(5,'0')}"
           bills << ", "
         end
       end
