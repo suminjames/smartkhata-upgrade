@@ -18,6 +18,7 @@ module Accounts
         end
         previous_fy_code = get_previous_fy_code fy_code
         pulled_ledger_ids = []
+        pulled_ledger_names = []
         Ledger.where(id: ledger_ids).find_each do |ledger|
           has_closing_balance = false
           LedgerBalance.unscoped.where(fy_code: previous_fy_code, ledger_id: ledger.id).find_each do |ledger_balance|
@@ -30,9 +31,11 @@ module Accounts
             end
           end
           pulled_ledger_ids << ledger.id if has_closing_balance
+          pulled_ledger_names << ledger.name if has_closing_balance
         end
 
         puts "Populating closing balance for #{pulled_ledger_ids.size}"
+        puts pulled_ledger_names.join(',') if pulled_ledger_ids.size < 50
         branch_ids.each do |branch_id|
           Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, false, branch_id)
           Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, false, branch_id)

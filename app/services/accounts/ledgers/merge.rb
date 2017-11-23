@@ -25,7 +25,7 @@ module Accounts
           if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
           #   do nothing
           elsif mandala_mapping_for_deleted_ledger.present?
-            mandala_mapping_for_deleted_ledger.ledger_id = args.merge_to
+            mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
           end
         end
