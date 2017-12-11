@@ -33,9 +33,7 @@ class SettlementsController < ApplicationController
       @settlements = @filterrific.find.not_rejected.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
 
-    @total_sum = @filterrific.find
-    # @total_sum = @filterrific.find.not_rejected
-    # debugger
+    @total_sum = @filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank])
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
     respond_to do |format|
