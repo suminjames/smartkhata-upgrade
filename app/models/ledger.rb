@@ -454,4 +454,18 @@ class Ledger < ActiveRecord::Base
     LedgerDaily.unscoped.where(ledger_id: self.id).delete_all
   end
 
+  def effective_branch
+    # todo different branch_ids for different type of accounts
+    if self.client_account_id
+      self.client_account.branch_id
+
+    elsif self.vendor_account_id
+      self.vendor_account.branch_id
+
+    elsif self.employee_account_id
+      EmployeeAccount.find(self.employee_account_id).branch_id
+    end
+
+  end
+
 end

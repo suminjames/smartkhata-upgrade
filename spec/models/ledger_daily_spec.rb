@@ -7,7 +7,7 @@ RSpec.describe LedgerDaily, type: :model do
   	describe "#sum_of_closing_balance_of_ledger_dailies_for_ledgers" do
   		context "when last day ledger daily present" do
   			let(:ledger){create(:ledger)}
-  			subject{create(:ledger_daily, closing_balance: 1000, date: "2017-6-8" ,ledger: ledger, branch_id: 1)}
+  			subject{create(:ledger_daily, closing_balance: 1000, date: "2017-6-8" ,ledger: ledger, branch_id: 1, fy_code: 7374)}
   			
   			it "should return sum of closing balance" do
   				subject

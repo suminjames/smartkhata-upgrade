@@ -324,6 +324,7 @@ RSpec.describe Voucher, type: :model do
 
       context "when skip number assign is true" do
         it "returns fy code" do
+          subject.date = '2016-8-18'
           subject.send(:process_voucher)
           expect(subject.fy_code).to eq(7374)
         end

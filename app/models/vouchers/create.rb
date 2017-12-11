@@ -135,54 +135,61 @@ class Vouchers::Create < Vouchers::Base
       end
     end
 
+    unless valid_branch(voucher)
+      has_error = true
+      error_message ="Branch is not correct"
+    end
+
     # check if debit equal credit or amount is not zero
-    voucher.particulars.each do |particular|
+    unless has_error
+      voucher.particulars.each do |particular|
 
-      # keep track of the cash amount needed to be shown on the settlement receipt
-      if voucher.is_payment_receipt?
-        net_cash_amount += particular.amount if particular.ledger_id == cash_ledger_id
-      end
+        # keep track of the cash amount needed to be shown on the settlement receipt
+        if voucher.is_payment_receipt?
+          net_cash_amount += particular.amount if particular.ledger_id == cash_ledger_id
+        end
 
-      particular.description = voucher.desc if particular.description.blank?
-      particular.amount = particular.amount || 0
-      if particular.amount <= 0
-        has_error = true
-        error_message ="Amount can not be negative or zero."
-        break
-      elsif particular.ledger_id.nil?
-        has_error = true
-        error_message ="Particulars cant be empty"
-        break
-      end
+        particular.description = voucher.desc if particular.description.blank?
+        particular.amount = particular.amount || 0
+        if particular.amount <= 0
+          has_error = true
+          error_message ="Amount can not be negative or zero."
+          break
+        elsif particular.ledger_id.nil?
+          has_error = true
+          error_message ="Particulars cant be empty"
+          break
+        end
 
-      (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
+        (particular.dr?) ? net_blnc += particular.amount : net_blnc -= particular.amount
 
-      # get a net usable balance to charge the client for billing purpose
-      # earlier net usable balance was passed from the function which wont be necesary now
-      # as bill processing will be handled on the particular portion itself
+        # get a net usable balance to charge the client for billing purpose
+        # earlier net usable balance was passed from the function which wont be necesary now
+        # as bill processing will be handled on the particular portion itself
 
-      if voucher.is_receipt?
-        net_usable_blnc += (particular.dr?) ? particular.amount : 0
-      elsif voucher.is_payment?
-        net_usable_blnc += (particular.cr?) ? particular.amount : 0
-      end
+        if voucher.is_receipt?
+          net_usable_blnc += (particular.dr?) ? particular.amount : 0
+        elsif voucher.is_payment?
+          net_usable_blnc += (particular.cr?) ? particular.amount : 0
+        end
 
-      if (particular.cheque_number.present?)
-        particular.ledger_type = Particular.ledger_types[:has_bank]
-        if particular.cr?
-          particular.additional_bank_id = nil
-          voucher.is_payment_bank = true
-          # Company can create payment by cheque for only one at a time
-          # unless they are paying to a group or vendor
-          if voucher.particulars.length > 2 && voucher_settlement_type == 'default'
-            has_error = true
-            error_message ="Single Cheque Entry only possible for payment by cheque"
-            break
+        if (particular.cheque_number.present?)
+          particular.ledger_type = Particular.ledger_types[:has_bank]
+          if particular.cr?
+            particular.additional_bank_id = nil
+            voucher.is_payment_bank = true
+            # Company can create payment by cheque for only one at a time
+            # unless they are paying to a group or vendor
+            if voucher.particulars.length > 2 && voucher_settlement_type == 'default'
+              has_error = true
+              error_message ="Single Cheque Entry only possible for payment by cheque"
+              break
+            end
           end
         end
+
+
       end
-
-
     end
     return voucher, has_error, error_message, net_blnc, net_usable_blnc, net_cash_amount
   end
@@ -588,5 +595,16 @@ class Vouchers::Create < Vouchers::Base
 
   def get_branch_id_from_session
     UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
+  end
+
+  def valid_branch(voucher)
+    voucher.particulars.each do |particular|
+      ledger = Ledger.find(particular.ledger_id)
+      effective_branch = ledger.effective_branch
+      if effective_branch && effective_branch != particular.branch_id
+        return false
+      end
+    end
+    return true
   end
 end
