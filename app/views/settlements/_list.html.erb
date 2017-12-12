@@ -53,7 +53,7 @@
   </table>
   <br>
   <% if settlements.present? %>
-    <div>Total Sum: <%=@total_sum.sum(:amount).to_f%></div>
+    <div>Total Sum: <%= @total_sum %></div>
   <% end %>
   <% if settlements.blank? %>
       <div class="row text-center top-buffer-md">

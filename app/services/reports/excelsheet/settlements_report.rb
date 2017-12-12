@@ -86,7 +86,7 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
         row_index += 1
       end
     end
-      total_sum = @total_sum.sum(:amount).to_f
+      total_sum = @total_sum
       @sheet.add_row ["Total Sum: #{total_sum}"]
   end
 
