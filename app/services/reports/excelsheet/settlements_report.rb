@@ -1,8 +1,8 @@
 class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
   TABLE_HEADER = ["SN.", "Name", "Amount", "Bank", "Cheque Number", "Date", "Description", "Type"]
 
-  def initialize(settlements, params, current_tenant)
-    super(settlements, params, current_tenant)
+  def initialize(settlements, params, current_tenant, total_sum)
+    super(settlements, params, current_tenant, total_sum)
     if params
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @settlement_type = @params[:by_settlement_type] if @params[:by_settlement_type].present?
@@ -70,6 +70,7 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
       cheque_num = cheque_numbers.shift || ''
       bank_code = bank_codes.shift || ''
       amount = amounts.shift || ''
+      # debugger
       settlement_type = s.receipt? ? 'receipt' : 'payment'
       row_style = normal_style_row
       @sheet.add_row [sn, s.name, amount, bank_code, cheque_num, s.date_bs, s.description, settlement_type], style: row_style
@@ -85,6 +86,8 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
         row_index += 1
       end
     end
+      total_sum = @total_sum.sum(:amount).to_f
+      @sheet.add_row ["Total Sum: #{total_sum}"]
   end
 
   def set_column_widths

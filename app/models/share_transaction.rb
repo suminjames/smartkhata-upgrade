@@ -319,6 +319,8 @@ class ShareTransaction < ActiveRecord::Base
 
     where_condition_str = "#{where_conditions.join(" AND ")}"
 
+
+
     ShareTransaction.includes(:isin_info).where(where_condition_str).group(:isin_info_id).select(
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
@@ -343,6 +345,44 @@ class ShareTransaction < ActiveRecord::Base
       "SUM(share_amount * (case transaction_type when 0 then 1 else 0 end)) as buy_sum",
         "SUM(share_amount) as total_amount",
         "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
+  end
+
+  def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+    where_conditions =  []
+    ar_connection = ActiveRecord::Base.connection
+    if client_id.present?
+      client_id = ar_connection.quote(client_id)
+      where_conditions << "client_account_id = #{client_id}"
+    end
+
+    if date_from_bs.present? || date_to_bs.present?
+      date_from_ad = bs_to_ad(date_from_bs)
+      date_to_ad = bs_to_ad(date_to_bs)
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    else
+      date_from_ad = fiscal_year_first_day
+      date_to_ad = fiscal_year_last_day
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    end
+    where_conditions
+  end
+
+  def self.commission_report client_id, date_from_bs, date_to_bs
+
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+    ShareTransaction.includes(:client_account).where(where_condition_str).group(:client_account_id).select(
+        :client_account_id,
+        "COUNT(transaction_type) as transaction_count",
+        "SUM(raw_quantity) as total_quantity",
+        "SUM(share_amount) as total_amount",
+        "SUM(commission_amount-nepse_commission) as total_commission_amount").order("total_commission_amount DESC")
+  end
+
+  def self.total_count_for_commission_report client_id, date_from_bs, date_to_bs
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+    ShareTransaction.where(where_condition_str).pluck(:client_account_id).uniq.count
   end
 
   # instead of deleting, indicate the user requested a delete & timestamp it

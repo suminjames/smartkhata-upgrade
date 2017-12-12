@@ -1,0 +1,73 @@
+%p#notice= notice
+- provide(:section_title, "Commission Report")
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  = hidden_field_tag(:only_balance, params[:only_balance])
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-sm-3
+          %label
+            Client
+          = f.collection_select(                        |
+            :by_client_id,                              |
+            @filterrific.select_options[:by_client_id], |
+            :id,                                        |
+            :name_and_nepse_code,                                      |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
+          %div.top-buffer-sm
+            = f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
+            = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+
+        .col-sm-4.text-center
+          %label
+            Date Range
+          .clearfix
+            .col-sm-6
+              = f.text_field(:by_date_from,:placeholder => 'YYYY-MM-DD',class: 'form-control' )
+            .col-sm-6
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+    = render_filterrific_spinner
+
+%div.bottom-buffer-sm.text-right
+  .btn-group
+    %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+      %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+      Download
+      %span.caret
+    %ul.dropdown-menu
+      %li
+        = link_to 'PDF', @download_path_pdf, :target => "_blank"
+
+%div
+  -unless @commission_reports.blank?
+    %div.text-center
+      =paginate @commission_reports, total_pages: (@total_count / @items_per_page).ceil, :theme => 'twitter-bootstrap-3'
+
+
+
+%div#commission_report_list
+  -if @commission_reports.present?
+    %div.table-responsive
+      %table.table.table-bordered
+        %thead
+          %th.text-center= 'S.no'
+          %th.text-center= 'Client Name'
+          %th.text-center= 'Total Transaction'
+          %th.text-center= 'Total Quantity'
+          %th.text-center= 'Total Amount'
+          %th.text-center= 'Total Commission Paid'
+        %tbody
+          -pagination_count = kaminari_serial_number(params[:page], @commission_reports.limit_value)
+          -@commission_reports.each_with_index do |share_transaction, index|
+            %tr
+              %td.text-center= pagination_count + index
+              %td=share_transaction.client_account.try(:name)
+              %td.text-center=share_transaction.transaction_count
+              %td.text-center=share_transaction.total_quantity
+              %td.text-right=arabic_number(share_transaction.total_amount)
+              %td.text-right=arabic_number(share_transaction.total_commission_amount)
+  -else
+    %div.row.text-center.top-buffer-md
+      There are no matching securities flows.

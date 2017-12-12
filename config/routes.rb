@@ -102,7 +102,7 @@ Rails.application.routes.draw do
       get 'closeouts'
       get 'make_closeouts_processed'
       get 'sebo_report'
-
+      get 'commission_report'
     end
     member do
       post 'process_closeout'
