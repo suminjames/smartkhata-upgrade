@@ -290,13 +290,27 @@ class SmsMessage < ActiveRecord::Base
     number
   end
 
+  # Used in a cron job by `whenever` gem.
   def self.check_for_sms_credit_shortage
-    notification_threshold = 500
+    notification_threshold = 5000
     current_credit = SmsMessage.sparrow_credit.to_i rescue nil
     if current_credit.blank? || current_credit <= notification_threshold
-      puts "SMS shortage notification: current_credit: #{current_credit.try(:to_s)}"
-      # Rails.logger.info "SMS shortage notification: current_credit: #{current_credit.try(:to_s)}"
-      # TODO Email admin(saroj, subas) about the shortage
+      notification_message = []
+      notification_message << "*" * 80
+      notification_message << "SMS shortage notification!"
+      if current_credit.blank?
+        notification_message << "There seems to be a problem fetching sms credit."
+        notification_message << "Please try checking manually."
+      elsif current_credit <= notification_threshold
+        notification_message << "SMS credit: #{current_credit.try(:to_s)}"
+      end
+      notification_message << "Ran at #{DateTime.now}"
+      notification_message << "*" * 80
+      concatenated_notification_message = notification_message.join("\n")
+      puts concatenated_notification_message
+      Rails.logger.info concatenated_notification_message
+    else
+      # Do nothing. If no output to the system, no cron mail notification is sent out.
     end
   end
 
