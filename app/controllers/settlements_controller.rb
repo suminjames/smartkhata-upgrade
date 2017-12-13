@@ -23,6 +23,8 @@ class SettlementsController < ApplicationController
     # In case of cheque creation during voucher client_account_id is not assigned to the cheques
     # to compensate that or condition is inserted
 
+    @total_sum = monetary_decimal(@filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).uniq.select(:amount, :id).map{|x| x.amount}.sum(:&).to_f)
+
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
     # TODO(sarojk): Due to new implmentation of model associations, where conditions below are probably redundant. Get rid of them as necessary after migration.
@@ -32,8 +34,6 @@ class SettlementsController < ApplicationController
     else
       @settlements = @filterrific.find.not_rejected.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
     end
-
-    @total_sum = @filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank])
 
     @download_path_xlsx = settlements_path({format:'xlsx'}.merge params)
     respond_to do |format|

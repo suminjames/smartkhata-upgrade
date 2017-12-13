@@ -465,4 +465,155 @@ RSpec.describe Vouchers::Create do
       expect(voucher_creation.voucher.is_payment_bank?).to_not be_truthy
     end
   end
+  describe 'valid branch' do
+    let(:bank_account1) { create(:bank_account)}
+    let(:bank_account2) { create(:bank_account)}
+    let(:ledger1) { create(:ledger, bank_account_id: bank_account1.id, branch_id: @branch.id)}
+    let(:ledger2) { create(:ledger, bank_account_id: bank_account2.id, branch_id: @branch.id)}
+    let(:voucher) { build(:voucher, voucher_type: 0)}
+    let(:voucher1) { build(:voucher, voucher_type: 1)}
+    let(:voucher2) { build(:voucher, voucher_type: 2)}
+    let(:debit_particular) { build(:particular, amount: 200, transaction_type: 0, ledger_id: ledger1.id) }
+    let(:credit_particular) { build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger2.id) }
+
+    context 'when non client particulars' do
+      it 'should return true' do
+        voucher.particulars << debit_particular
+        voucher.particulars << credit_particular
+
+        voucher1.particulars << debit_particular
+        voucher1.particulars << credit_particular
+
+        voucher2.particulars << debit_particular
+        voucher2.particulars << credit_particular
+
+        voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
+                                                voucher: voucher1,
+                                                voucher_settlement_type: "default",
+                                                tenant_full_name: "Trishakti")
+        voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher2,
+                                                voucher_settlement_type: "default",
+                                                tenant_full_name: "Trishakti")
+
+        expect(voucher_creation.process).to be_truthy
+        expect(voucher_creation1.process).to be_truthy
+        expect(voucher_creation2.process).to be_truthy
+      end
+
+      let(:branch) {create(:branch, address: 'PKR')}
+      it 'should return true' do
+        bank_account1.branch_id = branch.id
+        bank_account2.branch_id = branch.id
+        ledger1.branch_id = branch.id
+        ledger2.branch_id = branch.id
+        debit_particular.branch_id = branch.id
+        credit_particular.branch_id = branch.id
+
+        voucher.particulars << debit_particular
+        voucher.particulars << credit_particular
+
+        voucher1.particulars << debit_particular
+        voucher1.particulars << credit_particular
+
+        voucher2.particulars << debit_particular
+        voucher2.particulars << credit_particular
+
+        voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
+                                                 voucher: voucher1,
+                                                 voucher_settlement_type: "default",
+                                                 tenant_full_name: "Trishakti")
+        voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
+                                                 voucher: voucher2,
+                                                 voucher_settlement_type: "default",
+                                                 tenant_full_name: "Trishakti")
+        expect(voucher_creation.process).to be_truthy
+        expect(voucher_creation1.process).to be_truthy
+        expect(voucher_creation2.process).to be_truthy
+      end
+    end
+
+    context 'when client particular present' do
+      let(:branch){create(:branch, address: 'PKR')}
+      let(:bank_account) {create(:bank_account)}
+      let(:client_account) {create(:client_account, branch_id: branch.id)}
+      let(:ledgerb) { create(:ledger, bank_account_id: bank_account.id)}
+      let(:ledgerc) { create(:ledger, client_account_id: client_account.id, branch_id: branch.id)}
+      let(:voucher) { build(:voucher, voucher_type: 0)}
+      let(:voucher1) { build(:voucher, voucher_type: 1)}
+      let(:voucher2) { build(:voucher, voucher_type: 2)}
+      let(:debit_particular) { build(:particular, amount: 100, transaction_type: 0, ledger_id: ledgerb.id) }
+      let(:credit_particular) { build(:particular, amount: 100, transaction_type: 1, ledger_id: ledgerc.id, branch_id: branch.id) }
+
+      it 'should return true' do
+        voucher.particulars << debit_particular
+        voucher.particulars << credit_particular
+
+        voucher1.particulars << debit_particular
+        voucher1.particulars << credit_particular
+
+        debit_particular.transaction_type = 1
+        credit_particular.transaction_type = 0
+
+        voucher2.particulars << debit_particular
+        voucher2.particulars << credit_particular
+
+        voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
+                                                voucher: voucher1,
+                                                voucher_settlement_type: "default",
+                                                tenant_full_name: "Trishakti")
+        voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher2,
+                                                voucher_settlement_type: "default",
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.process).to be_truthy
+        expect(voucher_creation1.process).to be_truthy
+        expect(voucher_creation2.process).to be_truthy
+      end
+    end
+
+    context 'when client particulars with different branch' do
+      let(:branch1) {create(:branch)}
+      let(:branch2) {create(:branch)}
+      let(:client1) {create(:client_account, branch_id: branch1.id)}
+      let(:client2) {create(:client_account, branch_id: branch2.id)}
+      let(:ledger1) {create(:ledger, client_account_id: client1.id, branch_id: branch1.id)}
+      let(:ledger2) {create(:ledger, client_account_id: client2.id, branch_id: branch2.id)}
+      let(:voucher) {build(:voucher, voucher_type: 0)}
+      let(:debit_particular) {build(:particular, amount: 300, transaction_type: 0, ledger_id: ledger1.id, branch_id: branch1.id) }
+      let(:credit_particular) {build(:particular, amount: 300, transaction_type: 1, ledger_id: ledger2.id, branch_id: branch2.id) }
+      it 'should return true' do
+        voucher.particulars << debit_particular
+        voucher.particulars << credit_particular
+        voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.process).to be_truthy
+      end
+    end
+
+    context 'when employee particular present' do
+      let(:branch) {create(:branch)}
+      let(:employee_account) {create(:employee_account, branch_id: branch.id)}
+      let(:ledger_e) {create(:ledger, employee_account_id: employee_account.id, branch_id: branch.id)}
+      let(:credit_particular) {build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger_e.id, branch_id: branch.id)}
+      it 'should return true' do
+        voucher.particulars << debit_particular
+        voucher.particulars << credit_particular
+        voucher_creation = Vouchers::Create.new(voucher_type: 0,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.process).to be_truthy
+      end
+    end
+  end
 end
