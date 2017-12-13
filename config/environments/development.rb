@@ -29,19 +29,12 @@ Rails.application.configure do
   # IMPORTANT! The following is set to true by default. Setting it to false makes page loading faster but has its own (apparently trivial to this project) complexities. See for more: http://stackoverflow.com/questions/16357785/what-exactly-config-assets-debug-setting-does Also see: http://artandlogic.com/2012/12/faster-rails-dev/
   config.assets.debug = false
 
-  config.action_mailer.smtp_settings = {
-    address: "smtp.sendgrid.net",
-    port: 587,
-    domain: Rails.application.secrets.domain_name,
-    authentication: "plain",
-    enable_starttls_auto: true,
-    user_name: Rails.application.secrets.email_provider_username,
-    password: Rails.application.secrets.email_provider_password
-  }
+  # For mailcatcher
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = { :address => "localhost", :port => 1025 }
 
   # ActionMailer Config
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
-  config.action_mailer.delivery_method = :smtp
   config.action_mailer.raise_delivery_errors = true
   # Send email in development mode?
   config.action_mailer.perform_deliveries = true
