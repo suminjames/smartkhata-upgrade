@@ -43,3 +43,32 @@ $ ->
     $('.total-bill-amount .numeric-amount').text(bill_amount)
     $('.total-bill-amount .selected-bill-name-list').text(get_bill_names())
     $('.total-bill-amount .selected-bill-id-list').text(get_bill_ids())
+
+selectedBillsIds= []
+allBillsIds= []
+
+$(document).on 'change', 'input:checkbox', (event)->
+  selectedBillsIds = `$("#filterrific_results .bill:input:checkbox:checked").not('.bill#select_all').map(function(){return $(this).attr('data-id')}).get();`
+  setButtonsActivenesses()
+  console.log selectedBillsIds
+
+$(document).on 'click', '.bill#select_all', (event) ->
+  console.log 'all'
+  $(".bill:input:checkbox").prop('checked', $(this).prop("checked"))
+  $(".bill:input:checkbox").attr('disabled', false)
+
+$(document).off('click', '.download-selected_bill').on 'click', ".download-selected_bill", (event) ->
+  bills_ids_argument = $.param({bill_ids: selectedBillsIds})
+  window.open("/bills/show_multiple.pdf?" + bills_ids_argument, '_blank')
+
+setButtonsActivenesses= ->
+  toggleAllButtons()
+
+toggleAllButtons = ->
+    if isAnyBillSelected()
+      $('.download-selected_bill').removeClass 'btn-disabled'
+    else
+      $('.download-selected_bill').addClass 'btn-disabled'
+
+isAnyBillSelected = ->
+  return selectedBillsIds.length > 0

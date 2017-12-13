@@ -87,7 +87,7 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
       end
     end
       total_sum = @total_sum
-      @sheet.add_row ["Total Sum: #{total_sum}"]
+      @sheet.add_row ["Grand Total: #{total_sum}"]
   end
 
   def set_column_widths

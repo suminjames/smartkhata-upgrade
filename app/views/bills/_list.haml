@@ -1,19 +1,27 @@
 %div#filterrific_results
 
   - if bills.present?
-    %div.bottom-buffer-sm.text-right
-      .btn-group
-        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
-          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
-          Download
-          %span.caret
-        %ul.dropdown-menu
-          %li
-            = link_to 'Excelsheet', @download_path_xlsx
+    %div.row
+      %div.btnPrintPDF.bottom-buffer-sm.col-sm-6.download-selected_bill.text-left.btn-disabled
+        %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+        %span= 'Download Selected Bills'
+      %div.bottom-buffer-sm.col-sm-6.text-right
+        .btn-group
+          %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+            %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+            Download
+            %span.caret
+          %ul.dropdown-menu
+            %li
+              = link_to 'Excelsheet', @download_path_xlsx
 
   %div#bill_list.table-responsive
     %table.table.table-striped
       %thead
+        %th.col-xs-1.text-center
+          = 'All'
+          %br
+          = check_box_tag 'select_all', '', false, class: 'bill'
         %th.col-sm-1= 'S.N.'
         %th.col-sm-1= 'Bill No.'
         %th.col-sm-1= 'Date(BS)'
@@ -28,6 +36,7 @@
           -pagination_count = kaminari_serial_number(params[:page], bills.limit_value)
           -bills.each_with_index do |bill, index|
             %tr
+              %td.text-center= check_box_tag bill.id, '', false, class: 'bill', data: { "id" => bill.id }
               %td= pagination_count + index
               %td= bill.formatted_bill_number
               %td= bill.formatted_bill_dates["bs"][0..-4]

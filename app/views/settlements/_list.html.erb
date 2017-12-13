@@ -11,6 +11,7 @@
             <li><%= link_to 'Excelsheet', @download_path_xlsx %></li>
           </ul>
         </div>
+        <div style="font-weight: bold; float: right;">Grand Total: <%= @total_sum %></div>
       </div>
   <% end %>
 
@@ -53,7 +54,7 @@
   </table>
   <br>
   <% if settlements.present? %>
-    <div>Total Sum: <%= @total_sum %></div>
+    <div style="font-weight: bold;">Grand Total: <%= @total_sum %></div>
   <% end %>
   <% if settlements.blank? %>
       <div class="row text-center top-buffer-md">
