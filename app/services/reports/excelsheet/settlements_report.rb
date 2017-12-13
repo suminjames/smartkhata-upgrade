@@ -86,7 +86,8 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
         row_index += 1
       end
     end
-      @sheet.add_row ["Grand Total: #{@total_sum}"]
+      style = [*[@styles[:table_header]]*2,@styles[:total_amt],*[@styles[:table_header]]*5]
+      @sheet.add_row ["","Grand Total"," #{@total_sum}","","","","",""],style: style
   end
 
   def set_column_widths
