@@ -197,7 +197,7 @@ class Settlement < ActiveRecord::Base
   #
   def self.new_settlement_number(fy_code, branch_id, settlement_type)
     settlement_type = self.settlement_types[settlement_type]
-    settlement = Settlement.where(fy_code: fy_code, branch_id: branch_id, settlement_type: settlement_type).last
+    settlement = Settlement.where(fy_code: fy_code, branch_id: branch_id, settlement_type: settlement_type).order(:settlement_number).last
     if settlement.nil?
       1
     else
