@@ -17,6 +17,7 @@ class ChequeEntries::Activity
   def process
     set_error('Please select the current fiscal year') and return unless valid_for_the_fiscal_year?
     return unless can_activity_be_done?
+    set_error('Please select the correct branch') and return unless valid_branch?
     perform_action
   end
 
@@ -26,6 +27,10 @@ class ChequeEntries::Activity
 
   def can_activity_be_done?
     return false
+  end
+
+  def valid_branch?
+    @cheque_entry.branch_id == UserSession.selected_branch_id
   end
 
   def valid_for_the_fiscal_year?

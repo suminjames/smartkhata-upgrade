@@ -1,6 +1,6 @@
 <%= link_to "View(pdf)", cheque_entry_path(format: "pdf"), :target => "_blank" %>
 
-<div class="btnPrintPDF btnPrintChequeEntryPDF" id="chequeEntry-<%= @cheque_entry.id %>">
+<div class="btnPrintPDF btnPrintChequeEntryPDF <%= "btn-disabled" if !@cheque_entry.approved? %>" id="chequeEntry-<%= @cheque_entry.id %>">
   <span class="glyphicon glyphicon-print print-icon"></span>
   <span>Print</span>
   <%= image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'cheque-entry-print-spinner') %>
@@ -12,7 +12,6 @@
   </iframe>
 
 </div>
-
 
 <div class="printThis cheque-single clearfix">
   <div class="receipt-section show-on-print">
