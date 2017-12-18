@@ -109,7 +109,7 @@ class Reports::Excelsheet
     doc_header_style = {sz: 20, fg_color: "3c8dbc"}.merge center_clear
     doc_sub_header_style = {sz: 14}.merge center_clear
     table_header_style = {b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge(complete_center)
-
+    total_amt_style = {b: true, sz: 12, bg_color: "3c8dbc", fg_color: "FF", border: Axlsx::STYLE_THIN_BORDER}.merge(right)
     # num_fmt: 5..8 : dollar
     # num_fmt: 9..10 : percentage
     float = {num_fmt: 4}.merge normal
@@ -122,7 +122,7 @@ class Reports::Excelsheet
     # note: the keys of the styles hash below (& thus related styles) are used by ALL child classes. Proceed with great caution befre modifying!
     styles_to_add = {
         table_header: table_header_style,
-
+        total_amt: total_amt_style,
         info: center_clear.merge(border_right),
         blank: plain,
         heading: doc_header_style.merge(border_right),
