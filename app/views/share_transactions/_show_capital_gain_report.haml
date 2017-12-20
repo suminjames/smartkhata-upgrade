@@ -1,24 +1,27 @@
 %div#filterrific_results
-  -if params.dig(:filterrific, :by_client_id).present?
+  -#-if params.dig(:filterrific, :by_client_id).present?
 
-    - if share_transactions.present?
-      %div.bottom-buffer-sm.text-right
-        .btn-group
-          %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
-            %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
-            Download
-            %span.caret
-          %ul.dropdown-menu
-            %li
-              = link_to 'PDF', @download_path_pdf, target: :_blank
+  - if share_transactions.present?
+    %div.bottom-buffer-sm.text-right
+      .btn-group
+        %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+          %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+          Download
+          %span.caret
+        %ul.dropdown-menu
+          %li
+            = link_to 'PDF', @download_path_pdf, target: :_blank
 
-    %div
-      %h4.text-center= ClientAccount.find_by_id(params.dig(:filterrific, :by_client_id)).name_and_nepse_code
+    -#%div
+    -#  %h4.text-center= ClientAccount.find_by_id(params.dig(:filterrific, :by_client_id)).name_and_nepse_code
+    = render 'shared/pagination', collection_to_paginate: share_transactions
 
     %div#share_transaction_list
       %table.table
         %thead
           %th.text-center= 'Bill No'
+          -unless params.dig(:filterrific, :by_client_id).present?
+            %th.text-center= 'Client Name'
           %th.text-center= 'Company'
           %th.text-center= 'Transaction No'
           %th.text-center= 'Transaction<br>Date'.html_safe
@@ -40,6 +43,8 @@
                     - previous_row_bill = current_bill
                     - bill_row_span = share_transactions.select{|e| e.bill_id == current_bill.id}.size
                   %td.text-center{rowspan: bill_row_span}= share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A'
+                -unless params.dig(:filterrific, :by_client_id).present?
+                  %td.text-center= share_transaction.client_account.name.upcase
                 %td.text-center= share_transaction.isin_info.name_and_code(:line_break => true, :html_safe => true)
                 %td.text-center= share_transaction.contract_no
                 %td.text-center= ad_to_bs_string(share_transaction.date)
@@ -48,12 +53,15 @@
                 - total_capital_gain += share_transaction.cgt
             -if share_transactions.present?
               %tr
-                - last_row_colspan = 5
+                -if params.dig(:filterrific, :by_client_id).present?
+                  - last_row_colspan = 5
+                -else
+                  - last_row_colspan = 6
                 %td.text-right{colspan: last_row_colspan}
                   %strong= 'Total:'
                 %td.text-right
                   %strong= arabic_number(total_capital_gain)
 
-      - if share_transactions.blank?
-        %div.row.text-center.top-buffer-md
-          There are no matching share transactions.
+  - if share_transactions.blank?
+    %div.row.text-center.top-buffer-md
+      There are no matching share transactions.
