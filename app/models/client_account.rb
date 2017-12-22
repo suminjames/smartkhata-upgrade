@@ -337,7 +337,7 @@ class ClientAccount < ActiveRecord::Base
     # str[0..1]= '' if str[0..1] == ', '
     # str[-2..-1]= '' if str[-2..-1] == ', '
 
-    [self.mobile_number, self.phone, self.phone_perm].compact.join(', ')
+    [self.mobile_number, self.phone, self.phone_perm].select{|x| x if x.present?}.join(', ')
 
   end
 
