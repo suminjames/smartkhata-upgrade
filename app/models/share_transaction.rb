@@ -213,7 +213,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def as_json(options={})
-    super.as_json(options).merge({:isin_info => isin_info, client_account: client_account.as_json})
+    super.as_json(options).merge({date_bs: self.class.ad_to_bs_string_public(date), :isin_info => isin_info, client_account: client_account.as_json})
   end
 
 
