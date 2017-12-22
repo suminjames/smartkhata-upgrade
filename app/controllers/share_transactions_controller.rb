@@ -427,10 +427,16 @@ class ShareTransactionsController < ApplicationController
     # @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).where('bills.fy_code' => UserSession.selected_fy_code).references(:bill).decorate
     @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
 
+    if params[:paginate] == 'false'
+      items_per_page = @share_transactions.size
+    end
+
+    @total_capital_gain = arabic_number(@filterrific.find.pluck(:cgt).sum(:&).to_f)
+
     @share_transactions = Kaminari::paginate_array(@share_transactions).page(params[:page]).per(items_per_page)
 
     @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
-    @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf'}.merge params)
+    @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
 
     respond_to do |format|
       format.html
@@ -438,9 +444,21 @@ class ShareTransactionsController < ApplicationController
       # format.xlsx do
       # end
       format.pdf do
-        pdf = Reports::Pdf::CustomerCapitalGainReport.new(@share_transactions, current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
+        pdf = Reports::Pdf::CustomerCapitalGainReport.new(@share_transactions,params[:filterrific], current_tenant, {:print_in_letter_head => params[:print_in_letter_head]})
         send_data pdf.render, filename: "CapitalGainReport_#{@share_transactions.first.client_account.nepse_code}.pdf", type: 'application/pdf', :disposition => 'inline'
       end
+      # format.xlsx do
+      #   report = Reports::Excelsheet::CustomerCapitalGainReport.new(@share_transactions, params[:filterrific],current_tenant)
+      #   if report.generated_successfully?
+      #     # send_file(report.path, type: report.type)
+      #     send_data report.file, type: report.type, filename: report.filename
+      #     report.clear
+      #   else
+      #     # This should be ideally an ajax notification!
+      #     # preserve params??
+      #     redirect_to capital_gain_report_share_transactions_path, flash: { error: report.error }
+      #   end
+      # end
     end
 
   rescue RuntimeError => e

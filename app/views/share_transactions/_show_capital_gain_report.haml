@@ -2,16 +2,21 @@
   -#-if params.dig(:filterrific, :by_client_id).present?
 
   - if share_transactions.present?
-    %div.bottom-buffer-sm.text-right
+    %div.bottom-buffer-sm
       .btn-group
         %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
           %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
           Download
           %span.caret
         %ul.dropdown-menu
+          -#%li
+          -#  = link_to 'Excelsheet', @download_path_xlsx
           %li
             = link_to 'PDF', @download_path_pdf, target: :_blank
 
+      .grand-total{:style => "float: right; font-weight: bold"}
+        %span
+          Grand Total: #{@total_capital_gain}
     -#%div
     -#  %h4.text-center= ClientAccount.find_by_id(params.dig(:filterrific, :by_client_id)).name_and_nepse_code
     = render 'shared/pagination', collection_to_paginate: share_transactions

@@ -5,16 +5,18 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
   include ApplicationHelper
   include ShareTransactionsHelper
 
-  def initialize(share_transactions, current_tenant, opts = {})
+  def initialize(share_transactions, params, current_tenant, opts = {})
     opts = {
         :fiscal_year => get_fy_code(Date.today),
         :print_in_letter_head => false
     }.merge(opts)
     @share_transactions = share_transactions
+    @params = params
     @current_tenant = current_tenant
 
     @print_in_letter_head = opts[:print_in_letter_head]
     @fiscal_year = opts[:fiscal_year]
+
 
     if @print_in_letter_head
       top_margin = 38.mm
@@ -67,7 +69,11 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(12)) do
       data = []
-      th_data = ["Bill No.", "Company", "Transaction No.", "Transaction\nDate", "Capital\nGain Tax"]
+      if @params.present? && @params[:by_client_id].present?
+        th_data = ["Bill No.", "Company", "Transaction No.", "Transaction\nDate", "Capital\nGain Tax"]
+      else
+        th_data = ["Bill No.", "Client Name","Company", "Transaction No.", "Transaction\nDate", "Capital\nGain Tax"]
+      end
       data << th_data
 
       total_capital_gain = 0
@@ -84,33 +90,65 @@ class Reports::Pdf::CustomerCapitalGainReport < Prawn::Document
             previous_row_bill = current_bill
             bill_row_span = @share_transactions.select{|e| e.bill_id == current_bill.id}.size
           end
-          row_data = [
-              {
-                  :content => share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A',
-                  :rowspan => bill_row_span
-              },
-              share_transaction.isin_info.name_and_code,
-              share_transaction.contract_no,
-              "#{ad_to_bs(share_transaction.date)} BS" ,
-              arabic_number(share_transaction.cgt)
-          ]
+          if @params.present? && @params[:by_client_id].present?
+            row_data = [
+                {
+                    :content => share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A',
+                    :rowspan => bill_row_span
+                },
+                share_transaction.isin_info.name_and_code,
+                share_transaction.contract_no,
+                "#{ad_to_bs(share_transaction.date)} BS" ,
+                arabic_number(share_transaction.cgt)
+            ]
+          else
+            row_data = [
+                {
+                    :content => share_transaction.bill.present? ? share_transaction.bill.full_bill_number : 'N/A',
+                    :rowspan => bill_row_span
+                },
+                share_transaction.client_account.name.upcase,
+                share_transaction.isin_info.name_and_code,
+                share_transaction.contract_no,
+                "#{ad_to_bs(share_transaction.date)} BS" ,
+                arabic_number(share_transaction.cgt)
+            ]
+          end
         else
-          row_data = [
-              share_transaction.isin_info.name_and_code,
-              share_transaction.contract_no,
-              "#{ad_to_bs(share_transaction.date)} BS" ,
-              arabic_number(share_transaction.cgt)
-          ]
+          if @params.present? && @params[:by_client_id].present?
+            row_data = [
+                share_transaction.isin_info.name_and_code,
+                share_transaction.contract_no,
+                "#{ad_to_bs(share_transaction.date)} BS" ,
+                arabic_number(share_transaction.cgt)
+            ]
+          else
+            row_data = [
+                share_transaction.client_account.name.upcase,
+                share_transaction.isin_info.name_and_code,
+                share_transaction.contract_no,
+                "#{ad_to_bs(share_transaction.date)} BS" ,
+                arabic_number(share_transaction.cgt)
+            ]
+          end
         end
 
         total_capital_gain += share_transaction.cgt
         data << row_data
       end
-      last_row_data = ["", "", "", "Total", arabic_number(total_capital_gain)]
+      if @params.present? && @params[:by_client_id].present?
+        last_row_data = ["", "", "", "Total", arabic_number(total_capital_gain)]
+      else
+        last_row_data = ["", "", "","", "Total", arabic_number(total_capital_gain)]
+      end
       data << last_row_data
 
       table_width = page_width - 2
-      column_widths = {0 => table_width * 1.5/12.0, 1 => table_width * 5.5/12.0, 2 => table_width * 2/12.0, 3 => table_width * 1.5/12.0, 4 => table_width * 1.5/12.0}
+      if @params.present? && @params[:by_client_id].present?
+        column_widths = {0 => table_width * 1.5/12.0, 1 => table_width * 5.5/12.0, 2 => table_width * 2/12.0, 3 => table_width * 1.5/12.0, 4 => table_width * 1.5/12.0}
+      else
+        column_widths = {0 => table_width * 1/12.0, 1 => table_width * 3/12.0, 2 => table_width * 3.5/12.0, 3 => table_width * 2/12.0, 4 => table_width * 1.5/12.0, 5 => table_width * 1/12.0}
+      end
       table data do |t|
         t.header = true
         t.row(0).font_style = :bold
