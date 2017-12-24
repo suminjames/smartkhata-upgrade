@@ -124,7 +124,7 @@ class NepaliCalendarPlus::CalendarPlus
 
   def ad_to_bs_string(year, month, day)
     bs_date_hash = ad_to_bs_hash(year, month, day)
-    return bs_date_hash[:year].to_s + '-' + bs_date_hash[:month].to_s + '-' + bs_date_hash[:day].to_s if bs_date_hash
+    return bs_date_hash[:year].to_s.rjust(4, '0') + '-' + bs_date_hash[:month].to_s.rjust(2, '0') + '-' + bs_date_hash[:day].to_s.rjust(2, '0') if bs_date_hash
   end
 
   # returns a bs_date hash with signature {:year=> 2072, :month => 2, :day => 32}

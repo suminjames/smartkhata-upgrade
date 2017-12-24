@@ -11,7 +11,7 @@ class Closeout extends React.Component {
     const transaction = this.state.transaction;
     return (
       <tr>
-        <td className="text-center">{transaction.date}</td>
+        <td className="text-center">{transaction.date} <br/> {transaction.date_bs}</td>
         <td className="text-center">{transaction.contract_no}</td>
         <td className="text-center">{transaction.isin_info.isin} <br/>{transaction.isin_info.company} </td>
         <td className="text-center">{transaction.client_account.name_and_nepse_code}</td>
