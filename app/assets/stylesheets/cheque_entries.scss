@@ -154,6 +154,16 @@ input[type="checkbox"].cheque-entry.unassigned-cheque {
   display: none
 }
 
+input[type="checkbox"].cheque-entry {
+  &.pending_approval-cheque,
+  &.pending_clearance-cheque,
+  &.void-cheque,
+  &.bounced-cheque,
+  &.represented-cheque{
+    display: none
+  }
+}
+
 .receipt-cheque-selected-warning {
   display: none
 }

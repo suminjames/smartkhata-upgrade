@@ -24,6 +24,11 @@ class ChequeEntryDecorator < ApplicationDecorator
     check_box_classes << 'receipt-cheque' if cheque_entry.receipt?
     check_box_classes << 'payment-cheque' if cheque_entry.payment?
     check_box_classes << 'unassigned-cheque' if cheque_entry.unassigned?
+    check_box_classes << 'pending_approval-cheque' if cheque_entry.pending_approval?
+    check_box_classes << 'pending_clearance-cheque' if cheque_entry.pending_clearance?
+    check_box_classes << 'void-cheque' if cheque_entry.void?
+    check_box_classes << 'bounced-cheque' if cheque_entry.bounced?
+    check_box_classes << 'represented-cheque' if cheque_entry.represented?
     check_box_classes.join(" ")
   end
 
