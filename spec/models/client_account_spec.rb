@@ -334,7 +334,7 @@ RSpec.describe ClientAccount, type: :model do
         subject.mobile_number = "988654324"
         subject.phone = "666676886"
         subject.phone_perm = "56596776"
-        expect(subject.commaed_contact_numbers).to eq("988654324, 666676886, 56596776")
+        expect(subject.commaed_contact_numbers).to eq("988654324,666676886,56596776")
       end
     end
 
@@ -343,7 +343,7 @@ RSpec.describe ClientAccount, type: :model do
         subject.mobile_number = "988654324"
         subject.phone = "666676886"
         subject.phone_perm = nil
-        expect(subject.commaed_contact_numbers).to eq("988654324, 666676886")
+        expect(subject.commaed_contact_numbers).to eq("988654324,666676886")
       end
     end
   end
