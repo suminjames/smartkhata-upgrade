@@ -134,7 +134,7 @@ class User < ActiveRecord::Base
   end
 
   def can_read_write?
-    (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+    UserSession.selected_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user

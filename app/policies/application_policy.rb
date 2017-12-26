@@ -159,12 +159,12 @@ class ApplicationPolicy
   #
   # If the `privilege` passed in has access to the given `path`, provide `privilege` with access to passed `actions`
   #
-  def self.permit_custom_access(privilege, path, actions)
+  def self.permit_custom_access(privilege, path, actions, global_action = false)
     actions.each do |action|
       define_method("#{action}?") do
         # return false if user cant read write
         # hack for show action
-        unless( action == :show) || (@user.can_read_write?)
+        unless( action == :show) || global_action || (@user.can_read_write?)
           return false
         end
         privilege = privilege.to_s
