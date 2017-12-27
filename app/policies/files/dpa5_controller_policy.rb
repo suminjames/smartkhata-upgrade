@@ -7,5 +7,5 @@ class Files::Dpa5ControllerPolicy < ApplicationPolicy
   end
 
   permit_conditional_access_to_employee_and_above :new
-  permit_custom_access :employee_and_above, new_files_dpa5_path, [:index, :import]
+  permit_custom_access :employee_and_above, new_files_dpa5_path, [:index, :import], true
 end

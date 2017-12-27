@@ -204,11 +204,11 @@ class ChequeEntry < ActiveRecord::Base
   end
 
   def self.next_available_serial_cheque(bank_account_id)
-    last_cheque = ChequeEntry.payment.where(bank_account_id: bank_account_id).where.not(status: "unassigned").order(:cheque_number).last
+    last_cheque = ChequeEntry.unscoped.payment.where(bank_account_id: bank_account_id).where.not(status: "unassigned").order(:cheque_number).last
     if last_cheque.present?
-      self.payment.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).order(:cheque_number).first
+      self.unscoped.payment.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).order(:cheque_number).first
     else
-      self.payment.unassigned.where(bank_account_id: bank_account_id).first
+      self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).first
     end
   end
 end
