@@ -26,9 +26,28 @@ class Vouchers::Create < Vouchers::Base
 
     # needed for error case
     if @voucher.is_payment_receipt?
-      @ledger_list_financial = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
+      bank_accounts_in_branch = BankAccount.by_branch_id
+
+      default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
+      default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first
+
+      # Check for availability of default bank accounts for payment and receipt in the current branch.
+      # If not available in the current branch, resort to using whichever is available from all available branches.
+      ledger_list_financial = bank_accounts_in_branch.uniq.collect(&:ledger).present? ? bank_accounts_in_branch.all.uniq.collect(&:ledger) : BankAccount.all.uniq.collect(&:ledger)
+      default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
+      default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
+
       cash_ledger = Ledger.find_by(name: "Cash")
-      @ledger_list_financial << cash_ledger
+
+      # In case when a bank account in a branch has a ledger, but doesn't have either default_for_payment or
+      # default_for_receipt flagged on, the logic above resorts to searching the defaults from all available branches.
+      # For this purpose, ledgers of default_bank_payment and default_bank_receive are added to ledger_list_financial.
+      ledger_list_financial << default_bank_payment.ledger if default_bank_payment
+      ledger_list_financial << default_bank_receive.ledger if default_bank_receive
+
+      ledger_list_financial << cash_ledger
+
+      @ledger_list_financial = ledger_list_financial.uniq
     end
 
     @ledger_list_available = []
@@ -358,7 +377,9 @@ class Vouchers::Create < Vouchers::Base
             # cheque entry recording
             #   cheque is payment if issued from the company
             #   cheque is receipt type if issued from the client
-            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
+            #
+            #TODO major change to be rollback on future
+            cheque_entry = ChequeEntry.unscoped.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
 
 
             # only for payment the date will be todays date.
@@ -367,6 +388,9 @@ class Vouchers::Create < Vouchers::Base
             else
               cheque_entry.cheque_date = voucher.date
             end
+
+            # assign cheque to the branch of particualar
+            cheque_entry.branch_id = particular.branch_id
 
             # For receipt cheques,
             # - if the cheque received from client is already entered to system, reject it
