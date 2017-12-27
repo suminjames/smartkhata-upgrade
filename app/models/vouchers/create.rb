@@ -623,10 +623,12 @@ class Vouchers::Create < Vouchers::Base
 
   def valid_branch(voucher)
     voucher.particulars.each do |particular|
-      ledger = Ledger.find(particular.ledger_id)
-      effective_branch = ledger.effective_branch
-      if effective_branch && effective_branch != particular.branch_id
-        return false
+      if particular.ledger_id.present?
+        ledger = Ledger.find(particular.ledger_id)
+        effective_branch = ledger.effective_branch
+        if effective_branch && effective_branch != particular.branch_id
+          return false
+        end
       end
     end
     return true

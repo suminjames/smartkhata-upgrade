@@ -157,9 +157,6 @@ error_populate_additional_bank_select= ($this) ->
 display_balance_total = ($this) ->
   $voucher_element = $this.closest('.voucher .box .box-body')
   total_block = $voucher_element.find('.total-display')
-  if total_block.length < 1
-    $voucher_element.append("<br/></br><div class='total-display'></div>")
-    total_block = $voucher_element.find('.total-display')
 
   cr_amount = 0
   dr_amount = 0
