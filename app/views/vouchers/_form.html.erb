@@ -64,7 +64,7 @@
                                      :ledger_list_available => ledger_list_available,
                                      :voucher_type => voucher_type,
                                      :inverse => true,
-                                     :default_ledger_id => default_ledger_id
+                                     :default_ledger_id => (p.object.ledger_id || default_ledger_id)
                                  },
                                  :sk_id => 1#this has to be unique, for each particulars
 
@@ -174,7 +174,7 @@
                                                      :ledger_list_financial => ledger_list_financial,
                                                      :ledger_list_available => ledger_list_available,
                                                      :voucher_type => voucher_type,
-                                                     :default_ledger_id => default_ledger_id
+                                                     :default_ledger_id => (p.object.ledger_id || default_ledger_id )
                                      },
                                      :sk_id => 2 #this has to be unique, for each particulars
                          } unless (p.object.transaction_type.present? && ( voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr' ) ||(voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr'))
