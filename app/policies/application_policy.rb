@@ -159,7 +159,7 @@ class ApplicationPolicy
   #
   # If the `privilege` passed in has access to the given `path`, provide `privilege` with access to passed `actions`
   #
-  def self.permit_custom_access(privilege, path, actions, global_action = false)
+  def self.permit_custom_access(privilege, path, actions, global_action = true)
     actions.each do |action|
       define_method("#{action}?") do
         # return false if user cant read write
@@ -176,6 +176,11 @@ class ApplicationPolicy
       end
     end
   end
+
+  def self.permit_custom_access_branch_restricted(privilege, path, actions)
+    permit_custom_access(privilege, path, actions, false)
+  end
+
 
   # For controllers (& related actions) that are not included in the User Access Role menu
   def self.permit_unconditional_access_to_employee_and_above(param)
