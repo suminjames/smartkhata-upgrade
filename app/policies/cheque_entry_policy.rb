@@ -13,16 +13,21 @@ class ChequeEntryPolicy < ApplicationPolicy
                            :edit,
                            :destroy,
                            :get_cheque_number,
+                           :update_print_status,
+                           :settlements_associated_with_cheque_entries,
+                           :bills_associated_with_cheque_entries,
+                           :make_cheque_entries_unprinted,
+                           :combobox_ajax_filter_for_beneficiary_name
+                       ]
+
+  permit_custom_access_branch_restricted :employee_and_above,
+                       cheque_entries_path,
+                       [
                            :bounce_show,
                            :bounce_do,
                            :represent_show,
                            :represent_do,
                            :void_show,
                            :void_do,
-                           :update_print_status,
-                           :settlements_associated_with_cheque_entries,
-                           :bills_associated_with_cheque_entries,
-                           :make_cheque_entries_unprinted,
-                           :combobox_ajax_filter_for_beneficiary_name
                        ]
 end

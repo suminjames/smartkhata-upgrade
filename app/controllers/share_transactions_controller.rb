@@ -421,20 +421,19 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
+
+
+
+
+    @total_capital_gain = arabic_number(@filterrific.find.pluck(:cgt).sum.to_f)
+    @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account)
+
     items_per_page = 20
-
-    # @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).where('bills.fy_code' => UserSession.selected_fy_code).references(:bill).decorate
-    # @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).where('bills.fy_code' => UserSession.selected_fy_code).references(:bill).decorate
-    @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
-
     if params[:paginate] == 'false'
       items_per_page = @share_transactions.size
     end
-
-    @total_capital_gain = arabic_number(@filterrific.find.pluck(:cgt).sum(:&).to_f)
-
-    @share_transactions = Kaminari::paginate_array(@share_transactions).page(params[:page]).per(items_per_page)
-
+    
+    @share_transactions = @share_transactions.page(params[:page]).per(items_per_page).decorate
     @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
     @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
 
