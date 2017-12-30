@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170828100450) do
+ActiveRecord::Schema.define(version: 20171230135644) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1140,7 +1140,7 @@ ActiveRecord::Schema.define(version: 20170828100450) do
   add_index "particulars", ["updater_id"], name: "index_particulars_on_updater_id", using: :btree
   add_index "particulars", ["voucher_id"], name: "index_particulars_on_voucher_id", using: :btree
 
-  create_table "particulars_share_transactions", id: false, force: :cascade do |t|
+  create_table "particulars_share_transactions", force: :cascade do |t|
     t.integer "particular_id"
     t.integer "share_transaction_id"
     t.integer "association_type"

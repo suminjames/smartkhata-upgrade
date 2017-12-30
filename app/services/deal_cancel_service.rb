@@ -34,13 +34,7 @@ class DealCancelService
 
     voucher = @share_transaction.voucher
     bill = @share_transaction.bill
-    # dont allow to approve deal cancel after starting settlement process
-    if bill.present? && !bill.pending?
-      @error_message = "Bill associated with the share transaction is already under process or settled."
-      return
-    end
-
-
+    
     # if approval action is not present
     # it is deal cancel initial process
     unless @approval_action.present?
