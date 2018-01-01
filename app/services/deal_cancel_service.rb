@@ -38,14 +38,14 @@ class DealCancelService
     # if approval action is not present
     # it is deal cancel initial process
     unless @approval_action.present?
-      @share_transaction.soft_delete
-      @share_transaction.transaction_cancel_status = :deal_cancel_pending
-
       # get the particular
       client_ledger_id = @share_transaction.client_account.ledger.id
       particular = voucher.particulars.where(ledger_id: client_ledger_id)
 
       ActiveRecord::Base.transaction do
+        @share_transaction.soft_delete
+        @share_transaction.transaction_cancel_status = :deal_cancel_pending
+
         @share_transaction.particulars_on_creation << particular
         # hide the particular for client
 
