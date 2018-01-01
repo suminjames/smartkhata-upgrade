@@ -34,7 +34,7 @@ class Vouchers::Setup < Vouchers::Base
 
       # Check for availability of default bank accounts for payment and receipt in the current branch.
       # If not available in the current branch, resort to using whichever is available from all available branches.
-      ledger_list_financial = bank_accounts_in_branch.uniq.collect(&:ledger).present? ? bank_accounts_in_branch.all.uniq.collect(&:ledger) : BankAccount.all.uniq.collect(&:ledger)
+      ledger_list_financial = bank_accounts_in_branch.all.uniq.collect(&:ledger)
       default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
       default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
 
