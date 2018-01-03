@@ -72,6 +72,8 @@ module Accounts
             daily_report_cost_center.cr_amount = cr_amount
             daily_report_cost_center.closing_balance = closing_balance
             daily_report_cost_center.opening_balance = opening_balance
+
+            daily_report_cost_center.opening_balance_type = opening_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
             daily_report_cost_center.save!
 
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND transaction_date= '#{date}') AS subquery;"
@@ -92,6 +94,9 @@ module Accounts
             daily_report_org.cr_amount = cr_amount_org
             daily_report_org.closing_balance = closing_balance_org
             daily_report_org.opening_balance = opening_balance_org
+
+            daily_report_org.opening_balance_type = opening_balance_org >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
+
             daily_report_org.save!
 
             # closing balance of one is opening of next
