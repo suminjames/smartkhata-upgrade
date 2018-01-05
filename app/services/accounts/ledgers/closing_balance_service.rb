@@ -45,6 +45,7 @@ module Accounts
             ledger_blnc_cost_center.closing_balance = balance + ledger_blnc_cost_center.opening_balance
             ledger_blnc_cost_center.dr_amount = dr_amount
             ledger_blnc_cost_center.cr_amount = cr_amount
+            ledger_blnc_cost_center.opening_balance_type = ledger_blnc_cost_center.opening_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
 
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code}) AS subquery;"
             balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
@@ -58,6 +59,7 @@ module Accounts
             ledger_blnc_org.closing_balance = balance + ledger_blnc_org.opening_balance
             ledger_blnc_org.dr_amount = dr_amount
             ledger_blnc_org.cr_amount = cr_amount
+            ledger_blnc_org.opening_balance_type = ledger_blnc_org.opening_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
 
             ledger_blnc_cost_center.save!
             ledger_blnc_org.save!

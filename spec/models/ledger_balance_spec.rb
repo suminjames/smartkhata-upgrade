@@ -26,15 +26,15 @@ RSpec.describe LedgerBalance, type: :model do
   			end
   		end
 
-  		# context "when opening balance is changed" do
-    #     let(:ledger){create(:ledger)}
-    #     subject{create(:ledger_balance, opening_balance:5000, closing_balance: 1000, ledger: ledger)}
-  		# 	it "should return closing balance" do
-  		# 		subject
-    #       subject.update_opening_closing_balance
-  		# 		expect(subject.closing_balance).to eq(6000)
-  		# 	end
-  		# end
+  		context "when opening balance is changed" do
+  			it "should return closing balance" do
+  				subject.opening_balance = 2000
+          subject.closing_balance = 1000
+          allow_any_instance_of(LedgerBalance).to receive(:new_record?).and_return(false)
+          subject.update_opening_closing_balance
+  				expect(subject.closing_balance).to eq(3000)
+  			end
+  		end
 
   		context "when opening balance is blank" do
   			it "should return zero" do
