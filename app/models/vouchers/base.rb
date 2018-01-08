@@ -13,7 +13,6 @@ class Vouchers::Base
     @clear_ledger = attrs[:clear_ledger]
     @bill_ids = attrs[:bill_ids]
     @amount_margin_error = 0.01
-    @available_branch_ids = attrs[:available_branch_ids]
     validate
   end
 

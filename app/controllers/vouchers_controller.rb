@@ -62,8 +62,6 @@ class VouchersController < ApplicationController
 
     # two way to post to this controller
     # either clear_ledger and client_account_id or client_account_id and bill_ids
-    available_branch_ids = Branch.permitted_branches_for_user(current_user).pluck(:id)
-
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -75,8 +73,7 @@ class VouchersController < ApplicationController
                                               client_account_id: @client_account_id,
                                               # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
-                                              bill_ids: @bill_ids,
-                                              available_branch_ids: available_branch_ids).voucher_and_relevant
+                                              bill_ids: @bill_ids).voucher_and_relevant
   end
 
   # POST /vouchers
@@ -96,8 +93,7 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name,
-                                            available_branch_ids: available_branch_ids)
+                                            tenant_full_name: current_tenant.full_name)
 
     respond_to do |format|
       if voucher_creation.process
