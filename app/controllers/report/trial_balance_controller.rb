@@ -125,6 +125,8 @@ class Report::TrialBalanceController < ApplicationController
             @balance_report = Hash.new
             date_ad = bs_to_ad(date_bs)
             @date = date_bs
+
+            # index = 1
             @balance.each do |balance|
               modified_ledger_list = []
               b = balance.descendent_ledgers
@@ -149,10 +151,15 @@ class Report::TrialBalanceController < ApplicationController
                   ledger_daily.closing_balance = last_day_balance
                   ledger_daily.cr_amount = total_credit
                   ledger_daily.dr_amount = total_debit
-                  modified_ledger_list << ledger_daily.as_json(ledger_name: ledger.name)
+
+                  if (first_day_opening_balance != 0 || last_day_balance != 0 || total_credit != 0 || total_debit != 0)
+                    modified_ledger_list << ledger_daily.as_json(ledger_name: ledger.name)
+                  end
                 end
               end
-              @balance_report[balance.name] = modified_ledger_list
+              @balance_report[balance.name] = modified_ledger_list.sort_by { |hsh| hsh["closing_balance"].to_f }.reverse
+              # index += 1
+              # break if (index > 3)
             end
           else
             respond_to do |format|
