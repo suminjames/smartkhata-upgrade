@@ -125,10 +125,12 @@ class Report::TrialBalanceController < ApplicationController
             @balance_report = Hash.new
             date_ad = bs_to_ad(date_bs)
             @date = date_bs
-
+            branch_id = UserSession.selected_branch_id
+            fy_code = UserSession.selected_fy_code
             # index = 1
             @balance.each do |balance|
               modified_ledger_list = []
+              ledgers_with_no_transactons = []
               b = balance.descendent_ledgers
               b.each do |ledger|
                 if ledger.ledger_dailies.by_branch_fy_code.where('date <= ?',date_ad).count > 0
@@ -155,8 +157,18 @@ class Report::TrialBalanceController < ApplicationController
                   if (first_day_opening_balance != 0 || last_day_balance != 0 || total_credit != 0 || total_debit != 0)
                     modified_ledger_list << ledger_daily.as_json(ledger_name: ledger.name)
                   end
+                else
+                  ledgers_with_no_transactons << ledger.id
                 end
               end
+
+              if branch_id == 0
+                b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledgers_with_no_transactons}).as_json
+              else
+                b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledgers_with_no_transactons}).as_json
+              end
+              modified_ledger_list += b
+
               @balance_report[balance.name] = modified_ledger_list.sort_by { |hsh| hsh["closing_balance"].to_f }.reverse
               # index += 1
               # break if (index > 3)
