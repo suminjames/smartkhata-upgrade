@@ -167,6 +167,12 @@ class Report::TrialBalanceController < ApplicationController
               else
                 b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledgers_with_no_transactons}).as_json
               end
+
+              b.each do |l|
+                l["dr_amount"] = 0
+                l["cr_amount"] = 0
+                l["closing_balance"] = l["opening_balance"]
+              end
               modified_ledger_list += b
 
               @balance_report[balance.name] = modified_ledger_list.sort_by { |hsh| hsh["closing_balance"].to_f }.reverse
