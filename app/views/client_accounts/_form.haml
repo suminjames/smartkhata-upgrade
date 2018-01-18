@@ -75,6 +75,9 @@
         .col-xs-6
           .form-group
             = f.association :branch, collection: Branch.order(:code), label_method: :code, value_method: :id, :input_html => { :class => 'combobox combobox-select', :id => 'branch-combobox', :autocomplete => 'off', 'data-placeholder': 'Select a branch...'}
+            -if @client_account.errors[:branch_id].first == "Client has entry in other branch"
+              = f.input :move_all_particulars, as: :boolean, class: 'move_all'
+              = f.input :dont_move_particulars, as: :boolean, class: 'dont_move'
       .row
         .col-xs-6
           = f.input :boid, label: 'BoId'

@@ -96,14 +96,16 @@ class ClientAccount < ActiveRecord::Base
 
   # before_validation is heirarchically called before before_save
   before_validation :format_nepse_code, if: :nepse_code_changed?
+  before_validation :check_client_branch, if: :branch_id_changed?
   before_save :format_name, if: :name_changed?
+  after_save :move_particulars
   after_create :create_ledger
 
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
-  validates_presence_of :name,
-                        :unless => :nepse_code?
+  validates_presence_of :name
+                        # :unless => :nepse_code?
   validates_presence_of :branch_id, :if => lambda { Branch.has_multiple_branches? }
   validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
                         :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
@@ -173,7 +175,7 @@ class ClientAccount < ActiveRecord::Base
 
   ########################################
   # Attributes
-  attr_accessor :skip_validation_for_system, :skip_ledger_creation
+  attr_accessor :skip_validation_for_system, :skip_ledger_creation, :branch_changed, :move_all_particulars, :dont_move_particulars
   delegate :temp_password,:username, to: :user
 
   ########################################
@@ -216,6 +218,19 @@ class ClientAccount < ActiveRecord::Base
   def bank_details_present?
     if bank_account.present? && (bank_name.blank? || bank_address.blank?)
       errors.add :bank_account, "Please fill the required bank details"
+    end
+  end
+
+  def check_client_branch
+    if self.persisted?
+      ledger_id = self.ledger.try(:id)
+      if (ledger_id && Particular.unscoped.where(ledger_id: ledger_id).count > 0)
+        if (self.move_all_particulars == "1" || self.dont_move_particulars == "1")
+          self.branch_changed = true
+        else
+          errors.add :branch_id, "Client has entry in other branch"
+        end
+      end
     end
   end
 
@@ -474,5 +489,11 @@ class ClientAccount < ActiveRecord::Base
   def as_json(options={})
     super.as_json(options).merge({:name_and_nepse_code => name_and_nepse_code})
 
+  end
+
+  def move_particulars
+    if self.branch_changed && (self.move_all_particulars == "1")
+      Accounts::Branches::ClientBranchService.new.patch_client_branch(self, self.branch_id)
+    end
   end
 end
