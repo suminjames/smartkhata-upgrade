@@ -103,9 +103,8 @@ class ClientAccountsController < ApplicationController
   # PATCH/PUT /client_accounts/1.json
   def update
     from_path = params[:from_path]
-
     respond_to do |format|
-      if @client_account.update(client_account_params)
+      if @client_account.update(client_account_params )
         format.html {
           unless from_path.blank?
             redirect_to from_path, notice: 'Client account was successfully updated.'
@@ -194,7 +193,9 @@ class ClientAccountsController < ApplicationController
         :group_leader_id,
         :profession_code,
         :branch_id,
-        :mobile_number
+        :mobile_number,
+        :move_all_particulars,
+        :dont_move_particulars
     )
   end
 end

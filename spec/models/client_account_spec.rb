@@ -143,6 +143,29 @@ RSpec.describe ClientAccount, type: :model do
     end
   end
 
+  describe ".check_client_branch" do
+    subject{create(:client_account, name: "John", branch_id: 1)}
+    let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: 1)}
+    let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: 1)}
+
+    context "when branch not changed" do
+      it "should check client's branch" do
+        subject.branch_id = 2
+        subject.check_client_branch
+        expect(subject.errors[:branch_id]).to include 'Client has entry in other branch'
+      end
+    end
+
+    context "when branch changed" do
+      it "should return true" do
+        subject.branch_id = 2
+        subject.move_all_particulars = "1"
+        subject.check_client_branch
+        expect(subject.branch_changed).to eq(true)
+      end
+    end
+  end
+
   describe ".find_or_create_ledger" do
     let(:ledger){build(:ledger)}
     context "when ledger is present" do
@@ -453,6 +476,22 @@ RSpec.describe ClientAccount, type: :model do
       expect(subject.as_json.keys).to include :name_and_nepse_code
       expect(subject.as_json[:name_and_nepse_code]).to eq (subject.name_and_nepse_code)
     end
+  end
+
+  describe '.move_particulars' do
+    subject { create(:client_account, name: "John", branch_id: 1) }
+    it "should move particulars when branch changed" do
+      subject.move_all_particulars = "1"
+      expect(subject).to receive(:branch_changed).and_return(true);
+      allow_any_instance_of(Accounts::Branches::ClientBranchService).to receive(:patch_client_branch).with(subject, subject.branch_id).and_return('random')
+      expect(subject.move_particulars).to eq('random');
+    end
+
+    it "should'nt move particulars when branch not changed" do
+      subject.move_all_particulars = "1"
+      expect(subject.move_particulars).to eq(nil);
+    end
+
   end
 
 end
