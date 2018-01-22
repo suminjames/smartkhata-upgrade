@@ -5,7 +5,7 @@ module Accounts
       include CustomDateModule
 
 
-      def move_transactions(client_account, branch_id, date_bs = nil)
+      def move_transactions(client_account, branch_id, date_bs)
         ledger_ids = []
         ledger = client_account.ledger
 
@@ -57,8 +57,6 @@ module Accounts
           fy_codes.each do |fy_code|
           #   do ledger actions
             Ledger.where(id: ledger_ids).find_each do |ledger|
-              # patch_ledger_dailies(ledger, false, branch_id, fy_code )
-              # patch_closing_balance(ledger, false, branch_id, fy_code )
               Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, fy_code)
               Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch_id, fy_code: fy_code)
             end
