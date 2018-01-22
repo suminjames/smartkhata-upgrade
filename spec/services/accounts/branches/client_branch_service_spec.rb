@@ -7,6 +7,7 @@ describe Accounts::Branches::ClientBranchService do
     @client_account = create(:client_account, name: "John", branch_id: 1)
     @other_client_account = create(:client_account, name: "preeti", branch_id: 1)
     @ledger = create(:ledger, client_account_id: @client_account.id, branch_id: 1)
+    @cash_ledger= Ledger.find_or_create_by(name: "Cash")
     @ledger_balance = create(:ledger_balance, ledger_id: @ledger.id, branch_id: 1, fy_code: 7475)
     @ledger_daily = create(:ledger_daily, ledger_id: @ledger.id, branch_id: 1, fy_code: 7475, date: '2017-9-16')
     @other_ledger = create(:ledger, client_account_id: @other_client_account.id, branch_id: 1)
@@ -15,18 +16,35 @@ describe Accounts::Branches::ClientBranchService do
     @other_particular = create(:particular, voucher_id: @voucher.id, transaction_date: '2017-10-16', ledger_id: @other_ledger.id, branch_id: 1)
     @bill = create(:bill, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
     @settlement = create(:settlement, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
-    @client_account.bills << @bill
+    # @client_account.bills << @bill
     subject {Accounts::Branches::ClientBranchService.new}
   end
   describe 'move transactions' do
-    it 'should move transactions' do
-      UserSession.selected_fy_code = 7475
-      subject.move_transactions(@client_account, 2, nil)
-      expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-      expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-      expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
-      expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
+    context "when voucher does not have other client particulars" do
+      it 'should move all particulars of the voucher' do
+        UserSession.selected_fy_code = 7475
+        @other_particular.update_attributes(ledger_id: @cash_ledger.id)
+        subject.move_transactions(@client_account, 2, nil, false)
+        expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+        expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+        expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
+        expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(2)
+        expect(@other_particular.branch_id).to eq(2)
+      end
     end
+
+    context "when voucher have other client particulars" do
+      it 'should move only the mentioned client particulars' do
+        UserSession.selected_fy_code = 7475
+        subject.move_transactions(@client_account, 2, nil, false)
+        expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+        expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+        expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
+        expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
+        expect(@other_particular.branch_id).to eq(1)
+      end
+    end
+
   end
 
   describe 'patch client branch' do
