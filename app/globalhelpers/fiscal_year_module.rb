@@ -127,6 +127,7 @@ module FiscalYearModule
   end
 
   # get list of fiscal years after each date
+  # exclude true will get next fiscal years
   def get_full_fy_codes_after_date(date, exclude = false)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
     fy_code =  fiscal_year_breakpoint_single[0]

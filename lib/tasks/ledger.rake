@@ -300,4 +300,14 @@ namespace :ledger do
     branch = args.branch
     Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch).process
   end
+
+  desc 'move particulars to one branch for a ledger id'
+  task :move_particulars,[:tenant, :ledger_id, :branch_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
+    abort 'Please pass tenant, ledger_id, branch_id, dry_run, date_bs' if (args.ledger_id.blank? || args.branch_id.blank?)
+    client_account = Ledger.find(args.ledger_id).client_account
+    dry_run = args.dry_run === 'false' ? false : true;
+    if (client_account)
+      Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, args.date_bs, dry_run)
+    end
+  end
 end

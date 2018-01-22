@@ -462,5 +462,4 @@ namespace :client_account do
     end
 
   end
-
 end
