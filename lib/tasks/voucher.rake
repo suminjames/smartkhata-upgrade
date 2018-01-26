@@ -32,24 +32,32 @@ namespace :voucher do
         amount = settlement.amount
       end
 
-      raise NotImplementedError if voucher.bills.count > 1
-      bill = voucher.bills.first
-      if bill
-        BillVoucherAssociation.where(voucher_id: voucher.id).delete_all
-        # since we are considering the case of 2 particular voucher
-
-        raise NotImplementError if amount ==  0
-        bill.balance_to_pay += amount
+      # raise NotImplementedError if voucher.bills.count > 1
+      # bill = voucher.bills.first
+      # if bill
+      #   BillVoucherAssociation.where(voucher_id: voucher.id).delete_all
+      #   # since we are considering the case of 2 particular voucher
+      #
+      #   raise NotImplementError if amount ==  0
+      #   bill.balance_to_pay += amount
+      #   bill.status = Bill.statuses[:pending]
+      #   bill.save!
+      # end
+      voucher.bills.each do |bill|
+        bill.balance_to_pay = bill.net_amount
         bill.status = Bill.statuses[:pending]
         bill.save!
       end
-
-      particulars.delete_all
-      Voucher.where(id: vouchers).delete_all
+      BillVoucherAssociation.where(voucher_id: voucher.id, bill_id: voucher.bills.pluck(:id) ).delete_all
 
       # update the ledgers with new balances
       branch_id = Voucher.where(id: vouchers).first.branch_id
       fy_code = Voucher.where(id: vouchers).first.fy_code
+
+      particulars.delete_all
+      Voucher.where(id: vouchers).delete_all
+
+
       Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
       Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
     end
