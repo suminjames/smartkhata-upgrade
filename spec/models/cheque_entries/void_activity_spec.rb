@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ChequeEntries::BounceActivity do
+RSpec.describe ChequeEntries::VoidActivity do
   include CustomDateModule
 
   let(:void_date_bs) { '2073-8-21'}
@@ -33,6 +33,16 @@ RSpec.describe ChequeEntries::BounceActivity do
       activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti')
       activity.process
       expect(activity.error_message).to eq("The cheque entry cant be made void.")
+    end
+  end
+
+  describe "unassigned cheque" do
+    it "should void cheque" do
+      subject.unassigned!
+      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti')
+      activity.process
+      expect(activity.error_message).to be_nil
+      expect(subject.void?).to be_truthy
     end
   end
 
