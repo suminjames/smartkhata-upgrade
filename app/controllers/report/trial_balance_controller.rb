@@ -120,7 +120,7 @@ class Report::TrialBalanceController < ApplicationController
         when 'date'
           # The date being entered are assumed to be BS date, not AD date
           date_bs = search_term
-          if parsable_date? date_bs
+          if is_valid_bs_date? date_bs
             @balance = Group.balance_sheet
             @balance_report = Hash.new
             date_ad = bs_to_ad(date_bs)
