@@ -76,7 +76,10 @@ class SmsMessage < ActiveRecord::Base
 
   SPARROW_MAX_MESSAGE_BLOCK_LENGTH = 459
   SPARROW_TOKEN = 'Q2qMoJIpim0AgFn34WUz'
-  SPARROW_FROM = 'Demo'
+  
+  # Update(Feb 21, 2018):
+  # Ncell numbers should now see the message sender id as `Trishakti` instead of 36001. Non-ncell numbers will see the latter.
+  SPARROW_FROM = 'Trishakti'
 
 
   ########################################
