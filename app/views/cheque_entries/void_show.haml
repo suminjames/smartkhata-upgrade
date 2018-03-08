@@ -12,7 +12,7 @@
         -#= f.input :additional_bank, input_html: { value: f.object.bank_account.name }, :disabled => true, :label => 'Bank'
         = f.input :cheque_number, :disabled => true, :label => :cheque_number.to_s.titleize, :required => false
         = f.input :amount, input_html: { value: arabic_number(f.object.amount) || 1 }, :disabled => true, as: :string
-        = f.input :cheque_date_bs, input_html: { value: ad_to_bs(f.object.cheque_date) }, :disabled => true, :label => "Cheque Date(BS)"
+        = f.input :cheque_date_bs, input_html: { value: f.object.cheque_date.present? ? ad_to_bs(f.object.cheque_date) : ad_to_bs(Date.today) }, :disabled => true, :label => "Cheque Date(BS)"
         = f.input :void_date, input_html: { value: f.object.void_date.present? ? ad_to_bs(f.object.void_date) : f.object.void_date_bs }, as: :string, :label => 'Void Date(BS)'
         = f.input :void_narration, as: :text, :label => :void_narration.to_s.titleize
 
