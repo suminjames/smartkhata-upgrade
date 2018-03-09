@@ -147,31 +147,31 @@ class Ledgers::ParticularEntry
 
       end
 
-      # make  changes for the opening and closing balances for the next fiscal year
-      # this is possible as the system allows to enter past days entry
-      # only for the case when passed fycode is less than the current fy_code
-      current_fy_code = get_fy_code
-      if fy_code < current_fy_code
-        ledger_blnc_org_current_fy = LedgerBalance.unscoped.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
-
-        if ledger_blnc_org_current_fy
-          ledger_blnc_org_current_fy.opening_balance += adjustment_amount
-          ledger_blnc_org_current_fy.opening_balance_type = ledger_blnc_org_current_fy.opening_balance >= 0 ? 'dr': 'cr'
-          # ledger_blnc_org_current_fy.closing_balance += adjustment_amount
-          ledger_blnc_org_current_fy.save!
-
-
-          ledger_blnc_cost_center_current_fy =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
-          ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
-          ledger_blnc_cost_center_current_fy.opening_balance_type = ledger_blnc_cost_center_current_fy.opening_balance >= 0 ? 'dr': 'cr'
-          # ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
-          ledger_blnc_cost_center_current_fy.save!
-
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, current_fy_code)
-          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, branch_id: branch_id, fy_code: current_fy_code)
-
-        end
-      end
+      # # make  changes for the opening and closing balances for the next fiscal year
+      # # this is possible as the system allows to enter past days entry
+      # # only for the case when passed fycode is less than the current fy_code
+      # current_fy_code = get_fy_code
+      # if fy_code < current_fy_code
+      #   ledger_blnc_org_current_fy = LedgerBalance.unscoped.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
+      #
+      #   if ledger_blnc_org_current_fy
+      #     ledger_blnc_org_current_fy.opening_balance += adjustment_amount
+      #     ledger_blnc_org_current_fy.opening_balance_type = ledger_blnc_org_current_fy.opening_balance >= 0 ? 'dr': 'cr'
+      #     # ledger_blnc_org_current_fy.closing_balance += adjustment_amount
+      #     ledger_blnc_org_current_fy.save!
+      #
+      #
+      #     ledger_blnc_cost_center_current_fy =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
+      #     ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
+      #     ledger_blnc_cost_center_current_fy.opening_balance_type = ledger_blnc_cost_center_current_fy.opening_balance >= 0 ? 'dr': 'cr'
+      #     # ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
+      #     ledger_blnc_cost_center_current_fy.save!
+      #
+      #     Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, current_fy_code)
+      #     Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, branch_id: branch_id, fy_code: current_fy_code)
+      #
+      #   end
+      # end
     end
 
     # need to do the unscoped here for matching the ledger balance
