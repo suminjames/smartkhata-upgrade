@@ -317,11 +317,17 @@ class ShareTransaction < ActiveRecord::Base
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
 
-    where_condition_str = "#{where_conditions.join(" AND ")}"
+    # where_condition_str = "#{where_conditions.join(" AND ")}"
 
+    if where_conditions.present?
+      # where_condition_str = "#{where_conditions.join(" AND ")} AND client_accounts.branch_id = #{UserSession.selected_branch_id}"
+      # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
+      client_ids = ClientAccount.where(branch_id: UserSession.selected_branch_id).pluck(:id)
+    else
+      # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
+    end
 
-
-    ShareTransaction.includes(:isin_info).where(where_condition_str).group(:isin_info_id).select(
+    ShareTransaction.includes(:isin_info).where(client_account_id: client_ids).group(:isin_info_id).select(
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",

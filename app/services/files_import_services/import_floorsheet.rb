@@ -181,6 +181,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   # ]
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
   def process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+    # debugger
     contract_no = arr[0].to_i
     company_symbol = arr[1]
     buyer_broking_firm_code = arr[2]
@@ -204,7 +205,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # client branch id is used to enforce branch cost center
     client_branch_id = client.branch_id
-
     # check for the bank deposit value which is available only for buying
     # used 25.0 instead of 25 to get number with decimal
     # hash_dp_count is used for the dp charges
@@ -272,7 +272,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-
     # TODO: Include base price
 
     transaction = ShareTransaction.create(
@@ -295,7 +294,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         date: @date,
         client_account_id: client.id,
         tds: tds,
-        nepse_commission: nepse
+        nepse_commission: nepse,
+        branch_id: client_branch_id
     )
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
     update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)
@@ -706,7 +706,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         bank_deposit: bank_deposit,
         transaction_type: type_of_transaction,
         date: @date,
-        client_account_id: client.id
+        client_account_id: client.id,
+        branch_id: client_branch_id
     )
     update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)
 
