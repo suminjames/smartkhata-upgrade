@@ -310,4 +310,75 @@ namespace :ledger do
       Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, args.date_bs, dry_run)
     end
   end
+
+  #   patch opening balance based on file
+  task :patch_opening_balance, [:tenant, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
+    include ApplicationHelper
+
+    tenant = args.tenant
+    fy_code = args.fy_code
+    dir = "#{Rails.root}/tmp/files/"
+    opening_balance_patch = dir + 'opening_balance_patch.csv'
+    ledger_array = []
+    csv_text = File.read(opening_balance_patch)
+    csv = CSV.parse(csv_text, :headers => true)
+    csv.each do |row|
+      ledgers = Ledger.where('lower(name) = ?', row.to_hash["ledger"].downcase);
+      hash = row.to_hash
+      if ledgers.size > 1
+        found_ledgers = []
+        ledgers.each do |ledger|
+          lbs = LedgerBalance.unscoped.where(fy_code: fy_code, ledger_id: ledger.id, branch_id: nil)
+          if lbs.size == 1
+            lb= lbs.first
+            old_dr = hash['old_dr'].to_f
+            old_cr = hash['old_cr'].to_f * -1
+            if (lb.opening_balance == 0 && old_dr == old_cr && old_dr == 0) ||
+              (lb.opening_balance > 0 && equal_amounts?(lb.opening_balance, old_dr)) ||
+              (lb.opening_balance < 0 && equal_amounts?(lb.opening_balance, old_cr))
+              found_ledgers << ledger
+            end
+          end
+        end
+        puts row.to_hash["ledger"] if found_ledgers.size != 1
+        if found_ledgers.size == 1
+          hash[:ledger_id] = found_ledgers.first.id
+          ledger_array << hash
+        end
+      elsif ledgers.size == 0
+        puts row.to_hash["ledger"]
+      else
+        hash[:ledger_id] = ledgers.first.id
+        ledger_array << hash
+      end
+    end
+
+    ledger_ids = []
+    ActiveRecord::Base.transaction do
+      ledger_array.each do |ledger_hash|
+        ledger = Ledger.find(ledger_hash[:ledger_id])
+        branch_ids = [nil]
+        branch_id = ledger.client_account&.branch_id || 1
+        branch_ids << branch_id
+
+        opening_balance = 0
+        if ledger_hash['new_dr'].to_f == 0 &&  ledger_hash['new_cr'].to_f != 0
+          opening_balance = ledger_hash['new_cr'].to_f * -1
+          opening_balance_type = 1
+        else
+          opening_balance = ledger_hash['new_dr'].to_f
+          opening_balance_type = 0
+        end
+
+
+        LedgerBalance.unscoped.where(ledger_id: ledger.id, fy_code: fy_code, branch_id: branch_ids).update_all(opening_balance: opening_balance, opening_balance_type: opening_balance_type)
+        ledger_ids << ledger.id
+      end
+
+      Branch.all.pluck(:id).each do |branch_id|
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids.uniq, false, branch_id)
+        Accounts::Ledgers::ClosingBalanceService.new.process(ledger_ids.uniq, false, branch_id)
+      end
+    end
+  end
 end
