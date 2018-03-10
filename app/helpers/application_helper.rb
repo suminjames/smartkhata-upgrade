@@ -61,6 +61,10 @@ module ApplicationHelper
     return 0.01
   end
 
+  def equal_amounts?(amount_a, amount_b)
+    (amount_a.to_d - amount_b.to_d).abs <= margin_of_error_amount
+  end
+
   # 	get fy_code selection form sesion
   def get_user_selected_fy_code
     session[:user_selected_fy_code]
