@@ -146,32 +146,6 @@ class Ledgers::ParticularEntry
         end
 
       end
-
-      # # make  changes for the opening and closing balances for the next fiscal year
-      # # this is possible as the system allows to enter past days entry
-      # # only for the case when passed fycode is less than the current fy_code
-      # current_fy_code = get_fy_code
-      # if fy_code < current_fy_code
-      #   ledger_blnc_org_current_fy = LedgerBalance.unscoped.by_fy_code_org(current_fy_code).find_by(ledger_id: ledger.id)
-      #
-      #   if ledger_blnc_org_current_fy
-      #     ledger_blnc_org_current_fy.opening_balance += adjustment_amount
-      #     ledger_blnc_org_current_fy.opening_balance_type = ledger_blnc_org_current_fy.opening_balance >= 0 ? 'dr': 'cr'
-      #     # ledger_blnc_org_current_fy.closing_balance += adjustment_amount
-      #     ledger_blnc_org_current_fy.save!
-      #
-      #
-      #     ledger_blnc_cost_center_current_fy =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,current_fy_code).find_or_create_by!(ledger_id: ledger.id)
-      #     ledger_blnc_cost_center_current_fy.opening_balance += adjustment_amount
-      #     ledger_blnc_cost_center_current_fy.opening_balance_type = ledger_blnc_cost_center_current_fy.opening_balance >= 0 ? 'dr': 'cr'
-      #     # ledger_blnc_cost_center_current_fy.closing_balance += adjustment_amount
-      #     ledger_blnc_cost_center_current_fy.save!
-      #
-      #     Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, current_fy_code)
-      #     Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, branch_id: branch_id, fy_code: current_fy_code)
-      #
-      #   end
-      # end
     end
 
     # need to do the unscoped here for matching the ledger balance
@@ -181,7 +155,6 @@ class Ledgers::ParticularEntry
     opening_balance_org ||= ledger_blnc_org.opening_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.opening_balance
 
-
     daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
@@ -190,7 +163,6 @@ class Ledgers::ParticularEntry
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
     end
-
     if debit
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -223,7 +195,6 @@ class Ledgers::ParticularEntry
     ledger_blnc_cost_center.save!
 
     ledger.save!
-
     return daily_report_cost_center.closing_balance, daily_report_org.closing_balance
   end
 end
