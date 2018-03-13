@@ -371,7 +371,16 @@ namespace :ledger do
         end
 
 
-        LedgerBalance.unscoped.where(ledger_id: ledger.id, fy_code: fy_code, branch_id: branch_ids).update_all(opening_balance: opening_balance, opening_balance_type: opening_balance_type)
+        ledger_balances = LedgerBalance.unscoped.where(ledger_id: ledger.id, fy_code: fy_code, branch_id: branch_ids)
+        if ledger_balances.size != 2
+          ledger_balance_ids = []
+          branch_ids.each do |branch_id|
+            ledger_balance_ids << LedgerBalance.unscoped.find_or_create_by(ledger_id: ledger.id, fy_code: fy_code, branch_id: branch_id).id
+          end
+          ledger_balances = LedgerBalance.unscoped.where(id: ledger_balance_ids)
+        end
+
+        ledger_balances.update_all(opening_balance: opening_balance, opening_balance_type: opening_balance_type)
         ledger_ids << ledger.id
       end
 
