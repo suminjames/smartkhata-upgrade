@@ -12,7 +12,8 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
   def can_activity_be_done?
     # only approved cheque can be made void
-    unless @cheque_entry.approved? && @cheque_entry.payment?
+    #unassigned cheque can be made void
+    unless @cheque_entry.unassigned? || (@cheque_entry.approved? && @cheque_entry.payment?)
       @error_message = "The cheque entry cant be made void."
       return false
     end
@@ -24,7 +25,7 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
       return false
     end
 
-    if @cheque_entry.void_date < @cheque_entry.cheque_date
+    if @cheque_entry.void_date < (@cheque_entry.cheque_date || Date.today)
       @cheque_entry.void_date = bs_to_ad(@cheque_entry.void_date_bs)
       @error_message = "The void date can not be earlier than the cheque date."
       return false
@@ -34,6 +35,12 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
   end
 
   def perform_action
+
+    if @cheque_entry.unassigned?
+      @cheque_entry.void!
+      return
+    end
+
     voucher = @cheque_entry.vouchers.uniq.first
 
     # currently we dont pay by more than one cheque manually

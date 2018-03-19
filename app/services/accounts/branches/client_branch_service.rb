@@ -36,22 +36,21 @@ module Accounts
           else
             bills_affected.update_all(branch_id: branch_id)
             settlements_affected.update_all(branch_id: branch_id)
-            particulars_to_move.update_all(branch_id: branch_id)
             sharetransactions_affected.update_all(branch_id: branch_id)
           end
-
           particulars_to_move.find_each do |particular|
             # # this case fails in case of payment voucher
             voucher = particular.voucher
-            other_particulars = Particular.unscoped.where(voucher_id: voucher.id)
+            other_particulars = Particular.unscoped.where(voucher_id: voucher.id).where.not(ledger_id: ledger.id)
             other_ledger_ids =  other_particulars.pluck(:ledger_id)
             # make sure other ledgers are internal and do not affect other client accounts
-            if (Ledger.where(id: other_ledger_ids).where.not(client_account_id: nil).count == 1)
+            if (Ledger.where(id: other_ledger_ids).where.not(client_account_id: nil).count == 0)
               other_particulars.update_all(branch_id: branch_id)
               ledger_ids += other_ledger_ids
               voucher.update_attributes(branch_id: branch_id)
             end
           end
+          particulars_to_move.update_all(branch_id: branch_id)
         end
         ledger_ids << ledger.id
         return ledger_ids, fy_codes
@@ -84,7 +83,7 @@ module Accounts
         end
       end
 
-      def fix_particulars_by_branch_batch(branch_id, date_bs = nil)
+      def fix_particulars_by_branch_batch(branch_id, date_bs = nil, dry_run = false)
         ledger_ids = []
         ActiveRecord::Base.transaction do
           ClientAccount.where(branch_id: branch_id).find_each do |client_account|
@@ -94,7 +93,7 @@ module Accounts
             ledger_balances.each { |b| (opening_balance_set_for_branch = true; break ) if b.opening_balance > 0 }
             break if opening_balance_set_for_branch
 
-            ids, fy_codes = move_transactions(client_account, branch_id, date_bs)
+            ids, fy_codes = move_transactions(client_account, branch_id, date_bs, dry_run)
             ledger_ids += ids
 
             fy_codes.each do |fy_code|
