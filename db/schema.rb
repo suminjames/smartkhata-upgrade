@@ -1109,7 +1109,7 @@ ActiveRecord::Schema.define(version: 20171230135644) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8

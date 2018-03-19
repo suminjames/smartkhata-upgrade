@@ -297,6 +297,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         nepse_commission: nepse,
         branch_id: client_branch_id
     )
+    # debugger
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
     update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)
 
@@ -334,6 +335,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
+
       voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
