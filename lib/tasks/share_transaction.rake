@@ -123,4 +123,27 @@ namespace :share_transaction do
 
   end
 
+  task :update_share_transaction_branch,[:tenant, :branch_id, :dry_run, :date, :client_account_id] => 'smartkhata:validate_tenant' do |task, args|
+
+    include FiscalYearModule
+
+    if args.client_account_id === 'nil'
+      client_accounts = ClientAccount.where(branch_id: args.branch_id).pluck(:id)
+    else
+      client_accounts = [args.client_account_id]
+    end
+    if args.date === 'nil'
+      from_date = fiscal_year_first_day
+    else
+      from_date = args.date
+    end
+    # from_date = args.date || fiscal_year_first_day
+    share_transactions = ShareTransaction.unscoped.where('date >=?', from_date).where(client_account_id: client_accounts).where.not(branch_id: args.branch_id)
+    if args.dry_run === 'false'
+      share_transactions.update_all(branch_id: args.branch_id)
+    else
+      puts "Sharetransactions affected: #{share_transactions.count}"
+    end
+  end
+
 end

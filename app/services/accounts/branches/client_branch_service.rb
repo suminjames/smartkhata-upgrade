@@ -25,15 +25,18 @@ module Accounts
           bills_affected = Bill.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
           settlements_affected = Settlement.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
           particulars_to_move = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id)
+          sharetransactions_affected = ShareTransaction.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
 
           if dry_run
             puts "Bills affected: #{bills_affected.count}"
             puts "Settlements affected: #{settlements_affected.count}"
             puts "Particulars affected: #{particulars_on_other_branch_count}"
+            puts "Sharetransactions affected: #{sharetransactions_affected.count}"
             return nil, nil
           else
             bills_affected.update_all(branch_id: branch_id)
             settlements_affected.update_all(branch_id: branch_id)
+            sharetransactions_affected.update_all(branch_id: branch_id)
           end
           particulars_to_move.find_each do |particular|
             # # this case fails in case of payment voucher

@@ -17,6 +17,7 @@ describe Accounts::Branches::ClientBranchService do
     @other_particular = create(:particular, voucher_id: @voucher.id, transaction_date: '2017-10-16', ledger_id: @other_ledger.id, branch_id: 1, fy_code: 7475, name: 'test')
     @bill = create(:bill, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
     @settlement = create(:settlement, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
+    @share_transaction = create(:share_transaction, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1)
     subject {Accounts::Branches::ClientBranchService.new}
   end
   describe 'move transactions' do
@@ -28,6 +29,7 @@ describe Accounts::Branches::ClientBranchService do
           subject.move_transactions(@client_account, 2, nil, false)
           expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
           expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
           expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
           expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(2)
           expect(@other_particular.reload.branch_id).to eq(2)
@@ -40,6 +42,7 @@ describe Accounts::Branches::ClientBranchService do
           subject.move_transactions(@client_account, 2, nil, false)
           expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
           expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
           expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
           expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
           expect(@other_particular.branch_id).to eq(1)
