@@ -36,6 +36,7 @@ var OrderRequestDetail =  React.createClass({
         <td>{this.state.orderRequest.company}</td>
         <td>{this.state.orderRequest.quantity}</td>
         <td>{this.state.orderRequest.rate}</td>
+        <td>{this.state.orderRequest.order_type}</td>
         <td>{this.state.orderRequest.status}</td>
         <td>
           <a className="btn" onClick={this.approve}>Approve</a>

@@ -46,6 +46,7 @@
       %th Date
       %th Quantity
       %th Rate
+      %th Order Type
       %th Status
 
       %th
@@ -59,6 +60,7 @@
           %td= ad_to_bs_string(order_request_detail.created_at.to_date)
           %td= order_request_detail.quantity
           %td= order_request_detail.rate
+          %td= order_request_detail.order_type.to_s.titleize
           %td= order_request_detail.status.titleize
           %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail) if order_request_detail.can_be_updated?
           %td
