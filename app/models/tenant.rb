@@ -20,6 +20,28 @@ class Tenant < ActiveRecord::Base
   attr_accessor :locale
 
   after_initialize :set_attr
+  #
+  # get tenant name from request
+  #
+  def self.name_from_request(request)
+    request_host = request.host
+    # remove demat. from the host as we are storing generic website
+    # site address would be smartkhata.hostname.com
+    request_host.slice! "smartkhata."
+    tenant = Tenant.where(website: request_host).first
+    tenant.present? ? tenant.name : nil
+  end
+
+  #
+  # get tenant from request
+  #
+  def self.from_request(request)
+    request_host = request.host
+    # remove demat. from the host as we are storing generic website
+    request_host.slice! "smartkhata."
+    tenant = Tenant.where(website: request_host).first
+    tenant
+  end
 
   def broker_profile
     MasterSetup::BrokerProfile.where(

@@ -38,11 +38,13 @@ class ApplicationController < ActionController::Base
   private
 
   def current_tenant
+    @current_tenant ||= Tenant.from_request(request)
+    # fallback
     @current_tenant ||= Tenant.find_by(name: request.subdomain)
     @current_tenant ||= Tenant.find_by(name: 'smartkhata')
   end
-
   helper_method :current_tenant
+
 
   def set_mailer_host
     # subdomain = current_tenant ? "#{current_tenant.name}." : ""
