@@ -1,10 +1,12 @@
 .row.commission-detail
   %div.col-sm-3
     = f.association :isin_info, collection: IsinInfo.order(:company), label_method: :name_and_code, value_method: :id, :input_html => { :class => 'form-control select2simple combobox', :autocomplete => 'off', 'data-placeholder': 'Select a Company ...'}, label: false
-  %div.col-sm-3
+  %div.col-sm-2
     = f.input :quantity, label: false
-  %div.col-sm-3
+  %div.col-sm-2
     = f.input :rate, label: false
+  %div.col-sm-2
+    = f.input :order_type, label: false, collection: ['buy', 'sell']
   %div.col-sm-2
     = link_to '<i class="fa fa-times" aria-hidden="true"></i>'.html_safe,
           '#',

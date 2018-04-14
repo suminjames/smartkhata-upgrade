@@ -29,10 +29,11 @@ class OrderRequestDetail < ActiveRecord::Base
   has_one :ledger, through: :order_request
   has_one :client_account, through: :order_request
 
-  validates_presence_of :isin_info, :rate, :quantity
+  validates_presence_of :isin_info, :rate, :quantity, :order_type
 
 
   enum status: [:pending, :acknowledged, :partial, :completed, :cancelled, :rejected]
+  enum order_type: [:buy, :sell]
   delegate :company, to: :isin_info
   delegate :client_account, to: :order_request
   delegate :closing_balance, to: :ledger

@@ -16,12 +16,13 @@ class OrderRequests extends React.Component {
       <table className="table">
         <thead>
           <tr>
-            <th>Client Name</th>
-            <th>Client Nepse Code</th>
-            <th>Ledger Balance</th>
+            <th>Name</th>
+            <th>Nepse Code</th>
+            <th>Balance</th>
             <th>Company</th>
             <th>Quantity</th>
             <th>Rate</th>
+            <th>Order Type</th>
             <th>Status</th>
             <th></th>
           </tr>

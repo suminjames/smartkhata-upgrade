@@ -10,10 +10,12 @@
       .row
         .col-sm-3
           %h4 Company
-        .col-sm-3
+        .col-sm-2
           %h4 Quantity
-        .col-sm-3
+        .col-sm-2
           %h4 Rate
+        .col-sm-2
+          %h4 Order Type
       = f.simple_fields_for :order_request_details do |c|
         = render partial: 'order_request_detail_fields', :locals => { :f => c }
       = link_to_add_fields "Add Order Detail",f, :order_request_details
