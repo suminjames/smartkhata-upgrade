@@ -11,7 +11,7 @@ class SmartkhataMailer < ApplicationMailer
     bill_pdf = Print::PrintBill.new(@bill.decorate, @current_tenant, 'for_email')
     attachments["Bill_#{@bill.date}_#{@bill.bill_number}.pdf"] = bill_pdf.render
     mail(
-        from: "#{@current_tenant.name}@danpheinfotech.com",
+        from: sender,
         to: email,
         subject: subject,
         template_path: 'smartkhata_mailer'
@@ -29,12 +29,16 @@ class SmartkhataMailer < ApplicationMailer
     transaction_message_pdf = Pdf::PdfTransactionMessage.new(@transaction_message.transaction_date, @transaction_message.client_account, @current_tenant)
     attachments["TransactionMessage_#{@transaction_message.transaction_date}_#{@transaction_message.id}.pdf"] = transaction_message_pdf.render
     mail(
-        from: "#{@current_tenant.name}@danpheinfotech.com",
+        from: sender,
         to: email,
         subject: subject,
         template_path: 'smartkhata_mailer'
     )
     @transaction_message.increase_sent_email_count!
     @transaction_message.email_sent!
+  end
+
+  def sender
+    "accounts@#{Rails.application.secrets.domain_name}"
   end
 end
