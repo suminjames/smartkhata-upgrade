@@ -342,15 +342,15 @@ class ShareTransactionsController < ApplicationController
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_isin_id: ShareTransaction.options_for_isin_select
         },
         persistence_id: false
     ) or return
-    items_per_page = 20
-    if params[:paginate] == 'false'
-      @share_transactions= @filterrific.find.above_threshold.includes(:client_account).order('date ASC, contract_no ASC')
-    else
-      @share_transactions= @filterrific.find.above_threshold.includes(:client_account).order('date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+
+    if params[:filterrific]
+      @share_transactions = ShareTransaction.threshold_report(
+        params.dig(:filterrific, :by_date),
+        params.dig(:filterrific, :by_client_id),
+      )
     end
 
     @download_path_pdf = threshold_transactions_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)

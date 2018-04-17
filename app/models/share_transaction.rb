@@ -347,6 +347,41 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
+  def self.threshold_report date_bs, client_account_id
+    ar_connection = ActiveRecord::Base.connection
+    where_conditions =  []
+
+    if client_account_id.present?
+      client_account_id = ar_connection.quote(client_account_id)
+      where_conditions << "client_account_id = #{client_account_id}"
+    end
+
+    if date_bs.present?
+      date_ad = bs_to_ad(date_bs)
+      where_conditions << "(share_transactions.date = '#{date_ad}')"
+    end
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+    # ShareTransaction.includes(:client_account).where(where_condition_str).limit(10)
+
+    ShareTransaction
+      .includes(:client_account)
+      .where(where_condition_str)
+      .group(:client_account_id, :date)
+      .select(
+       :client_account_id,
+       :date,
+       "array_agg(transaction_type) as grouped_types",
+       "SUM(share_amount) as grouped_amount",
+      ).having("SUM(share_amount) > 1000000")
+  end
+
+  def unique_types
+    if grouped_types
+      grouped_types.uniq.sort.map{|x| ShareTransaction.transaction_types.keys[x].titleize}.join(', ')
+    end
+  end
+
+
   def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
     where_conditions =  []
     ar_connection = ActiveRecord::Base.connection

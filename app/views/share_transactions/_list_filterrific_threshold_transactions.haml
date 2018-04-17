@@ -32,8 +32,6 @@
           \:
           = current_tenant.full_name
 
-  = render 'shared/pagination', collection_to_paginate: share_transactions
-
   %div#share_transaction_list
     %table.table.table-striped
       %thead
@@ -61,12 +59,12 @@
           -share_transactions.each_with_index do |share_transaction, index|
             %tr
               %td.text-center= pagination_count + index
-              %td= share_transaction.client_account.name
-              %td= share_transaction.client_account.profession_code
+              %td= share_transaction.client_account.try(:name).titleize
+              %td= share_transaction.client_account.try(:profession_code)
               %td
               %td.text-right= ad_to_bs_string(share_transaction.date)
-              %td.text-center= share_transaction.transaction_type.titleize
-              %td.text-right= arabic_number(share_transaction.net_amount)
+              %td.text-center= share_transaction.unique_types
+              %td.text-right= arabic_number(share_transaction.grouped_amount)
               %td
               %td
 
@@ -74,4 +72,3 @@
       %div.row.text-center.top-buffer-md
         There are no matching share transactions.
 
-  = render 'shared/pagination', collection_to_paginate: share_transactions
