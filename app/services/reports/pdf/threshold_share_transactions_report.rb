@@ -130,12 +130,12 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     @share_transactions.each_with_index do |share_transaction, index|
       table_data << [
           index + 1,
-          share_transaction.client_account.name,
+          share_transaction.client_account.name.titleize,
           share_transaction.client_account.profession_code,
           "",
           ad_to_bs_string(share_transaction.date),
-          share_transaction.transaction_type.titleize,
-          arabic_number(share_transaction.net_amount),
+          share_transaction.unique_types,
+          arabic_number(share_transaction.grouped_amount),
           "",
           "",
       ]
