@@ -350,6 +350,8 @@ class ShareTransactionsController < ApplicationController
       @share_transactions = ShareTransaction.threshold_report(
         params.dig(:filterrific, :by_date),
         params.dig(:filterrific, :by_client_id),
+        params.dig(:filterrific, :by_date_from),
+        params.dig(:filterrific, :by_date_to)
       )
     end
 
