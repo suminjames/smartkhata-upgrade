@@ -32,7 +32,21 @@
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' )       |
+            class: 'form-control' ) |
+        .col-sm-2.text-center
+          %label
+            Date Range
+          .clearfix
+            .row
+              = f.text_field(                 |
+                :by_date_from,                |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' ) |
+            .row.top-buffer-sm
+              = f.text_field(                 |
+                :by_date_to,                  |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' ) |
     = render_filterrific_spinner
 
 = render(partial: 'share_transactions/list_filterrific_threshold_transactions', locals: { share_transactions: @share_transactions} )

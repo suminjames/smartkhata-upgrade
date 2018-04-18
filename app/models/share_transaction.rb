@@ -353,7 +353,7 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
-  def self.threshold_report date_bs, client_account_id
+  def self.threshold_report date_bs, client_account_id, date_from_bs, date_to_bs
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -366,12 +366,24 @@ class ShareTransaction < ActiveRecord::Base
       date_ad = bs_to_ad(date_bs)
       where_conditions << "(share_transactions.date = '#{date_ad}')"
     end
+
+    if date_from_bs.present? || date_to_bs.present?
+      date_from_ad = bs_to_ad(date_from_bs)
+      date_to_ad = bs_to_ad(date_to_bs)
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    else
+      date_from_ad = fiscal_year_first_day
+      date_to_ad = fiscal_year_last_day
+      where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
+    end
+
     where_condition_str = "#{where_conditions.join(" AND ")}"
     # ShareTransaction.includes(:client_account).where(where_condition_str).limit(10)
 
-    ShareTransaction
-      .includes(:client_account)
+    @share_transactions = ShareTransaction
       .where(where_condition_str)
+      .includes(:client_account)
+      .joins("inner join client_accounts on client_accounts.id = client_account_id")
       .group(:client_account_id, :date)
       .select(
        :client_account_id,
@@ -379,6 +391,7 @@ class ShareTransaction < ActiveRecord::Base
        "array_agg(transaction_type) as grouped_types",
        "SUM(share_amount) as grouped_amount",
       ).having("SUM(share_amount) > 1000000")
+        .order('max(client_accounts.name) asc')
   end
 
   def unique_types
