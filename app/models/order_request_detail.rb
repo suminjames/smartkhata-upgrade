@@ -42,8 +42,8 @@ class OrderRequestDetail < ActiveRecord::Base
   scope :client_order, ->(user_id) { includes(:client_account).where(:client_accounts => {user_id: user_id}).references(:client_account) }
 
 
-  def can_be_updated?
-    self.pending?
+  def can_be_updated?(client_account_id)
+    self.pending? && (client_account.id == client_account_id)
   end
 
   def soft_delete

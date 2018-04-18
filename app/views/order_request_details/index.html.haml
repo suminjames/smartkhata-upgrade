@@ -62,9 +62,9 @@
           %td= order_request_detail.rate
           %td= order_request_detail.order_type.to_s.titleize
           %td= order_request_detail.status.titleize
-          %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail) if order_request_detail.can_be_updated?
+          %td= link_to 'Edit', edit_order_request_detail_path(order_request_detail) if order_request_detail.can_be_updated?(@client_account_id)
           %td
-            = link_to 'Cancel', order_request_detail, :method => :delete, :data => { :confirm => 'Are you sure?' } if current_user.client? && order_request_detail.can_be_updated?
+            = link_to 'Cancel', order_request_detail, :method => :delete, :data => { :confirm => 'Are you sure?' } if current_user.client? && order_request_detail.can_be_updated?(@client_account_id)
 %br
   = render 'shared/pagination', collection_to_paginate: @order_request_details
 

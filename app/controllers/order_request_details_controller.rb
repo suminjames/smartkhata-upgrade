@@ -26,6 +26,7 @@ class OrderRequestDetailsController < ApplicationController
         persistence_id: false
     ) or return
     @order_request_details = @filterrific.find.client_order(current_user.id).page(params[:page]).per(20)
+    @client_account_id = ClientAccount.find_by(user_id: current_user.id)&.id
   rescue RuntimeError => e
     puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
