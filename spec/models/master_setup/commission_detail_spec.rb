@@ -10,8 +10,6 @@ RSpec.describe  MasterSetup::CommissionDetail do
         subject.start_amount = 1000
         subject.limit_amount = nil
         subject.commission_rate = 1.5
-        allow(subject).to receive(:set_max_min_amount).and_return(nil)
-        allow(subject).to receive(:validate_amounts).and_return(true)
         expect(subject).to be_valid
       end
     end
@@ -20,9 +18,13 @@ RSpec.describe  MasterSetup::CommissionDetail do
         subject.start_amount = nil
         subject.limit_amount = nil
         subject.commission_rate = 1.5
+        # to check invalidity
         allow(subject).to receive(:set_max_min_amount).and_return(nil)
         allow(subject).to receive(:validate_amounts).and_return(true)
         expect(subject).not_to be_valid
+        expect(subject.errors.messages[:start_amount]).to include("can't be blank")
+        expect(subject.errors.messages[:limit_amount]).to include("can't be blank")
+
       end
     end
     context 'when limit amount present' do
@@ -30,8 +32,6 @@ RSpec.describe  MasterSetup::CommissionDetail do
         subject.start_amount = nil
         subject.limit_amount = 2000
         subject.commission_rate = 1.5
-        allow(subject).to receive(:set_max_min_amount).and_return(nil)
-        allow(subject).to receive(:validate_amounts).and_return(true)
         expect(subject).to be_valid
       end
     end

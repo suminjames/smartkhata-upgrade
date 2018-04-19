@@ -49,8 +49,7 @@ RSpec.describe  MasterSetup::BrokerProfile do
     context 'when locale unmatched to existing broker profile' do
       it 'returns nil' do
         subject.locale = 'english'
-        subject.single_locale_record
-        expect(subject.errors[:locale]).not_to include('There is already another Broker Profile for english locale.')
+        expect(subject.single_locale_record).to eq(nil)
       end
     end
   end
