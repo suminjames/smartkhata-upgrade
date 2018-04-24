@@ -6,7 +6,7 @@ RSpec.describe Ledger, type: :model do
 
   	describe "validations" do
   		it { should validate_presence_of (:name)}
-        #custom validation left 
+        #custom validation left
 
   		# it "should raise error" do
   		# 	expect{create(:ledger, opening_blnc: -1000)}.to raise_error("can't be negative or blank")
@@ -36,7 +36,7 @@ RSpec.describe Ledger, type: :model do
 
   	describe ".format_name" do
   		context "when name is present" do
-  			
+
   			context "and is stripable" do
   				it "should reduce space" do
   					subject.name = " danphe"
@@ -92,7 +92,7 @@ RSpec.describe Ledger, type: :model do
             expect(subject.opening_blnc).to eq(800)
           end
         end
-  		end	
+  		end
       context "when opening balance is blank" do
         it "should return opening balance equal to 0" do
           expect(subject.opening_blnc).to eq(0)
@@ -108,7 +108,7 @@ RSpec.describe Ledger, type: :model do
           expect(ledger.reload.has_editable_balance?).not_to be_truthy
         end
       end
-      
+
       context "when particulars size is 0"
       it "should return true" do
         expect(subject.has_editable_balance?).to be_truthy
@@ -118,7 +118,7 @@ RSpec.describe Ledger, type: :model do
   	describe ".update_custom" do
   		it "should return true" do
         allow(subject).to receive(:save_custom).and_return(true)
-  			expect(subject.update_custom(true)).to be_truthy 
+  			expect(subject.update_custom(true)).to be_truthy
   		end
   	end
 
@@ -171,7 +171,7 @@ RSpec.describe Ledger, type: :model do
         end
       end
   	end
-  
+
   	describe ".particulars_with_running_balance" do
       let(:particular1){create(:particular, amount: 1000)}
         let(:particular2){create(:particular, amount: 3000)}
@@ -282,7 +282,7 @@ RSpec.describe Ledger, type: :model do
   	end
 
   	describe ".descendent_ledgers" do
-  		it "should get descendents ledgers" 
+  		it "should get descendents ledgers"
   		# code might not be necessary
   	end
 
@@ -294,7 +294,7 @@ RSpec.describe Ledger, type: :model do
           expect(subject.name_and_code).to eq("client (code)")
         end
       end
-     
+
       context "when client code is not present" do
         it "should return only name" do
           subject.name = "client"
@@ -309,8 +309,8 @@ RSpec.describe Ledger, type: :model do
           context "and client code is present" do
             let(:client_account){create(:client_account, name: "nistha", nepse_code: 'kkl')}
             it "should return attributes for client acount" do
-          
-              client_account.ledger.client_code = "code" 
+
+              client_account.ledger.client_code = "code"
               expect(Ledger.find_similar_to_term("ni",nil)).to eq([{:text=>"nistha (KKL)", :id=>"#{client_account.ledger.id}"}])
             end
           end
@@ -328,7 +328,7 @@ RSpec.describe Ledger, type: :model do
           subject{create(:ledger, name: "nistha")}
           let(:employee_account){create(:employee_account, name: "john")}
           it "should return attributes for employee account"
-            
+
         end
 
         context "when vendor account id is present" do
@@ -418,5 +418,29 @@ RSpec.describe Ledger, type: :model do
         expect(LedgerDaily.unscoped.where(ledger_id: subject.id).count).to eq(0)
       end
     end
+
+  describe 'test ' do
+    include ApplicationHelper
+    it 'works' do
+      UserSession.selected_fy_code = 7475
+      client_account = create(:client_account, branch_id: 1, name: 'random')
+      ledger = client_account.ledger
+      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, fy_code: 7475, branch_id: 1, opening_balance_type: 0, opening_balance: 500)
+      ledger_balance.update_attributes(opening_balance: 3391768.8771)
+      ledger_daily1 = create(:ledger_daily, ledger_id: ledger.id, date_bs: '2074-10-02', opening_balance: 3929389.8071, closing_balance: 3391768.8771, dr_amount: 0.0, cr_amount: 537620.93)
+      voucher = create(:voucher, branch_id: 1, fy_code: 7475, date_bs: '2074-10-10')
+      process_accounts(ledger, voucher, false, 3331.99 , 'desc', 1, '2018-01-24'.to_date)
+      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3388436.8871'))
+      #
+      process_accounts(ledger, voucher, false, 3272.00 , 'desc', 1, '2018-01-24'.to_date)
+      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3385164.8871'))
+
+      process_accounts(ledger, voucher, false, 63625.90 , 'desc', 1, '2018-01-24'.to_date)
+      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3321538.9871'))
+
+      process_accounts(ledger, voucher, false, 318577.24 , 'desc', 1, '2018-01-24'.to_date)
+      expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3002961.7471'))
+    end
+  end
 
 end
