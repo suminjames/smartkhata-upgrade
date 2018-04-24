@@ -230,7 +230,8 @@ class ShareTransactionsController < ApplicationController
       @share_transactions = ShareTransaction.sebo_report(
           params.dig(:filterrific, :by_isin_id),
           params.dig(:filterrific, :by_date_from),
-          params.dig(:filterrific, :by_date_to)
+          params.dig(:filterrific, :by_date_to),
+          UserSession.selected_branch_id
       )
       fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
       @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)

@@ -298,7 +298,7 @@ class ShareTransaction < ActiveRecord::Base
     result_arr
   end
 
-  def self.sebo_report isin_id, date_from_bs, date_to_bs
+  def self.sebo_report isin_id, date_from_bs, date_to_bs, branch_id = 0
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -306,7 +306,7 @@ class ShareTransaction < ActiveRecord::Base
       isin_id = ar_connection.quote(isin_id)
       where_conditions << "isin_info_id = #{isin_id}"
     end
-    
+
     if date_from_bs.present? || date_to_bs.present?
       date_from_ad = bs_to_ad(date_from_bs)
       date_to_ad = bs_to_ad(date_to_bs)
@@ -317,17 +317,22 @@ class ShareTransaction < ActiveRecord::Base
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
 
-    # where_condition_str = "#{where_conditions.join(" AND ")}"
-
-    if where_conditions.present?
-      # where_condition_str = "#{where_conditions.join(" AND ")} AND client_accounts.branch_id = #{UserSession.selected_branch_id}"
-      # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
-      client_ids = ClientAccount.where(branch_id: UserSession.selected_branch_id).pluck(:id)
-    else
-      # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
+    if branch_id != 0
+      where_conditions << "(branch_id = #{branch_id})"
     end
 
-    ShareTransaction.includes(:isin_info).where(client_account_id: client_ids).group(:isin_info_id).select(
+    where_condition_str = "#{where_conditions.join(" AND ")}"
+    # if where_conditions.present?
+    #   # where_condition_str = "#{where_conditions.join(" AND ")} AND client_accounts.branch_id = #{UserSession.selected_branch_id}"
+    #   # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
+    #   client_ids = ClientAccount.where(branch_id: UserSession.selected_branch_id).pluck(:id)
+    # else
+    #   # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
+    # end
+
+
+
+    ShareTransaction.includes(:isin_info).where(where_condition_str).group(:isin_info_id).select(
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
