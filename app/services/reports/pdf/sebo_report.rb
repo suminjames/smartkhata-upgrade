@@ -137,7 +137,7 @@ class Reports::Pdf::SeboReport < Prawn::Document
     @share_transactions.each_with_index do |share_transaction, index|
       td_data = [
         index + 1,
-        share_transaction.isin_info.company,
+        share_transaction.isin_info.try(:company),
         share_transaction["buy_transaction_count"],
         share_transaction["buy_quantity"],
         monetary_decimal(share_transaction["buying_amount"]),
