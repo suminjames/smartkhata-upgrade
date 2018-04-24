@@ -222,14 +222,21 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-    @share_transactions = ShareTransaction.sebo_report(
-        params.dig(:filterrific, :by_isin_id),
-        params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
-    )
-    fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
-    @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-    @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @isin_infos = IsinInfo.where(company: nil).pluck(:isin)
+
+    if @isin_infos.present?
+      flash[:error] =  "Please Update company details for isin: #{@isin_infos.join(',')}"
+    else
+      @share_transactions = ShareTransaction.sebo_report(
+          params.dig(:filterrific, :by_isin_id),
+          params.dig(:filterrific, :by_date_from),
+          params.dig(:filterrific, :by_date_to)
+      )
+      fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
+      @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
+      @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    end
+
     respond_to do |format|
       format.html
       format.js

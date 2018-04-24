@@ -80,7 +80,7 @@ class Reports::Excelsheet::SeboReport < Reports::Excelsheet
 
     @share_transactions.each_with_index do |share_transaction, index|
       sn = index + 1
-      company = share_transaction.isin_info.try(:company)
+      company = share_transaction.isin_info.company
       buy_transaction_count = share_transaction["buy_transaction_count"]
       buy_quantity = share_transaction["buy_quantity"]
       buying_amount = share_transaction["buying_amount"]
