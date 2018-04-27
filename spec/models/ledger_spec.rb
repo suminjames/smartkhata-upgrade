@@ -440,7 +440,17 @@ RSpec.describe Ledger, type: :model do
 
       process_accounts(ledger, voucher, false, 318577.24 , 'desc', 1, '2018-01-24'.to_date)
       expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3002961.7471'))
+
+
+
+      voucher1 = create(:voucher, branch_id: 1, fy_code: 7475, date_bs: '2074-10-12')
+      process_accounts(ledger, voucher1, false, 500 , 'random desc', 1, '2018-01-26'.to_date)
+      ledger_dailies = LedgerDaily.where(branch_id: 1)
+      expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3002461.7471'))
+      # debugger
+      expect(ledger_dailies.last.opening_balance).to eq(BigDecimal.new('3002961.7471'))
+      expect(ledger_dailies.last.closing_balance).to eq(BigDecimal.new('3002461.7471'))
     end
   end
-
 end
+

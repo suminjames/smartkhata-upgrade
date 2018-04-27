@@ -125,20 +125,19 @@ RSpec.describe  Ledgers::ParticularEntry do
           @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, true, 4000, 7475, 1)
         end
 
-        it "adds dr_amount and increments closing balance for ledger dailies for that day" do
-          # creates ledger daily with date equal to accounting date if not present
-          ledger_daily = LedgerDaily.third
-          ledger_daily_org = LedgerDaily.last
+        it "creates new ledger dailies for that day" do
+          ledger_daily = LedgerDaily.where(branch_id: 1).last
+          ledger_daily_org = LedgerDaily.where(branch_id: nil).last
 
           expect(ledger_daily.reload.dr_amount).to eq(4000)
           expect(ledger_daily.reload.cr_amount).to eq(0)
-          expect(ledger_daily.reload.closing_balance).to eq(10000)
-          expect(ledger_daily.reload.opening_balance).to eq(6000)
+          expect(ledger_daily.reload.closing_balance).to eq(15000)
+          expect(ledger_daily.reload.opening_balance).to eq(11000)
 
           expect(ledger_daily_org.reload.dr_amount).to eq(4000)
           expect(ledger_daily_org.reload.cr_amount).to eq(0)
-          expect(ledger_daily_org.reload.closing_balance).to eq(11000)
-          expect(ledger_daily_org.reload.opening_balance).to eq(7000)
+          expect(ledger_daily_org.reload.closing_balance).to eq(17000)
+          expect(ledger_daily_org.reload.opening_balance).to eq(13000)
         end
 
         it "adds dr_amount and increments closing balance for ledger balances for that day" do
@@ -153,7 +152,7 @@ RSpec.describe  Ledgers::ParticularEntry do
         end
 
         it 'returns closing balances' do
-          expect(@calculate_balances).to eq([10000, 11000])
+          expect(@calculate_balances).to eq([15000, 17000])
         end
       end
       context 'and credit' do
@@ -163,20 +162,19 @@ RSpec.describe  Ledgers::ParticularEntry do
           @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, false, 4000, 7475, 1)
         end
 
-        it "adds cr_amount and decrements closing balance for ledger dailies for that day" do
-          # creates ledger daily with date equal to accounting date if not present
-          ledger_daily = LedgerDaily.third
-          ledger_daily_org = LedgerDaily.last
+        it "creates new ledger dailies for that day" do
+          ledger_daily = LedgerDaily.where(branch_id: 1).last
+          ledger_daily_org = LedgerDaily.where(branch_id: nil).last
 
           expect(ledger_daily.reload.dr_amount).to eq(0)
           expect(ledger_daily.reload.cr_amount).to eq(4000)
-          expect(ledger_daily.reload.closing_balance).to eq(2000)
-          expect(ledger_daily.reload.opening_balance).to eq(6000)
+          expect(ledger_daily.reload.closing_balance).to eq(7000)
+          expect(ledger_daily.reload.opening_balance).to eq(11000)
 
           expect(ledger_daily_org.reload.dr_amount).to eq(0)
           expect(ledger_daily_org.reload.cr_amount).to eq(4000)
-          expect(ledger_daily_org.reload.closing_balance).to eq(3000)
-          expect(ledger_daily_org.reload.opening_balance).to eq(7000)
+          expect(ledger_daily_org.reload.closing_balance).to eq(9000)
+          expect(ledger_daily_org.reload.opening_balance).to eq(13000)
         end
 
         it "adds cr_amount and decrements closing balance for ledger balances for that day" do
@@ -191,7 +189,7 @@ RSpec.describe  Ledgers::ParticularEntry do
         end
 
         it 'returns closing balances' do
-          expect(@calculate_balances).to eq([2000, 3000])
+          expect(@calculate_balances).to eq([7000, 9000])
         end
       end
     end
