@@ -82,6 +82,15 @@ RSpec.describe IsinInfo, type: :model do
 	  			expect(subject.class.find_or_create_new_by_symbol("DAN")).to eq(subject)
   			end
   		end
-  	end
+    end
+
+		describe "#options_for_isin_select" do
+			it "returns options for isin select" do
+				subject.isin = 'DAN'
+				isin_info1 = create(:isin_info, isin: 'ABC')
+				isin_info2 = create(:isin_info, isin: 'XYZ')
+				expect(subject.class.options_for_isin_select).to eq(['ABC', 'DAN', 'XYZ'])
+			end
+		end
 
 end

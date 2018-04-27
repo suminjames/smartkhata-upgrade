@@ -12,7 +12,8 @@ class IsinInfosController < ApplicationController
         params[:filterrific],
         select_options: {
             by_isin_info_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
-            by_sector: IsinInfo.options_for_sector_select
+            by_sector: IsinInfo.options_for_sector_select,
+            by_isin: IsinInfo.options_for_isin_select
         },
         persistence_id: false
     ) or return

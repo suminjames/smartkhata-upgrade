@@ -18,6 +18,14 @@
             :name_and_code,                       |
             {include_blank: true},                      |
             {class: 'form-control combobox combobox-select min-3', id: 'isin_info_isin_index_combobox', 'data-placeholder': '- Any -' }) |
+        .col-xs-3
+          %label
+            Isin
+          = f.select(                        |
+            :by_isin,                              |
+            @filterrific.select_options[:by_isin], |
+            {include_blank: true},                 |
+            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
         .col-xs-2
           %label
             Sector Type
