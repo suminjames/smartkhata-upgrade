@@ -59,6 +59,15 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
+
+gem 'apartment'
+gem 'devise'
+gem 'devise_invitable'
+gem 'kaminari'
+gem 'sidekiq'
+gem 'simple_form'
+gem 'smart_listing'
+gem "audited", "~> 4.7"
 # source 'https://rubygems.org'
 # ruby '2.3.1'
 #
@@ -71,31 +80,28 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # gem 'turbolinks', '2.5.3'
 # gem 'jbuilder', '~> 2.0'
 # gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
-# gem 'kaminari'
 # gem 'has_scope'
 # gem 'filterrific'
 # gem 'bootstrap-kaminari-views'
 # gem 'prawn'
 # gem 'prawn-table', '~> 0.2.2'
-# gem 'sidekiq'
+
 # gem 'sinatra', '>= 1.3.0', require: false
 # gem 'apartment-sidekiq'
 # gem 'scout_apm'
 # gem 'awesome_print'
 # gem 'bootstrap-sass'
-# gem 'devise'
-# gem 'devise_invitable'
+
 # gem 'high_voltage'
 
 # gem 'pundit'
 # gem 'sendgrid'
-# gem 'simple_form'
-# gem 'smart_listing'
+
+
 # gem 'virtus'
 # gem 'ancestry'
 # gem 'zip-zip'
 # gem 'axlsx'
-# gem 'audited', '~> 4.3'
 # gem 'simplecov', :require => false, :group => :test
 # # Converts array that is returned during ActiveRecord pluck to hash
 # gem 'pluck_to_hash'
@@ -107,7 +113,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # gem 'haml'
 # gem 'haml-rails'
 # gem 'sankhya'
-# gem 'apartment'
+
 # gem 'react-rails'
 # gem 'slim'
 # gem 'whenever', :require => false
