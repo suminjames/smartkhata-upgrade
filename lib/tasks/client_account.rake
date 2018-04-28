@@ -1,5 +1,3 @@
-require "awesome_print"
-
 namespace :client_account do
 
   desc "Fix name format of all client accounts."

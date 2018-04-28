@@ -68,6 +68,7 @@ gem 'sidekiq'
 gem 'simple_form'
 gem 'smart_listing'
 gem "audited", "~> 4.7"
+gem 'pundit'
 # source 'https://rubygems.org'
 # ruby '2.3.1'
 #
@@ -90,11 +91,11 @@ gem "audited", "~> 4.7"
 # gem 'apartment-sidekiq'
 # gem 'scout_apm'
 # gem 'awesome_print'
-# gem 'bootstrap-sass'
+gem 'bootstrap-sass'
 
 # gem 'high_voltage'
 
-# gem 'pundit'
+
 # gem 'sendgrid'
 
 

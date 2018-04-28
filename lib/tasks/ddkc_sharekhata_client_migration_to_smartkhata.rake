@@ -1,5 +1,3 @@
-require 'awesome_print'
-
 # In a prior migration of client accounts from ShareKhata to SmartKhata, client type was not properly assigned.
 # This resulted in each new client account creation to have client_type (default value ) of 0 (ie. Individual).
 # However, there were clients with client_type of Corporate. This will result in accounting mishap due to different CGT
