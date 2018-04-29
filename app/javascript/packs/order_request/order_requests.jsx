@@ -44,11 +44,12 @@ export default OrderRequests;
 
 document.addEventListener('turbolinks:load', () => {
   const node = document.getElementById('order_requests_data')
-  const data = JSON.parse(node.getAttribute('data'))
-  ReactDOM.render(
-    <OrderRequests order_request_details={data} />,
-    node,
-  );
-
-  console.log(node)
+  if( node ) {
+    const data = JSON.parse(node.getAttribute('data'))
+    ReactDOM.render(
+      <OrderRequests order_request_details={data}/>,
+      node,
+    );
+    console.log(node)
+  } 
 })
