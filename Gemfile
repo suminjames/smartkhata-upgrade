@@ -100,6 +100,7 @@ gem 'nepali_calendar'
 gem 'haml-rails'
 gem 'sankhya'
 gem 'slim'
+gem 'webpacker'
 # gem 'whenever', :require => false
 #
 # group :production do

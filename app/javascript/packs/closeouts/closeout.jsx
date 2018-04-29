@@ -1,3 +1,6 @@
+import React from 'react';
+import { Button } from 'react-bootstrap';
+
 class Closeout extends React.Component {
   constructor(props) {
     super(props);
@@ -27,3 +30,4 @@ class Closeout extends React.Component {
     );
   }
 };
+export default Closeout;

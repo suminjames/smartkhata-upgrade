@@ -1,12 +1,17 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import OrderRequestDetail from './order_request_detail';
+
 class OrderRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       orderDetails: this.props.order_request_details
+      // orderDetails: []
     }
   }
   render() {
-    order_requests = this.state.orderDetails.map( function(order_request) {
+    const order_requests = this.state.orderDetails.map( function(order_request) {
       return (
         <OrderRequestDetail orderRequest={order_request} key={order_request.id} />
       );
@@ -34,3 +39,16 @@ class OrderRequests extends React.Component {
     );
   }
 };
+
+export default OrderRequests;
+
+document.addEventListener('turbolinks:load', () => {
+  const node = document.getElementById('order_requests_data')
+  const data = JSON.parse(node.getAttribute('data'))
+  ReactDOM.render(
+    <OrderRequests order_request_details={data} />,
+    node,
+  );
+
+  console.log(node)
+})

@@ -16,6 +16,11 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
   <%= csrf_meta_tags %>
+
+
+  <!-- REQUIRED JS SCRIPTS -->
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload', defer: true %>
+  <%= yield :page_js %>
 </head>
 <body class="<%= (user_signed_in? && !current_user.client?) ? 'employee': 'client' %>  skin-blue layout-top-nav fixed-top">
 <div class="wrapper">
@@ -68,21 +73,5 @@
   </footer>
 
 </div><!-- ./wrapper -->
-
-<!-- REQUIRED JS SCRIPTS -->
-<%= javascript_include_tag 'application', 'data-turbolinks-eval' => false %>
-<%= yield :page_js %>
-
-<!-- HOTKEYS BEGINS -->
-<!--
-  Used in the application
-  -jquery-hotkey (jquery plugin)
-    -See https://github.com/jeresig/jquery.hotkeys for usage
-  -jquery-hotkeys-rails (gem that binds the plugin mentioned above) -->
-<%= javascript_tag do %>
-
-<% end %>
-<!-- HOTKEYS ENDS-->
-
 </body>
 </html>

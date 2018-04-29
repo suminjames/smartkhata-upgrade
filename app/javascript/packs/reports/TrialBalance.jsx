@@ -94,3 +94,4 @@ class TrialBalance extends React.Component {
     );
   }
 };
+export default TrialBalance;

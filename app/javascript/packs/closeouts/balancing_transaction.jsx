@@ -1,3 +1,4 @@
+import React from 'react';
 class BalancingTransaction extends React.Component {
   constructor(props) {
     super(props);
@@ -27,3 +28,4 @@ class BalancingTransaction extends React.Component {
     );
   }
 };
+export default BalancingTransaction;

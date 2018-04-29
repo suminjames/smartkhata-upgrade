@@ -1,11 +1,15 @@
-var OrderRequestDetail =  React.createClass({
-  getInitialState() {
-    return {
+import React from 'react';
+
+class OrderRequestDetail extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       orderRequest: this.props.orderRequest,
       hidden: false
     }
-  },
-  approve(){
+  }
+
+  approve =() =>{
     this.setState({hidden: true})
     var that = this;
     $.ajax({
@@ -15,8 +19,8 @@ var OrderRequestDetail =  React.createClass({
         that.setState({hidden: true});
       }
     });
-  },
-  reject(){
+  }
+  reject =() =>{
     this.setState({hidden: true})
     var that = this;
     $.ajax({
@@ -26,7 +30,8 @@ var OrderRequestDetail =  React.createClass({
         that.setState({hidden: true});
       }
     });
-  },
+  }
+
   render () {
     return (
       <tr className={this.state.hidden ? "hidden": ""}>
@@ -45,6 +50,6 @@ var OrderRequestDetail =  React.createClass({
       </tr>
     );
   }
-})
+};
 
-
+export default OrderRequestDetail;
