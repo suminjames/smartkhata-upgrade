@@ -13,9 +13,9 @@
 
 
 //= require jquery
-//= require jquery.turbolinks
+// require jquery.turbolinks
 //= require jquery_ujs
-//= require jquery-hotkeys
+// require jquery-hotkeys
 //= require turbolinks
 //= require bootstrap-sprockets
 //= require bootstrap-combobox.js

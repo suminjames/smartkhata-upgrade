@@ -64,59 +64,42 @@ gem 'apartment'
 gem 'devise'
 gem 'devise_invitable'
 gem 'kaminari'
+gem 'bootstrap-sass'
+gem 'bootstrap-kaminari-views'
 gem 'sidekiq'
 gem 'simple_form'
 gem 'smart_listing'
 gem "audited", "~> 4.7"
 gem 'pundit'
-# source 'https://rubygems.org'
-# ruby '2.3.1'
-#
-# gem 'rails', '4.2.4'
-# gem 'sass-rails', '~> 5.0'
 # gem 'draper', '~> 1.3'
-# gem 'uglifier', '>= 1.3.0'
-# gem 'coffee-rails', '~> 4.1.0'
-# gem 'jquery-rails'
-# gem 'turbolinks', '2.5.3'
-# gem 'jbuilder', '~> 2.0'
+gem 'jquery-rails'
 # gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
 # gem 'has_scope'
-# gem 'filterrific'
-# gem 'bootstrap-kaminari-views'
+gem 'filterrific'
+
 # gem 'prawn'
 # gem 'prawn-table', '~> 0.2.2'
-
 # gem 'sinatra', '>= 1.3.0', require: false
 # gem 'apartment-sidekiq'
 # gem 'scout_apm'
 # gem 'awesome_print'
-gem 'bootstrap-sass'
-
 # gem 'high_voltage'
-
-
 # gem 'sendgrid'
-
-
 # gem 'virtus'
-# gem 'ancestry'
+gem 'ancestry'
 # gem 'zip-zip'
 # gem 'axlsx'
 # gem 'simplecov', :require => false, :group => :test
 # # Converts array that is returned during ActiveRecord pluck to hash
 # gem 'pluck_to_hash'
-# gem 'nepali_calendar'
+gem 'nepali_calendar'
 # gem 'jquery-turbolinks'
 # gem 'roo', '~> 2.1.0'
 # gem 'roo-xls'
 # gem 'mechanize', '2.7.3'
-# gem 'haml'
-# gem 'haml-rails'
-# gem 'sankhya'
-
-# gem 'react-rails'
-# gem 'slim'
+gem 'haml-rails'
+gem 'sankhya'
+gem 'slim'
 # gem 'whenever', :require => false
 #
 # group :production do
