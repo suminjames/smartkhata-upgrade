@@ -26,12 +26,14 @@ class IsinInfo < ActiveRecord::Base
 
   scope :by_isin_info_id, ->(isin_info_id) { where(id: isin_info_id) }
   scope :by_sector, ->(sector_string) { where("sector": sector_string) }
+  scope :by_isin, ->(isin) { where(isin: isin) }
 
   filterrific(
       default_filter_params: { },
       available_filters: [
           :by_isin_info_id,
-          :by_sector
+          :by_sector,
+          :by_isin
       ]
   )
 
@@ -91,6 +93,10 @@ class IsinInfo < ActiveRecord::Base
       company_info = new_isin_info
     end
     company_info
+  end
+
+  def self.options_for_isin_select
+    IsinInfo.all.order(:isin).pluck(:isin)
   end
 
 end
