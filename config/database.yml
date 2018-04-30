@@ -46,8 +46,8 @@ development:
 test:
   <<: *default
   database: smartkhata_test
-  host: localhost
-  username: dit
+  host: <%= ENV['DATABASE_HOST'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
 
 production:
   <<: *default
