@@ -390,4 +390,29 @@ namespace :ledger do
       end
     end
   end
+
+  task :ledger_count, [:tenant, :branch_id, :fy_code, :dry_run]=> 'smartkhata:validate_tenant' do |task, args|
+    include FiscalYearModule
+    branch_id = args.branch_id || 0
+    fy_code = args.fy_code || get_fy_code
+    ledger_count = 0
+    ledger_ids = []
+    Ledger.find_each do |ledger|
+      ledger_daily_last = LedgerDaily.unscoped.where(ledger_id: ledger.id, branch_id: branch_id, fy_code: fy_code).last
+      ledger_balance =  LedgerBalance.unscoped.where(ledger_id: ledger.id, branch_id: branch_id, fy_code: fy_code).last
+
+      if ledger_daily_last != nil
+        if ledger_daily_last.closing_balance != ledger_balance.closing_balance
+          ledger_count+=1
+          ledger_ids << ledger.id
+        end
+      end
+    end
+
+    if args.dry_run === 'true'
+      puts "#{ledger_count}"
+      puts "ledger_ids:#{ledger_ids.join(',')}"
+    end
+  end
+
 end
