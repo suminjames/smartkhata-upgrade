@@ -57,6 +57,9 @@ group :test do
   # Easy installation and use of chromedriver to run system tests with Chrome
   gem 'chromedriver-helper'
   gem 'database_cleaner'
+  gem 'shoulda-matchers', '~> 3.1'
+  gem "webmock"
+  gem "vcr"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -66,6 +69,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'apartment'
 gem 'devise'
 gem 'devise_invitable'
+gem 'draper'
 gem 'kaminari'
 gem 'bootstrap-sass'
 gem 'bootstrap-kaminari-views'
@@ -152,6 +156,4 @@ gem 'webpacker'
 #   gem "shoulda-matchers"
 #   gem 'shoulda-callback-matchers', '~> 1.1.1'
 #   gem 'mocha'
-#   gem "webmock"
-#   gem "vcr"
 # end
