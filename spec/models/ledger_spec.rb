@@ -418,39 +418,5 @@ RSpec.describe Ledger, type: :model do
         expect(LedgerDaily.unscoped.where(ledger_id: subject.id).count).to eq(0)
       end
     end
-
-  describe 'test ' do
-    include ApplicationHelper
-    it 'works' do
-      UserSession.selected_fy_code = 7475
-      client_account = create(:client_account, branch_id: 1, name: 'random')
-      ledger = client_account.ledger
-      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, fy_code: 7475, branch_id: 1, opening_balance_type: 0, opening_balance: 500)
-      ledger_balance.update_attributes(opening_balance: 3391768.8771)
-      ledger_daily1 = create(:ledger_daily, ledger_id: ledger.id, date_bs: '2074-10-02', opening_balance: 3929389.8071, closing_balance: 3391768.8771, dr_amount: 0.0, cr_amount: 537620.93)
-      voucher = create(:voucher, branch_id: 1, fy_code: 7475, date_bs: '2074-10-10')
-      process_accounts(ledger, voucher, false, 3331.99 , 'desc', 1, '2018-01-24'.to_date)
-      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3388436.8871'))
-      #
-      process_accounts(ledger, voucher, false, 3272.00 , 'desc', 1, '2018-01-24'.to_date)
-      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3385164.8871'))
-
-      process_accounts(ledger, voucher, false, 63625.90 , 'desc', 1, '2018-01-24'.to_date)
-      # expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3321538.9871'))
-
-      process_accounts(ledger, voucher, false, 318577.24 , 'desc', 1, '2018-01-24'.to_date)
-      expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3002961.7471'))
-
-
-
-      voucher1 = create(:voucher, branch_id: 1, fy_code: 7475, date_bs: '2074-10-12')
-      process_accounts(ledger, voucher1, false, 500 , 'random desc', 1, '2018-01-26'.to_date)
-      ledger_dailies = LedgerDaily.where(branch_id: 1)
-      expect(ledger.ledger_balances.last.closing_balance).to eq(BigDecimal.new('3002461.7471'))
-      # debugger
-      expect(ledger_dailies.last.opening_balance).to eq(BigDecimal.new('3002961.7471'))
-      expect(ledger_dailies.last.closing_balance).to eq(BigDecimal.new('3002461.7471'))
-    end
-  end
 end
 
