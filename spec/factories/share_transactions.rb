@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :share_transaction do
     client_account
     contract_no 201611284117936

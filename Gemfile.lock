@@ -92,6 +92,7 @@ GEM
     concurrent-ruby (1.0.5)
     connection_pool (2.2.1)
     crass (1.0.4)
+    database_cleaner (1.7.0)
     devise (4.4.3)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -105,6 +106,11 @@ GEM
     erubi (1.7.1)
     erubis (2.7.0)
     execjs (2.7.0)
+    factory_bot (4.8.2)
+      activesupport (>= 3.0.0)
+    factory_bot_rails (4.8.2)
+      factory_bot (~> 4.8.2)
+      railties (>= 3.0.0)
     ffi (1.9.23)
     filterrific (5.0.1)
     globalid (0.4.1)
@@ -320,8 +326,10 @@ DEPENDENCIES
   capybara (>= 2.15, < 4.0)
   chromedriver-helper
   coffee-rails (~> 4.2)
+  database_cleaner
   devise
   devise_invitable
+  factory_bot_rails
   filterrific
   haml-rails
   jbuilder (~> 2.5)

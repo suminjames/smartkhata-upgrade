@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :menu_item do
   	sequence(:code) { |n| "Menu-#{n}" }
   end

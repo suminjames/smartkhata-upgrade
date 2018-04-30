@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :calendar_plus, class: 'NepaliCalendarPlus::CalendarPlus' do
   	
   end

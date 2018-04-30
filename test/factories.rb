@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :master_setup_commission_detail, class: 'MasterSetup::CommissionDetail' do
     start_amount 0
     limit_amount nil
@@ -14,7 +14,7 @@ FactoryGirl.define do
     nepse_commission_rate 22.5
 
     before(:create) do |master_setup_commission_info|
-      master_setup_commission_info.commission_details << FactoryGirl.create(:master_setup_commission_detail)
+      master_setup_commission_info.commission_details << FactoryBot.create(:master_setup_commission_detail)
     end
   end
 

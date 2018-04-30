@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :order_request_detail do
     quantity 1
     rate 1
