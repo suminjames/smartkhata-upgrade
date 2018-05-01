@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :bill do
     sequence (:bill_number)
     client_name 'Harold Hill'

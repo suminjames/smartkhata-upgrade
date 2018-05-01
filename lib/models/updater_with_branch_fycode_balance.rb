@@ -5,13 +5,12 @@ module Models::UpdaterWithBranchFycodeBalance
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator, :add_fy_code
-      before_save :set_updater
+      before_validation :set_creator, :add_fy_code, :set_updater
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
-      belongs_to :branch
+      belongs_to :branch, required: false
 
       scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
       scope :by_fy_code_org, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code, branch_id: nil)}
@@ -48,7 +47,7 @@ module Models::UpdaterWithBranchFycodeBalance
   end
 
   def set_creator
-    self.creator_id = UserSession.id
+    self.creator_id ||= UserSession.id
   end
 
   def add_fy_code

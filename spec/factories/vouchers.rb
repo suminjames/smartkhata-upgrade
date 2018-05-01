@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :voucher do
     fy_code 7374
     date_bs '2073-09-24'

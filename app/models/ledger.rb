@@ -49,9 +49,9 @@ class Ledger < ActiveRecord::Base
   has_many :particulars
   has_many :vouchers, :through => :particulars
   belongs_to :group
-  belongs_to :bank_account
-  belongs_to :client_account
-  belongs_to :vendor_account
+  belongs_to :bank_account, optional: true
+  belongs_to :client_account, optional: true
+  belongs_to :vendor_account, optional: true
   has_many :ledger_dailies
   has_many :ledger_balances
   has_many :employee_ledger_associations

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :share_inventory do
  
   end

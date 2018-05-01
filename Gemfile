@@ -37,6 +37,8 @@ gem 'bootsnap', '>= 1.1.0', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem "factory_bot_rails"
+  gem 'rspec-rails', '~> 3.7'
 end
 
 group :development do
@@ -54,6 +56,10 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of chromedriver to run system tests with Chrome
   gem 'chromedriver-helper'
+  gem 'database_cleaner'
+  gem 'shoulda-matchers', '~> 3.1'
+  gem "webmock"
+  gem "vcr"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -63,6 +69,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'apartment'
 gem 'devise'
 gem 'devise_invitable'
+gem 'draper'
 gem 'kaminari'
 gem 'bootstrap-sass'
 gem 'bootstrap-kaminari-views'
@@ -136,7 +143,6 @@ gem 'webpacker'
 # end
 #
 # group :development, :test do
-#   gem 'byebug'
 #   gem 'rspec-rails', '~> 3.5'
 #   gem 'factory_girl_rails'
 # end
@@ -150,6 +156,4 @@ gem 'webpacker'
 #   gem "shoulda-matchers"
 #   gem 'shoulda-callback-matchers', '~> 1.1.1'
 #   gem 'mocha'
-#   gem "webmock"
-#   gem "vcr"
 # end
