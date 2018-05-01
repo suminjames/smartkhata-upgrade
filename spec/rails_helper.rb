@@ -58,10 +58,10 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  # config.include Devise::TestHelpers, :type => :controller
-  # config.extend ControllerMacros, :type => :controller
-  # config.include Warden::Test::Helpers, :type => :feature
-  #
+  config.include Devise::TestHelpers, :type => :controller
+  config.extend ControllerMacros, :type => :controller
+  config.include Warden::Test::Helpers, :type => :feature
+
   # Capybara::Screenshot.webkit_options = { width: 1586, height: 768 }
 end
 Shoulda::Matchers.configure do |config|

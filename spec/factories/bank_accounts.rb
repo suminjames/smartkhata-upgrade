@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :bank_account do
     sequence(:account_number)
     bank_branch "chabahil"
-    branch_id 1
+    branch
     bank
     default_for_payment true
     default_for_receipt true

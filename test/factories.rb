@@ -19,8 +19,8 @@ FactoryBot.define do
   end
 
   factory :user do
-    username  "test"
-    email "test@gmail.com"
+    sequence(:username, 'a') { |n| "testuser#{n}" }
+    sequence(:email, 'a') { |n| "testuser-#{n}@gmail.com" }
     password "password"
     password_confirmation "password"
     confirmed_at Date.today
@@ -97,7 +97,8 @@ FactoryBot.define do
 
   factory :ledger do
     name 'Ledger'
-    group_id 234
+    # group_id 234
+    group
 
     factory :bank_ledger do
       name 'Bank'
@@ -134,6 +135,9 @@ FactoryBot.define do
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
     branch_id 1
+
+    # association :creator, factory: :user
+    # association :updater, factory: :user
 
     factory :client_account_without_nepse_code do
       nepse_code nil
