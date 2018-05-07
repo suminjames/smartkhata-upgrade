@@ -1,10 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ClientAccount, type: :model do
-  subject {build(:client_account)
-  }
-
   include_context 'session_setup'
+  subject {build(:client_account, branch_id: @branch.id)}
+
 
    # before do
    #  # user session needs to be set for doing any activity
@@ -18,8 +17,8 @@ RSpec.describe ClientAccount, type: :model do
   	end
 
   	it "branch id should always be present if multiple branches are present" do
-  	   create(:branch)
-  		subject.branch_id = nil
+      create(:branch)
+      allow(subject).to receive(:branch_id).and_return(nil)
   		expect(subject).not_to be_valid
   	end
 
@@ -144,13 +143,14 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".check_client_branch" do
-    subject{create(:client_account, name: "John", branch_id: 1)}
-    let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: 1)}
-    let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: 1)}
+    subject{create(:client_account, name: "John", branch_id: @branch.id)}
+    let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: @branch.id)}
+    let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: @branch.id)}
+    let(:branch){create(:branch)}
 
     context "when branch not changed" do
       it "should check client's branch" do
-        subject.branch_id = 2
+        subject.branch_id = branch.id
         subject.check_client_branch
         expect(subject.errors[:branch_id]).to include 'Client has entry in other branch'
       end
@@ -158,7 +158,7 @@ RSpec.describe ClientAccount, type: :model do
 
     context "when branch changed" do
       it "should return true" do
-        subject.branch_id = 2
+        subject.branch_id = branch.id
         subject.move_all_particulars = "1"
         subject.check_client_branch
         expect(subject.branch_changed).to eq(true)
@@ -218,22 +218,21 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".get_all_related_bills" do
-    subject{create(:client_account)}
-      let(:group_member) {create(:client_account, group_leader_id: subject.id)}
+    subject{create(:client_account, branch_id: @branch.id)}
+      let(:group_member) {create(:client_account, group_leader_id: subject.id, branch_id: @branch.id)}
     it "should return  all related bills"  do
-      
-      bill1 = create(:bill, client_account_id: subject.id)
-      bill2 = create(:bill, client_account_id: group_member.id )
+      bill1 = create(:bill, client_account_id: subject.id, branch_id: @branch.id)
+      bill2 = create(:bill, client_account_id: group_member.id, branch_id: @branch.id)
       expect(subject.get_all_related_bills).to eq([bill1, bill2])
     end
   end
 
   describe ".get_all_related_bills_ids" do
-      subject{create(:client_account)}
-      let(:group_member) {create(:client_account, group_leader_id: subject.id)}
+      subject{create(:client_account, branch_id: @branch_id)}
+      let(:group_member) {create(:client_account, group_leader_id: subject.id, branch_id: @branch.id)}
     it "should return  all related bills ids"  do
-      bill1 = create(:bill, client_account_id: subject.id)
-      bill2 = create(:bill, client_account_id: group_member.id )
+      bill1 = create(:bill, client_account_id: subject.id, branch_id: @branch.id)
+      bill2 = create(:bill, client_account_id: group_member.id, branch_id: @branch.id )
       expect(subject.get_all_related_bill_ids).to eq([bill1.id, bill2.id])
     end
   end
@@ -442,14 +441,14 @@ RSpec.describe ClientAccount, type: :model do
       context "and nepse code is not present" do
         it "should return  attributes with nepse code" do
           subject.update_column(:nepse_code, nil)
-          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson", :id => "#{subject.id}"])
+          expect(subject.class.find_similar_to_term("De", subject.branch_id)).to eq([:text=> "Dedra Sorenson", :id => "#{subject.id}"])
         end
       end
 
       context "and nepse code is present" do
         it "should return  attributes with nepse code" do
           subject.update_column(:nepse_code, "123")
-          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson (123)", :id => "#{subject.id}"])
+          expect(subject.class.find_similar_to_term("De", subject.branch_id)).to eq([:text=> "Dedra Sorenson (123)", :id => "#{subject.id}"])
         end
       end
     end
@@ -457,14 +456,14 @@ RSpec.describe ClientAccount, type: :model do
     context "when search term is present and matches nepse_code" do
       it "should return  attributes with nepse code" do
         subject.update_column(:nepse_code, "nps")
-        expect(subject.class.find_similar_to_term("np",1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+        expect(subject.class.find_similar_to_term("np", subject.branch_id)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
       end
     end
 
     context "when search term is not present" do
       it "should return  attributes with nepse code" do
         subject.update_column(:nepse_code, "nps")
-        expect(subject.class.find_similar_to_term(nil,1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+        expect(subject.class.find_similar_to_term(nil, subject.branch_id)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
       end
     end
 
@@ -479,7 +478,7 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe '.move_particulars' do
-    subject { create(:client_account, name: "John", branch_id: 1) }
+    subject { create(:client_account, name: "John", branch_id: @branch.id) }
     it "should move particulars when branch changed" do
       subject.move_all_particulars = "1"
       expect(subject).to receive(:branch_changed).and_return(true);

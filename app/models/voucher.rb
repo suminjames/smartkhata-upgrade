@@ -59,7 +59,7 @@ class Voucher < ActiveRecord::Base
   has_many :bills_on_creation, through: :on_creation, source: :bill
   has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
-  belongs_to :reviewer, class_name: 'User'
+  belongs_to :reviewer, class_name: 'User', required: false
 
   has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################

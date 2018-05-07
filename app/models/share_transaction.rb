@@ -52,11 +52,12 @@ class ShareTransaction < ActiveRecord::Base
 
   include ::Models::UpdaterWithBranch
   belongs_to :bill
+  belongs_to :branch
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
-  belongs_to :nepse_chalan
-  belongs_to :transaction_message
+  belongs_to :nepse_chalan, required: false
+  belongs_to :transaction_message, required: false
 
   # many to many association between share transaction and particulars
   # required in case of payment letter

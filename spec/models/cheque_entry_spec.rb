@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ChequeEntry, type: :model do
-  subject {build(:cheque_entry)}
-  
   include_context 'session_setup'
+  subject {build(:cheque_entry)}
+
 
 
   #  before do
@@ -31,7 +31,7 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe "#find_beneficiary_name_similar_to_term" do
-    subject{create(:cheque_entry)}
+    subject{create(:cheque_entry, branch_id: @branch.id)}
     it "should return beneficiary name when matched" do
       subject
       expect(ChequeEntry.find_beneficiary_name_similar_to_term('su')).to eq([{:text=>"subas", :id=>"subas"}])
@@ -45,7 +45,7 @@ RSpec.describe ChequeEntry, type: :model do
 
   describe "#options_for_bank_account_select" do
     let(:bank_account1) { create(:bank_account)}
-    let(:bank_account2) { create(:bank_account, branch_id: 2)}
+    let(:bank_account2) { create(:bank_account)}
 
     before do
       bank_account2.bank.update_column(:name, 'alpha')
@@ -65,11 +65,11 @@ RSpec.describe ChequeEntry, type: :model do
 
     context "when view  branch is selected" do
       it "should return bank" do
-        UserSession.selected_branch_id = 2
+        UserSession.selected_branch_id = bank_account2.branch_id
         expect(ChequeEntry.options_for_bank_account_select.count).to eq(1)
       end
       it "should return bank in order by name" do
-        UserSession.selected_branch_id = 2
+        UserSession.selected_branch_id = bank_account2.branch_id
         expect(ChequeEntry.options_for_bank_account_select.first).to eq(bank_account2)
       end
     end

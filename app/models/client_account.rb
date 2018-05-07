@@ -80,7 +80,7 @@ class ClientAccount < ActiveRecord::Base
   # Relationships
   belongs_to :group_leader, class_name: 'ClientAccount', required: false
   has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
-  belongs_to :user
+  belongs_to :user, required: false
   has_one :ledger
   has_many :share_inventories
   has_many :bills
