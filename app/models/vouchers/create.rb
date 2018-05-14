@@ -323,8 +323,7 @@ class Vouchers::Create < Vouchers::Base
       # @receipt = nil
       # Processed_bills are the bills that are in the scope of this voucher.
       processed_bills.each(&:save)
-      # bills that were created earlier and are about to get settled through this voucher.
-      voucher.bills_on_settlement << processed_bills
+
 
       # changing this might need a change in the way description is being parsed to show the bill number in payment voucher
       # voucher.desc = !description_bills.blank? ? description_bills : voucher.desc
@@ -518,6 +517,8 @@ class Vouchers::Create < Vouchers::Base
       end
       # mark the voucher as settled if it is not payment bank
       voucher.complete! unless voucher.is_payment_bank
+      # bills that were created earlier and are about to get settled through this voucher.
+      voucher.bills_on_settlement << processed_bills
       res = true if voucher.save
     end
     return voucher, res, error_message, settlements

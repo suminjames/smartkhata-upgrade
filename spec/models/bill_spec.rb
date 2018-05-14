@@ -153,7 +153,7 @@ RSpec.describe Bill, type: :model do
     end
 
     context "when valid" do
-      subject { build(:bill, provisional_base_price: 100) } 
+      subject { build(:bill, provisional_base_price: 100) }
 
       before do
         create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id)

@@ -6,8 +6,8 @@ RSpec.describe Vouchers::Base do
 
   let(:client_account) { create(:client_account)}
   let(:ledger) { client_account.ledger }
-  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
-  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
+  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000, branch_id: @branch.id) }
+  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000, branch_id: @branch.id) }
 
   before do
     # user session needs to be set for doing any activity
@@ -78,7 +78,7 @@ RSpec.describe Vouchers::Base do
     end
 
     it "should return correct values for sales bills greater than purchase" do
-      sales_bill = create(:sales_bill, client_account: client_account, net_amount: 4000)
+      sales_bill = create(:sales_bill, client_account: client_account, net_amount: 4000, branch_id: @branch.id)
 
       ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -1000)
       client_account_id = client_account.id
@@ -101,9 +101,9 @@ RSpec.describe Vouchers::Base do
       expect(voucher_type).to eq 1 #payment
     end
 
-    it "should return correct balues for puchase bills with ledger balance less than bill amount" do
+    it "should return correct values for puchase bills with ledger balance less than bill amount" do
       # in this case the amount to receive from client should be 2000 not the bill amount of 3000 because client has some advance amount
-      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2000)
+      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2000, branch_id: @branch.id)
       client_account_id = client_account.id
 
       bill_ids = [purchase_bill.id]
@@ -187,7 +187,7 @@ RSpec.describe Vouchers::Base do
     end
 
     it "should return receipt number for negative balance and clear ledger" do
-      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -2500)
+      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -2500, branch_id: @branch.id)
       client_account_id = client_account.id
 
       purchase_bill; sales_bill
@@ -213,7 +213,7 @@ RSpec.describe Vouchers::Base do
     end
 
     it "should return receipt voucher for positive balance and clear ledger" do
-      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2500)
+      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2500, branch_id: @branch.id)
       client_account_id = client_account.id
 
       # bill_ids = [purchase_bill.id]
@@ -237,3 +237,4 @@ RSpec.describe Vouchers::Base do
     end
   end
 end
+

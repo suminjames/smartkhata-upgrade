@@ -20,6 +20,6 @@ class EmployeeLedgerAssociation < ActiveRecord::Base
   belongs_to :ledger
 
   def self.delete_previous_associations_for(employee_account_id)
-    self.destroy_all(employee_account_id: "#{employee_account_id}")
+    self.where(employee_account_id: "#{employee_account_id}").destroy_all
   end
 end

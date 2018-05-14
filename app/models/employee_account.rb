@@ -70,9 +70,11 @@ class EmployeeAccount < ActiveRecord::Base
 
   # create employee ledger
   def create_ledger
+    employee_group = Group.find_or_create_by!(name: "Employees")
     employee_ledger = Ledger.create!(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
+      ledger.group_id = employee_group.id
     end
   end
 
