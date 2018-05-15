@@ -221,7 +221,6 @@ RSpec.describe Vouchers::Create do
       returned_voucher = voucher_creation_1.voucher
       cheque_entry = returned_voucher.cheque_entries.uniq.first
       cheque_entry.bounced!
-      voucher_params["desc"] = "test"
       voucher_2 = Voucher.new(voucher_params)
       voucher_creation_2 = Vouchers::Create.new(
           voucher_type: voucher_type,
@@ -617,4 +616,39 @@ RSpec.describe Vouchers::Create do
       end
     end
   end
+
+  describe '.voucher_has_cheque_entry?' do
+    let(:voucher) {create(:voucher)}
+    let(:particular1) {create(:particular, voucher_id: voucher.id, cheque_number: 12345)}
+    let(:particular2) {create(:particular, voucher_id: voucher.id, cheque_number: nil)}
+    context 'when cheque number present' do
+      it 'returns true' do
+        voucher
+        particular1
+        voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.voucher_has_cheque_entry?(voucher)).to eq(true)
+      end
+    end
+
+    context 'when cheque number not present' do
+      it 'returns false' do
+        voucher
+        particular2
+        voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.voucher_has_cheque_entry?(voucher)).to eq(false)
+      end
+    end
+  end
+
+  # describe '.get_voucher_type' do
+  #   context 'when is_payment_receipt is false' do
+  #     it 'returns voucher type' do
+  #
+  #     end
+  #   end
+  # end
 end

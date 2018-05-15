@@ -12,39 +12,39 @@ RSpec.describe ClientAccount, type: :model do
    #  UserSession.selected_branch_id =  1
    # end
   describe "validations" do
-  	it "should be valid" do
-  		expect(subject).to be_valid
-  	end
+    it "should be valid" do
+      expect(subject).to be_valid
+    end
 
-  	it "branch id should always be present if multiple branches are present" do
+    it "branch id should always be present if multiple branches are present" do
       create(:branch)
       allow(subject).to receive(:branch_id).and_return(nil)
-  		expect(subject).not_to be_valid
-  	end
+      expect(subject).not_to be_valid
+    end
 
-  	context "when nepse code is not present" do
-  		subject { build(:client_account_without_nepse_code)}
+    context "when nepse code is not present" do
+      subject { build(:client_account_without_nepse_code)}
 
-  		it { should validate_presence_of (:name)}
-  		it { should validate_presence_of :citizen_passport}
-  		it { should validate_presence_of :dob}
-  		it { should validate_presence_of :father_mother}
-  		it { should validate_presence_of :granfather_father_inlaw}
-  		it { should validate_presence_of :city_perm}
-  		it { should validate_presence_of :address1_perm}
-  		it { should validate_presence_of :state_perm}
-  		it { should validate_presence_of :country_perm}
+      it { should validate_presence_of (:name)}
+      it { should validate_presence_of :citizen_passport}
+      it { should validate_presence_of :dob}
+      it { should validate_presence_of :father_mother}
+      it { should validate_presence_of :granfather_father_inlaw}
+      it { should validate_presence_of :city_perm}
+      it { should validate_presence_of :address1_perm}
+      it { should validate_presence_of :state_perm}
+      it { should validate_presence_of :country_perm}
 
   		# context ""
-  	end
+    end
 
-  	context "when date is in YYYY-MM-DD format" do
-  	 	it{ should allow_value("2074-01-13").for(:dob)}
-  	 	it{ should allow_value("2074-01-10").for(:citizen_passport_date)}
-  	end
+    context "when date is in YYYY-MM-DD format" do
+      it{ should allow_value("2074-01-13").for(:dob)}
+      it{ should allow_value("2074-01-10").for(:citizen_passport_date)}
+    end
 
-  	it { should allow_value("hello@example.com").for(:email)}
-  	it { should validate_numericality_of(:mobile_number)}
+    it { should allow_value("hello@example.com").for(:email)}
+    it { should validate_numericality_of(:mobile_number)}
 
   	context "when any bank field is present" do
       # context "when bank account is present" do
@@ -59,7 +59,7 @@ RSpec.describe ClientAccount, type: :model do
 
       it { should validate_presence_of (:bank_name)}
       it { should validate_presence_of (:bank_account)}
-      it { should validate_presence_of (:bank_address)} 
+      it { should validate_presence_of (:bank_address)}
 	  end
 
     context "when bank name and address is present" do
@@ -146,10 +146,11 @@ RSpec.describe ClientAccount, type: :model do
     subject{create(:client_account, name: "John", branch_id: @branch.id)}
     let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: @branch.id)}
     let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: @branch.id)}
-    let(:branch){create(:branch)}
+    let!(:branch){create(:branch)}
 
     context "when branch not changed" do
       it "should check client's branch" do
+        subject
         subject.branch_id = branch.id
         subject.check_client_branch
         expect(subject.errors[:branch_id]).to include 'Client has entry in other branch'
@@ -158,6 +159,7 @@ RSpec.describe ClientAccount, type: :model do
 
     context "when branch changed" do
       it "should return true" do
+        subject
         subject.branch_id = branch.id
         subject.move_all_particulars = "1"
         subject.check_client_branch
