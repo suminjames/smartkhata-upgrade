@@ -25,9 +25,8 @@ class MasterSetup::BrokerProfile < BrokerProfile
   MAXIMUM_RECORDS_ALLOWED = 2
   validate :single_locale_record
 
-  def self.default_scope
-    where(profile_type: 'is_self_broker')
-  end
+  self.default_scopes = []
+  default_scope { is_self_broker }
 
   def self.has_profile_in(locale)
     self.where(locale: BrokerProfile.locales[locale]).count > 0
