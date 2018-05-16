@@ -161,6 +161,7 @@ FactoryBot.define do
     locale 0
 
     factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
+      profile_type 0
     end
   end
 

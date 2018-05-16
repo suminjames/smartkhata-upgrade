@@ -617,6 +617,64 @@ RSpec.describe Vouchers::Create do
     end
   end
 
+  describe '.get_voucher_type' do
+    let(:voucher) {create(:voucher, voucher_type: 0)}
+    context 'when is_payment_receipt is false' do
+      it 'returns voucher type' do
+        voucher
+        voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.get_voucher_type(voucher, false)).to eq('journal')
+      end
+    end
+
+    context 'when is_payment_receipt is true' do
+      context 'and voucher has no cheque entry' do
+        context 'and is payment' do
+          it 'returns payment_cash as voucher type' do
+            voucher.voucher_type = 1
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(false)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(4)
+          end
+        end
+
+        context 'and is other than payment' do
+          it 'returns receipt_cash as voucher type' do
+            voucher.voucher_type = 2
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(false)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(5)
+          end
+        end
+      end
+
+      context 'and voucher has cheque entry' do
+        context 'and is payment' do
+          it 'returns payment_cash as voucher type' do
+            voucher.voucher_type = 1
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(true)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(6)
+          end
+        end
+
+        context 'and is other than payment' do
+          it 'returns receipt_cash as voucher type' do
+            voucher.voucher_type = 2
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(true)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(7)
+          end
+        end
+      end
+    end
+  end
+
   describe '.voucher_has_cheque_entry?' do
     let(:voucher) {create(:voucher)}
     let(:particular1) {create(:particular, voucher_id: voucher.id, cheque_number: 12345)}
@@ -644,11 +702,5 @@ RSpec.describe Vouchers::Create do
     end
   end
 
-  # describe '.get_voucher_type' do
-  #   context 'when is_payment_receipt is false' do
-  #     it 'returns voucher type' do
-  #
-  #     end
-  #   end
-  # end
 end
+

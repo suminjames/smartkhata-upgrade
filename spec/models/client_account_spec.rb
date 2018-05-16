@@ -143,7 +143,7 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".check_client_branch" do
-    subject{create(:client_account, name: "John", branch_id: @branch.id)}
+    subject {create(:client_account, name: "John", branch_id: @branch.id)}
     let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: @branch.id)}
     let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: @branch.id)}
     let!(:branch){create(:branch)}

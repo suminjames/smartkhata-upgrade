@@ -22,9 +22,7 @@
 # - there should not be more than two MasterSetup::BrokerProfile (one for each locale) for a tenant.
 
 class MasterSetup::BrokerProfile < BrokerProfile
-  # default_scope { is_self_broker }
   MAXIMUM_RECORDS_ALLOWED = 2
-
   validate :single_locale_record
 
   def self.default_scope
