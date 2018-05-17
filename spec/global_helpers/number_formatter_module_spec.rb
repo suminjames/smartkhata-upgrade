@@ -11,12 +11,19 @@ RSpec.describe NumberFormatterModule, type: :helper do
 
   describe '.arabic_number' do
     context 'when decimal number present' do
-      it 'should return amount' do
-        expect(dummy_class.arabic_number(45.677)).to eq('45.68')
+      context 'and is positive' do
+        it 'should return positive amount' do
+          expect(dummy_class.arabic_number(45.677)).to eq('45.68')
+        end
+      end
+      context 'and is negative' do
+        it 'should return negative amount' do
+          expect(dummy_class.arabic_number(-999)).to eq('-999.00')
+        end
       end
     end
 
-    context 'when decimal number not present' do
+    context 'when decimal number is not present' do
       it 'should return zero' do
         expect(dummy_class.arabic_number(nil)).to eq('0.00')
       end
