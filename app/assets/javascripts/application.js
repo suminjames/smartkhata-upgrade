@@ -51,7 +51,8 @@ $(document).on("ready page:load", function(){
             data: function (params) {
                 return {
                     q: params.term, // search term
-                    search_type: 'generic'// search type
+                    search_type: 'generic', // search type,
+                    restricted:  $('#ledgers_index_combobox').data('restricted')
                 };
             },
             processResults: function (data, params) {
