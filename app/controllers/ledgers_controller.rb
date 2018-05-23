@@ -1,31 +1,29 @@
 class LedgersController < ApplicationController
-  before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction]
+  before_action :set_ledger, only: [:show, :edit, :update, :destroy]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
-  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all, :restricted, :toggle_restriction]
+  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all]
   before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
 
   # GET /ledgers
   # GET /ledgers.json
   def index
-    @show_restriction = can_view_restricted_ledgers?
     #default landing action for '/ledgers'
-    @filterrific = initialize_filterrific(
-        Ledger.allowed(@show_restriction),
-        params[:filterrific],
-        select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-          by_ledger_type: Ledger.options_for_ledger_type,
-        },
-        persistence_id: false
-    ) or return
-    items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
-    @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
-
-    respond_to do |format|
-      format.html
-      format.js
-    end
+      @filterrific = initialize_filterrific(
+          Ledger,
+          params[:filterrific],
+          select_options: {
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
+          },
+          persistence_id: false
+      ) or return
+      items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
+      @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
+      respond_to do |format|
+        format.html
+        format.js
+      end
 
       # Recover from invalid param sets, e.g., when a filter refers to the
       # database id of a record that doesn’t exist any more.
@@ -152,12 +150,7 @@ class LedgersController < ApplicationController
     ledgers = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-      if user_has_access_to?(restricted_ledgers_path)
-        ledgers = params[:restricted] == 'true' ? Ledger.restricted : Ledger;
-      else
-        ledgers = Ledger.unrestricted
-      end
-      ledgers = ledgers.find_similar_to_term(search_term, search_type)
+      ledgers = Ledger.find_similar_to_term(search_term, search_type)
     end
     respond_to do |format|
       format.json { render json: ledgers, status: :ok }
@@ -209,40 +202,6 @@ class LedgersController < ApplicationController
       @ledgers = (@client_account.get_group_members_ledgers_with_balance if @client_account) || []
     end
     @client_with_group_members = ClientAccount.having_group_members.uniq
-  end
-
-  def restricted
-    #default landing action for '/ledgers'
-    @filterrific = initialize_filterrific(
-      Ledger.restricted,
-      params[:filterrific],
-      select_options: {
-        by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-        by_ledger_type: Ledger.options_for_ledger_type,
-      },
-      persistence_id: false
-    ) or return
-    items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
-    @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
-    @restricted_only = params[:all] ? false : true
-    @show_restriction = true
-
-    render :index
-
-      # Recover from invalid param sets, e.g., when a filter refers to the
-      # database id of a record that doesn’t exist any more.
-      # In this case we reset filterrific and discard all filter params.
-  rescue ActiveRecord::RecordNotFound => e
-    # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{ e.message }"
-    redirect_to(reset_filterrific_url(format: :html)) and return
-  end
-
-  def toggle_restriction
-    @ledger.toggle!(:restricted)
-    respond_to do |format|
-      format.js
-    end
   end
 
   def transfer_group_member_balance
