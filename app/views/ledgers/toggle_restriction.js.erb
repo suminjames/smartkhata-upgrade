@@ -1,0 +1,2 @@
+<% text = @ledger.restricted? ? 'Unrestrict' : 'Restrict' %>
+$('table.ledger-list tr#<%=@ledger.id %> .restrict_link').text('<%= text %>');

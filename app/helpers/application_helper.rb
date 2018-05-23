@@ -177,4 +177,8 @@ module ApplicationHelper
     # end
     true
   end
+
+  def can_view_restricted_ledgers?
+    user_has_access_to?(restricted_ledgers_path)
+  end
 end

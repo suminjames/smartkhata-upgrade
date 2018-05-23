@@ -7,7 +7,7 @@
         %tr
       %tbody
         - ledgers.each do |ledger|
-          %tr
+          %tr{id: ledger.id}
             %td
               = ledger.name_and_identifier
             %td.text-right{style: "padding-right: 40px;"}
@@ -27,6 +27,10 @@
                 - if ledger.client_account.bills.find_not_settled.present?
                   |
                   = link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: ledger.client_account_id)
+              - if @show_restriction
+                |
+                = link_to ledger.restricted? ? 'UnRestrict' : 'Restrict', toggle_restriction_ledger_path(id: ledger.id), remote: true, class: 'restrict_link'
+
 
     = render 'shared/pagination', collection_to_paginate: ledgers
 
