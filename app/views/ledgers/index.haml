@@ -3,6 +3,7 @@
   
 %div.bottom-buffer-sm
   = link_to 'New Ledger', new_ledger_path
+  = link_to '| All Ledgers', restricted_ledgers_path(all: true) if @restricted_only
 
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
   .panel.panel-default.filter-form
@@ -17,7 +18,7 @@
             :id,                                        |
             :name_and_identifier,                       |
             {include_blank: true},                      |
-            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -' }) |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
         .col-xs-2
           %label
             Ledger Type

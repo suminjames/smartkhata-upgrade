@@ -138,6 +138,11 @@ Rails.application.routes.draw do
     collection do
       post 'transfer_group_member_balance'
       get 'show_all'
+      get 'restricted'
+    end
+
+    member do
+      get 'toggle_restriction'
     end
   end
   resources :orders, :only => [:show, :index]

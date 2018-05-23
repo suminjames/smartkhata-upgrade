@@ -60,6 +60,9 @@ menus:
       path: "<%= new_ledger_path %>"
       hide_on_main_navigation: true
       code: AS_LED_NEL
+    - name: Restricted Ledgers
+      path: "<%= restricted_ledgers_path %>"
+      code: AS_LED_RES
   - name: Billing
     code: AS_BIL
     menu_items:
