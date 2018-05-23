@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180522101447) do
+ActiveRecord::Schema.define(version: 20180414075721) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -907,10 +907,10 @@ ActiveRecord::Schema.define(version: 20180522101447) do
     t.integer  "updater_id"
     t.integer  "fy_code"
     t.integer  "branch_id"
-    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0,   null: false
-    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0,   null: false
-    t.datetime "created_at",                                                   null: false
-    t.datetime "updated_at",                                                   null: false
+    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0, null: false
+    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0, null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "group_id"
     t.integer  "bank_account_id"
     t.integer  "client_account_id"
@@ -918,7 +918,6 @@ ActiveRecord::Schema.define(version: 20180522101447) do
     t.integer  "vendor_account_id"
     t.decimal  "opening_balance_org", precision: 15, scale: 4, default: 0.0
     t.decimal  "closing_balance_org", precision: 15, scale: 4, default: 0.0
-    t.boolean  "restricted",                                   default: false
   end
 
   add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree

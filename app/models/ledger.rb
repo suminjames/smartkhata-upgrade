@@ -77,8 +77,6 @@ class Ledger < ActiveRecord::Base
   scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
   scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
-  scope :restricted, -> { where(restricted: true) }
-  scope :unrestricted, -> { where(restricted: false) }
 
   scope :cashbook_ledgers, lambda {
     ledger_ids = []
@@ -120,18 +118,6 @@ class Ledger < ActiveRecord::Base
     end
   }
   scope :by_ledger_id, -> (id) { where(id: id) }
-
-  def self.allowed show_restricted
-    if(show_restricted)
-      self.all
-    else
-      self.unrestricted
-    end
-  end
-
-  def self.user_can_view_restricted?(user, path)
-    user.admin? || !user.blocked_path_list.include?(path)
-  end
 
   # class methods for filterrific
   def self.options_for_ledger_type
