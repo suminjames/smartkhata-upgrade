@@ -21,8 +21,8 @@ $(document).on 'page:change', ->
 
     $(document).on 'click', '.cheque-entry#select_all', (event) ->
       console.log 'all'
-      $("tbody .cheque-entry:input:checkbox:visible").prop('checked', $(this).prop("checked"))
-      $("tbody .cheque-entry:input:checkbox:visible").attr('disabled', false)
+      $(".cheque-entry:input:checkbox:visible").prop('checked', $(this).prop("checked"))
+      $(".cheque-entry:input:checkbox:visible").attr('disabled', false)
 
     $(document).off('click', '.btnViewChequeEntriesPDF').on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
