@@ -415,4 +415,23 @@ namespace :ledger do
     end
   end
 
+  task :wrong_cost_center_opening_balance, [:tenant, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
+    fy_code = args.fy_code
+
+    ledger_ids = LedgerBalance.unscoped.where(fy_code: fy_code).where('opening_balance <> 0').pluck(:ledger_id).uniq
+
+    errorneus_ledger_ids = []
+
+    ledger_ids.each do |ledger_id|
+      org_balance = LedgerBalance.unscoped.where(fy_code: 7475, ledger_id: ledger_id).where(branch_id: nil).sum(:opening_balance)
+      sum_of_cost_center = LedgerBalance.unscoped.where(fy_code: 7475, ledger_id: ledger_id).where.not(branch_id: nil).sum(:opening_balance)
+      unless (org_balance.to_d - sum_of_cost_center.to_d).abs <= 0.01
+        errorneus_ledger_ids << ledger_id
+      end
+    end
+
+    puts "Wrong Ledgers: #{errorneus_ledger_ids.size}"
+    puts "Ledger ids : #{errorneus_ledger_ids.join(', ')}"
+    puts "#{Ledger.where(id: errorneus_ledger_ids).pluck(:name).join(', ')}"
+  end
 end
