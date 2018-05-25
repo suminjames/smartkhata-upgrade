@@ -89,7 +89,7 @@ class Ledgers::Query
       if date_from_ad.present? && date_to_ad.present?
         @ledger.particulars.complete.by_branch_fy_code.find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
       else
-        @ledger.particulars.complete.by_branch_fy_code.order('transaction_date ASC','created_at ASC')
+        @ledger.particulars.complete.by_branch_fy_code.includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC')
       end
     else
       if date_from_ad.present? && date_to_ad.present?
