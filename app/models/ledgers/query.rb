@@ -103,7 +103,7 @@ class Ledgers::Query
     particulars = particulars.where.not(hide_for_client: true) if @params[:for_client] == 1
     particulars = particulars
                     .includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills)
-                    .order('transaction_date ASC','created_at ASC')
+                    .order('particulars.transaction_date ASC','particulars.created_at ASC')
     unless no_pagination
       particulars = particulars.page(page).per(limit)
     end
