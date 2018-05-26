@@ -72,6 +72,10 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     @ledger_query.ledger_with_particulars(true)[0]
   end
 
+  def particulars_ids
+    @ledger_query.particular_ids(true)
+  end
+
   def populate_data_rows
     # inserts the actual data rows through iteration.
     # normal_style_row = @styles[:normal_style]
@@ -81,7 +85,6 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     query = particulars_query
     running_total = @ledger_query.opening_balance_calculated
 
-    particulars_ids = query.pluck(:id)
     # why not find each
     # because it wont allow to order
     particulars_ids.in_groups_of(1000).each do |photo_ids|
