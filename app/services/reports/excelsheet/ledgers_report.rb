@@ -5,12 +5,15 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
   # Blank column to merge later.
   TABLE_HEADER = ["Date", "Particulars", "Voucher", "Bill", "Cheque", "Pay/Receipt No", "Transaction Amount", "", "Balance"]
 
-  def initialize(ledger, particulars, params, current_tenant)
-    super(ledger, particulars, params, current_tenant)
+  def initialize(ledger, params, current_tenant, ledger_query)
+    super(ledger, params, current_tenant)
 
     # Needed for merging later, as transaction amount will be having two columns
     @transxn_amt_first_col = TABLE_HEADER.index("Transaction Amount")
-
+    @ledger_query = ledger_query
+    @branch_id = ledger_query.branch_id
+    @fy_code = ledger_query.fy_code
+    @opening_balance = ledger.opening_balance
     generate_excelsheet if data_present?
   end
 
@@ -23,7 +26,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
   def prepare_document
     # Adds document headings and returns the filename, before the real data table is inserted.
     opening_closing_blnc = \
-      "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance >= 0 ? 'Dr' : 'Cr'}"\
+      "Opening Balance:  #{number_to_currency(@opening_balance.abs)} #{@opening_balance >= 0 ? 'Dr' : 'Cr'}"\
       " | "\
       "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}"
     client = (@params && @params[:for_client] == "1") ? "Client" : ""
@@ -65,13 +68,19 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     @sheet.merge_cells("G#{i}:H#{i}") # static column mention
   end
 
+  def particulars_query
+    @ledger_query.ledger_with_particulars(true)[0]
+  end
+
   def populate_data_rows
     # inserts the actual data rows through iteration.
     # normal_style_row = @styles[:normal_style]
     normal_style_row = ([@styles[:normal_style]]*(@column_count-4)).insert(1, @styles[:wrap]).insert(@transxn_amt_first_col, *[@styles[:float_format_right]]*2).push(@styles[:normal_right])
     striped_style_row = ([@styles[:striped_style]]*(@column_count-4)).insert(1, @styles[:wrap_striped]).insert(@transxn_amt_first_col, *[@styles[:float_format_right_striped]]*2).push(@styles[:striped_right])
 
-    @particulars.each_with_index do |p, index|
+    particulars = particulars_query
+    running_total = @ledger_query.opening_balance_calculated
+    particulars.find_each.with_index do |p, index|
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       date = p.date_bs
       desc = p.get_description
@@ -85,20 +94,16 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
         end
       end
       bills.chomp! ", "
-
       cheque_entries = p.cheque_entries.map{|cheque_entry| cheque_entry.cheque_number.to_s}.join(", ")
-
       cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})" if p.nepse_chalan.present?
-
       settlements = p.settlements.map{ |settlement| "#{settlement.id}" }.join(", ")
-
       transaction_amt = p.amount
       transaction_amt_dr = p.dr? ? transaction_amt : ''
       transaction_amt_cr = p.cr? ? transaction_amt : ''
-      
 
-      balance = number_to_currency(p.running_total.abs).to_s
-      p.running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
+      running_total += (p.dr? ? transaction_amt : transaction_amt * -1)
+      balance = number_to_currency(running_total.abs).to_s
+      running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 
       row_style = index.even? ? normal_style_row : striped_style_row
       @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style

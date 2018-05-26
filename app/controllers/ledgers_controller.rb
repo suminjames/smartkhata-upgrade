@@ -40,12 +40,10 @@ class LedgersController < ApplicationController
   # GET /ledgers/1.json
   def show
     @back_path = request.referer || ledgers_path
-    ledger_query = Ledgers::Query.new(params, @ledger)
+    ledger_query = Ledgers::Query.new(params, @ledger, UserSession.selected_branch_id, UserSession.selected_fy_code)
 
     if params[:format] == 'xlsx'
-      @particulars = ledger_query.ledger_with_particulars(true)[0]
-      @particulars = @particulars.reject &:hide_for_client if params[:for_client] == "1" # no reject! ?
-      report = Reports::Excelsheet::LedgersReport.new(@ledger, @particulars, params, current_tenant)
+      report = Reports::Excelsheet::LedgersReport.new(@ledger, params, current_tenant, ledger_query)
       if report.generated_successfully?
         # send_file(report.path, type: report.type)
         send_data(report.file, type: report.type, filename: report.filename)
@@ -61,7 +59,7 @@ class LedgersController < ApplicationController
         @total_credit,
         @total_debit,
         @closing_balance_sorted,
-        @opening_balance_sorted = ledger_query.ledger_with_particulars
+        @opening_balance_sorted = ledger_query.ledger_particulars_with_running_total
 
     # @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
     # @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
