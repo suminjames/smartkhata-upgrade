@@ -21,14 +21,19 @@ class Ledgers::Query
 
   def particular_size(no_pagination=true)
     return unless (@branch_id.present?  && @fy_code.present?)
-    ledger_with_particulars(no_pagination, true)
+    ledger_with_particulars(no_pagination, false)
     return @particulars.count
   end
 
-  def ledger_with_particulars(no_pagination = false, count_only=false)
+  def particular_ids(no_pagination)
+    ledger_with_particulars(no_pagination, false)
+    return @particulars.pluck(:id)
+  end
+
+  def ledger_with_particulars(no_pagination = false, lazy_load=true)
     return unless (branch_id.present?  && fy_code.present?)
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
-    @opening_balance_calculated = @ledger.opening_balance unless count_only
+    @opening_balance_calculated = @ledger.opening_balance if lazy_load
 
     # no pagination is required for xls/pdf file generation
     if no_pagination
@@ -37,8 +42,8 @@ class Ledgers::Query
 
     if @params[:show] == "all"
       # for pages greater than we need carryover balance
-      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && !count_only
-      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
+      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && lazy_load
+      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
     elsif @params[:search_by] && @params[:search_term]
       search_by = @params[:search_by]
       search_term = @params[:search_term]
@@ -53,9 +58,9 @@ class Ledgers::Query
           date_to_ad = bs_to_ad(date_to_bs)
 
           # get the ordered particulars
-          @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination)
+          @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination, lazy_load)
 
-          unless count_only
+          if lazy_load
             # sum of total credit and debit amount
             @total_credit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
             @total_debit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
@@ -82,8 +87,8 @@ class Ledgers::Query
       end
     elsif !@params[:search_by]
       # for pages greater than we need carryover balance
-      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && !count_only
-      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
+      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && lazy_load
+      @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
     end
     return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
   end
@@ -97,25 +102,16 @@ class Ledgers::Query
   #
   # get the particulars based on conditions
   #
-  def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
+  def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false, lazy_load)
     particulars = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code)
     particulars = particulars.find_by_date_range(date_from_ad, date_to_ad) if date_from_ad.present? && date_to_ad.present?
     particulars = particulars.where.not(hide_for_client: true) if @params[:for_client] == 1
-    particulars = particulars
-                    .includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills)
-                    .order('particulars.transaction_date ASC','particulars.created_at ASC')
+    particulars = particulars.includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills) if lazy_load
+    particulars = particulars.order('particulars.transaction_date ASC','particulars.created_at ASC')
     unless no_pagination
       particulars = particulars.page(page).per(limit)
     end
     particulars
-  end
-
-  def get_particulars_size(date_from_ad = nil, date_to_ad = nil)
-    if date_from_ad.present? && date_to_ad.present?
-      @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).count
-    else
-      @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).count
-    end
   end
 
   #
