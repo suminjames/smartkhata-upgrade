@@ -40,7 +40,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1.json
   def show
     @back_path = request.referer || ledgers_path
-    ledger_query = Ledgers::Query.new(params, @ledger)
+    ledger_query = Ledgers::Query.new(params, @ledger, UserSession.selected_branch_id, UserSession.selected_fy_code)
 
     if params[:format] == 'xlsx'
       @particulars = ledger_query.ledger_with_particulars(true)[0]

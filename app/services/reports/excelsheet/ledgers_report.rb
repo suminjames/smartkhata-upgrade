@@ -65,6 +65,10 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     @sheet.merge_cells("G#{i}:H#{i}") # static column mention
   end
 
+  def particulars_query
+
+  end
+
   def populate_data_rows
     # inserts the actual data rows through iteration.
     # normal_style_row = @styles[:normal_style]
