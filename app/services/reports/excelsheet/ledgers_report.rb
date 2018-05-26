@@ -78,8 +78,9 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     normal_style_row = ([@styles[:normal_style]]*(@column_count-4)).insert(1, @styles[:wrap]).insert(@transxn_amt_first_col, *[@styles[:float_format_right]]*2).push(@styles[:normal_right])
     striped_style_row = ([@styles[:striped_style]]*(@column_count-4)).insert(1, @styles[:wrap_striped]).insert(@transxn_amt_first_col, *[@styles[:float_format_right_striped]]*2).push(@styles[:striped_right])
 
-    running_total = @opening_balance
-    particulars_query.find_each.with_index do |p, index|
+    particulars = particulars_query
+    running_total = @ledger_query.opening_balance_calculated
+    particulars.find_each.with_index do |p, index|
       # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
       date = p.date_bs
       desc = p.get_description
@@ -99,7 +100,8 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       transaction_amt = p.amount
       transaction_amt_dr = p.dr? ? transaction_amt : ''
       transaction_amt_cr = p.cr? ? transaction_amt : ''
-      running_total += transaction_amt
+
+      running_total += (p.dr? ? transaction_amt : transaction_amt * -1)
       balance = number_to_currency(running_total.abs).to_s
       running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 

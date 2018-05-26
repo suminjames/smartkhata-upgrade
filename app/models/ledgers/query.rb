@@ -2,7 +2,7 @@
 # author: Subas Poudel
 # email: dit.subas@gmail.com
 class Ledgers::Query
-  attr_reader :error_message, :branch_id, :fy_code
+  attr_reader :error_message, :branch_id, :fy_code, :opening_balance_calculated
   include CustomDateModule
 
   def initialize(params, ledger, branch_id=nil, fy_code=nil)
@@ -14,7 +14,7 @@ class Ledgers::Query
     @error_message = ''
     @closing_balance_sorted = nil
     @opening_balance_sorted = nil
-    @opening_balance_for_page = nil
+    @opening_balance_calculated = nil
     @branch_id = branch_id
     @fy_code = fy_code
   end
@@ -27,10 +27,8 @@ class Ledgers::Query
 
   def ledger_with_particulars(no_pagination = false, count_only=false)
     return unless (branch_id.present?  && fy_code.present?)
-
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
-
-    @opening_balance_for_page = @ledger.opening_balance unless count_only
+    @opening_balance_calculated = @ledger.opening_balance unless count_only
 
     # no pagination is required for xls/pdf file generation
     if no_pagination
@@ -39,7 +37,7 @@ class Ledgers::Query
 
     if @params[:show] == "all"
       # for pages greater than we need carryover balance
-      @opening_balance_for_page =  opening_balance_for_page(@opening_balance_for_page, page) if  page > 0 && !count_only
+      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && !count_only
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     elsif @params[:search_by] && @params[:search_term]
       search_by = @params[:search_by]
@@ -75,8 +73,8 @@ class Ledgers::Query
 
             # make the adjustment for the carryover balance
             # adjustment for the pagination and running total
-            @opening_balance_for_page = previous_day_balance
-            @opening_balance_for_page =  opening_balance_for_page(@opening_balance_for_page, page, date_from_ad, date_to_ad) if  page > 0
+            @opening_balance_calculated = previous_day_balance
+            @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page, date_from_ad, date_to_ad) if  page > 0
           end
         else
           @error_message = "Invalid Date"
@@ -84,7 +82,7 @@ class Ledgers::Query
       end
     elsif !@params[:search_by]
       # for pages greater than we need carryover balance
-      @opening_balance_for_page =  opening_balance_for_page(@opening_balance_for_page, page) if  page > 0 && !count_only
+      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && !count_only
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
     end
     return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
@@ -92,7 +90,7 @@ class Ledgers::Query
 
   def ledger_particulars_with_running_total(no_pagination = false)
     ledger_with_particulars(no_pagination)
-    @particulars = Particular.with_running_total(@particulars, @opening_balance_for_page) unless @particulars.blank?
+    @particulars = Particular.with_running_total(@particulars, @opening_balance_calculated) unless @particulars.blank?
     return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
   end
 
