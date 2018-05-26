@@ -78,35 +78,41 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     normal_style_row = ([@styles[:normal_style]]*(@column_count-4)).insert(1, @styles[:wrap]).insert(@transxn_amt_first_col, *[@styles[:float_format_right]]*2).push(@styles[:normal_right])
     striped_style_row = ([@styles[:striped_style]]*(@column_count-4)).insert(1, @styles[:wrap_striped]).insert(@transxn_amt_first_col, *[@styles[:float_format_right_striped]]*2).push(@styles[:striped_right])
 
-    particulars = particulars_query
+    query = particulars_query
     running_total = @ledger_query.opening_balance_calculated
-    particulars.find_each.with_index do |p, index|
-      # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
-      date = p.date_bs
-      desc = p.get_description
-      voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number.to_s.rjust(5,'0')}"
 
-      bills = ""
-      p.bills.each_with_index do |bill, bill_index|
-        if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id.nil?
-          bills << "#{bill.fy_code}-#{bill.bill_number.to_s.rjust(5,'0')}"
-          bills << ", "
+    particulars_ids = query.pluck(:id)
+    # why not find each
+    # because it wont allow to order
+    particulars_ids.in_groups_of(1000).each do |photo_ids|
+      query.where(id: photo_ids).each_with_index do |p, index|
+        # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
+        date = p.date_bs
+        desc = p.get_description
+        voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number.to_s.rjust(5,'0')}"
+
+        bills = ""
+        p.bills.each_with_index do |bill, bill_index|
+          if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id.nil?
+            bills << "#{bill.fy_code}-#{bill.bill_number.to_s.rjust(5,'0')}"
+            bills << ", "
+          end
         end
+        bills.chomp! ", "
+        cheque_entries = p.cheque_entries.map{|cheque_entry| cheque_entry.cheque_number.to_s}.join(", ")
+        cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})" if p.nepse_chalan.present?
+        settlements = p.settlements.map{ |settlement| "#{settlement.id}" }.join(", ")
+        transaction_amt = p.amount
+        transaction_amt_dr = p.dr? ? transaction_amt : ''
+        transaction_amt_cr = p.cr? ? transaction_amt : ''
+
+        running_total += (p.dr? ? transaction_amt : transaction_amt * -1)
+        balance = number_to_currency(running_total.abs).to_s
+        running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
+
+        row_style = index.even? ? normal_style_row : striped_style_row
+        @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style
       end
-      bills.chomp! ", "
-      cheque_entries = p.cheque_entries.map{|cheque_entry| cheque_entry.cheque_number.to_s}.join(", ")
-      cheque_entries << " (#{p.nepse_chalan.nepse_settlement_id})" if p.nepse_chalan.present?
-      settlements = p.settlements.map{ |settlement| "#{settlement.id}" }.join(", ")
-      transaction_amt = p.amount
-      transaction_amt_dr = p.dr? ? transaction_amt : ''
-      transaction_amt_cr = p.cr? ? transaction_amt : ''
-
-      running_total += (p.dr? ? transaction_amt : transaction_amt * -1)
-      balance = number_to_currency(running_total.abs).to_s
-      running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
-
-      row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style
     end
   end
 
