@@ -100,20 +100,16 @@ class Ledgers::Query
   # get the particulars based on conditions
   #
   def get_particulars(page, limit = 20, date_from_ad = nil, date_to_ad = nil, no_pagination = false)
-    if no_pagination
-      if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC')
-      else
-        @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC')
-      end
-    else
-      if date_from_ad.present? && date_to_ad.present?
-        @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).order('transaction_date ASC','created_at ASC').page(page).per(limit)
-      else
-        @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills).order('transaction_date ASC','created_at ASC').page(page).per(limit)
-      end
+    particulars = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code)
+    particulars = particulars.find_by_date_range(date_from_ad, date_to_ad) if date_from_ad.present? && date_to_ad.present?
+    particulars = particulars.where.not(hide_for_client: true) if @params[:for_client] == 1
+    particulars = particulars
+                    .includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills)
+                    .order('transaction_date ASC','created_at ASC')
+    unless no_pagination
+      particulars = particulars.page(page).per(limit)
     end
-
+    particulars
   end
 
   def get_particulars_size(date_from_ad = nil, date_to_ad = nil)
