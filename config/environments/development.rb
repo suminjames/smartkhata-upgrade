@@ -37,7 +37,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   config.action_mailer.raise_delivery_errors = true
   # Send email in development mode?
-  config.action_mailer.perform_deliveries = false
+  config.action_mailer.perform_deliveries = true
 
 
   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
@@ -73,5 +73,12 @@ Rails.application.configure do
       Bullet.stacktrace_includes = [ 'your_gem', 'your_middleware' ]
       Bullet.stacktrace_excludes = [ 'their_gem', 'their_middleware' ]
       # Bullet.slack = { webhook_url: 'http://some.slack.url', foo: 'bar' }
-    end
+  end
+
+  Rails.application.config.middleware.use ExceptionNotification::Rack,
+                                          :email => {
+                                            :email_prefix => "[SMARTKHATA EXCEPTION] ",
+                                            :sender_address => %{excpetion-notifier@smartkhata.com.np},
+                                            :exception_recipients => %w{mesubas@gmail.com, alt.sarojk@gmail.com}
+                                          }
 end
