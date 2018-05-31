@@ -97,8 +97,12 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     particulars_for_reverse_entry = [dr_particular]
     processed_bills = []
 
+    unless cr_particulars.count == 1
+      cr_particulars = cr_particulars.select{|x| x.amount == cheque_amount}
+    end
+
     # case when single payee && multiple cheque
-    if cr_particulars.count == 1
+    if cr_particulars.count == 1 
       # reverse the cheque amount only
       particular = cr_particulars.first
       particular.amount = cheque_amount
