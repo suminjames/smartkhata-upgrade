@@ -103,7 +103,9 @@ class Print::PrintVoucher< Prawn::Document
         paid_to ||= particular.ledger.name
         particular_desc += particular.description.present? ? particular.description : "Being paid to #{paid_to}"
       end
-      data << [particular.ledger.name, particular_desc, particular.cheque_entries.first.cheque_number, arabic_number(particular.amount)]
+      # A payment voucher can come with particulars that don't have corresponding cheque entries.
+      cheque_number = particular.try(:cheque_entries).try(:first).try(:cheque_number) || ""
+      data << [particular.ledger.name, particular_desc, cheque_number, arabic_number(particular.amount)]
       total_particular_amount += particular.amount
     end
     total_row = [{:content => 'Total Amount', :colspan => 3}, arabic_number(total_particular_amount)]
