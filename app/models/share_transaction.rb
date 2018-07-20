@@ -520,10 +520,12 @@ class ShareTransaction < ActiveRecord::Base
   #  -only two level checking should be sufficient
   #   -this is to check for those prices which fall (just) above a range group
   #
-  def calculate_base_price
+  def calculate_base_price 
     calculated_base_price = nil
     if (buying? || settlement_id.blank? || quantity == 0 || purchase_price == 0)
       calculated_base_price = 0.0
+    elsif purchase_price/quantity == 100
+       calculated_base_price = 100
     else
       commission_rates_desc = get_commission_rate_array_for_date(date)
       possible_commission_rate = get_commission_rate(purchase_price, get_commission_info_with_detail(date))
