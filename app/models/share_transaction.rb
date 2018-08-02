@@ -332,7 +332,7 @@ class ShareTransaction < ActiveRecord::Base
 
 
 
-    ShareTransaction.includes(:isin_info).where(where_condition_str).group(:isin_info_id).select(
+    ShareTransaction.includes(:isin_info).where.not(quantity: 0).where(where_condition_str).group(:isin_info_id).select(
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
       "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
