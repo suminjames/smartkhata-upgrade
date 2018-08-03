@@ -330,12 +330,17 @@ class ShareTransaction < ActiveRecord::Base
     #   # where_condition_str = "client_accounts.branch_id = #{UserSession.selected_branch_id}"
     # end
 
+    # for buy deal cancel and closeout not considered
+    # for sell closeout considered but not deal cancel
 
-
-    ShareTransaction.includes(:isin_info).where.not(quantity: 0).where(where_condition_str).group(:isin_info_id).select(
+    ShareTransaction
+      .where('(quantity <> 0 AND transaction_type = 0) OR (transaction_type = 1 AND transaction_cancel_status <> 2)')
+      .includes(:isin_info).where(where_condition_str)
+      .group(:isin_info_id)
+      .select(
         :isin_info_id,
         "COUNT(CASE WHEN transaction_type = 0 THEN 1 ELSE NULL END) as buy_transaction_count",
-      "SUM(CASE WHEN transaction_type = 0 THEN raw_quantity ELSE 0 END) as buy_quantity",
+      "SUM(CASE WHEN transaction_type = 0 THEN quantity ELSE 0 END) as buy_quantity",
       "SUM(CASE WHEN transaction_type = 0 THEN share_amount ELSE 0 END ) as buying_amount",
       "SUM(CASE WHEN transaction_type = 0 THEN sebo ELSE 0 END ) as buy_sebo_comm",
       "SUM(CASE WHEN transaction_type = 0 THEN commission_amount ELSE 0 END ) as buy_comm_amount",
