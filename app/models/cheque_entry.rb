@@ -209,6 +209,7 @@ class ChequeEntry < ActiveRecord::Base
       available = self.unscoped.payment.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).order(:cheque_number).first
       return available if available
       date = self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).order(created_at: :desc).first.try(:created_at)
+      return nil unless date
       self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).where('created_at > ?',date.to_date).order(:cheque_number).first
     else
       self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).first
