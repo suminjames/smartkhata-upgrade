@@ -20,13 +20,13 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   def process
     if @is_partial_upload
-      process_partial
+      process_full_partial(@is_partial_upload)
     else
-      process_full
+      process_full_partial(@is_partial_upload)
     end
   end
 
-  def process_full
+  def process_full_partial(is_partial)
     # read the xls file
     xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
 
@@ -61,11 +61,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       import_error("Please change the fiscal year.") and return
     end
 
-    # do not reprocess file if it is already uploaded
-    floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
-    # raise soft error and return if the file is already uploaded
-    import_error("The file is already uploaded") and return unless floorsheet_file.nil?
-
+    if !is_partial
+      # do not reprocess file if it is already uploaded
+      floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
+      # raise soft error and return if the file is already uploaded
+      import_error("The file is already uploaded") and return unless floorsheet_file.nil?
+    end
     settlement_date = Calendar::t_plus_3_trading_days(@date)
     fy_code = get_fy_code(@date)
 
@@ -76,7 +77,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # loop through 13th row to last row
     # parse the data
     @total_amount = 0
-
+    @partial_total_amount = 0
     new_client_accounts = []
     data_sheet = xlsx.sheet(0)
     (12..(data_sheet.last_row)).each do |i|
@@ -89,6 +90,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       end
 
       break if row_data[0] == nil
+       if is_partial
+         # If share transaction already in db, skip it!
+         _contract_no = row_data[3].to_i
+         if ShareTransaction.find_by_contract_no(_contract_no).present?
+           @partial_total_amount += row_data[20]
+           next
+         end
+       end
       # rawdata =[
       # 	Contract No.,
       # 	Symbol,
@@ -103,36 +112,39 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # 	Bank Deposit,
       # ]
       # TODO remove this hack
+      # get multiple value from return method
       if @older_detected
-        @raw_data << [row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5], row_data[6], row_data[7], row_data[8], row_data[9], row_data[10]]
-        @total_amount_file = 0
-        company_symbol = row_data[1]
-        client_name = row_data[4]
-        client_nepse_code = row_data[5].upcase
-        bank_deposit = row_data[10]
+        company_symbol, client_name, client_nepse_code, bank_deposit = older_detected_true(row_data)
       else
-        @raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
-        # sum of the amount section should be equal to the calculated sum
-        @total_amount_file = @raw_data.map { |d| d[8].to_f }.reduce(0, :+)
-        company_symbol = row_data[7]
-        client_name = row_data[12]
-        client_nepse_code = row_data[15].upcase
-        bank_deposit = row_data[26]
+        company_symbol, client_name, client_nepse_code, bank_deposit = older_detected_false(row_data)
       end
 
       # check for the bank deposit value which is available only for buying
       # store the count of transaction for unique client,company, and type of transaction
       transaction_type = bank_deposit.nil? ? :selling : :buying
-      hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
+      if !is_partial
+        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
 
-      # Maintain list of new client accounts not in the system yet.
-      unless ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
-        client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
-        unless new_client_accounts.include?(client_account_hash)
-          new_client_accounts << client_account_hash
+        # Maintain list of new client accounts not in the system yet.
+        unless ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
+          # add  new client if not present hash
+          add_client_account(client_name, client_nepse_code,new_client_accounts)
         end
       end
 
+      if is_partial
+        client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
+        if client.present?
+          if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
+            # add hash_dp_count new key value
+            hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
+          end
+          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
+        else
+          # Maintain list of new client accounts not in the system yet.
+          add_client_account(client_name,client_nepse_code, new_client_accounts)
+        end
+      end
     end
 
     # Client information should be available before file upload.
@@ -141,7 +153,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @new_client_accounts = new_client_accounts
       import_error(new_client_accounts_error_message(new_client_accounts)) and return
     end
-
+    if is_partial
+      @total_amount_file += @partial_total_amount
+    end
     import_error("The amounts don't match up.") and return if (@total_amount_file - @total_amount).abs > 0.1
 
     begin
@@ -154,7 +168,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # critical functionality happens here
     ActiveRecord::Base.transaction do
-      @raw_data.each do |arr|
+        @raw_data.each do |arr|
         @processed_data << process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
       # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
@@ -163,6 +177,48 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # # used to fire error when floorsheet contains client data but not mapped to system
     # file_error(@error_message) if @error_message.present?
+
+  end
+
+  def older_detected_true(row_data)
+    @raw_data << [row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5], row_data[6], row_data[7], row_data[8], row_data[9], row_data[10]]
+    @total_amount_file = 0
+    company_symbol = row_data[1]
+    client_name = row_data[4]
+    client_nepse_code = row_data[5].upcase
+    bank_deposit = row_data[10]
+    return company_symbol, client_name, client_nepse_code, bank_deposit
+  end
+
+  def older_detected_false(row_data)
+    @raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
+    # sum of the amount section should be equal to the calculated sum
+    @total_amount_file = @raw_data.map { |d| d[8].to_f }.reduce(0, :+)
+    company_symbol = row_data[7]
+    client_name = row_data[12]
+    client_nepse_code = row_data[15].upcase
+    bank_deposit = row_data[26]
+    return company_symbol, client_name, client_nepse_code, bank_deposit
+  end
+
+  def add_client_account(client_name,client_nepse_code,new_client_accounts)
+    client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
+    unless new_client_accounts.include?(client_account_hash)
+      new_client_accounts << client_account_hash
+    end
+  end
+
+  def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
+    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
+    relevant_share_transactions_count = ShareTransaction.where(
+        date: @date,
+        client_account_id: client.id,
+        isin_info_id: company_info.id,
+        transaction_type: ShareTransaction.transaction_types[transaction_type]
+    ).size
+    hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
+    # Switch the flag `**_counted_from_db` to true
+    hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
   end
 
   # TODO: Change arr to hash (maybe)
@@ -356,168 +412,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
 
-  def process_partial
-    # read the xls file
-    xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
 
-    # hash to store unique combination of isin, transaction type (buying/selling), client
-    hash_dp_count = Hash.new 0
-    hash_dp = Hash.new
-
-    # array to store processed data
-    @processed_data = []
-    @raw_data = []
-
-    import_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
-    # grab date from the first record
-    date_data = xlsx.sheet(0).row(12)[3].to_s
-    # convert a string to date
-    @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
-
-
-    # TODO remove this
-    @older_detected= false
-    if @date.nil?
-      @older_detected = true
-      date_data = xlsx.sheet(0).row(12)[0].to_s
-      @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
-    end
-
-    import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
-
-    # fiscal year and date should match
-    # file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
-    unless date_valid_for_fy_code(@date)
-      import_error("Please change the fiscal year.") and return
-    end
-
-    settlement_date = Calendar::t_plus_3_trading_days(@date)
-    fy_code = get_fy_code(@date)
-
-    # get bill number once and increment it on rails code
-    # dont do database query for each creation
-    @bill_number = get_bill_number(fy_code)
-
-    # loop through 13th row to last row
-    # parse the data
-    @total_amount = 0
-    @partial_total_amount = 0
-    @total_amount_file = 0
-    new_client_accounts = []
-    data_sheet = xlsx.sheet(0)
-    (12..(data_sheet.last_row)).each do |i|
-
-      row_data = data_sheet.row(i)
-      # break if row with Total is found
-      if (row_data[0].to_s.tr(' ', '') == 'Total')
-        @total_amount = row_data[21].to_f
-        break
-      end
-
-      break if row_data[0] == nil
-
-      # If share transaction already in db, skip it!
-      _contract_no = row_data[3].to_i
-      if ShareTransaction.find_by_contract_no(_contract_no).present?
-        @partial_total_amount += row_data[20]
-        next
-      end
-
-      # rawdata =[
-      # 	Contract No.,
-      # 	Symbol,
-      # 	Buyer Broking Firm Code,
-      # 	Seller Broking Firm Code,
-      # 	Client Name,
-      # 	Client Code,
-      # 	Quantity,
-      # 	Rate,
-      # 	Amount,
-      # 	Stock Comm.,
-      # 	Bank Deposit,
-      # ]
-      # TODO remove this hack
-      if @older_detected
-        @raw_data << [row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5], row_data[6], row_data[7], row_data[8], row_data[9], row_data[10]]
-        @total_amount_file = 0
-        company_symbol = row_data[1]
-        client_name = row_data[4]
-        client_nepse_code = row_data[5].upcase
-        bank_deposit = row_data[10]
-      else
-        @raw_data << [row_data[3], row_data[7], row_data[8], row_data[10], row_data[12], row_data[15], row_data[17], row_data[19], row_data[20], row_data[23], row_data[26]]
-        # sum of the amount section should be equal to the calculated sum
-        @total_amount_file = @raw_data.map { |d| d[8].to_f }.reduce(0, :+)
-        company_symbol = row_data[7]
-        client_name = row_data[12]
-        client_nepse_code = row_data[15].upcase
-        bank_deposit = row_data[26]
-      end
-
-      # Check for the bank deposit value which is available only for buying
-      transaction_type = bank_deposit.nil? ? :selling : :buying
-
-      # Store the count of transaction for unique client,company, and type of transaction
-      # Also, account for share transactions already in the db.
-      # `**_counted_from_db` is flag to check whether or not that group of share transaction has been accounted for.
-      client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
-      if client.present?
-        if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
-          company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-          relevant_share_transactions_count = ShareTransaction.where(
-              date: @date,
-              client_account_id: client.id,
-              isin_info_id: company_info.id,
-              transaction_type: ShareTransaction.transaction_types[transaction_type]
-          ).size
-          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
-          # Switch the flag `**_counted_from_db` to true
-          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
-        end
-        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
-      else
-        # Maintain list of new client accounts not in the system yet.
-        client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
-        unless new_client_accounts.include?(client_account_hash)
-          new_client_accounts << client_account_hash
-        end
-      end
-    end
-
-    # Client information should be available before file upload.
-    unless new_client_accounts.blank?
-      @error_type = 'new_client_accounts_present'
-      @new_client_accounts = new_client_accounts
-      import_error(new_client_accounts_error_message(new_client_accounts)) and return
-    end
-
-    @total_amount_file += @partial_total_amount
-
-    import_error("The amounts don't match up.") and return if (@total_amount_file - @total_amount).abs > 0.1
-
-    begin
-
-      commission_info = get_commission_info_with_detail(@date)
-      # rescue
-      #   import_error("Commission Rates not found for the required date #{@date.to_date}") and return
-    end
-
-
-    # critical functionality happens here
-    ActiveRecord::Base.transaction do
-      # Store already processed share transactions (from earlier partial upload).
-      processed_share_transactions_for_the_date = ShareTransaction.where(date: @date)
-      @raw_data.each do |arr|
-        @processed_data << process_record_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-      end
-      repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
-      # create_sms_result = CreateSmsService.new(floorsheet_records: @processed_data, transaction_date: @date, broker_code: current_tenant.broker_code).process
-      FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
-    end
-
-    # # used to fire error when floorsheet contains client data but not mapped to system
-    # file_error(@error_message) if @error_message.present?
-  end
 
   def repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
     processed_share_transactions_for_the_date.each do |share_transaction|
