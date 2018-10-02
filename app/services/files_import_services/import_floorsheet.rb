@@ -8,7 +8,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   include ApplicationHelper
 
   FILETYPE = FileUpload::file_types[:floorsheet]
-
+  @@transaction_type_buying = ShareTransaction.transaction_types['buying']
+  @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
   # amount above which it has to be settled within brokers.
   THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
   def initialize(file, is_partial_upload = false)
@@ -210,12 +211,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
     company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-    relevant_share_transactions_count = ShareTransaction.where(
-        date: @date,
-        client_account_id: client.id,
-        isin_info_id: company_info.id,
-        transaction_type: ShareTransaction.transaction_types[transaction_type]
-    ).size
+
+    relevant_share_transactions_count = relevant_share_transactions_count(@date,client.id,company_info.id, ShareTransaction.transaction_types[transaction_type] )
+
     hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
     # Switch the flag `**_counted_from_db` to true
     hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
@@ -255,7 +253,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     dp = 0
     bill = nil
-    type_of_transaction = ShareTransaction.transaction_types['buying']
+    type_of_transaction = @@transaction_type_buying
 
     client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
 
@@ -268,26 +266,17 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # bill contains all the transactions done for a user for each type( purchase / sales)
     if bank_deposit.nil?
       dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
-      type_of_transaction = ShareTransaction.transaction_types['selling']
+      type_of_transaction = @@transaction_type_selling
     else
       is_purchase = true
       # create or find a bill by the number
       dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
       # group all the share transactions for a client for the day
       if hash_dp.key?(client_nepse_code+'buying')
-        bill = Bill.unscoped.find_or_create_by!(
-            bill_number: hash_dp[client_nepse_code+'buying'],
-            fy_code: fy_code,
-            date: @date,
-            client_account_id: client.id)
+        bill = find_or_create_bill(hash_dp[client_nepse_code+'buying'],fy_code,@date,client.id)
       else
         hash_dp[client_nepse_code+'buying'] = @bill_number
-        bill = Bill.unscoped.find_or_create_by!(
-            bill_number: @bill_number,
-            fy_code: fy_code,
-            client_account_id: client.id,
-            date: @date
-        ) do |b|
+        bill = find_or_create_bill(@bill_number,fy_code,@date,client.id) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
@@ -361,7 +350,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     bill_number = nil
     full_bill_number = nil
 
-    if type_of_transaction == ShareTransaction.transaction_types['buying']
+    if type_of_transaction == @@transaction_type_buying
       bill.share_transactions << transaction
       bill.net_amount += transaction.net_amount
       bill.balance_to_pay = bill.net_amount
@@ -379,11 +368,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       end
 
       # find or create predefined ledgers
-      purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
-      nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
-      tds_ledger = Ledger.find_or_create_by!(name: "TDS")
-      dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-      compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
+      purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
+      nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
+      tds_ledger = find_or_create_ledger_by_name("TDS")
+      dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
+      compliance_ledger = find_or_create_ledger_by_name( "Compliance Fee")
 
 
       # update description
@@ -418,12 +407,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     processed_share_transactions_for_the_date.each do |share_transaction|
 
       # Patch dp fee in share transaction (but not quite yet on voucher)
-      relevant_share_transactions_count = ShareTransaction.where(
-          date: share_transaction.date,
-          client_account_id: share_transaction.client_account.id,
-          isin_info_id: share_transaction.isin_info.id,
-          transaction_type: ShareTransaction.transaction_types[share_transaction.transaction_type]
-      ).size
+
+      relevant_share_transactions_count =  relevant_share_transactions_count(share_transaction.date,share_transaction.client_account.id,
+        share_transaction.isin_info.id,ShareTransaction.transaction_types[share_transaction.transaction_type])
+
       stale_dp_fee_for_st = share_transaction.dp_fee
       updated_dp_fee_for_st = 25.0 / relevant_share_transactions_count
       difference_of_dp_fee_for_st = stale_dp_fee_for_st - updated_dp_fee_for_st
@@ -449,7 +436,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, share_transaction.client_account.branch_id, @date)
 
         # Re-process the (dp_fee updated) share transaction
-        dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
+        dp_ledger = find_or_create_ledger_by_name( "DP Fee/ Transfer")
         process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, share_transaction.client_account.branch_id, @date)
 
         # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
@@ -458,6 +445,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     end
   end
 
+  def relevant_share_transactions_count(date, client_account_id,isin_info_id,transaction_type)
+    ShareTransaction.where(
+        date: date,
+        client_account_id:client_account_id,
+        isin_info_id: isin_info_id,
+        transaction_type: transaction_type
+    ).size
+  end
   # TODO: Change arr to hash (maybe)
   # arr =[
   # 	Contract No.,
@@ -491,7 +486,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     dp = 0
     bill = nil
-    type_of_transaction = ShareTransaction.transaction_types['buying']
+    type_of_transaction = @@transaction_type_buying
 
     client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
 
@@ -506,7 +501,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     if bank_deposit.nil?
       # Sales
       dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
-      type_of_transaction = ShareTransaction.transaction_types['selling']
+      type_of_transaction = @@transaction_type_selling
     else
       # Purchase
       is_purchase = true
@@ -516,11 +511,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # group all the share transactions for a client for the day
       # The following if logic is first for the first purchase transaction for a client
       if hash_dp.key?(client_nepse_code+'buying')
-        bill = Bill.unscoped.find_or_create_by!(
-            bill_number: hash_dp[client_nepse_code+'buying'],
-            fy_code: fy_code,
-            date: @date,
-            client_account_id: client.id)
+        bill = find_or_create_bill(hash_dp[client_nepse_code+'buying'],fy_code,@date,client.id)
       else
         # The following sets key for a client during her first purchase transaction iteration.
         # Account for pre-processed relevant share transactions' associate bill for the date.
@@ -537,12 +528,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
           @bill_number += 1
         end
         hash_dp[client_nepse_code+'buying'] = _bill_number
-        bill = Bill.unscoped.find_or_create_by!(
-            bill_number: _bill_number,
-            fy_code: fy_code,
-            client_account_id: client.id,
-            date: @date
-        ) do |b|
+        bill = find_or_create_bill(_bill_number,fy_code,date,client.id) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
@@ -612,7 +598,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     bill_number = nil
     full_bill_number = nil
 
-    if type_of_transaction == ShareTransaction.transaction_types['buying']
+    if type_of_transaction ==   @@transaction_type_buying
       bill.share_transactions << transaction
       bill.net_amount += transaction.net_amount
       bill.balance_to_pay += transaction.net_amount
@@ -633,11 +619,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       end
 
       # find or create predefined ledgers
-      purchase_commission_ledger = Ledger.find_or_create_by!(name: "Purchase Commission")
-      nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
-      tds_ledger = Ledger.find_or_create_by!(name: "TDS")
-      dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-      compliance_ledger = Ledger.find_or_create_by!(name: "Compliance Fee")
+      purchase_commission_ledger = find_or_create_ledger_by_name( "Purchase Commission")
+      nepse_ledger = find_or_create_ledger_by_name( "Nepse Purchase")
+      tds_ledger = find_or_create_ledger_by_name( "TDS")
+      dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
+      compliance_ledger = find_or_create_ledger_by_name("Compliance Fee")
 
 
       # update description
@@ -666,9 +652,20 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
 
+  def find_or_create_bill(bill_number, fy_code, date, client_account_id)
+    Bill.unscoped.find_or_create_by!(
+        bill_number: bill_number,
+        fy_code: fy_code,
+        date: date,
+        client_account_id: client_account_id)
+  end
   # return true if the floor sheet data is invalid
   def is_invalid_file_data(xlsx)
     xlsx.sheet(0).row(11)[1].to_s.tr(' ', '') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
+  end
+
+  def find_or_create_ledger_by_name(name)
+    Ledger.find_or_create_by!(name: name)
   end
 
   # Get a unique bill number based on fiscal year
