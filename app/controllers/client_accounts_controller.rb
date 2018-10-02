@@ -103,8 +103,10 @@ class ClientAccountsController < ApplicationController
   # PATCH/PUT /client_accounts/1.json
   def update
     from_path = params[:from_path]
+    client_ledger = Ledger.find_by_client_account_id(@client_account.id)
     respond_to do |format|
-      if @client_account.update(client_account_params )
+      if @client_account.update(client_account_params ) &&
+         client_ledger.update(name: client_account_params["name"])
         format.html {
           unless from_path.blank?
             redirect_to from_path, notice: 'Client account was successfully updated.'
