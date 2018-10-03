@@ -98,6 +98,6 @@ Rails.application.configure do
                                           :email => {
                                             :email_prefix => "[SMARTKHATA EXCEPTION] ",
                                             :sender_address => %{exception-notifier@smartkhata.com.np},
-                                            :exception_recipients => %w{mesubas@gmail.com, alt.sarojk@gmail.com, nistha750@gmail.com}
+                                            :exception_recipients => %w{mesubas@gmail.com, alt.sarojk@gmail.com, ranjanbajra@gmail.com}
                                           }
 end
