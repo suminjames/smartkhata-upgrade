@@ -172,7 +172,7 @@ class Ledger < ActiveRecord::Base
   def name_from_reserved?
     if name.present? && INTERNALLEDGERS.any?{ |s| s.casecmp(name)==0 }
       # make sure the closeout ledger is last to be added programmatically
-      
+
       # errors.add :name, "The name is reserved by system" if Ledger.find_by_name("Close Out").present?
 
       errors.add :name, "The name is reserved by system" if Ledger.where("name ilike ?", name).count > 0

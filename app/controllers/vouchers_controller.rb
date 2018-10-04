@@ -59,7 +59,6 @@ class VouchersController < ApplicationController
   # GET /vouchers/new
   # POST /vouchers/new
   def new
-
     # two way to post to this controller
     # either clear_ledger and client_account_id or client_account_id and bill_ids
     @voucher,

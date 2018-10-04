@@ -100,7 +100,7 @@ class ClientAccount < ActiveRecord::Base
   before_save :format_name, if: :name_changed?
   after_save :move_particulars
   after_create :create_ledger
-
+  after_save :change_ledger_name, if: :name_changed?
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
@@ -194,7 +194,9 @@ class ClientAccount < ActiveRecord::Base
       ]
   )
 
-
+  def change_ledger_name
+    self.ledger.update(name: self.name)
+  end
   def format_nepse_code
     self.nepse_code = self.nepse_code.try(:squish).try(:upcase)
   end
@@ -264,7 +266,7 @@ class ClientAccount < ActiveRecord::Base
   def assign_group
     client_group = Group.find_or_create_by!(name: "Clients")
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
-    client_ledger = Ledger.find(client_account_id: self.id)
+    client_ledger = Ledger.find_by(client_account_id: self.id)
     client_group.ledgers << client_ledger
   end
 
