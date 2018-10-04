@@ -162,7 +162,7 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".check_client_branch" do
     subject{create(:client_account, name: "John", branch_id: 1)}
-    let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: 1)}
+    let!(:ledger){subject.ledger}
     let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: 1)}
     context "when branch not changed" do
       it "should check client's branch" do
