@@ -60,31 +60,48 @@ RSpec.describe ClientAccount, type: :model do
 
       it { should validate_presence_of (:bank_name)}
       it { should validate_presence_of (:bank_account)}
-      it { should validate_presence_of (:bank_address)} 
+      it { should validate_presence_of (:bank_address)}
 	  end
 
     context "when bank name and address is present" do
         subject { build(:client_account, bank_name: 'adf', bank_address: 'asdf')}
-        it { expect(subject).not_to allow_values(-1,'qu-o','#ioo').for(:bank_account) } 
-        it { should allow_values(5466461, 'ghgbb1').for(:bank_account) } 
+        it { expect(subject).not_to allow_values(-1,'qu-o','#ioo').for(:bank_account) }
+        it { should allow_values(5466461, 'ghgbb1').for(:bank_account) }
     end
-  	
+
 
     context "when nepse code is present" do
       subject{create(:client_account)}
       it "should  validate_uniqueness_of nepse_code" do
-  
+
         new_account = build(:client_account, nepse_code: subject.nepse_code)
         expect(new_account).to_not be_valid
       end
-    end 
+    end
     it "nepse code can be blank" do
       subject.nepse_code = ''
       expect(subject).to be_truthy
       subject.save!
     end
   end
+  it { is_expected.to callback(:change_ledger_name).after(:save) }
 
+  describe ".change_ledger_name" do
+    let(:client_account){ create(:client_account) }
+    it "updates the ledger name " do
+      client_account.ledger.update(name: "John")
+      expect{client_account.change_ledger_name}.to change{client_account.ledger.name}.from("John").to(client_account.name)
+    end
+    it "updates the ledger name on client account update" do
+      # expect(client_account).to receive(:change_ledger_name).and_return(true)
+      client_account.update(name: "John")
+      expect(client_account.ledger.name).to eq("John")
+    end
+    it "is not called when other atributes are changed" do
+      expect(client_account).to_not receive(:change_ledger_name)
+      client_account.update(nepse_code: 'adsf')
+    end
+  end
 
   describe ".format_nepse_code" do
     it "should store code in uppercase and remove space" do
@@ -137,7 +154,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should have errors" do
       subject.bank_account = "gutft"
       subject.bank_name = " "
-      
+
       subject.bank_details_present?
       expect(subject.errors[:bank_account]).to include 'Please fill the required bank details'
     end
@@ -145,9 +162,8 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".check_client_branch" do
     subject{create(:client_account, name: "John", branch_id: 1)}
-    let!(:ledger){create(:ledger, client_account_id: subject.id, branch_id: 1)}
+    let!(:ledger){subject.ledger}
     let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: 1)}
-
     context "when branch not changed" do
       it "should check client's branch" do
         subject.branch_id = 2
@@ -169,7 +185,7 @@ RSpec.describe ClientAccount, type: :model do
   describe ".find_or_create_ledger" do
     let(:ledger){build(:ledger)}
     context "when ledger is present" do
-      
+
       it "should be true for ledger present" do
         allow(subject).to receive(:ledger).and_return(ledger)
         expect(subject.find_or_create_ledger).to eq(ledger)
@@ -177,7 +193,7 @@ RSpec.describe ClientAccount, type: :model do
     end
 
     context "when ledger isnot present" do
-      it "should return true" do 
+      it "should return true" do
         allow(subject).to receive(:create_ledger).and_return(ledger)
         expect(subject.find_or_create_ledger).to eq(ledger)
       end
@@ -209,19 +225,31 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".assign group" do
-    it ""
+    let(:client_group){create(:group, name:"Client")}
+    let(:client_account){create(:client_account)}
+    let(:ledger){create(:ledger, client_account: client_account)}
+    it "should append client ledger to client group ledger" do
+      expect(client_account.assign_group).to include(Ledger.last)
+    end
   end
 
   describe ".get_current_valuation" do
-    it "should return current evaluation" 
-
+    let(:isin_info){create(:isin_info, last_price: 9)}
+    let(:share_inventory){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 5)}
+    let(:share_inventory1){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 10)}
+    let(:client_account){create(:client_account, share_inventories: [share_inventory])}
+    let(:client_account1){create(:client_account, share_inventories: [share_inventory,share_inventory1])}
+    it "should get sum of floorsheet_blnc and isin_info last_price" do
+      expect(client_account.get_current_valuation).to eq(45)
+      expect(client_account1.get_current_valuation).to eq(135)
+    end
   end
 
   describe ".get_all_related_bills" do
     subject{create(:client_account)}
       let(:group_member) {create(:client_account, group_leader_id: subject.id)}
     it "should return  all related bills"  do
-      
+
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
       expect(subject.get_all_related_bills).to eq([bill1, bill2])
@@ -240,7 +268,7 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".get_group_members_ledgers" do
     subject{create(:client_account)}
-    
+
     it "should return group member ledgers" do
       group_member = create(:client_account, group_leader_id: subject.id)
       expect(subject.get_group_members_ledgers).to include group_member.ledger
@@ -273,20 +301,20 @@ RSpec.describe ClientAccount, type: :model do
         allow(SmsMessage).to receive(:messageable_phone_number?).with('9841727272').and_return(true)
         expect(subject.messageable_phone_number).to eq("9841727272")
       end
-      
+
       it "should return phone number" do
         subject.mobile_number = nil
         subject.phone = '56524728'
         allow(SmsMessage).to receive(:messageable_phone_number?).with('56524728').and_return(true)
         expect(subject.messageable_phone_number).to eq("56524728")
       end
-        
+
       it "should return phone perm number" do
         subject.mobile_number = nil
         subject.phone_perm = '7664535'
         allow(SmsMessage).to receive(:messageable_phone_number?).with('7664535').and_return(true)
         expect(subject.messageable_phone_number).to eq("7664535")
-      end  
+      end
     end
   end
 
@@ -394,8 +422,8 @@ RSpec.describe ClientAccount, type: :model do
   describe "#existing_referrers_names" do
     it "should return existing referrers names" do
       create(:client_account, referrer_name: 'subas')
-      create(:client_account, referrer_name: '')   
-      create(:client_account, referrer_name: 'nistha')  
+      create(:client_account, referrer_name: '')
+      create(:client_account, referrer_name: 'nistha')
 
       expect(subject.class.existing_referrers_names).to eq(["nistha", "subas"])
     end
@@ -403,14 +431,14 @@ RSpec.describe ClientAccount, type: :model do
 
   describe "#options_for_client_select" do
     context "when client id isnot present" do
-      it "should return empty array" do 
+      it "should return empty array" do
        expect(subject.class.options_for_client_select(:by_client_id => nil)).to eq([])
       end
     end
 
     context "when client id is present" do
       subject{create(:client_account)}
-      it "should return options for client select" do 
+      it "should return options for client select" do
        expect(subject.class.options_for_client_select(:by_client_id => subject.id)).to eq([subject])
       end
     end
