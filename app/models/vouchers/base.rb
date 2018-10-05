@@ -48,15 +48,15 @@ class Vouchers::Base
 
       client_ledger = client_account.ledger
       ledger_balance = client_ledger.closing_balance
-
       if clear_ledger
         bills_receive = client_account.bills.requiring_receive
         bills_payment = client_account.bills.requiring_payment
-      else
+      else  
         bill_list = get_bills_from_ids(bill_ids)
 
         related_pending_bill_ids = client_account.get_all_related_bill_ids
         # make sure all id in bill_ids are in related_pending_bill_ids
+
         unless (bill_ids - related_pending_bill_ids).empty?
           # this condition should not be true
           raise SmartKhataError
