@@ -9,10 +9,6 @@ RSpec.describe Vouchers::Setup do
   let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
   let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
 
-  before do
-    expect(Ledger.pluck(:name)).to include("Cash")
-  end
-
   describe "basic vouchers" do
     it "should build  a journal voucher" do
       voucher,
