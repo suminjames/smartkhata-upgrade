@@ -28,7 +28,8 @@
     <p>Select the Menu that are available for the user </p>
     <%= arranged_tree_as_list(@menu_items, {:list_style => :boostrap_list_group, :ul_class => ['menu-permission-list'] }) do |menu_item| %>
         <% if menu_item['path'].present? %>
-            <%= check_box_tag 'user_access_role[menu_item_ids][]', menu_item.id, @user_access_role.menu_item_ids.include?(menu_item.id), id: dom_id(menu_item) %>
+          <% next if restricted_for_user(menu_item['path']) %>
+          <%= check_box_tag 'user_access_role[menu_item_ids][]', menu_item.id, @user_access_role.menu_item_ids.include?(menu_item.id), id: dom_id(menu_item) %>
         <% else %>
             <%= check_box_tag '', '', false, class: 'select_all',id: dom_id(menu_item) %>
         <% end %>
