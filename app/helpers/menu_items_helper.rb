@@ -18,5 +18,19 @@ module MenuItemsHelper
 
     end
   end
+
+  def restricted_for_user path
+    if current_user.admin?
+      return false
+    else
+      paths_only_for_admins.include?(path)
+    end
+  end
+
+  def paths_only_for_admins
+    [
+      restricted_ledgers_path
+    ]
+  end
 end
 
