@@ -147,9 +147,6 @@ class Voucher < ActiveRecord::Base
     return true if true_fy_code != self.fy_code
     false
   end
-  # def date_valid_for_fy_code?
-  #   errors.add :date, "Fuck you Asshole" unless date_valid_for_fy_code(self.fy_code, self.date)
-  # end
 
   private
   def process_voucher
