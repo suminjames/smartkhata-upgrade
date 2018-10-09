@@ -212,6 +212,7 @@
           Ledger.find_or_create_by(name: "Cash")
           @bank = create(:bank, name: "kumari bank")
           visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
+          current_fiscal_year = 7576
         end
         it_behaves_like "input particular narration", 2
 
@@ -271,7 +272,7 @@
           page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
           click_on "Search"
           click_on "Show"
-          click_on "RCB 7475-1"
+          click_on "RCB #{current_fiscal_year}-1"
           expect(page).to have_content("Voucher details")
           # contain company info
           expect(page).to have_content('Danphe')

@@ -36,7 +36,7 @@ describe "Ledger" do
         expect(page).to have_content("Ledgers")
         expect(page).to have_content("Anita")
         expect(page).to have_content("Show")
-        expect(page).to have_content("Clear Ledger")
+        expect(page).to have_content("Restrict")
         expect(page).to have_content("Process Selected Bills")
         page.execute_script(%Q($('select#ledgers_index_combobox').select2('open')))
         page.execute_script(%Q($(".select2-search__field").val('#{@client_account.name}')))
@@ -46,7 +46,7 @@ describe "Ledger" do
         click_on "Search"
         expect(page).to have_content("Anita")
         expect(page).to have_content("Show")
-        expect(page).to have_content("Clear Ledger")
+        expect(page).to have_content("Restrict")
         expect(page).to have_content("Process Selected Bills")
 
         within('table.ledger-list') do
@@ -56,8 +56,10 @@ describe "Ledger" do
         sleep(1)
         expect(page).to have_content("Opening Balance")
         expect(page).to have_content("Closing Balance")
-        expect(page).to have_content("Clear Ledger")
+        # expect(page).to have_content("Clear Ledger")
         expect(page).to have_content("Process Selected Bills")
+        expect(page).to have_content("Search by Date Range")
+        expect(page).to have_content("View all")
         expect(page).to have_content("Cheque")
         expect(page).to have_content("1111")
 
@@ -78,8 +80,7 @@ describe "Ledger" do
       # by pass permission
       allow(MenuItem).to receive(:black_listed_paths_for_user).and_return([])
       # allow(Branch).to receive(:permitted_branches_for_user).and_return(Branch.all)
-
-      UserSession.set_usersession_for_test(7374, @branch.id, user_employee )
+      UserSession.set_usersession_for_test(7375, @branch.id, user_employee )
       login_as(user_employee, scope: :user)
       @client_account = create(:client_account, name: "Anita", nepse_code: "A123")
       bill = create(:bill, status: 0)
