@@ -80,7 +80,7 @@ describe "Ledger" do
       # by pass permission
       allow(MenuItem).to receive(:black_listed_paths_for_user).and_return([])
       # allow(Branch).to receive(:permitted_branches_for_user).and_return(Branch.all)
-      UserSession.set_usersession_for_test(7375, @branch.id, user_employee )
+      UserSession.set_usersession_for_test(7475, @branch.id, user_employee )
       login_as(user_employee, scope: :user)
       @client_account = create(:client_account, name: "Anita", nepse_code: "A123")
       bill = create(:bill, status: 0)
