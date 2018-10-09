@@ -20,12 +20,12 @@ describe "Ledger" do
       @client_account = create(:client_account, name: "Anita", nepse_code: "A123")
       bill = create(:bill, status: 0)
       @client_account.bills << bill
-      ledger_balance = create(:ledger_balance, opening_balance: 300, fy_code: 7475, branch_id: 1)
+      ledger_balance = create(:ledger_balance, opening_balance: 300, fy_code: @fy_code, branch_id: 1)
       cheque_entry = create(:cheque_entry, cheque_number: 1111)
-      particular = create(:particular, fy_code: 7475, transaction_date: "2017-08-31")
+      particular = create(:particular, fy_code: @fy_code, transaction_date: "2017-08-31")
       particular.cheque_entries << cheque_entry
       @client_account.ledger.branch_id = 1
-      @client_account.ledger.fy_code = 7475
+      @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
       visit ledgers_path
@@ -79,18 +79,16 @@ describe "Ledger" do
       allow(user_employee).to receive(:user_access_role).and_return(UserAccessRole.new(:access_level => 0))
       # by pass permission
       allow(MenuItem).to receive(:black_listed_paths_for_user).and_return([])
-      # allow(Branch).to receive(:permitted_branches_for_user).and_return(Branch.all)
-      UserSession.set_usersession_for_test(7475, @branch.id, user_employee )
       login_as(user_employee, scope: :user)
       @client_account = create(:client_account, name: "Anita", nepse_code: "A123")
       bill = create(:bill, status: 0)
       @client_account.bills << bill
-      ledger_balance = create(:ledger_balance, opening_balance: 300, fy_code: 7475, branch_id: @branch.id)
+      ledger_balance = create(:ledger_balance, opening_balance: 300, fy_code: @fy_code, branch_id: @branch.id)
       cheque_entry = create(:cheque_entry, cheque_number: 1111)
-      particular = create(:particular, fy_code: 7475, transaction_date: "2017-08-31")
+      particular = create(:particular, fy_code: @fy_code, transaction_date: "2017-08-31")
       particular.cheque_entries << cheque_entry
       @client_account.ledger.branch_id = @branch.id
-      @client_account.ledger.fy_code = 7475
+      @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
       visit ledgers_path

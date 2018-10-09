@@ -26,7 +26,7 @@ shared_context 'feature_session_setup' do
 
     # we dont want the application controller to set user session
     # as we are overriding the UserSession variable
-    allow_any_instance_of(ApplicationController).to receive(:set_user_session).and_return(true)
+    # allow_any_instance_of(ApplicationController).to receive(:set_user_session).and_return(true)
   end
   after(:each) do
     Warden.test_reset!
