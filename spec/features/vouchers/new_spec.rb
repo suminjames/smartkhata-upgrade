@@ -49,6 +49,28 @@
       end
     end
 
+    shared_examples "invalid fy_code" do
+      it "does not creates payment voucher", js: true do
+        voucher_form_submit
+        expect(page).to have_content("Invalid Date for fiscal year!")
+      end
+    end
+
+    def voucher_form_submit
+      voucher_dr_amount = voucher_cr_amount = 4000
+      voucher_dr_cheque_number = 1111
+      fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
+      find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
+      select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
+      fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
+      add_narrations = page.all(".narration-display")
+      add_narrations[-1].click
+      fill_in "voucher_particulars_attributes_3_description", with: "description for particular"
+      fill_in "voucher_desc", with: 'sample test for payment voucher'
+      # click_on methods expects id, name, value of the button
+      click_on 'Submit'
+    end
+
     context "signed in user" do
       before(:each) do
         login_as(@user, scope: :user)
@@ -63,23 +85,7 @@
           visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment])
         end
 
-        context "invalid date for fy" do
-          it "does not creates payment voucher", js: true do
-            voucher_dr_amount = voucher_cr_amount = 4000
-            voucher_dr_cheque_number = 1111
-            fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
-            find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
-            select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
-            fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
-            add_narrations = page.all(".narration-display")
-            add_narrations[-1].click
-            fill_in "voucher_particulars_attributes_3_description", with: "description for particular"
-            fill_in "voucher_desc", with: 'sample test for payment voucher'
-            # click_on methods expects id, name, value of the button
-            click_on 'Submit'
-            expect(page).to have_content("Invalid Date for fiscal year!")
-          end
-        end
+        it_behaves_like "invalid fy_code"
 
         context "and valid date for fy" do
 
@@ -91,26 +97,11 @@
           it_behaves_like "add particular", 2
 
           it "creates payment voucher", js: true do
-            voucher_dr_amount = voucher_cr_amount = 4000
-            voucher_dr_cheque_number = 1111
-            fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
-            find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
-            select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
-            fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
-            add_narrations = page.all(".narration-display")
-            add_narrations[-1].click
-            fill_in "voucher_particulars_attributes_3_description", with: "description for particular"
-            fill_in "voucher_desc", with: 'sample test for payment voucher'
-            # click_on methods expects id, name, value of the button
-            click_on 'Submit'
+            voucher_form_submit
             expect(page).to have_content("Voucher Details")
             expect(page).to have_content("Voucher was successfully created.")
             # contain company info
-            expect(page).to have_content('Danphe')
-            expect(page).to have_content('Kupondole')
-            expect(page).to have_content('Phone: 99999')
-            expect(page).to have_content('Fax: 0989')
-            expect(page).to have_content('PAN: 9909')
+            company_info
             # show voucher
             expect(page).to have_content("Payment voucher Bank")
             expect(page).to have_content("Voucher Number: PVB")
@@ -125,9 +116,7 @@
             expect(page.first('div#cheque_number').text).to eq("1111")
             expect(page.first('div#total_amount').text).to eq("4,000.00")
             # show details of user activity
-            expect(page).to have_content('Prepared By')
-            expect(page).to have_content('Approved By')
-            expect(page).to have_content('Received By')
+            user_activity
             expect(page).to have_content('Approve')
             click_on 'Approve'
             expect(page).to have_content('Payment Voucher was successfully approved')
@@ -150,7 +139,6 @@
           @client_account2 = create(:client_account, name: "Subash aryal")
           visit new_voucher_path
         end
-
 
         context "and valid date for fy" do
           let(:setup_spec) {
@@ -187,11 +175,7 @@
             expect(page).to have_content("Voucher Details")
             expect(page).to have_content("Voucher was successfully created.")
             # contain company info
-            expect(page).to have_content('Danphe')
-            expect(page).to have_content('Kupondole')
-            expect(page).to have_content('Phone: 99999')
-            expect(page).to have_content('Fax: 0989')
-            expect(page).to have_content('PAN: 9909')
+            company_info
             # show voucher
             expect(page).to have_content("Voucher Number: JVR")
             expect(page).to have_content("Voucher Date:")
@@ -206,9 +190,7 @@
             expect(page.first('div#total_dr').text).to eq("500.00")
             expect(page.first('div#total_cr').text).to eq("500.00")
             # show details of user activity
-            expect(page).to have_content('Prepared By')
-            expect(page).to have_content('Approved By')
-            expect(page).to have_content('Received By')
+            user_activity
           end
         end
       end
@@ -221,6 +203,8 @@
           @bank = create(:bank, name: "kumari bank")
           visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
         end
+
+        it_behaves_like "invalid fy_code"
 
         context "and valid date for fy" do
           let(:setup_spec) {
@@ -243,11 +227,7 @@
             # for receipt
             expect(page).to have_content("RECEIPT")
             # contain company info
-            expect(page).to have_content('Danphe')
-            expect(page).to have_content('Kupondole')
-            expect(page).to have_content('Phone: 99999')
-            expect(page).to have_content('Fax: 0989')
-            expect(page).to have_content('PAN: 9909')
+            company_info
             # show details
             expect(page).to have_content('Receipt No:')
             expect(page).to have_content('Date:')
@@ -270,11 +250,7 @@
             click_on "RCB #{get_fy_code}-1"
             expect(page).to have_content("Voucher details")
             # contain company info
-            expect(page).to have_content('Danphe')
-            expect(page).to have_content('Kupondole')
-            expect(page).to have_content('Phone: 99999')
-            expect(page).to have_content('Fax: 0989')
-            expect(page).to have_content('PAN: 9909')
+            company_info
             # show details
             expect(page).to have_content('Voucher Number: RCB ')
             expect(page).to have_content('Voucher Date:')
@@ -285,9 +261,7 @@
             expect(page.first('div#total_dr').text).to eq("5,000.00")
             expect(page.first('div#total_cr').text).to eq("5,000.00")
             # show details of user activity
-            expect(page).to have_content('Prepared By')
-            expect(page).to have_content('Approved By')
-            expect(page).to have_content('Received By')
+            user_activity
             #for settlements
             visit settlements_path
             expect(page).to have_content("Settlements")
