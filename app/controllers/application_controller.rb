@@ -89,7 +89,7 @@ class ApplicationController < ActionController::Base
 
   # Uses the helper methods from devise to made them available in the models
   def set_user_session
-    current_user.current_url_link = request.path
+    current_user.current_url_link = request.fullpath
     UserSession.user = current_user
     UserSession.tenant = current_tenant
 
