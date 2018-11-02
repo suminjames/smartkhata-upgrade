@@ -1,6 +1,6 @@
 class LedgerPolicy < ApplicationPolicy
   # three actions in menu
-  permit_conditional_access_to_employee_and_above :index, :group_members_ledgers, :new, :restricted
+  permit_conditional_access_to_employee_and_above :index, :group_members_ledgers, :new, :restricted,:merge_ledger
 
   # hidden menu item
   permit_custom_access :employee_and_above, new_ledger_path, [:create, :update, :edit, :destroy]

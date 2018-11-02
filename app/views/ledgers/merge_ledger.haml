@@ -1,9 +1,5 @@
 %p#notice= notice
-- provide(:section_title, "Ledgers")
-
-%div.bottom-buffer-sm
-  = link_to 'New Ledger', new_ledger_path
-  = link_to '| All Ledgers', restricted_ledgers_path(all: true) if @restricted_only
+- provide(:section_title, "Merge Ledgers")
 
 = form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
   .panel.panel-default.filter-form
@@ -11,27 +7,27 @@
       .row
         .col-xs-3
           %label
-            Ledger Name
+            From Ledger
           = f.collection_select(                        |
-            :by_ledger_id,                              |
+            :to_ledger_id,                              |
             @filterrific.select_options[:by_ledger_id], |
             :id,                                        |
             :name_and_identifier,                       |
             {include_blank: true},                      |
             {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
-        .col-xs-2
+        .col-xs-3
           %label
-            Ledger Type
-          = f.select(                          |
-            :by_ledger_type,                              |
-            @filterrific.select_options[:by_ledger_type], |
-            {include_blank: true},                 |
-            {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
+            To Ledger
+          = f.collection_select(                        |
+            :from_ledger_id,                            |
+            @filterrific.select_options[:by_ledger_id], |
+            :id,                                        |
+            :name_and_identifier,                       |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox_1', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
       .row.top-buffer-sm
         .col-xs-2
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'
           = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
           = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
     = render_filterrific_spinner
-
-= render(partial: 'ledgers/list', locals: { ledgers: @ledgers })
