@@ -95,7 +95,8 @@ group :test do
   gem 'capybara'
   gem 'capybara-screenshot'
   gem "database_cleaner"
-  gem "poltergeist"
+  gem "selenium-webdriver"
+  gem "chromedriver-helper"
   gem "shoulda-matchers"
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'mocha'

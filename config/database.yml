@@ -19,6 +19,9 @@ default: &default
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: 5
   template: template0
+  username: ran
+  password: ranjan
+  host: localhost
 
 development:
   <<: *default
@@ -46,8 +49,7 @@ development:
 test:
   <<: *default
   database: smartkhata_test
-  host: <%= ENV['DATABASE_HOST'] %>
-  username: <%= ENV['DATABASE_USERNAME'] %>
+
 
 production:
   <<: *default
