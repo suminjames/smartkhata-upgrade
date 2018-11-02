@@ -148,15 +148,17 @@ class LedgersController < ApplicationController
         Ledger.allowed(@show_restriction),
         params[:filterrific],
         select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-          from_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
         },
         persistence_id: false
     ) or return
     merge_to =  @filterrific.to_ledger_id
     merge_from = @filterrific.from_ledger_id
-    if merge_to.present? && merge_from.present?
-      @merge_ledgers = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
+    if (merge_to&&merge_from).present?
+      merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
+      merge_bool ? flash[:sucess] = "Sucessfully Ledger Merge" :
+                   flash[:alert] = "Ledger Merge Unsucessfull"
+      redirect_to  ledgers_merge_ledger_path
     end
   end
 
