@@ -1,9 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Ledger, type: :model do
-
-  include_context 'session_setup'
   subject{build(:ledger)}
+  include_context 'session_setup'
 
   describe "validations" do
     it { should validate_presence_of (:name)}
@@ -107,6 +106,68 @@ RSpec.describe Ledger, type: :model do
         expect(ledger.reload.has_editable_balance?).not_to be_truthy
       end
     end
+
+    context "when particulars size is 0"
+    it "should return true" do
+      expect(subject.has_editable_balance?).to be_truthy
+    end
+  end
+
+  describe ".update_custom" do
+    it "should return true" do
+      allow(subject).to receive(:save_custom).and_return(true)
+      expect(subject.update_custom(true)).to be_truthy
+    end
+  end
+
+  describe ".create_custom" do
+    it "should return true" do
+      allow(subject).to receive(:save_custom).and_return(true)
+      expect(subject.create_custom).to be_truthy
+    end
+  end
+
+  describe ".save_custom" do
+    context "when valid" do
+      context "and params is nil" do
+        #   incase of create
+        it "should create ledger balance for org" do
+          ledger = build(:ledger)
+          ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+          ledger.ledger_balances << build(:ledger_balance, branch_id: 2, opening_balance: "5000")
+          expect { ledger.save_custom }.to change {LedgerBalance.unscoped.count }.by(3)
+          expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(10000)
+        end
+      end
+
+      context "and params is present" do
+        it "should update ledger balance for org" do
+          ledger = create(:ledger)
+          ledger.ledger_balances << create(:ledger_balance, branch_id: 2, opening_balance: "5000")
+          ledger_balance = create(:ledger_balance, branch_id: 1, opening_balance: "5000")
+          ledger.ledger_balances << ledger_balance
+          ledger.ledger_balances << create(:ledger_balance, branch_id: nil, opening_balance: "10000")
+
+          params = {"ledger_balances_attributes"=>{"0"=>{"opening_balance"=>"6000.0", "opening_balance_type"=>"dr", "branch_id"=>"1", "id"=> ledger_balance.id }}}
+
+          expect { ledger.save_custom(params) }.to change {LedgerBalance.unscoped.count }.by(0)
+          # edit on individual balance should update org balance too
+          # org balance has branch id nil
+          expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(11000)
+          expect(LedgerBalance.unscoped.where(branch_id: 1, ledger_id: ledger.reload.id).first.closing_balance).to eq(6000)
+        end
+      end
+    end
+    context "when invalid" do
+      context "and params is nil" do
+        it "should add errors" do
+          ledger = build(:ledger)
+          ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+          ledger.ledger_balances << build(:ledger_balance, branch_id: 1, opening_balance: "5000")
+          expect(ledger.save_custom).not_to be_truthy
+        end
+      end
+    end
   end
 
   describe ".particulars_with_running_balance" do
@@ -154,7 +215,6 @@ RSpec.describe Ledger, type: :model do
           end
         end
       end
-
     end
 
     context "when session branch is branch office" do
@@ -175,22 +235,12 @@ RSpec.describe Ledger, type: :model do
         expect(subject.opening_balance).to eq(5000)
       end
     end
-  end
 
-  describe ".opening_balance" do
-    context "when ledger has ledger balance" do
-      let(:ledger_balance) {build(:ledger_balance, opening_balance: 5000)}
-      it "should return opening balance" do
-        allow(LedgerBalance).to receive(:by_branch_fy_code).and_return([ledger_balance])
-        expect(subject.opening_balance).to eq(5000)
-      end
-    end
     context "when ledger has no ledger balance" do
       it "should return 0 as opening balance" do
         expect(subject.opening_balance).to eq(0)
       end
     end
-
   end
 
   describe ".dr_amount" do
@@ -267,7 +317,6 @@ RSpec.describe Ledger, type: :model do
           expect(Ledger.find_similar_to_term("Le", nil)).to eq([{:text=>"Ledger (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
         end
       end
-
 
       context "when employee account id is present" do
         subject{create(:ledger, name: "nistha")}
@@ -346,9 +395,9 @@ RSpec.describe Ledger, type: :model do
 
   describe ".delete_associated_records" do
     subject{create(:ledger)}
+    let(:ledger_balance){create(:ledger_balance)}
+    let(:ledger_daily){create(:ledger_daily, date: Date.today)}
 
-    let(:ledger_balance){create(:ledger_balance, ledger_id: subject.id)}
-    let(:ledger_daily){create(:ledger_daily, date: Date.today, ledger_id: subject.id)}
     it "should delete ledger balance" do
       subject
       subject.ledger_balances << ledger_balance
@@ -356,7 +405,7 @@ RSpec.describe Ledger, type: :model do
       expect(LedgerBalance.unscoped.where(ledger_id: subject.id).count).to eq(0)
     end
 
-     it "should delete ledger daily" do
+    it "should delete ledger daily" do
       subject
       subject.ledger_dailies << ledger_daily
       subject.delete_associated_records

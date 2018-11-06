@@ -10,8 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_22_101447) do
 
+ActiveRecord::Schema.define(version: 2018_04_28_175837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -894,7 +894,6 @@ ActiveRecord::Schema.define(version: 2018_05_22_101447) do
     t.integer "vendor_account_id"
     t.decimal "opening_balance_org", precision: 15, scale: 4, default: "0.0"
     t.decimal "closing_balance_org", precision: 15, scale: 4, default: "0.0"
-    t.boolean "restricted", default: false
     t.index ["bank_account_id"], name: "index_ledgers_on_bank_account_id"
     t.index ["branch_id"], name: "index_ledgers_on_branch_id"
     t.index ["client_account_id"], name: "index_ledgers_on_client_account_id"

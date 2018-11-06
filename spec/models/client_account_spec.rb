@@ -267,7 +267,6 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".get_group_members_ledgers" do
     subject{create(:client_account)}
-
     it "should return group member ledgers" do
       group_member = create(:client_account, group_leader_id: subject.id)
       expect(subject.get_group_members_ledgers).to include group_member.ledger
