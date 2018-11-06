@@ -59,7 +59,7 @@ RSpec.describe Vouchers::Setup do
 
   describe "clear ledgers advanced vouchers" do
     it "should build a payment voucher when ledger balance is in cr" do
-      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: -3000 )
+      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: -3000, branch_id: @branch.id )
       voucher,
           is_payment_receipt,
           ledger_list_financial,
@@ -72,7 +72,7 @@ RSpec.describe Vouchers::Setup do
       expect(voucher.particulars.size).to eq(2)
     end
     it "should build a receipt voucher when ledger balance is in dr" do
-      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 3000 )
+      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 3000, branch_id: @branch.id )
       voucher,
           is_payment_receipt,
           ledger_list_financial,

@@ -35,7 +35,7 @@ FactoryBot.define do
     amount 5000
     bank_account
     cheque_date '2016-7-12'
-    branch_id 1
+    branch
     beneficiary_name 'subas'
 
     factory :receipt_cheque_entry do
@@ -48,7 +48,7 @@ FactoryBot.define do
   factory :particular do
     amount 5000
     fy_code 7374
-    branch_id 1
+    branch
     voucher
     ledger
     transaction_type 0
@@ -111,7 +111,7 @@ FactoryBot.define do
     # closing_balance 5000  taken care in callback
     dr_amount 5000
     cr_amount 0
-    branch_id 1
+    branch
     fy_code '7374'
 
     factory :ledger_balance_org do
@@ -134,7 +134,7 @@ FactoryBot.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
-    branch_id 1
+    branch
 
     # association :creator, factory: :user
     # association :updater, factory: :user
@@ -161,6 +161,7 @@ FactoryBot.define do
     locale 0
 
     factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
+      profile_type 0
     end
   end
 

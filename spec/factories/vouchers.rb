@@ -4,7 +4,7 @@ FactoryBot.define do
     date_bs '2073-09-24'
     voucher_type 0
     voucher_status 1
-    branch_id 1
+    branch
     desc nil
   end
 end

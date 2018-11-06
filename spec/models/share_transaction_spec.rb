@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ShareTransaction, type: :model do
-	subject{build(:share_transaction)}
+	subject{build(:share_transaction, branch: @branch)}
   	include_context 'session_setup'
  
   	describe "validations" do

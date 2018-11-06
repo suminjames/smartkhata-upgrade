@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://api.sparrowsms.com/v2/sms/?from=Demo&text=Saroj%20bought%20EBL,100@2900%3BOn%201/23%20Bill%20No7273-79%20.Pay%20Rs%20292678.5.BNo%2048.%20sarojk@dandpheit.com&to=9779851182852&token=Q2qMoJIpim0AgFn34WUz
+    uri: http://api.sparrowsms.com/v2/sms/?from=Trishakti&text=Saroj%20bought%20EBL,100@2900%3BOn%201/23%20Bill%20No7273-79%20.Pay%20Rs%20292678.5.BNo%2048.%20sarojk@dandpheit.com&to=9779851182852&token=Q2qMoJIpim0AgFn34WUz
     body:
       encoding: US-ASCII
       string: ''

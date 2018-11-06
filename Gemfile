@@ -98,7 +98,7 @@ gem 'ancestry'
 # gem 'axlsx'
 # gem 'simplecov', :require => false, :group => :test
 # # Converts array that is returned during ActiveRecord pluck to hash
-# gem 'pluck_to_hash'
+gem 'pluck_to_hash'
 gem 'nepali_calendar'
 # gem 'jquery-turbolinks'
 # gem 'roo', '~> 2.1.0'

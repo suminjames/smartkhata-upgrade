@@ -29,7 +29,7 @@ RSpec.describe NepaliCalendarPlus::CalendarPlus, type: :model do
 
   	describe ".ad_to_bs_string" do
   		it "should return date in bs" do
-  			expect(subject.ad_to_bs_string("2017","06","12")).to eq("2074-2-29")
+  			expect(subject.ad_to_bs_string("2017","06","12")).to eq("2074-02-29")
 
   			expect(subject.ad_to_bs_string("1943","01","01")).to be_nil
   		end

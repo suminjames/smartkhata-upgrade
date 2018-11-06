@@ -11,6 +11,7 @@ module Models::UpdaterWithBranch
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
+      belongs_to :branch
 
       scope :by_branch_id, ->(branch_id = UserSession.selected_branch_id) do
         if branch_id != 0

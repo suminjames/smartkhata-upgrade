@@ -28,6 +28,7 @@ module NumberFormatterModule
   # The `sankhya' gem apparently doesn't do negative value conversion really well. Eg: -999.to_amount returns -,999.00.
   # Therefore, a small tweaking has been done make this method work well with negative values.
   def arabic_number(decimal)
+    return '0.00' unless decimal.present?
     is_negative = decimal.negative?
     if is_negative
       decimal = decimal * -1 # positive decimal
