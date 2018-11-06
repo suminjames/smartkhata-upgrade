@@ -2,8 +2,7 @@
 module Models::Updater
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator
-      before_save :set_updater
+      before_validation :set_creator, :set_updater
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
@@ -18,6 +17,6 @@ module Models::Updater
   end
 
   def set_creator
-    self.creator_id = UserSession.id
+    self.creator_id ||= UserSession.id
   end
 end

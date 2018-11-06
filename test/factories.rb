@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :master_setup_commission_detail, class: 'MasterSetup::CommissionDetail' do
     start_amount 0
     limit_amount nil
@@ -14,13 +14,13 @@ FactoryGirl.define do
     nepse_commission_rate 22.5
 
     before(:create) do |master_setup_commission_info|
-      master_setup_commission_info.commission_details << FactoryGirl.create(:master_setup_commission_detail)
+      master_setup_commission_info.commission_details << FactoryBot.create(:master_setup_commission_detail)
     end
   end
 
   factory :user do
-    username  "test"
-    email "test@gmail.com"
+    sequence(:username, 'a') { |n| "testuser#{n}" }
+    sequence(:email, 'a') { |n| "testuser-#{n}@gmail.com" }
     password "password"
     password_confirmation "password"
     confirmed_at Date.today
@@ -35,7 +35,7 @@ FactoryGirl.define do
     amount 5000
     bank_account
     cheque_date '2016-7-12'
-    branch_id 1
+    branch
     beneficiary_name 'subas'
 
     factory :receipt_cheque_entry do
@@ -48,7 +48,7 @@ FactoryGirl.define do
   factory :particular do
     amount 5000
     fy_code 7374
-    branch_id 1
+    branch
     voucher
     ledger
     transaction_type 0
@@ -97,7 +97,8 @@ FactoryGirl.define do
 
   factory :ledger do
     name 'Ledger'
-    group_id 234
+    # group_id 234
+    group
 
     factory :bank_ledger do
       name 'Bank'
@@ -110,7 +111,7 @@ FactoryGirl.define do
     # closing_balance 5000  taken care in callback
     dr_amount 5000
     cr_amount 0
-    branch_id 1
+    branch
     fy_code '7374'
 
     factory :ledger_balance_org do
@@ -133,7 +134,10 @@ FactoryGirl.define do
     country_perm 'foo-country'
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
     sequence (:email) { |n| "n@example.com"}
-    branch_id 1
+    branch
+
+    # association :creator, factory: :user
+    # association :updater, factory: :user
 
     factory :client_account_without_nepse_code do
       nepse_code nil
@@ -157,6 +161,7 @@ FactoryGirl.define do
     locale 0
 
     factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
+      profile_type 0
     end
   end
 

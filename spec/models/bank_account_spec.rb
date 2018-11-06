@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {build(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
-  let(:bank_account_1) {create(:bank_account)}
+  subject {build(:bank_account, bank_branch: "kathmandu",account_number:'a2', branch_id: @branch.id)}
+  let(:bank_account_1) {create(:bank_account, branch_id: @branch.id)}
   include_context 'session_setup'
 
   describe "validations" do
@@ -23,20 +23,17 @@ RSpec.describe BankAccount, type: :model do
   describe "defaults for payments receipts" do
     it "should change default for payment" do
       subject.save!
-      # debugger
       accounts = [subject, bank_account_1]
       accounts.each {|account| account.update_column(:default_for_payment, true) }
       subject.change_default
       accounts.each {|account| account.reload}
 
-      # debugger
       expect(subject.default_for_payment).to be_truthy
       expect(bank_account_1.default_for_payment).to_not be_truthy
     end
 
     it "should change default for sales" do
       subject.save!
-      # debugger
       accounts = [subject, bank_account_1]
       accounts.each {|account| account.update_column(:default_for_receipt, true) }
 
@@ -61,9 +58,11 @@ RSpec.describe BankAccount, type: :model do
   end
 
   describe ".save_custom" do
+    # let(:bank){create(:bank)}
     it "should create ledger for bank account" do
-      allow(subject).to receive(:get_current_assets_group).and_return(5)
-
+      # subject.bank_id =  bank.id
+      group = create(:group, name: 'Current Assets')
+      allow(subject).to receive(:get_current_assets_group).and_return(group.id)
       expect(subject.save_custom).to be_truthy
       expect(subject.ledger.name).to eq("Bank:"+subject.bank.name+"(#{subject.account_number})")
     end

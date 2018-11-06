@@ -1,10 +1,10 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :share_transaction do
     client_account
     contract_no 201611284117936
     date "2016-11-28"
     isin_info
-    bill nil
+    bill
     raw_quantity 185
     quantity 185
     share_rate 626
@@ -19,7 +19,8 @@ FactoryGirl.define do
     net_amount 116489.27 #that client pays or receives, pays in this case
     bank_deposit 116031.1406 #that nepse needs in purchase case
     transaction_type 0
-
+    voucher
+    branch
     # sales as of floorsheet
     factory :sales_share_transaction do
       amount_receivable 0

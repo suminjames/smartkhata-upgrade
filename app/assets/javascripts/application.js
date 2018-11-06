@@ -13,9 +13,8 @@
 
 
 //= require jquery
-//= require jquery.turbolinks
-//= require jquery_ujs
-//= require jquery-hotkeys
+//= require rails-ujs
+//= require activestorage
 //= require turbolinks
 //= require bootstrap-sprockets
 //= require bootstrap-combobox.js
@@ -23,10 +22,6 @@
 //= require layout.min.js
 //= require filterrific/filterrific-jquery
 //= require select2.min.js
-//= require react
-//= require react_ujs
-//= require react-bootstrap
-//= require components
 //= require_tree .
 
 $(document).on("ready page:load", function(){

@@ -11,10 +11,10 @@ RSpec.describe MenuPermissionModule, type: :helper do
       end
   let(:dummy_class) { MenuField.new }
 
-
+  let(:branch){create(:branch)}
   let(:user_access_role){create(:user_access_role)}
-  let(:user) {create(:user, user_access_role_id: user_access_role.id, role: 0, username: 'john', email: 'jhn@gmail.com', branch_id: 1)}
-  let(:user1) {create(:user, user_access_role_id: user_access_role.id, username: 'ram', email: 'ram@gmail.com', branch_id: 1)}
+  let(:user) {create(:user, user_access_role_id: user_access_role.id, role: 0, username: 'john', email: 'jhn@gmail.com', branch_id: branch.id)}
+  let(:user1) {create(:user, user_access_role_id: user_access_role.id, username: 'ram', email: 'ram@gmail.com', branch_id: branch.id)}
   let(:menu1) {create(:menu_item, path: 'path1')}
   let(:menu2) {create(:menu_item, path: 'path2')}
 
@@ -74,7 +74,7 @@ RSpec.describe MenuPermissionModule, type: :helper do
 
     context 'when user is client' do
       it 'should return true' do
-        user_client = create(:user, user_access_role_id: user_access_role.id, role: 1, username: 'Aakash', email: 'aakash@gmail.com', branch_id: 1)
+        user_client = create(:user, user_access_role_id: user_access_role.id, role: 1, username: 'Aakash', email: 'aakash@gmail.com', branch_id: branch.id)
         allow(dummy_class).to receive(:current_user).and_return(user_client)
         expect(dummy_class.user_has_access_to?('test.com')).to eq(true)
       end

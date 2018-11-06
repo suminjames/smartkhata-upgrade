@@ -46,7 +46,7 @@ class Tenant < ActiveRecord::Base
   def broker_profile
     MasterSetup::BrokerProfile.where(
         locale: BrokerProfile.locales[@locale],
-        profile_type: BrokerProfile.profile_types[:is_self_broker],
+        # profile_type: BrokerProfile.profile_types[:is_self_broker],
     ).first
   end
 

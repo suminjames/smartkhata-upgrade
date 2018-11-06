@@ -2,10 +2,9 @@ require 'rails_helper'
 
 RSpec.describe Bill, type: :model do
   # we need share transactions for methods
-  subject {create(:sales_bill_with_transaction)}
-  
   include_context 'session_setup'
-
+  subject {create(:sales_bill_with_transaction, branch_id: @branch.id)}
+  
   describe "validations" do
     it { expect(subject).to be_valid }
   	it {should validate_presence_of (:client_account)}
@@ -153,10 +152,10 @@ RSpec.describe Bill, type: :model do
     end
 
     context "when valid" do
-      subject { build(:bill, provisional_base_price: 100) } 
+      subject { build(:bill, provisional_base_price: 100) }
 
       before do
-        create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id)
+        create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id, bill_id: nil)
       end
 
       it "should assign correct date" do

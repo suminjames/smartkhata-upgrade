@@ -6,15 +6,16 @@ RSpec.describe ChequeEntries::VoidActivity do
   let(:void_date_bs) { '2073-8-21'}
   let(:cheque_date_ad) { bs_to_ad(void_date_bs) - 1 }
   let(:void_narration) { 'This is a simple void narration' }
+  let(:branch) { create(:branch) }
   let(:voucher) { create(:voucher) }
 
-  subject { create(:cheque_entry) }
+  subject { create(:cheque_entry, branch_id: branch.id) }
 
   before do
     # user session needs to be set for doing any activity
     UserSession.user = create(:user)
     UserSession.selected_fy_code = 7374
-    UserSession.selected_branch_id =  1
+    UserSession.selected_branch_id =  branch.id
   end
 
   describe "invalid fiscal year" do
@@ -49,8 +50,8 @@ RSpec.describe ChequeEntries::VoidActivity do
   it "should void the cheque for voucher with single cheque entry and no bills" do
 
     subject.update_attribute(:status, :approved)
-    dr_particular = create(:debit_particular, voucher: voucher)
-    cr_particular = create(:credit_particular, voucher: voucher)
+    dr_particular = create(:debit_particular, voucher: voucher, branch_id: branch.id)
+    cr_particular = create(:credit_particular, voucher: voucher, branch_id: branch.id)
 
     subject.particulars_on_payment << dr_particular
     subject.particulars_on_receipt << cr_particular
@@ -66,13 +67,13 @@ RSpec.describe ChequeEntries::VoidActivity do
 
   it "should void the cheque for voucher with multi cheque entry and no bills" do
 
-    cheque_entry = create(:cheque_entry, status: :approved)
-    cheque_entry_a = create(:cheque_entry, status: :approved)
+    cheque_entry = create(:cheque_entry, status: :approved, branch_id: branch.id)
+    cheque_entry_a = create(:cheque_entry, status: :approved, branch_id: branch.id)
 
-    voucher = create(:voucher)
-    dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500)
-    dr_particular_b = create(:debit_particular, voucher: voucher, amount: 500)
-    cr_particular = create(:credit_particular, voucher: voucher, amount: 1000)
+    voucher = create(:voucher, branch_id: branch.id)
+    dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500, branch_id: branch.id)
+    dr_particular_b = create(:debit_particular, voucher: voucher, amount: 500, branch_id: branch.id)
+    cr_particular = create(:credit_particular, voucher: voucher, amount: 1000, branch_id: branch.id)
 
 
     cheque_entry.particulars_on_payment << dr_particular_a
@@ -93,13 +94,13 @@ RSpec.describe ChequeEntries::VoidActivity do
 
   it "should void the cheque for voucher with single cheque entry and bill with full amount" do
 
-    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000)
-    voucher = create(:voucher)
-    dr_particular = create(:debit_particular, voucher: voucher, amount: 5000)
-    cr_particular = create(:credit_particular, voucher: @voucher, amount: 5000)
+    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000, branch_id: branch.id)
+    voucher = create(:voucher, branch_id: branch.id)
+    dr_particular = create(:debit_particular, voucher: voucher, amount: 5000, branch_id: branch.id)
+    cr_particular = create(:credit_particular, voucher: voucher, amount: 5000, branch_id: branch.id)
 
     client_account_a = create(:client_account, ledger: dr_particular.ledger)
-    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 5000, balance_to_pay: 0)
+    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 5000, balance_to_pay: 0, branch_id: branch.id)
 
     cheque_entry.particulars_on_payment << dr_particular
     cheque_entry.particulars_on_receipt << cr_particular
@@ -120,13 +121,13 @@ RSpec.describe ChequeEntries::VoidActivity do
 
   it "should void the cheque for voucher with single cheque entry and bill with partial amount" do
 
-    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000)
-    voucher = create(:voucher)
-    dr_particular = create(:debit_particular, voucher: voucher, amount: 5000)
-    cr_particular = create(:credit_particular, voucher: voucher, amount: 5000)
+    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000, branch_id: branch.id)
+    voucher = create(:voucher, branch_id: branch.id)
+    dr_particular = create(:debit_particular, voucher: voucher, amount: 5000, branch_id: branch.id)
+    cr_particular = create(:credit_particular, voucher: voucher, amount: 5000, branch_id: branch.id)
 
     client_account_a = create(:client_account, ledger: dr_particular.ledger)
-    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 6000, balance_to_pay: 0)
+    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 6000, balance_to_pay: 0, branch_id: branch.id)
 
     cheque_entry.particulars_on_payment << dr_particular
     cheque_entry.particulars_on_receipt << cr_particular
@@ -147,18 +148,18 @@ RSpec.describe ChequeEntries::VoidActivity do
 
   it "should void the cheque for voucher with multi cheque entry and bills" do
 
-    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000)
-    cheque_entry_a = create(:cheque_entry, status: :approved, amount: 4000)
+    cheque_entry = create(:cheque_entry, status: :approved, amount: 5000, branch_id: branch.id)
+    cheque_entry_a = create(:cheque_entry, status: :approved, amount: 4000, branch_id: branch.id)
 
-    voucher = create(:voucher)
-    dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500)
-    dr_particular_b = create(:debit_particular, voucher: voucher, amount: 500)
-    cr_particular = create(:credit_particular, voucher: voucher, amount: 1000)
+    voucher = create(:voucher, branch_id: branch.id)
+    dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500, branch_id: branch.id)
+    dr_particular_b = create(:debit_particular, voucher: voucher, amount: 500, branch_id: branch.id)
+    cr_particular = create(:credit_particular, voucher: voucher, amount: 1000, branch_id: branch.id)
 
     client_account_a = create(:client_account, ledger: dr_particular_a.ledger)
-    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 6000, balance_to_pay: 0, status: Bill.statuses[:settled])
+    bill_a = create(:sales_bill, client_account: client_account_a, net_amount: 6000, balance_to_pay: 0, status: Bill.statuses[:settled], branch_id: branch.id)
     client_account_b = create(:client_account, ledger: dr_particular_b.ledger)
-    bill_b = create(:sales_bill, client_account: client_account_b, net_amount: 4000, balance_to_pay: 0, status: Bill.statuses[:settled])
+    bill_b = create(:sales_bill, client_account: client_account_b, net_amount: 4000, balance_to_pay: 0, status: Bill.statuses[:settled], branch_id: branch.id)
 
     cheque_entry.particulars_on_payment << dr_particular_a
     cheque_entry.particulars_on_receipt << cr_particular

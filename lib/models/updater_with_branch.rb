@@ -6,12 +6,12 @@ module Models::UpdaterWithBranch
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator, :add_branch
-      before_save :set_updater, :add_branch
+      before_validation :set_creator, :add_branch, :set_updater
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
+      belongs_to :branch
 
       scope :by_branch_id, ->(branch_id = UserSession.selected_branch_id) do
         if branch_id != 0
@@ -28,7 +28,7 @@ module Models::UpdaterWithBranch
   end
 
   def set_creator
-    self.creator_id = UserSession.id
+    self.creator_id ||= UserSession.id
   end
 
   def add_branch

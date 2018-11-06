@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :bill do
     sequence (:bill_number)
     client_name 'Harold Hill'
@@ -12,7 +12,7 @@ FactoryGirl.define do
     date_bs { CustomDateModule.ad_to_bs(3.days.ago.to_date) } #replace this with 3 working days before
     settlement_date { Time.now.to_date }
     client_account
-    branch_id 1
+    branch
 
     factory :sales_bill do
       bill_type :sales

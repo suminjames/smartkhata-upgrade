@@ -4,21 +4,21 @@ RSpec.describe Vouchers::Create do
 
   include_context 'session_setup'
 
-  let(:client_account) { create(:client_account)}
+  let(:client_account) { create(:client_account, branch_id: @branch.id)}
   let(:ledger) { client_account.ledger }
-  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
-  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
-  let(:client_particular) {build(:particular, ledger: ledger, amount: 5000)}
+  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000, branch_id: @branch.id) }
+  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000, branch_id: @branch.id) }
+  let(:client_particular) {build(:particular, ledger: ledger, amount: 5000, branch_id: @branch.id)}
   let(:voucher) {build(:voucher, voucher_type: 0)}
-  let(:dr_particular) { build(:debit_particular, voucher: voucher, amount: 5000) }
-  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000) }
+  let(:dr_particular) { build(:debit_particular, voucher: voucher, ledger: ledger, amount: 5000, branch_id: @branch.id) }
+  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000, branch_id: @branch.id) }
 
   before do
     # user session needs to be set for doing any activity
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
-     # create( :ledger, name: "Cash")
+     create( :ledger, name: "Cash")
   end
 
   describe "vouchers" do
@@ -177,7 +177,7 @@ RSpec.describe Vouchers::Create do
       voucher_type = 2
       bank_ledger = create(:bank_ledger)
       client_ledger = ledger
-      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=> @branch.id}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=> @branch.id, "bills_selection"=>"", "selected_bill_names"=>""}}}
 
       voucher_1 = Voucher.new(voucher_params)
       voucher_creation_1 = Vouchers::Create.new(
@@ -206,7 +206,7 @@ RSpec.describe Vouchers::Create do
       voucher_type = 2
       bank_ledger = create(:bank_ledger)
       client_ledger = ledger
-      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>@branch.id}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>@branch.id, "bills_selection"=>"", "selected_bill_names"=>""}}}
 
       voucher_1 = Voucher.new(voucher_params)
       voucher_creation_1 = Vouchers::Create.new(
@@ -221,7 +221,6 @@ RSpec.describe Vouchers::Create do
       returned_voucher = voucher_creation_1.voucher
       cheque_entry = returned_voucher.cheque_entries.uniq.first
       cheque_entry.bounced!
-
       voucher_2 = Voucher.new(voucher_params)
       voucher_creation_2 = Vouchers::Create.new(
           voucher_type: voucher_type,
@@ -427,7 +426,7 @@ RSpec.describe Vouchers::Create do
     it "should settle both type of bills" do
       voucher.voucher_type = 2
       voucher_type = 2
-      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 1000 )
+      ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 1000, branch_id: @branch.id )
 
       purchase_bill_id = purchase_bill.id
       sales_bill_id = sales_bill.id
@@ -603,7 +602,8 @@ RSpec.describe Vouchers::Create do
 
     context 'when employee particular present' do
       let(:branch) {create(:branch)}
-      let(:employee_account) {create(:employee_account, branch_id: branch.id)}
+      let(:user) {create(:user)}
+      let(:employee_account) {create(:employee_account, branch_id: branch.id, user_id: user.id)}
       let(:ledger_e) {create(:ledger, employee_account_id: employee_account.id, branch_id: branch.id)}
       let(:credit_particular) {build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger_e.id, branch_id: branch.id)}
       it 'should return true' do
@@ -616,4 +616,91 @@ RSpec.describe Vouchers::Create do
       end
     end
   end
+
+  describe '.get_voucher_type' do
+    let(:voucher) {create(:voucher, voucher_type: 0)}
+    context 'when is_payment_receipt is false' do
+      it 'returns voucher type' do
+        voucher
+        voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.get_voucher_type(voucher, false)).to eq('journal')
+      end
+    end
+
+    context 'when is_payment_receipt is true' do
+      context 'and voucher has no cheque entry' do
+        context 'and is payment' do
+          it 'returns payment_cash as voucher type' do
+            voucher.voucher_type = 1
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(false)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(4)
+          end
+        end
+
+        context 'and is other than payment' do
+          it 'returns receipt_cash as voucher type' do
+            voucher.voucher_type = 2
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(false)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(5)
+          end
+        end
+      end
+
+      context 'and voucher has cheque entry' do
+        context 'and is payment' do
+          it 'returns payment_cash as voucher type' do
+            voucher.voucher_type = 1
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(true)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(6)
+          end
+        end
+
+        context 'and is other than payment' do
+          it 'returns receipt_cash as voucher type' do
+            voucher.voucher_type = 2
+            voucher_creation = Vouchers::Create.new(voucher: voucher,
+                                                    tenant_full_name: "Trishakti")
+            allow(voucher_creation).to receive(:voucher_has_cheque_entry?).with(voucher).and_return(true)
+            expect(voucher_creation.get_voucher_type(voucher, true)).to eq(7)
+          end
+        end
+      end
+    end
+  end
+
+  describe '.voucher_has_cheque_entry?' do
+    let(:voucher) {create(:voucher)}
+    let(:particular1) {create(:particular, voucher_id: voucher.id, cheque_number: 12345)}
+    let(:particular2) {create(:particular, voucher_id: voucher.id, cheque_number: nil)}
+    context 'when cheque number present' do
+      it 'returns true' do
+        voucher
+        particular1
+        voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.voucher_has_cheque_entry?(voucher)).to eq(true)
+      end
+    end
+
+    context 'when cheque number not present' do
+      it 'returns false' do
+        voucher
+        particular2
+        voucher_creation = Vouchers::Create.new(voucher_type: 2,
+                                                voucher: voucher,
+                                                tenant_full_name: "Trishakti")
+        expect(voucher_creation.voucher_has_cheque_entry?(voucher)).to eq(false)
+      end
+    end
+  end
+
 end
+
