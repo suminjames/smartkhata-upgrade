@@ -363,13 +363,4 @@ RSpec.describe Ledger, type: :model do
       expect(LedgerDaily.unscoped.where(ledger_id: subject.id).count).to eq(0)
     end
   end
->>>>>>> 8f59c0e31e85ebda133d66afe177d13ae4619dee
-
-    it "should delete ledger daily" do
-      subject
-      subject.ledger_dailies << ledger_daily
-      subject.delete_associated_records
-      expect(LedgerDaily.unscoped.where(ledger_id: subject.id).count).to eq(0)
-    end
-  end
 end

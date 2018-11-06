@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180522101447) do
+ActiveRecord::Schema.define(version: 2018_05_22_101447) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -833,131 +834,125 @@ ActiveRecord::Schema.define(version: 20180522101447) do
     t.integer "particular_id"
   end
 
-  create_table "ledger_balances", force: :cascade do |t|
-    t.decimal  "opening_balance",      precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance",      precision: 15, scale: 4, default: 0.0
-    t.decimal  "dr_amount",            precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",            precision: 15, scale: 4, default: 0.0
-    t.integer  "fy_code"
-    t.integer  "branch_id"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "ledger_id"
-    t.datetime "created_at",                                                  null: false
-    t.datetime "updated_at",                                                  null: false
-    t.integer  "opening_balance_type"
+  create_table "ledger_balances", id: :serial, force: :cascade do |t|
+    t.decimal "opening_balance", precision: 15, scale: 4, default: "0.0"
+    t.decimal "closing_balance", precision: 15, scale: 4, default: "0.0"
+    t.decimal "dr_amount", precision: 15, scale: 4, default: "0.0"
+    t.decimal "cr_amount", precision: 15, scale: 4, default: "0.0"
+    t.integer "fy_code"
+    t.integer "branch_id"
+    t.integer "creator_id"
+    t.integer "updater_id"
+    t.integer "ledger_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "opening_balance_type"
+    t.index ["branch_id"], name: "index_ledger_balances_on_branch_id"
+    t.index ["fy_code", "branch_id", "ledger_id"], name: "index_ledger_balances_on_fy_code_and_branch_id_and_ledger_id", unique: true
+    t.index ["fy_code"], name: "index_ledger_balances_on_fy_code"
+    t.index ["ledger_id"], name: "index_ledger_balances_on_ledger_id"
   end
 
-  add_index "ledger_balances", ["branch_id"], name: "index_ledger_balances_on_branch_id", using: :btree
-  add_index "ledger_balances", ["fy_code", "branch_id", "ledger_id"], name: "index_ledger_balances_on_fy_code_and_branch_id_and_ledger_id", unique: true, using: :btree
-  add_index "ledger_balances", ["fy_code"], name: "index_ledger_balances_on_fy_code", using: :btree
-  add_index "ledger_balances", ["ledger_id"], name: "index_ledger_balances_on_ledger_id", using: :btree
-
-  create_table "ledger_dailies", force: :cascade do |t|
-    t.date     "date"
-    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
-    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
-    t.string   "date_bs"
-    t.integer  "fy_code"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "ledger_id"
-    t.integer  "branch_id"
-    t.datetime "created_at",                                             null: false
-    t.datetime "updated_at",                                             null: false
+  create_table "ledger_dailies", id: :serial, force: :cascade do |t|
+    t.date "date"
+    t.decimal "dr_amount", precision: 15, scale: 4, default: "0.0"
+    t.decimal "cr_amount", precision: 15, scale: 4, default: "0.0"
+    t.decimal "opening_balance", precision: 15, scale: 4, default: "0.0"
+    t.decimal "closing_balance", precision: 15, scale: 4, default: "0.0"
+    t.string "date_bs"
+    t.integer "fy_code"
+    t.integer "creator_id"
+    t.integer "updater_id"
+    t.integer "ledger_id"
+    t.integer "branch_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_id"], name: "index_ledger_dailies_on_branch_id"
+    t.index ["creator_id"], name: "index_ledger_dailies_on_creator_id"
+    t.index ["fy_code"], name: "index_ledger_dailies_on_fy_code"
+    t.index ["ledger_id"], name: "index_ledger_dailies_on_ledger_id"
+    t.index ["updater_id"], name: "index_ledger_dailies_on_updater_id"
   end
 
-  add_index "ledger_dailies", ["branch_id"], name: "index_ledger_dailies_on_branch_id", using: :btree
-  add_index "ledger_dailies", ["creator_id"], name: "index_ledger_dailies_on_creator_id", using: :btree
-  add_index "ledger_dailies", ["fy_code"], name: "index_ledger_dailies_on_fy_code", using: :btree
-  add_index "ledger_dailies", ["ledger_id"], name: "index_ledger_dailies_on_ledger_id", using: :btree
-  add_index "ledger_dailies", ["updater_id"], name: "index_ledger_dailies_on_updater_id", using: :btree
-
-  create_table "ledgers", force: :cascade do |t|
-    t.string   "name"
-    t.string   "client_code"
-    t.decimal  "opening_blnc",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc",        precision: 15, scale: 4, default: 0.0
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "fy_code"
-    t.integer  "branch_id"
-    t.decimal  "dr_amount",           precision: 15, scale: 4, default: 0.0,   null: false
-    t.decimal  "cr_amount",           precision: 15, scale: 4, default: 0.0,   null: false
-    t.datetime "created_at",                                                   null: false
-    t.datetime "updated_at",                                                   null: false
-    t.integer  "group_id"
-    t.integer  "bank_account_id"
-    t.integer  "client_account_id"
-    t.integer  "employee_account_id"
-    t.integer  "vendor_account_id"
-    t.decimal  "opening_balance_org", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance_org", precision: 15, scale: 4, default: 0.0
-    t.boolean  "restricted",                                   default: false
+  create_table "ledgers", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.string "client_code"
+    t.decimal "opening_blnc", precision: 15, scale: 4, default: "0.0"
+    t.decimal "closing_blnc", precision: 15, scale: 4, default: "0.0"
+    t.integer "creator_id"
+    t.integer "updater_id"
+    t.integer "fy_code"
+    t.integer "branch_id"
+    t.decimal "dr_amount", precision: 15, scale: 4, default: "0.0", null: false
+    t.decimal "cr_amount", precision: 15, scale: 4, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "group_id"
+    t.integer "bank_account_id"
+    t.integer "client_account_id"
+    t.integer "employee_account_id"
+    t.integer "vendor_account_id"
+    t.decimal "opening_balance_org", precision: 15, scale: 4, default: "0.0"
+    t.decimal "closing_balance_org", precision: 15, scale: 4, default: "0.0"
+    t.boolean "restricted", default: false
+    t.index ["bank_account_id"], name: "index_ledgers_on_bank_account_id"
+    t.index ["branch_id"], name: "index_ledgers_on_branch_id"
+    t.index ["client_account_id"], name: "index_ledgers_on_client_account_id"
+    t.index ["creator_id"], name: "index_ledgers_on_creator_id"
+    t.index ["employee_account_id"], name: "index_ledgers_on_employee_account_id"
+    t.index ["fy_code"], name: "index_ledgers_on_fy_code"
+    t.index ["group_id"], name: "index_ledgers_on_group_id"
+    t.index ["updater_id"], name: "index_ledgers_on_updater_id"
+    t.index ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id"
   end
 
-  add_index "ledgers", ["bank_account_id"], name: "index_ledgers_on_bank_account_id", using: :btree
-  add_index "ledgers", ["branch_id"], name: "index_ledgers_on_branch_id", using: :btree
-  add_index "ledgers", ["client_account_id"], name: "index_ledgers_on_client_account_id", using: :btree
-  add_index "ledgers", ["creator_id"], name: "index_ledgers_on_creator_id", using: :btree
-  add_index "ledgers", ["employee_account_id"], name: "index_ledgers_on_employee_account_id", using: :btree
-  add_index "ledgers", ["fy_code"], name: "index_ledgers_on_fy_code", using: :btree
-  add_index "ledgers", ["group_id"], name: "index_ledgers_on_group_id", using: :btree
-  add_index "ledgers", ["updater_id"], name: "index_ledgers_on_updater_id", using: :btree
-  add_index "ledgers", ["vendor_account_id"], name: "index_ledgers_on_vendor_account_id", using: :btree
-
-  create_table "master_setup_commission_details", force: :cascade do |t|
-    t.decimal  "start_amount",                    precision: 15, scale: 4
-    t.decimal  "limit_amount",                    precision: 15, scale: 4
-    t.float    "commission_rate"
-    t.float    "commission_amount"
-    t.integer  "master_setup_commission_info_id"
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+  create_table "master_setup_commission_details", id: :serial, force: :cascade do |t|
+    t.decimal "start_amount", precision: 15, scale: 4
+    t.decimal "limit_amount", precision: 15, scale: 4
+    t.float "commission_rate"
+    t.float "commission_amount"
+    t.integer "master_setup_commission_info_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["master_setup_commission_info_id"], name: "master_setup_commission_info_id"
   end
 
-  add_index "master_setup_commission_details", ["master_setup_commission_info_id"], name: "master_setup_commission_info_id", using: :btree
-
-  create_table "master_setup_commission_infos", force: :cascade do |t|
-    t.date     "start_date"
-    t.date     "end_date"
-    t.string   "start_date_bs"
-    t.string   "end_date_bs"
-    t.float    "nepse_commission_rate"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+  create_table "master_setup_commission_infos", id: :serial, force: :cascade do |t|
+    t.date "start_date"
+    t.date "end_date"
+    t.string "start_date_bs"
+    t.string "end_date_bs"
+    t.float "nepse_commission_rate"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "menu_items", force: :cascade do |t|
-    t.string   "name"
-    t.string   "path"
-    t.boolean  "hide_on_main_navigation", default: false
-    t.integer  "request_type",            default: 0
-    t.string   "code"
-    t.string   "ancestry"
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
+  create_table "menu_items", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.string "path"
+    t.boolean "hide_on_main_navigation", default: false
+    t.integer "request_type", default: 0
+    t.string "code"
+    t.string "ancestry"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ancestry"], name: "index_menu_items_on_ancestry"
   end
 
-  add_index "menu_items", ["ancestry"], name: "index_menu_items_on_ancestry", using: :btree
-
-  create_table "menu_permissions", force: :cascade do |t|
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "menu_item_id"
-    t.integer  "user_access_role_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+  create_table "menu_permissions", id: :serial, force: :cascade do |t|
+    t.integer "creator_id"
+    t.integer "updater_id"
+    t.integer "menu_item_id"
+    t.integer "user_access_role_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_menu_permissions_on_creator_id"
+    t.index ["menu_item_id"], name: "index_menu_permissions_on_menu_item_id"
+    t.index ["updater_id"], name: "index_menu_permissions_on_updater_id"
+    t.index ["user_access_role_id"], name: "index_menu_permissions_on_user_access_role_id"
   end
 
-  add_index "menu_permissions", ["creator_id"], name: "index_menu_permissions_on_creator_id", using: :btree
-  add_index "menu_permissions", ["menu_item_id"], name: "index_menu_permissions_on_menu_item_id", using: :btree
-  add_index "menu_permissions", ["updater_id"], name: "index_menu_permissions_on_updater_id", using: :btree
-  add_index "menu_permissions", ["user_access_role_id"], name: "index_menu_permissions_on_user_access_role_id", using: :btree
-
-  create_table "mobile_message", force: :cascade do |t|
+  create_table "mobile_message", id: :serial, force: :cascade do |t|
     t.string "customer_code"
     t.string "mobile_no"
     t.string "transaction_date"
