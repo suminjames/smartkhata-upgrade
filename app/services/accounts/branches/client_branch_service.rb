@@ -16,7 +16,7 @@ module Accounts
           fy_codes = [get_fy_code]
           date_ad = fiscal_year_first_day(fy_codes[0])
         end
-
+        
         particulars_on_other_branch_count = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id).count
 
         # LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all

@@ -100,7 +100,7 @@ class ClientAccount < ActiveRecord::Base
   before_save :format_name, if: :name_changed?
   after_save :move_particulars
   after_create :create_ledger
-  after_save :change_ledger_name, if: :name_changed?
+  after_update :change_ledger_name, if: :name_changed?
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!

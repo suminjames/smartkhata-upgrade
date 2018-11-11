@@ -23,6 +23,10 @@ shared_context 'feature_session_setup' do
     UserSession.user = @user
     UserSession.selected_fy_code = @fy_code
     UserSession.selected_branch_id = @branch.id
+
+    # we dont want the application controller to set user session
+    # as we are overriding the UserSession variable
+    # allow_any_instance_of(ApplicationController).to receive(:set_user_session).and_return(true)
   end
   after(:each) do
     Warden.test_reset!

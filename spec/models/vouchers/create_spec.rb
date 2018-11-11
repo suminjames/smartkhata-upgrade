@@ -50,8 +50,9 @@ RSpec.describe Vouchers::Create do
                                                   voucher: voucher,
                                                   tenant_full_name: "Trishakti")
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(["description for dr particular", 'description for cr particular'])
+          # expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
+          # expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
         end
       end
     end
@@ -86,8 +87,8 @@ RSpec.describe Vouchers::Create do
                                                   voucher_settlement_type: "default",
                                                   tenant_full_name: "Trishakti")
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
+                          ["description for dr particular", 'description for cr particular'])
         end
       end
     end
@@ -122,8 +123,9 @@ RSpec.describe Vouchers::Create do
                                                   voucher_settlement_type: "default",
                                                   tenant_full_name: "Trishakti")
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
+                ["description for dr particular", 'description for cr particular'])
+
         end
       end
     end

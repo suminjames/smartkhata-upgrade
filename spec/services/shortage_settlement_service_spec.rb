@@ -4,7 +4,7 @@ RSpec.describe ShortageSettlementService do
   let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, bill: create(:sales_bill, net_amount: 115130.6726))}
   let(:purchase_share_transaction_with_closeout) {create(:buy_transaction_processed_with_closeout, bill: create(:purchase_bill, net_amount: 116489.27 ))}
   # let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
-  let(:current_tenant) { Tenant.new(name: 'test') }
+  let(:current_tenant) { Tenant.new(name: 'test', full_name: 'tenant test') }
   let(:balancing_transaction) { create(:balancing_transaction, isin_info: purchase_share_transaction_with_closeout.isin_info , bill: create(:purchase_bill, net_amount: 12818.351))}
 
   before do
@@ -51,7 +51,7 @@ RSpec.describe ShortageSettlementService do
         broker_ledger = create(:ledger, name: 'Broker 59')
 
         closeout_settlement_service = ShortageSettlementService.new(transaction, 'counter_broker', current_tenant, balancing_transaction_ids: [balancing_transaction.id])
-        
+
         allow(closeout_settlement_service).to receive(:receipt_bank_account_ledger).and_return(create(:bank_account).ledger)
         allow(closeout_settlement_service).to receive(:counter_broker_ledger).and_return(broker_ledger)
         allow(closeout_settlement_service).to receive(:get_client_reversal_amount).and_return(12818.351)
@@ -92,6 +92,7 @@ RSpec.describe ShortageSettlementService do
 
         # since we have not made the entry to the client the amount will be credited to client
         # it should have debited exact amount making it zero
+
         expect(transaction.client_account.ledger.closing_balance).to eq(-12818.351)
         expect(transaction.client_account.ledger.particulars.last.hide_for_client).to be_truthy
 

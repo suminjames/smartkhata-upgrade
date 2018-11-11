@@ -52,6 +52,8 @@ GEM
     apartment-sidekiq (1.1.0)
       apartment (~> 1.0)
       sidekiq (>= 2.11)
+    archive-zip (0.7.0)
+      io-like (~> 0.3.0)
     arel (6.0.3)
     audited (4.3.0)
       activerecord (>= 4.0, < 5.1)
@@ -121,9 +123,13 @@ GEM
     capybara-screenshot (1.0.17)
       capybara (>= 1.0, < 3)
       launchy
+    childprocess (0.9.0)
+      ffi (~> 1.0, >= 1.0.11)
     choice (0.2.0)
+    chromedriver-helper (1.1.0)
+      archive-zip (~> 0.7.0)
+      nokogiri (~> 1.6)
     chronic (0.10.2)
-    cliver (0.3.2)
     code_analyzer (0.4.5)
       sexp_processor
     coderay (1.1.1)
@@ -220,6 +226,7 @@ GEM
       domain_name (~> 0.5)
     i18n (0.7.0)
     ice_nine (0.11.2)
+    io-like (0.3.0)
     jbuilder (2.5.0)
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
@@ -290,10 +297,6 @@ GEM
     pluck_to_hash (1.0.0)
       activerecord (>= 4.0.2)
       activesupport (>= 4.0.2)
-    poltergeist (1.13.0)
-      capybara (~> 2.1)
-      cliver (~> 0.3.1)
-      websocket-driver (>= 0.2.0)
     prawn (2.1.0)
       pdf-core (~> 0.6.1)
       ttfunk (~> 1.4.0)
@@ -417,6 +420,9 @@ GEM
       sprockets-rails (>= 2.0, < 4.0)
       tilt (>= 1.1, < 3)
     scout_apm (1.6.6)
+    selenium-webdriver (3.14.0)
+      childprocess (~> 0.5)
+      rubyzip (~> 1.2)
     sendgrid (1.2.4)
       json
     sexp_processor (4.7.0)
@@ -501,9 +507,6 @@ GEM
       crack (>= 0.3.2)
       hashdiff
     webrobots (0.1.2)
-    websocket-driver (0.6.5)
-      websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.2)
     whenever (0.9.7)
       chronic (>= 0.6.3)
     xpath (2.0.0)
@@ -536,6 +539,7 @@ DEPENDENCIES
   capistrano3-puma
   capybara
   capybara-screenshot
+  chromedriver-helper
   coffee-rails (~> 4.1.0)
   database_cleaner
   devise
@@ -563,7 +567,6 @@ DEPENDENCIES
   nepali_calendar
   pg
   pluck_to_hash
-  poltergeist
   prawn
   prawn-table (~> 0.2.2)
   puma
@@ -581,6 +584,7 @@ DEPENDENCIES
   sankhya
   sass-rails (~> 5.0)
   scout_apm
+  selenium-webdriver
   sendgrid
   shoulda-callback-matchers (~> 1.1.1)
   shoulda-matchers
