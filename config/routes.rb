@@ -133,7 +133,8 @@ Rails.application.routes.draw do
   match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
   match "/ledgers/daybook" => "ledgers#daybook", via: [:get]
   match "/ledgers/combobox_ajax_filter" => "ledgers#combobox_ajax_filter", via: [:get]
-
+  match "/ledgers/merge_ledger" => "ledgers#merge_ledger", via: [:get]
+  
   resources :ledgers do
     collection do
       post 'transfer_group_member_balance'

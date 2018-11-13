@@ -2,7 +2,7 @@ class LedgersController < ApplicationController
   before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
-  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all, :restricted, :toggle_restriction]
+  before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all, :restricted, :toggle_restriction, :merge_ledger]
   before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
 
   # GET /ledgers
@@ -140,6 +140,27 @@ class LedgersController < ApplicationController
     end
   end
 
+  # input for user to merger ledger
+  def merge_ledger
+    @show_restriction = can_view_restricted_ledgers?
+    #default landing action for '/ledgers'
+    @filterrific = initialize_filterrific(
+        Ledger.allowed(@show_restriction),
+        params[:filterrific],
+        select_options: {
+          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
+        },
+        persistence_id: false
+    ) or return
+    merge_to =  @filterrific.to_ledger_id
+    merge_from = @filterrific.from_ledger_id
+    if (merge_to&&merge_from).present?
+      merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
+      merge_bool ? flash[:sucess] = "Sucessfully Ledger Merge" :
+                   flash[:alert] = "Ledger Merge Unsucessfull"
+      redirect_to  ledgers_merge_ledger_path
+    end
+  end
 
   #
   # Entertains Ajax request made by combobox used in various views to populate ledgers.

@@ -100,6 +100,8 @@ class Ledger < ActiveRecord::Base
           :sorted_by,
           :by_ledger_id,
           :by_ledger_type,
+          :from_ledger_id,
+          :to_ledger_id,
       ]
   )
   # scopes for filterrific

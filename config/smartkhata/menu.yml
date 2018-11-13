@@ -63,6 +63,9 @@ menus:
     - name: Restricted Ledgers
       path: "<%= restricted_ledgers_path %>"
       code: AS_LED_RES
+    - name: Ledger Merge List
+      path: "<%= ledgers_merge_ledger_path %>"
+      code: AS_LED_MRL
   - name: Billing
     code: AS_BIL
     menu_items:
