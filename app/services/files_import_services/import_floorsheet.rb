@@ -109,7 +109,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       company_symbol, client_name, client_nepse_code, bank_deposit = get_data_from_row(row_data)
       # check for the bank deposit value which is available only for buying
       # store the count of transaction for unique client,company, and type of transaction
-      transaction_type = bank_deposit.nil? ? :selling : :buying
+      transaction_type = bank_deposit.blank? ? :selling : :buying
       if !is_partial
         hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
 
@@ -256,7 +256,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # hash_dp_count is used for the dp charges
     # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
-    if bank_deposit.nil?
+    if bank_deposit.blank?
       dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
       type_of_transaction = @@transaction_type_selling
     else
