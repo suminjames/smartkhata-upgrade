@@ -9,6 +9,7 @@ module Accounts
       end
 
       def call
+        return_value =  false
         ActiveRecord::Base.transaction do
 
           fix_opening_balances
@@ -18,7 +19,6 @@ module Accounts
           ledger_to_merge_to.client_code = ledger_to_merge_to.client_code.to_s.squish
           ledger_to_merge_to.name = ledger_to_merge_to.name.to_s.squish
           ledger_to_merge_to.save!
-
           mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
           mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
 
@@ -28,7 +28,9 @@ module Accounts
             mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
           end
+          return_value = true
         end
+        return return_value
       end
 
       def fix_ledger_dailies_and_closing_balances
