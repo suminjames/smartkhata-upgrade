@@ -283,19 +283,19 @@ RSpec.describe Voucher, type: :model do
           expect(subject.date).to eq(Time.now.to_date)
         end
       end
-      
+
       context "when date bs is not present" do
         it "adds ad date to date bs" do
            subject.date = "2017-06-27"
            subject.date_bs = nil
            subject.send(:process_voucher)
-          expect(subject.date_bs).to eq("2074-3-13")
+          expect(subject.date_bs).to eq("2074-03-13")
         end
       end
 
       context "when skip number assign is not true" do
         context "and voucher number is present" do
-          subject{create(:voucher, voucher_number: 5)} 
+          subject{create(:voucher, voucher_number: 5)}
            it "returns voucher number" do
             subject.send(:process_voucher)
             expect(subject.voucher_number).to eq(5)
@@ -304,7 +304,7 @@ RSpec.describe Voucher, type: :model do
 
         context "and voucher number is not present" do
           context "and last voucher is present" do
-            subject{create(:voucher)} 
+            subject{create(:voucher)}
             let!(:voucher1){create(:voucher, fy_code: 7374, voucher_type: 0, voucher_number: 2)}
             it "returns voucher number of last voucher" do
               subject.send(:process_voucher)
@@ -313,10 +313,10 @@ RSpec.describe Voucher, type: :model do
           end
 
           context "and last voucher is not present" do
-            subject{create(:voucher)} 
+            subject{create(:voucher)}
             it "returns voucher number as 1" do
               subject.send(:process_voucher)
-              expect(subject.voucher_number).to eq(1) 
+              expect(subject.voucher_number).to eq(1)
             end
           end
         end
@@ -373,7 +373,7 @@ RSpec.describe Voucher, type: :model do
 
             # debugger
             subject.reload.send(:assign_cheque)
-            
+
             expect(particular_dr.cheque_entries_on_payment.size).to eq(1)
 
             expect(cheque_entry.reload.beneficiary_name).to eq('Danphe')

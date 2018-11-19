@@ -182,7 +182,7 @@ RSpec.describe Ledger, type: :model do
       ledger.particulars << particular2
       particulars = ledger.particulars_with_running_balance
       expect(particulars.count).to eq(2)
-      expect(particulars.first.running_total).to eq(particular1.amount)
+      expect(particulars.first.running_total).to eq(particular2.amount)
       expect(particulars.last.running_total).to eq(particular1.amount + particular2.amount)
     end
   end
@@ -418,4 +418,3 @@ RSpec.describe Ledger, type: :model do
     end
   end
 end
-

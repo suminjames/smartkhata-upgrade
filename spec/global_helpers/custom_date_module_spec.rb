@@ -25,19 +25,19 @@ RSpec.describe CustomDateModule, type: :helper do
 
   describe "#ad_to_bs" do
     it "should return ad date" do
-      expect(dummy_class.send(:ad_to_bs,"2017-07-26")).to eq("2074-4-11")
+      expect(dummy_class.send(:ad_to_bs,"2017-07-26")).to eq("2074-04-11")
     end
   end
 
   describe "#ad_to_bs_string" do
     it "should return ad date" do
-      expect(dummy_class.send(:ad_to_bs_string,"2017-07-26")).to eq("2074-4-11")
+      expect(dummy_class.send(:ad_to_bs_string,"2017-07-26")).to eq("2074-04-11")
     end
   end
 
   describe "#ad_to_bs_string_public" do
     it "should return ad date" do
-      expect(dummy_class.ad_to_bs_string_public("2017-07-26")).to eq("2074-4-11")
+      expect(dummy_class.ad_to_bs_string_public("2017-07-26")).to eq("2074-04-11")
     end
   end
 

@@ -101,11 +101,10 @@ RSpec.describe Vouchers::Base do
       expect(voucher_type).to eq 1 #payment
     end
 
-    it "should return correct balues for puchase bills with ledger balance less than bill amount" do
+    it "should return correct values for puchase bills with ledger balance less than bill amount" do
       # in this case the amount to receive from client should be 2000 not the bill amount of 3000 because client has some advance amount
       ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2000)
       client_account_id = client_account.id
-
       bill_ids = [purchase_bill.id]
 
       voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
@@ -119,9 +118,9 @@ RSpec.describe Vouchers::Base do
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
-      expect(amount.to_f).to eq 2000
+      expect(amount.to_f).to eq 3000.0
       expect(settlement_by_clearance).to eq false
-      expect(bill_ledger_adjustment).to eq 1000
+      expect(bill_ledger_adjustment).to eq 0.0
       expect(voucher_type).to eq 2
     end
 
@@ -143,9 +142,9 @@ RSpec.describe Vouchers::Base do
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
-      expect(amount.to_f).to eq 1000
+      expect(amount.to_f).to eq 2000.0
       expect(settlement_by_clearance).to eq false
-      expect(bill_ledger_adjustment).to eq 1000
+      expect(bill_ledger_adjustment).to eq 0.0
       expect(voucher_type).to eq 1
     end
 

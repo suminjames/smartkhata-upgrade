@@ -89,13 +89,12 @@ class ApplicationController < ActionController::Base
 
   # Uses the helper methods from devise to made them available in the models
   def set_user_session
-    current_user.current_url_link = request.path
+    current_user.current_url_link = request.fullpath
     UserSession.user = current_user
     UserSession.tenant = current_tenant
 
     # session storage for controllers
-    session[:user_selected_fy_code] ||= get_fy_code
-
+    session[:user_selected_fy_code] ||= (UserSession.selected_fy_code || get_fy_code)
     branch_id = get_preferrable_branch_id
     branch_access_error unless branch_id.present?
 

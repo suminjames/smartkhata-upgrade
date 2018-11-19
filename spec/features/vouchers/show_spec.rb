@@ -3,7 +3,7 @@ require 'rails_helper'
 describe "Voucher show" do
   let(:user) {create(:user)}
   let(:tenant) {Tenant}
-  
+
   before(:each) do
     user
     UserSession.set_console('public')
@@ -33,11 +33,7 @@ describe "Voucher show" do
     it_behaves_like "shows voucher narration"
 
     it "should contain company information" do
-      expect(page).to have_content('Danphe')
-      expect(page).to have_content('Kupondole')
-      expect(page).to have_content('Phone: 99999')
-      expect(page).to have_content('Fax: 0989')
-      expect(page).to have_content('PAN: 9909')
+      company_info
     end
     it "should show voucher" do
       expect(page).to have_content('Voucher Number: JVR')
@@ -49,9 +45,7 @@ describe "Voucher show" do
     end
 
     it "should show details of user activity" do
-      expect(page).to have_content('Prepared By')
-      expect(page).to have_content('Approved By')
-      expect(page).to have_content('Received By')
+      user_activity
     end
   end
   # description's length should be less than 200

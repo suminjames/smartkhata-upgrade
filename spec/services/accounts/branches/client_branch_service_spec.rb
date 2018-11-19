@@ -27,12 +27,12 @@ describe Accounts::Branches::ClientBranchService do
           UserSession.selected_fy_code = 7475
           @other_particular.update_attributes(ledger_id: @cash_ledger.id)
           subject.move_transactions(@client_account, 2, nil, false)
-          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(2)
-          expect(@other_particular.reload.branch_id).to eq(2)
+          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
+          expect(@other_particular.reload.branch_id).to eq(1)
         end
       end
 
@@ -40,10 +40,10 @@ describe Accounts::Branches::ClientBranchService do
         it 'should move only the mentioned client particulars' do
           UserSession.selected_fy_code = 7475
           subject.move_transactions(@client_account, 2, nil, false)
-          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
+          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.branch_id).to eq(1)
           expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
           expect(@other_particular.branch_id).to eq(1)
         end

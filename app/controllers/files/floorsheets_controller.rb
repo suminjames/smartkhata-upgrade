@@ -38,7 +38,7 @@ class Files::FloorsheetsController < Files::FilesController
       file_error("Please Upload a valid file and make sure the file name contains floorsheet.") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, params[:floorsheet_date], @is_partial_upload)
     floorsheet_upload.process
     @processed_data = floorsheet_upload.processed_data
     @date = floorsheet_upload.date

@@ -84,7 +84,7 @@ RSpec.describe ClientAccount, type: :model do
       subject.save!
     end
   end
-  it { is_expected.to callback(:change_ledger_name).after(:save) }
+  it { is_expected.to callback(:change_ledger_name).after(:update) }
 
   describe ".change_ledger_name" do
     let(:client_account){ create(:client_account) }
@@ -249,10 +249,9 @@ RSpec.describe ClientAccount, type: :model do
     subject{create(:client_account)}
       let(:group_member) {create(:client_account, group_leader_id: subject.id)}
     it "should return  all related bills"  do
-
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
-      expect(subject.get_all_related_bills).to eq([bill1, bill2])
+      expect(subject.get_all_related_bills).to eq([bill2, bill1])
     end
   end
 
@@ -262,7 +261,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return  all related bills ids"  do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
-      expect(subject.get_all_related_bill_ids).to eq([bill1.id, bill2.id])
+      expect(subject.get_all_related_bill_ids).to eq([bill2.id, bill1.id])
     end
   end
 

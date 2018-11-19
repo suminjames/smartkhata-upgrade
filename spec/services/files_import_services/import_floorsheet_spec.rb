@@ -24,6 +24,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
   let(:particular_purchase_commission_ledger) {create(:particular, transaction_type: 1, ledger_id: purchase_commission_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 614.4, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
   let(:particular_dp_ledger) {create(:particular, transaction_type: 1, ledger_id: dp_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 25.0, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
   let(:particular_nepse_ledger) {create(:particular, transaction_type: 1, ledger_id: nepse_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 51453.44, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
+  subject {FilesImportServices::ImportFloorsheet.new(nil)}
 
   describe '.process_record_for_full_upload' do
     context 'when single transaction' do
@@ -353,7 +354,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
     end
   end
 
-  describe '.process_full' do
+  describe '.process_full_partial' do
     let(:client_account3){create(:client_account, name: 'USER THREE', nepse_code: 'SK3')}
     let(:client_account4){create(:client_account, name: 'USER FOUR', nepse_code: 'SK4')}
     let(:client_account5){create(:client_account, name: 'USER FIVE', nepse_code: 'SK5')}
@@ -377,7 +378,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       # settlement_date = '2016-12-01'
       allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-      expect(import_floorsheet.process_full).to eq(FileUpload.last)
+      expect(import_floorsheet.process_full_partial(false)).to eq(FileUpload.last)
       expect(FileUpload.count).to eq(1)
     end
 
@@ -393,7 +394,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-        expect(import_floorsheet.process_full).to eq(nil)
+        expect(import_floorsheet.process_full_partial(false)).to eq(nil)
         expect(import_floorsheet.error_message).to eq("FLOORSHEET IMPORT CANCELLED!<br>New client accounts found in the file!<br>Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch.<br>")
         expect(import_floorsheet.error_type).to eq('new_client_accounts_present')
         expect(FileUpload.count).to eq(0)
@@ -420,7 +421,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-        expect(import_floorsheet.process_full).to eq(nil)
+        expect(import_floorsheet.process_full_partial(false)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('The file is already uploaded')
         expect(FileUpload.count).to eq(1)
       end
@@ -446,7 +447,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-        expect(import_floorsheet.process_full).to eq(nil)
+        expect(import_floorsheet.process_full_partial(false)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please change the fiscal year.')
         expect(FileUpload.count).to eq(0)
       end
@@ -465,14 +466,14 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xls)
         # allow(import_floorsheet).to receive(:is_invalid_file_data).with(xlsx).and_return(false)
         # settlement_date = '2016-12-01'
-        expect(import_floorsheet.process_full).to eq(nil)
+        expect(import_floorsheet.process_full_partial(false)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please verify and Upload a valid file')
         expect(FileUpload.count).to eq(0)
       end
     end
   end
 
-  describe '.process_partial' do
+  describe '.process_full_partial(true)' do
     let(:client_account3){create(:client_account, name: 'USER THREE', nepse_code: 'SK3')}
     let(:client_account4){create(:client_account, name: 'USER FOUR', nepse_code: 'SK4')}
     let(:client_account5){create(:client_account, name: 'USER FIVE', nepse_code: 'SK5')}
@@ -497,7 +498,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       xlsx = Roo::Spreadsheet.open(file, extension: :xls)
       allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-      expect(import_floorsheet.process_partial).to eq(FileUpload.last)
+      expect(import_floorsheet.process_full_partial(true)).to eq(FileUpload.last)
       expect(FileUpload.count).to eq(1)
     end
 
@@ -521,7 +522,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xls)
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-        expect(import_floorsheet.process_partial).to eq(nil)
+        expect(import_floorsheet.process_full_partial(true)).to eq(nil)
         expect(import_floorsheet.error_message).to eq("FLOORSHEET IMPORT CANCELLED!<br>New client accounts found in the file!<br>Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch.<br>")
         expect(import_floorsheet.error_type).to eq('new_client_accounts_present')
         expect(FileUpload.count).to eq(1)
@@ -550,7 +551,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xls)
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
-        expect(import_floorsheet.process_partial).to eq(nil)
+        expect(import_floorsheet.process_full_partial(true)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please change the fiscal year.')
         expect(FileUpload.count).to eq(1)
       end
@@ -572,7 +573,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.process
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, true)
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xls)
-        expect(import_floorsheet.process_partial).to eq(nil)
+        expect(import_floorsheet.process_full_partial(true)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please verify and Upload a valid file')
       end
     end
@@ -591,6 +592,88 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
     it 'should return bill number' do
       import_floorsheet = FilesImportServices::ImportFloorsheet.new(nil)
       expect(import_floorsheet.get_bill_number(7374)).to eq(1)
+    end
+  end
+  describe '.bill' do
+    context "when bill_number, fy_code, date, client_account_id exits " do
+      it "returns existing bill" do
+        bill = create(:bill)
+        expect(subject.find_or_create_bill(bill.bill_number,
+                                           bill.fy_code,
+                                           bill.date,
+                                           bill.client_account_id)).to eq(bill)
+      end
+      it "returns new bill" do
+        expect{subject.find_or_create_bill("001",'7374','10/02/2016',1)}
+      end
+    end
+  end
+  describe '.older_detected_true' do
+    it "returns company_symbol, client_name, client_nepse_code, bank_deposit" do
+      row_data = [('a'..'a'),('A'..'Z')].map(&:to_a).flatten
+      subject.instance_eval('@raw_data=[]')
+      subject.instance_eval('@total_amount_file=0')
+      expect(subject.older_detected_true(row_data)).to eq(["A","D","E","J"])
+    end
+  end
+  describe '.older_detected_false' do
+    it "returns company_symbol, client_name, client_nepse_code, bank_deposit" do
+      row_data = [('a'..'a'),('A'..'Z')].map(&:to_a).flatten
+      subject.instance_eval('@raw_data=[]')
+      expect(subject.older_detected_false(row_data)).to eq(["G","L","O","Z"])
+    end
+  end
+
+  describe '. add_client_account' do
+    context 'when client account includes client account hash' do
+      it 'adds client account hash to client account' do
+        new_client_accounts = []
+        expect(subject.add_client_account("ram",123,new_client_accounts)
+              ).to eq([{client_name: "ram",client_nepse_code: 123}])
+      end
+    end
+    context 'when client account does not include client account hash' do
+      it "does not add client account hash to client account" do
+        new_client_accounts = [{:client_name=>"ram", :client_nepse_code=>123}]
+        expect(subject.add_client_account("ram",123,new_client_accounts)).to eq(nil)
+      end
+    end
+  end
+  describe '.hash_dp_count_increment' do
+    it "increment count if hash_dp" do
+      share_transactions = create(:share_transaction, date: '2018-10-02',
+                                                      client_account_id: client_account.id,
+                                                      isin_info: isin_info,
+                                                      transaction_type: 1)
+      hash_dp_count = Hash.new
+      expect {subject.hash_dp_count_increment('selling',client_account,isin_info.isin,"1234",hash_dp_count)
+      }.to change{hash_dp_count.count}.by(2)
+    end
+  end
+  describe '.relevant_share_transactions_count' do
+    it "counts number of share transaction" do
+      share_transactions = create(:share_transaction, date: '2018-10-02',
+                                                      client_account_id: client_account.id,
+                                                      isin_info: isin_info,
+                                                      transaction_type: 1)
+      expect(subject.relevant_share_transactions_count('2018-10-02',
+                                                        client_account.id,isin_info.id,1)).to eq(1)
+    end
+  end
+  describe '.find_or_create_ledger_by_name' do
+    subject {FilesImportServices::ImportFloorsheet.new(nil)}
+    context "when ledger exits " do
+
+      it "returns existing ledger" do
+        ledger = create(:ledger)
+        expect(subject.find_or_create_ledger_by_name(ledger.name)).to eq(ledger)
+
+      end
+    end
+    context "when ledger with name does not exits" do
+      it "creates new ledger" do
+        expect{subject.find_or_create_ledger_by_name("john")}.to change{Ledger.count}.by(1)
+      end
     end
   end
 end

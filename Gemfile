@@ -95,11 +95,12 @@ group :test do
   gem 'capybara'
   gem 'capybara-screenshot'
   gem "database_cleaner"
-  gem "selenium-webdriver"
-  gem "chromedriver-helper"
+#  gem "poltergeist"
   gem "shoulda-matchers"
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'mocha'
   gem "webmock"
   gem "vcr"
+  gem 'selenium-webdriver'
+  gem 'chromedriver-helper'
 end
