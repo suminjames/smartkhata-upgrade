@@ -26,7 +26,7 @@
             {include_blank: true},                      |
             {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox_1', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
       .row.top-buffer-sm
-        .col-xs-2
+        .col-xs-6
           = f.submit 'Merge Ledger', :class => 'btn btn-xs btn-primary btn-flat'
           = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
           = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
