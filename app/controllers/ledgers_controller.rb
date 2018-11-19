@@ -156,7 +156,7 @@ class LedgersController < ApplicationController
     merge_from = @filterrific.from_ledger_id
     if (merge_to&&merge_from).present?
       merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
-      merge_bool ? flash[:notice] = "Sucessfully Ledger Merge" :
+      merge_bool ? flash[:sucess] = "Sucessfully Ledger Merge" :
                    flash[:alert] = "Ledger Merge Unsucessfull"
       redirect_to  ledgers_merge_ledger_path
     end
