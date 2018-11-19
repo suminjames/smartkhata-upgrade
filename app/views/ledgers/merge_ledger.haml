@@ -7,7 +7,7 @@
       .row
         .col-xs-3
           %label
-            From Ledger
+            Ledger to keep
           = f.collection_select(                        |
             :to_ledger_id,                              |
             @filterrific.select_options[:by_ledger_id], |
@@ -17,7 +17,7 @@
             {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
         .col-xs-3
           %label
-            To Ledger
+            Ledger to remove
           = f.collection_select(                        |
             :from_ledger_id,                            |
             @filterrific.select_options[:by_ledger_id], |
