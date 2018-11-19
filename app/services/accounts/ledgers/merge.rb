@@ -9,6 +9,7 @@ module Accounts
       end
 
       def call
+        res = false
         ActiveRecord::Base.transaction do
 
           fix_opening_balances
@@ -28,7 +29,9 @@ module Accounts
             mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
           end
+          res = true
         end
+        return res
       end
 
       def fix_ledger_dailies_and_closing_balances
