@@ -106,6 +106,11 @@ class ImportPayout < ImportFile
             break
           end
 
+          unless transaction.settlement_id.nil?
+            import_error("File contains transaction number #{hash['CONTRACTNO']} which is already processed")
+            raise ActiveRecord::Rollback
+            break
+          end
 
           # nepse charges tds which is payable by the broker
           # so we need to deduct  the tds while charging the client
