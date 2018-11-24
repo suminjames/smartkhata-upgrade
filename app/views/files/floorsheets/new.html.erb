@@ -3,14 +3,6 @@
 
 <div>
   <%= form_tag import_files_floorsheets_path, multipart: true do %>
-      <label for="floorsheet_date">FloorSheet Date (AD)</label>
-      <div class="row">
-        <div class="col-sm-2">
-          <div class="form-group">
-            <%= text_field_tag :floorsheet_date, nil, placeholder: "YYYY-MM-DD", :autofocus => true, class: 'form-control', value: Time.now.to_date.strftime  %>
-          </div>
-        </div>
-      </div>
       <div class="form-group">
         <%= file_field_tag :file %>
       </div>
