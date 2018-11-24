@@ -170,17 +170,19 @@ class VouchersController < ApplicationController
       if !@voucher.rejected? && !@voucher.complete?
         if params[:approve]
           Voucher.transaction do
+
+            particular_ids = []
             @voucher.particulars.each do |particular|
               Ledgers::ParticularEntry.new.insert_particular(particular)
+              particular_ids  << particular.id
             end
 
-            @voucher.cheque_entries.uniq.each do |cheque_entry|
+            cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               cheque_entry.approved!
             end
 
             @voucher.reviewer_id = UserSession.user_id
-
-
             @voucher.complete!
             @voucher.save!
             success = true
@@ -194,7 +196,10 @@ class VouchersController < ApplicationController
           ActiveRecord::Base.transaction do
             # If cheque_entry not printed, it can/should be resuable.
             # Therefore, delete the cheque_entry and create a new cheque_entry with same cheque_number such that it is unassigned.
-            @voucher.cheque_entries.uniq.each do |cheque_entry|
+            particular_ids = @voucher.particulars.pluck(:id)
+
+            cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               if cheque_entry.printed?
                 cheque_entry.void!
               else
