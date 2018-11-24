@@ -178,7 +178,7 @@ class VouchersController < ApplicationController
             end
 
             cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
-            ChequeEntry.where(id: cheque_ids).each do |cheque_entry|
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               cheque_entry.approved!
             end
 
