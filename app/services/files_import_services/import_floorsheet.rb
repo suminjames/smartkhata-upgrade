@@ -45,7 +45,6 @@
       import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
 
       # fiscal year and date should match
-      # file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)
       unless date_valid_for_fy_code(@date)
         import_error("Please change the fiscal year.") and return
       end
@@ -86,7 +85,7 @@
           end
         end
 
-        @raw_data << relevant_data
+        @raw_data << data_hash
 
         company_symbol, client_name, client_nepse_code, bank_deposit = selected_columns_from_data_hash(data_hash, %i[company_symbol client_name client_nepse_code bank_deposit])
 
@@ -131,8 +130,8 @@
 
       # critical functionality happens here
       ActiveRecord::Base.transaction do
-          @raw_data.each do |arr|
-          @processed_data << process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+        @raw_data.each do |data_hash|
+          @processed_data << process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
         end
         FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
       end
@@ -157,8 +156,11 @@
 
     # hash from array of relevant data
     def relevant_data_hash(data)
-      keys = %i[contract_no company_symbol buyer seller client_name client_nepse_code quantity rate amount commission bank_deposit]
-      keys.zip(data).to_h
+      data_row_keys.zip(data).to_h
+    end
+
+    def data_row_keys
+      %i[contract_no company_symbol buyer seller client_name client_nepse_code quantity rate amount commission bank_deposit]
     end
 
     # returns array
@@ -190,35 +192,27 @@
       hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
     end
 
-    # TODO: Change arr to hash (maybe)
-    # arr =[
-    # 	Contract No.,
-    # 	Symbol,
-    # 	Buyer Broking Firm Code,
-    # 	Seller Broking Firm Code,
-    # 	Client Name,
-    # 	Client Code,
-    # 	Quantity,
-    # 	Rate,
-    # 	Amount,
-    # 	Stock Comm.,
-    # 	Bank Deposit,
-    # ]
+
+
+
     # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-    def process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-      # debugger
-      contract_no = arr[0].to_i
-      company_symbol = arr[1]
-      buyer_broking_firm_code = arr[2]
-      seller_broking_firm_code = arr[3]
-      client_name = arr[4]
-      client_nepse_code = arr[5].upcase
-      share_quantity = arr[6].to_i
-      share_rate = arr[7]
-      share_net_amount = arr[8]
-      #TODO look into the usage of arr[9] (Stock Commission)
-      # commission = arr[9]
-      bank_deposit = arr[10]
+    def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+
+      arr = selected_columns_from_data_hash(data_hash, data_row_keys)
+
+      contract_no,
+        company_symbol,
+        buyer_broking_firm_code,
+        seller_broking_firm_code,
+        client_name,
+        client_nepse_code,
+        share_quantity,
+        share_rate,
+        share_net_amount,
+        _commission,
+        bank_deposit = arr
+
+
       # arr[11] = NIL
       is_purchase = false
 
