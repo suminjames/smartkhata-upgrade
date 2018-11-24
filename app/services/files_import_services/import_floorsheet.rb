@@ -41,9 +41,8 @@
       date_data = xlsx.sheet(0).row(5)[4][/\((.+)\)/, 1].strip
 
       # convert a string to date
-      @date = Date.parse("#{date_data[0..3]}-#{date_data[4..5]}-#{date_data[6..7]}")
-
-      import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if (@date.nil? || (!parsable_date? @date))
+      @date = Date.parse(date_data) if parsable_date? date_data
+      import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
 
       # fiscal year and date should match
       # file_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date)

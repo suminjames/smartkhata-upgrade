@@ -35,7 +35,7 @@ describe "Import Floorsheet" do
 
     def upload_file
       visit new_files_floorsheet_path
-      attach_file "file", Rails.root + "test/fixtures/files/floorsheets/BrokerwiseFloorSheetReport_small_2073-08-10.xlsx"
+      attach_file "file", Rails.root + "test/fixtures/files/floorsheets/v2/brokerwise_floor_sheet_small_2073-08-10.xls"
       click_on "Import"
     end
 
