@@ -1,6 +1,6 @@
 #TODO (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
 
-class FilesImportServices::ImportFloorsheet  < ImportFile
+class FilesImportServices::ImportFloorsheetNew  < ImportFile
   attr_reader :date, :error_type, :new_client_accounts
   # process the file
   include CommissionModule
