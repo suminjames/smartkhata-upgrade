@@ -35,7 +35,6 @@ class Files::FloorsheetsController < Files::FilesController
 
     floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
     floorsheet_upload.process
-    @processed_data = floorsheet_upload.processed_data
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message
       if floorsheet_upload.error_type == 'new_client_accounts_present'

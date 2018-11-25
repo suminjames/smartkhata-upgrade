@@ -26,22 +26,20 @@
 
     def process_full_partial(is_partial)
       # read the xls file
-      xlsx = Roo::Spreadsheet.open(@file, extension: :xls)
+      xlsx = Roo::Spreadsheet.open(@file, extension: :xml)
 
       # hash to store unique combination of isin, transaction type (buying/selling), client
       hash_dp_count = Hash.new 0
       hash_dp = Hash.new
 
-      # array to store processed data
-      @processed_data = []
       @raw_data = []
 
       import_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
       # grab date from the first record
-      date_data = xlsx.sheet(0).row(5)[4][/\((.+)\)/, 1].strip
-
+      date_data = date_from_excel(xlsx)
       # convert a string to date
-      @date = Date.parse(date_data) if parsable_date? date_data
+      @date = Date.parse(date_data) if date_data.present? && parsable_date?(date_data)
+
       import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
 
       # fiscal year and date should match
@@ -69,11 +67,9 @@
 
       (7..(data_sheet.last_row)).each do |i|
         row_data = data_sheet.row(i)
-        relevant_data = relevant_data_from_row(row_data)
-        data_hash = relevant_data_hash(relevant_data)
+        data_hash = relevant_data_hash(row_data)
 
         contract_no = data_hash[:contract_no]
-
         break if contract_no.blank?
 
         import_error("File contains invalid data") and return if is_relevant_data_invalid?(data_hash)
@@ -88,7 +84,6 @@
         @raw_data << data_hash
 
         company_symbol, client_name, client_nepse_code, bank_deposit = selected_columns_from_data_hash(data_hash, %i[company_symbol client_name client_nepse_code bank_deposit])
-
         client_nepse_code = client_nepse_code.upcase
 
         # check for the bank deposit value which is available only for buying
@@ -131,28 +126,26 @@
       # critical functionality happens here
       ActiveRecord::Base.transaction do
         @raw_data.each do |data_hash|
-          @processed_data << process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+          process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
         end
         FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
       end
     end
 
-    def relevant_data_from_row(row_data)
-      # rawdata =[
-      # 	Contract No.,
-      # 	Symbol,
-      # 	Buyer Broking Firm Code,
-      # 	Seller Broking Firm Code,
-      # 	Client Name,
-      # 	Client Code,
-      # 	Quantity,
-      # 	Rate,
-      # 	Amount,
-      # 	Stock Comm.,
-      # 	Bank Deposit,
-      # ]
-      [row_data[1], row_data[3], row_data[7], row_data[8], row_data[10], row_data[11], row_data[12], row_data[14], row_data[17], row_data[20], row_data[23]]
-    end
+    # rawdata =[
+    #     Serial
+    #   	Contract No.,
+    #   	Symbol,
+    #   	Buyer Broking Firm Code,
+    #   	Seller Broking Firm Code,
+    #   	Client Name,
+    #   	Client Code,
+    #   	Quantity,
+    #   	Rate,
+    #   	Amount,
+    #   	Stock Comm.,
+    #   	Bank Deposit,
+    #   ]
 
     # hash from array of relevant data
     def relevant_data_hash(data)
@@ -160,7 +153,7 @@
     end
 
     def data_row_keys
-      %i[contract_no company_symbol buyer seller client_name client_nepse_code quantity rate amount commission bank_deposit]
+      %i[serial contract_no company_symbol buyer seller client_name client_nepse_code quantity rate amount commission bank_deposit]
     end
 
     # returns array
@@ -169,7 +162,7 @@
     end
 
     def is_relevant_data_invalid? data_hash
-      required_data_array = data_hash.except(:bank_deposit).values
+      required_data_array = data_hash.except(:serial, :bank_deposit).values
       required_data_array.select{|x| x.blank? }.present? ||
         data_hash[:amount] != data_hash[:rate] * data_hash[:quantity]
     end
@@ -197,10 +190,8 @@
 
     # hash_dp => custom hash to store unique isin , buying/selling, customer per day
     def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-
-      arr = selected_columns_from_data_hash(data_hash, data_row_keys)
-
-      contract_no,
+      _serial,
+        contract_no,
         company_symbol,
         buyer_broking_firm_code,
         seller_broking_firm_code,
@@ -210,12 +201,9 @@
         share_rate,
         share_net_amount,
         _commission,
-        bank_deposit = arr
+        bank_deposit = selected_columns_from_data_hash(data_hash, data_row_keys)
 
-
-      # arr[11] = NIL
       is_purchase = false
-
       dp = 0
       bill = nil
       type_of_transaction = @@transaction_type_buying
@@ -363,7 +351,8 @@
       end
 
 
-      arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
+      # arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
+      true
     end
 
 
@@ -631,6 +620,11 @@
       file_info = xlsx.sheet(0).row(4)
       return true unless file_info.include?("Broker-Wise Floor Sheet")
       xlsx.sheet(0).row(11)[1].to_s.tr(' ', '') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
+    end
+
+
+    def date_from_excel(xlsx)
+      xlsx.sheet(0).row(5)[0][/\((.+)\)/, 1].strip rescue nil
     end
 
     def find_or_create_ledger_by_name(name)
