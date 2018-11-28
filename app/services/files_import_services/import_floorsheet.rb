@@ -164,7 +164,7 @@
     def is_relevant_data_invalid? data_hash
       required_data_array = data_hash.except(:serial, :bank_deposit).values
       required_data_array.select{|x| x.blank? }.present? ||
-        data_hash[:amount] != data_hash[:rate] * data_hash[:quantity]
+        !equal_amounts?(data_hash[:amount], data_hash[:rate] * data_hash[:quantity])
     end
 
 
