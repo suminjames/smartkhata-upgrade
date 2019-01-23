@@ -7,20 +7,22 @@ namespace :floorsheet do
 
     ActiveRecord::Base.transaction do
     #   first find bills
-      bill_ids = TransactionMessage.where(transaction_date: date_bs).pluck(:bill_id)
+      bill_ids = TransactionMessage.where(transaction_date: date_bs).pluck(:bill_id).compact
       voucher_ids = BillVoucherAssociation.where(bill_id: bill_ids).pluck(:voucher_id)
 
-      ShareTransaction.unscoped.where(bill_id: bill_ids).each do |s|
+      ShareTransaction.unscoped.where(bill_id: bill_ids).each do |st|
         share_inventory = ShareInventory.find_by(
-          client_account_id: s.client_account_id,
-          isin_info_id: s.isin_info_id
+          client_account_id: st.client_account_id,
+          isin_info_id: st.isin_info_id
         )
-        share_inventory.total_in -= s.quantity
-        share_inventory.floorsheet_blnc -= s.quantity
+        share_inventory.total_in -= st.quantity
+        share_inventory.floorsheet_blnc -= st.quantity
         share_inventory.save!
       end
 
       ShareTransaction.where(bill_id: bill_ids).delete_all
+      ShareTransaction.where(date: date_bs).selling.delete_all
+
 
       ledger_ids = Particular.unscoped.where(voucher_id: voucher_ids).pluck(:ledger_id).uniq
 
