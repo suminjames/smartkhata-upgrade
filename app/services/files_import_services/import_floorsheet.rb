@@ -84,6 +84,7 @@
         @raw_data << data_hash
 
         company_symbol, client_name, client_nepse_code, bank_deposit = selected_columns_from_data_hash(data_hash, %i[company_symbol client_name client_nepse_code bank_deposit])
+        client_nepse_code = client_nepse_code.upcase
 
         # check for the bank deposit value which is available only for buying
         # store the count of transaction for unique client,company, and type of transaction
@@ -148,9 +149,9 @@
 
     # hash from array of relevant data
     def relevant_data_hash(data)
-      hash = data_row_keys.zip(data).to_h
-      hash[:client_nepse_code] = hash[:client_nepse_code].upcase if hash[:client_nepse_code].present?
-      hash
+      data_row_keys.zip(data).to_h.tap do |hash|
+        hash[:client_nepse_code] = hash[:client_nepse_code].upcase if hash[:client_nepse_code].present?
+      end
     end
 
     def data_row_keys
