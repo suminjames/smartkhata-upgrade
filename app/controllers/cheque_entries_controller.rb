@@ -272,6 +272,7 @@ class ChequeEntriesController < ApplicationController
   # POST /cheque_entries
   # POST /cheque_entries.json
   def create
+    branch_id = get_branch_id_from_session
     @bank_accounts = BankAccount.by_branch_id.all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
@@ -299,7 +300,7 @@ class ChequeEntriesController < ApplicationController
     if !has_error
       ActiveRecord::Base.transaction do
         (@start_cheque_number..@end_cheque_number).each do |cheque_number|
-          cheque_entry = ChequeEntry.new(cheque_number: cheque_number, bank_account_id: @bank_account_id)
+          cheque_entry = ChequeEntry.unscoped.new(cheque_number: cheque_number, bank_account_id: @bank_account_id, branch_id: branch_id)
           if cheque_entry.valid?
             cheque_entry.save
           else
@@ -375,5 +376,9 @@ class ChequeEntriesController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def cheque_entry_params
     params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, :bounce_date, :bounce_narration, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
+  end
+
+  def get_branch_id_from_session
+    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
   end
 end
