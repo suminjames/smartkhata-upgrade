@@ -101,6 +101,7 @@ class ClientAccount < ActiveRecord::Base
   after_save :move_particulars
   after_create :create_ledger
   after_update :change_ledger_name, if: :name_changed?
+  after_update :change_ledger_code, if: :nepse_code_changed?
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
@@ -197,6 +198,11 @@ class ClientAccount < ActiveRecord::Base
   def change_ledger_name
     self.ledger.update(name: self.name)
   end
+
+  def change_ledger_code
+    self.ledger.update(client_code: self.nepse_code)
+  end
+
   def format_nepse_code
     self.nepse_code = self.nepse_code.try(:squish).try(:upcase)
   end

@@ -139,9 +139,9 @@ class GenerateBillsService
         unless @manual && @skip_voucher
           # create client ledger if not exist
           # TODO(subas) This should have been an exception
-          client_ledger = Ledger.find_or_create_by!(client_code: client_account.nepse_code) do |ledger|
+          client_ledger = Ledger.find_or_create_by!(client_account_id: client_account.id) do |ledger|
             ledger.name = client_account.name
-            ledger.client_account_id =client_account.id
+            ledger.client_code = client_account.nepse_code
           end
 
           # assign the client ledgers to group clients
