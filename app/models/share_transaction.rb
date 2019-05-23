@@ -73,6 +73,9 @@ class ShareTransaction < ActiveRecord::Base
 
   # before_update :calculate_cgt
   validates :base_price, numericality: true
+  validates :contract_no, uniqueness: { scope: [:transaction_type] }
+
+
   filterrific(
       default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [

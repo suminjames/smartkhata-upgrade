@@ -149,7 +149,9 @@
 
     # hash from array of relevant data
     def relevant_data_hash(data)
-      data_row_keys.zip(data).to_h
+      data_row_keys.zip(data).to_h.tap do |hash|
+        hash[:client_nepse_code] = hash[:client_nepse_code].upcase if hash[:client_nepse_code].present?
+      end
     end
 
     def data_row_keys
