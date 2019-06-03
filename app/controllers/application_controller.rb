@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
   # before_action :get_allowed_branch, if: :user_signed_in?
+  before_action :default_url_options
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
@@ -103,6 +104,15 @@ class ApplicationController < ActionController::Base
     # set the session variable for the session
     UserSession.selected_fy_code = session[:user_selected_fy_code]
     UserSession.selected_branch_id = session[:user_selected_branch_id]
+    # debugger
+  end
+
+  def get_current_fy_code
+    session[:user_selected_fy_code]
+  end
+
+  def get_current_branch_id
+    session[:user_selected_branch_id]
   end
 
   def verify_absence_of_temp_password
@@ -115,8 +125,12 @@ class ApplicationController < ActionController::Base
 
   #   set the default fycode and branch params
   def set_branch_fy_params
-    params[:by_fy_code] ||= get_fy_code
-    params[:by_branch] ||= current_user.branch_id
+    # params[:by_fy_code] ||= get_fy_code
+    # params[:by_branch] ||= current_user.branch_id
+    # params[:by_fy_code] ||= session[:user_selected_fy_code]
+    # params[:by_branch] ||= session[:user_selected_branch_id]
+    params[:by_fy_code] ||= UserSession.selected_fy_code
+    params[:by_branch] ||= UserSession.selected_branch_id
   end
 
   # added username as permitted parameters
@@ -138,5 +152,10 @@ class ApplicationController < ActionController::Base
       end
     end
 
+  end
+
+  def default_url_options
+    {code: UserSession.selected_fy_code,
+     branch: UserSession.selected_branch_id}
   end
 end

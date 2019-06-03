@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  # get '/', to: '/hello/hi', via: [:get]
+  # root :to => redirect('visitors#index')
+  # scope "#{session[user_selected_fy_code]}/#{session[user_selected_branch_id]}" do
+  get '/' => 'visitors#index'
+
+  scope "/:code/:branch" do
+
   resources :order_request_details do
     collection do
       get :client_report
@@ -129,13 +136,17 @@ Rails.application.routes.draw do
   end
   resources :groups
 
+  # scope "/:code/:branch" do
   match "/ledgers/group_members_ledgers" => "ledgers#group_members_ledgers", as: "group_member_ledgers", via: [:get]
   match "/ledgers/cashbook" => "ledgers#cashbook", via: [:get]
   match "/ledgers/daybook" => "ledgers#daybook", via: [:get]
   match "/ledgers/combobox_ajax_filter" => "ledgers#combobox_ajax_filter", via: [:get]
   match "/ledgers/merge_ledger" => "ledgers#merge_ledger", via: [:get]
-  
+
+  # match "/:user_selected_fy_code/:user_selected_branch_id" => "ledgers#index", via: [:get]
+
   resources :ledgers do
+    # debugger
     collection do
       post 'transfer_group_member_balance'
       get 'show_all'
@@ -146,6 +157,8 @@ Rails.application.routes.draw do
       get 'toggle_restriction'
     end
   end
+  # end
+
   resources :orders, :only => [:show, :index]
 
   match "/vouchers/new" => "vouchers#new", :as => 'new_voucher_custom', via: [:post]
@@ -223,5 +236,8 @@ Rails.application.routes.draw do
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end
-
 end
+end
+
+
+

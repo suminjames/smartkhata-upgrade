@@ -5,8 +5,8 @@
 <% if user_signed_in?  && !current_user.client? #&& valid_certificate?(current_user) %>
 <% config['menus'] = permitted_menu_list(config['menus'], current_user.id) %>
 
-<% config['menus'].each do |menu|
-  if menu['path'].present? %>
+<% config['menus'].each do |menu| %>
+ <% if menu['path'].present? %>
         <li><%= link_to menu['name'], menu['path'] %></li>
     <% else %>
         <% if menu['sub_menus'].present? %>
@@ -32,8 +32,8 @@
               </ul>
             </li>
         <% end %>
-    <% end
-       end %>
+    <% end %>
+    <% end %>
  <% end %>
 
 <%= render "layouts/nav_links_for_client" if (user_signed_in? && current_user.client? ) %>
