@@ -3,6 +3,13 @@ class ApplicationPolicy
 
   class << self
     include Rails.application.routes.url_helpers
+
+    def default_url_options
+      {
+        code: 7576,
+        branch: 0
+      }
+    end
   end
 
   def initialize(user, record)
