@@ -23,7 +23,11 @@ class ApplicationController < ActionController::Base
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
   # before_action :get_allowed_branch, if: :user_signed_in?
+
   # before_action :default_url_options
+
+  before_action :set_branch_fy_code
+
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
@@ -133,6 +137,12 @@ class ApplicationController < ActionController::Base
     params[:by_branch] ||= UserSession.selected_branch_id
   end
 
+
+  def set_branch_fy_code
+    params[:code] ||= UserSession.selected_fy_code
+    params[:branch] ||= UserSession.selected_branch_id
+  end
+
   # added username as permitted parameters
   def configure_permitted_parameters
     added_attrs = [:username, :email, :password, :password_confirmation, :remember_me]
@@ -155,7 +165,9 @@ class ApplicationController < ActionController::Base
   end
 
   def default_url_options
-    {code: UserSession.selected_fy_code,
-     branch: UserSession.selected_branch_id}
+    {
+      code: UserSession.selected_fy_code,
+      branch: UserSession.selected_branch_id
+    }
   end
 end
