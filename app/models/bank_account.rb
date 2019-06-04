@@ -50,25 +50,25 @@ class BankAccount < ActiveRecord::Base
   # so that the current one becomes the default if opted
   def change_default
     if self.default_for_payment
-      bank_accounts = BankAccount.by_branch_id.where(:default_for_payment => true)
-      bank_accounts = BankAccount.by_branch_id.where.not(:id => self.id)
+      bank_accounts = BankAccount.by_branch_id(selected_branch).where(:default_for_payment => true)
+      bank_accounts = BankAccount.by_branch_id(selected_branch).where.not(:id => self.id)
       bank_accounts.update_all(:default_for_payment => false)
     end
 
     if self.default_for_receipt
-      bank_accounts = BankAccount.by_branch_id.where(:default_for_receipt => true)
-      bank_accounts = BankAccount.by_branch_id.where.not(:id => self.id)
+      bank_accounts = BankAccount.by_branch_id(selected_branch).where(:default_for_receipt => true)
+      bank_accounts = BankAccount.by_branch_id(selected_branch).where.not(:id => self.id)
       bank_accounts.update_all(:default_for_receipt => false)
     end
 
   end
 
   def self.default_for_payment
-    BankAccount.by_branch_id.where(:default_for_payment => true).first
+    BankAccount.by_branch_id(selected_branch).where(:default_for_payment => true).first
   end
 
   def self.default_receipt_account
-    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id.where(:default_for_receipt => true).first
+    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id(selected_branch).where(:default_for_receipt => true).first
     # Check for availability of default bank accounts for payment and receipt in the current branch.
     # If not available in the current branch, resort to using whichever is available from all available branches.
     default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first

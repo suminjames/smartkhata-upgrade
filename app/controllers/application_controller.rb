@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  attr_reader :selected_code,:selected_branch
   include Pundit
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -24,9 +25,8 @@ class ApplicationController < ActionController::Base
   before_action :get_blocked_path_list, if: :user_signed_in?
   # before_action :get_allowed_branch, if: :user_signed_in?
 
-  # before_action :default_url_options
 
-  before_action :set_branch_fy_code
+  # before_action :set_branch_fy_code
 
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
@@ -129,12 +129,10 @@ class ApplicationController < ActionController::Base
 
   #   set the default fycode and branch params
   def set_branch_fy_params
-    # params[:by_fy_code] ||= get_fy_code
-    # params[:by_branch] ||= current_user.branch_id
-    # params[:by_fy_code] ||= session[:user_selected_fy_code]
-    # params[:by_branch] ||= session[:user_selected_branch_id]
-    params[:by_fy_code] ||= UserSession.selected_fy_code
-    params[:by_branch] ||= UserSession.selected_branch_id
+    # debugger
+    @selected_code = params[:selected_code] || get_fy_code
+    @selected_branch = params[:selected_branch] || current_user.branch_id
+
   end
 
 
@@ -164,10 +162,15 @@ class ApplicationController < ActionController::Base
 
   end
 
+  def active_record_branch_id
+    @selected_branch == 0 ? current_user&.branch_id : @selected_branch
+  end
+
+
   def default_url_options
     {
-      code: UserSession.selected_fy_code,
-      branch: UserSession.selected_branch_id
+      selected_code: @selected_code,
+      selected_branch: @selected_branch
     }
   end
 end

@@ -13,27 +13,27 @@ class ChequeEntriesController < ApplicationController
       end
       return
     end
-
+    # debugger
     @filterrific = initialize_filterrific(
-        ChequeEntry,
+        ChequeEntry.by_branch_id(selected_branch),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_beneficiary_name: ChequeEntry.options_for_beneficiary_name(params[:filterrific]),
-            by_bank_account_id: ChequeEntry.options_for_bank_account_select,
-            by_cheque_entry_status: ChequeEntry.options_for_cheque_entry_status,
-            by_cheque_issued_type: ChequeEntry.options_for_cheque_issued_type
+            by_beneficiary_name: ChequeEntry.by_branch_id(selected_branch).options_for_beneficiary_name(params[:filterrific]),
+            by_bank_account_id: ChequeEntry.by_branch_id(selected_branch).options_for_bank_account_select,
+            by_cheque_entry_status: ChequeEntry.by_branch_id(selected_branch).options_for_cheque_entry_status,
+            by_cheque_issued_type: ChequeEntry.by_branch_id(selected_branch).options_for_cheque_issued_type
         },
         persistence_id: false
     ) or return
-    items_per_page = params[:paginate] == 'false' ? ChequeEntry.all.count : 20
+    items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_branch_id(selected_branch).all.count : 20
     @cheque_entries = @filterrific.find.order(cheque_number: :asc).includes(:bank_account, :additional_bank).page(params[:page]).per(items_per_page).decorate
 
     respond_to do |format|
       format.html
       format.js
     end
-
+    # debugger
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
@@ -58,12 +58,12 @@ class ChequeEntriesController < ApplicationController
   def show
     cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-
+      # debugger
     respond_to do |format|
       format.html
       format.js
       format.pdf do
-        pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
+        pdf = Print::PrintChequeEntry.by_branch_id(selected_branch).new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
@@ -85,7 +85,7 @@ class ChequeEntriesController < ApplicationController
   def new
     # @cheque_entry = ChequeEntry.new
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
-    @bank_accounts = BankAccount.by_branch_id.all.order(:bank_name)
+    @bank_accounts = BankAccount.by_branch_id(selected_branch).all.order(:bank_name)
   end
 
   # GET /cheque_entries/1/edit
@@ -98,7 +98,7 @@ class ChequeEntriesController < ApplicationController
 
     if @bank_account_ledger_id.present?
       ledger = Ledger.find_by(id: @bank_account_ledger_id)
-      cheque_entry = ChequeEntry.next_available_serial_cheque(ledger.bank_account_id)
+      cheque_entry = ChequeEntry.by_branch_id(selected_branch).next_available_serial_cheque(ledger.bank_account_id)
     end
 
 
@@ -207,7 +207,7 @@ class ChequeEntriesController < ApplicationController
     message = ""
     cheque_entry_ids = params[:cheque_entry_ids]
     cheque_entry_ids.each do |cheque_entry_id|
-      cheque = ChequeEntry.find_by_id(cheque_entry_id)
+      cheque = ChequeEntry.by_branch_id(selected_branch).find_by_id(cheque_entry_id)
       if cheque.to_be_printed?
         cheque.printed!
         status = true
@@ -215,7 +215,7 @@ class ChequeEntriesController < ApplicationController
         message = "Cheque is already Printed" if cheque.printed?
       end
     end
-    cheque_entries = ChequeEntry.where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
+    cheque_entries = ChequeEntry.by_branch_id(selected_branch).where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
     respond_to do |format|
       format.json { render json: {status: status, message: message, cheque_entries: cheque_entries}, status: :ok }
     end
@@ -223,7 +223,7 @@ class ChequeEntriesController < ApplicationController
 
   def settlements_associated_with_cheque_entries
     cheque_entry_ids = params[:cheque_entry_ids]
-    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    cheque_entries = ChequeEntry.by_branch_id(selected_branch).find(cheque_entry_ids.split(','))
     settlement_ids = []
     cheque_entries.each do |cheque_entry|
       if cheque_entry.payment?
@@ -242,7 +242,7 @@ class ChequeEntriesController < ApplicationController
 
   def bills_associated_with_cheque_entries
     cheque_entry_ids = params[:cheque_entry_ids]
-    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    cheque_entries = ChequeEntry.by_branch_id(selected_branch).find(cheque_entry_ids.split(','))
     # FIX(sarojk): Doesn't look into second particulars, only first.
     bill_ids = []
     cheque_entries.each do |cheque_entry|
@@ -257,13 +257,13 @@ class ChequeEntriesController < ApplicationController
   def make_cheque_entries_unprinted
     status = true
     cheque_entry_ids = params[:cheque_entry_ids]
-    cheque_entries = ChequeEntry.find(cheque_entry_ids.split(','))
+    cheque_entries = ChequeEntry.by_branch_id(selected_branch).find(cheque_entry_ids.split(','))
     cheque_entries.each do |cheque_entry|
       unless cheque_entry.to_be_printed!
         status = false
       end
     end
-    cheque_entries = ChequeEntry.where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
+    cheque_entries = ChequeEntry.by_branch_id(selected_branch).where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
     respond_to do |format|
       format.json { render json: {status: status, cheque_entries: cheque_entries}, status: :ok }
     end
@@ -272,14 +272,15 @@ class ChequeEntriesController < ApplicationController
   # POST /cheque_entries
   # POST /cheque_entries.json
   def create
-    branch_id = get_branch_id_from_session
-    @bank_accounts = BankAccount.by_branch_id.all
+    # branch_id = get_branch_id_from_session
+    branch_id = selected_branch
+    @bank_accounts = BankAccount.by_branch_id(selected_branch).all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
     @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
-    existing_cheque_numbers = ChequeEntry.where(bank_account_id: @bank_account_id).pluck(:cheque_number)
+    existing_cheque_numbers = ChequeEntry.by_branch_id(active_record_branch_id).where(bank_account_id: @bank_account_id).pluck(:cheque_number)
     has_error = true
-
+    # debugger
     error_message = case
     when @bank_account_id.blank?
       "Bank Account cannot be empty"
@@ -300,7 +301,7 @@ class ChequeEntriesController < ApplicationController
     if !has_error
       ActiveRecord::Base.transaction do
         (@start_cheque_number..@end_cheque_number).each do |cheque_number|
-          cheque_entry = ChequeEntry.unscoped.new(cheque_number: cheque_number, bank_account_id: @bank_account_id, branch_id: branch_id)
+          cheque_entry = ChequeEntry.by_branch_id(active_record_branch_id).new(cheque_number: cheque_number, bank_account_id: @bank_account_id, branch_id: branch_id, creator_id: current_user.id, updater_id: current_user.id)
           if cheque_entry.valid?
             cheque_entry.save
           else
@@ -360,7 +361,7 @@ class ChequeEntriesController < ApplicationController
     beneficiary_names = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-      beneficiary_names = ChequeEntry.find_beneficiary_name_similar_to_term(search_term)
+      beneficiary_names = ChequeEntry.by_branch_id(selected_branch).find_beneficiary_name_similar_to_term(search_term)
     end
     respond_to do |format|
       format.json { render json: beneficiary_names, status: :ok }
@@ -370,7 +371,7 @@ class ChequeEntriesController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_cheque_entry
-    @cheque_entry = ChequeEntry.find(params[:id])
+    @cheque_entry = ChequeEntry.by_branch_id(selected_branch).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

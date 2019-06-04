@@ -5,8 +5,10 @@ class GeneralSettingsController < ApplicationController
   def set_fy
     fy_code = params[:fy_code].to_i
     branch_id = params[:branch_id].to_i
-    set_user_selected_branch_fy_code(branch_id, fy_code)
-    return_back
+    # set_user_selected_branch_fy_code(branch_id, fy_code)
+    # return_back
+    # debugger
+    redirect_to root_path(selected_branch: branch_id,selected_code: fy_code)
   end
 
   def set_branch

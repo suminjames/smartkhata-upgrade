@@ -7,7 +7,7 @@ class BankAccountsController < ApplicationController
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index
-    @bank_accounts = BankAccount.by_branch_id.all
+    @bank_accounts = BankAccount.by_branch_id(selected_branch).all
   end
 
   # GET /bank_accounts/1
@@ -17,7 +17,7 @@ class BankAccountsController < ApplicationController
 
   # GET /bank_accounts/new
   def new
-    @bank_account = BankAccount.by_branch_id.new
+    @bank_account = BankAccount.by_branch_id(selected_branch).new
     @bank_account.ledger = Ledger.new
     @bank_account.ledger.ledger_balances << LedgerBalance.new
   end

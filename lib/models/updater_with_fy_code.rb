@@ -12,11 +12,11 @@ module Models::UpdaterWithFyCode
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
-      scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { unscoped.where(fy_code: fy_code)}
+      scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
 
       # default_scope
       # scope based on the fycode selection
-      default_scope { where(fy_code: UserSession.selected_fy_code)}
+      # default_scope { where(fy_code: UserSession.selected_fy_code)}
     end
   end
 

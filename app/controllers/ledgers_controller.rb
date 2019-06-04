@@ -14,8 +14,8 @@ class LedgersController < ApplicationController
         Ledger.allowed(@show_restriction),
         params[:filterrific],
         select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-          by_ledger_type: Ledger.options_for_ledger_type,
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
         },
         persistence_id: false
     ) or return
@@ -30,10 +30,10 @@ class LedgersController < ApplicationController
       # Recover from invalid param sets, e.g., when a filter refers to the
       # database id of a record that doesn’t exist any more.
       # In this case we reset filterrific and discard all filter params.
-    rescue ActiveRecord::RecordNotFound => e
-      # There is an issue with the persisted param_set. Reset it.
-      puts "Had to reset filterrific params: #{ e.message }"
-      redirect_to(reset_filterrific_url(format: :html)) and return
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /ledgers/1
@@ -148,7 +148,7 @@ class LedgersController < ApplicationController
         Ledger.allowed(@show_restriction),
         params[:filterrific],
         select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
         },
         persistence_id: false
     ) or return
@@ -157,7 +157,7 @@ class LedgersController < ApplicationController
     if (merge_to&&merge_from).present?
       merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
       merge_bool ? flash[:notice] = "Sucessfully Ledger Merge" :
-                   flash[:alert] = "Ledger Merge Unsucessfull"
+          flash[:alert] = "Ledger Merge Unsucessfull"
       redirect_to  ledgers_merge_ledger_path
     end
   end
@@ -233,13 +233,13 @@ class LedgersController < ApplicationController
   def restricted
     #default landing action for '/ledgers'
     @filterrific = initialize_filterrific(
-      Ledger.restricted,
-      params[:filterrific],
-      select_options: {
-        by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-        by_ledger_type: Ledger.options_for_ledger_type,
-      },
-      persistence_id: false
+        Ledger.restricted,
+        params[:filterrific],
+        select_options: {
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
+        },
+        persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
     @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)

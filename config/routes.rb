@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get '/' => 'visitors#index'
   root to: 'visitors#index'
 
-  scope "/:code/:branch" do
+  scope "/:selected_code/:selected_branch" do
 
     resources :order_request_details do
       collection do
