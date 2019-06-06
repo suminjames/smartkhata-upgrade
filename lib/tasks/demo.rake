@@ -39,6 +39,7 @@ namespace :demo do
         client.branch_id = branch_id
         client.boid = boid
         client.email = email
+        client.current_user_id = User.first.id
       end
 
     end

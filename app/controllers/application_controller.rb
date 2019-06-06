@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
 
   # Callbacks
   before_action :authenticate_user!, :unless => :devise_controller?
-  before_action :set_branch_fy_params, if: :user_signed_in?
+  before_action :set_branch_fy_params
   before_action :set_user_session, if: :user_signed_in?
   after_action :verify_authorized, :unless => :devise_controller?
   before_action :validate_certificate, :unless => :devise_controller?
@@ -131,7 +131,7 @@ class ApplicationController < ActionController::Base
   def set_branch_fy_params
     # debugger
     @selected_fy_code = params[:selected_fy_code] || get_fy_code
-    @selected_branch_id = params[:selected_branch_id] || current_user.branch_id
+    @selected_branch_id = params[:selected_branch_id] || current_user&.branch_id || Branch.first.id
 
   end
 
