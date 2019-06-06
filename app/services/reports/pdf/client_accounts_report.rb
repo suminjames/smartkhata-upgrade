@@ -114,8 +114,7 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
           phone,
           phone_perm,
           email,
-          "#{bank_name},
-          #{bank_address}",
+          [bank_name,bank_address].compact.split("").flatten.join(","),
           bank_account
       ]
     end

@@ -61,7 +61,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       bank_account = c.bank_account
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, name, nepse, boid, contract_nums, email,"#{bank_name}, #{bank_address}",bank_account], style: row_style
+      @sheet.add_row [sn, name, nepse, boid, contract_nums, email,[bank_name,bank_address].compact.split("").flatten.join(","),bank_account], style: row_style
     end
   end
 
