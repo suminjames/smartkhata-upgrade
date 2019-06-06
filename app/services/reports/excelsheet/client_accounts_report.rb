@@ -1,5 +1,5 @@
 class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
-  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email"]
+  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email","Bank","Bank Address", "Bank Account"]
 
   def initialize(client_accounts, params, current_tenant)
     super(client_accounts, params, current_tenant)
@@ -56,9 +56,12 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       boid = c.boid
       contract_nums = c.commaed_contact_numbers
       email = c.email
+      bank_name = c.bank_name
+      bank_address = c.bank_address
+      bank_account = c.bank_account
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, name, nepse, boid, contract_nums, email], style: row_style
+      @sheet.add_row [sn, name, nepse, boid, contract_nums, email,bank_name,bank_address,bank_account], style: row_style
     end
   end
 

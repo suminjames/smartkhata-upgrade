@@ -90,7 +90,7 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
 
   def client_accounts_list
     table_data = []
-    th_data = ["SN.", "Name", "Nepse Code", "BOID", "Mobile", "Phone", "Phone Permanent", "Email"]
+    th_data = ["SN.", "Name", "Nepse Code", "BOID", "Mobile", "Phone", "Phone Permanent", "Email", "Bank","Bank Address", "Bank Account"]
     table_data << th_data
     @client_accounts.each_with_index do |client_account, index|
       sn = index + 1
@@ -101,6 +101,9 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
       phone = client_account.phone
       phone_perm = client_account.phone_perm
       email = client_account.email
+      bank_name = client_account.bank_name
+      bank_address = client_account.bank_address
+      bank_account = client_account.bank_account
 
       table_data << [
           sn,
@@ -110,19 +113,25 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
           mobile_number,
           phone,
           phone_perm,
-          email
+          email,
+          bank_name,
+          bank_address,
+          bank_account
       ]
     end
 
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.7/12.0,
-                     1 => table_width * 1.4/12.0,
-                     2 => table_width * 1.2/12.0,
-                     3 => table_width * 1.9/12.0,
-                     4 => table_width * 1.6/12.0,
-                     5 => table_width * 1.6/12.0,
-                     6 => table_width * 1.6/12.0,
-                     7 => table_width * 1.8/12.0
+    column_widths = {0 => table_width * 0.7/17.5,
+                     1 => table_width * 1.4/17.5,
+                     2 => table_width * 1.2/17.5,
+                     3 => table_width * 1.9/17.5,
+                     4 => table_width * 1.6/17.5,
+                     5 => table_width * 1.6/17.5,
+                     6 => table_width * 1.6/17.5,
+                     7 => table_width * 1.8/17.5,
+                     8 => table_width * 1.8/17.5,
+                     9 => table_width * 1.8/17.5,
+                     10 =>table_width * 1.8/17.5
     }
     table table_data do |t|
       t.header = true
