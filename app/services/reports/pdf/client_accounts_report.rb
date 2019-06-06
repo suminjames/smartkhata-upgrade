@@ -90,7 +90,7 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
 
   def client_accounts_list
     table_data = []
-    th_data = ["SN.", "Name", "Nepse Code", "BOID", "Mobile", "Phone", "Phone Permanent", "Email", "Bank","Bank Address", "Bank Account"]
+    th_data = ["SN.", "Name", "Nepse Code", "BOID", "Mobile", "Phone", "Phone Permanent", "Email", "Bank", "Bank Account"]
     table_data << th_data
     @client_accounts.each_with_index do |client_account, index|
       sn = index + 1
@@ -114,24 +114,23 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
           phone,
           phone_perm,
           email,
-          bank_name,
-          bank_address,
+          "#{bank_name},
+          #{bank_address}",
           bank_account
       ]
     end
 
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.7/17.5,
-                     1 => table_width * 1.4/17.5,
-                     2 => table_width * 1.2/17.5,
-                     3 => table_width * 1.9/17.5,
-                     4 => table_width * 1.6/17.5,
-                     5 => table_width * 1.6/17.5,
-                     6 => table_width * 1.6/17.5,
-                     7 => table_width * 1.8/17.5,
-                     8 => table_width * 1.8/17.5,
-                     9 => table_width * 1.8/17.5,
-                     10 =>table_width * 1.8/17.5
+    column_widths = {0 => table_width * 0.7/15.5,
+                     1 => table_width * 1.4/15.5,
+                     2 => table_width * 1.2/15.5,
+                     3 => table_width * 1.9/15.5,
+                     4 => table_width * 1.6/15.5,
+                     5 => table_width * 1.6/15.5,
+                     6 => table_width * 1.6/15.5,
+                     7 => table_width * 1.8/15.5,
+                     8 => table_width * 1.8/15.5,
+                     10 =>table_width * 1.8/15.5
     }
     table table_data do |t|
       t.header = true
