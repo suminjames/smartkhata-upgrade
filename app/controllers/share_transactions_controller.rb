@@ -729,6 +729,7 @@ class ShareTransactionsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def share_transaction_params
-    params.require(:share_transaction).permit(:base_price)
+    permitted_params = params.require(:share_transaction).permit(:base_price)
+    with_branch_user_params(permitted_params)
   end
 end

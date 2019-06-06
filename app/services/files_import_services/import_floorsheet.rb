@@ -9,8 +9,10 @@
     @@transaction_type_buying = ShareTransaction.transaction_types['buying']
     @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
 
-    def initialize(file, is_partial_upload = false)
+    def initialize(file,acting_user, branch_id, is_partial_upload = false)
       @date = nil
+      @acting_user = acting_user
+      @branch_id = branch_id
       @is_partial_upload = is_partial_upload
       super(file)
     end
@@ -38,6 +40,7 @@
       # grab date from the first record
       date_data = date_from_excel(xlsx)
       # convert a string to date
+      # debugger
       @date = Date.parse(date_data) if date_data.present? && parsable_date?(date_data)
 
       import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
@@ -299,7 +302,7 @@
       )
       # debugger
       # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-      update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)
+      update_share_inventory(client.id, company_info.id, transaction.quantity,@acting_user,@branch_id, transaction.buying?)
 
       bill_id = nil
       bill_number = nil

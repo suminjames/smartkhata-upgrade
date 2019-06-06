@@ -15,8 +15,8 @@ class ApplicationController < ActionController::Base
 
   # Callbacks
   before_action :authenticate_user!, :unless => :devise_controller?
-  before_action :set_user_session, if: :user_signed_in?
   before_action :set_branch_fy_params, if: :user_signed_in?
+  before_action :set_user_session, if: :user_signed_in?
   after_action :verify_authorized, :unless => :devise_controller?
   before_action :validate_certificate, :unless => :devise_controller?
   before_action :verify_absence_of_temp_password, :unless => :devise_controller?
@@ -106,8 +106,8 @@ class ApplicationController < ActionController::Base
     session[:user_selected_branch_id] ||= branch_id
 
     # set the session variable for the session
-    UserSession.selected_fy_code = session[:user_selected_fy_code]
-    UserSession.selected_branch_id = session[:user_selected_branch_id]
+    UserSession.selected_fy_code = params[:selected_fy_code]
+    UserSession.selected_branch_id = params[:selected_branch_id]
     # debugger
   end
 

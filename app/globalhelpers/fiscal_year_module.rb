@@ -102,7 +102,7 @@ module FiscalYearModule
   end
 
 
-  def date_valid_for_fy_code(date, fy_code=UserSession.selected_fy_code)
+  def date_valid_for_fy_code(date, fy_code=UserSession.selected_fy_code.to_i)
     fy_code_date = nil
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|

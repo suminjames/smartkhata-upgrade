@@ -72,6 +72,7 @@ class ShareInventoriesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def share_inventory_params
-    params.fetch(:share_inventory, {})
+    permitted_params = params.fetch(:share_inventory, {})
+    with_branch_user_params(permitted_params)
   end
 end
