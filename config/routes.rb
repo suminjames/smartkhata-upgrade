@@ -2,8 +2,8 @@ Rails.application.routes.draw do
   # get '/', to: '/hello/hi', via: [:get]
   # root :to => redirect('visitors#index')
   # scope "#{session[user_selected_fy_code]}/#{session[user_selected_branch_id]}" do
-  # get '/' => 'visitors#index'
-  match '/' => redirect('users/sign_in'), via: [:get]
+  # match '/' => redirect('users/sign_in'), via: [:get]
+  get '/' => 'visitors#index'
   root to: 'visitors#index'
 
   scope "/:selected_fy_code/:selected_branch_id" do

@@ -6,8 +6,8 @@ class ApplicationPolicy
 
     def default_url_options
       {
-          selected_fy_code: @selected_fy_code,
-          selected_branch_id: @selected_branch_id
+          selected_fy_code: 7576,
+          selected_branch_id: 0
       }
     end
   end
