@@ -20,6 +20,7 @@ class LedgersController < ApplicationController
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
+
     @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
     # debugger
     respond_to do |format|

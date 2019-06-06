@@ -7,7 +7,8 @@ class BankAccountsController < ApplicationController
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index
-    @bank_accounts = BankAccount.by_branch_id(selected_branch).all
+    @bank_accounts = BankAccount.by_branch_id(selected_branch_id).all
+    # debugger
   end
 
   # GET /bank_accounts/1
@@ -17,7 +18,7 @@ class BankAccountsController < ApplicationController
 
   # GET /bank_accounts/new
   def new
-    @bank_account = BankAccount.by_branch_id(selected_branch).new
+    @bank_account = BankAccount.by_branch_id(selected_branch_id).new
     @bank_account.ledger = Ledger.new
     @bank_account.ledger.ledger_balances << LedgerBalance.new
   end
@@ -47,6 +48,7 @@ class BankAccountsController < ApplicationController
   # PATCH/PUT /bank_accounts/1
   # PATCH/PUT /bank_accounts/1.json
   def update
+    # debugger
     respond_to do |format|
       if @bank_account.update(bank_account_update_params)
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully updated.' }
@@ -76,11 +78,13 @@ class BankAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
-    params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
+    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
                                          ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type]])
+    with_branch_user_params(permitted_params)
   end
 
   def bank_account_update_params
-    params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
+    permitted_update_params = params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
+    with_branch_user_params(permitted_update_params)
   end
 end

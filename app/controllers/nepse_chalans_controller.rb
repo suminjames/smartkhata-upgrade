@@ -21,8 +21,8 @@ class NepseChalansController < ApplicationController
     @nepse_chalan = NepseChalan.new
     search_by = params[:search_by]
     search_term = params[:search_term]
-    @bank_ledger_list = BankAccount.by_branch_id.all.uniq.collect(&:ledger)
-    default_bank_payment = BankAccount.by_branch_id.where(:default_for_payment => true).first
+    @bank_ledger_list = BankAccount.by_branch_id(selected_branch_id).all.uniq.collect(&:ledger)
+    default_bank_payment = BankAccount.by_branch_id(selected_branch_id).where(:default_for_payment => true).first
     @default_ledger_id = default_bank_payment.ledger.id if default_bank_payment.present?
 
     case search_by

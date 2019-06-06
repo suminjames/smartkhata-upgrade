@@ -9,7 +9,7 @@ class ClientAccountsController < ApplicationController
   def index
     # Incorporate selected branch from session into filterrific in each request.
     params[:filterrific] ||= {}
-    params[:filterrific].merge!({by_selected_session_branch_id: UserSession.selected_branch_id})
+    params[:filterrific].merge!({by_selected_session_branch_id: selected_branch_id})
     @filterrific = initialize_filterrific(
         ClientAccount,
         params[:filterrific],
@@ -136,7 +136,7 @@ class ClientAccountsController < ApplicationController
   #
   def combobox_ajax_filter
     search_term = params[:q]
-    selected_session_branch_id = UserSession.selected_branch_id
+    selected_session_branch_id = selected_branch_id
     client_accounts = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
@@ -155,7 +155,7 @@ class ClientAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def client_account_params
-    params.require(:client_account).permit(
+    permitted_params = params.require(:client_account).permit(
         :boid,
         :nepse_code,
         :name,
@@ -197,5 +197,6 @@ class ClientAccountsController < ApplicationController
         :move_all_particulars,
         :dont_move_particulars
     )
+    with_branch_user_params(permitted_params)
   end
 end

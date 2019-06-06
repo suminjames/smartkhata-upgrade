@@ -129,8 +129,9 @@ class ShareTransaction < ActiveRecord::Base
       where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status])
     end
   }
-
-  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+  # current_branch_id = selected_branch_id
+  # debugger
+  scope :by_branch, ->(branch_id = :selected_branch_id) do
     includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
   end
 
@@ -195,7 +196,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :settled, lambda{ where.not(settlement_id: nil)}
   scope :cgt_gt_zero, lambda{ where('cgt > ?', 0.0)}
 
-  scope :for_cgt, ->(fy_code = UserSession.selected_fy_code) do
+  scope :for_cgt, ->(fy_code = @selected_fy_code) do
     includes(:bill).selling.settled_with_bill.cgt_gt_zero.where('bills.fy_code =  ?', fy_code).references(:bills)
   end
 
@@ -252,7 +253,7 @@ class ShareTransaction < ActiveRecord::Base
     }
   end
 
-  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id = UserSession.selected_branch_id)
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id )
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 

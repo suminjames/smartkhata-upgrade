@@ -60,16 +60,21 @@ class EmployeeAccountsController < ApplicationController
     res = false
     ActiveRecord::Base.transaction do
 
-
       if @employee_account.save
         # Assign to Employee group
         @employee_account.assign_group("Employees")
         # and invite the user
-        user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
-        @employee_account.user_id = user.id
+        # begin
+          user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
+          @employee_account.user_id = user.id
+        # rescue Error => e
+          # debugger
+          # puts e
+        # end
         @employee_account.save!
         res = true
       end
+
     end
 
     respond_to do |format|
@@ -219,7 +224,7 @@ class EmployeeAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def employee_account_params
-    params.require(:employee_account).permit(
+    permitted_params = params.require(:employee_account).permit(
         :name,
         :address1,
         :address1_perm,
@@ -249,6 +254,7 @@ class EmployeeAccountsController < ApplicationController
         :bank_address,
         :has_access_to
     )
+    with_branch_user_params(permitted_params)
   end
 
   def valid_email?(email)

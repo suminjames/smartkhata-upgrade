@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
-  attr_reader :selected_code,:selected_branch
+  attr_reader :selected_fy_code, :selected_branch_id
   include Pundit
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -130,8 +130,8 @@ class ApplicationController < ActionController::Base
   #   set the default fycode and branch params
   def set_branch_fy_params
     # debugger
-    @selected_code = params[:selected_code] || get_fy_code
-    @selected_branch = params[:selected_branch] || current_user.branch_id
+    @selected_fy_code = params[:selected_fy_code] || get_fy_code
+    @selected_branch_id = params[:selected_branch_id] || current_user.branch_id
 
   end
 
@@ -159,18 +159,22 @@ class ApplicationController < ActionController::Base
         available_branches_ids.first
       end
     end
-
   end
 
   def active_record_branch_id
-    @selected_branch == 0 ? current_user&.branch_id : @selected_branch
+    @selected_branch_id == 0 ? current_user&.branch_id : @selected_branch_id
   end
 
+  helper_method :active_record_branch_id
 
   def default_url_options
     {
-      selected_code: @selected_code,
-      selected_branch: @selected_branch
+        selected_fy_code: @selected_fy_code,
+        selected_branch_id: @selected_branch_id
     }
+  end
+
+  def with_branch_user_params permitted_params
+    permitted_params.merge!({ current_user_id: current_user&.id, branch_id: active_record_branch_id})
   end
 end

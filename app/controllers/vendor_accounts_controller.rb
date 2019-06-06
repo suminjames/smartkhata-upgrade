@@ -36,6 +36,7 @@ class VendorAccountsController < ApplicationController
         format.html { redirect_to @vendor_account, notice: 'Vendor account was successfully created.' }
         format.json { render :show, status: :created, location: @vendor_account }
       else
+        debugger
         format.html { render :new }
         format.json { render json: @vendor_account.errors, status: :unprocessable_entity }
       end
@@ -74,6 +75,9 @@ class VendorAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def vendor_account_params
-    params.require(:vendor_account).permit(:name, :address, :phone_number)
+    permitted_params = params.require(:vendor_account).permit(:name, :address, :phone_number)
+    with_branch_user_params(permitted_params)
   end
+
+
 end

@@ -159,7 +159,8 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_isin_id),
         params.dig(:filterrific, :by_date),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_branch_id
     )
     if params[:paginate] == 'false'
       items_per_page = @securities_flows.size
@@ -231,9 +232,9 @@ class ShareTransactionsController < ApplicationController
           params.dig(:filterrific, :by_isin_id),
           params.dig(:filterrific, :by_date_from),
           params.dig(:filterrific, :by_date_to),
-          UserSession.selected_branch_id
+          selected_branch_id
       )
-      fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
+      fiscal_year = get_fiscal_year_from_fycode(selected_fy_code)
       @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
       @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
     end
