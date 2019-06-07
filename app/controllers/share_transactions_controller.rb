@@ -232,7 +232,8 @@ class ShareTransactionsController < ApplicationController
           params.dig(:filterrific, :by_isin_id),
           params.dig(:filterrific, :by_date_from),
           params.dig(:filterrific, :by_date_to),
-          selected_branch_id
+          selected_branch_id,
+          selected_fy_code
       )
       fiscal_year = get_fiscal_year_from_fycode(selected_fy_code)
       @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
@@ -292,14 +293,16 @@ class ShareTransactionsController < ApplicationController
     @commission_reports = ShareTransaction.commission_report(
         params.dig(:filterrific, :by_client_id),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_fy_code
     )
 
     unless (params[:total_count])
       @total_count = ShareTransaction.total_count_for_commission_report(
           params.dig(:filterrific, :by_client_id),
           params.dig(:filterrific, :by_date_from),
-          params.dig(:filterrific, :by_date_to)
+          params.dig(:filterrific, :by_date_to),
+          selected_fy_code
       )
     end
 
@@ -360,7 +363,8 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_date),
         params.dig(:filterrific, :by_client_id),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_fy_code
       )
     end
 
