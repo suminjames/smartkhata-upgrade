@@ -19,7 +19,6 @@ class ClientAccountsController < ApplicationController
         },
         persistence_id: false
     ) or return
-
     @selected_ledger_for_combobox_in_arr = @ledgers
 
     items_per_page = params[:paginate] == 'false' || ['xlsx', 'pdf'].include?(params[:format]) ? ClientAccount.all.count : 20
