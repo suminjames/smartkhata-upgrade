@@ -424,7 +424,7 @@ class ShareTransactionsController < ApplicationController
 
   def capital_gain_report
     @filterrific = initialize_filterrific(
-        ShareTransaction.for_cgt,
+        ShareTransaction.for_cgt(selected_fy_code),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),

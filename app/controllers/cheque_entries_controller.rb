@@ -61,7 +61,7 @@ class ChequeEntriesController < ApplicationController
       format.html
       format.js
       format.pdf do
-        pdf = Print::PrintChequeEntry.by_branch_id(selected_branch_id).new(@cheque_entry, @name, @cheque_date, current_tenant)
+        pdf = Print::PrintChequeEntry.new(@cheque_entry, @name, @cheque_date, current_tenant)
         send_data pdf.render, filename: "ChequeEntry_#{@cheque_entry.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
@@ -96,7 +96,7 @@ class ChequeEntriesController < ApplicationController
 
     if @bank_account_ledger_id.present?
       ledger = Ledger.find_by(id: @bank_account_ledger_id)
-      cheque_entry = ChequeEntry.by_branch_id(selected_branch_id).next_available_serial_cheque(ledger.bank_account_id)
+      cheque_entry = ChequeEntry.next_available_serial_cheque(ledger.bank_account_id)
     end
 
 
@@ -270,7 +270,6 @@ class ChequeEntriesController < ApplicationController
   # POST /cheque_entries
   # POST /cheque_entries.json
   def create
-    # branch_id = get_branch_id_from_session
     branch_id = selected_branch_id
     @bank_accounts = BankAccount.by_branch_id(selected_branch_id).all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?

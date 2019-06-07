@@ -1,5 +1,5 @@
   class FilesImportServices::ImportFloorsheet  < ImportFile
-    attr_reader :date, :error_type, :new_client_accounts, :acting_user, :branch_id
+    attr_reader :date, :error_type, :new_client_accounts, :acting_user, :branch_id, :selected_fy_code
 
     include CommissionModule
     include ShareInventoryModule
@@ -9,11 +9,12 @@
     @@transaction_type_buying = ShareTransaction.transaction_types['buying']
     @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
 
-    def initialize(file,acting_user, branch_id, is_partial_upload = false)
+    def initialize(file,acting_user, branch_id, selected_fy_code, is_partial_upload = false)
       @date = nil
       @acting_user = acting_user
       @branch_id = branch_id
       @is_partial_upload = is_partial_upload
+      @selected_fy_code = selected_fy_code
       super(file)
     end
 
@@ -43,9 +44,8 @@
       @date = Date.parse(date_data) if date_data.present? && parsable_date?(date_data)
 
       import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
-
       # fiscal year and date should match
-      unless date_valid_for_fy_code(@date)
+      unless date_valid_for_fy_code(@date, selected_fy_code)
         import_error("Please change the fiscal year.") and return
       end
 
@@ -301,7 +301,7 @@
           current_user_id: acting_user.id
       )
       # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-      update_share_inventory(client.id, company_info.id, transaction.quantity,:acting_user,:branch_id, transaction.buying?)
+      update_share_inventory(client.id, company_info.id, transaction.quantity, acting_user, branch_id, transaction.buying?)
 
       bill_id = nil
       bill_number = nil

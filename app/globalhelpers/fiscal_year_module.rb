@@ -1,4 +1,5 @@
 module FiscalYearModule
+
   @@fiscal_year_breakpoint = [
       [6869, Date.parse('2011-7-17'), Date.parse('2012-7-15')],
       [6970, Date.parse('2012-7-16'), Date.parse('2013-7-15')],
@@ -102,11 +103,12 @@ module FiscalYearModule
   end
 
 
-  def date_valid_for_fy_code(date, fy_code=UserSession.selected_fy_code.to_i)
+  def date_valid_for_fy_code(date, fy_code)
+    debugger
     fy_code_date = nil
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
-      if fy_code == fiscal[0]
+      if fy_code.to_i == fiscal[0]
         fy_code_date = fiscal
       end
     end

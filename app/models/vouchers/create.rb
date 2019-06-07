@@ -1,6 +1,6 @@
 
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code
 
   def initialize(attrs = {})
     super(attrs)
@@ -12,6 +12,7 @@ class Vouchers::Create < Vouchers::Base
     @group_leader_ledger_id = attrs[:group_leader_ledger_id]
     @vendor_account_id = attrs[:vendor_account_id]
     @settlements = []
+    @selected_fy_code = attrs[:selected_fy_code]
   end
 
   def process
@@ -82,7 +83,7 @@ class Vouchers::Create < Vouchers::Base
     @voucher.fy_code = get_fy_code(date_ad)
     @voucher.branch_id = get_branch_id_from_session
     # check if the user entered date is valid for that fiscal year
-    unless date_valid_for_fy_code( @voucher.date , UserSession.selected_fy_code)
+    unless date_valid_for_fy_code( @voucher.date , selected_fy_code)
       @error_message = "Invalid Date for fiscal year!"
       return
     end

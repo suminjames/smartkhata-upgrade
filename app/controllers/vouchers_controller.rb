@@ -92,7 +92,8 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name)
+                                            tenant_full_name: current_tenant.full_name,
+                                            selected_fy_code: selected_fy_code)
 
     respond_to do |format|
       if voucher_creation.process

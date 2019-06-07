@@ -195,7 +195,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :settled, lambda{ where.not(settlement_id: nil)}
   scope :cgt_gt_zero, lambda{ where('cgt > ?', 0.0)}
 
-  scope :for_cgt, ->(fy_code = @selected_fy_code) do
+  scope :for_cgt, ->(fy_code) do
     includes(:bill).selling.settled_with_bill.cgt_gt_zero.where('bills.fy_code =  ?', fy_code).references(:bills)
   end
 

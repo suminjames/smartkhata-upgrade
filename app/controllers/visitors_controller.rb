@@ -15,8 +15,7 @@ class VisitorsController < ApplicationController
       end
     elsif user_signed_in?
       @invalid_certificate = true
-    elsif user_signed_in?
-      redirect_to '/users/sign_in'
+
     end
 
   end

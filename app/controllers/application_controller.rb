@@ -103,8 +103,8 @@ class ApplicationController < ActionController::Base
     session[:user_selected_branch_id] ||= branch_id
 
     # set the session variable for the session
-    # UserSession.selected_fy_code = params[:selected_fy_code]
-    # UserSession.selected_branch_id = params[:selected_branch_id]
+    UserSession.selected_fy_code = params[:selected_fy_code]
+    UserSession.selected_branch_id = params[:selected_branch_id]
   end
 
   def verify_absence_of_temp_password
