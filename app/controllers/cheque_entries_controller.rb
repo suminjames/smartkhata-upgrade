@@ -20,7 +20,7 @@ class ChequeEntriesController < ApplicationController
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
             by_beneficiary_name: ChequeEntry.by_branch_id(selected_branch_id).options_for_beneficiary_name(params[:filterrific]),
-            by_bank_account_id: ChequeEntry.by_branch_id(selected_branch_id).options_for_bank_account_select,
+            by_bank_account_id: ChequeEntry.by_branch_id(selected_branch_id).options_for_bank_account_select(selected_branch_id),
             by_cheque_entry_status: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_entry_status,
             by_cheque_issued_type: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_issued_type
         },
