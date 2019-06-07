@@ -40,7 +40,6 @@
       # grab date from the first record
       date_data = date_from_excel(xlsx)
       # convert a string to date
-      # debugger
       @date = Date.parse(date_data) if date_data.present? && parsable_date?(date_data)
 
       import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
@@ -302,7 +301,7 @@
           current_user_id: acting_user.id
       )
       # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-      update_share_inventory(client.id, company_info.id, transaction.quantity,@acting_user,@branch_id, transaction.buying?)
+      update_share_inventory(client.id, company_info.id, transaction.quantity,:acting_user,:branch_id, transaction.buying?)
 
       bill_id = nil
       bill_number = nil

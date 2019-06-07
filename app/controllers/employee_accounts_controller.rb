@@ -24,11 +24,11 @@ class EmployeeAccountsController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-        when 'name'
-          @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
-          @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
-        else
-          @employee_accounts = []
+      when 'name'
+        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
+        @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
+      else
+        @employee_accounts = []
       end
     else
       @employee_accounts = []
@@ -64,13 +64,8 @@ class EmployeeAccountsController < ApplicationController
         # Assign to Employee group
         @employee_account.assign_group("Employees")
         # and invite the user
-        # begin
-          user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
-          @employee_account.user_id = user.id
-        # rescue Error => e
-          # debugger
-          # puts e
-        # end
+        user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
+        @employee_account.user_id = user.id
         @employee_account.save!
         res = true
       end

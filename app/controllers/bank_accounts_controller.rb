@@ -8,7 +8,6 @@ class BankAccountsController < ApplicationController
   # GET /bank_accounts.json
   def index
     @bank_accounts = BankAccount.by_branch_id(selected_branch_id).all
-    # debugger
   end
 
   # GET /bank_accounts/1
@@ -48,7 +47,6 @@ class BankAccountsController < ApplicationController
   # PATCH/PUT /bank_accounts/1
   # PATCH/PUT /bank_accounts/1.json
   def update
-    # debugger
     respond_to do |format|
       if @bank_account.update(bank_account_update_params)
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully updated.' }

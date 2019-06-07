@@ -48,7 +48,6 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center], @styles[:wrap], @styles[:normal_left], @styles[:int_format], @styles[:normal_left], @styles[:wrap]]
     striped_style_row = [@styles[:striped_center], @styles[:wrap_striped], @styles[:striped_left], @styles[:int_format_striped], @styles[:striped_left], @styles[:wrap_striped]]
-    # debugger
     @client_accounts.each_with_index do |c, index|
       sn = index + 1
       name = c.name.titleize

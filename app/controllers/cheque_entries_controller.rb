@@ -33,7 +33,6 @@ class ChequeEntriesController < ApplicationController
       format.html
       format.js
     end
-      # debugger
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
@@ -58,7 +57,6 @@ class ChequeEntriesController < ApplicationController
   def show
     cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    # debugger
     respond_to do |format|
       format.html
       format.js
@@ -307,7 +305,6 @@ class ChequeEntriesController < ApplicationController
           if cheque_entry.valid?
             cheque_entry.save
           else
-            # debugger
             has_error = true
             error_message = "Something went wrong!"
             raise ActiveRecord::Rollback
@@ -384,7 +381,4 @@ class ChequeEntriesController < ApplicationController
 
   end
 
-  # def get_branch_id_from_session
-  #   UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
-  # end
 end

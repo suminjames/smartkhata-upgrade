@@ -23,20 +23,17 @@ RSpec.describe BankAccount, type: :model do
   describe "defaults for payments receipts" do
     it "should change default for payment" do
       subject.save!
-      # debugger
       accounts = [subject, bank_account_1]
       accounts.each {|account| account.update_column(:default_for_payment, true) }
       subject.change_default
       accounts.each {|account| account.reload}
 
-      # debugger
       expect(subject.default_for_payment).to be_truthy
       expect(bank_account_1.default_for_payment).to_not be_truthy
     end
 
     it "should change default for sales" do
       subject.save!
-      # debugger
       accounts = [subject, bank_account_1]
       accounts.each {|account| account.update_column(:default_for_receipt, true) }
 

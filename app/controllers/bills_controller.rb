@@ -87,7 +87,6 @@ class BillsController < ApplicationController
     @bills = []
     @client_account_id = nil
     @client_account_id = Ledger.find_by(id: @ledger_id).try(:client_account_id)
-    # debugger
     if @client_account_id
       client_account= ClientAccount.find(@client_account_id)
       @bills = client_account.get_all_related_bills.order(date: :asc).decorate

@@ -253,7 +253,6 @@ class Bill < ActiveRecord::Base
     self.bill_type = :sales
     self.status = :provisional
     self.bill_number = Bill.new_bill_number(get_fy_code)
-    # debugger
     self
   end
 

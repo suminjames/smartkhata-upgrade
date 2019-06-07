@@ -2,7 +2,6 @@ desc "Delete a voucher"
 namespace :cheque_entries do
   task :patch, [:tenant, :voucher, :starting_number] => 'smartkhata:validate_tenant' do |task,args|
     voucher = Voucher.where(id: args.voucher).first
-    # debugger
     raise NotImplementedError unless voucher.present?
     raise NotImplementedError unless voucher.payment_bank?
 

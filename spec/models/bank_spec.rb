@@ -29,7 +29,6 @@ RSpec.describe Bank, type: :model do
   	end
 
   	it "bank code should not be duplicate" do
-  		# debugger
   		create(:bank, :name => 'MyString')
   		should_not allow_value('MyString').for(:name)
   	end

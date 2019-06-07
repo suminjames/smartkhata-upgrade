@@ -58,7 +58,6 @@ namespace :mandala do
           puts "#{count} bill processed"
         end
       rescue Exception => e
-        # debugger
         puts e.message
         puts "#{bill.bill_no}"
       end

@@ -50,7 +50,6 @@ class BankAccount < ActiveRecord::Base
   # so that the current one becomes the default if opted
   def change_default
     if self.default_for_payment
-      # debugger
       bank_accounts = BankAccount.by_branch_id(self.branch_id).where(:default_for_payment => true)
       bank_accounts = BankAccount.by_branch_id(self.branch_id).where.not(:id => self.id)
       bank_accounts.update_all(:default_for_payment => false)

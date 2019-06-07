@@ -18,7 +18,6 @@ namespace :settlement do
         voucher = settlement.voucher
 
         if !(voucher.payment_bank? || voucher.journal? || voucher.receipt_bank? || voucher.receipt_cash? || voucher.payment_cash?)
-          # debugger
           raise   NotImplementedError
         end
 

@@ -23,10 +23,7 @@ class ApplicationController < ActionController::Base
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
-  # before_action :get_allowed_branch, if: :user_signed_in?
 
-
-  # before_action :set_branch_fy_code
 
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
@@ -106,17 +103,8 @@ class ApplicationController < ActionController::Base
     session[:user_selected_branch_id] ||= branch_id
 
     # set the session variable for the session
-    UserSession.selected_fy_code = params[:selected_fy_code]
-    UserSession.selected_branch_id = params[:selected_branch_id]
-    # debugger
-  end
-
-  def get_current_fy_code
-    session[:user_selected_fy_code]
-  end
-
-  def get_current_branch_id
-    session[:user_selected_branch_id]
+    # UserSession.selected_fy_code = params[:selected_fy_code]
+    # UserSession.selected_branch_id = params[:selected_branch_id]
   end
 
   def verify_absence_of_temp_password
@@ -129,16 +117,9 @@ class ApplicationController < ActionController::Base
 
   #   set the default fycode and branch params
   def set_branch_fy_params
-    # debugger
     @selected_fy_code = params[:selected_fy_code] || get_fy_code
     @selected_branch_id = params[:selected_branch_id] || current_user&.branch_id || Branch.first.id
 
-  end
-
-
-  def set_branch_fy_code
-    params[:code] ||= UserSession.selected_fy_code
-    params[:branch] ||= UserSession.selected_branch_id
   end
 
   # added username as permitted parameters

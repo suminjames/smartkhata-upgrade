@@ -36,7 +36,6 @@ class VendorAccountsController < ApplicationController
         format.html { redirect_to @vendor_account, notice: 'Vendor account was successfully created.' }
         format.json { render :show, status: :created, location: @vendor_account }
       else
-        debugger
         format.html { render :new }
         format.json { render json: @vendor_account.errors, status: :unprocessable_entity }
       end
