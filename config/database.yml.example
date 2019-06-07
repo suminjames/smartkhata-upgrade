@@ -1,0 +1,16 @@
+default: &default
+  host: db
+  username: postgres
+  password:
+  adapter: postgresql
+  encoding: unicode
+  pool: 6
+
+development:
+  <<: *default
+  database: smartkhata_development
+
+
+test:
+  <<: *default
+  database: smartkhata_test
