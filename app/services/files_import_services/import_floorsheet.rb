@@ -1,5 +1,5 @@
   class FilesImportServices::ImportFloorsheet  < ImportFile
-    attr_reader :date, :error_type, :new_client_accounts
+    attr_reader :date, :error_type, :new_client_accounts, :acting_user, :branch_id
 
     include CommissionModule
     include ShareInventoryModule
@@ -131,7 +131,7 @@
         @raw_data.each do |data_hash|
           process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
         end
-        FileUpload.find_or_create_by!(file_type: FILETYPE, report_date: @date)
+        FileUpload.create!(file_type: FILETYPE, report_date: @date,branch_id: branch_id, current_user_id: acting_user.id)
       end
     end
 
@@ -298,9 +298,9 @@
           client_account_id: client.id,
           tds: tds,
           nepse_commission: nepse,
-          branch_id: client_branch_id
+          branch_id: client_branch_id,
+          current_user_id: acting_user.id
       )
-      # debugger
       # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
       update_share_inventory(client.id, company_info.id, transaction.quantity,@acting_user,@branch_id, transaction.buying?)
 
