@@ -148,7 +148,6 @@ Rails.application.routes.draw do
     # match "/:user_selected_fy_code/:user_selected_branch_id" => "ledgers#index", via: [:get]
 
     resources :ledgers do
-      # debugger
       collection do
         post 'transfer_group_member_balance'
         get 'show_all'

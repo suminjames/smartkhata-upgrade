@@ -104,7 +104,6 @@ module FiscalYearModule
 
 
   def date_valid_for_fy_code(date, fy_code)
-    debugger
     fy_code_date = nil
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
