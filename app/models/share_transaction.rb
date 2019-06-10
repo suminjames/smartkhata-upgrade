@@ -130,7 +130,7 @@ class ShareTransaction < ActiveRecord::Base
     end
   }
   # current_branch_id = selected_branch_id
-  scope :by_branch, ->(branch_id = :selected_branch_id) do
+  scope :by_branch, ->(branch_id) do
     includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
   end
 

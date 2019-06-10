@@ -28,7 +28,7 @@ class ShareTransactionsController < ApplicationController
       @transaction_date = bs_to_ad(bs_date)
     end
     @filterrific = initialize_filterrific(
-        ShareTransaction.by_branch,
+        ShareTransaction.by_branch(selected_branch_id),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -564,7 +564,7 @@ class ShareTransactionsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        ShareTransaction.by_branch,
+        ShareTransaction.by_branch(selected_branch_id),
         params[:filterrific],
         select_options: {
             by_client_id_closeouts: ClientAccount.options_for_client_select_closeouts(params[:filterrific]),
