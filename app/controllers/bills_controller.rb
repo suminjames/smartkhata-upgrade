@@ -15,7 +15,7 @@ class BillsController < ApplicationController
     # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
     # error flash message.
     if User.client_logged_in? &&
-        !UserSession.user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
+        !current_user&.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
       user_not_authorized and return
     end
 
@@ -30,7 +30,7 @@ class BillsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        Bill.by_branch_fy_code,
+        Bill.by_branch_fy_code(selected_branch_id, selected_fy_code),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -101,7 +101,7 @@ class BillsController < ApplicationController
   def ageing_analysis
     @filterrific = initialize_filterrific(
         # Show only purchase and unsettled bills. Used for ageing analysis report.
-        Bill.find_not_settled.purchase,
+        Bill.by_branch_id(selected_branch_id).find_not_settled.purchase,
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -142,7 +142,7 @@ class BillsController < ApplicationController
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.includes(:share_transactions => :isin_info).find(params[:id])
+    @bill = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).find(params[:id])
     authorize @bill
     @bill = @bill.decorate
     @has_voucher_pending_approval = false
@@ -166,7 +166,7 @@ class BillsController < ApplicationController
 
   def show_multiple
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    bills = Bill.includes(:share_transactions => :isin_info).where(id: bill_ids).decorate
+    bills = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).where(id: bill_ids).decorate
     respond_to do |format|
       format.html
       format.js
@@ -246,7 +246,7 @@ class BillsController < ApplicationController
     @settlement_id = params[:settlement_id]
     if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
-      bank_account = BankAccount.by_branch_id.default_for_payment
+      bank_account = BankAccount.by_branch_id(selected_branch_id).default_for_payment
 
       cheque_entry = ChequeEntry.next_available_serial_cheque(bank_account.id) if bank_account.present?
       @cheque_number = cheque_entry.cheque_number if cheque_entry.present?
@@ -263,7 +263,7 @@ class BillsController < ApplicationController
     @settlement_id = params[:settlement_id]
     @cheque_number = params[:cheque_number].to_i
     @nepse_settlement = NepseSaleSettlement.find_by(id: params[:nepse_settlement_id])
-    @bank_account = BankAccount.by_branch_id.find_by(id: params[:bank_account_id])
+    @bank_account = BankAccount.by_branch_id(selected_branch_id).find_by(id: params[:bank_account_id])
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     @back_path = request.referer
@@ -328,7 +328,7 @@ class BillsController < ApplicationController
     # @bill = Bill.find(params[:id])
     # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
     # The bang operator '!' after find_by_id raises an error and halts the script
-    @bill = Bill.find_by_id!(params[:id]).decorate
+    @bill = Bill.by_branch_id(selected_branch_id).find_by_id!(params[:id]).decorate
   end
 
   def authorize_bill
@@ -337,7 +337,8 @@ class BillsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def bill_params
-    params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
+    permitted_params = params.require(:bill).permit(:client_account_id, :date_bs, :provisional_base_price)
+    with_branch_user_params(permitted_params)
   end
 
 

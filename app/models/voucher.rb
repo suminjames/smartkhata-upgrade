@@ -68,7 +68,7 @@ class Voucher < ActiveRecord::Base
   validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
   ########################################
   # scopes
-  scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
+  scope :by_branch_fy_code, ->(branch_id, fy_code) do
     if branch_id == 0
       unscoped.where(fy_code: fy_code)
     else
@@ -182,7 +182,7 @@ class Voucher < ActiveRecord::Base
         if dr_particulars.size > 0
 
           if dr_particulars.first.has_bank?
-            beneficiary_name = UserSession.tenant.full_name
+            beneficiary_name = current_tennant.full_name
           else
             beneficiary_name = dr_particulars.first.ledger.name
           end
@@ -197,7 +197,7 @@ class Voucher < ActiveRecord::Base
         cheque_entries = self.cheque_entries.receipt.uniq
         cheque_entries.each do |cheque|
           if cr_particulars.first.has_bank?
-            beneficiary_name = UserSession.tenant.full_name
+            beneficiary_name = current_tenant.full_name
           else
             beneficiary_name = cr_particulars.first.ledger.name
           end
@@ -217,7 +217,7 @@ class Voucher < ActiveRecord::Base
 
       cheque_entries.each do |cheque|
         if particulars.first.has_bank?
-          beneficiary_name = UserSession.tenant.full_name
+          beneficiary_name = current_tenant.full_name
         else
           beneficiary_name = particulars.first.ledger.name
         end

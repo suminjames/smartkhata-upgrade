@@ -15,7 +15,7 @@ class VouchersController < ApplicationController
 
   def pending_vouchers
     # @vouchers = Voucher.pending.includes(:particulars).order("id ASC").references(:particulars).decorate
-    @vouchers = Voucher.by_branch_fy_code.pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
+    @vouchers = Voucher.by_branch_fy_code(selected_branch_id, selected_fy_code).pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
     render :index
   end
 
@@ -93,7 +93,8 @@ class VouchersController < ApplicationController
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
                                             tenant_full_name: current_tenant.full_name,
-                                            selected_fy_code: selected_fy_code)
+                                            selected_fy_code: selected_fy_code,
+                                            selected_branch_id: selected_branch_id)
 
     respond_to do |format|
       if voucher_creation.process
@@ -183,7 +184,7 @@ class VouchersController < ApplicationController
               cheque_entry.approved!
             end
 
-            @voucher.reviewer_id = UserSession.user_id
+            @voucher.reviewer_id = current_user&.id
             @voucher.complete!
             @voucher.save!
             success = true
@@ -191,7 +192,7 @@ class VouchersController < ApplicationController
           end
         elsif params[:reject]
           # TODO(Subas) what happens to bill
-          @voucher.reviewer_id = UserSession.user_id
+          @voucher.reviewer_id = current_user&.id
           voucher_amount = 0.0
 
           ActiveRecord::Base.transaction do
@@ -331,7 +332,8 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
+    permitted_params = params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
+    permitted_params.merge!({ current_user_id: current_user&.id })
   end
 
   def set_voucher_general_params

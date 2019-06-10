@@ -1,6 +1,6 @@
 
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id
 
   def initialize(attrs = {})
     super(attrs)
@@ -13,6 +13,7 @@ class Vouchers::Create < Vouchers::Base
     @vendor_account_id = attrs[:vendor_account_id]
     @settlements = []
     @selected_fy_code = attrs[:selected_fy_code]
+    @selected_branch_id = attrs[:selected_branch_id]
   end
 
   def process
@@ -27,7 +28,7 @@ class Vouchers::Create < Vouchers::Base
 
     # needed for error case
     if @voucher.is_payment_receipt?
-      bank_accounts_in_branch = BankAccount.by_branch_id
+      bank_accounts_in_branch = BankAccount.by_branch_id(selected_branch_id)
 
       default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
       default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first
