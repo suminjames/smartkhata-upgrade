@@ -94,7 +94,8 @@ class VouchersController < ApplicationController
                                             vendor_account_id: @vendor_account_id,
                                             tenant_full_name: current_tenant.full_name,
                                             selected_fy_code: selected_fy_code,
-                                            selected_branch_id: selected_branch_id)
+                                            selected_branch_id: selected_branch_id,
+                                            current_user: current_user)
 
     respond_to do |format|
       if voucher_creation.process
@@ -333,7 +334,7 @@ class VouchersController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
     permitted_params = params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
-    permitted_params.merge!({ current_user_id: current_user&.id })
+    with_branch_user_params(permitted_params)
   end
 
   def set_voucher_general_params

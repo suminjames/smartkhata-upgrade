@@ -70,9 +70,9 @@ class Voucher < ActiveRecord::Base
   # scopes
   scope :by_branch_fy_code, ->(branch_id, fy_code) do
     if branch_id == 0
-      unscoped.where(fy_code: fy_code)
+      where(fy_code: fy_code)
     else
-      unscoped.where(branch_id: branch_id, fy_code: fy_code)
+      where(branch_id: branch_id, fy_code: fy_code)
     end
   end
 

@@ -1,6 +1,6 @@
 
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id, :current_user
 
   def initialize(attrs = {})
     super(attrs)
@@ -14,6 +14,7 @@ class Vouchers::Create < Vouchers::Base
     @settlements = []
     @selected_fy_code = attrs[:selected_fy_code]
     @selected_branch_id = attrs[:selected_branch_id]
+    @current_user = attrs[:current_user]
   end
 
   def process
@@ -344,6 +345,8 @@ class Vouchers::Create < Vouchers::Base
       voucher.particulars.each do |particular|
         particular.transaction_date = voucher.date
         particular.date_bs = voucher.date_bs
+        particular.creator_id ||= current_user&.id
+        particular.updater_id = current_user&.id
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
 
@@ -519,6 +522,8 @@ class Vouchers::Create < Vouchers::Base
         end
       end
       # mark the voucher as settled if it is not payment bank
+      voucher.creator_id ||= current_user&.id
+      voucher.updater_id = current_user&.id
       voucher.complete! unless voucher.is_payment_bank
       res = true if voucher.save
     end

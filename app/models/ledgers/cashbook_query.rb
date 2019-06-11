@@ -3,6 +3,7 @@ class Ledgers::CashbookQuery
   include CustomDateModule
 
   def initialize(params, rel = Ledger)
+    debugger
     @rel = rel
     @particulars = ''
     @params = params

@@ -40,7 +40,7 @@ class LedgersController < ApplicationController
   # GET /ledgers/1.json
   def show
     @back_path = request.referer || ledgers_path
-    ledger_query = Ledgers::Query.new(params, @ledger, UserSession.selected_branch_id, UserSession.selected_fy_code)
+    ledger_query = Ledgers::Query.new(params, @ledger, selected_branch_id, selected_fy_code)
 
     if params[:format] == 'xlsx'
       report = Reports::Excelsheet::LedgersReport.new(@ledger, params, current_tenant, ledger_query)
@@ -296,11 +296,11 @@ class LedgersController < ApplicationController
         # dont consider the 0 balance ledger
         if ledger.closing_balance.abs > 0.01
           net_balance += _closing_balance
-          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, selected_branch_id, Time.now.to_date)
         end
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, selected_branch_id, Time.now.to_date)
       raise ActiveRecord::Rollback if net_balance == 0.0
     end
 
