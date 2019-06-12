@@ -467,7 +467,7 @@ class Ledger < ActiveRecord::Base
 
   def delete_associated_records
     LedgerBalance.unscoped.where(ledger_id: self.id).delete_all
-    LedgerDaily.unscoped.where(ledger_id: self.id).delete_all
+    LedgerDaily.where(ledger_id: self.id).delete_all
   end
 
   def effective_branch

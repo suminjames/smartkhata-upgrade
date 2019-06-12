@@ -45,7 +45,7 @@ module Accounts
         end
 
         LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
-        LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
+        LedgerDaily.where(ledger_id: ledger_to_merge_from.id).delete_all
       end
 
       def fix_opening_balances
