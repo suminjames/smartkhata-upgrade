@@ -1,9 +1,8 @@
 class Ledgers::CashbookQuery
-  attr_reader :error_message
+  attr_reader :error_message, :selected_branch_id, :selected_fy_code
   include CustomDateModule
 
-  def initialize(params, rel = Ledger)
-    debugger
+  def initialize(params,selected_fy_code, selected_branch_id, rel = Ledger)
     @rel = rel
     @particulars = ''
     @params = params
@@ -13,6 +12,8 @@ class Ledgers::CashbookQuery
     @closing_balance_sorted = nil
     @opening_balance_sorted = nil
     @cashbook_ledger_ids = Ledger.cashbook_ledgers.pluck(:id)
+    @selected_fy_code = selected_fy_code
+    @selected_branch_id = selected_branch_id
   end
 
   def ledger_with_particulars(no_pagination = false)
@@ -39,11 +40,11 @@ class Ledgers::CashbookQuery
       @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
       # get the closing balance from the previous day of date_from
-      previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_from_ad - 1 )
+      previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_from_ad - 1, selected_fy_code, selected_branch_id )
 
 
       # get the last day ledger daily balance for the query date
-      last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_to_ad)
+      last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_to_ad, selected_fy_code, selected_branch_id)
 
       @opening_balance_sorted = previous_day_balance
       @closing_balance_sorted = last_day_balance
@@ -67,11 +68,11 @@ class Ledgers::CashbookQuery
             @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date(date_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_ad - 1 )
+            previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_ad - 1, selected_fy_code, selected_branch_id )
 
 
             # get the last day ledger daily balance for the query date
-            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_ad)
+            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_ad, selected_fy_code, selected_branch_id)
 
             @opening_balance_sorted = previous_day_balance
             @closing_balance_sorted = last_day_balance
@@ -100,10 +101,10 @@ class Ledgers::CashbookQuery
             @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
-            previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_from_ad - 1 )
+            previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_from_ad - 1, selected_fy_code, selected_branch_id )
 
             # get the last day ledger daily balance for the query date
-            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_to_ad)
+            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_to_ad, selected_fy_code, selected_branch_id)
 
             @opening_balance_sorted = previous_day_balance
             @closing_balance_sorted = last_day_balance
@@ -152,12 +153,11 @@ class Ledgers::CashbookQuery
   def opening_balance_for_page(opening_balance, page, date_from_ad = nil, date_to_ad = nil)
     # raw sql can be potentially dangerous and memory leakage point
     # need to make sure this has proper binding
-
     additional_condition = ""
-    if UserSession.selected_branch_id == 0
-      additional_condition = "fy_code = #{UserSession.selected_fy_code}"
+    if selected_branch_id == 0
+      additional_condition = "fy_code = #{selected_fy_code}"
     else
-      additional_condition = "branch_id = #{UserSession.selected_branch_id} AND fy_code = #{UserSession.selected_fy_code}"
+      additional_condition = "branch_id = #{selected_branch_id} AND fy_code = #{selected_fy_code}"
     end
 
     cashbook_ledger_ids_str = @cashbook_ledger_ids*","

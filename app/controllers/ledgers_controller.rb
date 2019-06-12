@@ -187,7 +187,7 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @daybook_ledgers = Ledger.daybook_ledgers
-    ledger_query = Ledgers::DaybookQuery.new(params)
+    ledger_query = Ledgers::DaybookQuery.new(params, selected_branch_id, selected_fy_code)
 
     @particulars,
         @total_credit,
@@ -205,7 +205,7 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @cashbook_ledgers = Ledger.cashbook_ledgers
-    ledger_query = Ledgers::CashbookQuery.new(params)
+    ledger_query = Ledgers::CashbookQuery.new(params,selected_fy_code, selected_branch_id)
 
     @particulars,
         @total_credit,
@@ -296,11 +296,11 @@ class LedgersController < ApplicationController
         # dont consider the 0 balance ledger
         if ledger.closing_balance.abs > 0.01
           net_balance += _closing_balance
-          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, selected_branch_id, Time.now.to_date)
+          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, selected_branch_id, Time.now.to_date, current_user)
         end
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, selected_branch_id, Time.now.to_date)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, selected_branch_id, Time.now.to_date, current_user)
       raise ActiveRecord::Rollback if net_balance == 0.0
     end
 
@@ -320,7 +320,8 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id, :id])
+    permitted_params = params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id, :id])
+    with_branch_user_params(permitted_params)
   end
 
 

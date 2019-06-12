@@ -72,7 +72,7 @@ class VouchersController < ApplicationController
                                               client_account_id: @client_account_id,
                                               # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
-                                              bill_ids: @bill_ids).voucher_and_relevant
+                                              bill_ids: @bill_ids).voucher_and_relevant(selected_branch_id, selected_fy_code)
   end
 
   # POST /vouchers

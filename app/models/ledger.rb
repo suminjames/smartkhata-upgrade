@@ -340,9 +340,9 @@ class Ledger < ActiveRecord::Base
   end
 
 
-  def closing_balance
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.closing_balance
+  def closing_balance(fy_code,branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.closing_balance
     else
       # new_balance = self.ledger_balances.create!
       # new_balance.closing_balance
@@ -350,25 +350,25 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  def opening_balance
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.opening_balance
+  def opening_balance(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.opening_balance
     else
       0.0
     end
   end
 
-  def dr_amount
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.dr_amount
+  def dr_amount(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.dr_amount
     else
       0.0
     end
   end
 
-  def cr_amount
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.cr_amount
+  def cr_amount(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.cr_amount
     else
       0.0
     end

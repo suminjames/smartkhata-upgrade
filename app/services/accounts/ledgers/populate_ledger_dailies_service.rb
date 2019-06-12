@@ -21,8 +21,8 @@ module Accounts
         puts "Patching for #{ledger.name}"
 
         fy_codes.each do |fy_code|
-          UserSession.selected_branch_id = branch_id
-          UserSession.selected_fy_code = fy_code
+          # UserSession.selected_branch_id = branch_id
+          # UserSession.selected_fy_code = fy_code
 
           ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
           ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
@@ -34,8 +34,8 @@ module Accounts
           first_daily = true
           opening_balance = 0
           opening_balance_org = 0
-          LedgerDaily.unscoped.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
-          LedgerDaily.unscoped.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
+          LedgerDaily.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
+          LedgerDaily.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
 
           transaction_dates_org.each do |date|
             balance = 0

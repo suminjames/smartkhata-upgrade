@@ -1,9 +1,9 @@
 class Vouchers::Setup < Vouchers::Base
-  def voucher_and_relevant
-    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @clear_ledger)
+  def voucher_and_relevant(selected_branch_id, selected_fy_code)
+    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @clear_ledger, selected_branch_id, selected_fy_code)
   end
 
-  def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger)
+  def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger, selected_branch_id, selected_fy_code)
 
     bill_ids ||= []
 
@@ -12,7 +12,7 @@ class Vouchers::Setup < Vouchers::Base
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger)
+    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger,selected_branch_id, selected_fy_code)
     
 
     # do not create voucher if bills have pending deal cancel

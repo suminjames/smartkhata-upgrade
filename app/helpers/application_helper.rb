@@ -67,7 +67,7 @@ module ApplicationHelper
 
   # 	get fy_code selection form sesion
   def get_user_selected_fy_code
-    session[:user_selected_fy_code]
+    params[:user_selected_fy_code]
   end
 
   # 	set fy_code selection form sesion
