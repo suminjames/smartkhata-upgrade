@@ -53,7 +53,7 @@ gem 'whenever', :require => false # provides a clear syntax for writing and depl
 gem 'exception_notification' #provides a set of notifiers for sending notifications when errors occur
 
 group :production do
-  gem 'puma'
+  gem 'puma', '~> 4.0.0'
 end
 
 group :development do
@@ -88,6 +88,8 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails', '~> 3.5'
   gem 'factory_girl_rails'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
 
 group :test do

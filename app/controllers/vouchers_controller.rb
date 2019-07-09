@@ -61,6 +61,7 @@ class VouchersController < ApplicationController
   def new
     # two way to post to this controller
     # either clear_ledger and client_account_id or client_account_id and bill_ids
+
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -96,7 +97,6 @@ class VouchersController < ApplicationController
                                             selected_fy_code: selected_fy_code,
                                             selected_branch_id: selected_branch_id,
                                             current_user: current_user)
-
     respond_to do |format|
       if voucher_creation.process
 
@@ -135,6 +135,9 @@ class VouchersController < ApplicationController
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      redirect_to :back
   end
 
   # PATCH/PUT /vouchers/1
@@ -271,7 +274,6 @@ class VouchersController < ApplicationController
     bill = nil
     bills = []
     amount = 0.0
-
     # find the bills for the client
     if client_account_id.present?
       client_account = ClientAccount.find(client_account_id)

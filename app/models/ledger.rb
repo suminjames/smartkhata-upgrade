@@ -27,7 +27,7 @@
 
 class Ledger < ActiveRecord::Base
   include Auditable
-  # include ::Models::UpdaterWithFyCode
+  include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation
   attr_reader :closing_balance
@@ -196,26 +196,29 @@ class Ledger < ActiveRecord::Base
     (self.particulars.size <= 0)
   end
 
-  def update_custom(params)
-    self.save_custom(params)
+  def update_custom(params, fy_code, branch_id)
+    self.save_custom(params, fy_code, branch_id)
   end
 
-  def create_custom
-    self.save_custom
+  def create_custom(fy_code, branch_id)
+    self.save_custom(nil, fy_code, branch_id)
   end
 
-  def save_custom(params = nil)
+  def save_custom(params = nil, fy_code = nil, branch_id = nil)
     self.enforce_validation = true
     begin
       ActiveRecord::Base.transaction do
         if params
+          set_updater
           if self.update(params)
-            LedgerBalance.update_or_create_org_balance(self.id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id)
             return true
           end
         else
+          set_creator
+          set_updater
           if self.save
-            LedgerBalance.update_or_create_org_balance(self.id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id)
             return true
           end
         end

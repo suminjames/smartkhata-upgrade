@@ -24,12 +24,9 @@ class ApplicationController < ActionController::Base
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
 
-
-
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
   # resuce_from SmartKhata::Error::Branch, with: :branch_access_error
-
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found
     #  raise ActiveRecord::RecordNotFound.new('Record Not Found')
@@ -94,7 +91,6 @@ class ApplicationController < ActionController::Base
     current_user.current_url_link = request.fullpath
     UserSession.user = current_user
     UserSession.tenant = current_tenant
-
     # session storage for controllers
     session[:user_selected_fy_code] ||= (UserSession.selected_fy_code || get_fy_code)
     branch_id = get_preferrable_branch_id
@@ -156,6 +152,6 @@ class ApplicationController < ActionController::Base
   end
 
   def with_branch_user_params permitted_params
-    permitted_params.merge!({ current_user_id: current_user&.id, branch_id: active_record_branch_id})
+    permitted_params.merge!({ branch_id: active_record_branch_id})
   end
 end

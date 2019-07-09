@@ -24,10 +24,16 @@ module Models::UpdaterWithFyCode
 
   def set_updater
     self.updater_id = UserSession.id
+    self.ledger_balances.each do |ledger_balance|
+      ledger_balance.assign_attributes(updater_id: UserSession.id)
+    end
   end
 
   def set_creator
     self.creator_id = UserSession.id
+    self.ledger_balances.each do |ledger_balance|
+      ledger_balance.assign_attributes(creator_id: UserSession.id)
+    end
   end
 
   def add_fy_code

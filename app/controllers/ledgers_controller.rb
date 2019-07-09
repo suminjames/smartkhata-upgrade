@@ -100,13 +100,12 @@ class LedgersController < ApplicationController
   def create
     @ledger = Ledger.new(ledger_params)
     authorize @ledger
-
     respond_to do |format|
-      if @ledger.create_custom
+      path = request.path.split('/')
+      if @ledger.create_custom(path[1], path[2])
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
-        @ledger.ledger_balances = @ledger.ledger_balances
         format.html { render :new }
         format.json { render json: @ledger.errors, status: :unprocessable_entity }
       end
@@ -120,7 +119,8 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     respond_to do |format|
-      if @ledger.update_custom(ledger_params)
+      path = request.path.split('/')
+      if @ledger.update_custom(ledger_params, path[1], path[2])
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else

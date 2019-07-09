@@ -267,7 +267,12 @@ $(document).on("ready page:load", function(){
             allowClear: true,
             minimumInputLength: 3,
             ajax: {
-                url: "/ledgers/combobox_ajax_filter",
+                url: function(){
+                  let path = location.pathname
+                  path = path.split('/')
+                  let url = location.origin + '/' + path[1] + "/" + path[2] + "/ledgers/combobox_ajax_filter"
+                  return url
+                },
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
