@@ -1,8 +1,7 @@
 <%
   date = ad_to_bs_string(Date.today)
 %>
-
-<%= simple_form_for(voucher, :url => url_for(:action => 'create', :controller => 'vouchers')) do |f| %>
+<%= simple_form_for(voucher, url: vouchers_path(selected_branch_id: @selected_branch_id, selected_fy_code: @selected_fy_code)) do |f| %>
     <!-- add hidden field to track the type -->
     <%= hidden_field_tag 'voucher_type', voucher_type %>
     <%= hidden_field_tag 'client_account_id', client_account_id %>

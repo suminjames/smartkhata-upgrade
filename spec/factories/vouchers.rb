@@ -6,5 +6,7 @@ FactoryGirl.define do
     voucher_status 1
     branch_id 1
     desc nil
+    creator { User.first || create(:user) }
+    updater { User.first || create(:user) }
   end
 end
