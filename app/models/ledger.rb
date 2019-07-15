@@ -495,11 +495,16 @@ class Ledger < ActiveRecord::Base
         branch_id: branch_id,
         ledger_id: id
       }
-      ledger_blnc_opening_blnc = LedgerBalance.unscoped.where(search_params).first.opening_balance
-      ledger_dailies = LedgerDaily.unscoped.where(search_params)
-      ledger_daily_opening_blnc = ledger_dailies.first.opening_balance if !ledger_dailies.empty?
-      if((ledger_blnc_opening_blnc != ledger_daily_opening_blnc) && !ledger_dailies.empty?)
-        Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])
+      ledger_opening_balance = LedgerBalance.unscoped.where(search_params).first&.opening_balance
+      if ledger_opening_balance.present?
+        ledger_dailies = LedgerDaily.unscoped.where(search_params)
+        unless ledger_dailies.empty?
+          ledger_daily_opening_balance = ledger_dailies.first.opening_balance
+          if ledger_opening_balance != ledger_daily_opening_balance
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])
+          end
+        end
+
       end
     end
   end
