@@ -29,7 +29,7 @@ class Ledger < ActiveRecord::Base
   include Auditable
   # include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
-  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation
+  attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation, :changed_in_fiscal_year
   attr_reader :closing_balance
 
   delegate :nepse_code, to: :client_account, :allow_nil => true
@@ -64,7 +64,6 @@ class Ledger < ActiveRecord::Base
   validate :positive_amount, on: :create
   before_save :format_name, if: :name_changed?
   before_save :format_client_code, if: :client_code_changed?
-  before_create :update_closing_blnc
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
   validates_presence_of :group_id, if: :enforce_validation
@@ -148,6 +147,10 @@ class Ledger < ActiveRecord::Base
     self.client_code = self.client_code.try(:strip).try(:upcase)
   end
 
+  def unscoped_ledger_balances(fy_code, branch_id)
+    balances = LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code)
+    balance = balances.where(branch_id: branch_id ) unless branch_id == 0
+  end
   #
   # Where applicable,
   #   - Strip name of trailing and leading white space.
@@ -193,7 +196,8 @@ class Ledger < ActiveRecord::Base
   def has_editable_balance?
     # not sure if this is required
     # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
-    (self.particulars.size <= 0)
+    # (self.particulars.size <= 0)
+    true
   end
 
   def update_custom(params)
@@ -211,6 +215,7 @@ class Ledger < ActiveRecord::Base
         if params
           if self.update(params)
             LedgerBalance.update_or_create_org_balance(self.id)
+            update_ledger_dailies(params)
             return true
           end
         else
@@ -483,4 +488,19 @@ class Ledger < ActiveRecord::Base
 
   end
 
+  def update_ledger_dailies(params = {})
+    Branch.pluck(:id).each do |branch_id|
+      search_params = {
+        fy_code: params[:changed_in_fiscal_year],
+        branch_id: branch_id,
+        ledger_id: id
+      }
+      ledger_blnc_opening_blnc = LedgerBalance.unscoped.where(search_params).first.opening_balance
+      ledger_dailies = LedgerDaily.unscoped.where(search_params)
+      ledger_daily_opening_blnc = ledger_dailies.first.opening_balance if !ledger_dailies.empty?
+      if((ledger_blnc_opening_blnc != ledger_daily_opening_blnc) && !ledger_dailies.empty?)
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])
+      end
+    end
+  end
 end
