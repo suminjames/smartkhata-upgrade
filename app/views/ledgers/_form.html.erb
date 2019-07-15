@@ -41,18 +41,15 @@
       </div>
 
     </div>
+  
+    <h4>Opening Balance</h4>
+    <%= f.fields_for :ledger_balances, f.object.unscoped_ledger_balances(UserSession.selected_fy_code, UserSession.selected_branch_id) do |p| %>
+        <% if p.object.branch_id.present? %>
+          <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
 
-    <% if can_edit_balance %>
-        <h4>Opening Balance</h4>
-        <%= f.fields_for :ledger_balances do |p| %>
-            <% if p.object.branch_id.present? %>
-              <%= render :partial => 'ledger_balance_fields', :locals => {:f => p } %>
-
-            <% end %>
         <% end %>
-        <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
-
     <% end %>
+    <%= link_to_add_fields "Add Ledger Balance", f, :ledger_balances %>
     <br><br>
     <div class="form-actions">
       <%= f.button :submit %>
