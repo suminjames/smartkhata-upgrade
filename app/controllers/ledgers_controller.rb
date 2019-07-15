@@ -120,7 +120,7 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     respond_to do |format|
-      if @ledger.update_custom(ledger_params)
+      if @ledger.update_custom(ledger_params.merge({changed_in_fiscal_year: UserSession.selected_fy_code}))
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else
