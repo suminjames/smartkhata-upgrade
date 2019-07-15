@@ -66,6 +66,7 @@ class Ledger < ActiveRecord::Base
   before_save :format_client_code, if: :client_code_changed?
   before_create :update_closing_blnc
   before_destroy :delete_associated_records
+  after_update :update_opening_blnc
   validate :name_from_reserved?, :on => :create
   validates_presence_of :group_id, if: :enforce_validation
 
@@ -148,6 +149,10 @@ class Ledger < ActiveRecord::Base
     self.client_code = self.client_code.try(:strip).try(:upcase)
   end
 
+  def unscoped_ledger_balances(fy_code, branch_id)
+    balances = LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code)
+    balance = balances.where(branch_id: branch_id ) unless branch_id == 0
+  end
   #
   # Where applicable,
   #   - Strip name of trailing and leading white space.
@@ -193,7 +198,8 @@ class Ledger < ActiveRecord::Base
   def has_editable_balance?
     # not sure if this is required
     # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
-    (self.particulars.size <= 0)
+    # (self.particulars.size <= 0)
+    true
   end
 
   def update_custom(params)
@@ -483,4 +489,16 @@ class Ledger < ActiveRecord::Base
 
   end
 
+  def update_opening_blnc
+    search_params = {
+      fy_code: UserSession.selected_fy_code,
+      branch_id: UserSession.selected_branch_id,
+      ledger_id: self.id
+    }
+    ledger_blnc_opening_blnc = LedgerBalance.unscoped.where(search_params).first.opening_balance
+    ledger_daily_opening_blnc = LedgerDaily.unscoped.where(search_params).first.opening_balance
+    if ledger_blnc_opening_blnc != ledger_daily_opening_blnc
+      Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])  
+    end
+  end
 end
