@@ -1,37 +1,60 @@
 require 'rails_helper'
 
 RSpec.describe  Ledgers::ParticularEntry do
+  include Accounts::Ledgers
   include_context 'session_setup'
 
   let!(:ledger) {create(:ledger)}
+  let(:branch1) { Branch.first }
+  let(:branch2) { create(:branch) }
+  let(:before_particular_branch_1) { create(:particular, ledger_id: ledger.id, branch_id: branch1.id, amount: 5000, transaction_date: '2017-01-02', fy_code: 7475) }
+  let(:before_particular_branch_2) { create(:particular, ledger_id: ledger.id, branch_id: branch2.id, amount: 1000, transaction_date: '2017-01-02', fy_code: 7475) }
+  let(:after_particular_branch_1) { create(:particular, ledger_id: ledger.id, branch_id: branch1.id, amount: 1000, transaction_date: '2017-02-03', fy_code: 7475) }
+  
+  before do
+    travel_to Time.local(2017, 02, 01)
+  end
 
   describe '.calculate_balances' do
     particular_entry = Ledgers::ParticularEntry.new
 
-
     context 'when accounting date is before date' do
-      let!(:ledger_daily_org_subject) {create(:ledger_daily, ledger: ledger, opening_balance: 0, closing_balance: 6000, dr_amount: 6000, branch_id: nil, fy_code: 7475, date: '2017-01-02')}
-      let!(:ledger_daily_org_future) {create(:ledger_daily, ledger: ledger, opening_balance: 6000, closing_balance: 7000, dr_amount: 1000, branch_id: nil, fy_code: 7475, date: '2017-02-03')}
-      let!(:ledger_daily_subject) {create(:ledger_daily, ledger: ledger, opening_balance: 0, closing_balance: 5000,dr_amount: 5000, branch_id: 1, fy_code: 7475, date: '2017-01-02')}
-      let!(:ledger_daily_future) {create(:ledger_daily, ledger: ledger, opening_balance: 5000, closing_balance: 6000, dr_amount: 1000, branch_id: 1, fy_code: 7475, date: '2017-02-03')}
+      # let!(:ledger_daily_org_subject) {create(:ledger_daily, ledger: ledger, opening_balance: 0, closing_balance: 6000, dr_amount: 6000, branch_id: nil, fy_code: 7475, date: '2017-01-02')}
+      # let!(:ledger_daily_org_future) {create(:ledger_daily, ledger: ledger, opening_balance: 6000, closing_balance: 7000, dr_amount: 1000, branch_id: nil, fy_code: 7475, date: '2017-02-03')}
+      # let!(:ledger_daily_subject) {create(:ledger_daily, ledger: ledger, opening_balance: 0, closing_balance: 5000,dr_amount: 5000, branch_id: 1, fy_code: 7475, date: '2017-01-02')}
+      # let!(:ledger_daily_future) {create(:ledger_daily, ledger: ledger, opening_balance: 5000, closing_balance: 6000, dr_amount: 1000, branch_id: 1, fy_code: 7475, date: '2017-02-03')}
 
-      # cant assign closing balance here
-      let!(:ledger_balance_org) {create(:ledger_balance, ledger: ledger, opening_balance: 0, branch_id: nil, fy_code: 7475)}
-      let!(:ledger_balance) {create(:ledger_balance, ledger: ledger, opening_balance: 0, branch_id: 1, fy_code: 7475)}
+      # # cant assign closing balance here
+      # let!(:ledger_balance_org) {create(:ledger_balance, ledger: ledger, opening_balance: 0, branch_id: nil, fy_code: 7475)}
+      # let!(:ledger_balance) {create(:ledger_balance, ledger: ledger, opening_balance: 0, branch_id: 1, fy_code: 7475)}
+
+      let(:ledger_daily_org_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-01-02').first }
+      let(:ledger_daily_org_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-02-03').first } 
+      let(:ledger_daily_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-01-02').first }
+      let(:ledger_daily_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-02-03').first }
+      let(:ledger_balance_org) { LedgerBalance.unscoped.by_fy_code_org(7475).find_or_create_by!(ledger_id: ledger.id) }
+      let(:ledger_balance) { LedgerBalance.unscoped.by_branch_fy_code(branch1.id, 7475).find_or_create_by!(ledger_id: ledger.id) }
 
       context 'and debit' do
+        
         before do
-          ledger_balance.update_attributes(closing_balance: 6000, dr_amount: 6000)
-          ledger_balance_org.update_attributes(closing_balance: 7000, dr_amount: 7000)
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, 1)
+          before_particular_branch_1
+          before_particular_branch_2
+          after_particular_branch_1
+          Branch.pluck(:id).each do |branch_id|
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, false, branch_id, 7475)
+            Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, false, branch_id, 7475)
+          end
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, branch1.id)
+          travel_back
         end
 
         it "adds dr_amount and increments closing balance for ledger dailies for that day" do
           # expect changes for ledger_daily_subject for the date
-          expect(ledger_daily_subject.reload.dr_amount).to eq(9000)
-          expect(ledger_daily_subject.reload.cr_amount).to eq(0)
-          expect(ledger_daily_subject.reload.closing_balance).to eq(9000)
-          expect(ledger_daily_subject.reload.opening_balance).to eq(0)
+          expect(ledger_daily_subject.dr_amount).to eq(9000)
+          expect(ledger_daily_subject.cr_amount).to eq(0)
+          expect(ledger_daily_subject.closing_balance).to eq(9000)
+          expect(ledger_daily_subject.opening_balance).to eq(0)
 
           # expect changes for ledger_daily_org_subject for the date
           expect(ledger_daily_org_subject.reload.dr_amount).to eq(10000)
@@ -67,9 +90,15 @@ RSpec.describe  Ledgers::ParticularEntry do
 
       context 'and credit' do
         before do
-          ledger_balance.update_attributes(closing_balance: 6000, dr_amount: 6000)
-          ledger_balance_org.update_attributes(closing_balance: 7000, dr_amount: 7000)
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, false, 4000, 7475, 1)
+          before_particular_branch_1
+          before_particular_branch_2
+          after_particular_branch_1
+          Branch.pluck(:id).each do |branch_id|
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, false, branch_id, 7475)
+            Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, false, branch_id, 7475)
+          end
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, false, 4000, 7475, branch1.id)
+          travel_back
         end
 
         it "adds cr_amount and decrements closing balance for ledger dailies for that day" do

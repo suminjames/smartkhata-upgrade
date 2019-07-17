@@ -53,7 +53,7 @@ gem 'whenever', :require => false
 gem 'exception_notification'
 
 group :production do
-  gem 'puma'
+  gem 'puma', '~>4.0.0'
 end
 
 group :development do
@@ -88,6 +88,8 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails', '~> 3.5'
   gem 'factory_girl_rails'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
 
 group :test do

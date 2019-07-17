@@ -283,6 +283,7 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (3.2.0)
+    nio4r (2.4.0)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
@@ -306,8 +307,14 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (3.4.3)
+      byebug (>= 9.0, < 9.1)
+      pry (~> 0.10)
+    pry-rails (0.3.9)
+      pry (>= 0.10.4)
     public_suffix (2.0.4)
-    puma (3.4.0)
+    puma (4.0.1)
+      nio4r (~> 2.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
@@ -569,7 +576,9 @@ DEPENDENCIES
   pluck_to_hash
   prawn
   prawn-table (~> 0.2.2)
-  puma
+  pry-byebug
+  pry-rails
+  puma (~> 4.0.0)
   pundit
   quiet_assets
   rack-mini-profiler
@@ -611,4 +620,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.16.2
+   1.17.3
