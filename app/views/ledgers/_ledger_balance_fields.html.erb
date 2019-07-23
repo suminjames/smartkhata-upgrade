@@ -1,5 +1,6 @@
 <div class="row particular">
   <div class="col-xs-5"><%= f.input :opening_balance, input_html: { value: f.object.formatted_opening_balance },label:false %></div>
+  <%= f.hidden_field(:current_user_id, value: current_user.id)%>
   <div class="col-xs-2">
     <%= f.select :opening_balance_type,
                  options_for_select(

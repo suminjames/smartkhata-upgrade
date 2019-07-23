@@ -12,8 +12,8 @@ module Models::UpdaterWithFyCode
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
-      scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
-
+      scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
+      attr_accessor :current_user_id
       # default_scope
       # scope based on the fycode selection
       # default_scope { where(fy_code: UserSession.selected_fy_code)}
@@ -23,16 +23,16 @@ module Models::UpdaterWithFyCode
   private
 
   def set_updater
-    self.updater_id = UserSession.id
+    self.updater_id = current_user_id
     self.ledger_balances.each do |ledger_balance|
-      ledger_balance.assign_attributes(updater_id: UserSession.id)
+      ledger_balance.assign_attributes(updater_id: current_user_id)
     end
   end
 
   def set_creator
-    self.creator_id = UserSession.id
+    self.creator_id = current_user_id
     self.ledger_balances.each do |ledger_balance|
-      ledger_balance.assign_attributes(creator_id: UserSession.id)
+      ledger_balance.assign_attributes(creator_id: current_user_id)
     end
   end
 

@@ -14,7 +14,7 @@ class BillsController < ApplicationController
   def index
     # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
     # error flash message.
-    if User.client_logged_in? &&
+    if current_user &&
         !current_user&.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
       user_not_authorized and return
     end

@@ -14,7 +14,7 @@ class ImportPayout < ImportFile
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
-    @selected_fy_code = @selected_fy_code
+    @selected_fy_code = selected_fy_code
   end
 
   def process(multiple_settlement_ids_allowed = false)
@@ -40,11 +40,11 @@ class ImportPayout < ImportFile
       unless multiple_settlement_ids_allowed
         begin
           @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, selected_fy_code)
+          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
             @error_message = "Date is invalid for selected fiscal year"
           end
         rescue
-          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, selected_fy_code)
+          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
         end
         return if @error_message
       end

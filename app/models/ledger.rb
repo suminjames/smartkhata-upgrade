@@ -211,14 +211,14 @@ class Ledger < ActiveRecord::Base
         if params
           set_updater
           if self.update(params)
-            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             return true
           end
         else
           set_creator
           set_updater
           if self.save
-            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             return true
           end
         end
