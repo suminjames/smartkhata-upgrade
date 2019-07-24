@@ -55,7 +55,7 @@ class ChequeEntriesController < ApplicationController
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
-    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     respond_to do |format|
       format.html
@@ -138,7 +138,7 @@ class ChequeEntriesController < ApplicationController
 
   # get
   def void_show
-    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
   end
 
@@ -146,7 +146,7 @@ class ChequeEntriesController < ApplicationController
   def void_do
     void_date_bs = params.dig(:cheque_entry, :void_date)
     void_narration = params.dig(:cheque_entry, :void_narration)
-    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, void_date_bs, void_narration, current_tenant.full_name)
+    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, void_date_bs, void_narration, current_tenant.full_name, selected_branch_id, selected_fy_code)
     cheque_activity.process
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
@@ -159,7 +159,7 @@ class ChequeEntriesController < ApplicationController
 
   # get
   def bounce_show
-    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
   end
 
@@ -167,7 +167,7 @@ class ChequeEntriesController < ApplicationController
   def bounce_do
     bounce_date_bs = params.dig(:cheque_entry, :bounce_date)
     bounce_narration = params.dig(:cheque_entry, :bounce_narration)
-    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name)
+    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name, selected_branch_id, selected_fy_code)
     cheque_activity.process
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
@@ -181,14 +181,14 @@ class ChequeEntriesController < ApplicationController
   def represent_show
     # TODO(sarojk): Representing disabled for now.  Revive later.
     redirect_to @cheque_entry, :flash => {:alert => 'Automatic representing of cheques is disabled. Please re-create a receipt voucher using the same cheque number to record representing of cheque.'} and return
-    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name)
+    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
   end
 
   def represent_do
     represent_date_bs = params.dig(:cheque_entry, :represent_date)
     represent_narration = params.dig(:cheque_entry, :represent_narration)
-    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, represent_date_bs, represent_narration, current_tenant.full_name)
+    cheque_activity = ChequeEntries::RepresentActivity.new(@cheque_entry, represent_date_bs, represent_narration, current_tenant.full_name, selected_branch_id, selected_fy_code)
     cheque_activity.process
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date

@@ -2,9 +2,9 @@ class ChequeEntries::Activity
 
   include ApplicationHelper
 
-  attr_accessor :cheque_entry, :error_message
+  attr_accessor :cheque_entry, :error_message, :selected_branch_id, :selected_fy_code
 
-  def initialize(cheque_entry, current_tenant_full_name)
+  def initialize(cheque_entry, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil)
     @cheque_entry = cheque_entry
     @error_message = nil
     @bank = nil
@@ -30,11 +30,11 @@ class ChequeEntries::Activity
   end
 
   def valid_branch?
-    @cheque_entry.branch_id == UserSession.selected_branch_id
+    @cheque_entry.branch_id == @selected_branch_id
   end
 
   def valid_for_the_fiscal_year?
-    UserSession.selected_fy_code == get_fy_code
+    @selected_fy_code == get_fy_code
   end
 
   def set_error(error_message)

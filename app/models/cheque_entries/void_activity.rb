@@ -1,13 +1,13 @@
 class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
-  def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name)
-    super(cheque_entry, current_tenant_full_name)
+  def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil)
+    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code)
     @cheque_entry.void_date_bs = void_date_bs
     @cheque_entry.void_narration = void_narration
   end
 
   def valid_for_the_fiscal_year?
-    UserSession.selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.void_date_bs)
+    @selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.void_date_bs)
   end
 
   def can_activity_be_done?
