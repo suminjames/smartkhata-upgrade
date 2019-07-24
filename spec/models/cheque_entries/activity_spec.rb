@@ -2,10 +2,24 @@ require 'rails_helper'
 
 RSpec.describe ChequeEntries::Activity do
   include_context 'session_setup'
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:bank){create(:bank)}
-  let(:bank_account){create(:bank_account, bank_id: bank.id)}
-  let(:cheque_entry){create(:cheque_entry, branch_id: 1, beneficiary_name: 'nistha')}
-  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti') }
+  let(:bank_account) do
+    account = BankAccount.new(bank_id: bank.id, branch_id: 1, account_number: 12345678, bank_branch: 'kathmandu', current_user_id: @user.id)
+    account.save
+    account
+  end
+  let(:cheque_entry) do
+    cheque = ChequeEntry.new(branch_id: 1, beneficiary_name: 'nistha', bank_account_id: bank_account.id, cheque_number: 7500, current_user_id: @user.id)
+    cheque.save
+    cheque
+  end
+  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', 1, 7576) }
+  before do
+    travel_to "2019-01-01".to_date
+    allow(DateTime).to receive(:now).and_return Date.today
+  end
 
   describe '.process' do
     context 'when invalid fy_code' do
@@ -59,14 +73,13 @@ RSpec.describe ChequeEntries::Activity do
   describe '.valid_branch?' do
     context  'when branch matched to user selected branch' do
       it 'returns true' do
-        UserSession.selected_branch_id = 1
         expect(subject.valid_branch?).to eq(true)
       end
     end
 
     context 'when branch unmatched to user selected branch' do
       it 'returns false' do
-        UserSession.selected_branch_id = 2
+        subject.selected_branch_id = 2
         expect(subject.valid_branch?).to eq(false)
       end
     end
@@ -75,14 +88,13 @@ RSpec.describe ChequeEntries::Activity do
   describe '.valid_for_the_fiscal_year?' do
     context 'when fy_code matched to user selected fy_code' do
       it 'returns true' do
-        UserSession.selected_fy_code = 7576
         expect(subject.valid_for_the_fiscal_year?).to eq(true)
       end
     end
 
     context 'when fy_code not matched to user selected fy_code' do
       it 'returns false' do
-        UserSession.selected_fy_code = 7374
+        subject.selected_fy_code = 7374
         expect(subject.valid_for_the_fiscal_year?).to eq(false)
       end
     end
@@ -176,5 +188,9 @@ RSpec.describe ChequeEntries::Activity do
         end
       end
     end
+  end
+
+  after do
+    travel_back
   end
 end
