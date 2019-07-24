@@ -90,7 +90,7 @@ class BankAccount < ActiveRecord::Base
     Group.find_by(name: "Current Assets").id
   end
 
-  def save_custom
+  def save_custom(fy_code, branch_id, current_user_id)
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?
@@ -100,7 +100,7 @@ class BankAccount < ActiveRecord::Base
       begin
         ActiveRecord::Base.transaction do
           if self.save
-              LedgerBalance.update_or_create_org_balance(self.ledger.id)
+              LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, branch_id, current_user_id)
               return true
           end
         end

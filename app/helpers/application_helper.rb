@@ -73,23 +73,15 @@ module ApplicationHelper
   # 	set fy_code selection form sesion
   def set_user_selected_fy_code(fy_code)
     fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
-    # user session is for model access
-    # UserSession.selected_fy_code = fy_code
-    # session is for controller and view
     session[:user_selected_fy_code] = fy_code
   end
 
   # 	set fy_code selection form sesion
   def set_user_selected_branch_fy_code(branch_id, fy_code)
     fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
-    # user session is for model access
-
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
     session[:user_selected_branch_id] = branch_id
-
-    # UserSession.selected_fy_code = session[:user_selected_fy_code]
-    # UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
 
 

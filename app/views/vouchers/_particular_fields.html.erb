@@ -139,7 +139,7 @@
     <div class="col-sk-3 padding-zero remove-particular">
       <div class="col-sk-16">
         <!--<%= select_tag 'branch_id', options_from_collection_for_select(Branch.all, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control' %>-->
-        <%= f.association :branch, collection: available_branches, label_method: :code, value_method: :id, label: false, selected: UserSession.selected_branch_id, include_blank: false, :input_html => {:class => 'form-control',  :autocomplete => 'off'} %>
+        <%= f.association :branch, collection: available_branches, label_method: :code, value_method: :id, label: false, selected: @selected_branch_id, include_blank: false, :input_html => {:class => 'form-control',  :autocomplete => 'off'} %>
       </div>
       <%= link_to '<i class="fa fa-times" aria-hidden="true"></i>'.html_safe,
                   '#',

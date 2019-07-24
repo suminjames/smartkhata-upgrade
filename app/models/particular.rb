@@ -94,15 +94,6 @@ class Particular < ActiveRecord::Base
   scope :find_by_date_range, -> (date_from, date_to) { where(:transaction_date => date_from.beginning_of_day..date_to.end_of_day) }
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
-  # scope based on the branch and fycode selection
-  # default_scope do
-  #   if UserSession.selected_branch_id == 0
-  #     where(fy_code: UserSession.selected_fy_code)
-  #   else
-  #     where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-  #   end
-  # end
-
 
   before_save :process_particular
 

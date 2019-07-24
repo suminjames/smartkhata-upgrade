@@ -40,13 +40,14 @@ class LedgerBalance < ActiveRecord::Base
   # perhaps the selector wont return nil
   delegate :name, to: :ledger
 
-  default_scope do
-    if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-    end
-  end
+  # default_scope do
+  #   if UserSession.selected_branch_id == 0
+  #     where(fy_code: UserSession.selected_fy_code)
+  #   else
+  #     where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+  #   end
+  # end
+
   def update_opening_closing_balance
     unless self.opening_balance.blank?
       if self.opening_balance_type == 'cr'
