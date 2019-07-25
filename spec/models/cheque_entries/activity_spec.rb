@@ -5,17 +5,10 @@ RSpec.describe ChequeEntries::Activity do
   include ActiveSupport::Testing::TimeHelpers
 
   let(:bank){create(:bank)}
-  let(:bank_account) do
-    account = BankAccount.new(bank_id: bank.id, branch_id: 1, account_number: 12345678, bank_branch: 'kathmandu', current_user_id: @user.id)
-    account.save
-    account
-  end
-  let(:cheque_entry) do
-    cheque = ChequeEntry.new(branch_id: 1, beneficiary_name: 'nistha', bank_account_id: bank_account.id, cheque_number: 7500, current_user_id: @user.id)
-    cheque.save
-    cheque
-  end
-  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', 1, 7576) }
+  let(:bank_account) { create(:bank_account, bank_id: bank.id) }
+  let(:cheque_entry) { create(:cheque_entry, branch_id: 1) }
+  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', 1, 7576, User.first.id) }
+
   before do
     travel_to "2019-01-01".to_date
     allow(DateTime).to receive(:now).and_return Date.today

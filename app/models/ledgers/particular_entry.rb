@@ -1,7 +1,7 @@
 class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
-  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,acting_user)
+  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
     process(ledger: ledger,
             voucher: voucher,
             debit: debit,
@@ -9,18 +9,20 @@ class Ledgers::ParticularEntry
             descr: descr,
             branch_id: branch_id,
             accounting_date: accounting_date,
-            creator_id: acting_user&.id,
-            updater_id: acting_user&.id
+            creator_id: current_user_id,
+            updater_id: current_user_id,
+            current_user_id: current_user_id
     )
   end
 
   # reverse a particular entry
-  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry)
+  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry, current_user_id)
     process(particular: particular,
             voucher: voucher,
             descr: descr,
             adjustment: adjustment,
-            reversed_cheque_entry: reversed_cheque_entry
+            reversed_cheque_entry: reversed_cheque_entry,
+            current_user_id: current_user_id
     )
   end
 
@@ -48,7 +50,7 @@ class Ledgers::ParticularEntry
     reversed_cheque_entry = attrs[:reversed_cheque_entry]
     creator_id = attrs[:creator_id]
     updater_id = attrs[:updater_id]
-
+    current_user_id = attrs[:current_user_id]
     # when all branch selected fall back to the user's branch id
     branch_id = UserSession.branch_id if branch_id == 0
     fy_code = voucher.fy_code || UserSession.selected_fy_code
@@ -74,9 +76,7 @@ class Ledgers::ParticularEntry
     return false if particular && (amount - adjustment).abs <= 0.01
 
     transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-
-    calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id)
-
+    calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id, current_user_id)
     new_particular = Particular.create!(
         transaction_type: transaction_type,
         ledger_id: ledger.id,
@@ -87,7 +87,9 @@ class Ledgers::ParticularEntry
         branch_id: branch_id,
         fy_code: get_fy_code(accounting_date),
         creator_id: creator_id,
-        updater_id: updater_id)
+        updater_id: updater_id,
+        current_user_id: current_user_id
+        )
 
     if particular
       cheque_entries_on_receipt = particular.cheque_entries_on_receipt

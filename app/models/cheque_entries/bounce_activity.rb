@@ -1,7 +1,7 @@
 class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
-  def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil)
-    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code)
+  def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil, current_user_id)
+    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user_id)
     @cheque_entry.bounce_date_bs = bounce_date_bs
     @cheque_entry.bounce_narration = bounce_narration
   end
@@ -65,12 +65,12 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     ActiveRecord::Base.transaction do
       processed_bills.each(&:save)
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date)
+      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date, branch_id: @selected_branch_id, current_user_id: @current_user_id)
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
       voucher.particulars.each do |particular|
-        reverse_accounts(particular, new_voucher, description)
+        reverse_accounts(particular, new_voucher, description, 0.0, nil, @current_user_id)
       end
 
       if new_voucher.particulars.size != voucher.particulars.size
@@ -130,12 +130,12 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
       processed_bills.each(&:save)
 
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date)
+      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date, branch_id: @selected_branch_id, current_user_id: @current_user_id)
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
       particulars_for_reverse_entry.each do |particular|
-        reverse_accounts(particular, new_voucher, description, 0.0, cheque_entry)
+        reverse_accounts(particular, new_voucher, description, 0.0, cheque_entry, @current_user_id)
       end
 
       if new_voucher.particulars.size != particulars_for_reverse_entry.size

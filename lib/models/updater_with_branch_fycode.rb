@@ -5,8 +5,8 @@ module Models::UpdaterWithBranchFycode
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator
-      before_save :set_updater
+      before_validation :set_creator
+      before_validation :set_updater
 
       validates_presence_of :branch_id, :creator_id, :updater_id
       # to keep track of the user who created and last updated the ledger

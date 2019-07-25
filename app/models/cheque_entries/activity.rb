@@ -2,9 +2,9 @@ class ChequeEntries::Activity
 
   include ApplicationHelper
 
-  attr_accessor :cheque_entry, :error_message, :selected_branch_id, :selected_fy_code
+  attr_accessor :cheque_entry, :error_message, :selected_branch_id, :selected_fy_code, :current_user_id
 
-  def initialize(cheque_entry, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil)
+  def initialize(cheque_entry, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil, current_user_id)
     @cheque_entry = cheque_entry
     @error_message = nil
     @bank = nil
@@ -14,6 +14,7 @@ class ChequeEntries::Activity
     @margin_of_error_amount = 0.01
     @selected_branch_id = selected_branch_id
     @selected_fy_code = selected_fy_code
+    @current_user_id = current_user_id
   end
 
   def process
