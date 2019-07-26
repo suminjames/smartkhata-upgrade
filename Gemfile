@@ -82,6 +82,7 @@ group :development do
   gem 'guard-rspec', require: false
   gem 'spring-commands-rspec'
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+  gem 'pry-stack_explorer'
 end
 
 group :development, :test do
@@ -104,5 +105,5 @@ group :test do
   gem "webmock"
   gem "vcr"
   gem 'selenium-webdriver'
-  gem 'chromedriver-helper'
+  gem 'webdrivers', '~> 4.0'
 end
