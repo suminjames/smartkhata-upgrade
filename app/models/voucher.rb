@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
@@ -182,7 +182,7 @@ class Voucher < ActiveRecord::Base
         if dr_particulars.size > 0
 
           if dr_particulars.first.has_bank?
-            beneficiary_name = current_tennant.full_name
+            beneficiary_name = current_tenant.full_name
           else
             beneficiary_name = dr_particulars.first.ledger.name
           end

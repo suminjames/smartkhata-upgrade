@@ -61,7 +61,7 @@ RSpec.describe BankAccount, type: :model do
     it "should create ledger for bank account" do
       allow(subject).to receive(:get_current_assets_group).and_return(5)
 
-      expect(subject.save_custom).to be_truthy
+      expect(subject.save_custom(7374, 1, User.first.id)).to be_truthy
       expect(subject.ledger.name).to eq("Bank:"+subject.bank.name+"(#{subject.account_number})")
     end
   end

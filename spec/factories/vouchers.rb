@@ -8,5 +8,6 @@ FactoryGirl.define do
     desc nil
     creator { User.first || create(:user) }
     updater { User.first || create(:user) }
+    current_tenant { Tenant.first || create(:tenant) }
   end
 end

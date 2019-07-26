@@ -120,7 +120,8 @@ class LedgersController < ApplicationController
 
     respond_to do |format|
       path = request.path.split('/')
-      if @ledger.update_custom(ledger_params, path[1], path[2])
+      fy_code, branch_id = path[1], path[2]
+      if @ledger.update_custom(ledger_params, fy_code, branch_id)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else

@@ -118,6 +118,7 @@ class Ledgers::ParticularEntry
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
+    set_current_user = lambda { |o| o.current_user_id = current_user_id }
     # check if there are records after the entry
     if accounting_date <= Time.now.to_date
       # get all the ledger dailies for the ledger which is after the accounting date
@@ -139,6 +140,7 @@ class Ledgers::ParticularEntry
 
         # update the cost center daily balances
         future_activities_cost_center.each do |d|
+          d.tap(&set_current_user)
           d.closing_balance += adjustment_amount
           d.opening_balance += adjustment_amount
           d.save!
@@ -146,6 +148,7 @@ class Ledgers::ParticularEntry
 
         # update the org level daily balances
         future_activities_org.each do |d|
+          d.tap(&set_current_user)
           d.closing_balance += adjustment_amount
           d.opening_balance += adjustment_amount
           d.save!
@@ -153,7 +156,6 @@ class Ledgers::ParticularEntry
 
       end
     end
-    set_current_user = lambda { |l| l.current_user_id = current_user_id }
     # need to do the unscoped here for matching the ledger balance
     ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
     ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)

@@ -364,17 +364,17 @@ class ClientAccount < ActiveRecord::Base
 
   end
 
-  def pending_bills_path
-    Rails.application.routes.url_helpers.bills_path("filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
+  def pending_bills_path(selected_fy_code, selected_branch_id)
+    Rails.application.routes.url_helpers.bills_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
   end
 
-  def share_inventory_path
-    Rails.application.routes.url_helpers.share_transactions_path("filterrific[by_client_id]":"#{self.id}")
+  def share_inventory_path(selected_fy_code, selected_branch_id)
+    Rails.application.routes.url_helpers.share_transactions_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}")
   end
 
 
-  def ledger_closing_balance
-    self.ledger.closing_balance
+  def ledger_closing_balance(fy_code,branch_id)
+    self.ledger.closing_balance(fy_code,branch_id)
   end
 
   def self.existing_referrers_names

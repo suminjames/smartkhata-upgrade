@@ -235,8 +235,8 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".get_current_valuation" do
     let(:isin_info){create(:isin_info, last_price: 9)}
-    let(:share_inventory){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 5)}
-    let(:share_inventory1){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 10)}
+    let(:share_inventory){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 5, current_user_id: User.first.id, branch_id: 1)}
+    let(:share_inventory1){create(:share_inventory, isin_info:isin_info, floorsheet_blnc: 10, current_user_id: User.first.id, branch_id: 1)}
     let(:client_account){create(:client_account, share_inventories: [share_inventory])}
     let(:client_account1){create(:client_account, share_inventories: [share_inventory,share_inventory1])}
     it "should get sum of floorsheet_blnc and isin_info last_price" do
@@ -251,7 +251,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return  all related bills"  do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
-      expect(subject.get_all_related_bills).to eq([bill2, bill1])
+      expect(subject.get_all_related_bills).to eq([bill1, bill2])
     end
   end
 
@@ -261,7 +261,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return  all related bills ids"  do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
-      expect(subject.get_all_related_bill_ids).to eq([bill2.id, bill1.id])
+      expect(subject.get_all_related_bill_ids).to eq([bill1.id, bill2.id])
     end
   end
 
@@ -400,13 +400,13 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".pending_bills_path" do
     it "should return path for pending bills" do
-      expect(subject.pending_bills_path).to eq("/bills?filterrific%5Bby_bill_status%5D=pending&filterrific%5Bby_client_id%5D=#{subject.id}")
+      expect(subject.pending_bills_path(7374, 1)).to eq("/7374/1/bills?filterrific%5Bby_bill_status%5D=pending&filterrific%5Bby_client_id%5D=#{subject.id}")
     end
   end
 
   describe ".share_inventory_path" do
     it "should return share inventory path" do
-      expect(subject.share_inventory_path).to eq("/share_transactions?filterrific%5Bby_client_id%5D=#{subject.id}")
+      expect(subject.share_inventory_path(7374, 1)).to eq("/7374/1/share_transactions?filterrific%5Bby_client_id%5D=#{subject.id}")
     end
   end
 
@@ -414,7 +414,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return ledger closing balance" do
       allow(subject).to receive(:ledger).and_return(create(:ledger))
       allow_any_instance_of(Ledger).to receive(:closing_balance).and_return(5000)
-      expect(subject.ledger_closing_balance).to eq(5000)
+      expect(subject.ledger_closing_balance(7374, 1)).to eq(5000)
     end
   end
 

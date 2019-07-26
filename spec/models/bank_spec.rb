@@ -1,8 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Bank, type: :model do
-  subject {build(:bank)
-  }
+  subject {build(:bank)}
   include_context 'session_setup'
 
   #  before do

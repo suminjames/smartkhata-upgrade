@@ -163,7 +163,7 @@ class ChequeEntry < ActiveRecord::Base
     beneficiary_names.uniq.collect { |beneficiary_name| {:text=> beneficiary_name[:beneficiary_name], :id=> beneficiary_name[:beneficiary_name]} }
   end
 
-  def self.options_for_bank_account_select(branch_id)
+  def self.options_for_bank_account_select(branch_id = 0)
     BankAccount.by_branch_id(branch_id).all.order(:bank_name)
   end
 

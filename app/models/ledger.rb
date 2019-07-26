@@ -209,14 +209,12 @@ class Ledger < ActiveRecord::Base
     begin
       ActiveRecord::Base.transaction do
         if params
-          set_updater
+          self.current_user_id = current_user_id
           if self.update(params)
             LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             return true
           end
         else
-          set_creator
-          set_updater
           if self.save
             LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             return true
@@ -343,7 +341,7 @@ class Ledger < ActiveRecord::Base
   end
 
 
-  def closing_balance(fy_code,branch_id)
+  def closing_balance(fy_code, branch_id = 0)
     if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
       self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.closing_balance
     else

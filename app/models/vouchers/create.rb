@@ -28,7 +28,6 @@ class Vouchers::Create < Vouchers::Base
     # causes issues for the voucher types when clear ledger is called
     # without this is set as jvr
     @voucher.voucher_type = @voucher_type
-
     # needed for error case
     if @voucher.is_payment_receipt?
       bank_accounts_in_branch = BankAccount.by_branch_id(selected_branch_id)
@@ -109,7 +108,6 @@ class Vouchers::Create < Vouchers::Base
       @error_message = "Bill with bill number #{bill_number_with_deal_cancel} has pending deal cancel"
       return
     end
-
     if @voucher.particulars.length > 1
       # according to new logic the bill settlement is done through particular
       # bills are tied up to particulars
@@ -150,7 +148,6 @@ class Vouchers::Create < Vouchers::Base
     net_usable_blnc = 0
     net_cash_amount = 0
     cash_ledger_id = Ledger.find_by(name: "Cash").id
-
     # save associated ledgers to be shown in select tag in view, upon redirect
     # looped before processing to avoid it being not updated due to abrupt exit in code
     # also attr_reader and can be set?
@@ -168,7 +165,6 @@ class Vouchers::Create < Vouchers::Base
     # check if debit equal credit or amount is not zero
     unless has_error
       voucher.particulars.each do |particular|
-
         # keep track of the cash amount needed to be shown on the settlement receipt
         if voucher.is_payment_receipt?
           net_cash_amount += particular.amount if particular.ledger_id == cash_ledger_id
@@ -325,6 +321,7 @@ class Vouchers::Create < Vouchers::Base
     settlement = nil
     settlements = []
     Voucher.transaction do
+
       # @receipt = nil
       # Processed_bills are the bills that are in the scope of this voucher.
       processed_bills.each(&:save)
@@ -348,7 +345,7 @@ class Vouchers::Create < Vouchers::Base
         particular.date_bs = voucher.date_bs
         particular.creator_id ||= current_user&.id
         particular.updater_id = current_user&.id
-        particular.branch_id = selected_branch_id
+        particular.branch_id ||= selected_branch_id
         particular.current_user_id = current_user&.id
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
@@ -388,10 +385,10 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is receipt type if issued from the client
             #
             #TODO major change to be rollback on future
-            cheque_entry = ChequeEntry.unscoped.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id)
+            cheque_entry = ChequeEntry.unscoped.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, branch_id: selected_branch_id) do |c|
+              c.current_user_id = @current_user_id
+            end
 
-
-            # only for payment the date will be todays date.
             if voucher.is_payment?
               cheque_entry.cheque_date = DateTime.now
             else
