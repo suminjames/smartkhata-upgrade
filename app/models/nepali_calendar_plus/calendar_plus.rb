@@ -132,8 +132,8 @@ class NepaliCalendarPlus::CalendarPlus
     year, month, day = ref_day_nep.split('/').map(&:to_i)
     i = year
     j = month
-
     while days != 0
+      break unless BS[i]
       bs_month_days = BS[i][j - 1]
       day += 1
 

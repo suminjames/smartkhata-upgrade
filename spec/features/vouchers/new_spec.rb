@@ -6,6 +6,7 @@
   include FiscalYearModule
   describe "New Voucher" do
     include_context 'feature_session_setup'
+
     # let(:user) {create(:user)}
     let(:tenant) {Tenant}
     let(:get_fy_code){FiscalYearModule.get_fy_code}
@@ -82,7 +83,7 @@
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:1"))
           @client_account = create(:client_account, name: "Subash Adhikari")
           Ledger.find_or_create_by(name: "Cash")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         it_behaves_like "invalid fy_code"
@@ -137,7 +138,7 @@
         before do
           @client_account1 = create(:client_account, name: "Sushma Adhikari")
           @client_account2 = create(:client_account, name: "Subash aryal")
-          visit new_voucher_path
+          visit new_voucher_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         context "and valid date for fy" do
@@ -201,7 +202,7 @@
           @client_account = create(:client_account, name: "ANITA ADHIKARI", nepse_code: "AN123")
           Ledger.find_or_create_by(name: "Cash")
           @bank = create(:bank, name: "kumari bank")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         it_behaves_like "invalid fy_code"
@@ -279,19 +280,19 @@
     context "unsigned user" do
       context "when payment voucher" do
         before do
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end
       context "when journal voucher" do
         before do
-          visit new_voucher_path
+          visit new_voucher_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end
       context "when receipt voucher" do
         before do
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end

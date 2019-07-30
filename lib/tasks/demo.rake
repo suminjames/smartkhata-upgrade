@@ -5,7 +5,6 @@ namespace :demo do
 
 
     Apartment::Tenant.switch!(args.tenant)
-    UserSession.user = User.first
 
     nepse_codes.each_with_index do |code, index|
       # make sure to change it on the files associated

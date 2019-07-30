@@ -14,18 +14,18 @@ module Accounts
         fy_codes
       end
 
-      def patch_ledger_dailies(ledger, all_fiscal_years, branch_id = 1, fy_code = nil)
+      def patch_ledger_dailies(ledger, all_fiscal_years, branch_id = 1, fy_code = nil, current_user_id)
         # need to modify this in future to accomodate current fiscal year
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
 
         puts "Patching for #{ledger.name}"
-
+        set_current_user_id = -> (o) { o.current_user_id = current_user_id }
         fy_codes.each do |fy_code|
           # UserSession.selected_branch_id = branch_id
           # UserSession.selected_fy_code = fy_code
 
-          ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
-          ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(UserSession.selected_branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
+          ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
+          ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
 
           # needed for entering the data balance
           # here we are migrating only single branch so need not concern about the multiple branches
@@ -64,14 +64,15 @@ module Accounts
               raise ArgumentError
             end
 
-            daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
-            daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
+            daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: date, &set_current_user_id)
+            daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: date, &set_current_user_id)
 
             closing_balance = opening_balance + balance
             daily_report_cost_center.dr_amount = dr_amount
             daily_report_cost_center.cr_amount = cr_amount
             daily_report_cost_center.closing_balance = closing_balance
             daily_report_cost_center.opening_balance = opening_balance
+            daily_report_cost_center.current_user_id = current_user_id
             daily_report_cost_center.save!
 
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND transaction_date= '#{date}') AS subquery;"
@@ -92,6 +93,7 @@ module Accounts
             daily_report_org.cr_amount = cr_amount_org
             daily_report_org.closing_balance = closing_balance_org
             daily_report_org.opening_balance = opening_balance_org
+            daily_report_org.current_user_id = current_user_id
             daily_report_org.save!
 
             # closing balance of one is opening of next
@@ -102,9 +104,9 @@ module Accounts
       end
 
 
-      def process(ledger_ids, all_fiscal_years = false, branch_id = 1)
+      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
         Ledger.where(id: ledger_ids).find_each do |ledger|
-          patch_ledger_dailies(ledger,all_fiscal_years, branch_id)
+          patch_ledger_dailies(ledger,all_fiscal_years, branch_id, fy_code, current_user_id)
         end
       end
     end

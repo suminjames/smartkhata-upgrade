@@ -246,7 +246,7 @@ class BillsController < ApplicationController
     @settlement_id = params[:settlement_id]
     if params[:settlement_id].present?
       @bank_payment_letter = BankPaymentLetter.new
-      bank_account = BankAccount.by_branch_id(selected_branch_id).default_for_payment
+      bank_account = BankAccount.by_branch_id(selected_branch_id).default_for_payment(selected_branch_id)
 
       cheque_entry = ChequeEntry.next_available_serial_cheque(bank_account.id) if bank_account.present?
       @cheque_number = cheque_entry.cheque_number if cheque_entry.present?

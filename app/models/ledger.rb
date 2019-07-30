@@ -122,6 +122,7 @@ class Ledger < ActiveRecord::Base
     end
   }
   scope :by_ledger_id, -> (id) { where(id: id) }
+  scope :by_branch_id, -> (id) { where(branch_id: id) if id }
 
   def self.allowed show_restricted
     if(show_restricted)

@@ -3,16 +3,13 @@ namespace :voucher do
   task :delete, [:tenant, :id] => 'smartkhata:validate_tenant' do |task,args|
     tenant = args.tenant
     vouchers = [args.id]
-
     voucher = Voucher.where(id: vouchers).first
     raise NotImplementedError unless voucher.present?
-
     ledgers = Particular.where(voucher_id: vouchers).pluck(:ledger_id).uniq.join(' ')
     particulars = Particular.where(voucher_id: vouchers)
     # right now we are focussed with just two entry receipt payment
     raise NotImplementedError if particulars.count != 2
     ActiveRecord::Base.transaction do
-
       cheque_entries = voucher.cheque_entries.uniq
       raise NotImplementedError if cheque_entries.count > 1
       cheque_entry = cheque_entries.first
@@ -58,8 +55,8 @@ namespace :voucher do
       Voucher.where(id: vouchers).delete_all
 
 
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, nil, branch_id, fy_code)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers, nil, branch_id, fy_code)
     end
 
   end

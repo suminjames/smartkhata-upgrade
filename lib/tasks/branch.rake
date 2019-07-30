@@ -1,9 +1,9 @@
 namespace :branch do
-  task :change_client_branch,[:tenant, :branch_id, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
+  task :change_client_branch,[:tenant, :branch_id, :date_bs, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     branch_id = args.branch_id
     tenant = args.tenant
     date_bs = args.date_bs
-
+    current_user_id = args.user_id || User.where(role: 4).first.id
     ledger_ids = []
 
     include FiscalYearModule
@@ -12,7 +12,7 @@ namespace :branch do
     ActiveRecord::Base.transaction do
       ClientAccount.where(branch_id: branch_id).find_each do |client_account|
         ledger = client_account.ledger
-        
+
 
         # make sure it is not migrated already,
         # only way to ensure is that currently, it should not have particulars for default branch
@@ -33,7 +33,6 @@ namespace :branch do
           fy_codes = available_fy_codes
           particular_on_main_branch_count = Particular.unscoped.where(ledger_id: ledger.id, branch_id: 1).count
         end
-
         if particular_on_main_branch_count > 0
 
           LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all
@@ -84,7 +83,7 @@ namespace :branch do
   end
 
   # move from one branch to another current fiscal year
-  task :move_particulars_to,[:tenant, :branch_id, :dry_run]  => 'smartkhata:validate_tenant' do |task, args|
+  task :move_particulars_to,[:tenant, :branch_id, :dry_run, :user_id]  => 'smartkhata:validate_tenant' do |task, args|
     include FiscalYearModule
     include CustomDateModule
 
@@ -93,7 +92,7 @@ namespace :branch do
     dry_run = args.dry_run
     ledger_ids = []
     fy_code = get_fy_code
-
+    current_user_id = args.user_id || User.where(role: 4).first.id
     count = 0
 
     ActiveRecord::Base.transaction do
@@ -101,7 +100,6 @@ namespace :branch do
         ledger = client_account.ledger
         particulars =  Particular.unscoped.where(ledger_id: ledger.id, branch_id: 1, fy_code: fy_code)
         particular_on_main_branch_count = particulars.count
-
         count += particular_on_main_branch_count
         if particular_on_main_branch_count > 0 && !dry_run
           particulars.update_all(branch_id: branch_id)
