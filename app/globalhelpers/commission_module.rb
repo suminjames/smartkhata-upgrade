@@ -4,7 +4,7 @@ module CommissionModule
     total_commission = get_commission_from_floorsheet(nepse_commission, commission_info)
     return "flat_25" if total_commission == 25
     rate = (total_commission*100/amount).round(2)
-    if total_commission > 25 && ((rate * 100) % 5 == 0 )
+    if total_commission > 25 && ((rate * 100).to_i % 5 == 0 )
       return (total_commission*100/amount).round(2)
     end
     raise SmartKhataError
@@ -16,7 +16,6 @@ module CommissionModule
 
 
   def get_commission_rate(amount, commission_info)
-
     details = commission_info.commission_details_array.select{ |x| amount > x.start_amount && amount <= x.limit_amount }
     if details.size != 1
       raise NotImplementedError
