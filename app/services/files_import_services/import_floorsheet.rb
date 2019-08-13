@@ -249,17 +249,13 @@
       cgt = 0
       amount = share_net_amount
 
-      commission = get_commission(amount, commission_info)
-      commission_rate = get_commission_rate(amount, commission_info)
-
-      # redundant for now
-      # compliance_fee = compliance_fee(commission, @date)
-      # commission for broker for the transaction
-      broker_purchase_commission = broker_commission(commission, commission_info)
-      nepse = nepse_commission_amount(commission, commission_info)
+      # commission_rate = get_commission_rate(amount, commission_info)
+      commission = get_commission_from_floorsheet(_commission, commission_info)
+      commission_rate = get_commission_rate_from_floorsheet(amount, _commission_amount, commission_info)
+      nepse = _commission
+      broker_purchase_commission = commission - nepse
 
       tds = broker_purchase_commission * 0.15
-
       # # since compliance fee is debit from broker purchase commission
       # # reduce amount of the purchase commission in the system.
       # purchase_commission = broker_purchase_commission - compliance_fee
@@ -501,15 +497,11 @@
       cgt = 0
       amount = share_net_amount
 
-      commission = get_commission(amount, commission_info)
-      commission_rate = get_commission_rate(amount, commission_info)
-
-      # redundant for now
-      # compliance_fee = compliance_fee(commission, @date)
-      # commission for broker for the transaction
-      broker_purchase_commission = broker_commission(commission, commission_info)
-      nepse = nepse_commission_amount(commission, commission_info)
-
+      # commission_rate = get_commission_rate(amount, commission_info)
+      commission = get_commission_from_floorsheet(_commission, commission_info)
+      commission_rate = get_commission_rate_from_floorsheet(amount, _commission_amount, commission_info)
+      nepse = _commission
+      broker_purchase_commission = commission - nepse
       tds = broker_purchase_commission * 0.15
 
       # # since compliance fee is debit from broker purchase commission
