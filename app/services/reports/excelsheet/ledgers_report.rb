@@ -32,7 +32,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     client = (@params && @params[:for_client] == "1") ? "Client" : ""
 
     add_document_headings("#{client} Ledger Report", "\"#{@ledger.name.strip.titleize}\"", opening_closing_blnc)
-    @file_name = "#{client}LedgerReport_#{@ledger.id}_#{@date}"
+    @file_name = "#{client}LedgerReport_#{@fy_code}_#{@branch_id}_#{@ledger.id}_#{@date}"
   end
 
   def add_document_headings(heading, sub_heading, opening_closing_blnc)
