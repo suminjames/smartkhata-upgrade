@@ -63,7 +63,7 @@ class LedgersController < ApplicationController
 
     # @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
     # @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
-    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx'))
+    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', stamp: SecureRandom.hex(10)))
     @download_path_xlsx_client =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', for_client: 1))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
