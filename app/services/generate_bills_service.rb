@@ -199,19 +199,19 @@ class GenerateBillsService
             process_accounts(closeout_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
 
             if @current_tenant.closeout_settlement_automatic
-            # automatic settlement
-            voucher = Voucher.create!(date: settlement_date)
-            # voucher.share_transactions << transaction
-            voucher.desc = description
-            process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
-            process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
-            transaction.closeout_settled = true
-            transaction.save!
-            voucher.complete!
-            voucher.save!
+              # automatic settlement
+              voucher = Voucher.create!(date: settlement_date)
+              # voucher.share_transactions << transaction
+              voucher.desc = description
+              process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
+              process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
+              transaction.closeout_settled = true
+              transaction.save!
+              voucher.complete!
+              voucher.save!
             end
 
-            else
+          else
             process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, settlement_date)
             process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, settlement_date)
             # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0

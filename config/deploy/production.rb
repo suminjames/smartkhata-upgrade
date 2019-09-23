@@ -17,8 +17,8 @@ set :stage, :production
 # extended properties on the server.
 
 # server '52.26.12.147', user: 'deploy', roles: %w{web app}, my_property: :my_value
-# server '35.154.7.189', user: 'deploy', roles: %w{web app}, my_property: :my_value
-server '116.90.224.61:2222', user: 'deploy', roles: %w{web app}, my_property: :my_value
+server '35.154.149.123', user: 'deploy', roles: %w{web app}, my_property: :my_value
+# server '116.90.224.61:2222', user: 'deploy', roles: %w{web app}, my_property: :my_value
 # server '116.90.238.170:2222', user: 'deploy', roles: %w{web app}, my_property: :my_value
 
 
