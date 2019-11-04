@@ -13,9 +13,6 @@
  *= require_tree .
  *= require_self
  */
-/*
- *= require jquery.minicolors
- */
 
 /* Mixins */
 @mixin box-shadow($shadow...) {

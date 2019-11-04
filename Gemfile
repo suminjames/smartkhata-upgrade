@@ -51,8 +51,6 @@ gem 'react-rails'
 gem 'slim'
 gem 'whenever', :require => false
 gem 'exception_notification'
-gem 'jquery-minicolors-rails'
-
 
 group :production do
   gem 'puma'
