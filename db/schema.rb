@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180522101447) do
+ActiveRecord::Schema.define(version: 20191104084755) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -248,8 +248,9 @@ ActiveRecord::Schema.define(version: 20180522101447) do
   create_table "branches", force: :cascade do |t|
     t.string   "code"
     t.string   "address"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "top_nav_bar_color"
   end
 
   create_table "broker_parameter", force: :cascade do |t|
