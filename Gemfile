@@ -52,7 +52,6 @@ gem 'slim'
 gem 'whenever', :require => false
 gem 'exception_notification'
 
-
 group :production do
   gem 'puma'
 end

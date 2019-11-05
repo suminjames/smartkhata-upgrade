@@ -34,8 +34,6 @@ $(document).on("ready page:load", function(){
     $(".nepali-datepicker").nepaliDatePicker({
         dateFormat: "%y-%m-%d",
         closeOnDateSelect: true,
-
-
     });
 
     $('.combobox-select').select2({
