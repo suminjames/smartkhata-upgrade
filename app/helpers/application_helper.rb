@@ -183,15 +183,12 @@ module ApplicationHelper
   end
 
   def navbar_color
-    if !current_user.nil?
-      branch = Branch.find_by(id: UserSession.selected_branch_id)
-      if !branch.nil?
-        branch.top_nav_bar_color
-      else
-        "#3c8dbc"
-      end
-    else
-      "#3c8dbc"
-    end
+    return if current_user.nil?
+
+    branch = Branch.selected_branch
+
+    return if branch.nil?
+
+    branch.top_nav_bar_color
   end
 end

@@ -2,4 +2,46 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+#recommendedColors > *{
+  display: inline-block;
+  text-align:center;
+  position:relative;
+  float: left;
+  margin-right: 5px;
+}
 
+.hidden {
+  display: none;
+}
+
+.glyphicon{
+  top:30%;
+  color: #ffffff;
+}
+
+#recommendedColors{
+  min-height: 40px;
+  margin: 5px 5px 10px 0;
+  #color1{
+    background-color: #1f7052;
+
+  }
+
+  #color2{
+    background-color: #294961;
+  }
+
+  #color3{
+    background-color: #593232;
+  }
+
+  #color4{
+    background-color: #1a2226;
+  }
+
+  #color5{
+    background-color: #730E15;
+  }
+
+
+}
