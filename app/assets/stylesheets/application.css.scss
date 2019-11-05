@@ -446,6 +446,10 @@ a.btn-wrapper:hover{
   background: transparent;
 }
 
+a.navbar-brand:hover{
+  background-color:rgba(0, 0, 0, 0.15);
+}
+
 // Override AdminLTE!
 .nav-tabs-custom{
   box-shadow: none !important;
