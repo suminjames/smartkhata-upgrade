@@ -12,7 +12,7 @@ $(document).on 'ready page:load', ->
     newColorCode = $(this).css('backgroundColor');
     $('[data-toggle="colorpicker"]').minicolors("value", newColorCode)
 
-  $("#minicolor").on 'change', ->
+  $("#branch_top_nav_bar_color").on 'change', ->
     changedColorCode =  $('[data-toggle="colorpicker"]').minicolors("value")
     $('.navbar').css('backgroundColor', changedColorCode)
 
