@@ -185,7 +185,7 @@ module ApplicationHelper
   def navbar_color
     return if current_user.nil?
 
-    branch = Branch.selected_branch
+    branch = Branch.selected_branch(UserSession.selected_branch_id)
 
     return if branch.nil?
 

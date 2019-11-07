@@ -5,7 +5,7 @@
 # Display tickmark when the color of the box matches
 displayTickMark = (colorCode) ->
   $('#recommended_colors').children('div').each ->
-    if $(this).css('backgroundColor') == colorCode
+    if $(this).attr('data-color') == colorCode
       $(this).find("span").removeClass("hidden")
     else
       $(this).find("span").addClass("hidden")
@@ -13,12 +13,16 @@ displayTickMark = (colorCode) ->
 $(document).on 'ready page:load', ->
   colorPicker = $('[data-toggle="colorpicker"]')
 
+  #setting the color values of boxes from the data attribute
+  $('#recommended_colors').children('div').each ->
+     $(this).css('backgroundColor', $(this).attr('data-color'))
+
   colorPicker.minicolors({theme: 'bootstrap'});
   colorCode = colorPicker.minicolors("value")
   displayTickMark(colorCode)
 
   $(".color-box-clickable").click ->
-    newColorCode = $(this).css('backgroundColor');
+    newColorCode = $(this).attr('data-color')
     colorPicker.minicolors("value", newColorCode)
 
   $("#branch_top_nav_bar_color").on 'change', ->
@@ -26,22 +30,4 @@ $(document).on 'ready page:load', ->
     $('.navbar').css('backgroundColor', changedColorCode)
     displayTickMark(changedColorCode)
 
-
-
-# to return background color as hex values directly as opposed to rgb values
-$.cssHooks.backgroundColor = get: (elem) ->
-  `var bg`
-
-  hex = (x) ->
-    ('0' + parseInt(x).toString(16)).slice -2
-
-  if elem.currentStyle
-    bg = elem.currentStyle['backgroundColor']
-  else if window.getComputedStyle
-    bg = document.defaultView.getComputedStyle(elem, null).getPropertyValue('background-color')
-  if bg.search('rgb') == -1
-    bg
-  else
-    bg = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
-    '#' + hex(bg[1]) + hex(bg[2]) + hex(bg[3])
 
