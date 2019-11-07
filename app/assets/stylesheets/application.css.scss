@@ -572,3 +572,42 @@ select{
   //
   //}
 }
+
+@mixin remove-icon-position{
+  cursor: pointer;
+  position: relative;
+  bottom: 25px;
+}
+
+.input-date-1, .input-date-3{
+  .clear-date {
+    @include remove-icon-position;
+    left: 160px;
+  }
+}
+
+.input-date-2{
+  .clear-date {
+    @include remove-icon-position;
+    left: 75px;
+  }
+}
+.input-date-3{
+  .clear-date {
+    @include remove-icon-position;
+    left: 140px;
+  }
+}
+.td-input{
+  .clear-date{
+    @include remove-icon-position;
+    float: right;
+    right: 5px;
+  }
+}
+
+
+
+
+
+

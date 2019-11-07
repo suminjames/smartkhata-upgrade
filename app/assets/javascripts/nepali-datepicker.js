@@ -334,16 +334,33 @@ var calendarFunctions = {};
 
                 }),
                    $('.nepali-datepicker').on('keyup', function(){
-                       if($(this).val()){
+                       date_regex = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/
+                       date_value = $(this).val();
+                       $('.nepali-datepicker').each(function(index){
+                           $(this).attr('data-info', index);
+                       })
+                       $('.nepali-date-picker').each(function(index){
+                           $(this).attr('data-info', index);
+                       })
+                       if(date_regex.test(date_value)){
                            date = $(this).val().split("-");
                            year = date[0];
                            month = date[1];
                            day  = date[2];
-                           if(year.length == 4 && month.length <= 2 && day.length <=2 ){
-                               datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
-                               datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
-                               $nepaliDatePicker.show();
-                           }
+                           datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
+                           datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
+                           data = $(this).data('info');
+                           $('.nepali-date-picker').each(function(){
+                               if(data == $(this).data('info')){
+                                   $(this).show();
+                               }
+                           })
+                           if($(this).next('.clear-date').length < 1){
+                               $(this).after("<span class='clear-date' onclick='return false'>&times;</span>")
+                               $(this).closest('.input-date-1, .input-date-2, .input-date-3, .st-row').css('height', '35px');
+                           }$(this).next('.clear-date').show();
+                       }else{
+                           $(this).next('.clear-date').hide();
                        }
                    })
                     ,

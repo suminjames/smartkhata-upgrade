@@ -15,15 +15,16 @@
             :name_and_nepse_code,                 |
             {include_blank: true},                 |
             {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
-        .col-xs-2
+        .col-xs-2.input-date-1
           %label
             Date
           %br
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' )       |
-        .col-xs-4
+            class: 'form-control nepali-datepicker', |
+            autocomplete: "off" ) |
+        .col-xs-4.input-date-3
           .clearfix
             .text-center
               %label
@@ -33,12 +34,14 @@
               = f.text_field(                 |
                 :by_date_from,                |
                 :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' )       |
+                class: 'form-control nepali-datepicker', |
+                autocomplete: "off" ) |
             .col-xs-6
               = f.text_field(                 |
                 :by_date_to,                  |
                 :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' )       |
+                class: 'form-control nepali-datepicker', |
+                autocomplete: "off" ) |
       .row.top-buffer-sm
         .col-xs-3
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'

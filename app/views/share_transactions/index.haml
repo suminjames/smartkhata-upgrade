@@ -51,27 +51,30 @@
               @filterrific.select_options[:by_transaction_type], |
               {include_blank: true},                 |
               {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
-        .col-sm-2
+        .col-sm-2.input-date-1
           %label
             Date
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' ) |
-        .col-sm-2.text-center
+            class: 'form-control nepali-datepicker', |
+            autocomplete: "off" ) |
+        .col-sm-2.text-center.input-date-2
           %label
             Date Range
           .clearfix
-            .row
+            .row.st-row
               = f.text_field(                 |
                 :by_date_from,                |
                 :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' )       |
+                class: 'form-control nepali-datepicker', |
+                autocomplete: "off" ) |
             .row.top-buffer-sm
               = f.text_field(                 |
                 :by_date_to,                  |
                 :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' ) |
+                class: 'form-control nepali-datepicker', |
+                autocomplete: "off" ) |
         -if params[:paginate] != 'false'
           .col-sm-2.text-center
             %label

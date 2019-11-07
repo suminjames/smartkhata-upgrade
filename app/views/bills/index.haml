@@ -51,7 +51,7 @@
           - unless User.client_logged_in?
             = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
           = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
-        .col-sm-2.col-sm-offset-3
+        .col-sm-2.col-sm-offset-3.input-date-1
           %label
             Date
           %br
@@ -60,14 +60,14 @@
             :placeholder => 'YYYY-MM-DD', |
             class: 'form-control nepali-datepicker', |
             autocomplete: "off" ) |
-        .col-sm-4.text-center
+        .col-sm-4.text-center.input-date-2
           %label
             Date Range
           .row
             .col-sm-6
-              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control nepali-datepicker', autocomplete: "off" )
             .col-sm-6
-              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control nepali-datepicker', autocomplete: "off" )
     = render_filterrific_spinner
 
 

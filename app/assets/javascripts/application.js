@@ -31,6 +31,10 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
+    $(document).on('click', '.clear-date', function(){
+        $(this).prev('.nepali-datepicker').val(" ");
+        $(this).hide();
+    })
     $(".nepali-datepicker").nepaliDatePicker({
         dateFormat: "%y-%m-%d",
         closeOnDateSelect: true,

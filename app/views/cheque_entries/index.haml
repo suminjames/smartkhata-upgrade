@@ -68,22 +68,23 @@
             :to_s,                                      |
             {include_blank: true},                 |
             {class: 'form-control combobox combobox-select min-3', id: 'cheque_entries_index_beneficiary_name_combobox', 'data-placeholder': '- Any -' }) |
-        .col-xs-2
+        .col-xs-2.input-date-1
           %label
             Date
           %br
           = f.text_field(                 |
             :by_date,                     |
             :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' ) |
-        .col-xs-4.text-center
+            class: 'form-control nepali-datepicker', |
+            autocomplete: "off")
+        .col-xs-4.text-center.input-date-2
           %label
             Date Range
           .row
             .col-xs-6
-              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+              = f.text_field(:by_date_from, :placeholder => 'YYYY-MM-DD', class: 'form-control nepali-datepicker', autocomplete: "off" )
             .col-xs-6
-              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control' )
+              = f.text_field(:by_date_to, :placeholder => 'YYYY-MM-DD', class: 'form-control nepali-datepicker', autocomplete: "off" )
     = render_filterrific_spinner
 
 
