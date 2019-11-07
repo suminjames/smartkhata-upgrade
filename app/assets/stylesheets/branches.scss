@@ -2,7 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-#recommendedColors > *{
+#recommended_colors > *{
   display: inline-block;
   text-align:center;
   position:relative;
@@ -19,7 +19,7 @@
   color: #ffffff;
 }
 
-#recommendedColors{
+#recommended_colors{
   min-height: 40px;
   margin: 5px 5px 10px 0;
   #color1{

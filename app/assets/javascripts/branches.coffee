@@ -2,23 +2,33 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
-
+# Display tickmark when the color of the box matches
+displayTickMark = (colorCode) ->
+  $('#recommended_colors').children('div').each ->
+    if $(this).css('backgroundColor') == colorCode
+      $(this).find("span").removeClass("hidden")
+    else
+      $(this).find("span").addClass("hidden")
 
 $(document).on 'ready page:load', ->
-  colorCode =  $('[data-toggle="colorpicker"]').minicolors("value")
+  colorPicker = $('[data-toggle="colorpicker"]')
+
+  colorPicker.minicolors({theme: 'bootstrap'});
+  colorCode = colorPicker.minicolors("value")
+  displayTickMark(colorCode)
+
   $(".color-box-clickable").click ->
-    $(".color-box-clickable").not(this).find("span").addClass("hidden");
-    $(this).find("span").toggleClass("hidden");
     newColorCode = $(this).css('backgroundColor');
-    $('[data-toggle="colorpicker"]').minicolors("value", newColorCode)
+    colorPicker.minicolors("value", newColorCode)
 
   $("#branch_top_nav_bar_color").on 'change', ->
-    changedColorCode =  $('[data-toggle="colorpicker"]').minicolors("value")
+    changedColorCode =  colorPicker.minicolors("value")
     $('.navbar').css('backgroundColor', changedColorCode)
+    displayTickMark(changedColorCode)
 
 
 
-# to return background color as hex values directly
+# to return background color as hex values directly as opposed to rgb values
 $.cssHooks.backgroundColor = get: (elem) ->
   `var bg`
 

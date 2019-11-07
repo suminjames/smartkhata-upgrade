@@ -32,7 +32,6 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
-    $('[data-toggle="colorpicker"]').minicolors({theme: 'bootstrap'});
     $('.combobox-select').select2({
         theme: 'bootstrap',
         allowClear: true

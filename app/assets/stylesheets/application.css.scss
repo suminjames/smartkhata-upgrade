@@ -10,11 +10,9 @@
  * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
  * file per style scope.
  *
+ *= require jquery.minicolors
  *= require_tree .
  *= require_self
- */
-/*
- *= require jquery.minicolors
  */
 
 /* Mixins */
@@ -569,10 +567,6 @@ select{
   label {
     margin-bottom: 0;
   }
-
-  //color boxes to show/select colors
-
-
   //.select2-container--bootstrap .select2-selection--single {
   //  height: 28px;
   //}
@@ -582,7 +576,7 @@ select{
   //
   //}
 }
-
+//color boxes to show/select colors
 .color-box{
   height: 40px;
   width: 40px;

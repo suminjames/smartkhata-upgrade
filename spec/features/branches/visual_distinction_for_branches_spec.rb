@@ -28,6 +28,20 @@ RSpec.feature "Branches",type: :feature do
       find('input[name="commit"]').click
       expect(page).to have_text("Branch was successfully updated.")
     end
+
+    it "should change the color of navbar when selecting color" do
+      login_as(@user)
+      visit "branches/new"
+
+      page.execute_script("$('selector').css('property','value')")
+      navbar_color = find('nav')['style']['background-color']
+      find('div#color1').click
+      box_color = find('div#color1')['style']['background-color']
+
+
+      expect(navbar_color).to eq(box_color)
+
+    end
   end
 
 end
