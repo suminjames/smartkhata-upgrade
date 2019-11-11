@@ -31,5 +31,5 @@ Next, execute
 
 Visit `http://demo.lvh.me:3000/files/floorsheets/new`
 
-and then upload floorsheet file `test/fixtures/files/floorsheets/v2` directory.
+and then upload floorsheet file from `test/fixtures/files/floorsheets/v2` directory.
 

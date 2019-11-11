@@ -5,14 +5,14 @@
       <%= f.input :code %>
       <%= f.input :address %>
       <%= f.input :top_nav_bar_color, as: :minicolors, input_html: {data: { toggle: 'colorpicker',
-            minicolors: {theme: :bootstrap}}, :id => "branch_top_nav_bar_color"} %>
+            minicolors: {theme: :bootstrap, format: :rgb, opacity: true}}, :id => "branch_top_nav_bar_color"} %>
       <p> Or select from the ones below
       <div id="recommended_colors">
-        <div class="color-box color-box-clickable" id="green" data-color="#1f7052"><span class="glyphicon glyphicon-ok hidden"></span></div>
-        <div class="color-box color-box-clickable" id="blue" data-color="#294961"><span class="glyphicon glyphicon-ok hidden"></span></div>
-        <div class="color-box color-box-clickable" id="brown" data-color="#593232"><span class="glyphicon glyphicon-ok hidden"></span></div>
-        <div class="color-box color-box-clickable" id="black" data-color="#1a2226"><span class="glyphicon glyphicon-ok hidden"></span></div>
-        <div class="color-box color-box-clickable" id="maroon" data-color="#730e15"><span class="glyphicon glyphicon-ok hidden"></span></div>
+        <div class="color-box color-box-clickable" id="green" data-color="rgba(31, 112, 82, 1)"><span class="glyphicon glyphicon-ok hidden"></span></div>
+        <div class="color-box color-box-clickable" id="blue" data-color="rgba(41, 73, 97, 1)"><span class="glyphicon glyphicon-ok hidden"></span></div>
+        <div class="color-box color-box-clickable" id="brown" data-color="rgba(89, 50, 50, 1)"><span class="glyphicon glyphicon-ok hidden"></span></div>
+        <div class="color-box color-box-clickable" id="black" data-color="rgba(26, 34, 38, 1)"><span class="glyphicon glyphicon-ok hidden"></span></div>
+        <div class="color-box color-box-clickable" id="maroon" data-color="rgba(115, 14, 21, 1)"><span class="glyphicon glyphicon-ok hidden"></span></div>
       </div>
     </div>
 

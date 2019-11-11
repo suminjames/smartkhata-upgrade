@@ -108,17 +108,13 @@ RSpec.describe Branch, type: :model do
   end
 
   describe "#selected_branch" do
-    before(:each) do
-      Branch.create({id: 1,code:"danphe",address:"kathmandu"})
-    end
+    let(:branch){ create(:branch) }
     it "should return selected branch from the dashboard" do
-      UserSession.selected_branch_id = 1
-      expect(Branch.selected_branch.id).to eq(1)
+      expect(Branch.selected_branch(branch)).to eq(branch)
     end
 
-    it "should not return branch apart from selected branch from the dashboard" do
-      UserSession.selected_branch_id = 1
-      expect(Branch.selected_branch.id).to_not eq(2)
+    it "should return error for nil branch" do
+       expect(Branch.selected_branch(nil)).to be_nil
     end
   end
 end

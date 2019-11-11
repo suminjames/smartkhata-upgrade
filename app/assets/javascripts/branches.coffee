@@ -17,7 +17,7 @@ $(document).on 'ready page:load', ->
   $('#recommended_colors').children('div').each ->
      $(this).css('backgroundColor', $(this).attr('data-color'))
 
-  colorPicker.minicolors({theme: 'bootstrap'});
+  colorPicker.minicolors({theme: 'bootstrap',format:'rgb', opacity: true});
   colorCode = colorPicker.minicolors("value")
   displayTickMark(colorCode)
 
