@@ -13,12 +13,12 @@
     <% end %>
 
     <%= f.error_notification %>
-    <div class="form-inputs row">
+    <div class="form-inputs row new-voucher">
       <div class="col-sm-4">
         <h4>Date</h4>
         <%= f.text_field :date_bs,
                          :value => f.object.date_bs || date,
-                         class: 'form-control',
+                         class: 'form-control nepali-datepicker',
                          placeholder: 'YYYY-MM-DD'
         %>
       </div>

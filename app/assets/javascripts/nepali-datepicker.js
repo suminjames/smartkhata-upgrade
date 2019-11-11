@@ -1,5 +1,5 @@
 var calendarFunctions = {};
-! function($) {
+!function ($) {
     var calendarData = {
             bsMonths: ["Baisakh", "Jestha", "Asadh", "Shrawan", "Bhadra", "Asoj", "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"],
             bsDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -48,51 +48,51 @@ var calendarFunctions = {};
             }
         },
         validationFunctions = {
-            validateRequiredParameters: function(requiredParameters) {
-                $.each(requiredParameters, function(key, value) {
+            validateRequiredParameters: function (requiredParameters) {
+                $.each(requiredParameters, function (key, value) {
                     if ("undefined" == typeof value || null === value) throw new ReferenceError("Missing required parameters: " + Object.keys(requiredParameters).join(", "))
                 })
             },
-            validateBsYear: function(bsYear) {
+            validateBsYear: function (bsYear) {
                 if ("number" != typeof bsYear || null === bsYear) throw new TypeError("Invalid parameter bsYear value");
                 if (bsYear < calendarData.minBsYear || bsYear > calendarData.maxBsYear) throw new RangeError("Parameter bsYear value should be in range of " + calendarData.minBsYear + " to " + calendarData.maxBsYear)
             },
-            validateAdYear: function(adYear) {
+            validateAdYear: function (adYear) {
                 if ("number" != typeof adYear || null === adYear) throw new TypeError("Invalid parameter adYear value");
                 if (adYear < calendarData.minBsYear - 57 || adYear > calendarData.maxBsYear - 57) throw new RangeError("Parameter adYear value should be in range of " + (calendarData.minBsYear - 57) + " to " + (calendarData.maxBsYear - 57))
             },
-            validateBsMonth: function(bsMonth) {
+            validateBsMonth: function (bsMonth) {
                 if ("number" != typeof bsMonth || null === bsMonth) throw new TypeError("Invalid parameter bsMonth value");
                 if (bsMonth < 1 || bsMonth > 12) throw new RangeError("Parameter bsMonth value should be in range of 1 to 12")
             },
-            validateAdMonth: function(adMonth) {
+            validateAdMonth: function (adMonth) {
                 if ("number" != typeof adMonth || null === adMonth) throw new TypeError("Invalid parameter adMonth value");
                 if (adMonth < 1 || adMonth > 12) throw new RangeError("Parameter adMonth value should be in range of 1 to 12")
             },
-            validateBsDate: function(bsDate) {
+            validateBsDate: function (bsDate) {
                 if ("number" != typeof bsDate || null === bsDate) throw new TypeError("Invalid parameter bsDate value");
                 if (bsDate < 1 || bsDate > 32) throw new RangeError("Parameter bsDate value should be in range of 1 to 32")
             },
-            validateAdDate: function(adDate) {
+            validateAdDate: function (adDate) {
                 if ("number" != typeof adDate || null === adDate) throw new TypeError("Invalid parameter adDate value");
                 if (adDate < 1 || adDate > 31) throw new RangeError("Parameter adDate value should be in range of 1 to 31")
             },
-            validatePositiveNumber: function(numberParameters) {
-                $.each(numberParameters, function(key, value) {
+            validatePositiveNumber: function (numberParameters) {
+                $.each(numberParameters, function (key, value) {
                     if ("number" != typeof value || null === value || value < 0) throw new ReferenceError("Invalid parameters: " + Object.keys(numberParameters).join(", "));
                     if ("yearDiff" === key && value > calendarData.maxBsYear - calendarData.minBsYear + 1) throw new RangeError("Parameter yearDiff value should be in range of 0 to " + (calendarData.maxBsYear - calendarData.minBsYear + 1))
                 })
             }
         };
     $.extend(calendarFunctions, {
-        getNepaliNumber: function(number) {
+        getNepaliNumber: function (number) {
             if ("undefined" == typeof number) throw new Error("Parameter number is required");
             if ("number" != typeof number || number < 0) throw new Error("Number should be positive integer");
             var prefixNum = Math.floor(number / 10),
                 suffixNum = number % 10;
             return 0 !== prefixNum ? calendarFunctions.getNepaliNumber(prefixNum) + calendarData.nepaliNumbers[suffixNum] : calendarData.nepaliNumbers[suffixNum]
         },
-        getNumberByNepaliNumber: function(nepaliNumber) {
+        getNumberByNepaliNumber: function (nepaliNumber) {
             if ("undefined" == typeof nepaliNumber) throw new Error("Parameter nepaliNumber is required");
             if ("string" != typeof nepaliNumber) throw new Error("Parameter nepaliNumber should be in string");
             for (var number = 0, i = 0; i < nepaliNumber.length; i++) {
@@ -102,7 +102,7 @@ var calendarFunctions = {};
             }
             return number
         },
-        getBsMonthInfoByBsDate: function(bsYear, bsMonth, bsDate, dateFormatPattern) {
+        getBsMonthInfoByBsDate: function (bsYear, bsMonth, bsDate, dateFormatPattern) {
             if (validationFunctions.validateRequiredParameters({
                 bsYear: bsYear,
                 bsMonth: bsMonth,
@@ -129,7 +129,7 @@ var calendarFunctions = {};
                 bsMonthDays: bsMonthDays
             }
         },
-        getAdDateByBsDate: function(bsYear, bsMonth, bsDate) {
+        getAdDateByBsDate: function (bsYear, bsMonth, bsDate) {
             validationFunctions.validateRequiredParameters({
                 bsYear: bsYear,
                 bsMonth: bsMonth,
@@ -139,7 +139,7 @@ var calendarFunctions = {};
                 adDate = new Date(calendarData.minAdDateEqBsDate.ad.year, calendarData.minAdDateEqBsDate.ad.month, calendarData.minAdDateEqBsDate.ad.date - 1);
             return adDate.setDate(adDate.getDate() + daysNumFromMinBsYear), adDate
         },
-        getTotalDaysNumFromMinBsYear: function(bsYear, bsMonth, bsDate) {
+        getTotalDaysNumFromMinBsYear: function (bsYear, bsMonth, bsDate) {
             if (validationFunctions.validateRequiredParameters({
                 bsYear: bsYear,
                 bsMonth: bsMonth,
@@ -148,7 +148,7 @@ var calendarFunctions = {};
             for (var daysNumFromMinBsYear = 0, diffYears = bsYear - calendarData.minBsYear, month = 1; month <= 12; month++) daysNumFromMinBsYear += month < bsMonth ? calendarFunctions.getMonthDaysNumFormMinBsYear(month, diffYears + 1) : calendarFunctions.getMonthDaysNumFormMinBsYear(month, diffYears);
             return daysNumFromMinBsYear += bsYear > 2085 && bsYear < 2088 ? bsDate - 2 : 2085 === bsYear && bsMonth > 5 ? bsDate - 2 : bsYear > 2088 ? bsDate - 4 : 2088 === bsYear && bsMonth > 5 ? bsDate - 4 : bsDate
         },
-        getMonthDaysNumFormMinBsYear: function(bsMonth, yearDiff) {
+        getMonthDaysNumFormMinBsYear: function (bsMonth, yearDiff) {
             validationFunctions.validateRequiredParameters({
                 bsMonth: bsMonth,
                 yearDiff: yearDiff
@@ -169,7 +169,7 @@ var calendarFunctions = {};
                 }
             return monthDaysFromMinBsYear
         },
-        getBsMonthDays: function(bsYear, bsMonth) {
+        getBsMonthDays: function (bsYear, bsMonth) {
             validationFunctions.validateRequiredParameters({
                 bsYear: bsYear,
                 bsMonth: bsMonth
@@ -181,7 +181,7 @@ var calendarFunctions = {};
                 }
             return null
         },
-        getBsDateByAdDate: function(adYear, adMonth, adDate) {
+        getBsDateByAdDate: function (adYear, adMonth, adDate) {
             validationFunctions.validateRequiredParameters({
                 adYear: adYear,
                 adMonth: adMonth,
@@ -207,7 +207,7 @@ var calendarFunctions = {};
                 bsDate: bsDate
             }
         },
-        getBsYearByAdDate: function(adYear, adMonth, adDate) {
+        getBsYearByAdDate: function (adYear, adMonth, adDate) {
             validationFunctions.validateRequiredParameters({
                 adYear: adYear,
                 adMonth: adMonth,
@@ -216,7 +216,7 @@ var calendarFunctions = {};
             var bsDate = calendarFunctions.getBsDateByAdDate(adYear, adMonth, adDate);
             return bsDate.bsYear
         },
-        getBsMonthByAdDate: function(adYear, adMonth, adDate) {
+        getBsMonthByAdDate: function (adYear, adMonth, adDate) {
             validationFunctions.validateRequiredParameters({
                 adYear: adYear,
                 adMonth: adMonth,
@@ -225,7 +225,7 @@ var calendarFunctions = {};
             var bsDate = calendarFunctions.getBsDateByAdDate(adYear, adMonth, adDate);
             return bsDate.bsMonth
         },
-        bsDateFormat: function(dateFormatPattern, bsYear, bsMonth, bsDate) {
+        bsDateFormat: function (dateFormatPattern, bsYear, bsMonth, bsDate) {
             validationFunctions.validateRequiredParameters({
                 dateFormatPattern: dateFormatPattern,
                 bsYear: bsYear,
@@ -237,7 +237,7 @@ var calendarFunctions = {};
                 formattedDate = dateFormatPattern;
             return formattedDate = formattedDate.replace(/%d/g, calendarFunctions.getNepaliNumber(bsDate)), formattedDate = formattedDate.replace(/%y/g, calendarFunctions.getNepaliNumber(bsYear)), formattedDate = formattedDate.replace(/%m/g, calendarFunctions.getNepaliNumber(bsMonth)), formattedDate = formattedDate.replace(/%M/g, calendarData.bsMonths[bsMonth - 1]), formattedDate = formattedDate.replace(/%D/g, calendarData.bsDays[weekDay - 1])
         },
-        parseFormattedBsDate: function(dateFormat, dateFormattedText) {
+        parseFormattedBsDate: function (dateFormat, dateFormattedText) {
             validationFunctions.validateRequiredParameters({
                 dateFormat: dateFormat,
                 dateFormattedText: dateFormattedText
@@ -262,7 +262,7 @@ var calendarFunctions = {};
             }
             return extractedFormattedBsDate
         }
-    }), $.fn.nepaliDatePicker = function(options) {
+    }), $.fn.nepaliDatePicker = function (options) {
         var datePickerPlugin = {
             options: $.extend({
                 dateFormat: "%D, %M %d, %y",
@@ -273,27 +273,30 @@ var calendarFunctions = {};
                 yearStart: calendarData.minBsYear,
                 yearEnd: calendarData.maxBsYear
             }, options),
-            init: function($element) {
-               // $element.prop("readonly", !0);
+            init: function ($element) {
+                // $element.prop("readonly", !0);
                 var $nepaliDatePicker = $('<div class="nepali-date-picker">');
                 $("body").append($nepaliDatePicker), "" !== $element.val() ? datePickerPlugin.renderFormattedSpecificDateCalendar($nepaliDatePicker, datePickerPlugin.options.dateFormat, $element.val()) : datePickerPlugin.renderCurrentMonthCalendar($nepaliDatePicker), datePickerPlugin.addEventHandler($element, $nepaliDatePicker), datePickerPlugin.addCommonEventHandler($nepaliDatePicker)
             },
-            addCommonEventHandler: function() {
+            addCommonEventHandler: function () {
                 var $datePickerWrapper = $(".nepali-date-picker");
-                $(document).click(function(event) {
+                $(document).click(function (event) {
                     var $targetElement = $(event.target);
                     $targetElement.is($(".nepali-date-picker")) || ($datePickerWrapper.hide(), $datePickerWrapper.find(".drop-down-content").hide())
                 })
             },
-            addEventHandler: function($element, $nepaliDatePicker) {
-                $element.click(function() {
+            addEventHandler: function ($element, $nepaliDatePicker) {
+                // CUSTOM ADDITION: make datepicker element available on input field
+                $element.data('datepicker', $nepaliDatePicker);
+
+                $element.click(function () {
                     if ($(".nepali-date-picker").is(":visible")) return void $(".nepali-date-picker").hide();
                     var inputFieldPosition = $(this).offset();
                     return $nepaliDatePicker.css({
                         top: inputFieldPosition.top + $(this).outerHeight(!0),
                         left: inputFieldPosition.left
                     }), $nepaliDatePicker.show(), datePickerPlugin.eventFire($element, $nepaliDatePicker, "show"), !1
-                }), $nepaliDatePicker.on("click", ".next-btn", function(event) {
+                }), $nepaliDatePicker.on("click", ".next-btn", function (event) {
                     event.preventDefault();
                     var preCalendarData = {
                         bsYear: $nepaliDatePicker.data().bsYear,
@@ -301,7 +304,7 @@ var calendarFunctions = {};
                         bsDate: $nepaliDatePicker.data().bsDate
                     };
                     return datePickerPlugin.renderNextMonthCalendar($nepaliDatePicker), datePickerPlugin.triggerChangeEvent($element, $nepaliDatePicker, preCalendarData), $nepaliDatePicker.show(), !1
-                }), $nepaliDatePicker.on("click", ".prev-btn", function(event) {
+                }), $nepaliDatePicker.on("click", ".prev-btn", function (event) {
                     event.preventDefault();
                     var preCalendarData = {
                         bsYear: $nepaliDatePicker.data().bsYear,
@@ -311,7 +314,7 @@ var calendarFunctions = {};
                     datePickerPlugin.renderPreviousMonthCalendar($nepaliDatePicker);
                     $nepaliDatePicker.data();
                     return datePickerPlugin.triggerChangeEvent($element, $nepaliDatePicker, preCalendarData), $nepaliDatePicker.show(), !1
-                }), $nepaliDatePicker.on("click", ".today-btn", function(event) {
+                }), $nepaliDatePicker.on("click", ".today-btn", function (event) {
                     event.preventDefault();
                     var preCalendarData = {
                         bsYear: $nepaliDatePicker.data().bsYear,
@@ -321,7 +324,7 @@ var calendarFunctions = {};
                     datePickerPlugin.renderCurrentMonthCalendar($nepaliDatePicker);
                     $nepaliDatePicker.data();
                     return datePickerPlugin.triggerChangeEvent($element, $nepaliDatePicker, preCalendarData), $nepaliDatePicker.show(), !1
-                }), $nepaliDatePicker.on("click", ".current-year-txt, .current-month-txt", function() {
+                }), $nepaliDatePicker.on("click", ".current-year-txt, .current-month-txt", function () {
                     if ($(this).find(".drop-down-content").is(":visible")) $(this).find(".drop-down-content").hide();
                     else {
                         $nepaliDatePicker.find(".drop-down-content").hide(), $(this).find(".drop-down-content").show();
@@ -333,48 +336,25 @@ var calendarFunctions = {};
                     return !1
 
                 }),
-                   $('.nepali-datepicker').on('keyup', function(){
-                       date_regex = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/
-                       date_value = $(this).val();
-                       $('.nepali-datepicker').each(function(index){
-                           $(this).attr('data-info', index);
-                       })
-                       $('.nepali-date-picker').each(function(index){
-                           $(this).attr('data-info', index);
-                       })
-                       if(date_regex.test(date_value)){
-                           date = $(this).val().split("-");
-                           year = date[0];
-                           month = date[1];
-                           day  = date[2];
-                           datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
-                           datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
-                           data = $(this).data('info');
-                           $('.nepali-date-picker').each(function(){
-                               if(data == $(this).data('info')){
-                                   $(this).show();
-                               }
-                           })
-                           if($(this).next('.clear-date').length < 1){
-                               $(this).after("<span class='clear-date' onclick='return false'>&times;</span>")
-                               $(this).closest('.input-date-1, .input-date-2, .input-date-3, .st-row').css('height', '35px');
-                           }$(this).next('.clear-date').show();
-                       }else{
-                           $(this).next('.clear-date').hide();
-                       }
-                   })
-                    ,
-                    $nepaliDatePicker.on("click", ".current-month-date", function() {
-                    if (!$(this).hasClass("disable")) {
-                        var datePickerData = $nepaliDatePicker.data(),
-                            bsYear = datePickerData.bsYear,
-                            bsMonth = datePickerData.bsMonth,
-                            preDate = datePickerData.bsDate,
-                            bsDate = $(this).data("date"),
-                            dateText = calendarFunctions.bsDateFormat(datePickerPlugin.options.dateFormat, bsYear, bsMonth, bsDate);
-                        return $element.val(dateText),datePickerPlugin.setCalendarDate($nepaliDatePicker, bsYear, bsMonth, bsDate), datePickerPlugin.renderMonthCalendar($nepaliDatePicker), preDate !== bsDate && datePickerPlugin.eventFire($element, $nepaliDatePicker, "dateChange"), datePickerPlugin.eventFire($element, $nepaliDatePicker, "dateSelect"), datePickerPlugin.options.closeOnDateSelect ? $nepaliDatePicker.hide() : $nepaliDatePicker.show(), !1
-                    }
-                }), $nepaliDatePicker.on("click", ".drop-down-content li", function() {
+                    $nepaliDatePicker.on("click", ".current-month-date", function () {
+                        $element.after("<span class='clear-date' onclick='return false'>&times;</span>");
+                        $element.parent().css('height', '35px');
+                        if ($element.parents().eq(1).hasClass('new-td')) {
+                            $element.parent().css('height', '55px');
+                        }
+                        if ($element.parents().eq(1).hasClass('new-voucher')) {
+                            $element.parent().css('height', '65px');
+                        }
+                        if (!$(this).hasClass("disable")) {
+                            var datePickerData = $nepaliDatePicker.data(),
+                                bsYear = datePickerData.bsYear,
+                                bsMonth = datePickerData.bsMonth,
+                                preDate = datePickerData.bsDate,
+                                bsDate = $(this).data("date"),
+                                dateText = calendarFunctions.bsDateFormat(datePickerPlugin.options.dateFormat, bsYear, bsMonth, bsDate);
+                            return $element.val(dateText), datePickerPlugin.setCalendarDate($nepaliDatePicker, bsYear, bsMonth, bsDate), datePickerPlugin.renderMonthCalendar($nepaliDatePicker), preDate !== bsDate && datePickerPlugin.eventFire($element, $nepaliDatePicker, "dateChange"), datePickerPlugin.eventFire($element, $nepaliDatePicker, "dateSelect"), datePickerPlugin.options.closeOnDateSelect ? $nepaliDatePicker.hide() : $nepaliDatePicker.show(), !1
+                        }
+                    }), $nepaliDatePicker.on("click", ".drop-down-content li", function () {
                     var $dropDown = $(this).parents(".drop-down-content");
                     $dropDown.data("value", $(this).data("value")), $dropDown.attr("data-value", $(this).data("value"));
                     var preCalendarData = {
@@ -390,11 +370,11 @@ var calendarFunctions = {};
                     return datePickerPlugin.triggerChangeEvent($element, $nepaliDatePicker, preCalendarData), $nepaliDatePicker.show(), !1
                 })
             },
-            triggerChangeEvent: function($element, $nepaliDatePicker, preCalendarData) {
+            triggerChangeEvent: function ($element, $nepaliDatePicker, preCalendarData) {
                 var calendarData = $nepaliDatePicker.data();
                 preCalendarData.bsYear !== calendarData.bsYear && datePickerPlugin.eventFire($element, $nepaliDatePicker, "yearChange"), preCalendarData.bsMonth !== calendarData.bsMonth && datePickerPlugin.eventFire($element, $nepaliDatePicker, "monthChange"), preCalendarData.bsDate !== calendarData.bsDate && datePickerPlugin.eventFire($element, $nepaliDatePicker, "dateChange")
             },
-            eventFire: function($element, $nepaliDatePicker, eventType) {
+            eventFire: function ($element, $nepaliDatePicker, eventType) {
                 switch (eventType) {
                     case "generate":
                         $element.trigger({
@@ -453,23 +433,23 @@ var calendarFunctions = {};
                         })
                 }
             },
-            setCalendarDate: function($nepaliDatePicker, bsYear, bsMonth, BsDate) {
+            setCalendarDate: function ($nepaliDatePicker, bsYear, bsMonth, BsDate) {
                 $nepaliDatePicker.data(calendarFunctions.getBsMonthInfoByBsDate(bsYear, bsMonth, BsDate, datePickerPlugin.options.dateFormat))
             },
-            renderMonthCalendar: function($nepaliDatePicker) {
+            renderMonthCalendar: function ($nepaliDatePicker) {
                 $nepaliDatePicker.find(".calendar-wrapper").remove(), $nepaliDatePicker.append(datePickerPlugin.getCalendar($nepaliDatePicker)).hide()
             },
-            getCalendar: function($nepaliDatePicker) {
+            getCalendar: function ($nepaliDatePicker) {
                 var calendarWrapper = $('<div class="calendar-wrapper">');
                 calendarWrapper.append(datePickerPlugin.getCalendarController($nepaliDatePicker));
                 var calendarTable = $("<table>");
                 return calendarTable.append(datePickerPlugin.getCalendarHeader()), calendarTable.append(datePickerPlugin.getCalendarBody($nepaliDatePicker)), calendarWrapper.append(calendarTable), calendarWrapper
             },
-            getCalendarController: function($nepaliDatePicker) {
+            getCalendarController: function ($nepaliDatePicker) {
                 var calendarController = $("<div class='calendar-controller'>");
                 return calendarController.append('<a href="javascript:void(0);" class="prev-btn icon" title="prev"></a>'), calendarController.append('<a href="javascript:void(0);" class="today-btn icon" title=""></a>'), calendarController.append(datePickerPlugin.getMonthDropOption($nepaliDatePicker)), calendarController.append(datePickerPlugin.getYearDropOption($nepaliDatePicker)), calendarController.append('<a href="javascript:void(0);" class="next-btn icon" title="next"></a>'), calendarController
             },
-            getMonthDropOption: function($nepaliDatePicker) {
+            getMonthDropOption: function ($nepaliDatePicker) {
                 var datePickerData = $nepaliDatePicker.data(),
                     $monthSpan = $('<div class="current-month-txt">');
                 $monthSpan.text(calendarData.bsMonths[datePickerData.bsMonth - 1]), $monthSpan.append('<i class="icon icon-drop-down">');
@@ -480,7 +460,7 @@ var calendarFunctions = {};
                 var $monthDropOption = datePickerPlugin.getCustomSelectOption(data, datePickerData.bsMonth).addClass("month-drop-down");
                 return $monthSpan.append($monthDropOption), $monthSpan
             },
-            getYearDropOption: function($nepaliDatePicker) {
+            getYearDropOption: function ($nepaliDatePicker) {
                 var datePickerData = $nepaliDatePicker.data(),
                     $yearSpan = $('<div class="current-year-txt">');
                 $yearSpan.text(calendarFunctions.getNepaliNumber(datePickerData.bsYear)), $yearSpan.append('<i class="icon icon-drop-down">');
@@ -491,19 +471,19 @@ var calendarFunctions = {};
                 var $yearDropOption = datePickerPlugin.getCustomSelectOption(data, datePickerData.bsYear).addClass("year-drop-down");
                 return $yearSpan.append($yearDropOption), $yearSpan
             },
-            getCustomSelectOption: function(datas, activeValue) {
+            getCustomSelectOption: function (datas, activeValue) {
                 var $dropDown = $('<div class="drop-down-content" data-value="' + activeValue + '">'),
                     $dropDownWrapper = $('<div class="option-wrapper">'),
                     $ul = $("<ul>");
-                return $.each(datas, function(index, data) {
+                return $.each(datas, function (index, data) {
                     $ul.append('<li data-value="' + data.value + '">' + data.label + "</li>")
                 }), $dropDownWrapper.append($ul), $ul.find('li[data-value="' + activeValue + '"]').addClass("active"), $dropDown.append($dropDownWrapper), $dropDown
             },
-            getCalendarHeader: function() {
+            getCalendarHeader: function () {
                 for (var calendarHeader = $("<thead>"), tableRow = $("<tr>"), i = 0; i < 7; i++) tableRow.append("<td>" + calendarData.bsDays[i] + "</td>");
                 return calendarHeader.append(tableRow), calendarHeader
             },
-            getCalendarBody: function($nepaliDatePicker) {
+            getCalendarBody: function ($nepaliDatePicker) {
                 var datePickerData = $nepaliDatePicker.data(),
                     weekCoverInMonth = Math.ceil((datePickerData.bsMonthFirstAdDate.getDay() + datePickerData.bsMonthDays) / 7),
                     preMonth = datePickerData.bsMonth - 1 !== 0 ? datePickerData.bsMonth - 1 : 12,
@@ -525,10 +505,10 @@ var calendarFunctions = {};
                 }
                 return calendarBody
             },
-            disableIfOutOfRange: function($td, datePickerData, minBsDate, maxBsDate, calendarDate) {
+            disableIfOutOfRange: function ($td, datePickerData, minBsDate, maxBsDate, calendarDate) {
                 return null !== minBsDate && (datePickerData.bsYear < minBsDate.bsYear ? $td.addClass("disable") : datePickerData.bsYear === minBsDate.bsYear && datePickerData.bsMonth < minBsDate.bsMonth ? $td.addClass("disable") : datePickerData.bsYear === minBsDate.bsYear && datePickerData.bsMonth === minBsDate.bsMonth && calendarDate < minBsDate.bsDate && $td.addClass("disable")), null !== maxBsDate && (datePickerData.bsYear > maxBsDate.bsYear ? $td.addClass("disable") : datePickerData.bsYear === maxBsDate.bsYear && datePickerData.bsMonth > maxBsDate.bsMonth ? $td.addClass("disable") : datePickerData.bsYear === maxBsDate.bsYear && datePickerData.bsMonth === maxBsDate.bsMonth && calendarDate > maxBsDate.bsDate && $td.addClass("disable")), $td
             },
-            renderCurrentMonthCalendar: function($nepaliDatePicker) {
+            renderCurrentMonthCalendar: function ($nepaliDatePicker) {
                 var currentDate = new Date,
                     currentBsDate = calendarFunctions.getBsDateByAdDate(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate()),
                     bsYear = currentBsDate.bsYear,
@@ -536,26 +516,52 @@ var calendarFunctions = {};
                     bsDate = currentBsDate.bsDate;
                 datePickerPlugin.setCalendarDate($nepaliDatePicker, bsYear, bsMonth, bsDate), datePickerPlugin.renderMonthCalendar($nepaliDatePicker)
             },
-            renderPreviousMonthCalendar: function($nepaliDatePicker) {
+            renderPreviousMonthCalendar: function ($nepaliDatePicker) {
                 var datePickerData = $nepaliDatePicker.data(),
                     prevMonth = datePickerData.bsMonth - 1 > 0 ? datePickerData.bsMonth - 1 : 12,
                     prevYear = 12 !== prevMonth ? datePickerData.bsYear : datePickerData.bsYear - 1,
                     prevDate = datePickerData.bsDate;
                 return prevYear < datePickerPlugin.options.yearStart || prevYear > datePickerPlugin.options.yearEnd ? null : (datePickerPlugin.setCalendarDate($nepaliDatePicker, prevYear, prevMonth, prevDate), void datePickerPlugin.renderMonthCalendar($nepaliDatePicker))
             },
-            renderNextMonthCalendar: function($nepaliDatePicker) {
+            renderNextMonthCalendar: function ($nepaliDatePicker) {
                 var datePickerData = $nepaliDatePicker.data(),
                     nextMonth = datePickerData.bsMonth + 1 <= 12 ? datePickerData.bsMonth + 1 : 1,
                     nextYear = 1 !== nextMonth ? datePickerData.bsYear : datePickerData.bsYear + 1,
                     nextDate = datePickerData.bsDate;
                 return nextYear < datePickerPlugin.options.yearStart || nextYear > datePickerPlugin.options.yearEnd ? null : (datePickerPlugin.setCalendarDate($nepaliDatePicker, nextYear, nextMonth, nextDate), void datePickerPlugin.renderMonthCalendar($nepaliDatePicker))
             },
-            renderFormattedSpecificDateCalendar: function($nepaliDatePicker, dateFormat, dateFormattedText) {
+            renderFormattedSpecificDateCalendar: function ($nepaliDatePicker, dateFormat, dateFormattedText) {
                 var datePickerDate = calendarFunctions.parseFormattedBsDate(dateFormat, dateFormattedText);
                 datePickerPlugin.setCalendarDate($nepaliDatePicker, datePickerDate.bsYear, datePickerDate.bsMonth, datePickerDate.bsDate), datePickerPlugin.renderMonthCalendar($nepaliDatePicker)
             }
         };
-        return this.each(function() {
+
+        this.on('keyup', function (e) {
+            date_regex = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/
+            date_value = $(this).val();
+            if (date_regex.test(date_value)) {
+                date = $(this).val().split("-");
+                year = date[0];
+                month = date[1];
+                day = date[2];
+                $nepaliDatePicker = $(this).data('datepicker');
+                datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
+                datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
+                $nepaliDatePicker.show();
+                if ($(this).next('.clear-date').length < 1) {
+                    $(this).after("<span class='clear-date' onclick='return false'>&times;</span>")
+                    $(this).parent().css('height', '35px');
+                    if ($(this).parents().eq(1).hasClass('new-td')) {
+                        $(this).parent().css('height', '60px');
+                    }
+                }
+                $(this).next('.clear-date').show();
+            } else {
+                $(this).next('.clear-date').hide();
+            }
+        });
+
+        return this.each(function () {
             var $element = $(this);
             datePickerPlugin.init($element)
         }), datePickerPlugin.addCommonEventHandler(), this
