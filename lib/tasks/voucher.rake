@@ -56,10 +56,7 @@ namespace :voucher do
 
       particulars.delete_all
       Voucher.where(id: vouchers).delete_all
-
-
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
+      Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledgers, false,  branch_id, fy_code)
     end
 
   end
@@ -73,8 +70,7 @@ namespace :voucher do
       branch_id = Voucher.where(id: vouchers).first.branch_id
       fy_code = Voucher.where(id: vouchers).first.fy_code
       Voucher.where(id: vouchers).delete_all
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers,  branch_id, fy_code)
+      Rake::Task["ledger:fix_ledger_selected"].invoke(tenant, ledgers, false,  branch_id, fy_code)
     end
   end
 

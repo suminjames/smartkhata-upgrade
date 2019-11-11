@@ -73,7 +73,6 @@ class BankAccountsController < ApplicationController
   def set_bank_account
     @bank_account = BankAccount.find(params[:id])
   end
-
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
     params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
@@ -81,6 +80,6 @@ class BankAccountsController < ApplicationController
   end
 
   def bank_account_update_params
-    params.require(:bank_account).permit(:default_for_receipt, :default_for_payment)
+    params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment)
   end
 end

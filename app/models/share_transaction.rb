@@ -461,12 +461,17 @@ class ShareTransaction < ActiveRecord::Base
     update_attribute(:deleted_at, nil)
   end
 
+
+  # used for the provisional only
+  # not used for the base price calculation
   def update_with_base_price(params)
     self.update(params)
     self.calculate_cgt
     self
   end
 
+  # used for the provisional only
+  # not used for the base price calculation
   def calculate_cgt
     old_cgt = self.cgt
     if self.base_price?
