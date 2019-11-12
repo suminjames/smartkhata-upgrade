@@ -288,7 +288,6 @@ var calendarFunctions = {};
             addEventHandler: function ($element, $nepaliDatePicker) {
                 // CUSTOM ADDITION: make datepicker element available on input field
                 $element.data('datepicker', $nepaliDatePicker);
-
                 $element.click(function () {
                     if ($(".nepali-date-picker").is(":visible")) return void $(".nepali-date-picker").hide();
                     var inputFieldPosition = $(this).offset();
@@ -337,14 +336,7 @@ var calendarFunctions = {};
 
                 }),
                     $nepaliDatePicker.on("click", ".current-month-date", function () {
-                        $element.after("<span class='clear-date' onclick='return false'>&times;</span>");
-                        $element.parent().css('height', '35px');
-                        if ($element.parents().eq(1).hasClass('new-td')) {
-                            $element.parent().css('height', '55px');
-                        }
-                        if ($element.parents().eq(1).hasClass('new-voucher')) {
-                            $element.parent().css('height', '65px');
-                        }
+                        toggle_clear_button($element);
                         if (!$(this).hasClass("disable")) {
                             var datePickerData = $nepaliDatePicker.data(),
                                 bsYear = datePickerData.bsYear,
@@ -548,18 +540,30 @@ var calendarFunctions = {};
                 datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
                 datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
                 $nepaliDatePicker.show();
-                if ($(this).next('.clear-date').length < 1) {
-                    $(this).after("<span class='clear-date' onclick='return false'>&times;</span>")
-                    $(this).parent().css('height', '35px');
-                    if ($(this).parents().eq(1).hasClass('new-td')) {
-                        $(this).parent().css('height', '60px');
-                    }
-                }
-                $(this).next('.clear-date').show();
+                toggle_clear_button($(this));
             } else {
                 $(this).next('.clear-date').hide();
             }
         });
+
+        function toggle_clear_button($element) {
+            if ($element.next('.clear-date').length < 1) {
+                add_clear_button($element);
+                adjust_input_css($element);
+            } else {
+                $element.next('.clear-date').show();
+            }
+        }
+
+        function add_clear_button($element) {
+            $element.after("<span class='clear-date' onclick='return false'>&times;</span>");
+        }
+
+        function adjust_input_css($element) {
+            if (!$element.parents().eq(1).is('.new-td, .new-voucher')) {
+                $element.parent().css('height', '35px');
+            }
+        }
 
         return this.each(function () {
             var $element = $(this);

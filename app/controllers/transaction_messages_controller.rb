@@ -7,6 +7,7 @@ class TransactionMessagesController < ApplicationController
 
   # GET /transaction_messages
   # GET /transaction_messages.json
+  include TextFieldsHelper
   def index
     @filterrific = initialize_filterrific(
         TransactionMessage.by_branch,

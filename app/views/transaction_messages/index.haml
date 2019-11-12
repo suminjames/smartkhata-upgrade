@@ -21,9 +21,7 @@
           %br
           = f.text_field(                 |
             :by_date,                     |
-            :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control nepali-datepicker', |
-            autocomplete: "off" ) |
+            text_field_options)           |
         .col-xs-4
           .clearfix
             .text-center
@@ -31,17 +29,14 @@
                 Date Range
           .clearfix
             .col-xs-6
-              = f.text_field(                 |
-                :by_date_from,                |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control nepali-datepicker', |
-                autocomplete: "off" ) |
+              = f.text_field(                |
+                :by_date_from,               |
+                text_field_options)          |
+
             .col-xs-6
               = f.text_field(                 |
                 :by_date_to,                  |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control nepali-datepicker', |
-                autocomplete: "off" ) |
+                text_field_options)           |
       .row.top-buffer-sm
         .col-xs-3
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'

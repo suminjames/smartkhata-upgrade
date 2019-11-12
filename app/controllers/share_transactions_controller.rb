@@ -7,6 +7,7 @@ class ShareTransactionsController < ApplicationController
   include SmartListing::Helper::ControllerExtensions
   helper SmartListing::Helper
   include ShareInventoryModule
+  include TextFieldsHelper
 
   layout 'application_custom', only: [:threshold_transactions]
 

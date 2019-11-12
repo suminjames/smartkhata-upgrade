@@ -8,7 +8,7 @@ class BillsController < ApplicationController
   # layout 'application_custom', only: [:index]
 
   include BillModule
-
+  include TextFieldsHelper
   # GET /bills
   # GET /bills.json
   def index
