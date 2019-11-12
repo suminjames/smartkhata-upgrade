@@ -19,6 +19,7 @@ RSpec.describe ShareTransaction, type: :model do
   		end
   	end
 
+    # fix this
   	describe ".available_balancing_transactions" do
   		let!(:isin_info){create(:isin_info)}
   		let!(:client_account){create(:client_account)}

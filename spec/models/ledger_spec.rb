@@ -99,6 +99,7 @@ RSpec.describe Ledger, type: :model do
     end
   end
 
+  # this method has been changed on the model level, do necessary or remove
   describe ".has_editable_balance?" do
     context "when particulars size is more than 0" do
       it "should return false" do
@@ -171,6 +172,7 @@ RSpec.describe Ledger, type: :model do
     end
   end
 
+  # this needs to be fixed
   describe ".particulars_with_running_balance" do
     let(:particular1){create(:particular, amount: 1000)}
     let(:particular2){create(:particular, amount: 3000)}
@@ -315,6 +317,7 @@ RSpec.describe Ledger, type: :model do
         end
       end
 
+      # fix this, see how it is defined on the model
       context "when bank account id is present" do
         let(:bank_account){create(:bank_account,bank_name: "RBB")}
         it "should return attributes for bank account" do

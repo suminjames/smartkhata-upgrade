@@ -251,6 +251,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return  all related bills"  do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
+      # fix this,
       expect(subject.get_all_related_bills).to eq([bill2, bill1])
     end
   end
@@ -261,6 +262,7 @@ RSpec.describe ClientAccount, type: :model do
     it "should return  all related bills ids"  do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
+      #fix this
       expect(subject.get_all_related_bill_ids).to eq([bill2.id, bill1.id])
     end
   end

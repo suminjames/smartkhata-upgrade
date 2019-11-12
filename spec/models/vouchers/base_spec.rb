@@ -148,6 +148,7 @@ RSpec.describe Vouchers::Base do
       expect(voucher_type).to eq 1
     end
 
+
     it "should return error for purchase bills with ledger balance less than zero" do
       ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -2000)
       client_account_id = client_account.id
