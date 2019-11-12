@@ -77,7 +77,7 @@ RSpec.describe ChequeEntries::Activity do
       it 'returns true' do
         UserSession.selected_fy_code = 7576
         # stubbing/mocking
-        # expect(subject).to receive(:get_fy_code).and_return(7576)
+        expect(subject).to receive(:get_fy_code).and_return(7576)
         expect(subject.valid_for_the_fiscal_year?).to eq(true)
       end
     end

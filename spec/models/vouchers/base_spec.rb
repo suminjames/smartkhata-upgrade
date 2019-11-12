@@ -12,6 +12,7 @@ RSpec.describe Vouchers::Base do
   before do
     # user session needs to be set for doing any activity
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
+      UserSession.set_console(nil, nil, nil)
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
   end

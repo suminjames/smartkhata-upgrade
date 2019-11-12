@@ -100,20 +100,20 @@ RSpec.describe Ledger, type: :model do
   end
 
   # this method has been changed on the model level, do necessary or remove
-  describe ".has_editable_balance?" do
-    context "when particulars size is more than 0" do
-      it "should return false" do
-        ledger = create(:ledger)
-        create(:particular, ledger_id: ledger.id)
-        expect(ledger.reload.has_editable_balance?).not_to be_truthy
-      end
-    end
-
-    context "when particulars size is 0"
-    it "should return true" do
-      expect(subject.has_editable_balance?).to be_truthy
-    end
-  end
+  # describe ".has_editable_balance?" do
+  #   context "when particulars size is more than 0" do
+  #     it "should return false" do
+  #       ledger = create(:ledger)
+  #       create(:particular, ledger_id: ledger.id)
+  #       expect(ledger.reload.has_editable_balance?).not_to be_truthy
+  #     end
+  #   end
+  #
+  #   context "when particulars size is 0"
+  #   it "should return true" do
+  #     expect(subject.has_editable_balance?).to be_truthy
+  #   end
+  # end
 
   describe ".update_custom" do
     it "should return true" do
@@ -184,7 +184,7 @@ RSpec.describe Ledger, type: :model do
       ledger.particulars << particular2
       particulars = ledger.particulars_with_running_balance
       expect(particulars.count).to eq(2)
-      expect(particulars.first.running_total).to eq(particular2.amount)
+      expect(particulars.first.running_total).to eq(particular1.amount)
       expect(particulars.last.running_total).to eq(particular1.amount + particular2.amount)
     end
   end
@@ -319,10 +319,10 @@ RSpec.describe Ledger, type: :model do
 
       # fix this, see how it is defined on the model
       context "when bank account id is present" do
-        let(:bank_account){create(:bank_account,bank_name: "RBB")}
+        let(:bank_account){create(:bank_account)}
         it "should return attributes for bank account" do
           bank_account
-          expect(Ledger.find_similar_to_term("Le", nil)).to eq([{:text=>"Ledger (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
+          expect(Ledger.find_similar_to_term("Ba", nil)).to eq([{:text=>"Bank:#{bank_account.bank.name}(#{bank_account.account_number}) (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
         end
       end
 
@@ -372,7 +372,7 @@ RSpec.describe Ledger, type: :model do
       it "should return name and identifier for bank account" do
         subject
         bank_account
-        expect(subject.name_and_identifier).to eq("Ledger (**Bank Account**)")
+        expect(subject.name_and_identifier).to eq("Bank:#{bank_account.bank.name}(#{bank_account.account_number}) (**Bank Account**)")
       end
     end
 
