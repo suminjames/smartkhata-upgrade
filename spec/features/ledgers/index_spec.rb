@@ -61,7 +61,7 @@ describe "Ledger" do
 
         click_on "1111"
         expect(page).to have_content("Cheque details")
-        expect(page).to have_selector(".btn")
+        expect(page).to have_selector(:link_or_button)
 
       end
     end
