@@ -1,12 +1,11 @@
 require 'rails_helper'
 
 describe "Voucher show" do
-  let(:user) {create(:user)}
+  include_context 'feature_session_setup'
+
   let(:tenant) {Tenant}
 
   before(:each) do
-    user
-    UserSession.set_console('public')
     allow_any_instance_of(ApplicationController).to receive(:current_tenant).and_return(build(:tenant))
   end
 
@@ -24,9 +23,9 @@ describe "Voucher show" do
     subject { create(:voucher, desc: "random text")}
 
     before do
-      login_as(user, scope: :user)
-      particular1 = create(:debit_particular, voucher: subject, branch_id: user.branch_id)
-      particular2 =create(:credit_particular, voucher: subject, branch_id: user.branch_id)
+      login_as(@user, scope: :user)
+      particular1 = create(:debit_particular, voucher: subject, branch_id: @user.branch_id)
+      particular2 =create(:credit_particular, voucher: subject, branch_id: @user.branch_id)
       visit voucher_path(subject)
     end
 
@@ -55,9 +54,9 @@ describe "Voucher show" do
                    is_payment_bank: true,
                    desc: "*"*150)}
     before do
-      login_as(user, scope: :user)
-      particular1 = create(:debit_particular, voucher: subject, branch_id: user.branch_id)
-      particular2 =create(:credit_particular, voucher: subject, branch_id: user.branch_id, ledger_type: 1)
+      login_as(@user, scope: :user)
+      particular1 = create(:debit_particular, voucher: subject, branch_id: @user.branch_id)
+      particular2 =create(:credit_particular, voucher: subject, branch_id: @user.branch_id, ledger_type: 1)
       ledger = create(:ledger)
       particular2.ledger = ledger
       visit voucher_path(subject)

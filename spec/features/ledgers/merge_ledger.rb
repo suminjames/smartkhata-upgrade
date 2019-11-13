@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.feature "Ledger", type: :feature do
   include_context "feature_session_setup"
-  let(:user) {create(:user, role: 0, username: "john", email: "john@gmail.com", branch_id: @branch.id) }
+#  let(:user) {create(:user, role: 0, username: "john", email: "john@gmail.com", branch_id: @branch.id) }
   let(:tenant) {Tenant}
   let(:ledger) {create(:ledger)}
   let(:ledger1) {create(:ledger, name:"Purchase")}
@@ -17,7 +17,6 @@ RSpec.feature "Ledger", type: :feature do
     end
     it "sucessfully merge ledgers" do
       expect(page).to have_content('Merge Ledgers')
-      byebug
       find('#ledgers_index_combobox').click
       find('input').set("Cash")
       find('#ledgers_index_combobox').first(:option)
