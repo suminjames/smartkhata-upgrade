@@ -6,6 +6,7 @@ RSpec.describe ShareTransaction, type: :model do
 
   describe "validations" do
     it {should validate_numericality_of(:base_price)}
+    it {should validate_uniqueness_of(:contract_no).scoped_to(:transaction_type) }
   end
 
   describe ".as_json" do

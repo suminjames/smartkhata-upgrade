@@ -1,26 +1,27 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeAccount, type: :model do
-	subject{build(:employee_account)}
-  	include_context 'session_setup'
+  subject{build(:employee_account)}
+  include_context 'session_setup'
 
   describe "validations" do
-  	it { should validate_presence_of(:name)}
-  	it { should validate_presence_of(:email)}
-  	it { should validate_uniqueness_of(:email)}
-  	it { should allow_value("hello@example.com").for(:email)}
+    it { should validate_presence_of(:name)}
+    it { should validate_presence_of(:email)}
+    it { should validate_uniqueness_of(:email)}
+    it { should allow_value("hello@example.com").for(:email)}
   end
 
   describe ".create_ledger" do
-  	subject{create(:employee_account)}
+    subject{create(:employee_account)}
 
-  	it "should create a ledger with same name" do
-  		expect(Ledger.where(employee_account_id: subject.id).first.name).to eq(subject.name)
-  	end
+    it "should create a ledger with same name" do
+      expect(Ledger.where(employee_account_id: subject.id).first.name).to eq(subject.name)
+    end
   end
 
   describe ".assign_group" do
-    it ""
+    it "should assign the employee ledger to 'Employees' group" do
+    end
   end
 
   describe "#find_similar_to_term" do
@@ -34,20 +35,20 @@ RSpec.describe EmployeeAccount, type: :model do
 
   describe ".user_access_role_id" do
     let(:user_access_role) {UserAccessRole.create(role_type: 'employee', role_name: 'asdf')}
-    it "should return user access role id" 
+    it "should return user access role id"
     # do
-      # dont think this is required(SUBAS)
+    # dont think this is required(SUBAS)
 
-      # employee = create(:employee_account, name: "nistha")
-      # allow(employee).to receive(:user_access_role).and_return(user_access_role)
-      # expect(employee.user_access_role_id).to eq(user_access_role.id)
-    # end 
+    # employee = create(:employee_account, name: "nistha")
+    # allow(employee).to receive(:user_access_role).and_return(user_access_role)
+    # expect(employee.user_access_role_id).to eq(user_access_role.id)
+    # end
   end
 
   describe ".name_with_id" do
     subject{create(:employee_account, name: "john")}
     it "should append id with name" do
       expect(subject.name_with_id).to eq("john (#{subject.id})")
-    end 
+    end
   end
 end

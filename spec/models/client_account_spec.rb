@@ -252,7 +252,7 @@ RSpec.describe ClientAccount, type: :model do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
       # fix this,
-      expect(subject.get_all_related_bills).to eq([bill1, bill2])
+      expect(subject.get_all_related_bills).to eq([bill2, bill1])
     end
   end
 
@@ -263,7 +263,7 @@ RSpec.describe ClientAccount, type: :model do
       bill1 = create(:bill, client_account_id: subject.id)
       bill2 = create(:bill, client_account_id: group_member.id )
       #fix this
-      expect(subject.get_all_related_bill_ids).to eq([bill1.id, bill2.id])
+      expect(subject.get_all_related_bill_ids).to eq([bill2.id, bill1.id])
     end
   end
 

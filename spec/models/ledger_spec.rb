@@ -184,7 +184,7 @@ RSpec.describe Ledger, type: :model do
       ledger.particulars << particular2
       particulars = ledger.particulars_with_running_balance
       expect(particulars.count).to eq(2)
-      expect(particulars.first.running_total).to eq(particular1.amount)
+      expect(particulars.first.running_total).to eq(particular2.amount)
       expect(particulars.last.running_total).to eq(particular1.amount + particular2.amount)
     end
   end
@@ -327,9 +327,13 @@ RSpec.describe Ledger, type: :model do
       end
 
       context "when employee account id is present" do
-        subject{create(:ledger, name: "nistha")}
         let(:employee_account){create(:employee_account, name: "john")}
-        it "should return attributes for employee account"
+        subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
+        it "should return attributes for employee account" do
+          employee_account
+          subject.employee_ledger_associations = employee_account.employee_ledger_associations
+          expect(Ledger.find_similar_to_term("le", nil)).to eq([{:text=>"ledger1 (**Employee**)", :id=>"#{subject.id}"}])
+        end
 
       end
 
@@ -377,9 +381,13 @@ RSpec.describe Ledger, type: :model do
     end
 
     context "when employee account id is present" do
-      subject{build(:ledger)}
-      let(:employee_account){create(:employee_account, ledger: subject)}
-      it "should return name and identifier for employee account"
+      let(:employee_account){create(:employee_account, name: "john")}
+      subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
+      it "should return name and identifier for employee account" do
+        employee_account
+        subject.employee_ledger_associations = employee_account.employee_ledger_associations
+        expect(subject.name_and_identifier).to eq("ledger1 (**Employee**)")
+      end
 
     end
 
