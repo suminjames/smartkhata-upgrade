@@ -8,8 +8,8 @@ RSpec.describe MenuPermission, type: :model do
 
 	describe "#delete_previous_permissions_for" do
 		# might not be necessary
-		it "should delete all previous permissions"
 
+		it "should delete all previous permissions"
 	end
 
 end
