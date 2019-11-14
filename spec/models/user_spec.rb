@@ -74,11 +74,10 @@ RSpec.describe User, type: :model do
   describe ".blocked_path_list" do
     let!(:user_access_role){create(:user_access_role)}
     subject{create(:user, user_access_role_id: user_access_role.id, email: "gyfyf@gmail.com", username: "nono")}
-    it "returns blocked path list" 
-    # do
-    #   allow_any_instance_of(User).to receive(:get_blocked_path_list).and_return(user_access_role.id)
-    #   expect(subject.blocked_path_list).to eq(1)
-    # end
+    it "returns blocked path list" do
+      allow_any_instance_of(User).to receive(:get_blocked_path_list).and_return(["/vouchers/new","/vouchers/index"])
+      expect(subject.blocked_path_list).to eq(["/vouchers/new","/vouchers/index"])
+    end
   end
   
   describe "#find_for_database_authentication" do
@@ -112,7 +111,6 @@ RSpec.describe User, type: :model do
         subject.password_confirmation = nil
         expect(subject.password_required?).not_to be_truthy
       end
-      it " persistance check pending"
     end
 
     context "when try to change password for existing user" do

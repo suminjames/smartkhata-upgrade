@@ -22,4 +22,23 @@ RSpec.describe OrderRequestDetail, type: :model do
     end
   end
 
+  describe "test scopes" do
+    let(:todays_order){create(:order_request_detail, status: 0, isin_info_id: isin_info.id, order_type: 1, order_request_id: order_request.id, created_at: Time.now.beginning_of_day )}
+    let(:yesterdays_order){create(:order_request_detail, status: 0, isin_info_id: isin_info.id, order_type: 1, order_request_id: order_request.id, created_at: Time.now.beginning_of_day - 1.day )}
+
+    describe "#sorted_by" do
+      context "when sort option is desc" do
+        it "should order 'order request details' by descending " do
+          expect(OrderRequestDetail.sorted_by('created_at_desc').all).to eq([todays_order, yesterdays_order ])
+        end
+      end
+
+      context "when sort option is invalid" do
+        it "should order 'order request details' by ascending " do
+          expect{ OrderRequestDetail.sorted_by('created_at_asdf').all }.to raise_error(ArgumentError, "Invalid sort option: \"created_at_asdf\"")
+        end
+      end
+    end
+  end
+
 end
