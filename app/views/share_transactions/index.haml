@@ -54,27 +54,15 @@
         .col-sm-2.clear-date-position
           %label
             Date
-          = f.text_field(                 |
-            :by_date,                     |
-            :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control nepali-datepicker', |
-            autocomplete: "off" ) |
+          = datepicker_input(f, 'by_date')
         .col-sm-2.text-center
           %label
             Date Range
           .clearfix
             .row.st-row.clear-date-position
-              = f.text_field(                 |
-                :by_date_from,                |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control nepali-datepicker', |
-                autocomplete: "off" ) |
+              = datepicker_input(f, 'by_date_from')
             .row.top-buffer-sm.clear-date-position
-              = f.text_field(                 |
-                :by_date_to,                  |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control nepali-datepicker', |
-                autocomplete: "off" ) |
+              = datepicker_input(f, :by_date_to)
         -if params[:paginate] != 'false'
           .col-sm-2.text-center
             %label

@@ -27,18 +27,12 @@
 //= require react_ujs
 //= require react-bootstrap
 //= require components
-//= require nepali-datepicker
+//= require nepali_datepicker/nepali-datepicker
+//= require nepali_datepicker/datepicker
 //= require_tree .
 
 $(document).on("ready page:load", function(){
-    $(document).on('click', '.clear-date', function(){
-        $(this).prev('.nepali-datepicker').val(" ");
-        $(this).hide();
-    })
-    $(".nepali-datepicker").nepaliDatePicker({
-        dateFormat: "%y-%m-%d",
-        closeOnDateSelect: true,
-    });
+
 
     $('.combobox-select').select2({
         theme: 'bootstrap',

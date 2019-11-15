@@ -19,9 +19,7 @@
           %label
             Date
           %br
-          = f.text_field(                 |
-            :by_date,                     |
-            text_field_options)           |
+          = datepicker_input(f, 'by_date')
         .col-xs-4
           .clearfix
             .text-center
@@ -29,14 +27,10 @@
                 Date Range
           .clearfix
             .col-xs-6
-              = f.text_field(                |
-                :by_date_from,               |
-                text_field_options)          |
+              = datepicker_input(f, 'by_date_from')
 
             .col-xs-6
-              = f.text_field(                 |
-                :by_date_to,                  |
-                text_field_options)           |
+              = datepicker_input(f, 'by_date_to')
       .row.top-buffer-sm
         .col-xs-3
           = f.submit 'Search', :class => 'btn btn-xs btn-primary btn-flat'

@@ -55,17 +55,15 @@
           %label
             Date
           %br
-          = f.text_field(                 |
-            :by_date,                     |
-            text_field_options)           |
+          = datepicker_input(f, 'by_date')
         .col-sm-4.text-center
           %label
             Date Range
           .row
             .col-sm-6
-              = f.text_field(:by_date_from, text_field_options)
+              = datepicker_input(f, 'by_date_from')
             .col-sm-6
-              = f.text_field(:by_date_to, text_field_options)
+              = datepicker_input(f, 'by_date_to')
     = render_filterrific_spinner
 
 

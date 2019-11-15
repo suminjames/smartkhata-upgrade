@@ -336,7 +336,7 @@ var calendarFunctions = {};
 
                 }),
                     $nepaliDatePicker.on("click", ".current-month-date", function () {
-                        toggle_clear_button($element);
+                        $element.trigger('ndp:date-select');
                         if (!$(this).hasClass("disable")) {
                             var datePickerData = $nepaliDatePicker.data(),
                                 bsYear = datePickerData.bsYear,
@@ -529,41 +529,18 @@ var calendarFunctions = {};
         };
 
         this.on('keyup', function (e) {
-            date_regex = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/
-            date_value = $(this).val();
+            var date_regex = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/
+            var date_value = $(this).val();
             if (date_regex.test(date_value)) {
-                date = $(this).val().split("-");
-                year = date[0];
-                month = date[1];
-                day = date[2];
+                var date = $(this).val().split("-");
+                var [year, month, day] = [parseInt(date[0]), parseInt(date[1]), parseInt(date[2])]
                 $nepaliDatePicker = $(this).data('datepicker');
-                datePickerPlugin.setCalendarDate($nepaliDatePicker, parseInt(year), parseInt(month), parseInt(day));
+                datePickerPlugin.setCalendarDate($nepaliDatePicker, year, month, day);
                 datePickerPlugin.renderMonthCalendar($nepaliDatePicker);
                 $nepaliDatePicker.show();
-                toggle_clear_button($(this));
-            } else {
-                $(this).next('.clear-date').hide();
             }
         });
 
-        function toggle_clear_button($element) {
-            if ($element.next('.clear-date').length < 1) {
-                add_clear_button($element);
-                adjust_input_css($element);
-            } else {
-                $element.next('.clear-date').show();
-            }
-        }
-
-        function add_clear_button($element) {
-            $element.after("<span class='clear-date' onclick='return false'>&times;</span>");
-        }
-
-        function adjust_input_css($element) {
-            if (!$element.parents().eq(1).is('.new-td, .new-voucher')) {
-                $element.parent().css('height', '35px');
-            }
-        }
 
         return this.each(function () {
             var $element = $(this);
