@@ -33,17 +33,17 @@ RSpec.describe EmployeeAccount, type: :model do
     end
   end
 
-  describe ".user_access_role_id" do
-    let(:user_access_role) {UserAccessRole.create(role_type: 'employee', role_name: 'asdf')}
-    it "should return user access role id"
-    # do
-    # dont think this is required(SUBAS)
-
-    # employee = create(:employee_account, name: "nistha")
-    # allow(employee).to receive(:user_access_role).and_return(user_access_role)
-    # expect(employee.user_access_role_id).to eq(user_access_role.id)
-    # end
-  end
+  # describe ".user_access_role_id" do
+  #   let(:user_access_role) {UserAccessRole.create(role_type: 'employee', role_name: 'asdf')}
+  #   it "should return user access role id"
+  #   # do
+  #   # dont think this is required(SUBAS)
+  #
+  #   # employee = create(:employee_account, name: "nistha")
+  #   # allow(employee).to receive(:user_access_role).and_return(user_access_role)
+  #   # expect(employee.user_access_role_id).to eq(user_access_role.id)
+  #   # end
+  # end
 
   describe ".name_with_id" do
     subject{create(:employee_account, name: "john")}
