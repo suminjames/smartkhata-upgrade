@@ -21,7 +21,6 @@ describe "Import Floorsheet" do
     it "should show form for upload", js: true do
       upload_file
       expect(page).to have_content("FLOORSHEET IMPORT CANCELLED! New client accounts found in the file! Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet. If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch.")
-
       generate_clients
       bills_count = Bill.all.count
       vouchers_count = Voucher.all.count
@@ -35,7 +34,7 @@ describe "Import Floorsheet" do
 
     def upload_file
       visit new_files_floorsheet_path
-      attach_file "file", Rails.root + "test/fixtures/files/floorsheets/v2/brokerwise_floor_sheet_small_2073-08-10.xls"
+      attach_file "file", Rails.root + "test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-10.xls"
       click_on "Import"
     end
 
