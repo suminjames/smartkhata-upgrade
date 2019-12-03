@@ -27,7 +27,7 @@
 
 class Ledger < ActiveRecord::Base
   include Auditable
-  # include ::Models::UpdaterWithFyCode
+  include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation, :changed_in_fiscal_year
   attr_reader :closing_balance
@@ -121,6 +121,7 @@ class Ledger < ActiveRecord::Base
     end
   }
   scope :by_ledger_id, -> (id) { where(id: id) }
+  scope :by_branch_id, -> (id) { where(branch_id: id) if id }
 
   def self.allowed show_restricted
     if(show_restricted)
@@ -200,27 +201,28 @@ class Ledger < ActiveRecord::Base
     true
   end
 
-  def update_custom(params)
-    self.save_custom(params)
+  def update_custom(params, fy_code, branch_id)
+    self.save_custom(params, fy_code, branch_id)
   end
 
-  def create_custom
-    self.save_custom
+  def create_custom(fy_code, branch_id)
+    self.save_custom(nil, fy_code, branch_id)
   end
 
-  def save_custom(params = nil)
+  def save_custom(params = nil, fy_code = nil, branch_id = nil)
     self.enforce_validation = true
     begin
       ActiveRecord::Base.transaction do
         if params
+          self.current_user_id = current_user_id
           if self.update(params)
-            LedgerBalance.update_or_create_org_balance(self.id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             update_ledger_dailies(params)
             return true
           end
         else
           if self.save
-            LedgerBalance.update_or_create_org_balance(self.id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
             return true
           end
         end
@@ -345,9 +347,9 @@ class Ledger < ActiveRecord::Base
   end
 
 
-  def closing_balance
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.closing_balance
+  def closing_balance(fy_code, branch_id = 0)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.closing_balance
     else
       # new_balance = self.ledger_balances.create!
       # new_balance.closing_balance
@@ -355,25 +357,25 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  def opening_balance
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.opening_balance
+  def opening_balance(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.opening_balance
     else
       0.0
     end
   end
 
-  def dr_amount
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.dr_amount
+  def dr_amount(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.dr_amount
     else
       0.0
     end
   end
 
-  def cr_amount
-    if self.ledger_balances.by_branch_fy_code.first.present?
-      self.ledger_balances.by_branch_fy_code.first.cr_amount
+  def cr_amount(fy_code, branch_id)
+    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
+      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.cr_amount
     else
       0.0
     end
@@ -472,7 +474,7 @@ class Ledger < ActiveRecord::Base
 
   def delete_associated_records
     LedgerBalance.unscoped.where(ledger_id: self.id).delete_all
-    LedgerDaily.unscoped.where(ledger_id: self.id).delete_all
+    LedgerDaily.where(ledger_id: self.id).delete_all
   end
 
   def effective_branch

@@ -58,7 +58,6 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center]].push(*[@styles[:wrap]]*6).insert(2, @styles[:float_format])
     # striped_style_row = [@styles[:striped_center]].push(*[@styles[:wrap_striped]]*6).insert(2, @styles[:float_format_striped])
-    # debugger
     row_index = 0
     @settlements.each_with_index do |s, index|
       sn = index + 1
@@ -70,7 +69,6 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
       cheque_num = cheque_numbers.shift || ''
       bank_code = bank_codes.shift || ''
       amount = amounts.shift || ''
-      # debugger
       settlement_type = s.receipt? ? 'receipt' : 'payment'
       row_style = normal_style_row
       @sheet.add_row [sn, s.name, amount, bank_code, cheque_num, s.date_bs, s.description, settlement_type], style: row_style

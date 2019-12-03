@@ -85,14 +85,16 @@ class Bill < ActiveRecord::Base
 
 
   # scope based on the branch and fycode selection
-  default_scope do
-    if UserSession.selected_branch_id == 0
-      # where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id)
-      # where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-    end
-  end
+  # default_scope do
+  #   if UserSession.selected_branch_id == 0
+  #     # where(fy_code: UserSession.selected_fy_code)
+  #   else
+  #     where(branch_id: UserSession.selected_branch_id)
+  #     # where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+  #   end
+  # end
+
+  scope :by_branch_id, -> (branch_id) {where(branch_id: branch_id) if branch_id !=0}
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
@@ -253,7 +255,6 @@ class Bill < ActiveRecord::Base
     self.bill_type = :sales
     self.status = :provisional
     self.bill_number = Bill.new_bill_number(get_fy_code)
-    # debugger
     self
   end
 
@@ -269,7 +270,7 @@ class Bill < ActiveRecord::Base
 
   # get new bill number
   def self.new_bill_number(fy_code)
-    bill = Bill.unscoped.where(fy_code: fy_code).order('bill_number DESC').first
+    bill = Bill.where(fy_code: fy_code).order('bill_number DESC').first
     # initialize the bill with 1 if no bill is present
     if bill.nil?
       1

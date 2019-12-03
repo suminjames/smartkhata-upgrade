@@ -14,14 +14,14 @@ class LedgersController < ApplicationController
         Ledger.allowed(@show_restriction),
         params[:filterrific],
         select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-          by_ledger_type: Ledger.options_for_ledger_type,
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
         },
         persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
-    @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
 
+    @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
     respond_to do |format|
       format.html
       format.js
@@ -30,17 +30,17 @@ class LedgersController < ApplicationController
       # Recover from invalid param sets, e.g., when a filter refers to the
       # database id of a record that doesn’t exist any more.
       # In this case we reset filterrific and discard all filter params.
-    rescue ActiveRecord::RecordNotFound => e
-      # There is an issue with the persisted param_set. Reset it.
-      puts "Had to reset filterrific params: #{ e.message }"
-      redirect_to(reset_filterrific_url(format: :html)) and return
+  rescue ActiveRecord::RecordNotFound => e
+    # There is an issue with the persisted param_set. Reset it.
+    puts "Had to reset filterrific params: #{ e.message }"
+    redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /ledgers/1
   # GET /ledgers/1.json
   def show
     @back_path = request.referer || ledgers_path
-    ledger_query = Ledgers::Query.new(params, @ledger, UserSession.selected_branch_id, UserSession.selected_fy_code)
+    ledger_query = Ledgers::Query.new(params, @ledger, selected_branch_id, selected_fy_code)
 
     if params[:format] == 'xlsx'
       report = Reports::Excelsheet::LedgersReport.new(@ledger, params, current_tenant, ledger_query)
@@ -63,7 +63,7 @@ class LedgersController < ApplicationController
 
     # @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
     # @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
-    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', stamp: SecureRandom.hex(10)))
+    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx'))
     @download_path_xlsx_client =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', for_client: 1))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
@@ -100,13 +100,12 @@ class LedgersController < ApplicationController
   def create
     @ledger = Ledger.new(ledger_params)
     authorize @ledger
-
     respond_to do |format|
-      if @ledger.create_custom
+      path = request.path.split('/')
+      if @ledger.create_custom(path[1], path[2])
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
-        @ledger.ledger_balances = @ledger.ledger_balances
         format.html { render :new }
         format.json { render json: @ledger.errors, status: :unprocessable_entity }
       end
@@ -120,7 +119,9 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     respond_to do |format|
-      if @ledger.update_custom(ledger_params.merge({changed_in_fiscal_year: UserSession.selected_fy_code}))
+      path = request.path.split('/')
+      fy_code, branch_id = path[1], path[2]
+      if @ledger.update_custom(ledger_params, fy_code, branch_id)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else
@@ -148,7 +149,7 @@ class LedgersController < ApplicationController
         Ledger.allowed(@show_restriction),
         params[:filterrific],
         select_options: {
-          by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific])
         },
         persistence_id: false
     ) or return
@@ -157,7 +158,7 @@ class LedgersController < ApplicationController
     if (merge_to&&merge_from).present?
       merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
       merge_bool ? flash[:notice] = "Sucessfully Ledger Merge" :
-                   flash[:alert] = "Ledger Merge Unsucessfull"
+          flash[:alert] = "Ledger Merge Unsucessfull"
       redirect_to  ledgers_merge_ledger_path
     end
   end
@@ -187,7 +188,7 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @daybook_ledgers = Ledger.daybook_ledgers
-    ledger_query = Ledgers::DaybookQuery.new(params)
+    ledger_query = Ledgers::DaybookQuery.new(params, selected_branch_id, selected_fy_code)
 
     @particulars,
         @total_credit,
@@ -205,7 +206,7 @@ class LedgersController < ApplicationController
     @back_path = request.referer || ledgers_path
     @ledger = Ledger.find(8)
     @cashbook_ledgers = Ledger.cashbook_ledgers
-    ledger_query = Ledgers::CashbookQuery.new(params)
+    ledger_query = Ledgers::CashbookQuery.new(params,selected_fy_code, selected_branch_id)
 
     @particulars,
         @total_credit,
@@ -233,13 +234,13 @@ class LedgersController < ApplicationController
   def restricted
     #default landing action for '/ledgers'
     @filterrific = initialize_filterrific(
-      Ledger.restricted,
-      params[:filterrific],
-      select_options: {
-        by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
-        by_ledger_type: Ledger.options_for_ledger_type,
-      },
-      persistence_id: false
+        Ledger.restricted,
+        params[:filterrific],
+        select_options: {
+            by_ledger_id: Ledger.options_for_ledger_select(params[:filterrific]),
+            by_ledger_type: Ledger.options_for_ledger_type,
+        },
+        persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? Ledger.count : 20
     @ledgers = @filterrific.find.includes(:client_account).page(params[:page]).per(items_per_page)
@@ -296,11 +297,11 @@ class LedgersController < ApplicationController
         # dont consider the 0 balance ledger
         if ledger.closing_balance.abs > 0.01
           net_balance += _closing_balance
-          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+          process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, selected_branch_id, Time.now.to_date, current_user)
         end
       end
 
-      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, session[:user_selected_branch_id], Time.now.to_date)
+      process_accounts(group_leader_ledger, voucher, net_balance >= 0, net_balance.abs, description, selected_branch_id, Time.now.to_date, current_user)
       raise ActiveRecord::Rollback if net_balance == 0.0
     end
 
@@ -320,7 +321,8 @@ class LedgersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def ledger_params
-    params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id, :id])
+    permitted_params = params.require(:ledger).permit(:name, :opening_blnc, :group_id, :opening_balance_type, :vendor_account_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :branch_id, :current_user_id, :id])
+    with_branch_user_params(permitted_params)
   end
 
 

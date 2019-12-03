@@ -9,8 +9,8 @@ class ChequeEntries::RepresentActivity < ChequeEntries::Activity
   #   end
   # end
 
-  def initialize(cheque_entry, represent_date_bs, represent_narration, current_tenant_full_name)
-    super(cheque_entry, current_tenant_full_name)
+  def initialize(cheque_entry, represent_date_bs, represent_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil, current_user_id)
+    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user_id)
     @cheque_entry.represent_date_bs = represent_date_bs
     @cheque_entry.represent_narration = represent_narration
   end

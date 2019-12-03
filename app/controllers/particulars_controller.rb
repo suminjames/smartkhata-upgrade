@@ -28,7 +28,6 @@ class ParticularsController < ApplicationController
   # POST /particulars.json
   def create
     @particular = Particular.new(particular_params)
-
     respond_to do |format|
       if @particular.save
         format.html { redirect_to @particular, notice: 'Particular was successfully created.' }
@@ -72,6 +71,7 @@ class ParticularsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def particular_params
-    params.fetch(:particular, {})
+    permitted_params = params.fetch(:particular, {})
+    with_branch_user_params(permitted_params)
   end
 end

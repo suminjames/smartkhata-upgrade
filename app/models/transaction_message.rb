@@ -77,7 +77,7 @@ class TransactionMessage < ActiveRecord::Base
     end
   }
 
-  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+  scope :by_branch, ->(branch_id) do
     includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
   end
 

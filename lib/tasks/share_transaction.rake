@@ -83,7 +83,6 @@ namespace :share_transaction do
             # make sure the particular is single
             particulars = Particular.unscoped.where(fy_code: fy_code, ledger_id: ledger_id, amount: transaction.net_amount, particular_status: 1)
             if particulars.size != 1
-              # debugger
               raise NotImplementedError
             end
             particular = particulars.first
@@ -91,7 +90,6 @@ namespace :share_transaction do
             # same case for nepse sales
             nepse_sales_particulars = Particular.unscoped.where(fy_code: fy_code, ledger_id: nepse_ledger.id, voucher_id: particular.voucher_id)
             if nepse_sales_particulars.size != 1
-              # debugger
               raise NotImplementedError
             end
             nepse_sales_particular = nepse_sales_particulars.first

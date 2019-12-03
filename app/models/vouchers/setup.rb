@@ -1,9 +1,9 @@
 class Vouchers::Setup < Vouchers::Base
-  def voucher_and_relevant
-    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @clear_ledger)
+  def voucher_and_relevant(selected_branch_id, selected_fy_code)
+    voucher_setup(@voucher_type, @client_account_id, @bill_ids, @clear_ledger, selected_branch_id, selected_fy_code)
   end
 
-  def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger)
+  def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger, selected_branch_id, selected_fy_code)
 
     bill_ids ||= []
 
@@ -12,7 +12,7 @@ class Vouchers::Setup < Vouchers::Base
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger)
+    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger,selected_branch_id, selected_fy_code)
     
 
     # do not create voucher if bills have pending deal cancel
@@ -27,7 +27,7 @@ class Vouchers::Setup < Vouchers::Base
     if voucher.is_payment_receipt?
       is_payment_receipt = true
 
-      bank_accounts_in_branch = BankAccount.by_branch_id
+      bank_accounts_in_branch = BankAccount.by_branch_id(:selected_branch_id)
 
       default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
       default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first

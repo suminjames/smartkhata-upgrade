@@ -3,14 +3,15 @@ class FilesImportServices::ImportCm31 < ImportFile
   include ApplicationHelper
   include ShareInventoryModule
 
-  attr_reader :nepse_settlement_ids
+  attr_reader :nepse_settlement_ids, :selected_branch_id
 
-  def initialize(file, current_tenant, settlement_date = nil)
+  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil)
     super(file)
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
     @current_tenant = current_tenant
+    @selected_fy_code = selected_fy_code
   end
 
   def process
@@ -24,11 +25,11 @@ class FilesImportServices::ImportCm31 < ImportFile
 
       begin
         @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-        unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+        unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
           @error_message = "Date is invalid for selected fiscal year"
         end
       rescue
-        @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+        @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
       end
       return if @error_message
 

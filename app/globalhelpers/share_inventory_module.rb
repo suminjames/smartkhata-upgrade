@@ -1,9 +1,10 @@
 module ShareInventoryModule
-  def update_share_inventory(client_id, isin_info_id, quantity, is_incremented, is_deal_cancelled = false)
-    share_inventory = ShareInventory.find_or_create_by(
+  def update_share_inventory(client_id, isin_info_id, quantity, current_user, branch_id, is_incremented, is_deal_cancelled = false)
+    share_inventory = ShareInventory.find_or_initialize_by(
         client_account_id: client_id,
         isin_info_id: isin_info_id
     )
+
     share_inventory.lock!
 
     if is_deal_cancelled
@@ -21,6 +22,8 @@ module ShareInventoryModule
       share_inventory.total_out += quantity
       share_inventory.floorsheet_blnc -= quantity
     end
+    share_inventory.branch_id = branch_id
+    share_inventory.current_user_id = current_user.id
 
     share_inventory.save!
   end

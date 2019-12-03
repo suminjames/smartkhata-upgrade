@@ -15,7 +15,7 @@ class VouchersController < ApplicationController
 
   def pending_vouchers
     # @vouchers = Voucher.pending.includes(:particulars).order("id ASC").references(:particulars).decorate
-    @vouchers = Voucher.by_branch_fy_code.pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
+    @vouchers = Voucher.by_branch_fy_code(selected_branch_id, selected_fy_code).pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
     render :index
   end
 
@@ -61,6 +61,7 @@ class VouchersController < ApplicationController
   def new
     # two way to post to this controller
     # either clear_ledger and client_account_id or client_account_id and bill_ids
+
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -72,7 +73,7 @@ class VouchersController < ApplicationController
                                               client_account_id: @client_account_id,
                                               # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
-                                              bill_ids: @bill_ids).voucher_and_relevant
+                                              bill_ids: @bill_ids).voucher_and_relevant(selected_branch_id, selected_fy_code)
   end
 
   # POST /vouchers
@@ -92,8 +93,10 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name)
-
+                                            tenant_full_name: current_tenant.full_name,
+                                            selected_fy_code: selected_fy_code,
+                                            selected_branch_id: selected_branch_id,
+                                            current_user: current_user)
     respond_to do |format|
       if voucher_creation.process
 
@@ -132,6 +135,9 @@ class VouchersController < ApplicationController
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      redirect_to :back
   end
 
   # PATCH/PUT /vouchers/1
@@ -182,7 +188,7 @@ class VouchersController < ApplicationController
               cheque_entry.approved!
             end
 
-            @voucher.reviewer_id = UserSession.user_id
+            @voucher.reviewer_id = current_user&.id
             @voucher.complete!
             @voucher.save!
             success = true
@@ -190,7 +196,7 @@ class VouchersController < ApplicationController
           end
         elsif params[:reject]
           # TODO(Subas) what happens to bill
-          @voucher.reviewer_id = UserSession.user_id
+          @voucher.reviewer_id = current_user&.id
           voucher_amount = 0.0
 
           ActiveRecord::Base.transaction do
@@ -268,7 +274,6 @@ class VouchersController < ApplicationController
     bill = nil
     bills = []
     amount = 0.0
-
     # find the bills for the client
     if client_account_id.present?
       client_account = ClientAccount.find(client_account_id)
@@ -330,7 +335,8 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
+    permitted_params = params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment, :current_user_id])
+    with_branch_user_params(permitted_params)
   end
 
   def set_voucher_general_params

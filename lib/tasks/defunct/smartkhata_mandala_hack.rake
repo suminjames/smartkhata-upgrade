@@ -25,7 +25,6 @@ namespace :smartkhata_mandala_hack do
       return_status =  false
       particular_list.each do |row|
         # if row['VOUCHER_NO'].strip == '7374-04696'
-        #   debugger
         # end
         if (not_include_codes.include?(row['AC_CODE'].strip))
           return false

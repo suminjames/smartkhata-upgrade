@@ -33,7 +33,7 @@ class Ledgers::Query
   def ledger_with_particulars(no_pagination = false, lazy_load=true)
     return unless (branch_id.present?  && fy_code.present?)
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
-    @opening_balance_calculated = @ledger.opening_balance if lazy_load
+    @opening_balance_calculated = @ledger.opening_balance(fy_code, branch_id) if lazy_load
 
     # no pagination is required for xls/pdf file generation
     if no_pagination

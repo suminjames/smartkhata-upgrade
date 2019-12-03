@@ -7,7 +7,7 @@ class BankAccountsController < ApplicationController
   # GET /bank_accounts
   # GET /bank_accounts.json
   def index
-    @bank_accounts = BankAccount.by_branch_id.all
+    @bank_accounts = BankAccount.by_branch_id(selected_branch_id).all
   end
 
   # GET /bank_accounts/1
@@ -17,7 +17,7 @@ class BankAccountsController < ApplicationController
 
   # GET /bank_accounts/new
   def new
-    @bank_account = BankAccount.by_branch_id.new
+    @bank_account = BankAccount.by_branch_id(selected_branch_id).new
     @bank_account.ledger = Ledger.new
     @bank_account.ledger.ledger_balances << LedgerBalance.new
   end
@@ -33,7 +33,7 @@ class BankAccountsController < ApplicationController
     @bank_account = BankAccount.new(bank_account_params)
     # @bank = Bank.find_by(id: @bank_account.bank_id)
     respond_to do |format|
-      if @bank_account.save_custom
+      if @bank_account.save_custom(selected_fy_code, selected_branch_id, current_user.id)
         format.html { redirect_to @bank_account, notice: 'Bank account was successfully created.' }
         format.json { render :show, status: :created, location: @bank_account }
       else
@@ -75,11 +75,13 @@ class BankAccountsController < ApplicationController
   end
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
-    params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
-                                         ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type]])
+    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
+                                         ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :current_user_id]])
+    with_branch_user_params(permitted_params)
   end
 
   def bank_account_update_params
-    params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment)
+    permitted_update_params = params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment)
+    with_branch_user_params(permitted_update_params)
   end
 end

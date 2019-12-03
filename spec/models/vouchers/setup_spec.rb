@@ -18,7 +18,7 @@ RSpec.describe Vouchers::Setup do
           default_ledger_id,
           voucher_type,
           vendor_account_list,
-          client_ledger_list = Vouchers::Setup.new(voucher_type: 0).voucher_and_relevant
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 0).voucher_and_relevant(1, 7374)
 
       expect(voucher.voucher_code).to eq("JVR")
       expect(voucher.particulars.size).to eq(1)
@@ -32,7 +32,7 @@ RSpec.describe Vouchers::Setup do
           default_ledger_id,
           voucher_type,
           vendor_account_list,
-          client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant(1, 7374)
 
       expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
@@ -46,7 +46,7 @@ RSpec.describe Vouchers::Setup do
           default_ledger_id,
           voucher_type,
           vendor_account_list,
-          client_ledger_list = Vouchers::Setup.new(voucher_type: 2).voucher_and_relevant
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 2).voucher_and_relevant(1, 7374)
 
       expect(voucher.voucher_code).to eq("RCV")
       expect(voucher.particulars.size).to eq(2)
@@ -63,7 +63,7 @@ RSpec.describe Vouchers::Setup do
           default_ledger_id,
           voucher_type,
           vendor_account_list,
-          client_ledger_list = Vouchers::Setup.new(voucher_type: 0, client_account_id: client_account.id, clear_ledger: true).voucher_and_relevant
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 0, client_account_id: client_account.id, clear_ledger: true).voucher_and_relevant(1, 7374)
       expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
     end
@@ -76,7 +76,7 @@ RSpec.describe Vouchers::Setup do
           default_ledger_id,
           voucher_type,
           vendor_account_list,
-          client_ledger_list = Vouchers::Setup.new(voucher_type: 0, client_account_id: client_account.id, clear_ledger: true).voucher_and_relevant
+          client_ledger_list = Vouchers::Setup.new(voucher_type: 0, client_account_id: client_account.id, clear_ledger: true).voucher_and_relevant(1, 7374)
       expect(voucher.voucher_code).to eq("RCV")
       expect(voucher.particulars.size).to eq(2)
     end

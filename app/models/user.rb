@@ -86,9 +86,9 @@ class User < ActiveRecord::Base
 
   attr_accessor :current_url_link
 
-  def self.client_logged_in?
-    UserSession.user.client?
-  end
+  # def self.client_logged_in?
+  #   UserSession.user.client?
+  # end
 
   #
   # A user has_many client_accounts.

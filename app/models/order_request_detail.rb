@@ -80,13 +80,13 @@ class OrderRequestDetail < ActiveRecord::Base
   scope :with_status, -> (status) { where(status: status ) }
   scope :with_client_id, ->(client_account_id) { includes(:client_account).where(:client_accounts => {id: client_account_id}).references(:client_account) }
 
-  scope :branch_scoped, -> {
-    if UserSession.selected_branch_id == 0
-      where(fy_code: UserSession.selected_fy_code)
-    else
-      where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
-    end
-  }
+  # scope :branch_scoped, -> {
+  #   if UserSession.selected_branch_id == 0
+  #     where(fy_code: UserSession.selected_fy_code)
+  #   else
+  #     where(branch_id: UserSession.selected_branch_id, fy_code: UserSession.selected_fy_code)
+  #   end
+  # }
 
   def as_json(options={})
     super.as_json(options).merge({:closing_balance => closing_balance, client_name: client_account.name, nepse_code: client_account.nepse_code, company: company })
