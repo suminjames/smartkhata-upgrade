@@ -69,6 +69,8 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :view
   config.extend ControllerMacros, :type => :controller
   config.include Warden::Test::Helpers, :type => :feature
+  config.include Warden::Test::Helpers, :type => :request
+
   Capybara::Screenshot.webkit_options = { width: 1586, height: 768 }
 end
 

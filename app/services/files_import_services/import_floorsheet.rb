@@ -168,7 +168,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def is_relevant_data_invalid? data_hash
     required_data_array = data_hash.except(:serial, :bank_deposit).values
     required_data_array.select{|x| x.blank? }.present? ||
-        !equal_amounts?(data_hash[:amount], data_hash[:rate] * data_hash[:quantity])
+      !equal_amounts?(data_hash[:amount], data_hash[:rate] * data_hash[:quantity])
   end
 
 
@@ -195,17 +195,17 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
   def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
     _serial,
-        contract_no,
-        company_symbol,
-        buyer_broking_firm_code,
-        seller_broking_firm_code,
-        client_name,
-        client_nepse_code,
-        share_quantity,
-        share_rate,
-        share_net_amount,
-        _commission,
-        bank_deposit = selected_columns_from_data_hash(data_hash, data_row_keys)
+      contract_no,
+      company_symbol,
+      buyer_broking_firm_code,
+      seller_broking_firm_code,
+      client_name,
+      client_nepse_code,
+      share_quantity,
+      share_rate,
+      share_net_amount,
+      _commission,
+      bank_deposit = selected_columns_from_data_hash(data_hash, data_row_keys)
 
     is_purchase = false
     dp = 0
@@ -253,16 +253,16 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # commission_rate = get_commission_rate(amount, commission_info)
     commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
-      commission = get_commission_by_rate( commission_rate, amount).round(2)
+    commission = get_commission_by_rate( commission_rate, amount).round(2)
     nepse = _commission
     broker_purchase_commission = commission - nepse
 
-      tds = broker_purchase_commission * 0.15
-      # # since compliance fee is debit from broker purchase commission
-      # # reduce amount of the purchase commission in the system.
-      # purchase_commission = broker_purchase_commission - compliance_fee
-      sebon = amount * 0.00015
-      bank_deposit = nepse + tds + sebon + amount
+    tds = broker_purchase_commission * 0.15
+    # # since compliance fee is debit from broker purchase commission
+    # # reduce amount of the purchase commission in the system.
+    # purchase_commission = broker_purchase_commission - compliance_fee
+    sebon = amount * 0.00015
+    bank_deposit = nepse + tds + sebon + amount
 
     # amount to be debited to client account
     # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
@@ -348,11 +348,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,acting_user)
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,acting_user) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,acting_user)
+    endarr = Array.new
+    data_hash.each do |key, value|
+      arr.push(value)
     end
 
 
-    # arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
-    true
+     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
+    #true
   end
 
 
@@ -433,7 +436,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     share_rate = arr[7]
     share_net_amount = arr[8]
     #TODO look into the usage of arr[9] (Stock Commission)
-    # commission = arr[9]
+    _commission = arr[9]
     bank_deposit = arr[10]
     # arr[11] = NIL
     is_purchase = false

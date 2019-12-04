@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {build(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
+  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
   let(:bank_account_1) {create(:bank_account)}
   include_context 'session_setup'
 
@@ -57,6 +57,14 @@ RSpec.describe BankAccount, type: :model do
     end
   end
 
+  describe ".get_current_assets_group" do
+    let(:group) { create(:group, name: "Current Assets") }
+    it "should get group id" do
+      group
+      expect(subject.get_current_assets_group).to eq(1)
+    end
+  end
+
   describe ".save_custom" do
     it "should create ledger for bank account" do
       allow(subject).to receive(:get_current_assets_group).and_return(5)
@@ -65,6 +73,22 @@ RSpec.describe BankAccount, type: :model do
       expect(subject.ledger.name).to eq("Bank:"+subject.bank.name+"(#{subject.account_number})")
     end
   end
+
+  describe ".ledger_name" do
+    it "should get formatted ledger name" do
+      expect(subject.ledger_name).to eq("Bank:#{subject.bank.name}(#{subject.account_number})")
+    end
+  end
+
+  describe ".update_ledger_name" do
+    it "should update ledger name" do
+      subject.reload
+      subject.ledger.name = "something"
+      expect { subject.update_ledger_name }.to change { subject.ledger.name }.from("something").to("Bank:#{subject.bank.name}(#{subject.account_number})")
+    end
+  end
+
+
 
   # describe "validations" do
   #   it { expect(subject).to be_valid }

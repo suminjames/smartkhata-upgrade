@@ -290,7 +290,6 @@ class ClientAccount < ActiveRecord::Base
 
   # get the bill ids of client as well as all the other bills of clients who have the client as group leader
   def get_all_related_bill_ids
-    bill_ids = []
     client_account_ids = []
     client_account_ids << self.id
     client_account_ids |= self.group_members.pluck(:id)

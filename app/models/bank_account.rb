@@ -101,8 +101,8 @@ class BankAccount < ActiveRecord::Base
       begin
         ActiveRecord::Base.transaction do
           if self.save
-              LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, branch_id, current_user_id)
-              return true
+            LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, branch_id, current_user_id)
+            return true
           end
         end
       rescue ActiveRecord::RecordNotUnique => e

@@ -6,12 +6,9 @@
   include FiscalYearModule
   describe "New Voucher" do
     include_context 'feature_session_setup'
-
-    # let(:user) {create(:user)}
     let(:tenant) {Tenant}
     let(:get_fy_code){FiscalYearModule.get_fy_code}
     before(:each) do
-      UserSession.set_console('public')
       allow_any_instance_of(ApplicationController).to receive(:current_tenant).and_return(build(:tenant))
     end
 
@@ -86,12 +83,13 @@
           visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
-        it_behaves_like "invalid fy_code"
+        context "and invalid date for fy" do
+          it_behaves_like "invalid fy_code"
+        end
 
         context "and valid date for fy" do
-
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration", 2
 
@@ -143,7 +141,7 @@
 
         context "and valid date for fy" do
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration"
 
@@ -205,11 +203,13 @@
           visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
-        it_behaves_like "invalid fy_code"
+        context "and invalid date for fy" do
+          it_behaves_like "invalid fy_code"
+        end
 
         context "and valid date for fy" do
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration", 2
 
