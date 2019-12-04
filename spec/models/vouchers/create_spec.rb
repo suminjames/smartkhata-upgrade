@@ -5,6 +5,7 @@ RSpec.describe Vouchers::Create do
   include_context 'session_setup'
   include ActiveSupport::Testing::TimeHelpers
   include  FiscalYearModule
+  let(:current_user){@user}
 
   let(:client_account) { create(:client_account)}
   let(:ledger) { client_account.ledger }
@@ -37,7 +38,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1
+                                                  selected_branch_id: 1,
                                                   )
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")

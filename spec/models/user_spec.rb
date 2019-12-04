@@ -54,13 +54,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#client_logged_in?" do
-    it "returns true" do
-      subject.client!
-      # UserSession.user = subject
-      expect(User.client_logged_in?).to be_truthy
-    end
-  end
+
 
   describe ".belongs_to_client_account" do
     let(:client_account){create(:client_account, user_id: subject.id)}

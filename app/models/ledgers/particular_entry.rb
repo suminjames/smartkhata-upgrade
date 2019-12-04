@@ -1,6 +1,13 @@
 class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
+
+  attr_reader :current_user_id
+
+  def initialize(current_user_id)
+    @current_user_id = current_user_id
+  end
+
   def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
     process(ledger: ledger,
             voucher: voucher,
@@ -31,7 +38,7 @@ class Ledgers::ParticularEntry
     ledger = Ledger.find(particular.ledger_id)
     fy_code = get_fy_code(particular.transaction_date)
     accounting_date = particular.transaction_date
-    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, particular.current_user_id)
+    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, @current_user_id)
     particular.fy_code = fy_code
     particular.complete!
     ledger.save!
@@ -118,7 +125,7 @@ class Ledgers::ParticularEntry
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
-    set_current_user = lambda { |o| o.current_user_id = current_user_id }
+    set_current_user = lambda { |o| o.current_user_id = @current_user_id }
     # check if there are records after the entry
     if accounting_date <= Time.now.to_date
       # get all the ledger dailies for the ledger which is after the accounting date

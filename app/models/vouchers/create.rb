@@ -466,7 +466,7 @@ class Vouchers::Create < Vouchers::Base
           # # particular.running_blnc = ledger.closing_balance
           # particular.complete!
           # ledger.save!
-          Ledgers::ParticularEntry.new.insert_particular(particular)
+          Ledgers::ParticularEntry.new(@current_user_id).insert_particular(particular)
         end
       end
       # if voucher settlement type is other than default create only a single settlement.

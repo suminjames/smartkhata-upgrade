@@ -4,9 +4,11 @@ RSpec.describe  Ledgers::ParticularEntry do
   include Accounts::Ledgers
   include_context 'session_setup'
 
+  let(:current_user){@user}
   let!(:ledger) {create(:ledger)}
   let(:branch1) { Branch.first }
   let(:branch2) { create(:branch) }
+  let(:particular_entry){Ledgers::ParticularEntry.new(current_user.id)}
   let!(:before_particular_branch_1) { create(:particular, ledger_id: ledger.id, branch_id: branch1.id, amount: 5000, transaction_date: '2017-01-02', fy_code: 7475) }
   let!(:before_particular_branch_2) { create(:particular, ledger_id: ledger.id, branch_id: branch2.id, amount: 1000, transaction_date: '2017-01-02', fy_code: 7475) }
   let!(:after_particular_branch_1) { create(:particular, ledger_id: ledger.id, branch_id: branch1.id, amount: 1000, transaction_date: '2017-02-03', fy_code: 7475) }
@@ -21,8 +23,8 @@ RSpec.describe  Ledgers::ParticularEntry do
   before do
     travel_to Time.local(2017, 02, 01)
     Branch.pluck(:id).each do |branch_id|
-      Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, false, branch_id, 7475)
-      Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, false, branch_id, 7475)
+      Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, false, branch_id, 7475, current_user.id)
+      Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, false, branch_id, 7475, current_user.id)
     end
     expect(ledger_balance.reload.dr_amount).to eq(6000)
     expect(ledger_balance.reload.cr_amount).to eq(0)
@@ -35,17 +37,22 @@ RSpec.describe  Ledgers::ParticularEntry do
   end
 
   describe '.calculate_balances' do
-    particular_entry = Ledgers::ParticularEntry.new
+
 
     context 'when accounting date is before date' do
       
       context 'and debit' do
         
         before do
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, branch1.id)
+          ledger_daily_subject
+          ledger_daily_org_subject
+          ledger_daily_future
+          ledger_daily_org_future
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, branch1.id, current_user.id)
         end
 
         it "adds dr_amount and increments closing balance for ledger dailies for that day" do
+          debugger
           # expect changes for ledger_daily_subject for the date
           expect(ledger_daily_subject.dr_amount).to eq(9000)
           expect(ledger_daily_subject.cr_amount).to eq(0)
@@ -73,6 +80,7 @@ RSpec.describe  Ledgers::ParticularEntry do
 
         it 'carries the dr_amount, opening balance and closing balance to the future dates' do
           # ledger dailies after transaction also get modified
+
           expect(ledger_daily_future.reload.closing_balance).to eq(10000)
           expect(ledger_daily_org_future.reload.closing_balance).to eq(11000)
           expect(ledger_daily_future.reload.opening_balance).to eq(9000)
@@ -86,7 +94,7 @@ RSpec.describe  Ledgers::ParticularEntry do
 
       context 'and credit' do
         before do
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, false, 4000, 7475, branch1.id)
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, false, 4000, 7475, branch1.id, current_user.id)
         end
 
         it "adds cr_amount and decrements closing balance for ledger dailies for that day" do
@@ -130,7 +138,7 @@ RSpec.describe  Ledgers::ParticularEntry do
     context 'when accounting date is after date' do
       context 'and debit' do
         before do
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, true, 4000, 7475, branch1.id)
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, true, 4000, 7475, branch1.id, current_user.id)
         end
 
         it "creates new ledger dailies for that day" do
@@ -164,7 +172,7 @@ RSpec.describe  Ledgers::ParticularEntry do
       end
       context 'and credit' do
         before do
-          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, false, 4000, 7475, branch1.id)
+          @calculate_balances = particular_entry.calculate_balances(ledger, '2017-03-08'.to_date, false, 4000, 7475, branch1.id,current_user.id)
         end
 
         it "creates new ledger dailies for that day" do

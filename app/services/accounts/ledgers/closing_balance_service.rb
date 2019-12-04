@@ -24,7 +24,6 @@ module Accounts
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
         set_current_user_id = -> (o) { o.current_user_id = current_user_id}
         fy_codes.each do |fy_code|
-
           ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
           ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
 
@@ -67,9 +66,9 @@ module Accounts
         end
       end
 
-      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil)
+      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
         Ledger.where(id: ledger_ids).find_each do |ledger|
-          patch_closing_balance(ledger,all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code)
+          patch_closing_balance(ledger,all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
         end
       end
     end
