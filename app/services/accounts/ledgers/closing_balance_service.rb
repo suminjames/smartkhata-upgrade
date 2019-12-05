@@ -46,7 +46,6 @@ module Accounts
 
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code}) AS subquery;"
             balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
-
             query = "SELECT SUM( amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND transaction_type = 0"
             dr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
 

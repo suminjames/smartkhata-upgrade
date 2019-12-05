@@ -1,6 +1,7 @@
 require 'rails_helper'
 describe Accounts::Ledgers::Merge do
   include_context 'session_setup'
+  let(:current_user) {@user}
   before do
     @ledger_to_merge_to = create(:ledger)
     @ledger_to_merge_from = create(:ledger)
@@ -25,11 +26,11 @@ describe Accounts::Ledgers::Merge do
 
   end
 
-  subject { Accounts::Ledgers::Merge.new(@ledger_to_merge_to.id, @ledger_to_merge_from.id) }
+  subject { Accounts::Ledgers::Merge.new(@ledger_to_merge_to.id, @ledger_to_merge_from.id, current_user) }
 
   describe '.fix_opening_balances' do
     it 'merges opening balances' do
-      subject.fix_opening_balances
+       subject.fix_opening_balances
       expect(@ledger_balance_org1.reload.opening_balance).to eq(5000)
       expect(@ledger_balance1_branch2.reload.opening_balance).to eq(4000)
     end

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Accounts::Ledgers::ClosingBalanceService do
   include_context 'session_setup'
-
+  let(:current_user) {@user}
   before do
     @new_branch = create(:branch)
     @ledger = create(:ledger)
@@ -15,8 +15,8 @@ describe Accounts::Ledgers::ClosingBalanceService do
   describe '.patch_closing_balance' do
     it 'patches closing balance' do
       UserSession.selected_branch_id = @new_branch.id
-      subject.patch_closing_balance(@ledger,branch_id: @new_branch.id, fy_code: @fy_code)
-      expect(@ledger.closing_balance).to eq(8000)
+      subject.patch_closing_balance(@ledger,branch_id: @new_branch.id, fy_code: @fy_code, current_user_id: current_user.id)
+      expect(@ledger.closing_balance(@fy_code)).to eq(8000)
 
       UserSession.selected_branch_id = 0
       expect(@ledger.closing_balance).to eq(5000)

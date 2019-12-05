@@ -358,6 +358,7 @@ class Ledger < ActiveRecord::Base
   end
 
   def opening_balance(fy_code, branch_id)
+    debugger
     if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
       self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.opening_balance
     else

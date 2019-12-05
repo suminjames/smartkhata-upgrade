@@ -5,8 +5,10 @@ class FilesImportServices::ImportCm31 < ImportFile
 
   attr_reader :nepse_settlement_ids, :selected_branch_id
 
-  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil)
+  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil, current_user, branch_id)
     super(file)
+    @current_user = current_user
+    @branch_id = branch_id
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
@@ -98,7 +100,7 @@ class FilesImportServices::ImportCm31 < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, false)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, @branch_id, false)
           end
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
@@ -109,8 +111,8 @@ class FilesImportServices::ImportCm31 < ImportFile
           closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
 
           # closeout debit to nepse
-          process_accounts(nepse_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
-          process_accounts(closeout_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
+          process_accounts(nepse_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date, @current_user)
+          process_accounts(closeout_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date, @current_user)
           voucher.complete!
           voucher.save!
 

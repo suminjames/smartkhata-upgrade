@@ -3,7 +3,8 @@ module Accounts
     class Merge < BaseService
       include FiscalYearModule
       attr_reader :ledger_to_merge_to, :ledger_to_merge_from
-      def initialize(merge_to, merge_from)
+      def initialize(merge_to, merge_from, current_user)
+        @current_user = current_user
         @ledger_to_merge_to = Ledger.find(merge_to)
         @ledger_to_merge_from = Ledger.find(merge_from)
       end
@@ -40,8 +41,8 @@ module Accounts
         # change the ledger id to new one and delete balance and ledger dailies
         particulars_to_be_moved.update_all(ledger_id: ledger_to_merge_to.id)
         branches.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, branch_id)
-          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger_to_merge_to, all_fiscal_years: true, branch_id: branch_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, branch_id, @current_user)
+          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger_to_merge_to, all_fiscal_years: true, branch_id: branch_id, current_user_id: @current_user.id)
         end
 
         LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
@@ -57,6 +58,7 @@ module Accounts
             if ledger_balance && ledger_balance_other
               ledger_balance.opening_balance  += ledger_balance_other.opening_balance
               ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr': 'cr'
+              ledger_balance.updater_id = @current_user.id
               ledger_balance.save!
             end
           end

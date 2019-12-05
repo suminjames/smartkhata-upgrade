@@ -348,15 +348,15 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,acting_user)
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,acting_user) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,acting_user)
-    endarr = Array.new
+    end
+    arr = Array.new
     data_hash.each do |key, value|
       arr.push(value)
     end
 
-
      arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
     #true
-    end
+
   end
 
 
@@ -547,7 +547,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         client_account_id: client.id,
         branch_id: client_branch_id
     )
-    update_share_inventory(client.id, company_info.id, acting_user, branch_id, transaction.quantity, transaction.buying?)
+    update_share_inventory(client.id, company_info.id, transaction.quantity, acting_user, branch_id, transaction.buying?)
 
     bill_id = nil
     bill_number = nil
