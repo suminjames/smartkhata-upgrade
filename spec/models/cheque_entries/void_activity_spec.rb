@@ -9,6 +9,7 @@ RSpec.describe ChequeEntries::VoidActivity do
   let(:cheque_date_ad) { bs_to_ad(void_date_bs) - 1 }
   let(:void_narration) { 'This is a simple void narration' }
   let(:voucher) { create(:voucher) }
+  let(:branch) {create(:branch)}
   subject { create(:cheque_entry) }
 
   describe "invalid fiscal year" do

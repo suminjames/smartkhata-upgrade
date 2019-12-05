@@ -52,7 +52,6 @@ RSpec.describe  Ledgers::ParticularEntry do
         end
 
         it "adds dr_amount and increments closing balance for ledger dailies for that day" do
-          debugger
           # expect changes for ledger_daily_subject for the date
           expect(ledger_daily_subject.dr_amount).to eq(9000)
           expect(ledger_daily_subject.cr_amount).to eq(0)

@@ -6,6 +6,7 @@ RSpec.describe ClientAccount, type: :model do
 
   include_context 'session_setup'
 
+  let(:current_user) { create(:user) }
    # before do
    #  # user session needs to be set for doing any activity
    #  UserSession.user = create(:user)
@@ -511,14 +512,15 @@ RSpec.describe ClientAccount, type: :model do
     subject { create(:client_account, name: "John", branch_id: 1) }
     it "should move particulars when branch changed" do
       subject.move_all_particulars = "1"
-      expect(subject).to receive(:branch_changed).and_return(true);
-      allow_any_instance_of(Accounts::Branches::ClientBranchService).to receive(:patch_client_branch).with(subject, subject.branch_id).and_return('random')
-      expect(subject.move_particulars).to eq('random');
+      expect(subject).to receive(:branch_changed).and_return(true)
+      allow_any_instance_of(Accounts::Branches::ClientBranchService).to receive(:patch_client_branch).and_return('random') #default stub
+      allow_any_instance_of(Accounts::Branches::ClientBranchService).to receive(:patch_client_branch).with(subject, subject.branch_id, current_user.id).and_return('random')
+      expect(subject.move_particulars).to eq('random')
     end
 
     it "should'nt move particulars when branch not changed" do
       subject.move_all_particulars = "1"
-      expect(subject.move_particulars).to eq(nil);
+      expect(subject.move_particulars).to eq(nil)
     end
 
   end

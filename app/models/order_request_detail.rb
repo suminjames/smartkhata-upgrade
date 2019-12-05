@@ -89,7 +89,7 @@ class OrderRequestDetail < ActiveRecord::Base
   # }
 
   def as_json(options={})
-    super.as_json(options).merge({:closing_balance => closing_balance, client_name: client_account.name, nepse_code: client_account.nepse_code, company: company })
+    super.as_json(options).merge({:closing_balance => closing_balance(get_fy_code), client_name: client_account.name, nepse_code: client_account.nepse_code, company: company })
   end
 
 end
