@@ -25,8 +25,7 @@ module Accounts
         set_current_user_id = -> (o) { o.current_user_id = current_user_id}
         fy_codes.each do |fy_code|
           ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
-          ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
-
+          ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user_id)
           if ledger_blnc_org.present?
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id}) AS subquery;"
             balance = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
@@ -36,8 +35,6 @@ module Accounts
 
             query = "SELECT SUM(amount) FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_type = 1"
             cr_amount = ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
-
-
 
             ledger_blnc_cost_center.closing_balance = balance + ledger_blnc_cost_center.opening_balance
             ledger_blnc_cost_center.dr_amount = dr_amount

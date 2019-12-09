@@ -414,7 +414,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         client_account5
         client_account6
         commission_info
-        FileUpload.create(file_type: 1, report_date: '2016-11-28'.to_date)
+        FileUpload.create!(file_type: 1, report_date: '2016-11-28'.to_date,branch_id: current_branch.id, current_user_id: current_user.id)
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code)
@@ -442,8 +442,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         commission_info
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        UserSession.selected_fy_code = 7475
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code)
+        fy_code = 7475
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code)
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -549,8 +549,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.process
         expect(FileUpload.count).to eq(1)
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        UserSession.selected_fy_code = 7475
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code, true)
+        fy_code = 7475
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code, true)
         import_floorsheet.instance_variable_set(:@bill_number, 2)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)

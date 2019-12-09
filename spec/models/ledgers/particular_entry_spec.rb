@@ -5,7 +5,7 @@ RSpec.describe  Ledgers::ParticularEntry do
   include_context 'session_setup'
 
   let(:current_user){@user}
-  let!(:ledger) {create(:ledger)}
+  let!(:ledger) {create(:ledger, current_user_id: current_user.id)}
   let(:branch1) { Branch.first }
   let(:branch2) { create(:branch) }
   let(:particular_entry){Ledgers::ParticularEntry.new(current_user.id)}
@@ -13,10 +13,11 @@ RSpec.describe  Ledgers::ParticularEntry do
   let!(:before_particular_branch_2) { create(:particular, ledger_id: ledger.id, branch_id: branch2.id, amount: 1000, transaction_date: '2017-01-02', fy_code: 7475) }
   let!(:after_particular_branch_1) { create(:particular, ledger_id: ledger.id, branch_id: branch1.id, amount: 1000, transaction_date: '2017-02-03', fy_code: 7475) }
 
-  let(:ledger_daily_org_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-01-02').first }
-  let(:ledger_daily_org_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-02-03').first } 
-  let(:ledger_daily_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-01-02').first }
-  let(:ledger_daily_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-02-03').first }
+  let!(:ledger_daily_org_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-01-02').first }
+  let!(:ledger_daily_org_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: nil, date: '2017-02-03').first }
+  let!(:ledger_daily_subject) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-01-02').first }
+  let!(:ledger_daily_future) { LedgerDaily.unscoped.where(ledger: ledger, fy_code: 7475, branch_id: branch1.id, date: '2017-02-03').first }
+
   let(:ledger_balance_org) { LedgerBalance.unscoped.by_fy_code_org(7475).where(ledger_id: ledger.id).first }
   let(:ledger_balance) { LedgerBalance.unscoped.by_branch_fy_code(branch1.id, 7475).where(ledger_id: ledger.id).first }
 
@@ -38,16 +39,11 @@ RSpec.describe  Ledgers::ParticularEntry do
 
   describe '.calculate_balances' do
 
-
     context 'when accounting date is before date' do
-      
+
       context 'and debit' do
-        
+
         before do
-          ledger_daily_subject
-          ledger_daily_org_subject
-          ledger_daily_future
-          ledger_daily_org_future
           @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, branch1.id, current_user.id)
         end
 

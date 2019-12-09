@@ -156,7 +156,7 @@ class LedgersController < ApplicationController
     merge_to =  @filterrific.to_ledger_id
     merge_from = @filterrific.from_ledger_id
     if (merge_to&&merge_from).present?
-      merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from).call
+      merge_bool = Accounts::Ledgers::Merge.new(merge_to, merge_from, current_user).call
       merge_bool ? flash[:notice] = "Sucessfully Ledger Merge" :
           flash[:alert] = "Ledger Merge Unsucessfull"
       redirect_to  ledgers_merge_ledger_path
@@ -293,9 +293,9 @@ class LedgersController < ApplicationController
 
       # update each ledgers
       ledger_list.each do |ledger|
-        _closing_balance = ledger.closing_balance
+        _closing_balance = ledger.closing_balance(get_fy_code)
         # dont consider the 0 balance ledger
-        if ledger.closing_balance.abs > 0.01
+        if ledger.closing_balance(get_fy_code).abs > 0.01
           net_balance += _closing_balance
           process_accounts(ledger, voucher, _closing_balance < 0, _closing_balance.abs, description, selected_branch_id, Time.now.to_date, current_user)
         end

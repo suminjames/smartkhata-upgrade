@@ -102,7 +102,6 @@ class ImportPayout < ImportFile
               transaction_type: ShareTransaction.transaction_types[:selling]
           )
 
-
           if transaction.nil?
             import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
             raise ActiveRecord::Rollback
@@ -119,7 +118,6 @@ class ImportPayout < ImportFile
           # so we need to deduct  the tds while charging the client
           chargeable_on_sale_rate = broker_commission_rate(transaction.date) * (1 - tds_rate)
           chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(transaction.date) * tds_rate
-
 
 
           amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f

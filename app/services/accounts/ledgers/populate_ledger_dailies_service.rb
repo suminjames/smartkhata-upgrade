@@ -16,6 +16,7 @@ module Accounts
 
       def patch_ledger_dailies(ledger, all_fiscal_years, branch_id = 1, fy_code = nil, current_user_id)
         # need to modify this in future to accomodate current fiscal year
+
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
 
         puts "Patching for #{ledger.name}"

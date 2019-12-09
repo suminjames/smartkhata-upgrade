@@ -1,18 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe ShortageSettlementService do
-  let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, bill: create(:sales_bill, net_amount: 115130.6726))}
-  let(:purchase_share_transaction_with_closeout) {create(:buy_transaction_processed_with_closeout, bill: create(:purchase_bill, net_amount: 116489.27 ))}
-  # let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
-  let(:current_tenant) { Tenant.new(name: 'test', full_name: 'tenant test') }
-  let(:balancing_transaction) { create(:balancing_transaction, isin_info: purchase_share_transaction_with_closeout.isin_info , bill: create(:purchase_bill, net_amount: 12818.351))}
+
+  include FiscalYearModule
+
   let(:current_user) {create(:user)}
   let(:branch){create(:branch)}
+  let(:client_account) {create(:client_account, current_user_id: current_user.id)}
+  let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, client_account: client_account, contract_no: "201611284117937", bill: create(:sales_bill, net_amount: 115130.6726))}
+  let(:purchase_share_transaction_with_closeout) {create(:buy_transaction_processed_with_closeout,client_account: client_account, contract_no: "201611284117938", bill: create(:purchase_bill, net_amount: 116489.27 ))}
+  # let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
+  let(:current_tenant) { Tenant.new(name: 'test', full_name: 'tenant test') }
+  let(:balancing_transaction) { create(:balancing_transaction, client_account: client_account, isin_info: purchase_share_transaction_with_closeout.isin_info , bill: create(:purchase_bill, net_amount: 12818.351))}
+
   before do
-    UserSession.user = create(:user)
-    UserSession.selected_branch_id = 1
-    UserSession.selected_fy_code = 7374
-    @fy_code = 7374
+    @fy_code = get_fy_code
     Ledger.find_or_create_by!(name: "Close Out")
     allow_any_instance_of(FilesImportServices::ImportCm31).to receive(:open_file).and_return(nil)
   end

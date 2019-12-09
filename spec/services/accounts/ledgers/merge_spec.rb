@@ -40,19 +40,16 @@ describe Accounts::Ledgers::Merge do
     before do
       subject.fix_opening_balances
       subject.fix_ledger_dailies_and_closing_balances
-      UserSession.selected_fy_code = @other_fy_code
     end
 
     it 'fixes ledger dailies and closing balance for branch' do
-      UserSession.selected_branch_id = @new_branch.id
-      expect(@ledger_to_merge_to.reload.closing_balance).to eq(13000)
+      expect(@ledger_to_merge_to.reload.closing_balance(@other_fy_code, @new_branch.id)).to eq(13000)
       expect(@ledger_to_merge_from.reload.ledger_balances.size).to eq(0)
     end
 
     it 'fixes ledger dailies and closing balance for org' do
-      UserSession.selected_branch_id = 0
       # sum of all
-      expect(@ledger_to_merge_to.reload.closing_balance).to eq(17000)
+      expect(@ledger_to_merge_to.reload.closing_balance(@other_fy_code, 0)).to eq(17000)
       expect(@ledger_to_merge_from.reload.ledger_balances.size).to eq(0)
       expect(@ledger_to_merge_from.reload.ledger_dailies.size).to eq(0)
     end
@@ -117,12 +114,8 @@ describe Accounts::Ledgers::Merge do
   describe '.call' do
     it 'merges ledgers' do
       subject.call
-
-      UserSession.selected_branch_id = 0
-      UserSession.selected_fy_code = @other_fy_code
-
       expect(Ledger.where(id: @ledger_to_merge_from).size).to eq(0)
-      expect(@ledger_to_merge_to.reload.closing_balance).to eq(17000)
+      expect(@ledger_to_merge_to.reload.closing_balance(@other_fy_code)).to eq(17000)
       expect(@ledger_to_merge_to.reload.particulars.size).to eq(4)
     end
   end

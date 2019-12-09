@@ -104,7 +104,7 @@ class FilesImportServices::ImportCm31 < ImportFile
           end
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
-          voucher = Voucher.create!(date: @nepse_settlement_date)
+          voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: @branch_id, current_user_id: @current_user.id)
           voucher.desc = description
 
           nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")

@@ -12,9 +12,11 @@ RSpec.describe ChequeEntries::VoidActivity do
   let(:branch) {create(:branch)}
   subject { create(:cheque_entry) }
 
+  @fy_code = 7374
+
   describe "invalid fiscal year" do
     it "should return error if fycode is different than current" do
-      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration, :'trishakti', 1, 7273, user.id)
+      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration, :'trishakti', 1, 7273, user)
       activity.process
       expect(activity.error_message).to_not be_nil
       expect(activity.error_message).to eq('Please select the current fiscal year')
@@ -24,7 +26,7 @@ RSpec.describe ChequeEntries::VoidActivity do
   describe "receipt cheque" do
     it "should not void receipt cheque" do
       subject.update_attribute(:cheque_issued_type, :receipt)
-      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
       activity.process
       expect(activity.error_message).to eq("The cheque entry cant be made void.")
     end
@@ -34,7 +36,7 @@ RSpec.describe ChequeEntries::VoidActivity do
     it "should void cheque" do
       subject.unassigned!
       subject.branch_id = 1
-      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+      activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
       activity.process
       expect(activity.error_message).to be_nil
       expect(subject.void?).to be_truthy
@@ -47,7 +49,7 @@ RSpec.describe ChequeEntries::VoidActivity do
     cr_particular = create(:credit_particular, voucher: voucher)
     subject.particulars_on_payment << dr_particular
     subject.particulars_on_receipt << cr_particular
-    activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+    activity = ChequeEntries::VoidActivity.new(subject, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
 
     activity.process
     expect(activity.error_message).to be_nil
@@ -59,8 +61,8 @@ RSpec.describe ChequeEntries::VoidActivity do
 
   it "should void the cheque for voucher with multi cheque entry and no bills" do
 
-    cheque_entry = create(:cheque_entry, status: :approved, branch_id: 1)
-    cheque_entry_a = create(:cheque_entry, status: :approved, branch_id: 1)
+    cheque_entry = create(:cheque_entry, status: :approved, branch_id: 1, current_user_id: user.id)
+    cheque_entry_a = create(:cheque_entry, status: :approved, branch_id: 1, current_user_id: user.id)
 
     voucher = create(:voucher)
     dr_particular_a = create(:debit_particular, voucher: voucher, amount: 500)
@@ -74,7 +76,7 @@ RSpec.describe ChequeEntries::VoidActivity do
     cheque_entry_a.particulars_on_payment << dr_particular_b
     cheque_entry_a.particulars_on_receipt << cr_particular
 
-    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
 
     activity.process
 
@@ -99,7 +101,7 @@ RSpec.describe ChequeEntries::VoidActivity do
 
     voucher.bills_on_creation << bill_a
 
-    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
     activity.process
 
     bill_a = Bill.find(bill_a.id)
@@ -126,7 +128,7 @@ RSpec.describe ChequeEntries::VoidActivity do
 
     voucher.bills_on_creation << bill_a
 
-    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
     activity.process
 
     bill_a = Bill.find(bill_a.id)
@@ -162,7 +164,7 @@ RSpec.describe ChequeEntries::VoidActivity do
     voucher.bills_on_creation << [bill_a, bill_b]
 
 
-    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user.id)
+    activity = ChequeEntries::VoidActivity.new(cheque_entry, void_date_bs, void_narration,:'trishakti', 1, 7374, user)
     activity.process
 
     bill_a = Bill.find(bill_a.id)

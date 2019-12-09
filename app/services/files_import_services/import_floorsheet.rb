@@ -130,7 +130,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @raw_data.each do |data_hash|
         process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
-      FileUpload.create!(file_type: FILETYPE, report_date: @date,branch_id: branch_id, current_user_id: acting_user.id)
+      FileUpload.create!(file_type: FILETYPE, report_date: @date,branch_id: branch_id, creator_id: @acting_user.id, updater_id: @acting_user.id)
     end
   end
 
@@ -294,10 +294,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         tds: tds,
         nepse_commission: nepse,
         branch_id: client_branch_id,
-        current_user_id: acting_user.id
+        current_user_id: @acting_user.id
     )
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-    update_share_inventory(client.id, company_info.id, transaction.quantity, acting_user, branch_id, transaction.buying?)
+    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, branch_id, transaction.buying?)
 
     bill_id = nil
     bill_number = nil
@@ -334,7 +334,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # voucher date will be today's date
       # bill date will be earlier
 
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: branch_id, creator_id: acting_user&.id, updater_id: acting_user&.id)
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description
@@ -342,13 +342,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       voucher.save!
 
       #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,acting_user)
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,acting_user)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,acting_user) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,acting_user)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,@acting_user)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,@acting_user)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user) if dp > 0
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,@acting_user)
     end
+
     arr = Array.new
     data_hash.each do |key, value|
       arr.push(value)
@@ -387,7 +388,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         # Readjust dp fee in vouchers
         description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
         date = share_transaction.date
-        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), desc: description)
+        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id, desc: description)
+
 
 
 
@@ -545,9 +547,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         transaction_type: type_of_transaction,
         date: @date,
         client_account_id: client.id,
-        branch_id: client_branch_id
+        branch_id: client_branch_id,
+        current_user_id: @acting_user.id
     )
-    update_share_inventory(client.id, company_info.id, transaction.quantity, acting_user, branch_id, transaction.buying?)
+    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, branch_id, transaction.buying?)
 
     bill_id = nil
     bill_number = nil
@@ -586,7 +589,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date))
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description
@@ -612,8 +615,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         bill_number: bill_number,
         fy_code: fy_code,
         date: date,
-        updater_id: acting_user&.id,
-        creator_id: acting_user&.id,
+        updater_id: @acting_user&.id,
+        creator_id: @acting_user&.id,
         client_account_id: client_account_id) do |b|
           yield b
         end

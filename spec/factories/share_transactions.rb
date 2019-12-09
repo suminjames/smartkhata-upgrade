@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :share_transaction do
     client_account
-    sequence(:contract_no) {|n| "20161128411793#{n}"}
+    contract_no "201611284117936"
     date "2016-11-28"
     isin_info
     bill nil

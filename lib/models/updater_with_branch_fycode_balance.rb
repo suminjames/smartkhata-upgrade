@@ -30,7 +30,7 @@ module Models::UpdaterWithBranchFycodeBalance
       # for non balance records
       # use this for read only
       # TODO(SUBAS) stupid mistake of using default scope here
-      scope :by_branch_fy_code, ->(fy_code, branch_id = 0) do
+      scope :by_branch_fy_code, ->(branch_id = 0, fy_code) do
         if branch_id == 0
           where(branch_id: nil, fy_code: fy_code)
         else

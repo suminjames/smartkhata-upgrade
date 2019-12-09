@@ -165,7 +165,7 @@ class Ledgers::ParticularEntry
     end
     # need to do the unscoped here for matching the ledger balance
     ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
-    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
+    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
 
     opening_balance_org ||= ledger_blnc_org.closing_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.closing_balance

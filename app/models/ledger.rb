@@ -348,8 +348,8 @@ class Ledger < ActiveRecord::Base
 
 
   def closing_balance(fy_code, branch_id = 0)
-    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
-      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.closing_balance
+    if self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.present?
+      self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.closing_balance
     else
       # new_balance = self.ledger_balances.create!
       # new_balance.closing_balance
@@ -358,9 +358,8 @@ class Ledger < ActiveRecord::Base
   end
 
   def opening_balance(fy_code, branch_id)
-    debugger
-    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
-      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.opening_balance
+    if self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.present?
+      self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.opening_balance
     else
       0.0
     end
