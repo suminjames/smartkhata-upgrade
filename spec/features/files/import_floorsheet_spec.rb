@@ -28,12 +28,12 @@ describe "Import Floorsheet" do
       expect(page).to have_content("FloorSheet Uploaded Successfully")
       expect(Bill.count).to eq(bills_count + 3)
       expect(Voucher.count).to eq(vouchers_count + 15)
-      visit("/vouchers/#{Voucher.unscoped.last.id}")
-      visit("/bills/#{Bill.unscoped.last.id}")
+      visit("7374/1/vouchers/#{Voucher.unscoped.last.id}")
+      visit("7374/1/bills/#{Bill.unscoped.last.id}")
     end
 
     def upload_file
-      visit new_files_floorsheet_path
+      visit new_files_floorsheet_path(selected_fy_code: 7374, selected_branch_id: @branch.id)
       attach_file "file", Rails.root + "test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-10.xls"
       click_on "Import"
     end
@@ -46,7 +46,7 @@ describe "Import Floorsheet" do
       ]
 
       new_client_accounts.each do |new_client_account|
-        ClientAccount.create(
+        client = ClientAccount.new(
           {
             :name => new_client_account[:client_name],
             :nepse_code => new_client_account[:client_nepse_code],
@@ -54,6 +54,7 @@ describe "Import Floorsheet" do
             :skip_validation_for_system => true
           }
         )
+        client.save!(validate: false)
       end
     end
 

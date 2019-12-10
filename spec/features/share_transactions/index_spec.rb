@@ -16,11 +16,12 @@ describe "Transaction", js: true do
       create(:share_transaction, client_account: client_account)
     end
     it "should show the list of message only for the branch" do
-      visit share_transactions_path
+      visit share_transactions_path(selected_fy_code: 7677, selected_branch_id: @user.branch_id)
       expect(page).to have_content('201611284117936')
       expect(page).to have_content('Displaying 1 share transaction')
     end
   end
+  
   context "client branch is not equal to users branch" do
     before do
       branch = create(:branch)
@@ -29,7 +30,7 @@ describe "Transaction", js: true do
     end
 
     it "should not show the list of message only for the branch" do
-      visit share_transactions_path
+      visit share_transactions_path(selected_fy_code: 7677, selected_branch_id: 1)
       expect(page).to_not have_content('Displaying 1 share transaction')
     end
   end

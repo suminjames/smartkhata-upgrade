@@ -26,7 +26,7 @@ describe "Voucher show" do
       login_as(@user, scope: :user)
       particular1 = create(:debit_particular, voucher: subject, branch_id: @user.branch_id)
       particular2 =create(:credit_particular, voucher: subject, branch_id: @user.branch_id)
-      visit voucher_path(subject)
+      visit voucher_path(subject, selected_branch_id: @user.branch_id, selected_fy_code: 7677)
     end
 
     it_behaves_like "shows voucher narration"
@@ -59,7 +59,7 @@ describe "Voucher show" do
       particular2 =create(:credit_particular, voucher: subject, branch_id: @user.branch_id, ledger_type: 1)
       ledger = create(:ledger)
       particular2.ledger = ledger
-      visit voucher_path(subject)
+      visit voucher_path(subject, selected_branch_id: @user.branch_id, selected_fy_code: 7677)
     end
     it_behaves_like "shows voucher narration"
   end

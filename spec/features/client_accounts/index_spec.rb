@@ -11,7 +11,7 @@ describe "Client Account", :devise do
     it "should show the list of client accounts" do
       login_as(@user, scope: :user)
       client_account = create(:client_account)
-      visit client_accounts_path
+      visit client_accounts_path(selected_fy_code: 7677, selected_branch_id: 1)
       expect(page).to have_content("Client Accounts")
       expect(page).to have_content(client_account.name)
 

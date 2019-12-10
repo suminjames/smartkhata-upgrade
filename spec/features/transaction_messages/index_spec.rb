@@ -12,7 +12,8 @@ describe "Transaction Message" do
       login_as(@user, scope: :user)
       client_account = create(:client_account, branch_id: @user.branch_id)
       create(:transaction_message, sms_message: 'MyString', client_account: client_account)
-      visit transaction_messages_path
+      visit transaction_messages_path(selected_fy_code: 7677, selected_branch_id: 1
+            )
       expect(page).to have_content('MyString')
     end
 
