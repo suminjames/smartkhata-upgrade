@@ -366,16 +366,16 @@ class Ledger < ActiveRecord::Base
   end
 
   def dr_amount(fy_code, branch_id)
-    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
-      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.dr_amount
+    if self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.present?
+      self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.dr_amount
     else
       0.0
     end
   end
 
   def cr_amount(fy_code, branch_id)
-    if self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.present?
-      self.ledger_balances.by_branch_fy_code(fy_code, branch_id).first.cr_amount
+    if self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.present?
+      self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.cr_amount
     else
       0.0
     end
