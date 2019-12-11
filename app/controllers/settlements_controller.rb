@@ -8,7 +8,7 @@ class SettlementsController < ApplicationController
   # GET /settlements.json
   def index
     @filterrific = initialize_filterrific(
-        Settlement.by_branch_fy_code,
+        Settlement.by_branch_fy_code(params[:selected_branch_id], params[:selected_fy_code]),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
