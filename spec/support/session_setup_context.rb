@@ -16,10 +16,10 @@ shared_context 'feature_session_setup' do
   before do
     @branch = create(:branch)
     @fy_code = 7374
-    Ledger.find_or_create_by(name: "Cash")
     # making usr
     allow(@branch).to receive(:id).and_return(1)
     @user = create(:user, branch_id: 1)
+    Ledger.create(name: "Cash", current_user_id: @user.id)
     UserSession.user = @user
     UserSession.selected_fy_code = @fy_code
     UserSession.selected_branch_id = @branch.id

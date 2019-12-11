@@ -80,14 +80,19 @@
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:1"))
           @client_account = create(:client_account, name: "Subash Adhikari")
           Ledger.find_or_create_by(name: "Cash")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         context "and invalid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: 7374, selected_branch_id: @branch.id)
+          end
           it_behaves_like "invalid fy_code"
         end
 
         context "and valid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
+          end
           let(:setup_spec) {
             UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
@@ -120,7 +125,7 @@
             click_on 'Approve'
             expect(page).to have_content('Payment Voucher was successfully approved')
             #for settlements
-            visit settlements_path
+            visit settlements_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Settlements")
             select_helper(@client_account.name,"client_accounts_index_combobox" )
             click_on "Search"
@@ -154,14 +159,12 @@
             page.find(".narration-display").click
             fill_in "voucher_particulars_attributes_0_description", with: "debit particular description"
             click_on ('Add Particular')
-
-            page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
-            page.execute_script(%Q($(".select2-search__field").val('#{@client_account2.name}')))
-            page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
+            # page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
+            select_ledger(0)
+            select_ledger(1)
             sleep(1)
             # wait_until_page_has_selector('.select2-results__option--highlighted')
             page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
-
             # particular amount
             find("div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(2) div.voucher_particulars_amount input.form-control").set 500
             options = page.all('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(3) select option')
@@ -197,17 +200,22 @@
       context "when receipt voucher" do
         before do
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:2"))
-          @client_account = create(:client_account, name: "ANITA ADHIKARI", nepse_code: "AN123")
+          @client_account = create(:client_account, name: "ANITA ADHIKARI", nepse_code: "AN123", current_user_id: 1)
           Ledger.find_or_create_by(name: "Cash")
           @bank = create(:bank, name: "kumari bank")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         context "and invalid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: 7374, selected_branch_id: @branch.id)
+          end
           it_behaves_like "invalid fy_code"
         end
 
         context "and valid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
+          end
           let(:setup_spec) {
             UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
@@ -221,9 +229,9 @@
             select_helper(@bank.name, "voucher_particulars_attributes_0_additional_bank_id")
             select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id")
             fill_in "voucher_particulars_attributes_3_amount", with: 5000
-            add_narrations = page.all(".narration-display")
-            add_narrations[-1].click
-            fill_in "voucher_particulars_attributes_3_description", with: "description for credit particular"
+            fill_in "voucher_particulars_attributes_0_cheque_number", with: 9999
+            select_ledger(1, @client_account.name)
+            fill_in "voucher_desc", with: "description for credit particular"
             click_on 'Submit'
             # for receipt
             expect(page).to have_content("RECEIPT")
@@ -243,11 +251,16 @@
             expect(page).to have_content('Received By')
             expect(page).to have_content('Note: Please bring this receipt compulsarily while claiming unpurchase share.')
             # for voucher details
-            visit ledgers_path
+            visit ledgers_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Ledger Name")
             select_helper(@client_account.name,"ledgers_index_combobox" )
             click_on "Search"
-            click_on "Show"
+            # click on show
+            within('table.ledger-list') do
+              within all('tr')[1] do
+                find_all('a')[0].click
+              end
+            end
             click_on "RCB #{get_fy_code}-1"
             expect(page).to have_content("Voucher details")
             # contain company info
@@ -264,7 +277,7 @@
             # show details of user activity
             user_activity
             #for settlements
-            visit settlements_path
+            visit settlements_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Settlements")
             select_helper(@client_account.name,"client_accounts_index_combobox" )
             click_on "Search"
@@ -296,5 +309,13 @@
         end
         it_behaves_like "user not signed in"
       end
+    end
+
+    def select_ledger(index, client_account_name = "Cash")
+      page.execute_script(%Q($('div.voucher .box-body').children('.particular-container').eq(#{index}).find('.row.particular .col-sk-5 select.form-control').select2('open')))
+      page.execute_script(%Q($(".select2-search__field").val('#{client_account_name}')))
+      page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
+      sleep(1)
+      page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
     end
   end
