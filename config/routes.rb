@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   # match '/' => redirect('users/sign_in'), via: [:get]
   get '/' => 'visitors#index'
   root to: 'visitors#index'
-
+  get "cheque_entries/get_cheque_number" => "cheque_entries#get_cheque_number"
   scope "/:selected_fy_code/:selected_branch_id" do
 
     resources :order_request_details do
@@ -76,7 +76,7 @@ Rails.application.routes.draw do
 
     resources :cheque_entries do
       collection do
-        get :get_cheque_number
+        # get :get_cheque_number
         get :update_print_status
         get :bills_associated_with_cheque_entries
         get :settlements_associated_with_cheque_entries

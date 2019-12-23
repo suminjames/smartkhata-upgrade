@@ -179,7 +179,7 @@ class VouchersController < ApplicationController
 
             particular_ids = []
             @voucher.particulars.each do |particular|
-              Ledgers::ParticularEntry.new(current_user).insert_particular(particular)
+              Ledgers::ParticularEntry.new(current_user.id).insert_particular(particular)
               particular_ids  << particular.id
             end
 

@@ -59,7 +59,8 @@
       voucher_dr_cheque_number = 1111
       fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
       find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
-      select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
+      # select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
+      select_ledger(1, "Subash Adhikari")
       fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
       add_narrations = page.all(".narration-display")
       add_narrations[-1].click
@@ -78,13 +79,13 @@
       context "when payment voucher" do
         before do
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:1"))
-          @client_account = create(:client_account, name: "Subash Adhikari")
+          @client_account = create(:client_account, name: "Subash Adhikari", branch_id: @branch.id)
           Ledger.find_or_create_by(name: "Cash")
         end
 
         context "and invalid date for fy" do
           before do
-            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: 7374, selected_branch_id: @branch.id)
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_branch_id: @branch.id, selected_fy_code: 7374)
           end
           it_behaves_like "invalid fy_code"
         end
@@ -160,8 +161,8 @@
             fill_in "voucher_particulars_attributes_0_description", with: "debit particular description"
             click_on ('Add Particular')
             # page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
-            select_ledger(0)
-            select_ledger(1)
+            select_ledger(0, @client_account1.name)
+            select_ledger(1, @client_account2.name)
             sleep(1)
             # wait_until_page_has_selector('.select2-results__option--highlighted')
             page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
@@ -256,6 +257,7 @@
             select_helper(@client_account.name,"ledgers_index_combobox" )
             click_on "Search"
             # click on show
+            sleep(5)
             within('table.ledger-list') do
               within all('tr')[1] do
                 find_all('a')[0].click
