@@ -54,7 +54,7 @@ gem 'exception_notification'
 gem 'aws-sdk-s3', '~> 1'
 
 group :production do
-  gem 'puma', '~>4.0.0'
+  gem 'puma', '~>4.3.1'
 end
 
 group :development do
