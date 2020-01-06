@@ -166,8 +166,10 @@ class Ledgers::ParticularEntry
     end
 
     # need to do the unscoped here for matching the ledger balance
-    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
-    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
+    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code)
+                        .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
+    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code)
+                                 .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
 
 
     opening_balance_org ||= ledger_blnc_org.closing_balance
@@ -179,19 +181,13 @@ class Ledgers::ParticularEntry
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
       l.current_user_id = current_user_id
-    end
+    end.tap(&set_current_user)
 
     daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
       l.current_user_id = current_user_id
-    end
-
-    # current_user_id is cleared after save so it need to be set for next db operation
-    daily_report_org.tap(&set_current_user)
-    ledger_blnc_org.tap(&set_current_user)
-    daily_report_cost_center.tap(&set_current_user)
-    ledger_blnc_cost_center.tap(&set_current_user)
+    end.tap(&set_current_user)
 
     if debit
       dr_amount = amount
