@@ -25,19 +25,20 @@ RSpec.describe "voucher_request/new", type: :view do
 
   it "render voucher new page" do
     voucher = create(:voucher)
-    render template: 'vouchers/_form', locals: { voucher: voucher, voucher_type: @voucher_type,
-      client_account_id: @client_account.id, selected_branch_id: @selected_branch_id,
-      bill_id: nil, clear_ledger: false, bill_ids: [], payment_mode: nil,
-      is_payment_receipt: false, ledger_list_financial: nil, ledger_list_available: nil,
-      default_ledger_id: nil,
-      particular_fields: render(partial: 'vouchers/particular_fields', locals: {
+    form_builder = ActionView::Helpers::FormBuilder.new(:f, @voucher,  self, {}) do
+    # render template: 'vouchers/_form', locals: { voucher: voucher, voucher_type: @voucher_type,
+    #   client_account_id: @client_account.id, selected_branch_id: @selected_branch_id,
+    #   bill_id: nil, clear_ledger: false, bill_ids: [], payment_mode: nil,
+    #   is_payment_receipt: false, ledger_list_financial: nil, ledger_list_available: nil,
+    #   default_ledger_id: nil,
+    #   particular_fields:
+    render partial: 'vouchers/particular_fields', locals: {
         extra_info:{
           ledger_list_available: [],ledger_list_financial: [],
           voucher_type: @voucher_type, inverse: false, default_ledger_id: nil
         },
         sk_id: 2
-      })
-
-    }
+      }
+    end
   end
 end

@@ -503,7 +503,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       xlsx = Roo::Spreadsheet.open(file, extension: :xml)
       allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
       expect(import_floorsheet.process_full_partial(true)).to eq(FileUpload.last)
-      expect(FileUpload.count).to eq(1)
+      expect(FileUpload.count).to eq(2)
     end
 
     context 'when new client accounts present' do

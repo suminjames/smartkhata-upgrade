@@ -108,6 +108,7 @@ describe "Ledger" do
         expect(page).to have_content("Show")
         expect(page).not_to have_content("Clear Ledger")
         expect(page).not_to have_content("Process Selected Bills")
+        sleep(1)
         within('table.ledger-list') do
           within all('tr')[1] do
             find_all('a')[0].click
