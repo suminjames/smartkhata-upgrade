@@ -38,7 +38,7 @@ class Ledgers::ParticularEntry
     ledger = Ledger.find(particular.ledger_id)
     fy_code = get_fy_code(particular.transaction_date)
     accounting_date = particular.transaction_date
-    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, @current_user_id)
+    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, particular.current_user_id)
     particular.fy_code = fy_code
     particular.complete!
     ledger.save!
@@ -125,7 +125,8 @@ class Ledgers::ParticularEntry
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
-    set_current_user = lambda { |o| o.current_user_id = @current_user_id }
+    set_current_user = lambda { |o| o.current_user_id = current_user_id }
+
     # check if there are records after the entry
     if accounting_date <= Time.now.to_date
       # get all the ledger dailies for the ledger which is after the accounting date
@@ -163,19 +164,24 @@ class Ledgers::ParticularEntry
 
       end
     end
+
     # need to do the unscoped here for matching the ledger balance
     ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
     ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code).find_or_create_by!(ledger_id: ledger.id, &set_current_user)
 
+
     opening_balance_org ||= ledger_blnc_org.closing_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.closing_balance
 
-    daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, &set_current_user).tap do |l|
+
+
+    daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
       l.current_user_id = current_user_id
     end
-    daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date, &set_current_user).tap do |l|
+
+    daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
       l.current_user_id = current_user_id

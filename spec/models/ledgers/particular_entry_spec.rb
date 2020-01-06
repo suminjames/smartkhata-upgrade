@@ -44,12 +44,7 @@ RSpec.describe  Ledgers::ParticularEntry do
       context 'and debit' do
 
         before do
-
           @calculate_balances = particular_entry.calculate_balances(ledger, '2017-01-02'.to_date, true, 4000, 7475, branch1.id, current_user.id)
-          ledger_daily_subject
-          ledger_daily_future
-          ledger_daily_org_subject
-          ledger_daily_org_future
         end
 
         it "adds dr_amount and increments closing balance for ledger dailies for that day" do
