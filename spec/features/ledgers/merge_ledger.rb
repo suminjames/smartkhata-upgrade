@@ -18,26 +18,18 @@ RSpec.feature "Ledger", type: :feature do
     end
     it "sucessfully merge ledgers" do
       expect(page).to have_content('Merge Ledgers')
-      select_ledger("ledgers_index_combobox", ledger2.name)
-      select_ledger("ledgers_index_combobox_1", ledger.name)
+      select_helper( ledger.name, "ledgers_index_combobox")
+      select_helper( ledger2.name, "ledgers_index_combobox_1")
       find('.btn-primary').click
       expect(page).to have_content('Sucessfully Ledger Merge')
     end
 
     it "unsucessfully ledgers merge" do
       expect(page).to have_content('Merge Ledgers')
-      select_ledger("ledgers_index_combobox", "ledger")
-      select_ledger("ledgers_index_combobox_1", "Cash")
+      select_helper( ledger.name, "ledgers_index_combobox")
+      select_helper( ledger1.name, "ledgers_index_combobox_1")
       find('.btn-primary').click
       expect(page).to have_content('Ledger Merge Unsucessfull')
     end
-  end
-
-  def select_ledger(id, ledger)
-    page.execute_script(%Q($('##{id}').select2('open')))
-    page.execute_script(%Q($(".select2-search__field").val('#{ledger}')))
-    page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
-    sleep(1)
-    page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
   end
 end

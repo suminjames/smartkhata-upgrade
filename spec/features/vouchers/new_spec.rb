@@ -59,8 +59,7 @@
       voucher_dr_cheque_number = 1111
       fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
       find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
-      # select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
-      select_ledger(1, "Subash Adhikari")
+      select_helper(@client_account.name,"voucher_particulars_attributes_0_ledger_id" )
       fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
       add_narrations = page.all(".narration-display")
       add_narrations[-1].click
@@ -154,18 +153,15 @@
           it_behaves_like "add particular"
 
           it "creates journal voucher", js: true do
-            select_helper(@client_account1.name, "voucher_particulars_attributes_0_ledger_id")
+            select_helper( @client_account1.name, "voucher_particulars_attributes_0_ledger_id",)
             fill_in "voucher_particulars_attributes_0_amount", with: 500
             select "dr", :from => "voucher_particulars_attributes_0_transaction_type"
             page.find(".narration-display").click
             fill_in "voucher_particulars_attributes_0_description", with: "debit particular description"
             click_on ('Add Particular')
             # page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
-            select_ledger(0, @client_account1.name)
-            select_ledger(1, @client_account2.name)
-            sleep(1)
+            select_helper(@client_account2.name, "voucher_particulars_attributes_1_ledger_id")
             # wait_until_page_has_selector('.select2-results__option--highlighted')
-            page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
             # particular amount
             find("div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(2) div.voucher_particulars_amount input.form-control").set 500
             options = page.all('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(3) select option')
@@ -227,11 +223,9 @@
           it "creates receipt voucher", js: true do
             fill_in "voucher_particulars_attributes_0_amount", with: 5000
             fill_in "voucher_particulars_attributes_0_cheque_number", with: 9999
-            select_helper(@bank.name, "voucher_particulars_attributes_0_additional_bank_id")
-            select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id")
             fill_in "voucher_particulars_attributes_3_amount", with: 5000
             fill_in "voucher_particulars_attributes_0_cheque_number", with: 9999
-            select_ledger(1, @client_account.name)
+            select_helper( @client_account.name, "voucher_particulars_attributes_0_ledger_id")
             fill_in "voucher_desc", with: "description for credit particular"
             click_on 'Submit'
             # for receipt
@@ -249,7 +243,7 @@
             expect(page).to have_content('Amount:')
             # show details of user activity
             expect(page).to have_content('Paid By')
-            expect(page).to have_content('Received By')
+              expect(page).to have_content('Received By')
             expect(page).to have_content('Note: Please bring this receipt compulsarily while claiming unpurchase share.')
             # for voucher details
             visit ledgers_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
@@ -257,12 +251,8 @@
             select_helper(@client_account.name,"ledgers_index_combobox" )
             click_on "Search"
             # click on show
-            sleep(5)
-            within('table.ledger-list') do
-              within all('tr')[1] do
-                find_all('a')[0].click
-              end
-            end
+            sleep(1)
+            click_on "Show"
             click_on "RCB #{get_fy_code}-1"
             expect(page).to have_content("Voucher details")
             # contain company info
@@ -311,13 +301,5 @@
         end
         it_behaves_like "user not signed in"
       end
-    end
-
-    def select_ledger(index, client_account_name = "Cash")
-      page.execute_script(%Q($('div.voucher .box-body').children('.particular-container').eq(#{index}).find('.row.particular .col-sk-5 select.form-control').select2('open')))
-      page.execute_script(%Q($(".select2-search__field").val('#{client_account_name}')))
-      page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
-      sleep(1)
-      page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
     end
   end
