@@ -21,6 +21,51 @@ namespace :db do
     exec cmd
   end
 
+  desc "Dumps the database to db/APP_NAME.dump and backup"
+  task :backup, [:name] => :environment do |task, args|
+
+  end
+
+
+  desc "Dumps the database to db/APP_NAME.dump and backup"
+  task :dump_backup, [:name] => :environment do |task, args|
+    name = args.name
+    if name.blank?
+      name = Time.now.strftime("%Y%m%d%H%M%S")
+    end
+    backup_filename = nil
+
+    with_config do |app, host, db, user|
+      backup_filename = "#{Rails.root}/db/backup/#{name}_#{db}.psql"
+
+      if ENV['RAILS_ENV'].present?
+        `pg_dump --host #{host} --username #{user} --verbose --clean --no-owner --no-acl --format=c #{db} > #{backup_filename}`
+      else
+        `pg_dump --host localhost --verbose --clean --no-owner --no-acl --format=c #{db} >#{backup_filename}`
+      end
+
+    end
+    puts "dumped"
+
+    name = args.name
+    # save to aws-s3
+    bucket_name =  Rails.application.secrets.bucket_name
+    config = {
+      region: Rails.application.secrets.s3_region,
+      credentials: Aws::Credentials.new(Rails.application.secrets.aws_access_key_id, Rails.application.secrets.aws_secret_acess_key)
+    }
+    s3 = Aws::S3::Resource.new(config)
+    # Get just the file name
+    name = File.basename(backup_filename)
+    # Create the object to upload
+    obj = s3.bucket(bucket_name).object(name)
+    # Upload it
+    obj.upload_file(backup_filename)
+
+  end
+
+
+
   desc "Restores the database from backups"
     task :restore, [:date] => :environment do |task,args|
         if args.date.present?

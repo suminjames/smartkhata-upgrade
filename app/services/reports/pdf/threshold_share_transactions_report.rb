@@ -32,7 +32,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
 
 
   def draw
-    font_size(9) do
+    font_size(8) do
       move_down(3)
       company_header unless @print_in_letter_head
       report_header
@@ -95,7 +95,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
 
   def report_header
     table_data = [
-        ['Annexure 2'],
+        ['Annexure 1'],
         ['Threshold Transaction Detail'],
         ["Informer Name: #{@current_tenant.full_name}"]
     ]
@@ -117,6 +117,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     table_data = []
     th_data = [
         "SN.",
+        "Dmat No.",
         "Name of\n Buyer/Seller",
         "Occupation",
         "Branch\n(if any)",
@@ -130,6 +131,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     @share_transactions.each_with_index do |share_transaction, index|
       table_data << [
           index + 1,
+          share_transaction.client_account.boid,
           share_transaction.client_account.name.titleize,
           share_transaction.client_account.profession_code,
           "",
@@ -143,22 +145,29 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     end
     table_width = page_width - 2
     column_widths = {
-        0 => table_width * 0.8/12.0,
-        1 => table_width * 2/12.0,
+        0 => table_width * 0.6/12.0,
+        1 => table_width * 1.9/12.0,
         2 => table_width * 1.6/12.0,
-        3 => table_width * 1.0/12.0,
-        4 => table_width * 1.2/12.0,
-        5 => table_width * 1.2/12.0,
-        6 => table_width * 1.6/12.0,
-        7 => table_width * 1.3/12.0,
-        8 => table_width * 1.3/12.0,
+        3 => table_width * 1.3/12.0,
+        4 => table_width * 0.8/12.0,
+        5 => table_width * 1.1/12.0,
+        6 => table_width * 1.1/12.0,
+        7 => table_width * 1.5/12.0,
+        8 => table_width * 1.1/12.0,
+        9 => table_width * 1/12.0,
     }
     table table_data do |t|
       t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
       t.column(0).style(:align => :right)
-      t.column(4).style(:align => :right)
-      t.column(5).style(:align => :right)
-      t.column(6).style(:align => :right)
+      t.column(1).style(:align => :right)
+      t.column(2).style(:align => :left)
+      t.column(3).style(:align => :center)
+      t.column(4).style(:align => :left)
+      t.column(5).style(:align => :center)
+      t.column(6).style(:align => :center)
+      t.column(7).style(:align => :right)
+      t.column(8).style(:align => :left)
+      t.column(9).style(:align => :left)
       t.row(0).style(:align => :center)
       t.row(0).font_style = :bold
       t.column_widths = column_widths
@@ -185,7 +194,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
     end
-    hr
+    #hr
   end
 
 end
