@@ -212,6 +212,7 @@ class CreateSmsService
       full_bill_number = info[:full_bill_number]
       transaction_data = v[:data]
 
+      has_sales_transaction = false
       has_purchase_transaction = false
 
       share_quantity_rate_message = ""
@@ -256,7 +257,7 @@ class CreateSmsService
       end
 
       if has_sales_transaction
-        sms_message = "#{sms_message}.Please do WACC and EDIS after sales. BNo #{@broker_code}."
+        sms_message = "#{sms_message}.Please do WACC and EDIS after sales"
       end
 
       sms_message = "#{sms_message}.BNo #{@broker_code}"
