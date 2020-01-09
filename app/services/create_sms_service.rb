@@ -235,6 +235,7 @@ class CreateSmsService
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
         if type_of_transaction == :sell
+          has_sales_transaction = true
           share_quantity_rate_message += ";sold #{str}"
         else
           has_purchase_transaction = true
@@ -246,13 +247,20 @@ class CreateSmsService
       sms_message = ""
 
       if !has_purchase_transaction
-        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}.Please do WACC and EDIS after sales."
+        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}"
       else
         # if bill is present which is true for the case of changing the message
         # override total amount with bill amount
         total = @bill.net_amount if @bill.present?
-        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay Rs #{total.round(2)}.BNo #{@broker_code}"
+        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay Rs #{total.round(2)}"
       end
+
+      if has_sales_transaction
+        sms_message = "#{sms_message}.Please do WACC and EDIS after sales. BNo #{@broker_code}."
+      end
+
+      sms_message = "#{sms_message}.BNo #{@broker_code}"
+
 
       transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
       transaction_message.share_transactions << share_transactions
