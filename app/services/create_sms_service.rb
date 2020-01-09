@@ -246,7 +246,7 @@ class CreateSmsService
       sms_message = ""
 
       if !has_purchase_transaction
-        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}"
+        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}.BNo #{@broker_code}.Please do WACC and EDIS after sales."
       else
         # if bill is present which is true for the case of changing the message
         # override total amount with bill amount
