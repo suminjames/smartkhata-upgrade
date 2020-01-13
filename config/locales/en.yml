@@ -22,6 +22,23 @@
 en:
   hello: "Hello world"
 
+  threshold_transaction_detail: "Threshold Transaction Detail"
+  informer_name: "Informer Name"
+  
+  serial_no: "SN."
+  dmat_no: "Dmat No."
+  name_of_buyer_seller: "Name of Buyer/Seller"
+  occupation: "Occupation"
+  branch_if_any: "Branch (if any)"
+  transaction_date: "Transaction Date"
+  transaction_type: "Transaction Type"
+  transaction_amount: "Transaction Amount"
+  source_of_fund: "Source of Fund"
+  remarks: "Remarks"
+
+  
+
+  
   number:
     currency:
         format:

@@ -28,7 +28,7 @@ describe "Ledger" do
       @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
-      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: 1)
+      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: @branch.id)
     end
 
     context "when user is admin" do
@@ -44,7 +44,7 @@ describe "Ledger" do
         expect(page).to have_content("Show")
         expect(page).to have_content("Restrict")
         expect(page).to have_content("Process Selected Bills")
-
+        sleep(1)
         within('table.ledger-list') do
           within all('tr')[1] do
             find_all('a')[0].click
@@ -92,7 +92,7 @@ describe "Ledger" do
       @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
-      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: 1)
+      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: @branch.id)
     end
 
     context "when user is not admin" do

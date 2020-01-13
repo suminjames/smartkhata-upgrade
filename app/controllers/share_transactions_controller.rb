@@ -377,7 +377,7 @@ class ShareTransactionsController < ApplicationController
       format.pdf do
         print_in_letter_head = params[:print_in_letter_head].present?
         pdf = Reports::Pdf::ThresholdShareTransactionsReport.new(@share_transactions, params[:filterrific], current_tenant, print_in_letter_head)
-        send_data pdf.render, filename:  "Threshold_Transactions_Report.pdf", type: 'application/pdf'
+        send_data pdf.render, filename:  "Threshold_Transactions_Report.pdf", type: 'application/pdf', disposition: 'inline'
       end
     end
 

@@ -180,8 +180,8 @@ RSpec.describe Ledger, type: :model do
       ledger = create(:ledger)
       # particular1
       # particular2
-      ledger.particulars << particular1
       ledger.particulars << particular2
+      ledger.particulars << particular1
       particulars = ledger.particulars_with_running_balance
       expect(particulars.count).to eq(2)
       expect(particulars.first.running_total).to eq(particular1.amount)
