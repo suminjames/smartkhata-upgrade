@@ -95,8 +95,8 @@ class ApplicationController < ActionController::Base
 
   #   set the default fycode and branch params
   def set_branch_fy_params
-    @selected_fy_code = params[:selected_fy_code] || get_fy_code
-    @selected_branch_id = params[:selected_branch_id] || current_user&.branch_id || Branch.first.id
+    @selected_fy_code = params[:selected_fy_code].to_i || get_fy_code
+    @selected_branch_id = params[:selected_branch_id].to_i || current_user&.branch_id || Branch.first.id
 
   end
 

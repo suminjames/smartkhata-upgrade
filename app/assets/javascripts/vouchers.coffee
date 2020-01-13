@@ -8,6 +8,12 @@ fix_autocomplete = () ->
   $('.combobox-container input:text').each ->
     $(this).attr('autocomplete', 'off')
 
+get_url =() ->
+  path = location.pathname;
+  path = path.split('/');
+  url = [location.origin, path[1], path[2]].join('/')
+  return url
+
 $.fn.extend
   skDisable: ->
     @each ->
@@ -23,18 +29,14 @@ $.fn.extend
         selectOnClose: true
       })
   skInitializeSelect2Ledger: ->
+    url = get_url() + '/ledgers/combobox_ajax_filter'
     @each ->
       `$(this).select2({
           theme: 'bootstrap',
           allowClear: true,
           minimumInputLength: 3,
           ajax: {
-              url: function(){
-                let path = location.pathname
-                path = path.split('/')
-                let url = location.origin + '/' + path[1] + "/" + path[2] + "/ledgers/combobox_ajax_filter"
-                return url
-              },
+              url: url,
               dataType: 'json',
               delay: 250,
               data: function (params) {
