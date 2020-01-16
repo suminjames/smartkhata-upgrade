@@ -86,8 +86,6 @@ particular_has_bank = ($this) ->
 
 #  cheque and bank input enable and disable on the basis of selections
 manage_cheque = ($this, clear_cheque) ->
-  path = location.pathname.split("/")
-  url_prefix_with_fy_code_branch = "/" + path[1] + "/" + path[2]
   clear_cheque ||= false
   $val = $this.val()
   $parent_row = $this.parent().parent()
@@ -102,7 +100,7 @@ manage_cheque = ($this, clear_cheque) ->
     $this.parent().parent().find('.cheque-container.bank select').skEnable()
     if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
       $this.parent().parent().find('.cheque-container.bank select').skDisable()
-      $.get url_prefix_with_fy_code_branch + '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
+      $.get get_url() + '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
     else
       if clear_cheque
         $cheque.val("")

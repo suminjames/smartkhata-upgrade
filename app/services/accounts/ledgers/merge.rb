@@ -48,7 +48,6 @@ module Accounts
       end
 
       def fix_ledger_dailies_and_closing_balances
-        debugger
         particulars_to_be_moved = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id)
         branches = particulars_to_be_moved.pluck(:branch_id).uniq
         # change the ledger id to new one and delete balance and ledger dailies
@@ -81,7 +80,6 @@ module Accounts
 
       # delete client accounts too
       def merge_client_accounts
-        debugger
         client_account_to_persist = ledger_to_merge_to.client_account
         client_account_to_delete = ledger_to_merge_from.client_account
         if client_account_to_delete

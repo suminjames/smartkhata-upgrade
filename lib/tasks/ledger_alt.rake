@@ -8,7 +8,7 @@ namespace :ledger_alt do
   task :populate_ledger_dailies,[:tenant, :all_fiscal_year, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     include FiscalYearModule
 
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
@@ -29,7 +29,7 @@ namespace :ledger_alt do
     include FiscalYearModule
 
     ledger_ids = args.ledger_ids.split(" ")
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
 
@@ -41,7 +41,7 @@ namespace :ledger_alt do
     end
   end
   task :populate_closing_balance,[:tenant, :all_fiscal_year, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
@@ -53,7 +53,7 @@ namespace :ledger_alt do
   end
 
   task :populate_closing_balance_selected,[:tenant, :ledger_ids, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
 
@@ -68,7 +68,7 @@ namespace :ledger_alt do
   # Example syntax:
   # ledger:fix_ledger_selected['trishakti',"3405 11938"]
   task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_year, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
 

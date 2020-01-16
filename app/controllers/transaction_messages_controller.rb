@@ -9,7 +9,7 @@ class TransactionMessagesController < ApplicationController
   # GET /transaction_messages.json
   def index
     @filterrific = initialize_filterrific(
-        TransactionMessage.by_branch(params[:selected_branch_id]),
+        TransactionMessage.by_branch(selected_branch_id),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),

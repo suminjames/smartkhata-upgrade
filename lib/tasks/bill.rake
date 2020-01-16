@@ -7,7 +7,7 @@ namespace :bill do
     bill_type = args.bill_type.to_sym
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || get_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     Accounts::Bills::ChangeDateService.new(current_date, new_date, bill_type: bill_type, branch_id: branch_id, current_user_id: current_user_id).process
   end
 

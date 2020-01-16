@@ -267,7 +267,7 @@ class BillsController < ApplicationController
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     @back_path = request.referer
-    if @selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
+    if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
       redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 

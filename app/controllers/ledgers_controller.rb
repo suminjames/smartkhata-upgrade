@@ -63,7 +63,7 @@ class LedgersController < ApplicationController
 
     # @download_path_xlsx =  ledger_path(@ledger, {format:'xlsx'}.merge(params))
     # @download_path_xlsx_client =  ledger_path(@ledger, {format:'xlsx', for_client: 1}.merge(params))
-    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx'))
+    @download_path_xlsx =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', stamp: SecureRandom.hex(10)))
     @download_path_xlsx_client =  ledger_path(@ledger, request.query_parameters.merge(format: 'xlsx', for_client: 1))
 
     # @particulars = @particulars.order(:name).page(params[:page]).per(20) unless @particulars.blank?
@@ -101,8 +101,7 @@ class LedgersController < ApplicationController
     @ledger = Ledger.new(ledger_params)
     authorize @ledger
     respond_to do |format|
-      path = request.path.split('/')
-      if @ledger.create_custom(path[1], path[2])
+      if @ledger.create_custom(selected_fy_code, selected_branch_id)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully created.' }
         format.json { render :show, status: :created, location: @ledger }
       else
@@ -119,9 +118,7 @@ class LedgersController < ApplicationController
     authorize @ledger
 
     respond_to do |format|
-      path = request.path.split('/')
-      fy_code, branch_id = path[1], path[2]
-      if @ledger.update_custom(ledger_params, fy_code, branch_id)
+      if @ledger.update_custom(ledger_params, selected_fy_code, selected_branch_id)
         format.html { redirect_to @ledger, notice: 'Ledger was successfully updated.' }
         format.json { render :show, status: :ok, location: @ledger }
       else

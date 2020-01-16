@@ -3,7 +3,7 @@ namespace :branch_alt do
     branch_id = args.branch_id
     tenant = args.tenant
     ledger_ids = []
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       ClientAccount.where(branch_id: branch_id).find_each do |client_account|
 

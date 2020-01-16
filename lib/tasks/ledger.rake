@@ -83,7 +83,7 @@ namespace :ledger do
     tenant = args.tenant
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
       count = 0
@@ -102,7 +102,7 @@ namespace :ledger do
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
     ledger_ids = args.ledger_ids.split(" ")
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
 
     ActiveRecord::Base.transaction do
       Ledger.by_branch_id(branch_id).by_fy_code(fy_code).where(id: ledger_ids).find_each do |ledger|
@@ -116,7 +116,7 @@ namespace :ledger do
     tenant = args.tenant
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
       Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).find_each do |ledger|
@@ -130,7 +130,7 @@ namespace :ledger do
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
     ledger_ids = args.ledger_ids.split(" ")
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).where(id: ledger_ids).find_each do |ledger|
         patch_closing_balance(ledger, false, branch_id, fy_code, current_user_id)
@@ -144,7 +144,7 @@ namespace :ledger do
     all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       Branch.all.each do |branch|
         Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).find_each do |ledger|
@@ -161,7 +161,7 @@ namespace :ledger do
     tenant = args.tenant
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ledger_ids = args.ledger_ids.split(" ")
     all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
     ActiveRecord::Base.transaction do
@@ -184,7 +184,7 @@ namespace :ledger do
     count = 0
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
 
     ActiveRecord::Base.transaction do
       Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).find_each do |ledger|
@@ -207,7 +207,7 @@ namespace :ledger do
     count = 0
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || current_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
 
     ActiveRecord::Base.transaction do
       Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).find_each do |ledger|

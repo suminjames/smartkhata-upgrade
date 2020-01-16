@@ -51,7 +51,7 @@ class BankPaymentLettersController < ApplicationController
     @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
 
-    if @selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
+    if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
       redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 

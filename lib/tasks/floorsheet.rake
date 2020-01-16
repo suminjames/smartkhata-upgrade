@@ -6,7 +6,7 @@ namespace :floorsheet do
     date_bs = args.date_bs
     branch_id = args.branch_id || 1
     fy_code = args.fy_code || 7677
-    user_id = args.user_id || User.where(role: 4).first.id
+    user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
     #   first find bills
       bill_ids = TransactionMessage.by_branch(branch_id).where(transaction_date: date_bs).pluck(:bill_id).compact

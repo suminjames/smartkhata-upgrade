@@ -3,7 +3,7 @@ namespace :branch do
     branch_id = args.branch_id
     tenant = args.tenant
     date_bs = args.date_bs
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ledger_ids = []
 
     include FiscalYearModule
@@ -92,7 +92,7 @@ namespace :branch do
     dry_run = args.dry_run
     ledger_ids = []
     fy_code = get_fy_code
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     count = 0
 
     ActiveRecord::Base.transaction do

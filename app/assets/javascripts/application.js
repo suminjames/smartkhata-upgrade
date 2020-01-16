@@ -31,7 +31,7 @@
 
 $(document).on("ready page:load", function(){
     let path = location.pathname.split('/')
-    let url_prefix_with_fy_code_branch = location.origin + '/' + path[1] + "/" + path[2]
+    let url_prefix_with_fy_code_branch = [location.origin, path[1], path[2]].join("/")
 
     $('.combobox-select').select2({
         theme: 'bootstrap',

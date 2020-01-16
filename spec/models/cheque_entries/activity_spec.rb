@@ -7,7 +7,7 @@ RSpec.describe ChequeEntries::Activity do
   let(:bank){create(:bank)}
   let(:bank_account) { create(:bank_account, bank_id: bank.id) }
   let(:cheque_entry) { create(:cheque_entry, branch_id: 1) }
-  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', 1, 7576, User.first.id) }
+  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', User.first.id, 1, 7576) }
 
   before do
     travel_to "2019-01-01".to_date

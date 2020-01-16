@@ -5,7 +5,7 @@ namespace :client_account do
   desc "Fix name format of all client accounts."
   task :fix_format_of_names,[:tenant, :mimic, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       ClientAccount.unscoped.find_each do |client_account|
         name_before = client_account.name.dup
@@ -26,7 +26,7 @@ namespace :client_account do
   desc "Fix nepse code format of all client accounts."
   task :fix_format_of_nepse_codes,[:tenant, :mimic, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       ClientAccount.unscoped.find_each do |client_account|
         if client_account.nepse_code.present?
@@ -55,7 +55,7 @@ namespace :client_account do
   # - If mergable, and 'resolve' flag not set, display information about the mergeability.
   task :find_client_accounts_with_duplicate_nepse_code,[:tenant, :resolve, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     resolve = args.resolve == "resolve"
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       can_be_resolved_automatically_count = 0
       resolved_count = 0
@@ -107,7 +107,7 @@ namespace :client_account do
     unless args.merge_src_id.present? && args.merge_dst_id.present?
       abort 'Invalid arguments'
     end
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     merge_client_accounts(args.merge_src_id, args.merge_dst_id, current_user_id, {force: args.force == "force"})
     Apartment::Tenant.switch!('public')
   end
@@ -352,7 +352,7 @@ namespace :client_account do
     #
 
     mimic = args[:mimic] == 'true' ? true : false
-    current_user_id = args.user_id || User.where(role: 4).first.id
+    current_user_id = args.user_id || User.admin.first.id
     dir = "#{Rails.root}/test_files/"
     client_account_csv_file =  dir + 'client_accounts.csv'
 
