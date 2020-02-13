@@ -86,6 +86,9 @@ var calendarFunctions = {};
         };
     $.extend(calendarFunctions, {
         getNepaliNumber: function (number) {
+            if(isNaN(number)) {
+                 number = 0
+            }
             if ("undefined" == typeof number) throw new Error("Parameter number is required");
             if ("number" != typeof number || number < 0) throw new Error("Number should be positive integer");
             var prefixNum = Math.floor(number / 10),
