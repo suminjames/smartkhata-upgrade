@@ -51,7 +51,7 @@ class BankPaymentLettersController < ApplicationController
     @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
 
-    if UserSession.selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
+    if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
       redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
     end
 
@@ -101,7 +101,7 @@ class BankPaymentLettersController < ApplicationController
               ledger.save!
             end
 
-            @voucher.reviewer_id = UserSession.user_id
+            @voucher.reviewer_id = current_user.id
             @voucher.complete!
             @voucher.save!
 
@@ -116,7 +116,7 @@ class BankPaymentLettersController < ApplicationController
           end
         elsif params[:reject]
           # TODO(Subas) what happens to bill
-          @bank_payment_letter.reviewer_id = UserSession.user_id
+          @bank_payment_letter.reviewer_id = current_user.id
           @voucher = @bank_payment_letter.voucher
 
           ActiveRecord::Base.transaction do

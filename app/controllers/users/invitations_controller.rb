@@ -29,7 +29,7 @@ class Users::InvitationsController < Devise::InvitationsController
         user = User.invite!(
             :email => account.email,
             :role => :client,
-            :branch_id => UserSession.selected_branch_id
+            :branch_id => @selected_branch_id
         ) if valid_email?(account.email)
 
         accounts.each do |a|
@@ -50,7 +50,7 @@ class Users::InvitationsController < Devise::InvitationsController
             {
                 :username => account.nepse_code,
                 :role => :client,
-                :branch_id => UserSession.selected_branch_id,
+                :branch_id => @selected_branch_id,
                 :password => temp_password,
                 :password_confirmation => temp_password,
                 confirmed_at: Time.now,

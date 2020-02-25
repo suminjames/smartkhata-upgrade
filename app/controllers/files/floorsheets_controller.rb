@@ -30,10 +30,10 @@ class Files::FloorsheetsController < Files::FilesController
     @file = params[:file]
     @is_partial_upload = params[:is_partial_upload] == '1'
     if (is_invalid_file(@file, @@file_name_contains))
-      file_error("Please Upload a valid file and make sure the file name contains floorsheet.") and return
+      file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file,current_user,active_record_branch_id,selected_fy_code, @is_partial_upload)
     floorsheet_upload.process
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message

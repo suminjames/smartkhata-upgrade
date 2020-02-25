@@ -30,6 +30,9 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
+    let path = location.pathname.split('/')
+    let url_prefix_with_fy_code_branch = [location.origin, path[1], path[2]].join("/")
+
     $('.combobox-select').select2({
         theme: 'bootstrap',
         allowClear: true
@@ -45,7 +48,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/ledgers/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -67,7 +70,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/client_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -87,7 +90,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/employee_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/employee_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -107,7 +110,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/client_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -127,7 +130,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/client_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -148,7 +151,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/client_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -175,7 +178,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/ledgers/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -197,7 +200,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/client_accounts/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -218,7 +221,7 @@ $(document).on("ready page:load", function(){
         allowClear: true,
         minimumInputLength: 3,
         ajax: {
-            url: "/isin_infos/combobox_ajax_filter",
+            url: url_prefix_with_fy_code_branch + "/isin_infos/combobox_ajax_filter",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -239,7 +242,7 @@ $(document).on("ready page:load", function(){
     allowClear: true,
     minimumInputLength: 3,
     ajax: {
-      url: "/cheque_entries/combobox_ajax_filter_for_beneficiary_name",
+      url: url_prefix_with_fy_code_branch + "/cheque_entries/combobox_ajax_filter_for_beneficiary_name",
       dataType: 'json',
       delay: 250,
       data: function (params) {
@@ -267,7 +270,7 @@ $(document).on("ready page:load", function(){
             allowClear: true,
             minimumInputLength: 3,
             ajax: {
-                url: "/ledgers/combobox_ajax_filter",
+                url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
@@ -322,24 +325,24 @@ $(document).on("click", "#btnPrint", function (event) {
 
 $(document).on("click", ".btnPrintBankPaymentLetterPDF", function (event) {
     bill_id = this.id.split("-")[1];
-    loadAndPrint("/bank_payment_letters/" + bill_id + '.pdf', 'iframe-for-bank-payment-letter-pdf-print', 'bank-payment-letter-print-spinner');
+    loadAndPrint(url_prefix_with_fy_code_branch + "/bank_payment_letters/" + bill_id + '.pdf', 'iframe-for-bank-payment-letter-pdf-print', 'bank-payment-letter-print-spinner');
 });
 
 $(document).on("click", ".btnPrintBillPDF", function (event) {
     bill_id = this.id.split("-")[1];
-    loadAndPrint("/bills/" + bill_id + '.pdf', 'iframe-for-bill-pdf-print', 'bill-print-spinner');
+    loadAndPrint(url_prefix_with_fy_code_branch + "/bills/" + bill_id + '.pdf', 'iframe-for-bill-pdf-print', 'bill-print-spinner');
 });
 
 $(document).on("click", ".btnPrintVoucherPDF", function (event) {
     // console.log("print voucher");
     voucher_id = this.id.split("-")[1];
-    loadAndPrint("/vouchers/" + voucher_id + '.pdf', 'iframe-for-voucher-pdf-print', 'voucher-print-spinner');
+    loadAndPrint(url_prefix_with_fy_code_branch + "/vouchers/" + voucher_id + '.pdf', 'iframe-for-voucher-pdf-print', 'voucher-print-spinner');
 });
 
 $(document).on("click", ".btnPrintSettlementPDF", function (event) {
     // console.log("print settlement");
     settlement_id = this.id.split("-")[1];
-    loadAndPrint("/settlements/" + settlement_id + '.pdf', 'iframe-for-settlement-pdf-print', 'settlement-print-spinner');
+    loadAndPrint(url_prefix_with_fy_code_branch + "/settlements/" + settlement_id + '.pdf', 'iframe-for-settlement-pdf-print', 'settlement-print-spinner');
 });
 
 $(document).on("click", ".btnPrintMultipleSettlementsPDF", function (event) {
@@ -356,7 +359,7 @@ $(document).on("click", ".btnPrintMultipleSettlementsPDF", function (event) {
     })
     var settlement_ids_argument = $.param({settlement_ids: settlement_ids_arr})
 
-    loadAndPrint("/settlements/show_multiple.pdf?" + settlement_ids_argument, 'iframe-for-multiple-settlements-pdf-print', 'multiple-settlements-print-spinner');
+    loadAndPrint(url_prefix_with_fy_code_branch + "/settlements/show_multiple.pdf?" + settlement_ids_argument, 'iframe-for-multiple-settlements-pdf-print', 'multiple-settlements-print-spinner');
 });
 
 // Currently used by cheque_entry#show.
@@ -365,7 +368,7 @@ $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
     cheque_entry_id = this.id.split("-")[1];
     // Update 'print_status' of cheque entry before printing the cheque entry pdf
     $.ajax({
-        url: "/cheque_entries/update_print_status",
+        url: url_prefix_with_fy_code_branch + "/cheque_entries/update_print_status",
         data: {
             cheque_entry_ids: [cheque_entry_id]
         },
@@ -374,7 +377,7 @@ $(document).on("click", ".btnPrintChequeEntryPDF", function (event) {
             return $this.find('cheque-print-error').html('There was some Errror');
         },
         success: function (data, textStatus, jqXHR) {
-            loadAndPrint("/cheque_entries/" + cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print', 'cheque-entry-print-spinner');
+            loadAndPrint(url_prefix_with_fy_code_branch + "/cheque_entries/" + cheque_entry_id + '.pdf', 'iframe-for-cheque-entry-pdf-print', 'cheque-entry-print-spinner');
         }
     });
 });

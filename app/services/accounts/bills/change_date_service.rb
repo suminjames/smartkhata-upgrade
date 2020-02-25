@@ -4,12 +4,14 @@ module Accounts
       include CustomDateModule
       attr_reader :current_date, :new_date, :bill_type, :branch_id, :error_message
 
-      def initialize(current_date, new_date, bill_type: nil, branch_id: nil)
+      def initialize(current_date, new_date, bill_type: nil, branch_id: nil,fy_code: nil, current_user_id: nil)
         @current_date = current_date
         @new_date = new_date
         @bill_type = bill_type
         @branch_id = branch_id
         @error_message = nil
+        @current_user_id = current_user_id
+        @fy_code = fy_code
       end
 
       def process
@@ -18,7 +20,6 @@ module Accounts
         new_date_bs = ad_to_bs(new_date)
 
         branch_id ||= 0
-        UserSession.selected_branch_id = branch_id
 
         ActiveRecord::Base.transaction do
           #
@@ -35,7 +36,7 @@ module Accounts
             v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
           end
           bills.update_all(date: new_date)
-          patch_ledger_dailies ledger_ids, branch_id
+          patch_ledger_dailies ledger_ids, branch_id, @fy_code, @current_user_id
         end
         puts "#{bills.size} bill processed"
         true
@@ -47,14 +48,14 @@ module Accounts
         bills = bills.where(bill_type: Bill.bill_types[bill_type]) if bill_type
         bills
       end
-      def patch_ledger_dailies ledger_ids, branch_id
+      def patch_ledger_dailies ledger_ids, branch_id, fy_code, current_user_id
         if branch_id == 0
           branch_ids = Branch.all.pluck(:id)
         else
           branch_ids == [branch_id]
         end
         branch_ids.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, false, branch_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, false, branch_id, fy_code, current_user_id)
         end
       end
 

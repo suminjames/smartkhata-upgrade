@@ -20,7 +20,6 @@ module Accounts
             available_ledger_ids = Ledger.all.pluck(:id)
           end
         end
-
         previous_fy_code = get_previous_fy_code fy_code
         pulled_ledger_ids = []
         pulled_ledger_names = []

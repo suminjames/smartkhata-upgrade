@@ -14,7 +14,6 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
   include ApplicationHelper
 
   def initialize(cheque_entry_ids, current_tenant)
-    # debugger
     super(:page_size => [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
     @current_tenant = current_tenant

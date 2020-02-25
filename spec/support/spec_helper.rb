@@ -19,3 +19,4 @@ end
    expect(page).to have_content('Approved By')
    expect(page).to have_content('Received By')
  end
+

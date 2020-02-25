@@ -7,13 +7,16 @@ class ImportPayout < ImportFile
   include CustomDateModule
   include FiscalYearModule
 
-  attr_reader :nepse_settlement_ids
+  attr_reader :nepse_settlement_ids, :selected_fy_code
 
-  def initialize(file, settlement_date = nil)
+  def initialize(file, selected_fy_code, settlement_date = nil, current_user, branch_id)
     super(file)
+    @current_user = current_user
+    @branch_id = branch_id
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
+    @selected_fy_code = selected_fy_code
   end
 
   def process(multiple_settlement_ids_allowed = false)
@@ -39,11 +42,11 @@ class ImportPayout < ImportFile
       unless multiple_settlement_ids_allowed
         begin
           @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
             @error_message = "Date is invalid for selected fiscal year"
           end
         rescue
-          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
         end
         return if @error_message
       end
@@ -99,7 +102,6 @@ class ImportPayout < ImportFile
               transaction_type: ShareTransaction.transaction_types[:selling]
           )
 
-
           if transaction.nil?
             import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNO']}")
             raise ActiveRecord::Rollback
@@ -116,7 +118,6 @@ class ImportPayout < ImportFile
           # so we need to deduct  the tds while charging the client
           chargeable_on_sale_rate = broker_commission_rate(transaction.date) * (1 - tds_rate)
           chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(transaction.date) * tds_rate
-
 
 
           amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f
@@ -136,7 +137,7 @@ class ImportPayout < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, true)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity,@current_user, @branch_id, true)
           end
 
           # net amount is the amount that is payble to the client after charges

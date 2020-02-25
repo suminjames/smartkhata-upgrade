@@ -8,6 +8,12 @@ fix_autocomplete = () ->
   $('.combobox-container input:text').each ->
     $(this).attr('autocomplete', 'off')
 
+get_url =() ->
+  path = location.pathname;
+  path = path.split('/');
+  url = [location.origin, path[1], path[2]].join('/')
+  return url
+
 $.fn.extend
   skDisable: ->
     @each ->
@@ -23,13 +29,14 @@ $.fn.extend
         selectOnClose: true
       })
   skInitializeSelect2Ledger: ->
+    url = get_url() + '/ledgers/combobox_ajax_filter'
     @each ->
       `$(this).select2({
           theme: 'bootstrap',
           allowClear: true,
           minimumInputLength: 3,
           ajax: {
-              url: "/ledgers/combobox_ajax_filter",
+              url: url,
               dataType: 'json',
               delay: 250,
               data: function (params) {
@@ -93,7 +100,7 @@ manage_cheque = ($this, clear_cheque) ->
     $this.parent().parent().find('.cheque-container.bank select').skEnable()
     if ($cheque.hasClass('cr') || ($parent_row.find('.type-selector select').val() == 'cr'))
       $this.parent().parent().find('.cheque-container.bank select').skDisable()
-      $.get '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
+      $.get get_url() + '/cheque_entries/get_cheque_number/', {bank_account_id: $val}, callback, 'json'
     else
       if clear_cheque
         $cheque.val("")
@@ -254,7 +261,8 @@ $ ->
 $(document).on 'click', '.add_fields', (event) ->
   time = new Date().getTime()
   regexp = new RegExp($(this).data('id'), 'g')
-  $(this).before($(this).data('fields').replace(regexp, time))
+  id = $('.dynamic-ledgers').children('.particular-container').length
+  $(this).before($(this).data('fields').replace(regexp, id))
 
 #  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
 

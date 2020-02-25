@@ -3,14 +3,17 @@ class FilesImportServices::ImportCm31 < ImportFile
   include ApplicationHelper
   include ShareInventoryModule
 
-  attr_reader :nepse_settlement_ids
+  attr_reader :nepse_settlement_ids, :selected_branch_id
 
-  def initialize(file, current_tenant, settlement_date = nil)
+  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil, current_user, branch_id)
     super(file)
+    @current_user = current_user
+    @branch_id = branch_id
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
     @current_tenant = current_tenant
+    @selected_fy_code = selected_fy_code
   end
 
   def process
@@ -24,11 +27,11 @@ class FilesImportServices::ImportCm31 < ImportFile
 
       begin
         @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-        unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+        unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
           @error_message = "Date is invalid for selected fiscal year"
         end
       rescue
-        @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date)
+        @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
       end
       return if @error_message
 
@@ -97,19 +100,19 @@ class FilesImportServices::ImportCm31 < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, false)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, @branch_id, false)
           end
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
-          voucher = Voucher.create!(date: @nepse_settlement_date)
+          voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: @branch_id, current_user_id: @current_user.id)
           voucher.desc = description
 
           nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
           closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
 
           # closeout debit to nepse
-          process_accounts(nepse_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date)
-          process_accounts(closeout_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date)
+          process_accounts(nepse_ledger, voucher, true, close_out_amount, description, cost_center_id, settlement_date, @current_user)
+          process_accounts(closeout_ledger, voucher, false, close_out_amount, description, cost_center_id, settlement_date, @current_user)
           voucher.complete!
           voucher.save!
 

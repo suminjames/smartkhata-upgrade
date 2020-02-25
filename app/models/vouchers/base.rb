@@ -21,7 +21,7 @@ class Vouchers::Base
 
   private
   # attr_accessor :bill_ids, :client_account_id, :clear_ledger
-  def set_bill_client(client_account_id, bill_ids, voucher_type, clear_ledger = false)
+  def set_bill_client(client_account_id, bill_ids, voucher_type, clear_ledger = false, selected_branch_id, selected_fy_code)
     # set default values to nil
     bill_ids ||= []
     amount = 0.0
@@ -47,11 +47,11 @@ class Vouchers::Base
     if (clear_ledger || bill_ids.size > 0) && client_account.present?
 
       client_ledger = client_account.ledger
-      ledger_balance = client_ledger.closing_balance
+      ledger_balance = client_ledger.closing_balance(selected_fy_code, selected_branch_id)
       if clear_ledger
         bills_receive = client_account.bills.requiring_receive
         bills_payment = client_account.bills.requiring_payment
-      else  
+      else
         bill_list = get_bills_from_ids(bill_ids)
 
         related_pending_bill_ids = client_account.get_all_related_bill_ids

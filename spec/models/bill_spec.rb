@@ -9,6 +9,7 @@ RSpec.describe Bill, type: :model do
   describe "validations" do
     it { expect(subject).to be_valid }
   	it {should validate_presence_of (:client_account)}
+    it { should validate_uniqueness_of(:bill_number).scoped_to(:fy_code) }
   end
   # it "client_account_id should not be empty" do
   # 	subject.client_account_id = ''

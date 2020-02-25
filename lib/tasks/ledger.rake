@@ -1,34 +1,38 @@
 namespace :ledger do
 
   def all_fy_codes
-    return [6869, 6970, 7071, 7273, 7374, 7475]
+    return [6869, 6970, 7071, 7273, 7374, 7475, 7677]
   end
 
   def current_fy_code
-    return 7475
+    include FiscalYearModule
+    return FiscalYearModule::get_fy_code
   end
 
-  def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = nil)
-    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code)
+  def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
+    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
   end
 
   # for now we are not concerned about multiple branches
-  def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
-    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code)
+  def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code, current_user_id)
+    Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
   end
 
 
-  task :delete_with_wrong_nepse_codes_zero_activity, [:tenant] => :environment do |task,args|
+  task :delete_with_wrong_nepse_codes_zero_activity, [:tenant, :branch_id, :fy_code] => :environment do |task,args|
     if args.tenant.present?
       Apartment::Tenant.switch!(args.tenant)
-      UserSession.user = User.first
-      UserSession.selected_branch_id = 1
-      UserSession.selected_fy_code= 7374
+      branch_id = args.branch_id || 1
+      fy_code = args.fy_code || current_fy_code
+
+      # UserSession.user = User.first
+      # UserSession.selected_branch_id = 1
+      # UserSession.selected_fy_code= 7374
 
 
       ActiveRecord::Base.transaction do
         count = 0
-        Ledger.where('strpos(client_code, chr(9)) > 0').select{ |x| x.closing_balance == 0 &&  x.ledger_dailies.count == 0 }.each do |ledger|
+        Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).where('strpos(client_code, chr(9)) > 0').select{ |x| x.closing_balance == 0 &&  x.ledger_dailies.count == 0 }.each do |ledger|
           ledger.client_account.delete
           ledger.delete
           count += 1
@@ -43,17 +47,20 @@ namespace :ledger do
     end
   end
 
-  task :with_wrong_nepse_codes_and_activity_fix, [:tenant] => :environment do |task,args|
+  task :with_wrong_nepse_codes_and_activity_fix, [:tenant, :branch_id, :fy_code] => :environment do |task,args|
     if args.tenant.present?
       Apartment::Tenant.switch!(args.tenant)
-      UserSession.user = User.first
-      UserSession.selected_branch_id = 1
-      UserSession.selected_fy_code= 7374
 
+      branch_id = args.branch_id || 1
+      fy_code = args.fy_code || current_fy_code
+
+      # UserSession.user = User.first
+      # UserSession.selected_branch_id = 1
+      # UserSession.selected_fy_code= 7375
 
       ActiveRecord::Base.transaction do
         count = 0
-        Ledger.where('strpos(client_code, chr(9)) > 0').select{ |x| x.closing_balance != 0 &&  x.ledger_dailies.count != 0 }.each do |ledger|
+        Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).where('strpos(client_code, chr(9)) > 0').select{ |x| x.closing_balance != 0 &&  x.ledger_dailies.count != 0 }.each do |ledger|
           client_account = ledger.client_account
           correct_client_account = ClientAccount.find_by_nepse_code(client_account.nepse_code.gsub(/\t/,''))
 
@@ -72,63 +79,77 @@ namespace :ledger do
 
 
 
-  task :populate_ledger_dailies,[:tenant, :all_fiscal_year] => 'smartkhata:validate_tenant' do |task, args|
+  task :populate_ledger_dailies,[:tenant, :all_fiscal_year, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
       count = 0
-      Ledger.find_each do |ledger|
+      Ledger.by_fy_code(fy_code).by_branch_id(branch_id).find_each do |ledger|
         count += 1
         # fy_codes = [6869, 6970, 7071, 7172, 7273]
-        patch_ledger_dailies(ledger, all_fiscal_year)
+        patch_ledger_dailies(ledger, all_fiscal_year, branch_id, fy_code, current_user_id)
         puts "#{count} ledgers processed"
       end
     end
     puts "completed ledger dailies"
   end
 
-  task :populate_ledger_dailies_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+  task :populate_ledger_dailies_selected,[:tenant, :ledger_ids, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
     ledger_ids = args.ledger_ids.split(" ")
+    current_user_id = args.user_id || User.admin.first.id
 
     ActiveRecord::Base.transaction do
-      Ledger.where(id: ledger_ids).find_each do |ledger|
+      Ledger.by_branch_id(branch_id).by_fy_code(fy_code).where(id: ledger_ids).find_each do |ledger|
         # fy_codes = [6869, 6970, 7071, 7172, 7273]
-        patch_ledger_dailies(ledger)
+        patch_ledger_dailies(ledger, false, branch_id, fy_code, current_user_id)
         puts "#{ledger.name}"
       end
     end
   end
-  task :populate_closing_balance,[:tenant, :all_fiscal_year] => 'smartkhata:validate_tenant' do |task, args|
+  task :populate_closing_balance,[:tenant, :all_fiscal_year, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
-      Ledger.find_each do |ledger|
-        patch_closing_balance(ledger, all_fiscal_year)
+      Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).find_each do |ledger|
+        patch_closing_balance(ledger, all_fiscal_year, branch_id, fy_code, current_user_id)
       end
     end
   end
 
-  task :populate_closing_balance_selected,[:tenant, :ledger_ids] => 'smartkhata:validate_tenant' do |task, args|
+  task :populate_closing_balance_selected,[:tenant, :ledger_ids, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
     ledger_ids = args.ledger_ids.split(" ")
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
-      Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_closing_balance(ledger)
+      Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).where(id: ledger_ids).find_each do |ledger|
+        patch_closing_balance(ledger, false, branch_id, fy_code, current_user_id)
       end
     end
   end
 
   # Fixes all ledgers
-  task :fix_ledger_all,[:tenant, :all_fiscal_years, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_all,[:tenant, :all_fiscal_years, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
-    fy_code = args.fy_code
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       Branch.all.each do |branch|
-        Ledger.find_each do |ledger|
-          patch_ledger_dailies(ledger, all_fiscal_years, branch.id, fy_code)
-          patch_closing_balance(ledger, all_fiscal_years, branch.id, fy_code)
+        Ledger.unscoped.by_branch_id(branch_id).by_fy_code(fy_code).find_each do |ledger|
+          patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
+          patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
         end
       end
     end
@@ -136,16 +157,17 @@ namespace :ledger do
 
   # Example syntax:
   # ledger:fix_ledger_selected['trishakti',"3405 11938"]
-  task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_years, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_ledger_selected,[:tenant, :ledger_ids, :all_fiscal_years, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
     ledger_ids = args.ledger_ids.split(" ")
     all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
-    fy_code = args.fy_code
     ActiveRecord::Base.transaction do
-      Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code )
-        patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code )
+      Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).where(id: ledger_ids).find_each do |ledger|
+        patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id )
+        patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code, current_user_id )
       end
     end
   end
@@ -158,14 +180,19 @@ namespace :ledger do
   end
 
   desc "Fix name format of all ledgers."
-  task :fix_format_of_names,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_format_of_names,[:tenant, :mimic, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
+
     ActiveRecord::Base.transaction do
-      Ledger.unscoped.find_each do |ledger|
+      Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).find_each do |ledger|
         name_before = ledger.name.dup
         if name_before != ledger.format_name
           puts "Processing Ledger(id: #{ledger.id}) with name `#{ledger.name}`."
           ledger.format_name
+          ledger.current_user_id = current_user_id
           ledger.save! unless args.mimic.present?
           count += 1
           puts "Ledger(id: #{ledger.id})'s name changed from `#{name_before}` to `#{ledger.name}`."
@@ -176,15 +203,20 @@ namespace :ledger do
   end
 
   desc "Fix client code format of all ledgers."
-  task :fix_format_of_client_codes,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_format_of_client_codes,[:tenant, :mimic, :user_id, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    current_user_id = args.user_id || User.admin.first.id
+
     ActiveRecord::Base.transaction do
-      Ledger.unscoped.find_each do |ledger|
+      Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).find_each do |ledger|
         if ledger.client_code.present?
           client_code_before = ledger.client_code.dup
           if client_code_before != ledger.format_client_code
             puts "Processing Ledger(id: #{ledger.id}) with client_code `#{ledger.client_code}`."
             ledger.format_client_code
+            ledger.current_user_id = current_user_id
             ledger.save! unless args.mimic.present?
             count += 1
             puts "Ledger(id: #{ledger.id})'s client code changed from `#{client_code_before}` to `#{ledger.client_code}`."
@@ -196,9 +228,12 @@ namespace :ledger do
   end
 
   desc "Find ledgers with duplicate (case insensitive) client code."
-  task :find_ledgers_with_duplicate_client_code,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+  task :find_ledgers_with_duplicate_client_code,[:tenant, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
 
-    search_hash = Ledger.unscoped.select("LOWER(client_code)").group("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+
+    search_hash = Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).select("LOWER(client_code)").group("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count
 
     client_hash = ClientAccount.unscoped.select("LOWER(nepse_code)").group("trim(regexp_replace(LOWER(nepse_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count
 
@@ -208,14 +243,16 @@ namespace :ledger do
     puts client_hash.size
   end
 
-  task :merge_ledgers_with_duplicate_client_code,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+  task :merge_ledgers_with_duplicate_client_code,[:tenant, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
-    client_codes = Ledger.unscoped.select("LOWER(client_code)").group("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count.keys.uniq
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
+    client_codes = Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).select("LOWER(client_code)").group("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g'))").having("count(*) > 1").count.keys.uniq
     client_codes.compact.each do |client_code|
-      ledger_to_merge_from = Ledger.unscoped.where("lower(client_code) = '#{client_code}'").first
-      ledger_to_merge_to = Ledger.unscoped.where("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g')) = '#{client_code}'").where.not(id: ledger_to_merge_from.id).first
+      ledger_to_merge_from = Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).where("lower(client_code) = '#{client_code}'").first
+      ledger_to_merge_to = Ledger.unscoped.by_fy_code(fy_code).by_branch_id(branch_id).where("trim(regexp_replace(LOWER(client_code), '\\s+', ' ', 'g')) = '#{client_code}'").where.not(id: ledger_to_merge_from.id).first
 
-      particulars_count = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id).where.not(fy_code: UserSession.selected_fy_code).count
+      particulars_count = Particular.unscoped.where(ledger_id: ledger_to_merge_from.id).where.not(fy_code: fy_code).count
       mandala_mapping_for_deleted_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_from).first
       mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
 
@@ -228,8 +265,10 @@ namespace :ledger do
     end
   end
   # take file from trishakti with duplicate names and merge them
-  task :merge_ledgers_with_duplicate_name,[:tenant] => 'smartkhata:validate_tenant' do |task, args|
+  task :merge_ledgers_with_duplicate_name,[:tenant, :branch_id, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || current_fy_code
 
     dir = "#{Rails.root}/test_files/"
     file_with_duplicate_ledger = dir + 'duplicate_ledger.csv'
@@ -256,7 +295,7 @@ namespace :ledger do
       elsif ledgers.size > 1
         ledger_to_consider = ledgers.detect{|x| x.opening_balance != 0}
         unless ledger_to_consider
-          ledger_to_consider = ledgers.detect{|x| Particular.unscoped.where(ledger_id: x.id).where.not(fy_code: UserSession.selected_fy_code).count > 1}
+          ledger_to_consider = ledgers.detect{|x| Particular.unscoped.where(ledger_id: x.id).where.not(fy_code: fy_code).count > 1}
 
           unless ledger_to_consider
             ledger_to_consider = ledgers.detect{|x| x.client_code.present? }
@@ -272,7 +311,7 @@ namespace :ledger do
 
         merge_ledger = ledgers_to_merge.first
 
-        particulars_count = Particular.unscoped.where(ledger_id: merge_ledger.id).where.not(fy_code: UserSession.selected_fy_code).count
+        particulars_count = Particular.unscoped.where(ledger_id: merge_ledger.id).where.not(fy_code: fy_code).count
         if particulars_count > 0
           raise "Has previous fy data"
         end
@@ -302,12 +341,12 @@ namespace :ledger do
   end
 
   desc 'move particulars to one branch for a ledger id'
-  task :move_particulars,[:tenant, :ledger_id, :branch_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
+  task :move_particulars,[:tenant, :ledger_id, :branch_id, :user_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
     abort 'Please pass tenant, ledger_id, branch_id, dry_run, date_bs' if (args.ledger_id.blank? || args.branch_id.blank?)
     client_account = Ledger.find(args.ledger_id).client_account
     dry_run = args.dry_run === 'false' ? false : true;
     if (client_account)
-      Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, args.date_bs, dry_run)
+      Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, args.date_bs, dry_run, args.user_id)
     end
   end
 
@@ -316,7 +355,7 @@ namespace :ledger do
     include ApplicationHelper
 
     tenant = args.tenant
-    fy_code = args.fy_code
+    fy_code = args.fy_code || current_fy_code
     dir = "#{Rails.root}/tmp/files/"
     opening_balance_patch = dir + 'opening_balance_patch.csv'
     ledger_array = []

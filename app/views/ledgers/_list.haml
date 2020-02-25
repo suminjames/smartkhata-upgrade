@@ -11,8 +11,8 @@
             %td
               = ledger.name_and_identifier
             %td.text-right{style: "padding-right: 40px;"}
-              - amt = number_to_currency(ledger.closing_balance.abs)
-              - if ledger.closing_balance + margin_of_error_amount < 0
+              - amt = number_to_currency(ledger.closing_balance(@selected_fy_code, @selected_branch_id).abs)
+              - if ledger.closing_balance(@selected_fy_code, @selected_branch_id) + margin_of_error_amount < 0
                 %span.credit-amount
                   = "#{amt} Cr"
               - else
@@ -21,7 +21,7 @@
             %td
               = link_to 'Show', ledger
               - if ledger.client_account_id.present? && current_user.can_read_write?
-                - if ledger.closing_balance.abs >= 0.01
+                - if ledger.closing_balance(@selected_fy_code, @selected_branch_id).abs >= 0.01
                   |
                   = link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id)
                 - if ledger.client_account.bills.find_not_settled.present?

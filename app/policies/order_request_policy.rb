@@ -1,5 +1,10 @@
 class OrderRequestPolicy < ApplicationPolicy
   # the only action in menu
+
+  def index?
+    new?
+  end
+
   def new?
     user.client? || path_authorized_to_employee_and_above?
   end
@@ -11,6 +16,7 @@ class OrderRequestPolicy < ApplicationPolicy
   def create?
     path_authorized_to_employee_and_above? || user.client?
   end
+
   def update?
     record_allowed_for_user(record, user)
   end

@@ -1,24 +1,35 @@
 class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
-  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date)
+
+  attr_reader :current_user_id
+
+  def initialize(current_user_id)
+    @current_user_id = current_user_id
+  end
+
+  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
     process(ledger: ledger,
             voucher: voucher,
             debit: debit,
             amount: amount,
             descr: descr,
             branch_id: branch_id,
-            accounting_date: accounting_date
+            accounting_date: accounting_date,
+            creator_id: current_user_id,
+            updater_id: current_user_id,
+            current_user_id: current_user_id
     )
   end
 
   # reverse a particular entry
-  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry)
+  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry, current_user_id)
     process(particular: particular,
             voucher: voucher,
             descr: descr,
             adjustment: adjustment,
-            reversed_cheque_entry: reversed_cheque_entry
+            reversed_cheque_entry: reversed_cheque_entry,
+            current_user_id: current_user_id
     )
   end
 
@@ -27,7 +38,7 @@ class Ledgers::ParticularEntry
     ledger = Ledger.find(particular.ledger_id)
     fy_code = get_fy_code(particular.transaction_date)
     accounting_date = particular.transaction_date
-    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id)
+    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, particular.current_user_id)
     particular.fy_code = fy_code
     particular.complete!
     ledger.save!
@@ -44,7 +55,9 @@ class Ledgers::ParticularEntry
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
     reversed_cheque_entry = attrs[:reversed_cheque_entry]
-
+    creator_id = attrs[:creator_id]
+    updater_id = attrs[:updater_id]
+    current_user_id = attrs[:current_user_id]
     # when all branch selected fall back to the user's branch id
     branch_id = UserSession.branch_id if branch_id == 0
     fy_code = voucher.fy_code || UserSession.selected_fy_code
@@ -70,9 +83,7 @@ class Ledgers::ParticularEntry
     return false if particular && (amount - adjustment).abs <= 0.01
 
     transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
-
-    calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id)
-
+    calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id, current_user_id)
     new_particular = Particular.create!(
         transaction_type: transaction_type,
         ledger_id: ledger.id,
@@ -81,8 +92,11 @@ class Ledgers::ParticularEntry
         amount: amount,
         transaction_date: accounting_date,
         branch_id: branch_id,
-        fy_code: get_fy_code(accounting_date)
-    )
+        fy_code: get_fy_code(accounting_date),
+        creator_id: creator_id,
+        updater_id: updater_id,
+        current_user_id: current_user_id
+        )
 
     if particular
       cheque_entries_on_receipt = particular.cheque_entries_on_receipt
@@ -105,12 +119,13 @@ class Ledgers::ParticularEntry
   end
 
 
-  def calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id)
+  def calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id, current_user_id)
     ledger.lock!
     dr_amount = 0
     cr_amount = 0
     opening_balance_org = nil
     opening_balance_cost_center = nil
+    set_current_user = lambda { |o| o.current_user_id = current_user_id }
 
     # check if there are records after the entry
     if accounting_date <= Time.now.to_date
@@ -133,6 +148,7 @@ class Ledgers::ParticularEntry
 
         # update the cost center daily balances
         future_activities_cost_center.each do |d|
+          d.tap(&set_current_user)
           d.closing_balance += adjustment_amount
           d.opening_balance += adjustment_amount
           d.save!
@@ -140,6 +156,7 @@ class Ledgers::ParticularEntry
 
         # update the org level daily balances
         future_activities_org.each do |d|
+          d.tap(&set_current_user)
           d.closing_balance += adjustment_amount
           d.opening_balance += adjustment_amount
           d.save!
@@ -149,19 +166,29 @@ class Ledgers::ParticularEntry
     end
 
     # need to do the unscoped here for matching the ledger balance
-    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id)
-    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id)
+    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code)
+                        .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
+    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code)
+                                 .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
+
+
     opening_balance_org ||= ledger_blnc_org.closing_balance
     opening_balance_cost_center ||= ledger_blnc_cost_center.closing_balance
+
+
 
     daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_cost_center
       l.closing_balance = opening_balance_cost_center
-    end
+      l.current_user_id = current_user_id
+    end.tap(&set_current_user)
+
     daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
       l.opening_balance = opening_balance_org
       l.closing_balance = opening_balance_org
-    end
+      l.current_user_id = current_user_id
+    end.tap(&set_current_user)
+
     if debit
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -175,7 +202,6 @@ class Ledgers::ParticularEntry
       daily_report_org.closing_balance -= amount
       cr_amount = amount
     end
-
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
@@ -183,13 +209,11 @@ class Ledgers::ParticularEntry
     daily_report_org.dr_amount += dr_amount
     daily_report_org.cr_amount += cr_amount
     daily_report_org.save!
-
+#
     ledger_blnc_org.dr_amount += dr_amount
     ledger_blnc_org.cr_amount += cr_amount
-
     ledger_blnc_cost_center.dr_amount += dr_amount
     ledger_blnc_cost_center.cr_amount += cr_amount
-
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 

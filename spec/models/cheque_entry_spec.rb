@@ -54,23 +54,19 @@ RSpec.describe ChequeEntry, type: :model do
 
     context "when view all branch is selected" do
       it "should return both banks" do
-        UserSession.selected_branch_id = 0
         expect(ChequeEntry.options_for_bank_account_select.count).to eq(2)
       end
       it "should return both banks in order by name" do
-        UserSession.selected_branch_id = 0
         expect(ChequeEntry.options_for_bank_account_select.first).to eq(bank_account2)
       end
     end
 
     context "when view  branch is selected" do
       it "should return bank" do
-        UserSession.selected_branch_id = 2
-        expect(ChequeEntry.options_for_bank_account_select.count).to eq(1)
+        expect(ChequeEntry.options_for_bank_account_select(2).count).to eq(1)
       end
       it "should return bank in order by name" do
-        UserSession.selected_branch_id = 2
-        expect(ChequeEntry.options_for_bank_account_select.first).to eq(bank_account2)
+        expect(ChequeEntry.options_for_bank_account_select(2).first).to eq(bank_account2)
       end
     end
   end
@@ -86,14 +82,12 @@ RSpec.describe ChequeEntry, type: :model do
       it "should return baneficiary name array" do
        expect(subject.class.options_for_beneficiary_name({:by_name => "nistha"})).to eq([]) 
       end
-        
     end
 
     context "when filterrific params is present" do
       it "should return baneficiary name array" do
        expect(subject.class.options_for_beneficiary_name({:by_beneficiary_name => "nistha"})).to eq(['nistha']) 
       end
-        
     end
   end
 
@@ -128,7 +122,6 @@ RSpec.describe ChequeEntry, type: :model do
 
       expect(subject.associated_bank_particulars).to eq([particular])
     end
-  end 
-
+  end
 end
 

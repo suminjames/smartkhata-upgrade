@@ -1,8 +1,8 @@
 desc "Delete a voucher"
 namespace :cheque_entries do
-  task :patch, [:tenant, :voucher, :starting_number] => 'smartkhata:validate_tenant' do |task,args|
+  task :patch, [:tenant, :voucher, :starting_number, :user_id] => 'smartkhata:validate_tenant' do |task,args|
     voucher = Voucher.where(id: args.voucher).first
-    # debugger
+    current_user_id = args.user_id || User.admin.first.id
     raise NotImplementedError unless voucher.present?
     raise NotImplementedError unless voucher.payment_bank?
 
@@ -34,11 +34,12 @@ namespace :cheque_entries do
         cheque_entry.client_account_id = particular.ledger.client_account.id
         cheque_entry.beneficiary_name = particular.ledger.client_account.name.titleize
         cheque_entry.amount = particular.amount
-
+        cheque_entry.current_user_id = current_user_id
         cheque_entry.save!
         cheque_entries << cheque_entry
 
         particular.cheque_entries_on_payment << cheque_entry
+        particular.current_user_id = current_user_id
         particular.save!
       end
       bank_particular.cheque_entries << cheque_entries

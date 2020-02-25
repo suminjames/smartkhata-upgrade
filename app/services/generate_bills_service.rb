@@ -4,6 +4,8 @@ class GenerateBillsService
   include CommissionModule
 
   def initialize(params)
+    @current_user = params[:current_user]
+    @branch = params[:branch]
     @nepse_settlement = params[:nepse_settlement]
     @current_tenant = params[:current_tenant]
 
@@ -97,11 +99,11 @@ class GenerateBillsService
           end
         elsif hash_dp.key?(custom_key)
           # find bill by the bill number
-          bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id)
+          bill = Bill.unscoped.find_or_create_by!(bill_number: hash_dp[custom_key], fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id, creator_id: @current_user.id, updater_id: @current_user.id)
         else
           hash_dp[custom_key] = bill_number
           # create a new bill
-          bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id) do |b|
+          bill = Bill.unscoped.find_or_create_by!(bill_number: bill_number, fy_code: fy_code, date: settlement_date, client_account_id: transaction.client_account_id, creator_id: @current_user.id, updater_id: @current_user.id) do |b|
             b.bill_type = Bill.bill_types['sales']
 
             # TODO possible error location check
@@ -157,7 +159,7 @@ class GenerateBillsService
 
           description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
 
-          voucher = Voucher.create!(date: settlement_date)
+          voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
           voucher.bills_on_creation << bill if bill.present?
           voucher.share_transactions << transaction
           voucher.desc = description
@@ -185,26 +187,26 @@ class GenerateBillsService
             nepse_amount= transaction.amount_receivable
             closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
             # Note all the commision amount is paid by client here
-            process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, settlement_date,@current_user)
 
             # some cases it is negative , like in full closeout
-            process_accounts(nepse_ledger, voucher, nepse_amount > 0 ? true : false, nepse_amount.abs, description, cost_center_id, settlement_date)
+            process_accounts(nepse_ledger, voucher, nepse_amount > 0 ? true : false, nepse_amount.abs, description, cost_center_id, settlement_date, @current_user)
 
             # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
-            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
-            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
-            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
+            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee > 0
 
             description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name}"
-            process_accounts(closeout_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
+            process_accounts(closeout_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date, @current_user)
 
             if @current_tenant.closeout_settlement_automatic
               # automatic settlement
-              voucher = Voucher.create!(date: settlement_date)
+              voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
               # voucher.share_transactions << transaction
               voucher.desc = description
-              process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date)
-              process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date)
+              process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date, @current_user)
+              process_accounts(client_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date, @current_user)
               transaction.closeout_settled = true
               transaction.save!
               voucher.complete!
@@ -212,12 +214,12 @@ class GenerateBillsService
             end
 
           else
-            process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, settlement_date)
-            process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, settlement_date)
+            process_accounts(client_ledger, voucher, false, transaction.net_amount, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(nepse_ledger, voucher, true, transaction.amount_receivable, description, cost_center_id, settlement_date, @current_user)
             # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
-            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date)
-            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date)
-            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date) if transaction.dp_fee > 0
+            process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee > 0
           end
         end
       end

@@ -227,7 +227,6 @@ class FilesImportServices::ImportFloorsheetNew  < ImportFile
   # ]
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
   def process_record_for_full_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-    # debugger
     contract_no = arr[0].to_i
     company_symbol = arr[1]
     buyer_broking_firm_code = arr[2]
@@ -336,7 +335,6 @@ class FilesImportServices::ImportFloorsheetNew  < ImportFile
         nepse_commission: nepse,
         branch_id: client_branch_id
     )
-    # debugger
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
     update_share_inventory(client.id, company_info.id, transaction.quantity, transaction.buying?)
 

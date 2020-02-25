@@ -1,12 +1,7 @@
 require 'rails_helper'
 
 describe "Client Account", :devise do
-  let(:user) {create(:user)}
-
-  before(:each) do
-    user
-    UserSession.set_console('public')
-  end
+  include_context 'feature_session_setup'
 
   after(:each) do
     Warden.test_reset!
@@ -14,9 +9,9 @@ describe "Client Account", :devise do
 
   context "signed in user", js: true do
     it "should show the list of client accounts" do
-      login_as(user, scope: :user)
+      login_as(@user, scope: :user)
       client_account = create(:client_account)
-      visit client_accounts_path
+      visit client_accounts_path(selected_fy_code: 7677, selected_branch_id: 1)
       expect(page).to have_content("Client Accounts")
       expect(page).to have_content(client_account.name)
 

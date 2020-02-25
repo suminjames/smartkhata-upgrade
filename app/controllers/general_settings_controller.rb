@@ -5,8 +5,11 @@ class GeneralSettingsController < ApplicationController
   def set_fy
     fy_code = params[:fy_code].to_i
     branch_id = params[:branch_id].to_i
-    set_user_selected_branch_fy_code(branch_id, fy_code)
-    return_back
+    # return_back
+    requested_url = request.referrer.split("/")
+    requested_url[3] = fy_code
+    requested_url[4] = branch_id
+    redirect_to requested_url.join("/")
   end
 
   def set_branch
