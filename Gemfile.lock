@@ -193,7 +193,7 @@ GEM
     factory_girl_rails (4.7.0)
       factory_girl (~> 4.7.0)
       railties (>= 3.0.0)
-    ffi (1.9.14)
+    ffi (1.12.2)
     filterrific (2.0.5)
       rails (>= 3.1.0)
     formatador (0.2.5)
