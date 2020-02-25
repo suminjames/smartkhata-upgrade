@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 ruby '2.3.1'
 
 gem 'rails', '4.2.4'
-gem 'sass-rails', '~> 5.0'
+# gem 'sass-rails', '~> 5.0'
 gem 'draper', '~> 1.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.1.0'
@@ -52,9 +52,10 @@ gem 'slim'
 gem 'whenever', :require => false
 gem 'exception_notification'
 gem 'jquery-minicolors-rails'
+gem 'aws-sdk-s3', '~> 1'
 
 group :production do
-  gem 'puma'
+  gem 'puma', '~>4.3.1'
 end
 
 group :development do
@@ -89,6 +90,8 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails', '~> 3.5'
   gem 'factory_girl_rails'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 end
 
 group :test do
@@ -105,3 +108,4 @@ group :test do
   gem 'selenium-webdriver'
   gem 'chromedriver-helper'
 end
+gem 'sassc-rails'
