@@ -37,4 +37,9 @@ class Branch < ActiveRecord::Base
   def self.has_multiple_branches?
     Branch.unscoped.size > 1
   end
+
+  def self.selected_branch(selected_branch_id)
+
+    Branch.find_by(id: selected_branch_id)
+  end
 end

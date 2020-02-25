@@ -248,6 +248,9 @@ GEM
     jmespath (1.3.1)
     jquery-hotkeys-rails (0.7.9.1)
       railties (>= 3.1)
+    jquery-minicolors-rails (2.2.6.2)
+      jquery-rails
+      rails (>= 3.2.8)
     jquery-rails (4.1.1)
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
@@ -583,6 +586,7 @@ DEPENDENCIES
   hirb
   jbuilder (~> 2.0)
   jquery-hotkeys-rails (~> 0.7.9.1)
+  jquery-minicolors-rails
   jquery-rails
   jquery-turbolinks
   kaminari
