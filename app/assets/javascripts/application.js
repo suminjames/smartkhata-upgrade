@@ -16,6 +16,8 @@
 //= require jquery.turbolinks
 //= require jquery_ujs
 //= require jquery-hotkeys
+//= require jquery.minicolors
+//= require jquery.minicolors.simple_form
 //= require turbolinks
 //= require bootstrap-sprockets
 //= require bootstrap-combobox.js

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180522101447) do
+ActiveRecord::Schema.define(version: 20191104084755) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -248,8 +248,9 @@ ActiveRecord::Schema.define(version: 20180522101447) do
   create_table "branches", force: :cascade do |t|
     t.string   "code"
     t.string   "address"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "top_nav_bar_color"
   end
 
   create_table "broker_parameter", force: :cascade do |t|
@@ -1111,7 +1112,7 @@ ActiveRecord::Schema.define(version: 20180522101447) do
   add_index "particular_settlement_associations", ["settlement_id"], name: "index_particular_settlement_associations_on_settlement_id", using: :btree
 
   create_table "particulars", force: :cascade do |t|
-    t.decimal  "opening_balance",                  precision: 15, scale: 4, default: 0.0
+    t.decimal  "opening_blnc",                     precision: 15, scale: 4, default: 0.0
     t.integer  "transaction_type"
     t.integer  "ledger_type",                                               default: 0
     t.integer  "cheque_number",          limit: 8

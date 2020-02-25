@@ -10,5 +10,10 @@
   <%= @branch.address %>
 </p>
 
+<p>
+  <strong>Color:</strong>
+  <div class="color-box" style ="background-color: <%=  @branch.top_nav_bar_color %>"></div>
+</p>
+
 <%= link_to 'Edit', edit_branch_path(@branch) %> |
 <%= link_to 'Back', branches_path %>

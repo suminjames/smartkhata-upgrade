@@ -10,6 +10,7 @@
  * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
  * file per style scope.
  *
+ *= require jquery.minicolors
  *= require_tree .
  *= require_self
  */
@@ -82,13 +83,7 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   padding: 0;
 }
 
-@-moz-document url-prefix() { /* targets Firefox only */
-  select {
-    padding: 15px 0 !important;
-  }
-}
-
-@media screen \0
+@media screen
 { /* IE Hacks: targets IE 8, 9 and 10 */
   select {
     height: 35px;
@@ -108,6 +103,21 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   .form-search .combobox-container .input-group-addon,
   .form-inline .combobox-container .input-group-addon {
     width: auto;
+  }
+}
+// for nice dropdown
+@-moz-document url-prefix() {
+  select.form-control {
+    padding-right: 25px;
+    background-image: url("data:image/svg+xml,\
+      <svg version='1.1' xmlns='http://www.w3.org/2000/svg' width='14px'\
+           height='14px' viewBox='0 0 1200 1000' fill='rgb(51,51,51)'>\
+        <path d='M1100 411l-198 -199l-353 353l-353 -353l-197 199l551 551z'/>\
+      </svg>");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 7px) 50%;
+    -moz-appearance: none;
+    appearance: none;
   }
 }
 
@@ -443,6 +453,10 @@ a.btn-wrapper:hover{
   background: transparent;
 }
 
+a.navbar-brand:hover{
+  background-color:rgba(0, 0, 0, 0.15);
+}
+
 // Override AdminLTE!
 .nav-tabs-custom{
   box-shadow: none !important;
@@ -562,7 +576,6 @@ select{
   label {
     margin-bottom: 0;
   }
-
   //.select2-container--bootstrap .select2-selection--single {
   //  height: 28px;
   //}
@@ -571,4 +584,10 @@ select{
   //
   //
   //}
+}
+//color boxes to show/select colors
+.color-box{
+  height: 40px;
+  width: 40px;
+  border-radius: 5px;
 }

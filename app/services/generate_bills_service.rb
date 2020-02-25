@@ -96,6 +96,7 @@ class GenerateBillsService
           if bill.provisional?
             bill.status = :pending
             bill.net_amount = 0.0
+            bill.date = settlement_date
           end
         elsif hash_dp.key?(custom_key)
           # find bill by the bill number
