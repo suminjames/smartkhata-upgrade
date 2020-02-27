@@ -181,4 +181,14 @@ module ApplicationHelper
   def can_view_restricted_ledgers?
     user_has_access_to?(restricted_ledgers_path)
   end
+
+  def navbar_color
+    return if current_user.nil?
+
+    branch = Branch.selected_branch(UserSession.selected_branch_id)
+
+    return if branch.nil?
+
+    branch.top_nav_bar_color
+  end
 end
