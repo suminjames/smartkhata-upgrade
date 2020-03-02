@@ -63,7 +63,6 @@ module Accounts
             if (dr_amount - cr_amount - balance).abs > 0.01
               raise ArgumentError
             end
-
             daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
             daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: date)
 
@@ -102,9 +101,9 @@ module Accounts
       end
 
 
-      def process(ledger_ids, all_fiscal_years = false, branch_id = 1)
+      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil)
         Ledger.where(id: ledger_ids).find_each do |ledger|
-          patch_ledger_dailies(ledger,all_fiscal_years, branch_id)
+          patch_ledger_dailies(ledger,all_fiscal_years, branch_id, fy_code)
         end
       end
     end

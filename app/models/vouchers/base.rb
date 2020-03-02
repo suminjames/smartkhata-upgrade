@@ -56,10 +56,10 @@ class Vouchers::Base
 
         related_pending_bill_ids = client_account.get_all_related_bill_ids
         # make sure all id in bill_ids are in related_pending_bill_ids
-
         unless (bill_ids - related_pending_bill_ids).empty?
           # this condition should not be true
-          raise SmartKhataError
+          # raise SmartKhataError
+          return client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment
         end
 
         bills_receive = bill_list.requiring_receive
@@ -225,6 +225,7 @@ class Vouchers::Base
     amount = amount.round(2)
     return client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment
   end
+
   def get_new_voucher(voucher_type)
     voucher = Voucher.new
     voucher.voucher_type = voucher_type
