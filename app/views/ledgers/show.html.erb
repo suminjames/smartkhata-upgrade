@@ -3,7 +3,7 @@
 <h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance(@selected_fy_code,@selected_branch_id).abs)} #{@ledger.opening_balance(@selected_fy_code,@selected_branch_id) >= 0 ? 'Dr' : 'Cr'}" %>
   | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance(@selected_fy_code,@selected_branch_id).abs)} #{@ledger.closing_balance(@selected_fy_code,@selected_branch_id) + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}" %></h4>
 
-<% if @ledger.client_account_id.present? && current_user.can_read_write? %>
+<% if @ledger.client_account_id.present? && current_user.can_read_write?(@selected_branch_id) %>
     <% if @ledger.closing_balance(@selected_fy_code,@selected_branch_id).abs >= 0.01 %>
         <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
     <% end %>

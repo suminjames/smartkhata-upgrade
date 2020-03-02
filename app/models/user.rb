@@ -133,8 +133,8 @@ class User < ActiveRecord::Base
     self.email || self.username
   end
 
-  def can_read_write?
-    UserSession.selected_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+  def can_read_write?(branch_id)
+    branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user
