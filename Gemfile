@@ -107,5 +107,6 @@ group :test do
   gem "vcr"
   gem 'selenium-webdriver'
   gem 'chromedriver-helper'
+  gem 'webdrivers', '~> 4.0'
 end
 gem 'sassc-rails'
