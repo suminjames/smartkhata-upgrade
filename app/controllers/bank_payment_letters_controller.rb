@@ -57,7 +57,7 @@ class BankPaymentLettersController < ApplicationController
 
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter)
+    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter, current_user: current_user, branch_id: @selected_branch_id, fy_code: @selected_fy_code)
     particulars, settlement_amount, @bank_payment_letter  = payment_letter_generation.process
 
     if particulars
@@ -92,13 +92,7 @@ class BankPaymentLettersController < ApplicationController
           BankPaymentLetter.transaction do
             @voucher = @bank_payment_letter.voucher
             @voucher.particulars.each do |particular|
-              ledger = Ledger.find(particular.ledger_id)
-              ledger.lock!
-
-              closing_balance = ledger.closing_balance
-              ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
-              particular.complete!
-              ledger.save!
+              Ledgers::ParticularEntry.new(current_user.id).insert_particular(particular)
             end
 
             @voucher.reviewer_id = current_user.id

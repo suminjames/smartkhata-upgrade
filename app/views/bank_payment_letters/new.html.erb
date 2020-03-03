@@ -52,7 +52,7 @@
           <h4>Total:<span class="display-amount">0.00</span><span class="display-type hidden">dr</span></h4>
         </div>
 
-        <%= f.association :bank_account, collection: BankAccount.by_branch_id.all, label_method: :bank_account_name, selected: BankAccount.by_branch_id.default_for_payment, :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank account...' %>
+        <%= f.association :bank_account, collection: BankAccount.by_branch_id(@selected_branch_id).all, label_method: :bank_account_name, selected: BankAccount.by_branch_id(@selected_branch_id).default_for_payment(@selected_branch_id), :input_html => {:class => 'combobox', :autocomplete => 'off'}, prompt: 'Select a bank account...' %>
 
         <div class="form-actions">
           <%= f.button :submit %>
