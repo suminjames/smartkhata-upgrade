@@ -31,13 +31,4 @@ module Models::UpdaterWithBranch
   def set_creator
     self.creator_id ||= current_user_id
   end
-
-
-  # def add_branch
-  #   self.branch_id ||= get_branch_id_from_session
-  # end
-  #
-  # def get_branch_id_from_session
-  #   UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
-  # end
 end

@@ -1,5 +1,5 @@
 class FilesImportServices::ImportFloorsheet  < ImportFile
-  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :branch_id, :selected_fy_code
+  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code
 
   include CommissionModule
   include ShareInventoryModule
@@ -9,10 +9,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   @@transaction_type_buying = ShareTransaction.transaction_types['buying']
   @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
 
-  def initialize(file,acting_user, branch_id, selected_fy_code, is_partial_upload = false)
+  def initialize(file, acting_user , selected_fy_code, is_partial_upload = false)
     @date = nil
     @acting_user = acting_user
-    @branch_id = branch_id
     @is_partial_upload = is_partial_upload
     @selected_fy_code = selected_fy_code
     super(file)
@@ -130,7 +129,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @raw_data.each do |data_hash|
         process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
-      FileUpload.create!(file_type: FILETYPE, report_date: @date,branch_id: branch_id, creator_id: @acting_user.id, updater_id: @acting_user.id)
+      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id)
     end
   end
 
@@ -297,7 +296,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         current_user_id: @acting_user.id
     )
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, branch_id, transaction.buying?)
+    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
 
     bill_id = nil
     bill_number = nil
@@ -334,7 +333,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # voucher date will be today's date
       # bill date will be earlier
 
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, current_user_id: @acting_user.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description
@@ -388,17 +387,18 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         # Readjust dp fee in vouchers
         description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
         date = share_transaction.date
-        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id, desc: description)
+        client_branch_id = share_transaction.client_account.branch_id
+        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id, desc: description)
 
 
 
 
         client_ledger = share_transaction.client_account.ledger
-        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, share_transaction.client_account.branch_id, @date,@acting_user)
+        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
 
         # Re-process the (dp_fee updated) share transaction
         dp_ledger = find_or_create_ledger_by_name( "DP Fee/ Transfer")
-        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, share_transaction.client_account.branch_id, @date,@acting_user)
+        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
 
         # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
       end
@@ -550,7 +550,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         branch_id: client_branch_id,
         current_user_id: @acting_user.id
     )
-    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, branch_id, transaction.buying?)
+    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
 
     bill_id = nil
     bill_number = nil
@@ -589,7 +589,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description

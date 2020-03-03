@@ -9,10 +9,9 @@ class ImportPayout < ImportFile
 
   attr_reader :nepse_settlement_ids, :selected_fy_code
 
-  def initialize(file, selected_fy_code, settlement_date = nil, current_user, branch_id)
+  def initialize(file, selected_fy_code, current_user, settlement_date = nil)
     super(file)
     @current_user = current_user
-    @branch_id = branch_id
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
@@ -137,7 +136,7 @@ class ImportPayout < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity,@current_user, @branch_id, true)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true)
           end
 
           # net amount is the amount that is payble to the client after charges
