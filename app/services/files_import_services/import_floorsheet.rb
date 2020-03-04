@@ -388,7 +388,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
         date = share_transaction.date
         client_branch_id = share_transaction.client_account.branch_id
-        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id, desc: description)
+        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, current_user_id: @acting_user&.id, desc: description)
 
 
 
@@ -589,7 +589,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, creator_id: @acting_user&.id, updater_id: @acting_user&.id)
+      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, current_user_id: @acting_user&.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions << transaction
       voucher.desc = description
