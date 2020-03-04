@@ -18,7 +18,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
   let(:voucher) {create(:voucher, fy_code: 7374, date: "2016-12-01", date_bs: "2073-08-16", desc: 'test')}
   let(:other_voucher) {create(:voucher, fy_code: 7374, date: "2016-11-28", date_bs: "2073-08-13", desc: 'test')}
   let(:client_account){create(:client_account, name: 'USER ONE', branch_id: 2, nepse_code: 'SK1')}
-  let(:other_client_account){create(:client_account, name: 'USER TWO COMPANY LTD.', branch_id: 2, nepse_code: 'SK2')}
+  let(:other_client_account){create(:client_account, name: 'USER TWO COMPANY LTD.', branch_id: 1, nepse_code: 'SK2')}
   let(:commission_info) {create(:master_setup_commission_info, start_date: "2016-07-24", end_date: "2021-12-31", start_date_bs: nil, end_date_bs: nil, broker_commission_rate: 80.0, nepse_commission_rate: 20.0)}
 
   let(:purchase_commission_ledger) {create(:ledger, name: "Purchase Commission")}
@@ -31,7 +31,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
   let(:particular_purchase_commission_ledger) {create(:particular, transaction_type: 1, ledger_id: purchase_commission_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 614.4, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
   let(:particular_dp_ledger) {create(:particular, transaction_type: 1, ledger_id: dp_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 25.0, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
   let(:particular_nepse_ledger) {create(:particular, transaction_type: 1, ledger_id: nepse_ledger.id, name: 'Shares purchased (64*SHPC@800.0) for USER ONE', voucher_id: voucher.id, amount: 51453.44, transaction_date: '2016-12-01', branch_id: client_account.branch_id, fy_code: 7374)}
-  subject {FilesImportServices::ImportFloorsheet.new(nil, current_user, current_branch.id, 7374 )}
+  subject {FilesImportServices::ImportFloorsheet.new(nil, current_user, 7374 )}
 
   describe '.process_record_for_full_upload' do
     context 'when single transaction' do
@@ -114,7 +114,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         array_buying3 = [3.0, 201611284121143.0, "SHPC", "99", "42", "USER ONE", "SK1", 364.0, 770.0, 280280.0, 308.31, 280815.34]
         array_selling = [4.0, 201611284121163.0, "AHPC", "99", "99", "USER TWO COMPANY LTD.", "SK2", 10.0, 240.0, 2400.0, 5.0, nil]
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, fy_code)
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
 
@@ -126,7 +126,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, other_isin_info.id, 10, current_user, true).and_return(true)
         allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: other_client_account.branch_id, current_user_id: current_user.id).and_return(other_voucher)
         # expect(import_floorsheet.process_record_for_full_upload(array_buying2, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)).to eq('')
-        new_array_buying1 = import_floorsheet.relevant_data_hash(array_buying1[0..-1])
+        new_array_buying1 = import_floorsheet.relevant_data_hash(array_buying1)
         result = import_floorsheet.process_record_for_full_upload(new_array_buying1, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
 
         expect(result[0..array_buying1.length-1]).to eq(array_buying1)
@@ -176,7 +176,9 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         # allow(import_floorsheet).to receive(:broker_commission).with(4204.2, commission_info).and_return(3363.36)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(4204.2, commission_info).and_return(840.84)
         allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 364, current_user, true).and_return(true)
-        new_array_buying3 = import_floorsheet.relevant_data_hash(array_buying3[0..-1])
+        allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: client_account.branch_id, current_user_id: current_user.id).and_return(other_voucher)
+
+        new_array_buying3 = import_floorsheet.relevant_data_hash(array_buying3)
         result = import_floorsheet.process_record_for_full_upload(new_array_buying3, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
 
         expect(result[0..array_buying3.length-1]).to eq(array_buying3)
