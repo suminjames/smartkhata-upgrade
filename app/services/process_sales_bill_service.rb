@@ -12,7 +12,6 @@ class ProcessSalesBillService
     @cheque_number = params[:cheque_number]
     @current_user = params[:current_user]
     @branch_id = params[:branch_id]
-    @fy_code = params[:fy_code]
   end
 
   def process
@@ -34,8 +33,8 @@ class ProcessSalesBillService
 
 
     # dont allow for this feature from all branch
-    if @branch_id == 0 || @fy_code.nil?
-      @error_message = "Invalid Operation, Please select correct fiscal year and branch"
+    if @branch_id == 0
+      @error_message = "Invalid Operation, Please select correct branch"
       return false
     end
 
@@ -75,7 +74,7 @@ class ProcessSalesBillService
 
       _branches = @bills.pluck(:branch_id).uniq
       _branches.each do |_branch_id|
-        voucher = Voucher.create!(date: @date, branch_id: _branch_id, voucher_type: Voucher.voucher_types[:payment_bank], skip_cheque_assign: true)
+        voucher = Voucher.create!(date: @date, branch_id: _branch_id, current_user_id: @current_user.id, voucher_type: Voucher.voucher_types[:payment_bank], skip_cheque_assign: true)
         voucher.pending!
         voucher.save!
         settlements = []
@@ -103,7 +102,6 @@ class ProcessSalesBillService
 
           client_account = bill.client_account
           client_ledger = client_account.ledger
-          ledger_balance = client_ledger.closing_balance
           bill_amount = bill.balance_to_pay
           #
           # # dont pay the client more than he deserves.
@@ -122,8 +120,7 @@ class ProcessSalesBillService
           voucher.bills_on_settlement << bill
           _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
           # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
-          closing_balance = client_ledger.closing_balance
-          particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: @date, particular_status: :pending, fy_code: fy_code, branch_id: _branch_id)
+          particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: @date, particular_status: :pending, fy_code: fy_code, branch_id: _branch_id, current_user_id: @current_user.id)
 
           particulars << particular
           net_paid_amount += amount_to_settle
@@ -154,10 +151,9 @@ class ProcessSalesBillService
           particular.debit_settlements << settlement if settlement.present?
         end
         # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
-        closing_balance = bank_ledger.closing_balance
         short_description = "Settlement by bank payment for settlement ID #{@nepse_settlement.settlement_id}"
         # This particular is for bank of the tenant that is credited.
-        credit_particular = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code,branch_id: _branch_id)
+        credit_particular = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code,branch_id: _branch_id, current_user_id: @current_user.id)
         credit_particular.credit_settlements << settlements
         credit_particular.cheque_entries << cheque_entries
 
@@ -208,7 +204,7 @@ class ProcessSalesBillService
       settler_name = ledger.name
     end
 
-    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque], belongs_to_batch_payment: true, branch_id: branch_id, fy_code: voucher.fy_code)
+    settlement = Settlement.create(name: settler_name, amount: settlement_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: Settlement.settlement_types[:payment], settlement_by_cheque_type: Settlement.settlement_by_cheque_types[:has_single_cheque], belongs_to_batch_payment: true, branch_id: branch_id, fy_code: voucher.fy_code, current_user_id: @current_user.id)
     settlement.client_account = client_account
     settlement
   end
