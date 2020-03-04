@@ -133,8 +133,9 @@ class User < ActiveRecord::Base
     self.email || self.username
   end
 
-  def can_read_write?(branch_id)
-    branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+  # TODO: Subas needs to look at its implementation
+  def can_read_write?(_branch_id = nil)
+    (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user

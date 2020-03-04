@@ -10,6 +10,9 @@ class ProcessSalesBillService
     @error_message = ""
     @date = params[:date] || Time.now
     @cheque_number = params[:cheque_number]
+    @current_user = params[:current_user]
+    @branch_id = params[:branch_id]
+    @fy_code = params[:fy_code]
   end
 
   def process
@@ -28,6 +31,15 @@ class ProcessSalesBillService
       @error_message = "Access denied"
       return false
     end
+
+
+    # dont allow for this feature from all branch
+    if @branch_id == 0 || @fy_code.nil?
+      @error_message = "Invalid Operation, Please select correct fiscal year and branch"
+      return false
+    end
+
+
 
     bank_ledger = @bank_account.ledger
 
