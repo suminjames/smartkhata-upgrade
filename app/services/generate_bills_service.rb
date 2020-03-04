@@ -5,7 +5,6 @@ class GenerateBillsService
 
   def initialize(params)
     @current_user = params[:current_user]
-    @branch = params[:branch]
     @nepse_settlement = params[:nepse_settlement]
     @current_tenant = params[:current_tenant]
 
@@ -160,11 +159,10 @@ class GenerateBillsService
 
           description = "Shares sold (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
 
-          voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
+          voucher = Voucher.create!(date: settlement_date, branch_id: cost_center_id, creator_id: @current_user.id, updater_id: @current_user.id)
           voucher.bills_on_creation << bill if bill.present?
           voucher.share_transactions << transaction
           voucher.desc = description
-          voucher.branch_id = cost_center_id
           voucher.complete!
           voucher.save!
 
@@ -203,7 +201,7 @@ class GenerateBillsService
 
             if @current_tenant.closeout_settlement_automatic
               # automatic settlement
-              voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
+              voucher = Voucher.create!(date: settlement_date, branch_id: cost_center_id, creator_id: @current_user.id, updater_id: @current_user.id)
               # voucher.share_transactions << transaction
               voucher.desc = description
               process_accounts(closeout_ledger, voucher, false, closeout_amount, description, cost_center_id, settlement_date, @current_user)

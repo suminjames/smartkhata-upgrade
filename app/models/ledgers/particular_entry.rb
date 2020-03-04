@@ -38,7 +38,7 @@ class Ledgers::ParticularEntry
     ledger = Ledger.find(particular.ledger_id)
     fy_code = get_fy_code(particular.transaction_date)
     accounting_date = particular.transaction_date
-    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, particular.current_user_id)
+    calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, current_user_id)
     particular.fy_code = fy_code
     particular.complete!
     ledger.save!
@@ -166,9 +166,9 @@ class Ledgers::ParticularEntry
     end
 
     # need to do the unscoped here for matching the ledger balance
-    ledger_blnc_org = LedgerBalance.unscoped.by_fy_code_org(fy_code)
+    ledger_blnc_org = LedgerBalance.by_fy_code_org(fy_code)
                         .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
-    ledger_blnc_cost_center =  LedgerBalance.unscoped.by_branch_fy_code(branch_id, fy_code)
+    ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id, fy_code)
                                  .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
 
 

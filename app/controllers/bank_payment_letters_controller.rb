@@ -32,7 +32,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @nepse_settlement = NepseSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @nepse_settlement.bills_for_payment_letter_list if @nepse_settlement.present?
+      @bills = @nepse_settlement.bills_for_payment_letter_list(@selected_branch_id) if @nepse_settlement.present?
       @is_searched = true
       return
     end
@@ -47,7 +47,7 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @settlement_id = params[:settlement_id]
-    @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
+    @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params.merge(branch_id: @selected_branch_id))
     @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
 
@@ -57,7 +57,7 @@ class BankPaymentLettersController < ApplicationController
 
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter)
+    payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter, current_user: current_user, branch_id: @selected_branch_id, fy_code: @selected_fy_code)
     particulars, settlement_amount, @bank_payment_letter  = payment_letter_generation.process
 
     if particulars
@@ -92,13 +92,7 @@ class BankPaymentLettersController < ApplicationController
           BankPaymentLetter.transaction do
             @voucher = @bank_payment_letter.voucher
             @voucher.particulars.each do |particular|
-              ledger = Ledger.find(particular.ledger_id)
-              ledger.lock!
-
-              closing_balance = ledger.closing_balance
-              ledger.closing_balance = (particular.dr?) ? closing_balance + particular.amount : closing_balance - particular.amount
-              particular.complete!
-              ledger.save!
+              Ledgers::ParticularEntry.new(current_user.id).insert_particular(particular)
             end
 
             @voucher.reviewer_id = current_user.id

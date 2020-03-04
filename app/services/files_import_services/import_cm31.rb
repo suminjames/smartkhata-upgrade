@@ -100,7 +100,7 @@ class FilesImportServices::ImportCm31 < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, @branch_id, false)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, false)
           end
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"

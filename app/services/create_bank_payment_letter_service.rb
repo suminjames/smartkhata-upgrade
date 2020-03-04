@@ -5,6 +5,9 @@ class CreateBankPaymentLetterService
   def initialize(params)
     @nepse_settlement = params[:nepse_settlement]
     @bank_payment_letter = params[:bank_payment_letter]
+    @current_user = params[:current_user]
+    @branch_id = params[:branch_id]
+    @fy_code = params[:fy_code]
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = 'There was an error'
@@ -25,19 +28,26 @@ class CreateBankPaymentLetterService
       return false
     end
 
+    # dont allow for this feature from all branch
+    if @branch_id == 0 || @fy_code.nil?
+      @error_message = "Invalid Operation, Please select correct fiscal year and branch"
+      return false
+    end
+
+
     bank_ledger = payment_bank_account.ledger
     description = "Settlement by bank payment"
     particulars = []
     net_paid_amount = 0.00
     ActiveRecord::Base.transaction do
-      voucher = Voucher.create!(date: @date)
+      voucher = Voucher.create!(date: @date, branch_id: @branch_id, current_user_id: @current_user.id)
       voucher.desc = description
       voucher.pending!
       voucher.save!
       @bills.each do |bill|
         client_account = bill.client_account
         client_ledger = client_account.ledger
-        ledger_balance = client_ledger.closing_balance
+        ledger_balance = client_ledger.closing_balance(@fy_code)
         bill_amount = bill.balance_to_pay
         # dont pay the client more than he deserves.
         # pay only if the ledger balance is negative
@@ -53,9 +63,7 @@ class CreateBankPaymentLetterService
 
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
-        # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
-        closing_balance = client_ledger.closing_balance
-        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending)
+        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending, branch_id: client_account.branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
 
         particulars << particular
         net_paid_amount += amount_to_settle
@@ -66,9 +74,7 @@ class CreateBankPaymentLetterService
         bill.settlement_approval_status = :pending_approval
         bill.save!
       end
-      # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
-      closing_balance = bank_ledger.closing_balance
-      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending)
+      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: Time.now, particular_status: :pending, branch_id: @branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
       @bank_payment_letter.voucher = voucher
     end
 
