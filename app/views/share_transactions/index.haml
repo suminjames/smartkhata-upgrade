@@ -15,7 +15,7 @@
         .col-sm-3
           %label
             Client
-          - if user_signed_in?
+          - if user_signed_in? && current_user.client?
             - client_id = params.dig(:filterrific, :by_client_id)
             %br
             = current_user.try(:name_and_nepse_code)

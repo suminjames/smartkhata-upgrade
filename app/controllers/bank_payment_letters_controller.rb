@@ -32,7 +32,7 @@ class BankPaymentLettersController < ApplicationController
       @bank_payment_letter = BankPaymentLetter.new
       @nepse_settlement = NepseSettlement.find_by(settlement_id: params[:settlement_id])
       @bills = []
-      @bills = @nepse_settlement.bills_for_payment_letter_list if @nepse_settlement.present?
+      @bills = @nepse_settlement.bills_for_payment_letter_list(@selected_branch_id) if @nepse_settlement.present?
       @is_searched = true
       return
     end
@@ -47,7 +47,7 @@ class BankPaymentLettersController < ApplicationController
   # POST /bank_payment_letters.json
   def create
     @settlement_id = params[:settlement_id]
-    @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params)
+    @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params.merge(branch_id: @selected_branch_id))
     @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
 
