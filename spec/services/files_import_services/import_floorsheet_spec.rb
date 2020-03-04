@@ -18,7 +18,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
   let(:voucher) {create(:voucher, fy_code: 7374, date: "2016-12-01", date_bs: "2073-08-16", desc: 'test')}
   let(:other_voucher) {create(:voucher, fy_code: 7374, date: "2016-11-28", date_bs: "2073-08-13", desc: 'test')}
   let(:client_account){create(:client_account, name: 'USER ONE', branch_id: 2, nepse_code: 'SK1')}
-  let(:other_client_account){create(:client_account, name: 'USER TWO COMPANY LTD.', branch_id: 1, nepse_code: 'SK2')}
+  let(:other_client_account){create(:client_account, name: 'USER TWO COMPANY LTD.', branch_id: 2, nepse_code: 'SK2')}
   let(:commission_info) {create(:master_setup_commission_info, start_date: "2016-07-24", end_date: "2021-12-31", start_date_bs: nil, end_date_bs: nil, broker_commission_rate: 80.0, nepse_commission_rate: 20.0)}
 
   let(:purchase_commission_ledger) {create(:ledger, name: "Purchase Commission")}
@@ -65,8 +65,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.55, 51200.0).and_return(281.6)
         # allow(import_floorsheet).to receive(:broker_commission).with(768.0, commission_info).and_return(614.4)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(768.0, commission_info).and_return(153.6)
-        allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 64,current_user, current_branch.id, true).and_return(true)
-        allow(Voucher).to receive(:create!).with(date: '2016-12-01'.to_date, date_bs: '2073-08-16', branch_id: current_branch.id, creator_id: current_user.id, updater_id: current_user.id).and_return(voucher)
+        allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 64,current_user, true).and_return(true)
+        allow(Voucher).to receive(:create!).with(date: '2016-12-01'.to_date, date_bs: '2073-08-16', branch_id: current_branch.id, current_user_id: current_user.id).and_return(voucher)
         allow(import_floorsheet).to receive(:process_accounts).and_return(particular_client_ledger) #default stub
         allow(import_floorsheet).to receive(:process_accounts).with(client_account.ledger, voucher, true, 52000.68, description, client_account.branch_id, '2016-12-01'.to_date, current_user).and_return(particular_client_ledger)
         allow(import_floorsheet).to receive(:process_accounts).with(tds_ledger, voucher, true, 92.16, description, client_account.branch_id, '2016-12-01'.to_date, current_user).and_return(particular_tds_ledger)
@@ -123,8 +123,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.6, 20490.0).and_return(122.94)
         # allow(import_floorsheet).to receive(:broker_commission).with(307.35, commission_info).and_return(245.88)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(307.35, commission_info).and_return(61.47)
-        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, other_isin_info.id, 10, current_user, current_branch.id, true).and_return(true)
-        allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: current_branch.id, creator_id: current_user.id, updater_id: current_user.id).and_return(other_voucher)
+        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, other_isin_info.id, 10, current_user, true).and_return(true)
+        allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: other_client_account.branch_id, current_user_id: current_user.id).and_return(other_voucher)
         # expect(import_floorsheet.process_record_for_full_upload(array_buying2, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)).to eq('')
         new_array_buying1 = import_floorsheet.relevant_data_hash(array_buying1[0..-1])
         result = import_floorsheet.process_record_for_full_upload(new_array_buying1, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
@@ -150,7 +150,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.55, 103125.0).and_return(567.19)
         # allow(import_floorsheet).to receive(:broker_commission).with(1546.875, commission_info).and_return(1237.5)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(1546.875, commission_info).and_return(309.375)
-        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, other_isin_info.id, 55, current_user, current_branch.id, true).and_return(true)
+        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, other_isin_info.id, 55, current_user, true).and_return(true)
         new_array_buying2 = import_floorsheet.relevant_data_hash(array_buying2[0..-1])
         result = import_floorsheet.process_record_for_full_upload(new_array_buying2, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
 
@@ -175,7 +175,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.55, 280280.0).and_return(1541.54)
         # allow(import_floorsheet).to receive(:broker_commission).with(4204.2, commission_info).and_return(3363.36)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(4204.2, commission_info).and_return(840.84)
-        allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 364, current_user, current_branch.id, true).and_return(true)
+        allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 364, current_user, true).and_return(true)
         new_array_buying3 = import_floorsheet.relevant_data_hash(array_buying3[0..-1])
         result = import_floorsheet.process_record_for_full_upload(new_array_buying3, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
 
@@ -202,7 +202,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         expect(import_floorsheet).to receive(:get_commission_by_rate).with("flat_25", 2400.0).and_return(25.0)
         # allow(import_floorsheet).to receive(:broker_commission).with(36.0, commission_info).and_return(28.8)
         # allow(import_floorsheet).to receive(:nepse_commission_amount).with(36.0, commission_info).and_return(7.2)
-        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, another_isin_info.id, 10, current_user, current_branch.id, false).and_return(true)
+        allow(import_floorsheet).to receive(:update_share_inventory).with(other_client_account.id, another_isin_info.id, 10, current_user, false).and_return(true)
 
         new_array_selling = import_floorsheet.relevant_data_hash(array_selling[0..-1])
         result = import_floorsheet.process_record_for_full_upload(new_array_selling, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
@@ -242,7 +242,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       fy_code = 7374
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, fy_code)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, fy_code)
       allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       expect(ShareTransaction.count).to eq(24)
@@ -254,7 +254,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       fy_code = 7374
       array_not_in_partial = [201611284121137.0, "SHPC", "99", "32", "USER ONE", "SK1", 15.0, 760.0, 11400.0, 13.68, 11423.6]
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code, true)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, fy_code, true)
       import_floorsheet.instance_variable_set(:@bill_number, 2)
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       # having pre_processed_relevant_share_transactions
@@ -262,8 +262,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.6, 11400.0).and_return(68.4).ordered
       # allow(import_floorsheet).to receive(:broker_commission).with(68.4, commission_info).and_return(54.72)
       # allow(import_floorsheet).to receive(:nepse_commission_amount).with(68.4, commission_info).and_return(13.68)
-      allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 15, current_user, current_branch.id, true).and_return(true)
-      allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: current_branch.id, creator_id: current_user.id, updater_id: current_user.id ).and_return(other_voucher)
+      allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 15, current_user, true).and_return(true)
+      allow(Voucher).to receive(:create!).with(date: '2016-11-28'.to_date, date_bs: '2073-08-13', branch_id: client_account.branch_id, current_user_id: current_user.id).and_return(other_voucher)
       new_array_not_in_partial = array_not_in_partial[0..-1]
       result = import_floorsheet.process_record_for_partial_upload(new_array_not_in_partial, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
       expect(result[0..array_not_in_partial.length-1]).to eq(array_not_in_partial)
@@ -290,7 +290,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       expect(import_floorsheet).to receive(:get_commission_by_rate).with(0.55, 280280.0).and_return(1541.54).ordered
       # allow(import_floorsheet).to receive(:broker_commission).with(4204.2, commission_info).and_return(3363.36)
       # allow(import_floorsheet).to receive(:nepse_commission_amount).with(4204.2, commission_info).and_return(840.84)
-      allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 364,current_user, current_branch.id, true).and_return(true)
+      allow(import_floorsheet).to receive(:update_share_inventory).with(client_account.id, isin_info.id, 364,current_user, true).and_return(true)
       new_array_not_in_partial1 = array_not_in_partial1[0..-1]
       result = import_floorsheet.process_record_for_partial_upload(new_array_not_in_partial1, hash_dp, fy_code,hash_dp_count,'2016-12-01'.to_date, commission_info)
 
@@ -329,12 +329,13 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       array = [201611284122251, "SIL", "99", "55", "USER TWO COMPANY LTD.", "SK2", 10.0, 2049.0, 20490.0, 24.59, 20532.42]
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, fy_code)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, fy_code)
       allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       processed_share_transactions_for_the_date = ShareTransaction.all
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code, true)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code)
+
       import_floorsheet.instance_variable_set(:@bill_number, 2)
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       import_floorsheet.process_record_for_partial_upload(array, hash_dp, fy_code, hash_dp_count,'2016-12-01'.to_date, commission_info)
@@ -374,7 +375,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       commission_info
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code)
       import_floorsheet.instance_variable_set(:@bill_number, 1)
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -391,7 +392,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         commission_info
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code,false)
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -417,7 +418,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         FileUpload.create!(file_type: 1, report_date: '2016-11-28'.to_date,branch_id: current_branch.id, current_user_id: current_user.id)
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code)
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -443,7 +444,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
         fy_code = 7475
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, fy_code)
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -466,7 +467,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         client_account5
         client_account6
         invalid_file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_incorrect_total_2073-08-13.xls')
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user,  current_branch.id, @fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user, @fy_code)
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xml)
         # allow(import_floorsheet).to receive(:is_invalid_file_data).with(xlsx).and_return(false)
         # settlement_date = '2016-12-01'
@@ -492,12 +493,12 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       client_account6
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, @fy_code)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
       allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       expect(FileUpload.count).to eq(1)
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code, true)
+      import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code, true)
       import_floorsheet.instance_variable_set(:@bill_number, 2)
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -516,12 +517,12 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         client_account6
         file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, @fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
         expect(FileUpload.count).to eq(1)
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, @fy_code, true)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, @fy_code, true)
         import_floorsheet.instance_variable_set(:@bill_number, 2)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -544,13 +545,13 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         client_account6
         file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, @fy_code)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
         expect(FileUpload.count).to eq(1)
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
         fy_code = 7475
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, current_branch.id, fy_code, true)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(file, current_user, fy_code, true)
         import_floorsheet.instance_variable_set(:@bill_number, 2)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
@@ -575,7 +576,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, @fy_code)
         allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
-        import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user, current_branch.id, @fy_code, true)
+        import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user, @fy_code, true)
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xml)
         expect(import_floorsheet.process_full_partial(true)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please verify and Upload a valid file')
