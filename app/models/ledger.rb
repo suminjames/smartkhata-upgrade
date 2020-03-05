@@ -217,7 +217,6 @@ class Ledger < ActiveRecord::Base
           self.current_user_id = current_user_id
           if self.update(params)
             LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
-            update_ledger_dailies(params)
             return true
           end
         else
@@ -386,26 +385,5 @@ class Ledger < ActiveRecord::Base
     #   EmployeeAccount.find(self.employee_account_id).branch_id
     end
 
-  end
-
-  def update_ledger_dailies(params = {})
-    Branch.pluck(:id).each do |branch_id|
-      search_params = {
-        fy_code: params[:changed_in_fiscal_year],
-        branch_id: branch_id,
-        ledger_id: id
-      }
-      ledger_opening_balance = LedgerBalance.unscoped.where(search_params).first&.opening_balance
-      if ledger_opening_balance.present?
-        ledger_dailies = LedgerDaily.unscoped.where(search_params)
-        unless ledger_dailies.empty?
-          ledger_daily_opening_balance = ledger_dailies.first.opening_balance
-          if ledger_opening_balance != ledger_daily_opening_balance
-            Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])
-          end
-        end
-
-      end
-    end
   end
 end
