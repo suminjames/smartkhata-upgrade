@@ -50,15 +50,16 @@ class Report::TrialBalanceController < ApplicationController
             @balance.each do |balance|
               ledger_ids = balance.descendent_ledgers.pluck(:id)
 
-              ledger_balances = LedgerBalance.includes(:ledger).where(fy_code: fy_code, branch_id: branch_id, ledger_id: ledger_ids).joins('inner join ledger_dailies on ledger_balances.ledger_id = ledger_dailies.ledger_id and ledger_dailies.fy_code = ledger_balances.fy_code and (ledger_dailies.branch_id = ledger_balances.branch_id OR (ledger_dailies.branch_id is NULL  and ledger_balances.branch_id is NULL))').group("ledger_dailies.ledger_id").select("Max(opening_balance) as first_day_opening_balance, SUM(ledger_dailies.cr_amount) as cr_amount,  SUM(ledger_dailies.dr_amount) as dr_amount, max(ledger_balances.ledger_id) as ledger_id")
+              ledger_balances = LedgerBalance.where(fy_code: fy_code, branch_id: branch_id, ledger_id: ledger_ids).joins("join ledgers on ledgers.id = ledger_balances.ledger_id").joins('inner join ledger_dailies on ledger_balances.ledger_id = ledger_dailies.ledger_id and ledger_dailies.fy_code = ledger_balances.fy_code and (ledger_dailies.branch_id = ledger_balances.branch_id OR (ledger_dailies.branch_id is NULL  and ledger_balances.branch_id is NULL))').group("ledger_dailies.ledger_id").select("Max(opening_balance) as opening_balance, SUM(ledger_dailies.cr_amount) as cr_amount,  SUM(ledger_dailies.dr_amount) as dr_amount, max(ledger_balances.ledger_id) as ledger_id, max(name) as lname")
 
               modified_ledger_list = ledger_balances.map do |ledger_daily|
-                ledger_daily[:closing_balance] = ledger_daily[:first_day_opening_balance] + ledger_daily[:dr_amount] - ledger_daily[:cr_amount]
-                ledger_daily.as_json
+                ledger_daily[:closing_balance] = ledger_daily[:opening_balance] + ledger_daily[:dr_amount] - ledger_daily[:cr_amount]
+                ledger_daily.as_json({ ledger_name: ledger_daily[:lname] })
               end
 
 
-              ledgers_with_no_transactons = Ledger.where(id: ledger_ids).includes(:ledger_balances).where(ledger_balances: { fy_code: fy_code, branch_id: branch_id, id: nil }).pluck(:id)
+              ledgers_with_no_transactons = Ledger.where(id: ledger_ids).joins("left outer join ledger_dailies on ledger_dailies.ledger_id = ledgers.id and ledger_dailies.fy_code = #{fy_code} and ledger_dailies.branch_id= #{branch_id}").pluck(:id)
+
 
               b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledgers_with_no_transactons}).as_json
 
