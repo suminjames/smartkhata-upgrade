@@ -7,7 +7,7 @@ namespace :smartkhata do
   end
 
   def current_user_id
-    current_user.id
+    current_user&.id
   end
 
   def all_fy_codes

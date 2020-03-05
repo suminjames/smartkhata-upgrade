@@ -14,9 +14,6 @@ module Models::UpdaterWithFyCode
       belongs_to :updater,  class_name: 'User'
       scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
       attr_accessor :current_user_id
-      # default_scope
-      # scope based on the fycode selection
-      # default_scope { where(fy_code: UserSession.selected_fy_code)}
     end
   end
 

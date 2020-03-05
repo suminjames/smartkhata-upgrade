@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191104084755) do
+ActiveRecord::Schema.define(version: 20200305062600) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -879,18 +879,16 @@ ActiveRecord::Schema.define(version: 20191104084755) do
 
   create_table "ledger_dailies", force: :cascade do |t|
     t.date     "date"
-    t.decimal  "dr_amount",       precision: 15, scale: 4, default: 0.0
-    t.decimal  "cr_amount",       precision: 15, scale: 4, default: 0.0
-    t.decimal  "opening_balance", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance", precision: 15, scale: 4, default: 0.0
+    t.decimal  "dr_amount",  precision: 15, scale: 4, default: 0.0
+    t.decimal  "cr_amount",  precision: 15, scale: 4, default: 0.0
     t.string   "date_bs"
     t.integer  "fy_code"
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "ledger_id"
     t.integer  "branch_id"
-    t.datetime "created_at",                                             null: false
-    t.datetime "updated_at",                                             null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
   end
 
   add_index "ledger_dailies", ["branch_id"], name: "index_ledger_dailies_on_branch_id", using: :btree
@@ -902,8 +900,6 @@ ActiveRecord::Schema.define(version: 20191104084755) do
   create_table "ledgers", force: :cascade do |t|
     t.string   "name"
     t.string   "client_code"
-    t.decimal  "opening_blnc",        precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_blnc",        precision: 15, scale: 4, default: 0.0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "fy_code"
@@ -917,8 +913,6 @@ ActiveRecord::Schema.define(version: 20191104084755) do
     t.integer  "client_account_id"
     t.integer  "employee_account_id"
     t.integer  "vendor_account_id"
-    t.decimal  "opening_balance_org", precision: 15, scale: 4, default: 0.0
-    t.decimal  "closing_balance_org", precision: 15, scale: 4, default: 0.0
     t.boolean  "restricted",                                   default: false
   end
 

@@ -57,11 +57,7 @@ class Ledger < ActiveRecord::Base
   has_many :employee_ledger_associations
   has_many :employee_accounts, through: :employee_ledger_associations
 
-  #TODO(subas) remove updation of closing balance
   validates_presence_of :name
-  # TODO(subas/saroj) look for uncommenting this.
-  # validates_presence_of :group_id
-  validate :positive_amount, on: :create
   before_save :format_name, if: :name_changed?
   before_save :format_client_code, if: :client_code_changed?
   before_destroy :delete_associated_records
@@ -185,15 +181,6 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  def update_closing_blnc
-    unless self.opening_blnc.blank?
-      self.opening_blnc = self.opening_blnc * -1 if self.opening_balance_type.to_i == Particular.transaction_types['cr']
-      self.closing_blnc = self.opening_blnc
-    else
-      self.opening_blnc = 0
-    end
-  end
-
   def has_editable_balance?
     # not sure if this is required
     # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
@@ -235,12 +222,6 @@ class Ledger < ActiveRecord::Base
   # get the particulars with running balance
   def particulars_with_running_balance
     Particular.with_running_total(self.particulars)
-  end
-
-  def positive_amount
-    if self.opening_blnc.to_f < 0
-      errors.add(:opening_blnc, "can't be negative or blank")
-    end
   end
 
 
