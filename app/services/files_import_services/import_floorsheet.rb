@@ -97,6 +97,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         unless ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
           # add  new client if not present hash
           add_client_account(client_name, client_nepse_code,new_client_accounts)
+          ClientAccount.create(name: client_name, nepse_code: client_nepse_code, branch_id: 1, current_user_id: @acting_user.id)
         end
       end
 

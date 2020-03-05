@@ -11,7 +11,7 @@ set :git_shallow_clone, 1
 
 # set :format, :pretty
 # set :log_level, :debug
-set :pty, true
+set :pty, false
 
 set :linked_files, %w{config/database.yml config/secrets.yml}
 set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads}
@@ -38,7 +38,8 @@ set :puma_worker_timeout, nil
 set :puma_init_active_record, true
 set :puma_preload_app, false
 
-
+SSHKit.config.command_map[:sidekiq] = "bundle exec sidekiq"
+set :sidekiq_config, -> { File.join(shared_path, 'config', 'sidekiq.yml') }
 
 namespace :deploy do
 
