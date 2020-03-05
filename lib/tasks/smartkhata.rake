@@ -3,7 +3,7 @@ namespace :smartkhata do
   # raises error if not present
 
   def current_user
-    User.admin.first
+    User.admin.first rescue nil
   end
 
   def current_user_id
