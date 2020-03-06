@@ -101,6 +101,6 @@ class Ledgers::Query
     unless no_pagination
       particulars = particulars.page(page).per(limit)
     end
-    particulars.select("*, SUM( Round(amount, 2) * CASE WHEN transaction_type = 0 THEN 1  ELSE -1 END)  OVER (ORDER BY transaction_date ASC, created_at ASC ) +  #{@opening_balance_calculated}  AS running_total")
+    particulars.select("*, SUM( amount * CASE WHEN transaction_type = 0 THEN 1  ELSE -1 END)  OVER (ORDER BY transaction_date ASC, created_at ASC ) +  #{@opening_balance_calculated}  AS running_total")
   end
 end
