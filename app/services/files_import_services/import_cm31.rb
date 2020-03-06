@@ -5,10 +5,9 @@ class FilesImportServices::ImportCm31 < ImportFile
 
   attr_reader :nepse_settlement_ids, :selected_branch_id
 
-  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil, current_user, branch_id)
+  def initialize(file, current_tenant, selected_fy_code, settlement_date = nil, current_user)
     super(file)
     @current_user = current_user
-    @branch_id = branch_id
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
@@ -104,7 +103,7 @@ class FilesImportServices::ImportCm31 < ImportFile
           end
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
-          voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: @branch_id, current_user_id: @current_user.id)
+          voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: cost_center_id, current_user_id: @current_user.id)
           voucher.desc = description
 
           nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")

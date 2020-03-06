@@ -17,7 +17,7 @@ RSpec.describe FilesImportServices::ImportCm31  do
     it 'should do the ledger entry' do
       share_transaction
       allow_any_instance_of(FilesImportServices::ImportCm31).to receive(:open_file).and_return(nil)
-      import_cm31_service = FilesImportServices::ImportCm31.new(nil, Tenant.new(closeout_settlement_automatic: true), @fy_code, '2073-9-5', current_user, branch.id)
+      import_cm31_service = FilesImportServices::ImportCm31.new(nil, Tenant.new(closeout_settlement_automatic: true), @fy_code, '2073-9-5', current_user)
       import_cm31_service.instance_variable_set(:@processed_data,[{"SETTLEMENTID"=>"1211002016255", "CONTRACTNUMBER"=>"201611284117936", "SELLERCM"=>"42", "SELLERCLIENT"=>"SK1", "BUYERCM"=>"99", "BUYERCLIENT"=>"JD221527", "ISIN"=>"NPE011A00004", "SCRIPNAME"=>"SHPC", "TRADEDQTY"=>"185", "SHORTAGEQTY"=>"20", "RATE"=>"626", "CLOSEOUTCRAMT"=>"15024"}])
 
       import_cm31_service.process
@@ -46,7 +46,7 @@ RSpec.describe FilesImportServices::ImportCm31  do
     it 'should do ledger entry' do
       share_transaction
       allow_any_instance_of(FilesImportServices::ImportCm31).to receive(:open_file).and_return(nil)
-      import_cm31_service = FilesImportServices::ImportCm31.new(nil, Tenant.new(closeout_settlement_automatic: false), @fy_code, '2073-9-5', current_user, branch.id)
+      import_cm31_service = FilesImportServices::ImportCm31.new(nil, Tenant.new(closeout_settlement_automatic: false), @fy_code, '2073-9-5', current_user)
       import_cm31_service.instance_variable_set(:@processed_data,[{"SETTLEMENTID"=>"1211002016255", "CONTRACTNUMBER"=>"201611284117936", "SELLERCM"=>"42", "SELLERCLIENT"=>"SK1", "BUYERCM"=>"99", "BUYERCLIENT"=>"JD221527", "ISIN"=>"NPE011A00004", "SCRIPNAME"=>"SHPC", "TRADEDQTY"=>"185", "SHORTAGEQTY"=>"20", "RATE"=>"626", "CLOSEOUTCRAMT"=>"15024"}])
 
       import_cm31_service.process
