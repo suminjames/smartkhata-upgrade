@@ -255,8 +255,7 @@ $ ->
 $(document).on 'click', '.add_fields', (event) ->
   time = new Date().getTime()
   regexp = new RegExp($(this).data('id'), 'g')
-  id = $('.dynamic-ledgers').children('.particular-container').length
-  $(this).before($(this).data('fields').replace(regexp, id))
+  $(this).before($(this).data('fields').replace(regexp, time))
 
 #  new_particular_row_is_financial_ledger = $(this).data('fields').includes('voucher-financial-ledger-combobox')
 
