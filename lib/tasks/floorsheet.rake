@@ -38,7 +38,7 @@ namespace :floorsheet do
       Bill.by_branch_fy_code(branch_id, fy_code).where(id: bill_ids).delete_all
 
       Ledger.by_fy_code(fy_code).by_branch_id(branch_id).where(id: ledger_ids).find_each do |ledger|
-        Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, fy_code, user_id)
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, user_id, branch_id, fy_code)
         Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch_id, fy_code: fy_code, current_user_id: user_id)
       end
     end

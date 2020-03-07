@@ -1,10 +1,10 @@
 namespace :ledger do
-  def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
-    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
+  def patch_ledger_dailies(ledger, all_fiscal_years = false, branch_id = 1, fy_code = nil)
+    Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, all_fiscal_years, current_user_id, branch_id, fy_code)
   end
 
   # for now we are not concerned about multiple branches
-  def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code, current_user_id)
+  def patch_closing_balance(ledger, all_fiscal_years = false, branch_id = 1, fy_code = current_fy_code)
     Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
   end
 
@@ -31,7 +31,7 @@ namespace :ledger do
       count = 0
       Ledger.find_each do |ledger|
         count += 1
-        patch_ledger_dailies(ledger, all_fiscal_year, branch_id, fy_code, current_user_id)
+        patch_ledger_dailies(ledger, all_fiscal_year, branch_id, fy_code)
         puts "#{count} ledgers processed"
       end
     end
@@ -45,7 +45,7 @@ namespace :ledger do
 
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_ledger_dailies(ledger, false, branch_id, fy_code, current_user_id)
+        patch_ledger_dailies(ledger, false, branch_id, fy_code)
         puts "#{ledger.name}"
       end
     end
@@ -56,7 +56,7 @@ namespace :ledger do
     all_fiscal_year = args.all_fiscal_year == 'true' ? true : false
     ActiveRecord::Base.transaction do
       Ledger.find_each do |ledger|
-        patch_closing_balance(ledger, all_fiscal_year, branch_id, fy_code, current_user_id)
+        patch_closing_balance(ledger, all_fiscal_year, branch_id, fy_code)
       end
     end
   end
@@ -67,7 +67,7 @@ namespace :ledger do
     ledger_ids = args.ledger_ids.split(" ")
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_closing_balance(ledger, false, branch_id, fy_code, current_user_id)
+        patch_closing_balance(ledger, false, branch_id, fy_code)
       end
     end
   end
@@ -80,8 +80,8 @@ namespace :ledger do
       Branch.all.each do |branch|
         branch_id = branch.id
         Ledger.find_each do |ledger|
-          patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
-          patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code, current_user_id)
+          patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code)
+          patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code)
         end
       end
     end
@@ -96,8 +96,8 @@ namespace :ledger do
     all_fiscal_years = args.all_fiscal_years == 'true' ? true : false
     ActiveRecord::Base.transaction do
       Ledger.where(id: ledger_ids).find_each do |ledger|
-        patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code, current_user_id )
-        patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code, current_user_id )
+        patch_ledger_dailies(ledger, all_fiscal_years, branch_id, fy_code )
+        patch_closing_balance(ledger, all_fiscal_years, branch_id, fy_code )
       end
     end
   end
@@ -253,16 +253,16 @@ namespace :ledger do
   task :pull_opening_balance,[:tenant, :branch] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     branch = args.branch
-    Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch).process
+    Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch, current_user_id: current_user_id).process
   end
 
   desc 'move particulars to one branch for a ledger id'
-  task :move_particulars,[:tenant, :ledger_id, :branch_id, :user_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
+  task :move_particulars,[:tenant, :ledger_id, :branch_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
     abort 'Please pass tenant, ledger_id, branch_id, dry_run, date_bs' if (args.ledger_id.blank? || args.branch_id.blank?)
     client_account = Ledger.find(args.ledger_id).client_account
     dry_run = args.dry_run === 'false' ? false : true;
     if (client_account)
-      Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, args.date_bs, dry_run, args.user_id)
+      Accounts::Branches::ClientBranchService.new.patch_client_branch(client_account, args.branch_id, current_user_id, args.date_bs, dry_run)
     end
   end
 
@@ -340,8 +340,8 @@ namespace :ledger do
       end
 
       Branch.all.pluck(:id).each do |branch_id|
-        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids.uniq, false, branch_id)
-        Accounts::Ledgers::ClosingBalanceService.new.process(ledger_ids.uniq, false, branch_id)
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids.uniq, current_user_id, false, branch_id)
+        Accounts::Ledgers::ClosingBalanceService.new.process(ledger_ids.uniq, current_user_id, false, branch_id)
       end
     end
   end

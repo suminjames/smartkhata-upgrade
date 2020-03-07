@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   enum office_roles: [:manager]
 
   after_initialize :set_default_role, :if => :new_record?
-  attr_accessor :login, :name_for_user
+  attr_accessor :login, :name_for_user, :current_branch_id, :current_fy_code
 
   has_many :client_accounts
   has_one :employee_account
@@ -133,9 +133,8 @@ class User < ActiveRecord::Base
     self.email || self.username
   end
 
-  # TODO: Subas needs to look at its implementation
-  def can_read_write?(_branch_id = nil)
-    (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+  def can_read_write?
+    self.current_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user

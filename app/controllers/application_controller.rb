@@ -97,7 +97,8 @@ class ApplicationController < ActionController::Base
   def set_branch_fy_params
     @selected_fy_code = params[:selected_fy_code].nil? ? get_fy_code : params[:selected_fy_code].to_i
     @selected_branch_id = params[:selected_branch_id].to_i || current_user&.branch_id || Branch.first.id
-
+    current_user.current_fy_code = @selected_fy_code if current_user
+    current_user.current_branch_id = @selected_branch_id if current_user
   end
 
   # added username as permitted parameters

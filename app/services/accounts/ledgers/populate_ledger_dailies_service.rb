@@ -14,7 +14,7 @@ module Accounts
         fy_codes
       end
 
-      def patch_ledger_dailies(ledger, all_fiscal_years, branch_id = 1, fy_code = nil, current_user_id)
+      def patch_ledger_dailies(ledger, all_fiscal_years, current_user_id, branch_id = 1, fy_code = nil)
         # need to modify this in future to accomodate current fiscal year
 
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
@@ -73,9 +73,9 @@ module Accounts
       end
 
 
-      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
+      def process(ledger_ids, current_user_id, all_fiscal_years = false, branch_id = 1, fy_code = nil)
         Ledger.where(id: ledger_ids).find_each do |ledger|
-          patch_ledger_dailies(ledger,all_fiscal_years, branch_id, fy_code, current_user_id)
+          patch_ledger_dailies(ledger,all_fiscal_years, current_user_id, branch_id, fy_code)
         end
       end
     end

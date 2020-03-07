@@ -100,7 +100,7 @@ namespace :voucher do
       end
 
       branches.each do |branch_id|
-        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledgers, false, branch_id, v.fy_code, current_user_id)
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledgers, current_user_id, false, branch_id, v.fy_code)
       end
     end
   end

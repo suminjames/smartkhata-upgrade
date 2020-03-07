@@ -57,7 +57,7 @@ module Accounts
       end
 
 
-      def patch_client_branch(client_account, branch_id,  date_bs = nil, dry_run = false, current_user_id )
+      def patch_client_branch(client_account, branch_id, current_user_id,  date_bs = nil, dry_run = false )
         ActiveRecord::Base.transaction do
           ledger_ids, fy_codes = move_transactions(client_account, branch_id, date_bs, dry_run)
           # dont patch ledger when dry run is true or ledger_ids is empty
@@ -71,19 +71,19 @@ module Accounts
 
             Branch.all.each do |branch|
               Ledger.where(id: ledger_ids).find_each do |ledger|
-                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch.id, fy_code, current_user_id: current_user_id)
+                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, current_user_id, branch.id, fy_code)
                 Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch.id, fy_code: fy_code, current_user_id: current_user_id)
               end
             end
 
             if (needs_opening_balance_patch)
-              Accounts::Ledgers::PullOpeningBalanceService.new(fy_code: fy_codes[1], ledger_ids: ledger_ids).process
+              Accounts::Ledgers::PullOpeningBalanceService.new(fy_code: fy_codes[1], ledger_ids: ledger_idsi, current_user_id: current_user_id).process
             end
           end
         end
       end
 
-      def fix_particulars_by_branch_batch(branch_id, date_bs = nil, dry_run = false)
+      def fix_particulars_by_branch_batch(branch_id, current_user_id, date_bs = nil, dry_run = false)
         ledger_ids = []
         ActiveRecord::Base.transaction do
           ClientAccount.where(branch_id: branch_id).find_each do |client_account|
@@ -99,8 +99,8 @@ module Accounts
             fy_codes.each do |fy_code|
               #   do ledger actions
               Ledger.where(id: ledger_ids).find_each do |ledger|
-                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, branch_id, fy_code)
-                Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch_id, fy_code: fy_code)
+                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, current_user_id, branch_id, fy_code)
+                Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
               end
             end
           end

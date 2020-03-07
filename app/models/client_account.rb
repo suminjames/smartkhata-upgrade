@@ -500,7 +500,7 @@ class ClientAccount < ActiveRecord::Base
 
   def move_particulars
     if self.branch_changed && (self.move_all_particulars == "1")
-      Accounts::Branches::ClientBranchService.new.patch_client_branch(self, self.branch_id, current_user_id)
+      Accounts::Branches::ClientBranchService.new.patch_client_branch(self, self.branch_id, updater_id)
     end
   end
 end

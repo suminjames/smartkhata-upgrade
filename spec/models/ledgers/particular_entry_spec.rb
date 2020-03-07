@@ -24,8 +24,8 @@ RSpec.describe  Ledgers::ParticularEntry do
   before do
     travel_to Time.local(2017, 02, 01)
     Branch.pluck(:id).each do |branch_id|
-      Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, false, branch_id, 7475, current_user.id)
-      Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, false, branch_id, 7475, current_user.id)
+      Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger.id, current_user.id, false, branch_id, 7475)
+      Accounts::Ledgers::ClosingBalanceService.new.process(ledger.id, current_user.id, false, branch_id, 7475)
     end
     expect(ledger_balance.reload.dr_amount).to eq(6000)
     expect(ledger_balance.reload.cr_amount).to eq(0)

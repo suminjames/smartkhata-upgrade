@@ -20,7 +20,7 @@
                   = "#{amt} Dr"
             %td
               = link_to 'Show', ledger
-              - if ledger.client_account_id.present? && current_user.can_read_write?(@selected_branch_id)
+              - if ledger.client_account_id.present? && current_user.can_read_write?
                 - if ledger.closing_balance(@selected_fy_code, @selected_branch_id).abs >= 0.01
                   |
                   = link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: ledger.client_account_id)

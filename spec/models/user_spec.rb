@@ -176,7 +176,7 @@ RSpec.describe User, type: :model do
     context "when role is admin" do
       it "should return true" do
         subject.admin!
-        expect(subject.can_read_write?(@branch.id)).to be_truthy
+        expect(subject.can_read_write?).to be_truthy
       end
     end
 
@@ -186,7 +186,7 @@ RSpec.describe User, type: :model do
         subject{create(:user, user_access_role_id: user_access_role.id, role: 3, username: "john", email: "john@gmail.com")}
         it "should return true" do
           subject
-          expect(subject.can_read_write?(@branch.id)).to be_truthy
+          expect(subject.can_read_write?).to be_truthy
         end
       end
     end

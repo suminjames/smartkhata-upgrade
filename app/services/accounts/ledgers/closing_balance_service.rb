@@ -62,7 +62,7 @@ module Accounts
         end
       end
 
-      def process(ledger_ids, all_fiscal_years = false, branch_id = 1, fy_code = nil, current_user_id)
+      def process(ledger_ids, current_user_id, all_fiscal_years = false, branch_id = 1, fy_code = nil)
         Ledger.where(id: ledger_ids).find_each do |ledger|
           patch_closing_balance(ledger,all_fiscal_years: all_fiscal_years, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
         end

@@ -55,7 +55,7 @@ module Accounts
           branch_ids == [branch_id]
         end
         branch_ids.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, false, branch_id, fy_code, current_user_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, current_user_id, false, branch_id, fy_code)
         end
       end
 

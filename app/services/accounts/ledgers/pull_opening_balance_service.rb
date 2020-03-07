@@ -2,12 +2,13 @@ module Accounts
   module Ledgers
     class PullOpeningBalanceService
       include FiscalYearModule
-      attr_accessor :branch_id, :fy_code, :ledger_ids
+      attr_accessor :branch_id, :fy_code, :ledger_ids, :current_user_id
 
-      def initialize(branch_id: nil, fy_code: nil, ledger_ids: [] )
+      def initialize(branch_id: nil, fy_code: nil, ledger_ids: [], current_user_id: nil )
         @branch_id = branch_id
         @fy_code = fy_code || get_fy_code
         @ledger_ids = ledger_ids
+        @current_user_id = current_user_id
       end
 
       def process
@@ -27,9 +28,9 @@ module Accounts
         Ledger.where(id: available_ledger_ids).find_each do |ledger|
           has_closing_balance = false
           LedgerBalance.unscoped.where(fy_code: previous_fy_code, ledger_id: ledger.id).find_each do |ledger_balance|
-            lb = LedgerBalance.unscoped.find_or_create_by!(fy_code: fy_code, ledger_id: ledger_balance.ledger_id, branch_id: ledger_balance.branch_id)
+            lb = LedgerBalance.unscoped.find_or_create_by!(fy_code: fy_code, ledger_id: ledger_balance.ledger_id, branch_id: ledger_balance.branch_id, current_user_id: current_user_id)
             if (lb.opening_balance !=  ledger_balance.closing_balance)
-              lb.update_attributes(opening_balance: ledger_balance.closing_balance, opening_balance_type: ledger_balance.closing_balance >= 0 ? 'dr': 'cr')
+              lb.update_attributes(current_user_id: current_user_id, opening_balance: ledger_balance.closing_balance, opening_balance_type: ledger_balance.closing_balance >= 0 ? 'dr': 'cr')
               has_closing_balance = true
             end
           end
@@ -42,8 +43,8 @@ module Accounts
         puts pulled_ledger_names.join(',') if pulled_ledger_ids.size < 50
         if pulled_ledger_ids.uniq.size > 0
           branch_ids.each do |branch_id|
-            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, false, branch_id)
-            Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, false, branch_id)
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id)
+            Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id)
           end
         end
       end
