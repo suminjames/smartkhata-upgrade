@@ -41,8 +41,6 @@ class Ledgers::Query
     end
 
     if @params[:show] == "all"
-      # for pages greater than we need carryover balance
-      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && lazy_load
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
     elsif @params[:search_by] && @params[:search_term]
       search_by = @params[:search_by]
@@ -57,45 +55,37 @@ class Ledgers::Query
           date_from_ad = bs_to_ad(date_from_bs)
           date_to_ad = bs_to_ad(date_to_bs)
 
-          # get the ordered particulars
-          @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination, lazy_load)
+
 
           if lazy_load
             # sum of total credit and debit amount
             @total_credit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
             @total_debit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
-            # get the closing balance from the previous day of date_from
-            first_ledger_daily = @ledger.ledger_dailies.by_branch_fy_code(branch_id, fy_code).where('date >= ?',date_from_ad).order('date ASC').first
-            previous_day_balance = first_ledger_daily.present? ? first_ledger_daily.opening_balance : 0.0
+            previous_day_balance = @ledger.particulars.by_branch_fy_code(branch_id, fy_code).where('transaction_date < ?',date_from_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
-            # get the last ledger daily balance for the query date
-            last_day_ledger_daily =  @ledger.ledger_dailies.by_branch_fy_code(branch_id, fy_code).where('date <= ?',date_to_ad).order('date DESC').first
-            last_day_balance = last_day_ledger_daily.present? ? last_day_ledger_daily.closing_balance : 0.0
+            last_day_balance = @ledger.particulars.by_branch_fy_code(branch_id, fy_code).where('transaction_date <= ?',date_to_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
-            @closing_balance_sorted = last_day_balance
-            @opening_balance_sorted = previous_day_balance
 
-            # make the adjustment for the carryover balance
-            # adjustment for the pagination and running total
-            @opening_balance_calculated = previous_day_balance
-            @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page, date_from_ad, date_to_ad) if  page > 0
+            @closing_balance_sorted = @opening_balance_calculated+ last_day_balance
+            @opening_balance_sorted = @opening_balance_calculated + previous_day_balance
+            @opening_balance_calculated = @opening_balance_sorted
           end
+          # get the ordered particulars
+          @particulars = get_particulars(@params[:page], 20, date_from_ad, date_to_ad, no_pagination, lazy_load)
         else
           @error_message = "Invalid Date"
         end
       end
     elsif !@params[:search_by]
-      # for pages greater than we need carryover balance
-      @opening_balance_calculated =  opening_balance_for_page(@opening_balance_calculated, page) if  page > 0 && lazy_load
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
     end
     return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
   end
 
+
   def ledger_particulars_with_running_total(no_pagination = false)
     ledger_with_particulars(no_pagination)
-    @particulars = Particular.with_running_total(@particulars, @opening_balance_calculated) unless @particulars.blank?
     return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
   end
 
@@ -111,29 +101,6 @@ class Ledgers::Query
     unless no_pagination
       particulars = particulars.page(page).per(limit)
     end
-    particulars
-  end
-
-  #
-  # get the carryover balance for the current page except 0
-  #
-  def opening_balance_for_page(opening_balance, page, date_from_ad = nil, date_to_ad = nil)
-    # raw sql can be potentially dangerous and memory leakage point
-    # need to make sure this has proper binding
-
-    additional_condition = ""
-    if branch_id == 0
-      additional_condition = "fy_code = #{fy_code}"
-    else
-      additional_condition = "branch_id = #{branch_id} AND fy_code = #{fy_code}"
-    end
-
-    if date_from_ad.present? && date_to_ad.present?
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } AND transaction_date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}' ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
-    else
-      query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{@ledger.id} AND particular_status = 1 AND #{additional_condition } ORDER BY transaction_date ASC, created_at ASC LIMIT #{20*page}) AS subquery;"
-    end
-    opening_balance += ActiveRecord::Base.connection.execute(query).getvalue(0,0).to_f
-    opening_balance
+    particulars.select("*, SUM( amount * CASE WHEN transaction_type = 0 THEN 1  ELSE -1 END)  OVER (ORDER BY transaction_date ASC, created_at ASC ) +  #{@opening_balance_calculated}  AS running_total")
   end
 end

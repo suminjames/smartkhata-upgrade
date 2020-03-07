@@ -127,44 +127,6 @@ class Ledgers::ParticularEntry
     opening_balance_cost_center = nil
     set_current_user = lambda { |o| o.current_user_id = current_user_id }
 
-    # check if there are records after the entry
-    if accounting_date <= Time.now.to_date
-      # get all the ledger dailies for the ledger which is after the accounting date
-      # ledger_activities = ledger.ledger_dailies.by_fy_code(fy_code).where('date > ?', accounting_date).order('date ASC')
-      ledger_activities = ledger.ledger_dailies.where('date > ?', accounting_date).order('date ASC')
-      adjustment_amount = debit ? amount : amount * -1
-
-      if ledger_activities.size > 0
-        # there are some records after the transaction date
-        future_activities_cost_center = ledger_activities.where(branch_id: branch_id)
-        future_activities_org = ledger_activities.where(branch_id: nil)
-
-        # assign if the future dailies are present
-        # if not do nothing .. assign value later
-        opening_balance_org = future_activities_org.first.opening_balance if future_activities_org.first.present?
-        opening_balance_cost_center = future_activities_cost_center.first.opening_balance if future_activities_cost_center.first.present?
-
-
-
-        # update the cost center daily balances
-        future_activities_cost_center.each do |d|
-          d.tap(&set_current_user)
-          d.closing_balance += adjustment_amount
-          d.opening_balance += adjustment_amount
-          d.save!
-        end
-
-        # update the org level daily balances
-        future_activities_org.each do |d|
-          d.tap(&set_current_user)
-          d.closing_balance += adjustment_amount
-          d.opening_balance += adjustment_amount
-          d.save!
-        end
-
-      end
-    end
-
     # need to do the unscoped here for matching the ledger balance
     ledger_blnc_org = LedgerBalance.by_fy_code_org(fy_code)
                         .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
@@ -178,14 +140,10 @@ class Ledgers::ParticularEntry
 
 
     daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
-      l.opening_balance = opening_balance_cost_center
-      l.closing_balance = opening_balance_cost_center
       l.current_user_id = current_user_id
     end.tap(&set_current_user)
 
     daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
-      l.opening_balance = opening_balance_org
-      l.closing_balance = opening_balance_org
       l.current_user_id = current_user_id
     end.tap(&set_current_user)
 
@@ -193,13 +151,9 @@ class Ledgers::ParticularEntry
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
       ledger_blnc_cost_center.closing_balance += amount
-      daily_report_cost_center.closing_balance += amount
-      daily_report_org.closing_balance += amount
     else
       ledger_blnc_org.closing_balance -= amount
       ledger_blnc_cost_center.closing_balance -= amount
-      daily_report_cost_center.closing_balance -= amount
-      daily_report_org.closing_balance -= amount
       cr_amount = amount
     end
     daily_report_cost_center.dr_amount += dr_amount
@@ -218,6 +172,5 @@ class Ledgers::ParticularEntry
     ledger_blnc_cost_center.save!
 
     ledger.save!
-    return daily_report_cost_center.closing_balance, daily_report_org.closing_balance
   end
 end

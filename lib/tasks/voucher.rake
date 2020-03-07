@@ -55,8 +55,8 @@ namespace :voucher do
       Voucher.where(id: vouchers).delete_all
 
 
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, nil, branch_id, fy_code)
-      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers, nil, branch_id, fy_code)
+      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers, branch_id, fy_code)
+      Rake::Task["ledger:populate_closing_balance_selected"].invoke(tenant, ledgers, branch_id, fy_code)
     end
 
   end
@@ -87,6 +87,8 @@ namespace :voucher do
     vouchers = Voucher.where(id: voucher_ids)
     ledgers = Particular.where(voucher_id: voucher_ids).pluck(:ledger_id).uniq.join(' ')
 
+    branches  = (vouchers.pluck(:branch_id) + Particular.where(voucher_id: voucher_ids).pluck(:branch_id)).uniq
+
     ActiveRecord::Base.transaction do
       vouchers.each do |v|
         v.skip_cheque_assign = true
@@ -97,7 +99,9 @@ namespace :voucher do
         v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
       end
 
-      Rake::Task["ledger:populate_ledger_dailies_selected"].invoke(tenant, ledgers)
+      branches.each do |branch_id|
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledgers, false, branch_id, v.fy_code, current_user_id)
+      end
     end
   end
 

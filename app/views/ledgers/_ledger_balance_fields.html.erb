@@ -12,6 +12,7 @@
   <div class="col-xs-4">
     <%= f.input :branch_id , label: false do %>
         <%= f.select :branch_id, available_branches.all.map { |r| [r.code, r.id, { class: 'form-control' }] }, selected: f.object.branch_id || @selected_branch_id, include_blank: false %>
+        <%= f.hidden_field(:fy_code, value: @selected_fy_code)%>
     <% end %>
   </div>
   <div class="col-xs-1">

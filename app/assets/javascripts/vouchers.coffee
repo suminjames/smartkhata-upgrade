@@ -8,12 +8,6 @@ fix_autocomplete = () ->
   $('.combobox-container input:text').each ->
     $(this).attr('autocomplete', 'off')
 
-get_url =() ->
-  path = location.pathname;
-  path = path.split('/');
-  url = [location.origin, path[1], path[2]].join('/')
-  return url
-
 $.fn.extend
   skDisable: ->
     @each ->

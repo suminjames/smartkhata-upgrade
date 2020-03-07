@@ -57,11 +57,7 @@ class Ledger < ActiveRecord::Base
   has_many :employee_ledger_associations
   has_many :employee_accounts, through: :employee_ledger_associations
 
-  #TODO(subas) remove updation of closing balance
   validates_presence_of :name
-  # TODO(subas/saroj) look for uncommenting this.
-  # validates_presence_of :group_id
-  validate :positive_amount, on: :create
   before_save :format_name, if: :name_changed?
   before_save :format_client_code, if: :client_code_changed?
   before_destroy :delete_associated_records
@@ -185,15 +181,6 @@ class Ledger < ActiveRecord::Base
     end
   end
 
-  def update_closing_blnc
-    unless self.opening_blnc.blank?
-      self.opening_blnc = self.opening_blnc * -1 if self.opening_balance_type.to_i == Particular.transaction_types['cr']
-      self.closing_blnc = self.opening_blnc
-    else
-      self.opening_blnc = 0
-    end
-  end
-
   def has_editable_balance?
     # not sure if this is required
     # (self.particulars.size <= 0) && (self.opening_balance == 0.0)
@@ -216,13 +203,12 @@ class Ledger < ActiveRecord::Base
         if params
           self.current_user_id = current_user_id
           if self.update(params)
-            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
-            update_ledger_dailies(params)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, current_user_id)
             return true
           end
         else
           if self.save
-            LedgerBalance.update_or_create_org_balance(self.id, fy_code, branch_id, current_user_id)
+            LedgerBalance.update_or_create_org_balance(self.id, fy_code, current_user_id)
             return true
           end
         end
@@ -233,117 +219,9 @@ class Ledger < ActiveRecord::Base
     return false
   end
 
-  def update_custom_old(params)
-    # why did not i use self.update(params)
-    # because it does not work well with default scope
-    # association keep breaking
-
-
-    valid = true
-    self.name = params[:name]
-    self.group_id = params[:group_id]
-    self.vendor_account_id= params[:vendor_account_id]
-
-    # TODO(sarojk): Remove this hack.
-    # The following validations should have been trigerred while performing self.save. However, to avoid breaking of things at the moment, validations are done here.
-
-    if self.group_id.blank?
-      self.errors.add(:group_id, "can't be blank")
-      valid = false
-    end
-
-    if self.name.blank?
-      self.errors.add(:name, "can't be blank")
-      valid = false
-    end
-
-    ActiveRecord::Base.transaction do
-      # ledger balance attribute may or may not be present
-      if params[:ledger_balances_attributes]
-        branch_ids = []
-        total_balance = 0.0
-
-        # Associate passed in ledger_balances to this ledger object, but do not commit to db, yet!
-        # 'add_to_target' ensures its not committed to db.
-        params[:ledger_balances_attributes].values.each do |balance|
-          # For some reasons, empty hashes of ledger balances is being sent from dom even when ledger balances are removed using the remove button. Check for their presence.
-
-          if balance.present?
-            ledger_balance = LedgerBalance.unscoped.find_by(id: balance[:id])
-            # to ward off unnecessary balances without any value but id
-            if ledger_balance && balance[:opening_balance].present?
-              previous_balance = ledger_balance.opening_balance
-              ledger_balance.update_with_closing_balance(balance)
-              total_balance += ledger_balance.opening_balance - previous_balance
-
-            else
-              ledger_balance = LedgerBalance.new(balance)
-              self.association(:ledger_balances).add_to_target(ledger_balance)
-            end
-          end
-        end
-
-        self.ledger_balances.each do |balance|
-          # for cases when it is being persisted
-          # allow credit values
-          if balance.opening_balance.to_f >= 0 || ( balance.id.present? && balance.opening_balance_type  == '1')
-
-            # Multiple balances entries for same branch is invalid.
-            if branch_ids.include?(balance.branch_id)
-              balance.errors.add(:branch_id, "can't have multiple entries for same branch")
-              valid = false
-              break
-            end
-            branch_ids << balance.branch_id
-
-            opening_balance = balance.opening_balance
-
-            unless ( balance.id.present? )
-              opening_balance = balance.opening_balance_type == "0" ? balance.opening_balance : ( balance.opening_balance * -1 )
-              total_balance += opening_balance
-            end
-            next
-          else
-            valid = false
-            balance.errors.add(:opening_balance, "can't be a negative amount")
-            break
-          end
-        end
-
-        if valid
-          # find if ledger balance for org is present
-          # if yes update with the changes else create
-          ledger_balance_org = LedgerBalance.unscoped.find_by(ledger_id: self.id, branch_id: nil)
-          if ledger_balance_org
-            previous_balance = ledger_balance_org.opening_balance
-            total_balance = previous_balance + total_balance
-
-            ledger_balance_org.update_attributes(opening_balance: total_balance, closing_balance: total_balance)
-          else
-            balance_type = total_balance >= 0 ? Particular.transaction_types['dr'].to_s : Particular.transaction_types['cr'].to_s
-            self.association(:ledger_balances).add_to_target(LedgerBalance.new(branch_id: nil, opening_balance: total_balance.abs, opening_balance_type: balance_type))
-          end
-        end
-      end
-
-      if valid
-        self.save
-      else
-        raise ActiveRecord::Rollback
-        false
-      end
-    end
-  end
-
   # get the particulars with running balance
   def particulars_with_running_balance
     Particular.with_running_total(self.particulars)
-  end
-
-  def positive_amount
-    if self.opening_blnc.to_f < 0
-      errors.add(:opening_blnc, "can't be negative or blank")
-    end
   end
 
 
@@ -488,26 +366,5 @@ class Ledger < ActiveRecord::Base
     #   EmployeeAccount.find(self.employee_account_id).branch_id
     end
 
-  end
-
-  def update_ledger_dailies(params = {})
-    Branch.pluck(:id).each do |branch_id|
-      search_params = {
-        fy_code: params[:changed_in_fiscal_year],
-        branch_id: branch_id,
-        ledger_id: id
-      }
-      ledger_opening_balance = LedgerBalance.unscoped.where(search_params).first&.opening_balance
-      if ledger_opening_balance.present?
-        ledger_dailies = LedgerDaily.unscoped.where(search_params)
-        unless ledger_dailies.empty?
-          ledger_daily_opening_balance = ledger_dailies.first.opening_balance
-          if ledger_opening_balance != ledger_daily_opening_balance
-            Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(self, false, search_params[:branch_id], search_params[:fy_code])
-          end
-        end
-
-      end
-    end
   end
 end
