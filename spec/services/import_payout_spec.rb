@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ImportPayout  do
   let(:current_user) {create(:user)}
-  let(:client_account) {create(:client_account, creator_id: current_user.id, updater_id: current_user.id )}
+  let(:client_account) {create(:client_account, current_user_id: current_user.id)}
   let(:nepse_settlement) {create(:nepse_settlement)}
   let(:sales_share_transaction) {create(:sales_share_transaction, client_account: client_account)}
   let(:branch) {create(:branch)}
@@ -20,7 +20,7 @@ RSpec.describe ImportPayout  do
 
     allow_any_instance_of(ImportPayout).to receive(:open_file).and_return(nil)
 
-    import_payout_service = ImportPayout.new(nil, @fy_code, '2073-9-5', current_user, branch.id)
+    import_payout_service = ImportPayout.new(nil, @fy_code, current_user, '2073-9-5')
     import_payout_service.instance_variable_set(:@processed_data, [{"SETT_ID"=>"1211002016255", "TRADE_DATE"=>"28-Nov-16", "CMID"=>"99", "BUY_CM_ID"=>"25", "SCRIPTSHORTNAME"=>"NIBPO", "SCRIPTNUMBER"=>"2060", "CONTRACTNO"=>"201611284117936", "CLIENTCODE"=>"USER FOUR (SK4)", "QUANTITY"=>"185", "RATE"=>"626", "CONTRACTAMT"=>"115810", "NEPSE_COMMISSION"=>"127.391", "SEBON_COMMISSION"=>"17.372", "TDS"=>"76.435", "CGT"=>"0", "CLOSEOUT_AMOUNT"=>"0", "AMOUNTRECEIVABLE"=>"115588.802", "REMARKS"=>"Normal Trade", "PURCHASE_PRICE"=>"150716.32", "CG"=>"0", "ADJ_SELL_PRICE"=>"115130.673", nil=>nil}])
 
     import_payout_service.process
@@ -33,7 +33,7 @@ RSpec.describe ImportPayout  do
 
     allow_any_instance_of(ImportPayout).to receive(:open_file).and_return(nil)
 
-    import_payout_service = ImportPayout.new(nil,@fy_code, '2073-9-5',current_user, branch.id)
+    import_payout_service = ImportPayout.new(nil,@fy_code, current_user, '2073-9-5')
     import_payout_service.instance_variable_set(:@processed_data, [{"SETT_ID"=>"1211002016255", "TRADE_DATE"=>"28-Nov-16", "CMID"=>"99", "BUY_CM_ID"=>"25", "SCRIPTSHORTNAME"=>"NIBPO", "SCRIPTNUMBER"=>"2060", "CONTRACTNO"=>"201611284117936", "CLIENTCODE"=>"USER FOUR (SK4)", "QUANTITY"=>"185", "RATE"=>"626", "CONTRACTAMT"=>"115810", "NEPSE_COMMISSION"=>"127.391", "SEBON_COMMISSION"=>"17.372", "TDS"=>"76.435", "CGT"=>"0", "CLOSEOUT_AMOUNT"=>"15024", "AMOUNTRECEIVABLE"=>"100564.802", "REMARKS"=>"Normal Trade", "PURCHASE_PRICE"=>"150716.32", "CG"=>"0", "ADJ_SELL_PRICE"=>"115130.673", nil=>nil}])
 
     import_payout_service.process
@@ -50,7 +50,7 @@ RSpec.describe ImportPayout  do
 
     allow_any_instance_of(ImportPayout).to receive(:open_file).and_return(nil)
 
-    import_payout_service = ImportPayout.new(nil, @fy_code,'2073-9-5', current_user, branch.id)
+    import_payout_service = ImportPayout.new(nil, @fy_code, current_user, '2073-9-5')
     import_payout_service.instance_variable_set(:@processed_data, [{"SETT_ID"=>"1211002016255", "TRADE_DATE"=>"28-Nov-16", "CMID"=>"99", "BUY_CM_ID"=>"25", "SCRIPTSHORTNAME"=>"NIBPO", "SCRIPTNUMBER"=>"2060", "CONTRACTNO"=>"201611284117936", "CLIENTCODE"=>"USER FOUR (SK4)", "QUANTITY"=>"185", "RATE"=>"626", "CONTRACTAMT"=>"115810", "NEPSE_COMMISSION"=>"127.391", "SEBON_COMMISSION"=>"17.372", "TDS"=>"76.435", "CGT"=>"0", "CLOSEOUT_AMOUNT"=>"138972", "AMOUNTRECEIVABLE"=>"-23383.198", "REMARKS"=>"Normal Trade", "PURCHASE_PRICE"=>"150716.32", "CG"=>"0", "ADJ_SELL_PRICE"=>"115130.673", nil=>nil}])
 
     import_payout_service.process
