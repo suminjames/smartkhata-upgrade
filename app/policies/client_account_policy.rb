@@ -2,8 +2,8 @@ class ClientAccountPolicy < ApplicationPolicy
   # the only action in menu
   permit_conditional_access_to_employee_and_above :index
 
-  permit_custom_access :employee_and_above, new_client_account_path, [:new, :create, :edit, :destroy]
-  permit_custom_access :employee_and_above, client_accounts_path, [:combobox_ajax_filter]
+  permit_custom_access :employee_and_above, new_client_account_path(0,0), [:new, :create, :edit, :destroy]
+  permit_custom_access :employee_and_above, client_accounts_path(0,0), [:combobox_ajax_filter]
 
   def show?
     record_associated_with_user(record, user) && path_authorized_to_client_and_above?

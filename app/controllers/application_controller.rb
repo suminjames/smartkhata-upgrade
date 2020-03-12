@@ -96,9 +96,18 @@ class ApplicationController < ActionController::Base
   #   set the default fycode and branch params
   def set_branch_fy_params
     @selected_fy_code = params[:selected_fy_code].nil? ? get_fy_code : params[:selected_fy_code].to_i
-    @selected_branch_id = params[:selected_branch_id].to_i || current_user&.branch_id || Branch.first.id
-    current_user.current_fy_code = @selected_fy_code if current_user
-    current_user.current_branch_id = @selected_branch_id if current_user
+    _branch_id = params[:selected_branch_id].to_i
+
+    if current_user && !current_user.available_branch_ids.include?(_branch_id)
+      _branch_id = current_user.available_branch_ids.first
+    end
+
+    @selected_branch_id = _branch_id
+    if current_user
+      current_user.current_fy_code = @selected_fy_code
+      current_user.current_branch_id = @selected_branch_id
+      current_user.current_url_link = request.fullpath
+    end
   end
 
   # added username as permitted parameters

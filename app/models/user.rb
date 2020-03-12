@@ -141,13 +141,29 @@ class User < ActiveRecord::Base
   # for admin and client all the branch are available
   # for employee only those assigned on the permission
   def available_branches
-    _available_branches = []
-    if self.admin? || self.client?
-      _available_branches = Branch.all
-    else
-      branch_ids = self.branch_permissions.pluck(:branch_id)
-      _available_branches = Branch.where(id: branch_ids)
+    @available_branches ||= begin
+      _available_branches = []
+      if self.admin? || self.client?
+        _available_branches = Branch.all
+      else
+        branch_ids = self.branch_permissions.pluck(:branch_id)
+        _available_branches = Branch.where(id: branch_ids)
+      end
+      _available_branches
     end
-    _available_branches
+  end
+
+  def available_branch_ids
+    @available_branch_ids ||= begin
+      branch_ids = available_branches.pluck(:id).uniq
+      if branch_ids.length == Branch.count
+        branch_ids << 0
+      end
+      branch_ids
+    end
+  end
+
+  def can_access_branch?
+    available_branch_ids.include?(current_url_link.split('/')[2].to_i) rescue false
   end
 end

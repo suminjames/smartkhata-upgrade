@@ -3,13 +3,6 @@ class ApplicationPolicy
 
   class << self
     include Rails.application.routes.url_helpers
-
-    def default_url_options
-      {
-          selected_fy_code: 7576,
-          selected_branch_id: 0
-      }
-    end
   end
 
   def initialize(user, record)
@@ -68,9 +61,12 @@ class ApplicationPolicy
 
   # blacklisting: the current implementation
   def authorized_to_access?(link)
+    return false unless link
+    return unless user.can_access_branch?
+    link_params = link.split('/')
+    link = "/#{link_params[3..-1].join('/')}"
     !user.blocked_path_list.include?(link)
   end
-
 
   #
   # authorization for <designation> and above requires the permitted actions for a user
