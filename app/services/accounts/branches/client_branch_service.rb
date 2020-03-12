@@ -77,7 +77,7 @@ module Accounts
             end
 
             if (needs_opening_balance_patch)
-              Accounts::Ledgers::PullOpeningBalanceService.new(fy_code: fy_codes[1], ledger_ids: ledger_idsi, current_user_id: current_user_id).process
+              Accounts::Ledgers::PullOpeningBalanceService.new(fy_code: fy_codes[1], ledger_ids: ledger_ids, current_user_id: current_user_id).process
             end
           end
         end
