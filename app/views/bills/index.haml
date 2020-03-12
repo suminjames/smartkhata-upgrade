@@ -8,7 +8,7 @@
         .col-sm-3
           %label
             Client
-          - if User.client_logged_in?
+          - if current_user.client?
             - client_id = params.dig(:filterrific, :by_client_id)
             %br
             = ClientAccount.find_by_id(client_id).try(:name_and_nepse_code)
@@ -48,7 +48,7 @@
       .row.top-buffer-sm
         .col-sm-2.top-buffer-md
           = f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
-          - unless User.client_logged_in?
+          - unless current_user.client?
             = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
           = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
         .col-sm-2.col-sm-offset-3

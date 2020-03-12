@@ -1,10 +1,14 @@
 namespace :bill do
-  task :change_date,[:tenant, :current_date, :new_date, :bill_type] => 'smartkhata:validate_tenant' do |task, args|
+  task :change_date,[:tenant, :current_date, :new_date, :bill_type, :branch_id, :fy_code, :user_id] => 'smartkhata:validate_tenant' do |task, args|
+    include FiscalYearModule
     tenant = args.tenant
     current_date = args.current_date
     new_date = args.new_date
     bill_type = args.bill_type.to_sym
-    Accounts::Bills::ChangeDateService.new(current_date, new_date, bill_type: bill_type).process
+    branch_id = args.branch_id || 1
+    fy_code = args.fy_code || get_fy_code
+    current_user_id = args.user_id || User.admin.first.id
+    Accounts::Bills::ChangeDateService.new(current_date, new_date, bill_type: bill_type, branch_id: branch_id, current_user_id: current_user_id).process
   end
 
   # bill:generate_for_sales['trishakti',"201611034023807 201611034023730",true]

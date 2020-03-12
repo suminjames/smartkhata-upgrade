@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   enum office_roles: [:manager]
 
   after_initialize :set_default_role, :if => :new_record?
-  attr_accessor :login, :name_for_user
+  attr_accessor :login, :name_for_user, :current_branch_id, :current_fy_code
 
   has_many :client_accounts
   has_one :employee_account
@@ -86,9 +86,9 @@ class User < ActiveRecord::Base
 
   attr_accessor :current_url_link
 
-  def self.client_logged_in?
-    UserSession.user.client?
-  end
+  # def self.client_logged_in?
+  #   UserSession.user.client?
+  # end
 
   #
   # A user has_many client_accounts.
@@ -134,7 +134,7 @@ class User < ActiveRecord::Base
   end
 
   def can_read_write?
-    UserSession.selected_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+    self.current_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user

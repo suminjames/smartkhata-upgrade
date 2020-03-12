@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe Accounts::Bills::ChangeDateService do
   include_context 'session_setup'
-
-  subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28')}
+  let(:current_user){@user}
+  subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28', current_user_id: current_user.id)}
 
   describe '.get_bills' do
     let(:sales_share_transaction) {create(:sales_share_transaction_processed, bill: create(:sales_bill, net_amount: 115130.6726, date: '2017-05-29' ))}

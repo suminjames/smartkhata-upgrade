@@ -6,11 +6,9 @@
   include FiscalYearModule
   describe "New Voucher" do
     include_context 'feature_session_setup'
-    # let(:user) {create(:user)}
     let(:tenant) {Tenant}
     let(:get_fy_code){FiscalYearModule.get_fy_code}
     before(:each) do
-      UserSession.set_console('public')
       allow_any_instance_of(ApplicationController).to receive(:current_tenant).and_return(build(:tenant))
     end
 
@@ -61,7 +59,7 @@
       voucher_dr_cheque_number = 1111
       fill_in "voucher_particulars_attributes_0_amount", with: voucher_cr_amount
       find("input[id$='voucher_particulars_attributes_0_cheque_number']").set voucher_dr_cheque_number
-      select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id" )
+      select_helper(@client_account.name,"voucher_particulars_attributes_0_ledger_id" )
       fill_in "voucher_particulars_attributes_3_amount", with: voucher_dr_amount
       add_narrations = page.all(".narration-display")
       add_narrations[-1].click
@@ -80,17 +78,23 @@
       context "when payment voucher" do
         before do
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:1"))
-          @client_account = create(:client_account, name: "Subash Adhikari")
+          @client_account = create(:client_account, name: "Subash Adhikari", branch_id: @branch.id)
           Ledger.find_or_create_by(name: "Cash")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment])
         end
 
-        it_behaves_like "invalid fy_code"
+        context "and invalid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_branch_id: @branch.id, selected_fy_code: 7374)
+          end
+          it_behaves_like "invalid fy_code"
+        end
 
         context "and valid date for fy" do
-
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
+          end
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration", 2
 
@@ -121,7 +125,7 @@
             click_on 'Approve'
             expect(page).to have_content('Payment Voucher was successfully approved')
             #for settlements
-            visit settlements_path
+            visit settlements_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Settlements")
             select_helper(@client_account.name,"client_accounts_index_combobox" )
             click_on "Search"
@@ -137,32 +141,27 @@
         before do
           @client_account1 = create(:client_account, name: "Sushma Adhikari")
           @client_account2 = create(:client_account, name: "Subash aryal")
-          visit new_voucher_path
+          visit new_voucher_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
 
         context "and valid date for fy" do
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration"
 
           it_behaves_like "add particular"
 
           it "creates journal voucher", js: true do
-            select_helper(@client_account1.name, "voucher_particulars_attributes_0_ledger_id")
+            select_helper( @client_account1.name, "voucher_particulars_attributes_0_ledger_id",)
             fill_in "voucher_particulars_attributes_0_amount", with: 500
             select "dr", :from => "voucher_particulars_attributes_0_transaction_type"
             page.find(".narration-display").click
             fill_in "voucher_particulars_attributes_0_description", with: "debit particular description"
             click_on ('Add Particular')
-
-            page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
-            page.execute_script(%Q($(".select2-search__field").val('#{@client_account2.name}')))
-            page.execute_script(%Q($(".select2-search__field").trigger('keyup')))
-            sleep(1)
+            # page.execute_script(%Q($('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(1) select.form-control').select2('open')))
+            select_helper(@client_account2.name, "voucher_particulars_attributes_1_ledger_id")
             # wait_until_page_has_selector('.select2-results__option--highlighted')
-            page.execute_script(%Q($('.select2-results__option--highlighted').trigger('mouseup')))
-
             # particular amount
             find("div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(2) div.voucher_particulars_amount input.form-control").set 500
             options = page.all('div.voucher .box-body > div:nth-child(3) .row.particular > div:nth-child(3) select option')
@@ -198,17 +197,24 @@
       context "when receipt voucher" do
         before do
           @bank_account = create(:bank_account, branch_id: @branch.id, ledger: create(:ledger, name: "Bank:2"))
-          @client_account = create(:client_account, name: "ANITA ADHIKARI", nepse_code: "AN123")
+          @client_account = create(:client_account, name: "ANITA ADHIKARI", nepse_code: "AN123", current_user_id: 1)
           Ledger.find_or_create_by(name: "Cash")
           @bank = create(:bank, name: "kumari bank")
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
         end
 
-        it_behaves_like "invalid fy_code"
+        context "and invalid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: 7374, selected_branch_id: @branch.id)
+          end
+          it_behaves_like "invalid fy_code"
+        end
 
         context "and valid date for fy" do
+          before do
+            visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
+          end
           let(:setup_spec) {
-            UserSession.set_usersession_for_test(7576, @branch.id, @user )
+            UserSession.set_usersession_for_test(get_fy_code, @branch.id, @user )
           }
           it_behaves_like "input particular narration", 2
 
@@ -217,12 +223,10 @@
           it "creates receipt voucher", js: true do
             fill_in "voucher_particulars_attributes_0_amount", with: 5000
             fill_in "voucher_particulars_attributes_0_cheque_number", with: 9999
-            select_helper(@bank.name, "voucher_particulars_attributes_0_additional_bank_id")
-            select_helper(@client_account.name,"voucher_particulars_attributes_3_ledger_id")
             fill_in "voucher_particulars_attributes_3_amount", with: 5000
-            add_narrations = page.all(".narration-display")
-            add_narrations[-1].click
-            fill_in "voucher_particulars_attributes_3_description", with: "description for credit particular"
+            fill_in "voucher_particulars_attributes_0_cheque_number", with: 9999
+            select_helper( @client_account.name, "voucher_particulars_attributes_0_ledger_id")
+            fill_in "voucher_desc", with: "description for credit particular"
             click_on 'Submit'
             # for receipt
             expect(page).to have_content("RECEIPT")
@@ -239,13 +243,15 @@
             expect(page).to have_content('Amount:')
             # show details of user activity
             expect(page).to have_content('Paid By')
-            expect(page).to have_content('Received By')
+              expect(page).to have_content('Received By')
             expect(page).to have_content('Note: Please bring this receipt compulsarily while claiming unpurchase share.')
             # for voucher details
-            visit ledgers_path
+            visit ledgers_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Ledger Name")
             select_helper(@client_account.name,"ledgers_index_combobox" )
             click_on "Search"
+            # click on show
+            sleep(1)
             click_on "Show"
             click_on "RCB #{get_fy_code}-1"
             expect(page).to have_content("Voucher details")
@@ -263,7 +269,7 @@
             # show details of user activity
             user_activity
             #for settlements
-            visit settlements_path
+            visit settlements_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
             expect(page).to have_content("Settlements")
             select_helper(@client_account.name,"client_accounts_index_combobox" )
             click_on "Search"
@@ -279,19 +285,19 @@
     context "unsigned user" do
       context "when payment voucher" do
         before do
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end
       context "when journal voucher" do
         before do
-          visit new_voucher_path
+          visit new_voucher_path(selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end
       context "when receipt voucher" do
         before do
-          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt])
+          visit new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: get_fy_code, selected_branch_id: @branch.id)
         end
         it_behaves_like "user not signed in"
       end

@@ -22,7 +22,7 @@
       <% @bank_payment_letters.each do |bank_payment_letter| %>
         <tr>
           <td><%= bank_payment_letter.nepse_settlement.settlement_id %></td>
-          <td><%= bank_payment_letter.branch %></td>
+          <td><%= bank_payment_letter.branch&.code %></td>
           <td><%= "#{bank_payment_letter.voucher.voucher_code}-#{bank_payment_letter.voucher.voucher_number}" if bank_payment_letter.voucher.present? %></td>
           <td><%= bank_payment_letter.bills.map(&:full_bill_number).join(',') if bank_payment_letter.voucher.present? %></td>
           <td><%= bank_payment_letter.created_at.to_date %></td>

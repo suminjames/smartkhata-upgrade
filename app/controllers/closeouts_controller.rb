@@ -72,6 +72,7 @@ class CloseoutsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def closeout_params
-    params.fetch(:closeout, {})
+    permitted_params = params.fetch(:closeout, {})
+    with_branch_user_params(permitted_params)
   end
 end

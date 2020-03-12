@@ -15,7 +15,7 @@ class ShareTransactionsController < ApplicationController
   def index
     # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
     # error flash message.
-    if User.client_logged_in? &&
+    if current_user.client? &&
         !current_user.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
       user_not_authorized and return
     end
@@ -28,7 +28,7 @@ class ShareTransactionsController < ApplicationController
       @transaction_date = bs_to_ad(bs_date)
     end
     @filterrific = initialize_filterrific(
-        ShareTransaction.by_branch,
+        ShareTransaction.by_branch(selected_branch_id),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -159,7 +159,8 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_isin_id),
         params.dig(:filterrific, :by_date),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_branch_id
     )
     if params[:paginate] == 'false'
       items_per_page = @securities_flows.size
@@ -231,9 +232,10 @@ class ShareTransactionsController < ApplicationController
           params.dig(:filterrific, :by_isin_id),
           params.dig(:filterrific, :by_date_from),
           params.dig(:filterrific, :by_date_to),
-          UserSession.selected_branch_id
+          selected_branch_id,
+          selected_fy_code
       )
-      fiscal_year = get_fiscal_year_from_fycode(UserSession.selected_fy_code)
+      fiscal_year = get_fiscal_year_from_fycode(selected_fy_code)
       @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
       @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
     end
@@ -291,14 +293,16 @@ class ShareTransactionsController < ApplicationController
     @commission_reports = ShareTransaction.commission_report(
         params.dig(:filterrific, :by_client_id),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_fy_code
     )
 
     unless (params[:total_count])
       @total_count = ShareTransaction.total_count_for_commission_report(
           params.dig(:filterrific, :by_client_id),
           params.dig(:filterrific, :by_date_from),
-          params.dig(:filterrific, :by_date_to)
+          params.dig(:filterrific, :by_date_to),
+          selected_fy_code
       )
     end
 
@@ -359,7 +363,8 @@ class ShareTransactionsController < ApplicationController
         params.dig(:filterrific, :by_date),
         params.dig(:filterrific, :by_client_id),
         params.dig(:filterrific, :by_date_from),
-        params.dig(:filterrific, :by_date_to)
+        params.dig(:filterrific, :by_date_to),
+        selected_fy_code
       )
     end
 
@@ -423,7 +428,7 @@ class ShareTransactionsController < ApplicationController
 
   def capital_gain_report
     @filterrific = initialize_filterrific(
-        ShareTransaction.for_cgt,
+        ShareTransaction.for_cgt(selected_fy_code),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -559,7 +564,7 @@ class ShareTransactionsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-        ShareTransaction.by_branch,
+        ShareTransaction.by_branch(selected_branch_id),
         params[:filterrific],
         select_options: {
             by_client_id_closeouts: ClientAccount.options_for_client_select_closeouts(params[:filterrific]),
@@ -728,6 +733,7 @@ class ShareTransactionsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def share_transaction_params
-    params.require(:share_transaction).permit(:base_price)
+    permitted_params = params.require(:share_transaction).permit(:base_price)
+    with_branch_user_params(permitted_params)
   end
 end

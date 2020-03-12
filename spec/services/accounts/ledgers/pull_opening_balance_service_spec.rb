@@ -7,11 +7,13 @@ describe Accounts::Ledgers::PullOpeningBalanceService do
 
   before do
     @new_branch = create(:branch)
+    @fy_code = 7374
+    @old_fy_code = 7273
 
     @ledger = create(:ledger)
     # @ledger_balance_org = create(:ledger_balance_org,fy_code: 7273, ledger_id: @ledger.id)
     # @ledger_balance_1 = create(:ledger_balance, fy_code: 7273, ledger_id: @ledger.id)
-    @ledger_balance_2 = create(:ledger_balance, opening_balance: 2000, branch_id: @new_branch.id, fy_code: 7273, ledger_id: @ledger.id)
+    @ledger_balance_2 = create(:ledger_balance, opening_balance: 2000, branch_id: @new_branch.id, fy_code: @old_fy_code, ledger_id: @ledger.id)
     @ledger_balance = create(:ledger_balance, branch_id: @new_branch.id, fy_code: 7374, ledger_id: @ledger.id)
 
 
@@ -20,7 +22,7 @@ describe Accounts::Ledgers::PullOpeningBalanceService do
     allow_any_instance_of(Accounts::Ledgers::PullOpeningBalanceService).to receive(:get_fy_code).and_return(7374)
     allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:get_fy_code).and_return(7374)
 
-    subject {Accounts::Ledgers::PullOpeningBalanceService.new(@new_branch.id)}
+    subject {Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: @new_branch.id, fy_code: @fy_code)}
 
     # @ledger_balance_org.update_attributes(closing_balance: 7000)
     # @ledger_balance_1.update_attributes(closing_balance: 5000)
@@ -41,9 +43,8 @@ describe Accounts::Ledgers::PullOpeningBalanceService do
 
   describe '.process' do
     it "pulls opening balance for the ledgers of client accounts in branch" do
-      UserSession.selected_branch_id = @new_branch.id
       subject.process
-      expect(@ledger_balance.reload.opening_balance).to eq(2000)
+      expect(@ledger.reload.opening_balance(@old_fy_code, @new_branch.id)).to eq(2000)
       branch_ids = Branch.all.pluck(:id)
       branch_ids.each do |branch_id|
         allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:process).with([@ledger.id], false, branch_id).and_return(true)

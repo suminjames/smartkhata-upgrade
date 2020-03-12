@@ -15,10 +15,10 @@
         .col-sm-3
           %label
             Client
-          - if User.client_logged_in?
+          - if user_signed_in? && current_user.client?
             - client_id = params.dig(:filterrific, :by_client_id)
             %br
-            = ClientAccount.find_by_id(client_id).try(:name_and_nepse_code)
+            = current_user.try(:name_and_nepse_code)
             = f.hidden_field(:by_client_id, :value => client_id)
           - else
             = f.collection_select(                        |
@@ -30,7 +30,7 @@
               {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
           %div.top-buffer-md
             = f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
-            - unless User.client_logged_in?
+            - unless user_signed_in?
               = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
             = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
         .col-sm-3

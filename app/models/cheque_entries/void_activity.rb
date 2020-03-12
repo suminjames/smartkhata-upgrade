@@ -1,13 +1,16 @@
 class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
-  def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name)
-    super(cheque_entry, current_tenant_full_name)
+  def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil, current_user)
+    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user)
     @cheque_entry.void_date_bs = void_date_bs
     @cheque_entry.void_narration = void_narration
+    @selected_branch_id = selected_branch_id
+    @selected_fy_code = selected_fy_code
+    @current_user = current_user
   end
 
   def valid_for_the_fiscal_year?
-    UserSession.selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.void_date_bs)
+    @selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.void_date_bs)
   end
 
   def can_activity_be_done?
@@ -71,13 +74,13 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         processed_bills.each(&:save)
 
         # create a new voucher and add the bill reference to it
-        new_voucher = Voucher.create!(date: @cheque_entry.void_date)
+        new_voucher = Voucher.create!(date: @cheque_entry.void_date, branch_id: @selected_branch_id, current_user_id: @current_user.id)
         new_voucher.bills_on_settlement = processed_bills
 
         description = "Cheque number #{@cheque_entry.cheque_number} voided at #{ad_to_bs(@cheque_entry.void_date)}. #{@cheque_entry.void_narration}"
 
         voucher.particulars.each do |particular|
-          reverse_accounts(particular, new_voucher, description)
+          reverse_accounts(particular, new_voucher, description, @current_user.id)
         end
 
 
@@ -118,13 +121,12 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         processed_bills.each(&:save)
 
         # create a new voucher and add the bill reference to it
-        new_voucher = Voucher.create!(date: @cheque_entry.void_date)
+        new_voucher = Voucher.create!(date: @cheque_entry.void_date, branch_id: @selected_branch_id, current_user_id: @current_user.id)
         new_voucher.bills_on_settlement = processed_bills
 
         description = "Cheque number #{@cheque_entry.cheque_number} voided at #{ad_to_bs(@cheque_entry.void_date)}. #{@cheque_entry.void_narration}"
-
-        process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now)
-        bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now)
+        process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now, @current_user_id)
+        bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now, @current_user_id)
         bank_particular.cheque_entries_on_receipt << @cheque_entry
 
 

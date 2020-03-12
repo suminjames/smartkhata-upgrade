@@ -4,21 +4,19 @@ namespace :settlement do
     abort 'Please pass a tenant name' unless args.tenant.present?
     tenant = args.tenant
     Apartment::Tenant.switch!(args.tenant)
-    UserSession.selected_branch_id = 1
-    UserSession.selected_fy_code = 7374
-    UserSession.user = User.first
   end
 
   desc "patch the settlements"
-  task :patch_particulars, [:tenant] => 'mandala:validate_tenant' do |task, args|
+  task :patch_particulars, [:tenant, :branch_id, :fy_code] => 'mandala:validate_tenant' do |task, args|
     # for those without particular associations
+    branch_id = args.branch_id
+    fy_code = args.fy_code
     count = 0
     ActiveRecord::Base.transaction do
-      Settlement.includes(:particular_settlement_associations).where(particular_settlement_associations: {settlement_id: nil}).find_each do |settlement|
+      Settlement.includes(:particular_settlement_associations).by_branch_fy_code(branch_id, fy_code).where(particular_settlement_associations: {settlement_id: nil}).find_each do |settlement|
         voucher = settlement.voucher
 
         if !(voucher.payment_bank? || voucher.journal? || voucher.receipt_bank? || voucher.receipt_cash? || voucher.payment_cash?)
-          # debugger
           raise   NotImplementedError
         end
 

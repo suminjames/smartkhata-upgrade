@@ -1,13 +1,13 @@
 <p id="notice"><%= notice %></p>
 <h3><%= @ledger.name.titleize %> <%= "( #{@ledger.nepse_code} )" if @ledger.nepse_code.present? %></h3>
-<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance.abs)} #{@ledger.opening_balance >= 0 ? 'Dr' : 'Cr'}" %>
-  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}" %></h4>
+<h4><%= "Opening Balance:  #{number_to_currency(@ledger.opening_balance(@selected_fy_code,@selected_branch_id).abs)} #{@ledger.opening_balance(@selected_fy_code,@selected_branch_id) >= 0 ? 'Dr' : 'Cr'}" %>
+  | <%= "Closing Balance: #{number_to_currency(@ledger.closing_balance(@selected_fy_code,@selected_branch_id).abs)} #{@ledger.closing_balance(@selected_fy_code,@selected_branch_id) + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}" %></h4>
 
 <% if @ledger.client_account_id.present? && current_user.can_read_write? %>
-    <% if @ledger.closing_balance.abs >= 0.01 %>
+    <% if @ledger.closing_balance(@selected_fy_code,@selected_branch_id).abs >= 0.01 %>
         <%= link_to 'Clear Ledger', new_voucher_path(clear_ledger: true, client_account_id: @ledger.client_account_id) %>
     <% end %>
-    <% if @ledger.client_account.bills.find_not_settled.present? %>
+    <% if @ledger.client_account.bills.find_not_settled.by_branch_fy_code(@selected_branch_id, @selected_fy_code).present? %>
         | <%= link_to 'Process Selected Bills', bills_path(search_by: 'client_id', search_term: @ledger.client_account_id) %>
     <% end %>
 <% end %>
@@ -147,13 +147,13 @@
                 </td>
                   <td class='text-right'>
                     <!-- -0.01 + 0.01 is equal to zero -->
-                    <% if particular.running_total + margin_of_error_amount < 0 %>
+                    <% if particular[:running_total] + margin_of_error_amount < 0 %>
               <span class="credit-amount">
-                <%= "#{number_to_currency(particular.running_total.abs)} Cr" %>
+                <%= "#{number_to_currency(particular[:running_total].abs)} Cr" %>
               </span>
                     <% else %>
               <span class="debit-amount">
-                <%= "#{number_to_currency(particular.running_total.abs)} Dr" %>
+                <%= "#{number_to_currency(particular[:running_total].abs)} Dr" %>
               </span>
                     <% end %>
 

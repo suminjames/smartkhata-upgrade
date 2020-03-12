@@ -30,7 +30,7 @@ class UserSession
     end
 
     def tenant=(tenant)
-     @tenant = tenant
+      @tenant = tenant
     end
 
     # def branch_id

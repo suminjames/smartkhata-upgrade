@@ -83,11 +83,11 @@ class ChequeEntry < ActiveRecord::Base
   enum cheque_issued_type: [:payment, :receipt]
 
   # scope based on the branch
-  default_scope do
-    if UserSession.selected_branch_id != 0
-      where(branch_id: UserSession.selected_branch_id)
-    end
-  end
+  # default_scope do
+  #   if UserSession.selected_branch_id != 0
+  #     where(branch_id: UserSession.selected_branch_id)
+  #   end
+  # end
 
   filterrific(
       default_filter_params: { sorted_by: 'id_asc' },
@@ -163,8 +163,8 @@ class ChequeEntry < ActiveRecord::Base
     beneficiary_names.uniq.collect { |beneficiary_name| {:text=> beneficiary_name[:beneficiary_name], :id=> beneficiary_name[:beneficiary_name]} }
   end
 
-  def self.options_for_bank_account_select
-    BankAccount.by_branch_id.all.order(:bank_name)
+  def self.options_for_bank_account_select(branch_id = 0)
+    BankAccount.by_branch_id(branch_id).all.order(:bank_name)
   end
 
   def self.options_for_beneficiary_name(filterrific_params)
