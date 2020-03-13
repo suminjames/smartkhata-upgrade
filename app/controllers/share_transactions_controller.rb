@@ -44,18 +44,18 @@ class ShareTransactionsController < ApplicationController
     if params[:paginate] == 'false'
       if ['xlsx', 'pdf'].include?(params[:format])
         if params[:group_by_company] == "true"
-          @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC')
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC')
         else
-          @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC')
+          @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('share_transactions.date ASC, contract_no ASC')
         end
       else
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC')
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('share_transactions.date ASC, contract_no ASC')
         # Needed for pagination to work
         @share_transactions = @share_transactions.page(0).per(@share_transactions.size)
       end
     else
       if params[:group_by_company] == "true"
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('isin_info_id ASC, share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
         # This hash maps isin_info_ids(keys) with their respective counts(values)
         # Notice the ommision of pagination the query below. This is to have an overall cardinality of the current search scope.
         # Eg: {2=>5, 29=>6, 98=>1, 103=>2, 111=>4, 133=>8, 145=>5, 209=>1, 219=>1, 444=>4}
@@ -72,7 +72,7 @@ class ShareTransactionsController < ApplicationController
         end
       else
 
-        @share_transactions= @filterrific.find.includes(:isin_info, :bill).order('share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
+        @share_transactions= @filterrific.find.includes(:isin_info, :bill, :client_account).order('share_transactions.date ASC, contract_no ASC').page(params[:page]).per(items_per_page)
         @total_count = @filterrific.find.count if params.dig(:filterrific, :by_client_id)
       end
     end

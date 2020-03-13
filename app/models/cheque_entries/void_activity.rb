@@ -125,8 +125,8 @@ class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
         new_voucher.bills_on_settlement = processed_bills
 
         description = "Cheque number #{@cheque_entry.cheque_number} voided at #{ad_to_bs(@cheque_entry.void_date)}. #{@cheque_entry.void_narration}"
-        process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now, @current_user_id)
-        bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now, @current_user_id)
+        process_accounts(client_ledger, new_voucher, false, @cheque_entry.amount, description, client_branch_id, Time.now, @current_user)
+        bank_particular = process_accounts(bank_ledger, new_voucher, true, @cheque_entry.amount, description, bank_branch_id, Time.now, @current_user)
         bank_particular.cheque_entries_on_receipt << @cheque_entry
 
 
