@@ -1,6 +1,6 @@
 
 class Vouchers::Create < Vouchers::Base
-  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id, :current_user
+  attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id, :current_user, :current_user_id
 
   def initialize(attrs = {})
     super(attrs)
@@ -320,6 +320,9 @@ class Vouchers::Create < Vouchers::Base
     res = false
     settlement = nil
     settlements = []
+
+    set_current_user = lambda { |l| l.current_user_id = @current_user_id }
+
     Voucher.transaction do
 
       # @receipt = nil
@@ -338,6 +341,8 @@ class Vouchers::Create < Vouchers::Base
       #   settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
       # end
 
+      branch_id = selected_branch_id.to_i == 0 ? voucher.branch_id : selected_branch_id
+
       # flag to know if the voucher has cheque entry
       voucher_has_cheque_entry = false
       voucher.particulars.each do |particular|
@@ -345,7 +350,7 @@ class Vouchers::Create < Vouchers::Base
         particular.date_bs = voucher.date_bs
         particular.creator_id ||= current_user&.id
         particular.updater_id = current_user&.id
-        particular.branch_id ||= selected_branch_id
+        particular.branch_id ||= branch_id
         particular.current_user_id = current_user&.id
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
@@ -385,9 +390,7 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is receipt type if issued from the client
             #
             #TODO major change to be rollback on future
-            cheque_entry = ChequeEntry.unscoped.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, branch_id: selected_branch_id) do |c|
-              c.current_user_id = @current_user_id
-            end
+            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, branch_id: branch_id, &set_current_user)
 
             if voucher.is_payment?
               cheque_entry.cheque_date = DateTime.now
@@ -443,7 +446,7 @@ class Vouchers::Create < Vouchers::Base
 
         end
         if is_payment_receipt && voucher_settlement_type == 'default'
-          settlement = purchase_nepse_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills, cash_amount: net_cash_amount, branch_id: selected_branch_id)
+          settlement = purchase_nepse_settlement(voucher, ledger: ledger, particular: particular, client_account: the_client_account, description_bills: description_bills, cash_amount: net_cash_amount)
           # TODO()
           # voucher.settlements << settlement if settlement.present?
           # particular.settlements << settlement if settlement.present?
@@ -539,10 +542,7 @@ class Vouchers::Create < Vouchers::Base
     receipt_amount = attrs[:receipt_amount] || 0
     client_group_leader_account = attrs[:client_group_leader_account]
     vendor_account = attrs[:vendor_account]
-    fy_code = attrs[:fy_code] ||= get_fy_code
     cash_amount = attrs[:cash_amount] || 0.0
-
-    settler_name = ""
     settlement = nil
     settlement_description ||= voucher.desc
 
@@ -580,7 +580,7 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: selected_branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
@@ -588,7 +588,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: selected_branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       # settlement.client_account = client_account
     end
     settlement
@@ -625,7 +625,7 @@ class Vouchers::Create < Vouchers::Base
 
 
   def get_branch_id_from_session
-    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
+    selected_branch_id == 0 ? current_user_id : selected_branch_id
   end
 
   def valid_branch(voucher)

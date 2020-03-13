@@ -131,7 +131,11 @@ class ApplicationController < ActionController::Base
   end
 
   def active_record_branch_id
-    @selected_branch_id == 0 ? current_user&.branch_id : @selected_branch_id
+    branch_id_for_entry(@selected_branch_id)
+  end
+
+  def branch_id_for_entry(branch_id)
+    branch_id.to_i == 0 ? current_user&.branch_id : branch_id
   end
 
   helper_method :active_record_branch_id
@@ -144,7 +148,7 @@ class ApplicationController < ActionController::Base
   end
 
   def with_branch_user_params permitted_params
-    branch_id = permitted_params[:branch_id] || active_record_branch_id
+    branch_id = branch_id_for_entry( permitted_params[:branch_id] )
     permitted_params.merge!({ branch_id: branch_id, current_user_id: current_user.id})
   end
 end

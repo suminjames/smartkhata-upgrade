@@ -83,7 +83,7 @@ class VouchersController < ApplicationController
     # ignore some validations when the voucher type is sales or purchase
     @is_payment_receipt = false
     # create voucher with the posted parameters
-    @voucher = Voucher.new(voucher_params)
+    @voucher = Voucher.new(with_branch_user_params(voucher_params))
     voucher_creation = Vouchers::Create.new(voucher_type: @voucher_type,
                                             client_account_id: @client_account_id,
                                             bill_id: @bill_id,
