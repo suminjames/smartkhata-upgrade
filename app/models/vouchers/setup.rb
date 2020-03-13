@@ -27,7 +27,7 @@ class Vouchers::Setup < Vouchers::Base
     if voucher.is_payment_receipt?
       is_payment_receipt = true
 
-      bank_accounts_in_branch = BankAccount.by_branch_id(:selected_branch_id)
+      bank_accounts_in_branch = BankAccount.by_branch_id(selected_branch_id)
 
       default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
       default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first
