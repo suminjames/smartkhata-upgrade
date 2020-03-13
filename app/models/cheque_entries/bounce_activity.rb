@@ -1,6 +1,6 @@
 class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
-  def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, selected_branch_id = nil, selected_fy_code = nil, current_user)
+  def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, current_user, selected_branch_id = nil, selected_fy_code = nil)
     super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user)
     @cheque_entry.bounce_date_bs = bounce_date_bs
     @cheque_entry.bounce_narration = bounce_narration

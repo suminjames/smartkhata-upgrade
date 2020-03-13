@@ -625,7 +625,7 @@ class Vouchers::Create < Vouchers::Base
 
 
   def get_branch_id_from_session
-    selected_branch_id == 0 ? current_user_id : selected_branch_id
+    selected_branch_id == 0 ? current_user.branch_id : selected_branch_id
   end
 
   def valid_branch(voucher)

@@ -146,7 +146,7 @@ class ChequeEntriesController < ApplicationController
   def void_do
     void_date_bs = params.dig(:cheque_entry, :void_date)
     void_narration = params.dig(:cheque_entry, :void_narration)
-    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, void_date_bs, void_narration, current_tenant.full_name, selected_branch_id, selected_fy_code, current_user.id)
+    cheque_activity = ChequeEntries::VoidActivity.new(@cheque_entry, void_date_bs, void_narration, current_tenant.full_name, current_user, selected_branch_id, selected_fy_code)
     cheque_activity.process
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
@@ -167,7 +167,7 @@ class ChequeEntriesController < ApplicationController
   def bounce_do
     bounce_date_bs = params.dig(:cheque_entry, :bounce_date)
     bounce_narration = params.dig(:cheque_entry, :bounce_narration)
-    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name, selected_branch_id, selected_fy_code, current_user.id)
+    cheque_activity = ChequeEntries::BounceActivity.new(@cheque_entry, bounce_date_bs, bounce_narration, current_tenant.full_name, current_user, selected_branch_id, selected_fy_code)
     cheque_activity.process
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
