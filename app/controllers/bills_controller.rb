@@ -41,9 +41,9 @@ class BillsController < ApplicationController
     ) or return
 
     if ['xlsx', 'pdf'].include? params[:format]
-      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).decorate
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions,  :isin_infos).decorate
     else
-      @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+      @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).page(params[:page]).per(20).decorate
     end
 
     @download_path_xlsx = bills_path({format:'xlsx'}.merge params)
@@ -166,7 +166,7 @@ class BillsController < ApplicationController
 
   def show_multiple
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    bills = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).where(id: bill_ids).decorate
+    bills = Bill.by_branch_id(selected_branch_id).includes(:client_account, :share_transactions => :isin_info).where(id: bill_ids).decorate
     respond_to do |format|
       format.html
       format.js
