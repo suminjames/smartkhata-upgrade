@@ -14,7 +14,7 @@ module Accounts
         fy_codes
       end
 
-      def patch_ledger_dailies(ledger, all_fiscal_years, current_user_id, branch_id = 1, fy_code = nil)
+      def patch_ledger_dailies(ledger, all_fiscal_years, current_user_id, branch_id = 1, fy_code = nil, dates_affected = [])
         # need to modify this in future to accomodate current fiscal year
 
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
@@ -24,9 +24,14 @@ module Accounts
         fy_codes.each do |fy_code|
           # needed for entering the data balance
           # here we are migrating only single branch so need not concern about the multiple branches
-          transaction_dates_org = Particular.where(particular_status: 1, ledger_id: ledger.id, fy_code: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
-          LedgerDaily.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id).delete_all
-          LedgerDaily.by_fy_code_org(fy_code).where(ledger_id: ledger.id).delete_all
+
+          transaction_dates_org = dates_affected
+          if dates_affected.blank?
+            transaction_dates_org = Particular.where(particular_status: 1, ledger_id: ledger.id, fy_code: fy_code).order(:transaction_date).pluck(:transaction_date).uniq
+          end
+
+          LedgerDaily.by_branch_fy_code(branch_id,fy_code).where(ledger_id: ledger.id, date: transaction_dates_org).delete_all
+          LedgerDaily.by_fy_code_org(fy_code).where(ledger_id: ledger.id, date: transaction_dates_org).delete_all
 
           transaction_dates_org.each do |date|
             query = "SELECT SUM(subquery.amount) FROM (SELECT ( CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END ) as amount FROM particulars WHERE ledger_id = #{ledger.id} AND particular_status = 1 AND fy_code = #{fy_code} AND branch_id= #{branch_id} AND transaction_date= '#{date}') AS subquery;"
@@ -73,9 +78,9 @@ module Accounts
       end
 
 
-      def process(ledger_ids, current_user_id, all_fiscal_years = false, branch_id = 1, fy_code = nil)
+      def process(ledger_ids, current_user_id, all_fiscal_years = false, branch_id = 1, fy_code = nil, affected_dates = [])
         Ledger.where(id: ledger_ids).find_each do |ledger|
-          patch_ledger_dailies(ledger,all_fiscal_years, current_user_id, branch_id, fy_code)
+          patch_ledger_dailies(ledger,all_fiscal_years, current_user_id, branch_id, fy_code, affected_dates)
         end
       end
     end

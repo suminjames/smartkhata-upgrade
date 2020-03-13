@@ -21,6 +21,9 @@ module Accounts
 
         branch_id ||= 0
 
+        affected_dates = bills.pluck(:date).uniq
+        affected_dates << new_date
+
         ActiveRecord::Base.transaction do
           #
           vouchers = bills.map{|x| x.vouchers_on_creation }.flatten.uniq
@@ -36,7 +39,7 @@ module Accounts
             v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
           end
           bills.update_all(date: new_date)
-          patch_ledger_dailies ledger_ids, branch_id, @fy_code, @current_user_id
+          patch_ledger_dailies ledger_ids, branch_id, @fy_code, @current_user_id, affected_dates
         end
         puts "#{bills.size} bill processed"
         true
@@ -48,14 +51,14 @@ module Accounts
         bills = bills.where(bill_type: Bill.bill_types[bill_type]) if bill_type
         bills
       end
-      def patch_ledger_dailies ledger_ids, branch_id, fy_code, current_user_id
+      def patch_ledger_dailies ledger_ids, branch_id, fy_code, current_user_id, affected_dates
         if branch_id == 0
           branch_ids = Branch.all.pluck(:id)
         else
           branch_ids == [branch_id]
         end
         branch_ids.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, current_user_id, false, branch_id, fy_code)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, current_user_id, false, branch_id, fy_code, affected_dates)
         end
       end
 

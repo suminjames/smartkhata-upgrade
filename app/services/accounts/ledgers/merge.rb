@@ -52,8 +52,9 @@ module Accounts
         branches = particulars_to_be_moved.pluck(:branch_id).uniq
         # change the ledger id to new one and delete balance and ledger dailies
         particulars_to_be_moved.update_all(ledger_id: ledger_to_merge_to.id)
+        transaction_dates = particulars_to_be_moved.pluck(:transaction_date).uniq
         branches.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, @current_user.id, branch_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, @current_user.id, branch_id, nil, transaction_dates)
           Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger_to_merge_to, all_fiscal_years: true, branch_id: branch_id, current_user_id: @current_user.id)
         end
 

@@ -25,12 +25,14 @@ module Accounts
           particulars_to_move = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id)
           sharetransactions_affected = ShareTransaction.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
 
+          dates_affected = particulars_to_move.pluck(:transaction_date).uniq
+
           if dry_run
             puts "Bills affected: #{bills_affected.count}"
             puts "Settlements affected: #{settlements_affected.count}"
             puts "Particulars affected: #{particulars_on_other_branch_count}"
             puts "Sharetransactions affected: #{sharetransactions_affected.count}"
-            return nil, nil
+            return nil, nil, nil
           else
             bills_affected.update_all(branch_id: branch_id)
             settlements_affected.update_all(branch_id: branch_id)
@@ -50,16 +52,16 @@ module Accounts
           end
           particulars_to_move.update_all(branch_id: branch_id)
         else
-          return nil, nil
+          return nil, nil, nil
         end
         ledger_ids << ledger.id
-        return ledger_ids, fy_codes
+        return ledger_ids, fy_codes, dates_affected
       end
 
 
       def patch_client_branch(client_account, branch_id, current_user_id,  date_bs = nil, dry_run = false )
         ActiveRecord::Base.transaction do
-          ledger_ids, fy_codes = move_transactions(client_account, branch_id, date_bs, dry_run)
+          ledger_ids, fy_codes, dates_affected = move_transactions(client_account, branch_id, date_bs, dry_run)
           # dont patch ledger when dry run is true or ledger_ids is empty
           unless ( dry_run || ledger_ids.size == 0)
             fy_code = fy_codes[0]
@@ -71,7 +73,7 @@ module Accounts
 
             Branch.all.each do |branch|
               Ledger.where(id: ledger_ids).find_each do |ledger|
-                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, current_user_id, branch.id, fy_code)
+                Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, current_user_id, branch.id, fy_code, dates_affected)
                 Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch.id, fy_code: fy_code, current_user_id: current_user_id)
               end
             end

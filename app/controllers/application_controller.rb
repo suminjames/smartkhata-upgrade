@@ -144,6 +144,7 @@ class ApplicationController < ActionController::Base
   end
 
   def with_branch_user_params permitted_params
-    permitted_params.merge!({ branch_id: active_record_branch_id, current_user_id: current_user.id})
+    branch_id = permitted_params[:branch_id] || active_record_branch_id
+    permitted_params.merge!({ branch_id: branch_id, current_user_id: current_user.id})
   end
 end
