@@ -266,6 +266,11 @@ class LedgersController < ApplicationController
     client_account = ClientAccount.find(@client_account_id)
     @back_path = request.referer || group_member_ledgers_path
 
+    if (@selected_branch_id.to_i == 0)
+      redirect_to @back_path, :flash => {:error => 'Invalid Branch, Please select correct branch'} and return
+    end
+
+
     if @ledger_ids.size <= 0 || client_account.blank?
       redirect_to @back_path, :flash => {:error => 'No Ledgers were Selected'} and return
     end
@@ -286,7 +291,7 @@ class LedgersController < ApplicationController
       # update description
       description = "Balance Transferred to #{client_account.name}"
       # update ledgers value
-      voucher = Voucher.create!(date_bs: ad_to_bs_string(Time.now), desc: description, voucher_status: :complete)
+      voucher = Voucher.create!(current_user_id: current_user.id, branch_id: selected_branch_id, fy_code: selected_fy_code, date_bs: ad_to_bs_string(Time.now), desc: description, voucher_status: :complete)
 
       # update each ledgers
       ledger_list.each do |ledger|
