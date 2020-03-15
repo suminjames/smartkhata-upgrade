@@ -129,9 +129,6 @@ Rails.application.routes.draw do
     end
     resources :transaction_messages do
       collection do
-        post 'send_sms'
-        post 'send_email'
-        post 'sent_status'
         post 'create_multiple'
       end
     end
@@ -232,6 +229,17 @@ Rails.application.routes.draw do
     # TODO(sarojk): Implement sidekiq view to be only accessible by (sys)admin.
     authenticate :user do
       mount Sidekiq::Web => '/sidekiq'
+    end
+  end
+
+
+  # routes without fycode
+
+  resources :transaction_messages, only: [] do
+    collection do
+      post 'send_sms'
+      post 'send_email'
+      post 'sent_status'
     end
   end
 
