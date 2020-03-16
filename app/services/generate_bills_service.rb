@@ -71,7 +71,7 @@ class GenerateBillsService
         closeout_amount =  transaction.closeout_amount
 
         # default date is T+3 of transaction date
-        settlement_date ||= Calendar::t_plus_3_trading_days(transaction.date)
+        settlement_date ||= Calendar::t_plus_3_working_days(transaction.date)
 
         # get the fy_code from sales settlement date
         fy_code = get_fy_code(settlement_date)

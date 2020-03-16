@@ -148,9 +148,9 @@ class Print::PrintMultipleBills < Prawn::Document
       data = [
           ["Transaction Date:", @bill.formatted_transaction_dates['ad'] +" (" + @bill.formatted_transaction_dates['bs'] +")"]
       ]
-      if @bill.purchase?
-        data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs'] +")"])
-      end
+      # if @bill.purchase?
+      #   data.insert(0, ["Clearance Date:", @bill.formatted_clearance_dates['ad'] +" (" + @bill.formatted_clearance_dates['bs'] +")"])
+      # end
       table(data, :position => :right, :cell_style => {:border_width => 0, :padding => [0, 2, 0, 2], :align => :right})
 
       move_down(30)

@@ -54,7 +54,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # raise soft error and return if the file is already uploaded
       import_error("The file is already uploaded") and return unless floorsheet_file.nil?
     end
-    settlement_date = Calendar::t_plus_3_trading_days(@date)
+    settlement_date = Calendar::t_plus_3_working_days(@date)
     fy_code = get_fy_code(@date)
 
     # get bill number once and increment it on rails code

@@ -77,7 +77,7 @@ namespace :share_transaction do
             ledgers << ledger_id
 
             # fix the particulars
-            date_for_fy = transaction.settlement_date || Calendar::t_plus_3_trading_days(transaction.date)
+            date_for_fy = transaction.settlement_date || Calendar::t_plus_3_working_days(transaction.date)
             fy_code = get_fy_code(date_for_fy)
 
             # make sure the particular is single

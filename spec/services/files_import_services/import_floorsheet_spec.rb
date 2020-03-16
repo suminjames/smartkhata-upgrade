@@ -245,7 +245,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
       import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, fy_code)
-      allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+      allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       expect(ShareTransaction.count).to eq(24)
       expect(FileUpload.count).to eq(1)
@@ -332,7 +332,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
       import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, fy_code)
-      allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+      allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       processed_share_transactions_for_the_date = ShareTransaction.all
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
@@ -382,7 +382,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       xlsx = Roo::Spreadsheet.open(file, extension: :xml)
       # allow(import_floorsheet).to receive(:is_invalid_file_data).with(xlsx).and_return(false)
-      allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+      allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       # settlement_date = '2016-12-01'
       allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
       expect(import_floorsheet.process_full_partial(false)).to eq(FileUpload.last)
@@ -398,7 +398,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.instance_variable_set(:@bill_number, 1)
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
         expect(import_floorsheet.process_full_partial(false)).to eq(nil)
@@ -425,7 +425,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
         # allow(import_floorsheet).to receive(:is_invalid_file_data).with(xlsx).and_return(false)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
         expect(import_floorsheet.process_full_partial(false)).to eq(nil)
@@ -451,7 +451,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
         xlsx = Roo::Spreadsheet.open(file, extension: :xml)
         # allow(import_floorsheet).to receive(:is_invalid_file_data).with(xlsx).and_return(false)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         # settlement_date = '2016-12-01'
         allow(import_floorsheet).to receive(:get_commission_info_with_detail).with('2016-11-28'.to_date).and_return(commission_info)
         expect(import_floorsheet.process_full_partial(false)).to eq(nil)
@@ -496,7 +496,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
       file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
       import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
-      allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+      allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
       import_floorsheet.process
       expect(FileUpload.count).to eq(1)
       commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
@@ -520,7 +520,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
         expect(FileUpload.count).to eq(1)
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
@@ -548,7 +548,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
         file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_2073-08-13.xls')
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, @fy_code)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
         expect(FileUpload.count).to eq(1)
         commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
@@ -576,7 +576,7 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         file_partial = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_partial_2073-08-13.xls')
         invalid_file = (Rails.root + 'test/fixtures/files/floorsheets/v2/floor_sheet_broker_99_small_incorrect_total_2073-08-13.xls')
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(file_partial, current_user, current_branch.id, @fy_code)
-        allow(Calendar).to receive(:t_plus_3_trading_days).with('2016-11-28'.to_date).and_return('2016-12-01')
+        allow(Calendar).to receive(:t_plus_3_working_days).with('2016-11-28'.to_date).and_return('2016-12-01')
         import_floorsheet.process
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user, @fy_code, true)
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xml)
