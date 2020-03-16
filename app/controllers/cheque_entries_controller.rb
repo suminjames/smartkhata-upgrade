@@ -332,7 +332,7 @@ class ChequeEntriesController < ApplicationController
   # PATCH/PUT /cheque_entries/1.json
   def update
     respond_to do |format|
-      if @cheque_entry.update(cheque_entry_params)
+      if @cheque_entry.update(cheque_entry_params(false))
         format.html { redirect_to @cheque_entry, notice: 'Cheque entry was successfully updated.' }
         format.json { render :show, status: :ok, location: @cheque_entry }
       else
@@ -374,10 +374,9 @@ class ChequeEntriesController < ApplicationController
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
-  def cheque_entry_params
+  def cheque_entry_params(assign_branch = true)
    permitted_params = params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, :bounce_date, :bounce_narration, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
-   with_branch_user_params(permitted_params)
-
+   with_branch_user_params(permitted_params, assign_branch)
   end
 
 end
