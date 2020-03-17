@@ -196,7 +196,7 @@ class VouchersController < ApplicationController
           end
         elsif params[:reject]
           # TODO(Subas) what happens to bill
-          @voucher.reviewer_id = current_user&.id
+          @voucher.current_user_id = current_user&.id
           voucher_amount = 0.0
 
           ActiveRecord::Base.transaction do
@@ -207,6 +207,7 @@ class VouchersController < ApplicationController
             cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
             ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               if cheque_entry.printed?
+                cheque_entry.current_user_id = current_user.id
                 cheque_entry.void!
               else
                 replacement_cheque_entry = ChequeEntry.new()
@@ -214,6 +215,7 @@ class VouchersController < ApplicationController
                 replacement_cheque_entry.bank_account_id= cheque_entry.bank_account_id
                 replacement_cheque_entry.branch_id = cheque_entry.branch_id
                 replacement_cheque_entry.fy_code= cheque_entry.fy_code
+                replacement_cheque_entry.current_user_id = current_user.id
                 # The destroy will also delete cheque_entry_particular_associations via model callbacks
                 cheque_entry.destroy!
                 replacement_cheque_entry.save!
@@ -225,6 +227,7 @@ class VouchersController < ApplicationController
             processed_bills = []
 
             @bills.each do |bill|
+              bill.current_user_id = current_user.id
               if voucher_amount + margin_of_error_amount < bill.net_amount
                 bill.balance_to_pay = voucher_amount
                 bill.status = Bill.statuses[:partial]
