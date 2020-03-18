@@ -51,18 +51,27 @@
               @filterrific.select_options[:by_transaction_type], |
               {include_blank: true},                 |
               {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
-        .col-sm-2.clear-date-position
+        .col-sm-2
           %label
             Date
-          = datepicker_input(f, 'by_date')
+          = f.text_field(                 |
+            :by_date,                     |
+            :placeholder => 'YYYY-MM-DD', |
+            class: 'form-control' ) |
         .col-sm-2.text-center
           %label
             Date Range
           .clearfix
-            .row.st-row.clear-date-position
-              = datepicker_input(f, 'by_date_from')
-            .row.top-buffer-sm.clear-date-position
-              = datepicker_input(f, :by_date_to)
+            .row
+              = f.text_field(                 |
+                :by_date_from,                |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' )       |
+            .row.top-buffer-sm
+              = f.text_field(                 |
+                :by_date_to,                  |
+                :placeholder => 'YYYY-MM-DD', |
+                class: 'form-control' ) |
         -if params[:paginate] != 'false'
           .col-sm-2.text-center
             %label
