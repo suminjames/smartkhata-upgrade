@@ -24,7 +24,7 @@ class BillsController < ApplicationController
       @process_selected_bills = true
       @client_account_id = params['search_term'].to_i
       client_account= ClientAccount.find(@client_account_id)
-      @bills = client_account.get_all_related_bills.by_branch_fy_code(selected_branch_id, selected_fy_code).order(date: :asc).decorate
+      @bills = client_account.get_all_related_bills.order(date: :asc).decorate
       # render a separate page for bills selection
       render :select_for_settlement and return
     end
