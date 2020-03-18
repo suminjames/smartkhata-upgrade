@@ -3,7 +3,7 @@ class ChequeEntryPolicy < ApplicationPolicy
   permit_conditional_access_to_employee_and_above :index
 
   permit_custom_access :employee_and_above,
-                       cheque_entries_path,
+                       cheque_entries_path(0,0),
                        [
                            :new,
                            :show,
@@ -21,7 +21,7 @@ class ChequeEntryPolicy < ApplicationPolicy
                        ]
 
   permit_custom_access_branch_restricted :employee_and_above,
-                       cheque_entries_path,
+                       cheque_entries_path(0,0),
                        [
                            :bounce_show,
                            :bounce_do,

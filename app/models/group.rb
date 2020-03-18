@@ -66,10 +66,11 @@ class Group < ActiveRecord::Base
   # level 1 which is default will return only the balance
   def get_ledger_group(attrs = {})
     level = attrs[:drill_level] || 1
-    fy_code = UserSession.selected_fy_code
+    fy_code = attrs[:fy_code]
+    branch_id = attrs[:branch_id]
     group_ledger = Hash.new
     child_group = Hash.new
-    group_ledger[:balance] = self.closing_balance(fy_code)
+    group_ledger[:balance] = self.closing_balance(fy_code,branch_id)
     group_ledger[:ledgers] = []
 
     # dont load all the clients
@@ -99,8 +100,9 @@ class Group < ActiveRecord::Base
     Ledger.where("group_id IN (#{subtree})").order(name: :asc)
   end
 
-  def closing_balance(fy_code = get_fy_code)
-    self.descendent_ledgers(fy_code).to_a.sum(&:closing_balance)
+  def closing_balance(fy_code,branch_id)
+    # self.descendent_ledgers(fy_code).to_a.sum(&:closing_balance)
+    self.descendent_ledgers.inject(0) { |sum, p| sum + p.closing_balance(fy_code, branch_id) }
   end
 
   def self.tree_for(instance)

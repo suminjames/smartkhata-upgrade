@@ -72,6 +72,8 @@ group :development do
   gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
   gem 'capistrano-rvm', '~> 0.1.1'
+  gem 'capistrano-sidekiq'
+
   gem 'quiet_assets'
   gem 'rails_layout'
   gem 'bullet'
@@ -107,5 +109,6 @@ group :test do
   gem "vcr"
   gem 'selenium-webdriver'
   gem 'chromedriver-helper'
+  gem 'webdrivers', '~> 4.0'
 end
 gem 'sassc-rails'

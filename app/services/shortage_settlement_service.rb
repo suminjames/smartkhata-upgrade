@@ -6,6 +6,8 @@ class ShortageSettlementService
   SETTLEMENT_TYPES = %w(client broker counter_broker)
 
   def initialize( transaction, settlement_by, current_tenant, params={})
+    @current_user = params[:current_user]
+    @branch = params[:branch]
     @share_transaction = transaction
     @error = nil
     @settlement_by = settlement_by
@@ -59,7 +61,7 @@ class ShortageSettlementService
   end
 
   def receipt_bank_account_ledger
-    BankAccount.default_receipt_account.try(:ledger)
+    BankAccount.default_receipt_account(@branch.id).try(:ledger)
   end
 
 
@@ -97,10 +99,10 @@ class ShortageSettlementService
       bill.closeout_charge += share_transaction.closeout_amount
       bill.save!
       description = "Shortage Sales adjustment (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
-      voucher = Voucher.create!(date: settlement_date)
+      voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
       voucher.desc = description
-      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
-      process_accounts(client_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date,@current_user)
+      process_accounts(client_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       voucher.complete!
       voucher.save!
     end
@@ -127,14 +129,14 @@ class ShortageSettlementService
       bill.net_amount -= share_transaction.closeout_amount
       bill.save!
       description = "Shortage Sales adjustment (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
-      voucher = Voucher.create!(date: settlement_date)
+      voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
       voucher.desc = description
 
-      process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
-      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
+      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
 
-      process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
-      process_accounts(client_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
+      process_accounts(client_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       voucher.complete!
       voucher.save!
     end
@@ -151,7 +153,7 @@ class ShortageSettlementService
         account_for_bill = counter_broker_ledger.try(:client_account)
       end
 
-      account_for_bill = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code) do |client|
+      account_for_bill = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id) do |client|
         client.name = @current_tenant.full_name if settlement_by == 'broker'
         client.name = counter_broker_ledger.name if settlement_by == 'counter_broker'
         client.branch = Branch.first
@@ -186,25 +188,25 @@ class ShortageSettlementService
       client_reversal_amount = get_client_reversal_amount(balancing_transactions)
 
       description = "Bill adjustment for Shortage Sales of (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
-      voucher = Voucher.create!(date: settlement_date)
+      voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
       voucher.desc = description
 
-      process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
-      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+      process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
+      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       if (settlement_by == 'counter_broker')
-        process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date)
+        process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
 
         if (share_transaction.closeout_amount - client_reversal_amount) != 0
           if (share_transaction.closeout_amount - client_reversal_amount ) > 0.01
-            process_accounts(counter_broker_ledger, voucher, false, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date)
+            process_accounts(counter_broker_ledger, voucher, false, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date, @current_user)
           else
-            process_accounts(counter_broker_ledger, voucher, true, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date)
+            process_accounts(counter_broker_ledger, voucher, true, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date, @current_user)
           end
         end
       else
-        process_accounts(closeout_ledger, voucher, true, client_reversal_amount, description, cost_center_id, settlement_date)
+        process_accounts(closeout_ledger, voucher, true, client_reversal_amount, description, cost_center_id, settlement_date, @current_user)
       end
-      new_particular = process_accounts(client_ledger, voucher, false, client_reversal_amount, description, cost_center_id, settlement_date)
+      new_particular = process_accounts(client_ledger, voucher, false, client_reversal_amount, description, cost_center_id, settlement_date, @current_user)
       new_particular.hide_for_client = true
       new_particular.save
       voucher.complete!

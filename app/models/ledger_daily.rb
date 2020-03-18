@@ -28,16 +28,16 @@ class LedgerDaily < ActiveRecord::Base
   belongs_to :ledger
   before_save :process_daily_ledger
 
-  def self.sum_of_closing_balance_of_ledger_dailies_for_ledgers(ledger_ids, date_to_ad)
-    closing_balance_sum = 0.0
-    Ledger.where(id:ledger_ids).each do |ledger|
-      last_day_ledger_daily = ledger.ledger_dailies.by_branch_fy_code.where('date <= ?',date_to_ad).order('date DESC, updated_at DESC').first
-      if last_day_ledger_daily.present?
-        closing_balance_sum += last_day_ledger_daily.closing_balance
-      end
-    end
-    closing_balance_sum
-  end
+  # def self.sum_of_closing_balance_of_ledger_dailies_for_ledgers(ledger_ids, date_to_ad, selected_fy_code, selected_branch_id)
+  #   closing_balance_sum = 0.0
+  #   Ledger.where(id:ledger_ids).each do |ledger|
+  #     last_day_ledger_daily = ledger.ledger_dailies.by_branch_fy_code(selected_branch_id, selected_fy_code).where('date <= ?',date_to_ad).order('date DESC, updated_at DESC').first
+  #     if last_day_ledger_daily.present?
+  #       closing_balance_sum += last_day_ledger_daily.closing_balance
+  #     end
+  #   end
+  #   closing_balance_sum
+  # end
 
   private
   def process_daily_ledger

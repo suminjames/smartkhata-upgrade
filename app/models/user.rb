@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   enum office_roles: [:manager]
 
   after_initialize :set_default_role, :if => :new_record?
-  attr_accessor :login, :name_for_user
+  attr_accessor :login, :name_for_user, :current_branch_id, :current_fy_code
 
   has_many :client_accounts
   has_one :employee_account
@@ -86,9 +86,9 @@ class User < ActiveRecord::Base
 
   attr_accessor :current_url_link
 
-  def self.client_logged_in?
-    UserSession.user.client?
-  end
+  # def self.client_logged_in?
+  #   UserSession.user.client?
+  # end
 
   #
   # A user has_many client_accounts.
@@ -134,20 +134,36 @@ class User < ActiveRecord::Base
   end
 
   def can_read_write?
-    UserSession.selected_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
+    self.current_branch_id != 0 && (self.admin? || ( self.employee? &&  self.user_access_role.try(:read_and_write?)))
   end
 
   # get the branches that are available for the user
   # for admin and client all the branch are available
   # for employee only those assigned on the permission
   def available_branches
-    _available_branches = []
-    if self.admin? || self.client?
-      _available_branches = Branch.all
-    else
-      branch_ids = self.branch_permissions.pluck(:branch_id)
-      _available_branches = Branch.where(id: branch_ids)
+    @available_branches ||= begin
+      _available_branches = []
+      if self.admin? || self.client?
+        _available_branches = Branch.all
+      else
+        branch_ids = self.branch_permissions.pluck(:branch_id)
+        _available_branches = Branch.where(id: branch_ids)
+      end
+      _available_branches
     end
-    _available_branches
+  end
+
+  def available_branch_ids
+    @available_branch_ids ||= begin
+      branch_ids = available_branches.pluck(:id).uniq
+      if branch_ids.length == Branch.count
+        branch_ids << 0
+      end
+      branch_ids
+    end
+  end
+
+  def can_access_branch?
+    available_branch_ids.include?(current_url_link.split('/')[2].to_i) rescue false
   end
 end

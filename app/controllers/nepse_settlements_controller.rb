@@ -29,7 +29,7 @@ class NepseSettlementsController < ApplicationController
       @share_transactions = ShareTransaction.selling.where(settlement_id: @nepse_settlement.settlement_id, deleted_at: nil)
     end
 
-    @receipt_bank_account = BankAccount.by_branch_id.where(:default_for_payment => true).first
+    @receipt_bank_account = BankAccount.by_branch_id(@selected_branch_id).where(:default_for_payment => true).first
     if @nepse_settlement.complete? || params[:type] == 'NepsePurchaseSettlement'
       @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list_complete", page_sizes: [50])
     else
@@ -99,7 +99,7 @@ class NepseSettlementsController < ApplicationController
     end
 
     # process the sale settlement
-    @status = GenerateBillsService.new(nepse_settlement: @nepse_settlement, current_tenant: current_tenant).process
+    @status = GenerateBillsService.new(nepse_settlement: @nepse_settlement, current_tenant: current_tenant, current_user: current_user).process
   end
 
 

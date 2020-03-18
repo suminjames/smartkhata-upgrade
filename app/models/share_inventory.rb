@@ -33,7 +33,7 @@
 
 class ShareInventory < ActiveRecord::Base
   include Auditable
-  include ::Models::UpdaterWithBranch
+  include ::Models::Updater
 
   belongs_to :client_account
   belongs_to :isin_info

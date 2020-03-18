@@ -7,10 +7,10 @@
         -#= label_tag 'fy_code', 'Fiscal Year'
         %i.fa.fa-calendar.fa-lg{'aria-hidden': true}
         - if can_select_fy_code
-          = select_tag 'fy_code', options_for_select(available_fy_codes, session[:user_selected_fy_code]), class: 'form-control'
+          = select_tag 'fy_code', options_for_select(available_fy_codes, @selected_fy_code), class: 'form-control'
         - else
           = select_tag 'fy_code', options_for_select(available_fy_codes, get_fy_code), class: 'form-control', :disabled => true
     .form-group
       -#= label_tag 'branch_id', 'Branch'
       %i.fa.fa-university.fa-lg{'aria-hidden': true}
-      = select_tag 'branch_id', options_from_collection_for_select(permitted_branches, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control'
+      = select_tag 'branch_id', options_from_collection_for_select(permitted_branches, 'id', 'code', @selected_branch_id), class: 'form-control'

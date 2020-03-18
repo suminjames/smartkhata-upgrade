@@ -28,7 +28,7 @@ describe "Ledger" do
       @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
-      visit ledgers_path
+      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: @branch.id)
     end
 
     context "when user is admin" do
@@ -44,10 +44,13 @@ describe "Ledger" do
         expect(page).to have_content("Show")
         expect(page).to have_content("Restrict")
         expect(page).to have_content("Process Selected Bills")
-
+        sleep(1)
         within('table.ledger-list') do
-          click_on "Show"
+          within all('tr')[1] do
+            find_all('a')[0].click
+          end
         end
+
 
         sleep(1)
         expect(page).to have_content("Opening Balance")
@@ -61,7 +64,7 @@ describe "Ledger" do
 
         click_on "1111"
         expect(page).to have_content("Cheque details")
-        expect(page).to have_selector(".btn")
+        expect(page).to have_selector(:link_or_button)
 
       end
     end
@@ -89,7 +92,7 @@ describe "Ledger" do
       @client_account.ledger.fy_code = @fy_code
       @client_account.ledger.particulars << particular
       @client_account.ledger.ledger_balances << ledger_balance
-      visit ledgers_path
+      visit ledgers_path(selected_fy_code: @fy_code, selected_branch_id: @branch.id)
     end
 
     context "when user is not admin" do
@@ -105,7 +108,12 @@ describe "Ledger" do
         expect(page).to have_content("Show")
         expect(page).not_to have_content("Clear Ledger")
         expect(page).not_to have_content("Process Selected Bills")
-        click_on "Show"
+        sleep(1)
+        within('table.ledger-list') do
+          within all('tr')[1] do
+            find_all('a')[0].click
+          end
+        end
         expect(page).to have_content("Opening Balance")
         expect(page).to have_content("Closing Balance")
         expect(page).not_to have_content("Clear Ledger")

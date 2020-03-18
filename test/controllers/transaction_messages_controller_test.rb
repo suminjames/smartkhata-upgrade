@@ -9,7 +9,6 @@ class TransactionMessagesControllerTest < ActionController::TestCase
   end
 
   test "should get index" do
-    # debugger
     get :index
     assert_response :success
     assert_not_nil assigns(:transaction_messages)

@@ -30,9 +30,9 @@
                 <%= link_to ledger.name, ledger, :target => "_blank" %>
               </td>
               <% if credit %>
-                  <td class="col-xs-6 text-right"><%= number_to_currency((ledger.closing_balance > 0 ? ledger.closing_balance * -1 : ledger.closing_balance.abs)) %></td>
+                  <td class="col-xs-6 text-right"><%= number_to_currency((ledger.closing_balance(@selected_fy_code, @selected_branch_id) > 0 ? ledger.closing_balance(@selected_fy_code, @selected_branch_id) * -1 : ledger.closing_balance(@selected_fy_code, @selected_branch_id).abs)) %></td>
               <% else %>
-                  <td class="col-xs-6 text-right"><%= number_to_currency(ledger.closing_balance) %></td>
+                  <td class="col-xs-6 text-right"><%= number_to_currency(ledger.closing_balance(@selected_fy_code, @selected_branch_id)) %></td>
               <% end %>
             </tr>
 
