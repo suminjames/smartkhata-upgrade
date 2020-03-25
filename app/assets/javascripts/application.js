@@ -30,8 +30,6 @@
 //= require react-bootstrap
 //= require components
 //= require common_functions
-//= require nepali_datepicker/nepali-datepicker
-//= require nepali_datepicker/datepicker
 //= require_tree .
 
 $(document).on("ready page:load", function(){
