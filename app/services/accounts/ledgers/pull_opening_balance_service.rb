@@ -43,8 +43,8 @@ module Accounts
         puts pulled_ledger_names.join(',') if pulled_ledger_ids.size < 50
         if pulled_ledger_ids.uniq.size > 0
           branch_ids.each do |branch_id|
-            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id)
-            Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id)
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id, fy_code)
+            Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id, fy_code)
           end
         end
       end
