@@ -256,6 +256,23 @@ namespace :ledger do
     Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch, current_user_id: current_user_id).process
   end
 
+  # from one fy_code to current fy_code
+  task :fix_opening_balance_recursive,[:tenant, :branch, :ledger_ids, :starting_fy_code] => 'smartkhata:validate_tenant' do |task, args|
+    include FiscalYearModule
+    branch = args.branch
+    ledger_ids = args.ledger_ids.split(" ")
+    fy_code = args.starting_fy_code
+
+    if ledger_ids.size < 1
+      raise "provide ledger ids"
+    end
+    fy_codes = get_fy_codes_after_fy_code(fy_code)
+
+    fy_codes.each do |fy_code|
+      Accounts::Ledgers::PullOpeningBalanceService.new(branch_id: branch, current_user_id: current_user_id, fy_code: fy_code, ledger_ids: ledger_ids).process
+    end
+  end
+
   desc 'move particulars to one branch for a ledger id'
   task :move_particulars,[:tenant, :ledger_id, :branch_id, :dry_run, :date_bs] => 'smartkhata:validate_tenant' do |task, args|
     abort 'Please pass tenant, ledger_id, branch_id, dry_run, date_bs' if (args.ledger_id.blank? || args.branch_id.blank?)

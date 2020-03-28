@@ -132,13 +132,25 @@ module FiscalYearModule
   def get_full_fy_codes_after_date(date, exclude = false)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
     fy_code =  fiscal_year_breakpoint_single[0]
+    get_fy_codes_after_fy_code(fy_code, exclude)
+  end
+
+  def get_fy_codes_after_fy_code(fy_code, exclude = false, upto_current = false)
     fy_codes = available_fy_codes
     index = fy_codes.find_index(fy_code.to_i)
+    final_index = -1
+
+
+    if upto_current
+      final_index = fy_codes.find_index(get_fy_code.to_i)
+    end
+
+
     if index
       if exclude
-        return fy_codes[(index +1) .. -1]
+        return fy_codes[(index +1) .. final_index]
       else
-        return fy_codes[index .. -1]
+        return fy_codes[index .. final_index]
       end
     end
   end
