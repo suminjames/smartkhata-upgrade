@@ -25,10 +25,12 @@ module Accounts
         pulled_ledger_ids = []
         pulled_ledger_names = []
 
+        set_current_user_id = -> (o) { o.current_user_id = current_user_id }
+
         Ledger.where(id: available_ledger_ids).find_each do |ledger|
           has_closing_balance = false
           LedgerBalance.unscoped.where(fy_code: previous_fy_code, ledger_id: ledger.id).find_each do |ledger_balance|
-            lb = LedgerBalance.unscoped.find_or_create_by!(fy_code: fy_code, ledger_id: ledger_balance.ledger_id, branch_id: ledger_balance.branch_id, current_user_id: current_user_id)
+            lb = LedgerBalance.unscoped.find_or_create_by!(fy_code: fy_code, ledger_id: ledger_balance.ledger_id, branch_id: ledger_balance.branch_id,  &set_current_user_id)
             if (lb.opening_balance !=  ledger_balance.closing_balance)
               lb.update_attributes(current_user_id: current_user_id, opening_balance: ledger_balance.closing_balance, opening_balance_type: ledger_balance.closing_balance >= 0 ? 'dr': 'cr')
               has_closing_balance = true
