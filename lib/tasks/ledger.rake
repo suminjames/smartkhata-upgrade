@@ -389,4 +389,119 @@ namespace :ledger do
     puts "Ledger ids : #{errorneus_ledger_ids.join(', ')}"
     puts "#{Ledger.where(id: errorneus_ledger_ids).pluck(:name).join(', ')}"
   end
+
+
+  task :revert_merge_list, [:tenant] => "smartkhata:validate_tenant" do |task, args|
+    file = Rails.root.join('tmp', 'unmerge_kyc_list.csv')
+    if File.exist?(file)
+
+      # csv_text = File.read(users_csv_file)
+      # csv = CSV.parse(csv_text, :headers => true)
+      # users_from_csv_arr = []
+      valid_records = []
+      CSV.foreach(file, :headers => true) do |row|
+        valid_records << row if row['TO DE-MERGE?'] == 'TO FIX'
+      end
+
+      CSV.open("tmp/unmerge_kyc_data.csv", "wb") do |csv|
+        csv << %w(final nepse_code name particular_ids transaction_message_ids share_transaction_ids bill_ids settlement_ids cheque_entry_ids order_ids)
+        index = 1
+        valid_records.each do |record|
+          kyc1 = record['KYC CODE 1']
+          kyc2 = record['KYC CODE 2']
+          kyc3 = record['KYC CODE 3']
+          final = record['FINAL KYC']
+          name = record['NAME']
+
+          [kyc1, kyc2, kyc3].each do |nepse_code|
+            if nepse_code.present? && nepse_code != '-' && nepse_code != final
+              client_account = ClientAccount.find_by_nepse_code(nepse_code)
+
+              unless client_account
+                puts [name, nepse_code].join(',')
+                next
+              end
+              ledger = client_account.ledger
+              particular_ids = Particular.where(ledger_id: ledger.id).pluck(:id).uniq.join('#')
+              transaction_message_ids = TransactionMessage.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              share_transaction_ids = ShareTransaction.unscoped.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              bill_ids = Bill.unscoped.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              settlement_ids = Settlement.unscoped.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              cheque_entry_ids =ChequeEntry.unscoped.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              order_ids = Order.where(client_account_id: client_account.id).pluck(:id).uniq.join('#')
+              puts name if particular_ids.length < 1
+              csv << [final, nepse_code, name, particular_ids, transaction_message_ids, share_transaction_ids, bill_ids, settlement_ids, cheque_entry_ids, order_ids]
+            end
+          end
+        end
+      end
+    end
+  end
+
+
+  task :revert_merge_from_file, [:tenant] => "smartkhata:validate_tenant" do |task, args|
+    file = Rails.root.join('tmp', 'unmerge_kyc_data.csv')
+    if File.exist?(file)
+      ledgers_to_fix = []
+      branch_ids = []
+
+      CSV.foreach(file, :headers => true) do |row|
+        client = ClientAccount.find_or_create_by!(nepse_code: row['nepse_code']) do |client|
+          client.name = row['name'].titleize
+          client.skip_validation_for_system = true
+          client.branch_id = 1
+          client.current_user_id = current_user_id
+        end
+
+        wrong_client = ClientAccount.find_by(nepse_code:  row['final'])
+        wrong_ledger = Ledger.where(client_account_id: wrong_client.id, name: row['name']).first
+        correct_ledger = Ledger.where(client_account_id: client.id).where('name ilike ?', row['name']).first
+
+        ledgers_to_fix += [correct_ledger&.id, wrong_ledger&.id].compact
+
+        particular_ids = row['particular_ids'].split('#').compact
+
+        if particular_ids.length > 0
+          particulars = Particular.where(id: particular_ids)
+
+          _branch_ids = particulars.pluck(:branch_id)
+
+          if particulars.length != particular_ids.length
+            puts '-------'
+            puts [row['name'], 'particular', particular_ids.length, particulars.length].join(',')
+          end
+
+          branch_ids += _branch_ids
+
+          puts row['name'] unless correct_ledger&.id
+
+          particulars.update_all(ledger_id: correct_ledger.id)
+        end
+
+
+        %w(transaction_messge_ids transaction_ids bill_ids settlement_ids cheque_ids order_ids).each do |item|
+          ids = row[item]&.split('#')&.compact
+          if ids && ids.length > 0
+            klass = item.gsub('_ids', '').classify.constantize
+            records = klass.where(id: ids, client_account_id: wrong_client.id)
+            if records.length != ids.length
+              puts '-------'
+              puts [row['name'], item, ids.length, records.length].join(',')
+            end
+            records.update_all(client_account_id: client.id)
+          end
+        end
+      end
+
+
+      branch_ids.uniq.each do |branch_id|
+        ledgers_to_fix.uniq.each do |ledger_id|
+          ledger = Ledger.find(ledger_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, true, current_user_id, branch_id)
+          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: true, branch_id: branch_id, current_user_id: current_user_id)
+        end
+      end
+    end
+  end
+
 end

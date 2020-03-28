@@ -85,6 +85,12 @@ module Accounts
         client_account_to_delete = ledger_to_merge_from.client_account
         if client_account_to_delete
           if client_account_to_persist && client_account_to_persist != client_account_to_delete
+
+            if Ledger.where(client_account_id: client_account_to_delete).count > 1
+              raise ActiveRecord::Rollback
+            end
+
+
             # for blank nepse codes take nepse code from the deleted ones
             if client_account_to_persist.nepse_code.blank?
               nepse_code = client_account_to_delete.nepse_code
