@@ -150,7 +150,8 @@ class ApplicationController < ActionController::Base
   def with_branch_user_params permitted_params, assign_branch = true
     branch_id = branch_id_for_entry( permitted_params[:branch_id] )
     _additional_params = { current_user_id: current_user.id }
-    _additional_params.merge!({ branch_id: branch_id }) if assign_branch
+    # update method needs to explicitly provide branch_id
+    _additional_params.merge!({ branch_id: branch_id }) if assign_branch && params[:action] != 'update'
     permitted_params.merge!(_additional_params)
   end
 end

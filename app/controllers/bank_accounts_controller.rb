@@ -82,6 +82,6 @@ class BankAccountsController < ApplicationController
 
   def bank_account_update_params
     permitted_update_params = params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment)
-    with_branch_user_params(permitted_update_params, false)
+    with_branch_user_params(permitted_update_params)
   end
 end
