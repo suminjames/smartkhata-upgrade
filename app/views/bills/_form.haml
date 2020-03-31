@@ -7,7 +7,7 @@
     = f.error :base
   .form-inputs
     = f.association :client_account, collection: client_select_options_for_provisional_bill, :input_html => { :class => 'combobox combobox-select min-3', :id => 'provisional_bill_client_accounts_combobox', :autocomplete => 'off', 'data-placeholder': 'Select client...' }
-    = f.input :date_bs, label: 'Transaction Date', class: 'form-control', placeholder: 'YYYY-MM-DD'
+    = datepicker_input(f, 'date_bs','Transaction Date', true)
     = f.input :provisional_base_price, as: :decimal, input_html: {value: f.object.provisional_base_price || '100'}
 
   .form-actions
