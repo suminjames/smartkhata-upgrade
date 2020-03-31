@@ -55,7 +55,7 @@ gem 'jquery-minicolors-rails'
 gem 'aws-sdk-s3', '~> 1'
 
 group :production do
-  gem 'puma', '~>4.3.1'
+  gem 'puma', '~>4.3.3'
 end
 
 group :development do
