@@ -18,11 +18,9 @@
 /* Mixins */
 @mixin box-shadow($shadow...) {
   -webkit-box-shadow: $shadow;
-     -moz-box-shadow: $shadow;
-          box-shadow: $shadow;
+  -moz-box-shadow: $shadow;
+  box-shadow: $shadow;
 }
-
-
 
 
 body {
@@ -35,12 +33,14 @@ body {
   max-width: 1366px;
   width: 100%;
 }
+
 .container {
   //min-width: 1170px;
   //max-width: none !important;
   max-width: 1366px;
   //width: 100%;
 }
+
 @media (max-width: 991px) {
   .client .navbar-collapse {
     float: none !important;
@@ -49,7 +49,6 @@ body {
     overflow-x: auto;
   }
 }
-
 
 
 .navbar-header {
@@ -64,8 +63,16 @@ body {
 .box-body.content-area {
   min-height: 500px;
   // padding: 25px;
-  p#notice:empty{ display: none } //eliminate unnecessary space
-  form .panel{ margin-bottom: 4px } //make spacing uniform (default 20)
+  p#notice:empty {
+    display: none
+  }
+
+  //eliminate unnecessary space
+  form .panel {
+    margin-bottom: 4px
+  }
+
+  //make spacing uniform (default 20)
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) { /*safari and chrome*/
@@ -251,7 +258,7 @@ select::-moz-focus-inner { /*Remove button padding in FF*/
   right: 0;
   // box-shadow: 0px 0px 20px 0px rgb(60, 141, 188)!important;
   // box-shadow: 0px 5px 20px 0px rgb(173, 173, 173)!important;
-  @include box-shadow(0 6px 12px rgba(0,0,0,.175)!important)
+  @include box-shadow(0 6px 12px rgba(0, 0, 0, .175) !important)
 }
 
 // hack admin lte
@@ -276,9 +283,11 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
 // Enforce same link color(s) in the overall app
 a {
   color: $link_color;
+
   &:visited {
     color: $link_color;
   }
+
   &:hover {
     color: #fff;
     background-color: $link_color;
@@ -339,6 +348,7 @@ a {
     left: 0;
     position: fixed;
   }
+
   .content-wrapper {
     padding-top: 50px;
   }
@@ -356,7 +366,9 @@ select.combobox {
   h3 {
     font-size: 30px;
   }
+
   background: #EEE;
+
   .small-box-footer {
     color: #337ab7;
   }
@@ -367,6 +379,7 @@ select.combobox {
 //}
 .bg-saroj.small-box:hover {
   color: #337ab7;
+
   .small-box-footer {
     color: #337ab7;
   }
@@ -375,36 +388,42 @@ select.combobox {
 // Add a bit of margin-top in elements.
 // Usually  between two .row elements, which apparently have no margin.
 .top-buffer-xs {
-  margin-top:5px;
+  margin-top: 5px;
 }
+
 .top-buffer-sm {
-  margin-top:10px;
+  margin-top: 10px;
 }
+
 .top-buffer-sm-x {
-  margin-top:15px;
+  margin-top: 15px;
 }
+
 .top-buffer-md {
-  margin-top:30px;
+  margin-top: 30px;
 }
+
 .top-buffer-lg {
-  margin-top:50px;
+  margin-top: 50px;
 }
 
 .bottom-buffer-sm {
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
+
 .bottom-buffer-md {
-  margin-bottom:30px;
+  margin-bottom: 30px;
 }
+
 .bottom-buffer-lg {
-  margin-bottom:50px;
+  margin-bottom: 50px;
 }
 
 #filterrific_results {
   min-height: 300px;
 }
 
-.highlighted-box{
+.highlighted-box {
   padding: 15px;
   background: #f9f9f9;
   border: 1px solid #ddd;
@@ -423,24 +442,24 @@ select.combobox {
   word-wrap: break-word !important;
 }
 
-.light-text{
+.light-text {
   font-size: 85%;
   color: #808084 !important;
 }
 
 
-button.close{
+button.close {
   line-height: 0.7;
 }
 
-.nav .list-unstyled{
+.nav .list-unstyled {
   box-shadow: -5px 0px 20px -15px;
   border-left: 1px solid lightgrey;
   padding-left: 10px;
 }
 
-.box-body>.table{
-  margin-bottom: 0!important;
+.box-body > .table {
+  margin-bottom: 0 !important;
   // Messing with site-wide tables
   // border-left: 1px solid #dddddd;
   // border-right: 1px solid #dddddd;
@@ -449,7 +468,7 @@ button.close{
   }
 }
 
-a.btn-wrapper:hover{
+a.btn-wrapper:hover {
   background: transparent;
 }
 
@@ -458,24 +477,27 @@ a.navbar-brand:hover{
 }
 
 // Override AdminLTE!
-.nav-tabs-custom{
+.nav-tabs-custom {
   box-shadow: none !important;
-  &>.nav-tabs{
+
+  & > .nav-tabs {
     border-bottom-color: #ddd;
-    &>li{
-      &:first-of-type.active>a, &.active>a{
+
+    & > li {
+      &:first-of-type.active > a, &.active > a {
         border-left-color: #ddd;
         border-right-color: #ddd;
       }
     }
   }
-  .tab-content{
+
+  .tab-content {
     padding: 10px 16px;
   }
 }
 
 // consistent with other inputs
-select{
+select {
   height: 34px;
   // padding: 6px 24px 6px 12px;
   border-color: #d2d6de;
@@ -483,11 +505,12 @@ select{
   //   cursor: not-allowed;
   // }
 }
+
 [class^='select2'] {
   border-radius: 0px !important;
 }
 
-.back-to-top{
+.back-to-top {
   // transition: 1s ease-in-out;
   display: none;
   position: fixed;
@@ -498,10 +521,12 @@ select{
   right: 20px;
   border: 1px solid lightgrey;
   cursor: pointer;
-  &:hover i{
+
+  &:hover i {
     color: #367faa;
   }
-  &>i{
+
+  & > i {
     transition: color 0.2s ease-in-out;
     font-size: 34px;
     left: 10px;
@@ -511,16 +536,16 @@ select{
   }
 }
 
-.compact[class^="col-"]{
+.compact[class^="col-"] {
   padding-right: 0;
 }
 
 // For links as buttons
-.btn-success, .btn-danger{
+.btn-success, .btn-danger {
   color: white !important;
 }
 
-.lighter{
+.lighter {
   opacity: 0.8;
 }
 
@@ -547,6 +572,7 @@ select{
 .indicator-bg-yellow {
   background: lightgoldenrodyellow;
 }
+
 .action {
   cursor: pointer;
 }
@@ -560,19 +586,23 @@ select{
     font-size: 18px;
     line-height: 1;
   }
+
   .fire-on-select.form-inline {
     margin-top: 0;
     marign-bottom: 5px;
   }
 }
+
 //filter form
 .filter-form {
   .panel-body {
     padding: 10px;
   }
+
   .top-buffer-md {
     margin-top: 20px;
   }
+
   label {
     margin-bottom: 0;
   }
