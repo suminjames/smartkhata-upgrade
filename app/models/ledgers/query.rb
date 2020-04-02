@@ -62,9 +62,9 @@ class Ledgers::Query
             @total_credit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
             @total_debit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
-            previous_day_balance = @ledger.particulars.by_branch_fy_code(branch_id, fy_code).where('transaction_date < ?',date_from_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
+            previous_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date < ?',date_from_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
-            last_day_balance = @ledger.particulars.by_branch_fy_code(branch_id, fy_code).where('transaction_date <= ?',date_to_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
+            last_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date <= ?',date_to_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
 
             @closing_balance_sorted = @opening_balance_calculated+ last_day_balance
