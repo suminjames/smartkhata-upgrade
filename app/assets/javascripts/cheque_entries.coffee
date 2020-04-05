@@ -26,14 +26,14 @@ $(document).on 'page:change', ->
 
     $(document).off('click', '.btnViewChequeEntriesPDF').on 'click', ".btnViewChequeEntriesPDF", (event) ->
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
-      window.open("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, '_blank')
+      window.open(url_prefix_smart()+"/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, '_blank')
 
     $(document).on 'click', ".btnPrintBillsAssociatedWithChequesPDF" , (event) ->
       if selectedChequeEntriesIds.length > 0
         cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
         event.stopImmediatePropagation()
         $.ajax
-          url: '/cheque_entries/bills_associated_with_cheque_entries'
+          url: url_prefix_smart()+'/cheque_entries/bills_associated_with_cheque_entries'
           data: cheque_entries_ids_argument
           dataType: 'json'
           error: (jqXHR, textStatus, errorThrown) ->
@@ -42,7 +42,7 @@ $(document).on 'page:change', ->
             console.log("Ajax Success!")
             associated_bill_ids = data.bill_ids || []
             bill_ids_arg = $.param({bill_ids: associated_bill_ids})
-            loadAndPrint('/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
+            loadAndPrint(url_prefix_smart()+'/bills/show_multiple.pdf?' + bill_ids_arg, 'iframe-for-bill-pdf-print', 'bills-print-spinner')
             return
 
     $(document).on 'click', ".btnMarkChequeEntriesUnprinted" , (event) ->
@@ -50,7 +50,7 @@ $(document).on 'page:change', ->
         cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
         event.stopImmediatePropagation()
         $.ajax
-          url: '/cheque_entries/make_cheque_entries_unprinted'
+          url: url_prefix_smart()+'/cheque_entries/make_cheque_entries_unprinted'
           data: cheque_entries_ids_argument
           dataType: 'json'
           beforeSend: () ->
@@ -73,7 +73,7 @@ $(document).on 'page:change', ->
         cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
         event.stopImmediatePropagation()
         $.ajax
-          url: '/cheque_entries/settlements_associated_with_cheque_entries'
+          url: url_prefix_smart()+'/cheque_entries/settlements_associated_with_cheque_entries'
           data: cheque_entries_ids_argument
           dataType: 'json'
           error: (jqXHR, textStatus, errorThrown) ->
@@ -82,14 +82,14 @@ $(document).on 'page:change', ->
             console.log("Ajax Success!")
             settlement_ids_arr = data.settlement_ids || []
             settlement_ids_arg = $.param({settlement_ids: settlement_ids_arr})
-            loadAndPrint("/settlements/show_multiple.pdf?" + settlement_ids_arg, 'iframe-for-settlements-pdf-print', 'settlements-print-spinner');
+            loadAndPrint(url_prefix_smart()+"/settlements/show_multiple.pdf?" + settlement_ids_arg, 'iframe-for-settlements-pdf-print', 'settlements-print-spinner');
             return
 
 
     $(document).on 'click', ".btnPrintChequeEntriesPDF", (event) ->
       if selectedChequeEntriesIds.length > 0
         cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
-        loadAndPrintChequeEntries("/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner')
+        loadAndPrintChequeEntries(url_prefix_smart()+"/cheque_entries/show_multiple.pdf?" + cheque_entries_ids_argument, 'iframe-for-cheque-entries-pdf-print', 'cheque-entries-print-spinner')
         event.stopImmediatePropagation()
 
     reflectPrintStatusChange = (chequeEntries) ->
@@ -207,7 +207,7 @@ $(document).on 'page:change', ->
       console.log 'Update Print Status'
       cheque_entries_ids_argument = $.param({cheque_entry_ids: selectedChequeEntriesIds})
       $.ajax
-        url: '/cheque_entries/update_print_status'
+        url: url_prefix_smart()+'/cheque_entries/update_print_status'
         data: cheque_entries_ids_argument
         dataType: 'json'
         error: (jqXHR, textStatus, errorThrown) ->

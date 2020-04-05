@@ -11,14 +11,14 @@ module Models::WithBranchFycode
       # to keep track of the user who created and last updated the ledger
       belongs_to :branch
 
-      scope :by_fy_code, -> (fy_code = UserSession.selected_fy_code) { where(fy_code: fy_code)}
+      scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
 
 
 
       # TODO(subas) Remove this once time comes kept here because subas had little time to analyze its effects
 
-      scope :by_branch_fy_code, ->(branch_id = UserSession.selected_branch_id, fy_code = UserSession.selected_fy_code) do
+      scope :by_branch_fy_code, ->(branch_id, fy_code) do
         # if branch_id == 0
         #   unscoped.where(fy_code: fy_code)
         # else

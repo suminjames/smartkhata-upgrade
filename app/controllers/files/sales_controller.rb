@@ -20,7 +20,7 @@ class Files::SalesController < Files::FilesController
     @settlement_date = params[:settlement_date]
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
-    payout_upload = ImportPayout.new(@file, @settlement_date)
+    payout_upload = ImportPayout.new(@file, selected_fy_code, current_user, @settlement_date)
     payout_upload.process
 
     if payout_upload.error_message

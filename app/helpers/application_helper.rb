@@ -38,12 +38,12 @@ module ApplicationHelper
   end
 
   # process accounts to make changes on ledgers
-  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date)
-   Ledgers::ParticularEntry.new.insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date)
+  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date,current_user)
+    Ledgers::ParticularEntry.new(current_user.id).insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date,current_user.id)
   end
 
-  def reverse_accounts(particular, voucher, descr, adjustment = 0.0, cheque_entry = nil)
-    Ledgers::ParticularEntry.new.revert(particular, voucher, descr, adjustment = 0.0, cheque_entry)
+  def reverse_accounts(particular, voucher, descr, adjustment = 0.0, cheque_entry = nil, current_user_id)
+    Ledgers::ParticularEntry.new(current_user_id).revert(particular, voucher, descr, adjustment = 0.0, cheque_entry, current_user_id)
   end
 
   # method to calculate the broker commission
@@ -67,29 +67,21 @@ module ApplicationHelper
 
   # 	get fy_code selection form sesion
   def get_user_selected_fy_code
-    session[:user_selected_fy_code]
+    params[:user_selected_fy_code]
   end
 
   # 	set fy_code selection form sesion
   def set_user_selected_fy_code(fy_code)
     fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
-    # user session is for model access
-    UserSession.selected_fy_code = fy_code
-    # session is for controller and view
     session[:user_selected_fy_code] = fy_code
   end
 
   # 	set fy_code selection form sesion
   def set_user_selected_branch_fy_code(branch_id, fy_code)
     fy_code = get_fy_code unless available_fy_codes.include?(fy_code)
-    # user session is for model access
-
     # session is for controller and view
     session[:user_selected_fy_code] = fy_code
     session[:user_selected_branch_id] = branch_id
-
-    UserSession.selected_fy_code = session[:user_selected_fy_code]
-    UserSession.selected_branch_id = session[:user_selected_branch_id]
   end
 
 
@@ -180,5 +172,15 @@ module ApplicationHelper
 
   def can_view_restricted_ledgers?
     user_has_access_to?(restricted_ledgers_path)
+  end
+
+  def navbar_color
+    return if current_user.nil?
+
+    branch = Branch.selected_branch(UserSession.selected_branch_id)
+
+    return if branch.nil?
+
+    branch.top_nav_bar_color
   end
 end

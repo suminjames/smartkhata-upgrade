@@ -1,5 +1,5 @@
 class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
-  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email"]
+  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email","Bank", "Bank Account"]
 
   def initialize(client_accounts, params, current_tenant)
     super(client_accounts, params, current_tenant)
@@ -48,7 +48,6 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
     # inserts the actual data rows through iteration.
     normal_style_row = [@styles[:normal_center], @styles[:wrap], @styles[:normal_left], @styles[:int_format], @styles[:normal_left], @styles[:wrap]]
     striped_style_row = [@styles[:striped_center], @styles[:wrap_striped], @styles[:striped_left], @styles[:int_format_striped], @styles[:striped_left], @styles[:wrap_striped]]
-    # debugger
     @client_accounts.each_with_index do |c, index|
       sn = index + 1
       name = c.name.titleize
@@ -56,9 +55,12 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       boid = c.boid
       contract_nums = c.commaed_contact_numbers
       email = c.email
+      bank_name = c.bank_name
+      bank_address = c.bank_address
+      bank_account = c.bank_account
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, name, nepse, boid, contract_nums, email], style: row_style
+      @sheet.add_row [sn, name, nepse, boid, contract_nums, email,[bank_name,bank_address].compact.split("").flatten.join(","),bank_account], style: row_style
     end
   end
 
@@ -67,7 +69,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
 
     # Fixed width for first column which is elongated by document headers
     # s.n. and email fields
-    @sheet.column_widths 6, nil, nil, nil, nil, 30
+    @sheet.column_widths 6, nil, nil, nil, nil, 30, 30, nil
 
     # auto width not working well for single client account
     @sheet.column_info.second.width = 30 if @client_account

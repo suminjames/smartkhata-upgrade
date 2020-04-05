@@ -1,0 +1,33 @@
+%p#notice= notice
+- provide(:section_title, "Merge Ledgers")
+
+= form_for_filterrific @filterrific, html:  { id: 'filterrific-no-ajax-auto-submit' } do |f|
+  .panel.panel-default.filter-form
+    .panel-body
+      .row
+        .col-xs-3
+          %label
+            Ledger to keep
+          = f.collection_select(                        |
+            :to_ledger_id,                              |
+            @filterrific.select_options[:by_ledger_id], |
+            :id,                                        |
+            :name_and_identifier,                       |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
+        .col-xs-3
+          %label
+            Ledger to remove
+          = f.collection_select(                        |
+            :from_ledger_id,                            |
+            @filterrific.select_options[:by_ledger_id], |
+            :id,                                        |
+            :name_and_identifier,                       |
+            {include_blank: true},                      |
+            {class: 'form-control combobox combobox-select min-3', id: 'ledgers_index_combobox_1', 'data-placeholder': '- Any -', 'data-restricted': @restricted_only }) |
+      .row.top-buffer-sm
+        .col-xs-6
+          = f.submit 'Merge Ledger', :class => 'btn btn-xs btn-primary btn-flat'
+          = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
+          = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
+    = render_filterrific_spinner

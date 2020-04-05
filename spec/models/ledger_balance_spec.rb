@@ -82,7 +82,7 @@ RSpec.describe LedgerBalance, type: :model do
     context "when org balance is not present" do
       it "should create org balance" do
         ledger
-        expect{LedgerBalance.update_or_create_org_balance(ledger.id)}.to change{LedgerBalance.unscoped.count}.by(1)
+        expect{LedgerBalance.update_or_create_org_balance(ledger.id, 7374, 1, User.first.id)}.to change{LedgerBalance.unscoped.count}.by(1)
       end
     end
 
@@ -92,7 +92,7 @@ RSpec.describe LedgerBalance, type: :model do
         subject
         ledger_balance1
         ledger_balance2
-        expect{LedgerBalance.update_or_create_org_balance(ledger.id)}.to change{LedgerBalance.unscoped.count}.by(0)
+        expect{LedgerBalance.update_or_create_org_balance(ledger.id, 7374, 1, User.first.id)}.to change{LedgerBalance.unscoped.count}.by(0)
         expect(subject.reload.opening_balance).to eq(3000)
       end
     end

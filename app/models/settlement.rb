@@ -94,28 +94,28 @@ class Settlement < ActiveRecord::Base
   #   end
   # end
 
-  scope :by_settlement_type, -> (type) { by_branch_fy_code.where(:settlement_type => Settlement.settlement_types[type]) }
+  scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('settlements.date >= ?', date_ad.beginning_of_day)
+    where('settlements.date >= ?', date_ad.beginning_of_day)
   }
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    by_branch_fy_code.where('settlements.date <= ?', date_ad.end_of_day)
+    where('settlements.date <= ?', date_ad.end_of_day)
   }
 
-  scope :by_client_id, -> (id) { by_branch_fy_code.where(client_account_id: id) }
+  scope :by_client_id, -> (id) { where(client_account_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        by_branch_fy_code.order("settlements.id #{ direction }")
+       order("settlements.id #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end

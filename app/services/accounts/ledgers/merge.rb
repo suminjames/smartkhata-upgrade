@@ -3,14 +3,28 @@ module Accounts
     class Merge < BaseService
       include FiscalYearModule
       attr_reader :ledger_to_merge_to, :ledger_to_merge_from
-      def initialize(merge_to, merge_from)
+      def initialize(merge_to, merge_from, current_user)
+        @current_user = current_user
         @ledger_to_merge_to = Ledger.find(merge_to)
         @ledger_to_merge_from = Ledger.find(merge_from)
       end
 
       def call
+        res = false
         ActiveRecord::Base.transaction do
-
+         ledger_not_to_merge = ["Purchase Commission",
+                                "Sales Commission",
+                                "DP Fee/ Transfer",
+                                "Nepse Purchase",
+                                "Nepse Sales",
+                                "Clearing Account",
+                                "Compliance Fee",
+                                "TDS",
+                                "Cash",
+                                "Close Out"]
+          if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+            raise ActiveRecord::Rollback
+          end
           fix_opening_balances
           fix_ledger_dailies_and_closing_balances
           merge_client_accounts
@@ -28,7 +42,9 @@ module Accounts
             mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
           end
+          res = true
         end
+        return res
       end
 
       def fix_ledger_dailies_and_closing_balances
@@ -36,13 +52,14 @@ module Accounts
         branches = particulars_to_be_moved.pluck(:branch_id).uniq
         # change the ledger id to new one and delete balance and ledger dailies
         particulars_to_be_moved.update_all(ledger_id: ledger_to_merge_to.id)
+        transaction_dates = particulars_to_be_moved.pluck(:transaction_date).uniq
         branches.each do |branch_id|
-          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, branch_id)
-          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger_to_merge_to, all_fiscal_years: true, branch_id: branch_id)
+          Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger_to_merge_to, true, @current_user.id, branch_id, nil, transaction_dates)
+          Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger_to_merge_to, all_fiscal_years: true, branch_id: branch_id, current_user_id: @current_user.id)
         end
 
         LedgerBalance.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
-        LedgerDaily.unscoped.where(ledger_id: ledger_to_merge_from.id).delete_all
+        LedgerDaily.where(ledger_id: ledger_to_merge_from.id).delete_all
       end
 
       def fix_opening_balances
@@ -54,6 +71,8 @@ module Accounts
             if ledger_balance && ledger_balance_other
               ledger_balance.opening_balance  += ledger_balance_other.opening_balance
               ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr': 'cr'
+              ledger_balance.current_user_id = @current_user.id
+              ledger_balance.updater_id = ledger_balance.current_user_id
               ledger_balance.save!
             end
           end
@@ -66,6 +85,12 @@ module Accounts
         client_account_to_delete = ledger_to_merge_from.client_account
         if client_account_to_delete
           if client_account_to_persist && client_account_to_persist != client_account_to_delete
+
+            if Ledger.where(client_account_id: client_account_to_delete).count > 1
+              raise ActiveRecord::Rollback
+            end
+
+
             # for blank nepse codes take nepse code from the deleted ones
             if client_account_to_persist.nepse_code.blank?
               nepse_code = client_account_to_delete.nepse_code

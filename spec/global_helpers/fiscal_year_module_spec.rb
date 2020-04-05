@@ -43,12 +43,12 @@ RSpec.describe FiscalYearModule, type: :helper do
   describe "#fiscal_year_breakpoint_single" do
     context "when date is present" do
       it "should return fy_code breakpoint" do
-        expect(dummy_class.fiscal_year_breakpoint_single(date: "2017-08-01".to_date)).to eq([7475, Date.parse('2017-7-16'), Date.parse('2018-7-15')])
+        expect(dummy_class.fiscal_year_breakpoint_single(date: "2017-08-01".to_date)).to eq([7475, Date.parse('2017-7-16'), Date.parse('2018-7-16')])
       end
     end
     context "when fy_code is present" do
       it "should return fy_code breakpoint" do
-        expect(dummy_class.fiscal_year_breakpoint_single(fy_code: 7475)).to eq([7475, Date.parse('2017-7-16'), Date.parse('2018-7-15')])
+        expect(dummy_class.fiscal_year_breakpoint_single(fy_code: 7475)).to eq([7475, Date.parse('2017-7-16'), Date.parse('2018-7-16')])
       end
     end
   end

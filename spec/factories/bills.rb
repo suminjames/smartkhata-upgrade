@@ -13,7 +13,8 @@ FactoryBot.define do
     settlement_date { Time.now.to_date }
     client_account
     branch
-
+    creator_id { User.first.id || create(:user).id }
+    updater_id { User.first.id || create(:user).id }
     factory :sales_bill do
       bill_type :sales
 

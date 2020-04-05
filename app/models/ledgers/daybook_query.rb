@@ -1,8 +1,8 @@
 class Ledgers::DaybookQuery
-  attr_reader :error_message
+  attr_reader :error_message, :selected_branch_id, :selected_fy_code
   include CustomDateModule
 
-  def initialize(params, rel = Ledger)
+  def initialize(params, selected_branch_id, selected_fy_code, rel = Ledger)
     @rel = rel
     @particulars = ''
     @params = params
@@ -12,6 +12,8 @@ class Ledgers::DaybookQuery
     @closing_balance_sorted = nil
     @opening_balance_sorted = nil
     @daybook_ledger_ids = Ledger.daybook_ledgers.pluck(:id)
+    @selected_branch_id = selected_branch_id
+    @selected_fy_code = selected_fy_code
   end
 
   def ledger_with_particulars
@@ -82,7 +84,7 @@ class Ledgers::DaybookQuery
             previous_day_balance = previous_day_ledger_dailies.present? ? LedgerDaily.closing_balance_of_ledger_dailies(previous_day_ledger_dailies.pluck(:id)) : 0.0
 
             # get the last day ledger daily balance for the query date
-            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@daybook_ledger_ids, date_to_ad)
+            last_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@daybook_ledger_ids, date_to_ad, selected_fy_code, selected_branch_id)
 
             @opening_balance_sorted = previous_day_balance
             @closing_balance_sorted = last_day_balance

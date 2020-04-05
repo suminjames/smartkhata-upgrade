@@ -13,7 +13,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     @ledger_query = ledger_query
     @branch_id = ledger_query.branch_id
     @fy_code = ledger_query.fy_code
-    @opening_balance = ledger.opening_balance
+    @opening_balance = ledger.opening_balance(@fy_code, @branch_id)
     generate_excelsheet if data_present?
   end
 
@@ -25,14 +25,16 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
 
   def prepare_document
     # Adds document headings and returns the filename, before the real data table is inserted.
+
+    closing_balance = @ledger.closing_balance(@fy_code, @branch_id)
     opening_closing_blnc = \
       "Opening Balance:  #{number_to_currency(@opening_balance.abs)} #{@opening_balance >= 0 ? 'Dr' : 'Cr'}"\
       " | "\
-      "Closing Balance: #{number_to_currency(@ledger.closing_balance.abs)} #{@ledger.closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}"
+      "Closing Balance: #{number_to_currency(closing_balance.abs)} #{closing_balance + margin_of_error_amount >= 0 ? 'Dr' : 'Cr'}"
     client = (@params && @params[:for_client] == "1") ? "Client" : ""
 
     add_document_headings("#{client} Ledger Report", "\"#{@ledger.name.strip.titleize}\"", opening_closing_blnc)
-    @file_name = "#{client}LedgerReport_#{@ledger.id}_#{@date}"
+    @file_name = "#{client}LedgerReport_#{@fy_code}_#{@branch_id}_#{@ledger.id}_#{@date}"
   end
 
   def add_document_headings(heading, sub_heading, opening_closing_blnc)

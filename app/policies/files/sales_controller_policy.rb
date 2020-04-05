@@ -7,5 +7,5 @@ class Files::SalesControllerPolicy < ApplicationPolicy
   end
 
   permit_conditional_access_to_employee_and_above :new
-  permit_custom_access :employee_and_above, new_files_sale_path, [:index, :import], true
+  permit_custom_access :employee_and_above, new_files_sale_path(0,0), [:index, :import], true
 end

@@ -74,6 +74,9 @@ class VendorAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def vendor_account_params
-    params.require(:vendor_account).permit(:name, :address, :phone_number)
+    permitted_params = params.require(:vendor_account).permit(:name, :address, :phone_number)
+    with_branch_user_params(permitted_params)
   end
+
+
 end

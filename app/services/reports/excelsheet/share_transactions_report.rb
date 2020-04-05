@@ -115,7 +115,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       date = ad_to_bs_string(st.date)
       contract_num = st.contract_no
       company = st.isin_info.name_and_code
-      client = st.client_account.name_and_nepse_code
+      client = st.client_account&.name_and_nepse_code
       if st.bill.present?
         bill_num = st.bill.full_bill_number
         normal_style_row[5] = @styles[:normal_style]

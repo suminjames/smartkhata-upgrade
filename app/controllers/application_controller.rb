@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  attr_reader :selected_fy_code, :selected_branch_id
   include Pundit
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -14,20 +15,17 @@ class ApplicationController < ActionController::Base
 
   # Callbacks
   before_action :authenticate_user!, :unless => :devise_controller?
-  before_action :set_user_session, if: :user_signed_in?
-  before_action :set_branch_fy_params, if: :user_signed_in?
+  before_action :set_branch_fy_params
   after_action :verify_authorized, :unless => :devise_controller?
   before_action :validate_certificate, :unless => :devise_controller?
   before_action :verify_absence_of_temp_password, :unless => :devise_controller?
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
-  # before_action :get_allowed_branch, if: :user_signed_in?
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActionController::RoutingError, with: :fy_code_route_mismatch
   # resuce_from SmartKhata::Error::Branch, with: :branch_access_error
-
   # The following method has been influenced by http://stackoverflow.com/questions/2385799/how-to-redirect-to-a-404-in-rails
   def record_not_found
     #  raise ActiveRecord::RecordNotFound.new('Record Not Found')
@@ -87,25 +85,6 @@ class ApplicationController < ActionController::Base
     redirect_to (request.referrer || root_path)
   end
 
-  # Uses the helper methods from devise to made them available in the models
-  def set_user_session
-    current_user.current_url_link = request.path
-    UserSession.user = current_user
-    UserSession.tenant = current_tenant
-
-    # session storage for controllers
-    session[:user_selected_fy_code] ||= get_fy_code
-
-    branch_id = get_preferrable_branch_id
-    branch_access_error unless branch_id.present?
-
-    session[:user_selected_branch_id] ||= branch_id
-
-    # set the session variable for the session
-    UserSession.selected_fy_code = session[:user_selected_fy_code]
-    UserSession.selected_branch_id = session[:user_selected_branch_id]
-  end
-
   def verify_absence_of_temp_password
     # check if the user has temp password
     # if yes force user to change password
@@ -116,8 +95,19 @@ class ApplicationController < ActionController::Base
 
   #   set the default fycode and branch params
   def set_branch_fy_params
-    params[:by_fy_code] ||= get_fy_code
-    params[:by_branch] ||= current_user.branch_id
+    @selected_fy_code = params[:selected_fy_code].nil? ? get_fy_code : params[:selected_fy_code].to_i
+    _branch_id = params[:selected_branch_id].to_i
+
+    if current_user && !current_user.available_branch_ids.include?(_branch_id)
+      _branch_id = current_user.available_branch_ids.first
+    end
+
+    @selected_branch_id = _branch_id
+    if current_user
+      current_user.current_fy_code = @selected_fy_code
+      current_user.current_branch_id = @selected_branch_id
+      current_user.current_url_link = request.fullpath
+    end
   end
 
   # added username as permitted parameters
@@ -138,6 +128,30 @@ class ApplicationController < ActionController::Base
         available_branches_ids.first
       end
     end
+  end
 
+  def active_record_branch_id
+    branch_id_for_entry(@selected_branch_id)
+  end
+
+  def branch_id_for_entry(branch_id)
+    branch_id.to_i == 0 ? current_user&.branch_id : branch_id
+  end
+
+  helper_method :active_record_branch_id
+
+  def default_url_options
+    {
+        selected_fy_code: @selected_fy_code,
+        selected_branch_id: @selected_branch_id
+    }
+  end
+
+  def with_branch_user_params permitted_params, assign_branch = true
+    branch_id = branch_id_for_entry( permitted_params[:branch_id] )
+    _additional_params = { current_user_id: current_user.id }
+    # update method needs to explicitly provide branch_id
+    _additional_params.merge!({ branch_id: branch_id }) if assign_branch && params[:action] != 'update'
+    permitted_params.merge!(_additional_params)
   end
 end

@@ -3,6 +3,8 @@ require 'rails_helper'
 describe Accounts::Branches::ClientBranchService do
   include_context 'session_setup'
 
+  let(:current_user){@user}
+
   before do
     @client_account = create(:client_account, name: "John", branch_id: 1)
     @other_client_account = create(:client_account, name: "preeti", branch_id: 1)
@@ -27,12 +29,12 @@ describe Accounts::Branches::ClientBranchService do
           UserSession.selected_fy_code = 7475
           @other_particular.update_attributes(ledger_id: @cash_ledger.id)
           subject.move_transactions(@client_account, 2, nil, false)
-          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(2)
-          expect(@other_particular.reload.branch_id).to eq(2)
+          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
+          expect(@other_particular.reload.branch_id).to eq(1)
         end
       end
 
@@ -40,10 +42,10 @@ describe Accounts::Branches::ClientBranchService do
         it 'should move only the mentioned client particulars' do
           UserSession.selected_fy_code = 7475
           subject.move_transactions(@client_account, 2, nil, false)
-          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(2)
-          expect(@client_account.ledger.particulars.first.branch_id).to eq(2)
+          expect(Bill.unscoped.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(Settlement.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(ShareTransaction.where(client_account_id: @client_account.id).first.branch_id).to eq(1)
+          expect(@client_account.ledger.particulars.first.branch_id).to eq(1)
           expect(@client_account.ledger.particulars.first.voucher.branch_id).to eq(1)
           expect(@other_particular.branch_id).to eq(1)
         end
@@ -63,19 +65,25 @@ describe Accounts::Branches::ClientBranchService do
         it 'should patch clients branch' do
           allow(subject).to receive(:move_transactions).with(@client_account, 2, nil, false).and_return([[@ledger.id], [7475]])
           Branch.all.each do |branch|
+            allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:patch_ledger_dailies).and_return(true) #default stub
             allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:patch_ledger_dailies).with(@ledger, false, branch.id, 7475).and_return(true)
+
+            allow_any_instance_of(Accounts::Ledgers::ClosingBalanceService).to receive(:patch_closing_balance).and_return(true) #default stub
             allow_any_instance_of(Accounts::Ledgers::ClosingBalanceService).to receive(:patch_closing_balance).with(@ledger, all_fiscal_years: false, branch_id: branch.id, fy_code: 7475).and_return(true)
           end
 
-          expect(subject.patch_client_branch(@client_account, 2)).to eq(nil)
+          expect(subject.patch_client_branch(@client_account, 2, current_user_id: current_user.id)).to eq(nil)
         end
       end
 
       context "and fy_code length is greater than 1" do
         it "should patch opening balance" do
+          allow(subject).to receive(:move_transactions).and_return([[@ledger.id], [7374, 7475, 7576, 7677, 7778, 7879, 7980]])
           allow(subject).to receive(:move_transactions).with(@client_account, 2, '2073-08-02', false).and_return([[@ledger.id], [7374, 7475, 7576, 7677, 7778, 7879, 7980]])
           Branch.all.each do |branch|
+            allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:patch_ledger_dailies).and_return(true)
             allow_any_instance_of(Accounts::Ledgers::PopulateLedgerDailiesService).to receive(:patch_ledger_dailies).with(@ledger, false, branch.id, 7374).and_return(true)
+            allow_any_instance_of(Accounts::Ledgers::ClosingBalanceService).to receive(:patch_closing_balance).and_return(true)
             allow_any_instance_of(Accounts::Ledgers::ClosingBalanceService).to receive(:patch_closing_balance).with(@ledger, all_fiscal_years: false, branch_id: branch.id, fy_code: 7374).and_return(true)
           end
           allow_any_instance_of(Accounts::Ledgers::PullOpeningBalanceService).to receive(:process).and_return(true);

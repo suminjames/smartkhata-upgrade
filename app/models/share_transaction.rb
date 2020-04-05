@@ -74,6 +74,9 @@ class ShareTransaction < ActiveRecord::Base
 
   # before_update :calculate_cgt
   validates :base_price, numericality: true
+  validates :contract_no, uniqueness: { scope: [:transaction_type] }
+
+
   filterrific(
       default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [
@@ -127,8 +130,8 @@ class ShareTransaction < ActiveRecord::Base
       where(:transaction_cancel_status => ShareTransaction.transaction_cancel_statuses[status])
     end
   }
-
-  scope :by_branch, ->(branch_id = UserSession.selected_branch_id) do
+  # current_branch_id = selected_branch_id
+  scope :by_branch, ->(branch_id) do
     includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
   end
 
@@ -193,7 +196,7 @@ class ShareTransaction < ActiveRecord::Base
   scope :settled, lambda{ where.not(settlement_id: nil)}
   scope :cgt_gt_zero, lambda{ where('cgt > ?', 0.0)}
 
-  scope :for_cgt, ->(fy_code = UserSession.selected_fy_code) do
+  scope :for_cgt, ->(fy_code) do
     includes(:bill).selling.settled_with_bill.cgt_gt_zero.where('bills.fy_code =  ?', fy_code).references(:bills)
   end
 
@@ -250,7 +253,7 @@ class ShareTransaction < ActiveRecord::Base
     }
   end
 
-  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id = UserSession.selected_branch_id)
+  def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id )
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -299,7 +302,7 @@ class ShareTransaction < ActiveRecord::Base
     result_arr
   end
 
-  def self.sebo_report isin_id, date_from_bs, date_to_bs, branch_id = 0
+  def self.sebo_report isin_id, date_from_bs, date_to_bs, branch_id, selected_fy_code
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -313,8 +316,8 @@ class ShareTransaction < ActiveRecord::Base
       date_to_ad = bs_to_ad(date_to_bs)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     else
-      date_from_ad = fiscal_year_first_day
-      date_to_ad = fiscal_year_last_day
+      date_from_ad = fiscal_year_first_day(selected_fy_code)
+      date_to_ad = fiscal_year_last_day(selected_fy_code)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
 
@@ -364,7 +367,7 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(share_amount * (case transaction_type when 1 then 1 else 0 end)) as sell_sum")
   end
 
-  def self.threshold_report date_bs, client_account_id, date_from_bs, date_to_bs
+  def self.threshold_report date_bs, client_account_id, date_from_bs, date_to_bs, selected_fy_code
     ar_connection = ActiveRecord::Base.connection
     where_conditions =  []
 
@@ -383,8 +386,8 @@ class ShareTransaction < ActiveRecord::Base
       date_to_ad = bs_to_ad(date_to_bs)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     else
-      date_from_ad = fiscal_year_first_day
-      date_to_ad = fiscal_year_last_day
+      date_from_ad = fiscal_year_first_day(selected_fy_code)
+      date_to_ad = fiscal_year_last_day(selected_fy_code)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
 
@@ -412,7 +415,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
 
-  def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+  def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
     where_conditions =  []
     ar_connection = ActiveRecord::Base.connection
     if client_id.present?
@@ -425,16 +428,16 @@ class ShareTransaction < ActiveRecord::Base
       date_to_ad = bs_to_ad(date_to_bs)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     else
-      date_from_ad = fiscal_year_first_day
-      date_to_ad = fiscal_year_last_day
+      date_from_ad = fiscal_year_first_day(selected_fy_code)
+      date_to_ad = fiscal_year_last_day(selected_fy_code)
       where_conditions << "(share_transactions.date BETWEEN '#{date_from_ad}' AND '#{date_to_ad}')"
     end
     where_conditions
   end
 
-  def self.commission_report client_id, date_from_bs, date_to_bs
+  def self.commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
 
-    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
     where_condition_str = "#{where_conditions.join(" AND ")}"
     ShareTransaction.includes(:client_account).where(where_condition_str).group(:client_account_id).select(
         :client_account_id,
@@ -444,8 +447,8 @@ class ShareTransaction < ActiveRecord::Base
         "SUM(commission_amount-nepse_commission) as total_commission_amount").order("total_commission_amount DESC")
   end
 
-  def self.total_count_for_commission_report client_id, date_from_bs, date_to_bs
-    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs
+  def self.total_count_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
+    where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
     where_condition_str = "#{where_conditions.join(" AND ")}"
     ShareTransaction.where(where_condition_str).pluck(:client_account_id).uniq.count
   end
@@ -459,12 +462,17 @@ class ShareTransaction < ActiveRecord::Base
     update_attribute(:deleted_at, nil)
   end
 
+
+  # used for the provisional only
+  # not used for the base price calculation
   def update_with_base_price(params)
     self.update(params)
     self.calculate_cgt
     self
   end
 
+  # used for the provisional only
+  # not used for the base price calculation
   def calculate_cgt
     old_cgt = self.cgt
     if self.base_price?

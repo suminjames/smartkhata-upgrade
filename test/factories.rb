@@ -19,8 +19,8 @@ FactoryBot.define do
   end
 
   factory :user do
-    sequence(:username, 'a') { |n| "testuser#{n}" }
-    sequence(:email, 'a') { |n| "testuser-#{n}@gmail.com" }
+    sequence(:username)  { |n| "test#{n}" }
+    sequence(:email) { |n| "test#{n}@gmail.com" }
     password "password"
     password_confirmation "password"
     confirmed_at Date.today
@@ -33,10 +33,13 @@ FactoryBot.define do
     status :void
     cheque_issued_type :payment
     amount 5000
-    bank_account
+    bank_account { BankAccount.first|| create(:bank_account) }
     cheque_date '2016-7-12'
-    branch
+    branch_id { Branch.first&.id || create(:branch).id }
     beneficiary_name 'subas'
+    creator_id { User.first&.id || user.id }
+    updater_id { User.first&.id || user.id }
+    current_user_id { User.first&.id || create(:user).id }
 
     factory :receipt_cheque_entry do
       cheque_issued_type :receipt
@@ -53,7 +56,8 @@ FactoryBot.define do
     ledger
     transaction_type 0
     cheque_number nil
-
+    creator_id { User.first&.id || user.id }
+    updater_id { User.first&.id || user.id }
     factory :debit_particular do
       transaction_type 0
       ledger
@@ -97,9 +101,8 @@ FactoryBot.define do
 
   factory :ledger do
     name 'Ledger'
-    # group_id 234
-    group
-
+    group_id 234
+    current_user_id { User.first&.id || create(:user).id }
     factory :bank_ledger do
       name 'Bank'
       bank_account
@@ -113,6 +116,7 @@ FactoryBot.define do
     cr_amount 0
     branch
     fy_code '7374'
+    current_user_id { User.first&.id || create(:user).id }
 
     factory :ledger_balance_org do
       branch_id nil
@@ -138,7 +142,9 @@ FactoryBot.define do
 
     # association :creator, factory: :user
     # association :updater, factory: :user
-
+    creator_id { User.first&.id || user.id }
+    updater_id { User.first&.id || user.id }
+    current_user_id { User.first&.id || create(:user).id }
     factory :client_account_without_nepse_code do
       nepse_code nil
 
@@ -168,6 +174,8 @@ FactoryBot.define do
   factory :employee_account do
     name "ggghf"
     email "test@example.com"
+    branch_id 1
+    current_user_id { User.first&.id || create(:user).id }
   end
 
   factory :settlement do

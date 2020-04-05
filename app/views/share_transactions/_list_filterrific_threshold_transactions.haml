@@ -18,13 +18,13 @@
       %h4
         %strong
           -#=t('annexure', :locale => :np)
-          -#=t('number.two', :locale => :np)
-          Annexure 2
+          -#=t('number.one', :locale => :np)
+          Annexure 1
 
       %h4
         %strong
           -#=t('threshold_transaction_detail', :locale => :np)
-          =t('threshold_transaction_detail', :locale => :en)
+          = t('threshold_transaction_detail', :locale => :en)
       %h4
         %strong
           -#= t('informer_name', :locale => :np)
@@ -36,22 +36,24 @@
     %table.table.table-striped
       %thead
         -#%th.col-1= t('serial_no', :locale => :np)
-        -#%th.col-2= t('buyer_seller_address', :locale => :np)
+        -#%th.col-10= t('dmat_no', :locale => :np)
+        -#%th.col-2= t('name_of_buyer_seller', :locale => :np)
         -#%th.col-3= t('occupation', :locale => :np)
         -#%th.col-4= t('branch_if_any', :locale => :np)
         -#%th.col-5= t('transaction_date', :locale => :np)
         -#%th.col-6= t('transaction_type', :locale => :np)
         -#%th.col-7= t('transaction_amount', :locale => :np)
-        -#%th.col-8= t('source_of_income', :locale => :np)
+        -#%th.col-8= t('source_of_fund', :locale => :np)
         -#%th.col-9= t('remarks', :locale => :np)
         %th.col-1= t('serial_no', :locale => :en)
-        %th.col-2= t('buyer_seller_address', :locale => :en)
+        %th.col-10= t('dmat_no', :locale => :en)
+        %th.col-2= t('name_of_buyer_seller', :locale => :en)
         %th.col-3= t('occupation', :locale => :en)
         %th.col-4= t('branch_if_any', :locale => :en)
         %th.col-5= t('transaction_date', :locale => :en)
         %th.col-6= t('transaction_type', :locale => :en)
         %th.col-7= t('transaction_amount', :locale => :en)
-        %th.col-8= t('source_of_income', :locale => :en)
+        %th.col-8= t('source_of_fund', :locale => :en)
         %th.col-9= t('remarks', :locale => :en)
       %tbody
         -if share_transactions
@@ -59,7 +61,8 @@
           -share_transactions.each_with_index do |share_transaction, index|
             %tr
               %td.text-center= pagination_count + index
-              %td= share_transaction.client_account.try(:name).titleize
+              %td.text-center= share_transaction.client_account.try(:boid) 
+              %td.text-center= share_transaction.client_account.try(:name).titleize
               %td= share_transaction.client_account.try(:profession_code)
               %td
               %td.text-right= ad_to_bs_string(share_transaction.date)

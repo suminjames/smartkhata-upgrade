@@ -36,7 +36,6 @@ class BankTest < ActiveSupport::TestCase
 
   test "bank code should not be duplicate" do
     # duplicate bank code from fixtures
-    # debugger
     @bank.name = 'MyString'
     assert_not @bank.valid?
   end

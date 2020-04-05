@@ -15,7 +15,7 @@ class VouchersController < ApplicationController
 
   def pending_vouchers
     # @vouchers = Voucher.pending.includes(:particulars).order("id ASC").references(:particulars).decorate
-    @vouchers = Voucher.by_branch_fy_code.pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
+    @vouchers = Voucher.by_branch_fy_code(selected_branch_id, selected_fy_code).pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
     render :index
   end
 
@@ -61,6 +61,7 @@ class VouchersController < ApplicationController
   def new
     # two way to post to this controller
     # either clear_ledger and client_account_id or client_account_id and bill_ids
+
     @voucher,
     @is_payment_receipt,
     @ledger_list_financial,
@@ -72,7 +73,7 @@ class VouchersController < ApplicationController
                                               client_account_id: @client_account_id,
                                               # bill_id: @bill_id,
                                               clear_ledger: @clear_ledger,
-                                              bill_ids: @bill_ids).voucher_and_relevant
+                                              bill_ids: @bill_ids).voucher_and_relevant(selected_branch_id, selected_fy_code)
   end
 
   # POST /vouchers
@@ -82,7 +83,7 @@ class VouchersController < ApplicationController
     # ignore some validations when the voucher type is sales or purchase
     @is_payment_receipt = false
     # create voucher with the posted parameters
-    @voucher = Voucher.new(voucher_params)
+    @voucher = Voucher.new(with_branch_user_params(voucher_params))
     voucher_creation = Vouchers::Create.new(voucher_type: @voucher_type,
                                             client_account_id: @client_account_id,
                                             bill_id: @bill_id,
@@ -92,8 +93,10 @@ class VouchersController < ApplicationController
                                             voucher_settlement_type: @voucher_settlement_type,
                                             group_leader_ledger_id: @group_leader_ledger_id,
                                             vendor_account_id: @vendor_account_id,
-                                            tenant_full_name: current_tenant.full_name)
-
+                                            tenant_full_name: current_tenant.full_name,
+                                            selected_fy_code: selected_fy_code,
+                                            selected_branch_id: selected_branch_id,
+                                            current_user: current_user)
     respond_to do |format|
       if voucher_creation.process
 
@@ -132,6 +135,9 @@ class VouchersController < ApplicationController
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      redirect_to :back
   end
 
   # PATCH/PUT /vouchers/1
@@ -170,17 +176,19 @@ class VouchersController < ApplicationController
       if !@voucher.rejected? && !@voucher.complete?
         if params[:approve]
           Voucher.transaction do
+
+            particular_ids = []
             @voucher.particulars.each do |particular|
-              Ledgers::ParticularEntry.new.insert_particular(particular)
+              Ledgers::ParticularEntry.new(current_user.id).insert_particular(particular)
+              particular_ids  << particular.id
             end
 
-            @voucher.cheque_entries.uniq.each do |cheque_entry|
+            cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               cheque_entry.approved!
             end
 
-            @voucher.reviewer_id = UserSession.user_id
-
-
+            @voucher.reviewer_id = current_user&.id
             @voucher.complete!
             @voucher.save!
             success = true
@@ -188,14 +196,18 @@ class VouchersController < ApplicationController
           end
         elsif params[:reject]
           # TODO(Subas) what happens to bill
-          @voucher.reviewer_id = UserSession.user_id
+          @voucher.current_user_id = current_user&.id
           voucher_amount = 0.0
 
           ActiveRecord::Base.transaction do
             # If cheque_entry not printed, it can/should be resuable.
             # Therefore, delete the cheque_entry and create a new cheque_entry with same cheque_number such that it is unassigned.
-            @voucher.cheque_entries.uniq.each do |cheque_entry|
+            particular_ids = @voucher.particulars.pluck(:id)
+
+            cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
               if cheque_entry.printed?
+                cheque_entry.current_user_id = current_user.id
                 cheque_entry.void!
               else
                 replacement_cheque_entry = ChequeEntry.new()
@@ -203,6 +215,7 @@ class VouchersController < ApplicationController
                 replacement_cheque_entry.bank_account_id= cheque_entry.bank_account_id
                 replacement_cheque_entry.branch_id = cheque_entry.branch_id
                 replacement_cheque_entry.fy_code= cheque_entry.fy_code
+                replacement_cheque_entry.current_user_id = current_user.id
                 # The destroy will also delete cheque_entry_particular_associations via model callbacks
                 cheque_entry.destroy!
                 replacement_cheque_entry.save!
@@ -214,6 +227,7 @@ class VouchersController < ApplicationController
             processed_bills = []
 
             @bills.each do |bill|
+              bill.current_user_id = current_user.id
               if voucher_amount + margin_of_error_amount < bill.net_amount
                 bill.balance_to_pay = voucher_amount
                 bill.status = Bill.statuses[:partial]
@@ -263,7 +277,6 @@ class VouchersController < ApplicationController
     bill = nil
     bills = []
     amount = 0.0
-
     # find the bills for the client
     if client_account_id.present?
       client_account = ClientAccount.find(client_account_id)
@@ -325,7 +338,8 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment])
+    permitted_params = params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment, :current_user_id])
+    with_branch_user_params(permitted_params)
   end
 
   def set_voucher_general_params

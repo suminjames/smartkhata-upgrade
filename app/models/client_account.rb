@@ -97,7 +97,8 @@ class ClientAccount < ActiveRecord::Base
   before_save :format_name, if: :name_changed?
   after_save :move_particulars
   after_create :create_ledger
-  after_save :change_ledger_name, if: :name_changed?
+  after_update :change_ledger_name, if: :name_changed?
+  after_update :change_ledger_code, if: :nepse_code_changed?
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
@@ -194,6 +195,11 @@ class ClientAccount < ActiveRecord::Base
   def change_ledger_name
     self.ledger.update(name: self.name)
   end
+
+  def change_ledger_code
+    self.ledger.update(client_code: self.nepse_code)
+  end
+
   def format_nepse_code
     self.nepse_code = self.nepse_code.try(:squish).try(:upcase)
   end
@@ -281,7 +287,6 @@ class ClientAccount < ActiveRecord::Base
 
   # get the bill ids of client as well as all the other bills of clients who have the client as group leader
   def get_all_related_bill_ids
-    bill_ids = []
     client_account_ids = []
     client_account_ids << self.id
     client_account_ids |= self.group_members.pluck(:id)
@@ -355,17 +360,17 @@ class ClientAccount < ActiveRecord::Base
 
   end
 
-  def pending_bills_path
-    Rails.application.routes.url_helpers.bills_path("filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
+  def pending_bills_path(selected_fy_code, selected_branch_id)
+    Rails.application.routes.url_helpers.bills_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
   end
 
-  def share_inventory_path
-    Rails.application.routes.url_helpers.share_transactions_path("filterrific[by_client_id]":"#{self.id}")
+  def share_inventory_path(selected_fy_code, selected_branch_id)
+    Rails.application.routes.url_helpers.share_transactions_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}")
   end
 
 
-  def ledger_closing_balance
-    self.ledger.closing_balance
+  def ledger_closing_balance(fy_code,branch_id)
+    self.ledger.closing_balance(fy_code,branch_id)
   end
 
   def self.existing_referrers_names
@@ -492,7 +497,7 @@ class ClientAccount < ActiveRecord::Base
 
   def move_particulars
     if self.branch_changed && (self.move_all_particulars == "1")
-      Accounts::Branches::ClientBranchService.new.patch_client_branch(self, self.branch_id)
+      MoveClientParticularJob.perform_later(self.id, self.branch_id, updater_id)
     end
   end
 end

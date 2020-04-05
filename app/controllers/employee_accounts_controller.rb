@@ -24,11 +24,11 @@ class EmployeeAccountsController < ApplicationController
       search_by = params[:search_by]
       search_term = params[:search_term]
       case search_by
-        when 'name'
-          @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
-          @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
-        else
-          @employee_accounts = []
+      when 'name'
+        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
+        @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
+      else
+        @employee_accounts = []
       end
     else
       @employee_accounts = []
@@ -60,7 +60,6 @@ class EmployeeAccountsController < ApplicationController
     res = false
     ActiveRecord::Base.transaction do
 
-
       if @employee_account.save
         # Assign to Employee group
         @employee_account.assign_group("Employees")
@@ -70,6 +69,7 @@ class EmployeeAccountsController < ApplicationController
         @employee_account.save!
         res = true
       end
+
     end
 
     respond_to do |format|
@@ -219,7 +219,7 @@ class EmployeeAccountsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def employee_account_params
-    params.require(:employee_account).permit(
+    permitted_params = params.require(:employee_account).permit(
         :name,
         :address1,
         :address1_perm,
@@ -249,6 +249,7 @@ class EmployeeAccountsController < ApplicationController
         :bank_address,
         :has_access_to
     )
+    with_branch_user_params(permitted_params)
   end
 
   def valid_email?(email)

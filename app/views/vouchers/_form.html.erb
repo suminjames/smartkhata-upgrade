@@ -1,164 +1,48 @@
 <%
   date = ad_to_bs_string(Date.today)
 %>
+<%= simple_form_for(voucher, url: vouchers_path(selected_branch_id: @selected_branch_id, selected_fy_code: @selected_fy_code)) do |f| %>
+  <!-- add hidden field to track the type -->
+  <%= hidden_field_tag 'voucher_type', voucher_type %>
+  <%= hidden_field_tag 'client_account_id', client_account_id %>
+  <%= hidden_field_tag 'bill_id', bill_id %>
+  <%= hidden_field_tag 'clear_ledger', clear_ledger %>
+  <% bill_ids.each do |bill_id| %>
+    <%= hidden_field_tag 'bill_ids[]', bill_id %>
+  <% end %>
 
-<%= simple_form_for(voucher, :url => url_for(:action => 'create', :controller => 'vouchers')) do |f| %>
-    <!-- add hidden field to track the type -->
-    <%= hidden_field_tag 'voucher_type', voucher_type %>
-    <%= hidden_field_tag 'client_account_id', client_account_id %>
-    <%= hidden_field_tag 'bill_id', bill_id %>
-    <%= hidden_field_tag 'clear_ledger', clear_ledger %>
-    <% bill_ids.each do |bill_id| %>
-        <%= hidden_field_tag 'bill_ids[]', bill_id %>
-    <% end %>
-
-    <%= f.error_notification %>
-    <div class="form-inputs row">
-      <div class="col-sm-4">
+  <%= f.error_notification %>
+  <div class="form-inputs row new-voucher">
+    <div class="col-sm-4">
+      <div>
         <h4>Date</h4>
-        <%= f.text_field :date_bs,
-                         :value => f.object.date_bs || date,
-                         class: 'form-control',
-                         placeholder: 'YYYY-MM-DD'
-        %>
+        <%= datepicker_input(f, 'date_bs','', (f.object.date_bs || date))  %>
       </div>
     </div>
-    <br>
-    <h4>Mode of Payment</h4>
-    <div class="payment_mode">
-      <%= radio_button_tag 'payment_mode', 'default', (payment_mode != 'bank_transfer') %>
-      <%= label :payment_mode_default, "Cheque/Cash", for: 'payment_mode_default' %>
-      <%= radio_button_tag 'payment_mode', 'bank_transfer', (payment_mode == 'bank_transfer') %>
-      <%= label :payment_mode_bank_transfer, 'Bank Transfer', for: 'payment_mode_bank_transfer' %>
-    </div>
+  </div>
+  <br>
+  <h4>Mode of Payment</h4>
+  <div class="payment_mode">
+    <%= radio_button_tag 'payment_mode', 'default', (payment_mode != 'bank_transfer') %>
+    <%= label :payment_mode_default, "Cheque/Cash", for: 'payment_mode_default' %>
+    <%= radio_button_tag 'payment_mode', 'bank_transfer', (payment_mode == 'bank_transfer') %>
+    <%= label :payment_mode_bank_transfer, 'Bank Transfer', for: 'payment_mode_bank_transfer' %>
+  </div>
 
-    <br>
+  <br>
 
-    <% if is_payment_receipt %>
+  <% if is_payment_receipt %>
 
-        <div class="form-inputs voucher">
-          <div class="box box-primary z-light-bg">
-            <div class="box-header">
-              <% if voucher_type == Voucher.voucher_types[:payment] %>
-                  <h3 class="box-title">Credit Particulars</h3>
-              <% else %>
-                  <h3 class="box-title">Debit Particulars</h3>
-              <% end %>
-            </div>
-            <div class="box-body">
-              <div class="row">
-                <div class="col-sk-5"><h4>Account Head</h4></div>
-                <div class="col-sk-3"><h4>Amount</h4></div>
-                <div class="col-sk-2"><h4>Dr/Cr</h4></div>
-                <div class="col-sk-3"><h4>Cheque</h4></div>
-                <div class="col-sk-4"><h4>Cheque Issuing Bank</h4></div>
-                <div class="col-sk-4"><h4>Bills</h4></div>
-                <div class="col-sk-3"><h4>Branch</h4></div>
-              </div>
-              <%= f.fields_for :particulars do |p| %>
-                  <%= render :partial => 'particular_fields',
-                             :locals => {
-                                 :f => p,
-                                 :extra_info => {
-                                     :ledger_list_financial => ledger_list_financial,
-                                     :ledger_list_available => ledger_list_available,
-                                     :voucher_type => voucher_type,
-                                     :inverse => true,
-                                     :default_ledger_id => (p.object.ledger_id || default_ledger_id)
-                                 },
-                                 :sk_id => 1#this has to be unique, for each particulars
-
-                             }if (( voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr' ) || (voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr'))
-                  %>
-              <% end %>
-
-              <%= link_to_add_fields "Add Particular",
-                                     f,
-                                     :particulars,
-                                     {
-                                         :inverse => true,
-                                         :ledger_list_financial => ledger_list_financial,
-                                         :ledger_list_available => ledger_list_available,
-                                         :voucher_type => voucher_type,
-                                         :default_ledger_id => default_ledger_id
-                                     } if voucher_type == Voucher.voucher_types[:receipt]
-              %>
-              <div class='total-display'></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="group-ledger">
-          <%= radio_button_tag 'voucher_settlement_type', 'default', (voucher_settlement_type != 'client'|| voucher_settlement_type != 'vendor') %>
-          <%= label :voucher_settlement_type_default, 'Default', for: 'voucher_settlement_type_default' %>
-          <%= radio_button_tag 'voucher_settlement_type', 'client', (voucher_settlement_type == 'client') %>
-          <%= label :voucher_settlement_type_client, 'Client', for: 'voucher_settlement_type_client' %>
-          <%= radio_button_tag 'voucher_settlement_type', 'vendor', (voucher_settlement_type == 'vendor') %>
-          <%= label :voucher_settlement_type_vendor, 'Vendor', for: 'voucher_settlement_type_vendor' %>
-        </div>
-
-        <div class="box box-primary z-light-bg many-to-single-settlement-client">
-          <div class="box-header">
-            <h3 class="box-title">Select the Client Ledger that needs to be assigned for receipt / payment </h3>
-          </div>
-          <div class="box-body">
-            <div class="row client-group">
-              <div class="col-xs-3">
-                <%= select_tag "group_leader_ledger_id",
-                               options_from_collection_for_select(
-                                   client_ledger_list,
-                                   "id",
-                                   "name_and_code",
-                                   group_leader_ledger_id
-                               ),
-                               {
-                                   :include_blank => true,
-                                   :class => 'form-control combobox combobox-select min-3 select-ledger',
-                                   :id => 'voucher_group_leader_ledger_combobox',
-                                   'data-placeholder': 'Select a client...',
-                                   :style => 'width: 100%'
-                               }
-                %>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="box box-primary z-light-bg many-to-single-settlement-vendor">
-          <div class="box-header">
-            <h3 class="box-title">Select the Vendor that needs to be assigned for receipt / payment </h3>
-          </div>
-          <div class="box-body">
-            <div class="row vendor-group">
-              <div class="col-xs-3">
-                <%= select_tag "vendor_account_id",
-                               options_from_collection_for_select(
-                                   vendor_account_list,
-                                   "id",
-                                   "name",
-                                   vendor_account_id
-                               ),
-                               {
-                                   :include_blank => true,
-                                   :class => 'form-control combobox select-ledger',
-                                   :id => 'voucher_vendor_combobox',
-                                   'data-placeholder': 'Select a vendor...',
-                                   :style => 'width: 100%'
-                               }
-                %>
-              </div>
-            </div>
-          </div>
-        </div>
-
-    <% end %>
-
-    <br>
     <div class="form-inputs voucher">
       <div class="box box-primary z-light-bg">
         <div class="box-header">
-          <h3 class="box-title">Particulars</h3>
+          <% if voucher_type == Voucher.voucher_types[:payment] %>
+            <h3 class="box-title">Credit Particulars</h3>
+          <% else %>
+            <h3 class="box-title">Debit Particulars</h3>
+          <% end %>
         </div>
-        <div class="box-body dynamic-ledgers">
+        <div class="box-body">
           <div class="row">
             <div class="col-sk-5"><h4>Account Head</h4></div>
             <div class="col-sk-3"><h4>Amount</h4></div>
@@ -169,37 +53,150 @@
             <div class="col-sk-3"><h4>Branch</h4></div>
           </div>
           <%= f.fields_for :particulars do |p| %>
-              <%= render :partial => 'particular_fields',
-                         :locals => {:f => p,
-                                     :extra_info => {:inverse => false,
-                                                     :ledger_list_financial => ledger_list_financial,
-                                                     :ledger_list_available => ledger_list_available,
-                                                     :voucher_type => voucher_type,
-                                                     :default_ledger_id => (p.object.ledger_id || default_ledger_id )
-                                     },
-                                     :sk_id => 2 #this has to be unique, for each particulars
-                         } unless (p.object.transaction_type.present? && ( voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr' ) ||(voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr'))
-              %>
+            <%= render :partial => 'particular_fields',
+                       :locals => {
+                           :f => p,
+                           :extra_info => {
+                               :ledger_list_financial => ledger_list_financial,
+                               :ledger_list_available => ledger_list_available,
+                               :voucher_type => voucher_type,
+                               :inverse => true,
+                               :default_ledger_id => (p.object.ledger_id || default_ledger_id)
+                           },
+                           :sk_id => 1 #this has to be unique, for each particulars
+
+                       } if ((voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr') || (voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr'))
+            %>
           <% end %>
+
           <%= link_to_add_fields "Add Particular",
                                  f,
-                                 :particulars, {:ledger_list_financial => ledger_list_financial,
-                                                :ledger_list_available => ledger_list_available,
-                                                :voucher_type => voucher_type,
-                                                :default_ledger_id => default_ledger_id
-                                 }
+                                 :particulars,
+                                 {
+                                     :inverse => true,
+                                     :ledger_list_financial => ledger_list_financial,
+                                     :ledger_list_available => ledger_list_available,
+                                     :voucher_type => voucher_type,
+                                     :default_ledger_id => default_ledger_id
+                                 } if voucher_type == Voucher.voucher_types[:receipt]
           %>
           <div class='total-display'></div>
         </div>
       </div>
+    </div>
+
+    <div class="group-ledger">
+      <%= radio_button_tag 'voucher_settlement_type', 'default', (voucher_settlement_type != 'client' || voucher_settlement_type != 'vendor') %>
+      <%= label :voucher_settlement_type_default, 'Default', for: 'voucher_settlement_type_default' %>
+      <%= radio_button_tag 'voucher_settlement_type', 'client', (voucher_settlement_type == 'client') %>
+      <%= label :voucher_settlement_type_client, 'Client', for: 'voucher_settlement_type_client' %>
+      <%= radio_button_tag 'voucher_settlement_type', 'vendor', (voucher_settlement_type == 'vendor') %>
+      <%= label :voucher_settlement_type_vendor, 'Vendor', for: 'voucher_settlement_type_vendor' %>
+    </div>
+
+    <div class="box box-primary z-light-bg many-to-single-settlement-client">
+      <div class="box-header">
+        <h3 class="box-title">Select the Client Ledger that needs to be assigned for receipt / payment </h3>
+      </div>
+      <div class="box-body">
+        <div class="row client-group">
+          <div class="col-xs-3">
+            <%= select_tag "group_leader_ledger_id",
+                           options_from_collection_for_select(
+                               client_ledger_list,
+                               "id",
+                               "name_and_code",
+                               group_leader_ledger_id
+                           ),
+                           {
+                               :include_blank => true,
+                               :class => 'form-control combobox combobox-select min-3 select-ledger',
+                               :id => 'voucher_group_leader_ledger_combobox',
+                               'data-placeholder': 'Select a client...',
+                               :style => 'width: 100%'
+                           }
+            %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="box box-primary z-light-bg many-to-single-settlement-vendor">
+      <div class="box-header">
+        <h3 class="box-title">Select the Vendor that needs to be assigned for receipt / payment </h3>
+      </div>
+      <div class="box-body">
+        <div class="row vendor-group">
+          <div class="col-xs-3">
+            <%= select_tag "vendor_account_id",
+                           options_from_collection_for_select(
+                               vendor_account_list,
+                               "id",
+                               "name",
+                               vendor_account_id
+                           ),
+                           {
+                               :include_blank => true,
+                               :class => 'form-control combobox select-ledger',
+                               :id => 'voucher_vendor_combobox',
+                               'data-placeholder': 'Select a vendor...',
+                               :style => 'width: 100%'
+                           }
+            %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+
+  <br>
+  <div class="form-inputs voucher">
+    <div class="box box-primary z-light-bg">
+      <div class="box-header">
+        <h3 class="box-title">Particulars</h3>
+      </div>
+      <div class="box-body dynamic-ledgers">
+        <div class="row">
+          <div class="col-sk-5"><h4>Account Head</h4></div>
+          <div class="col-sk-3"><h4>Amount</h4></div>
+          <div class="col-sk-2"><h4>Dr/Cr</h4></div>
+          <div class="col-sk-3"><h4>Cheque</h4></div>
+          <div class="col-sk-4"><h4>Cheque Issuing Bank</h4></div>
+          <div class="col-sk-4"><h4>Bills</h4></div>
+          <div class="col-sk-3"><h4>Branch</h4></div>
+        </div>
+        <%= f.fields_for :particulars do |p| %>
+          <%= render :partial => 'particular_fields',
+                     :locals => {:f => p,
+                                 :extra_info => {:inverse => false,
+                                                 :ledger_list_financial => ledger_list_financial,
+                                                 :ledger_list_available => ledger_list_available,
+                                                 :voucher_type => voucher_type,
+                                                 :default_ledger_id => (p.object.ledger_id || default_ledger_id)
+                                 },
+                                 :sk_id => 0 #this has to be unique, for each particulars
+                     } unless (p.object.transaction_type.present? && (voucher_type == Voucher.voucher_types[:payment] && p.object.transaction_type == 'cr') || (voucher_type == Voucher.voucher_types[:receipt] && p.object.transaction_type == 'dr'))
+          %>
+        <% end %>
+        <%= link_to_add_fields "Add Particular",
+                               f,
+                               :particulars, {:ledger_list_financial => ledger_list_financial,
+                                              :ledger_list_available => ledger_list_available,
+                                              :voucher_type => voucher_type,
+                                              :default_ledger_id => default_ledger_id
+                               }
+        %>
+        <div class='total-display'></div>
+      </div>
+    </div>
 
 
-    </div>
-    <div class="form-inputs">
-      <h4>Narration</h4>
-      <%= f.input :desc, label: false %>
-    </div>
-    <div class="form-actions">
-      <%= f.submit "Submit", class: 'btn btn-primary btn-flat' %>
-    </div>
+  </div>
+  <div class="form-inputs">
+    <h4>Narration</h4>
+    <%= f.input :desc, label: false %>
+  </div>
+  <div class="form-actions">
+    <%= f.submit "Submit", class: 'btn btn-primary btn-flat' %>
+  </div>
 <% end %>

@@ -140,10 +140,7 @@ class SmsMessage < ActiveRecord::Base
   # Instance Methods
 
   def initialize (args = {})
-    super()
-    self.phone = args[:phone]
-    self.sms_type = args[:sms_type]
-    self.transaction_message_id = args[:transaction_message_id]
+    super
     self.phone_type = self.class.get_phone_type(self.phone)
     self.credit_used = 0
   end
@@ -192,10 +189,12 @@ class SmsMessage < ActiveRecord::Base
   end
 
   # force fail is to test the failing nature of the sms sending
-  def self.sparrow_send_bill_sms(transaction_message_id)
+  def self.sparrow_send_bill_sms(transaction_message_id, current_user)
     transaction_message = TransactionMessage.find_by(id: transaction_message_id.to_i)
     _mobile_number = transaction_message.client_account.messageable_phone_number
-    sms_message_obj = SmsMessage.new(phone: _mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id)
+    _branch_id = transaction_message.client_account.branch_id
+
+    sms_message_obj = SmsMessage.new(phone: _mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id, branch_id: _branch_id, current_user_id: current_user.id)
     _full_message = transaction_message.sms_message
 
 
@@ -211,6 +210,7 @@ class SmsMessage < ActiveRecord::Base
         sms_message_obj.credit_used += self.sparrow_credit_required(message)
       end
     end
+
 
     if sms_failed
       transaction_message.sms_unsent!

@@ -1,8 +1,9 @@
 namespace :client_account do
 
   desc "Fix name format of all client accounts."
-  task :fix_format_of_names,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_format_of_names,[:tenant, :mimic, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       ClientAccount.unscoped.find_each do |client_account|
         name_before = client_account.name.dup
@@ -10,6 +11,7 @@ namespace :client_account do
           puts "Processing Client Account(id: #{client_account.id}) with name `#{name_before}`."
           client_account.skip_validation_for_system = true
           client_account.format_name
+          client_account.current_user_id = current_user_id
           client_account.save! unless args.mimic.present?
           count += 1
           puts "Client Account(id: #{client_account.id})'s name changed from `#{name_before}` to `#{client_account.name}`."
@@ -20,8 +22,9 @@ namespace :client_account do
   end
 
   desc "Fix nepse code format of all client accounts."
-  task :fix_format_of_nepse_codes,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+  task :fix_format_of_nepse_codes,[:tenant, :mimic, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     count = 0
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       ClientAccount.unscoped.find_each do |client_account|
         if client_account.nepse_code.present?
@@ -29,6 +32,7 @@ namespace :client_account do
           if nepse_code_before != client_account.format_nepse_code
             puts "Processing Client Account(id: #{client_account.id}) with nepse_code `#{client_account.nepse_code}`."
             client_account.skip_validation_for_system = true
+            client_account.current_user_id = current_user_id
             client_account.format_nepse_code
             client_account.save! unless args.mimic.present?
             count += 1
@@ -47,13 +51,13 @@ namespace :client_account do
   # - Check for (automatic) mergeablibilty
   # - If mergable, and 'resolve' flag set, merge duplicate client accounts.
   # - If mergable, and 'resolve' flag not set, display information about the mergeability.
-  task :find_client_accounts_with_duplicate_nepse_code,[:tenant, :resolve] => 'smartkhata:validate_tenant' do |task, args|
+  task :find_client_accounts_with_duplicate_nepse_code,[:tenant, :resolve, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     resolve = args.resolve == "resolve"
+    current_user_id = args.user_id || User.admin.first.id
     ActiveRecord::Base.transaction do
       can_be_resolved_automatically_count = 0
       resolved_count = 0
       search_hash = ClientAccount.unscoped.select("LOWER(nepse_code)").group("LOWER(nepse_code)").having("count(*) > 1").count
-
       search_hash.each do |nepse_code, occurrence|
         # Switch the tenant (again) as dependent rake task(s) tend to switch to 'public' tenant at the end.
         Apartment::Tenant.switch!(args.tenant)
@@ -61,7 +65,6 @@ namespace :client_account do
         puts "Nepse code(case-insensitive): #{nepse_code} => Occurence: #{occurrence}"
 
         client_accounts = ClientAccount.where("UPPER(nepse_code) = ?", nepse_code.upcase).order(id: :asc)
-
         client_accounts_mergable,
             src_client_account_id_for_merge,
             dst_client_account_id_for_merge = client_accounts_mergable?(client_accounts, {verbose: true})
@@ -97,18 +100,18 @@ namespace :client_account do
   desc "Merge two client accounts"
   # Merges client accounts.
   # If args.force is 'force', it goes forward with the merging even if src_client_account is not 'easily deletable'.
-  task :merge,[:tenant, :merge_src_id, :merge_dst_id, :force] => 'smartkhata:validate_tenant' do |task, args|
+  task :merge,[:tenant, :merge_src_id, :merge_dst_id, :force, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     include ShareInventoryModule
     unless args.merge_src_id.present? && args.merge_dst_id.present?
       abort 'Invalid arguments'
     end
-    merge_client_accounts(args.merge_src_id, args.merge_dst_id, {force: args.force == "force"})
+    current_user_id = args.user_id || User.admin.first.id
+    merge_client_accounts(args.merge_src_id, args.merge_dst_id, current_user_id, {force: args.force == "force"})
     Apartment::Tenant.switch!('public')
   end
 
-  def merge_client_accounts(src_client_account_id_for_merge, dst_client_account_id_for_merge, force = false)
+  def merge_client_accounts(src_client_account_id_for_merge, dst_client_account_id_for_merge, current_user_id, force = false)
     puts "Attempting to merge source client_account(id: #{src_client_account_id_for_merge}) to destination client_account(id: #{dst_client_account_id_for_merge})"
-
     ActiveRecord::Base.transaction do
       src_client_account = ClientAccount.unscoped.find(src_client_account_id_for_merge)
       dst_client_account = ClientAccount.unscoped.find(dst_client_account_id_for_merge)
@@ -151,6 +154,7 @@ namespace :client_account do
         model.unscoped.where(client_account_id: src_client_account.id).each do |model_instance|
           puts "Transferring client account association of #{model_instance.class}(id:#{model_instance.id})..."
           model_instance.client_account_id = dst_client_account.id
+          model_instance.current_user_id = current_user_id if model_instance.respond_to? :current_user_id
           model_instance.save!
         end
       end
@@ -160,12 +164,15 @@ namespace :client_account do
         puts "Adjusting share inventories of src client account to dst client account..."
         quantity = share_inventory
         dst_client_account_share_inventory = ShareInventory.find_or_create_by(
-            client_account_id: dst_client_account.id, isin_info_id: share_inventory.isin_info_id
+          client_account_id: dst_client_account.id,
+          isin_info_id: share_inventory.isin_info_id,
+          current_user_id: current_user_id
         )
         dst_client_account_share_inventory.lock!
         dst_client_account_share_inventory.total_in += share_inventory.total_in
         dst_client_account_share_inventory.total_out += share_inventory.total_out
         dst_client_account_share_inventory.floorsheet_blnc += share_inventory.floorsheet_blnc
+        dst_client_account_share_inventory.current_user_id = current_user_id
         dst_client_account_share_inventory.save!
         share_inventory.delete
       end
@@ -334,7 +341,7 @@ namespace :client_account do
   end
 
   desc "Overwrite client_account attributes as per csv input"
-  task :sync_with_csv_data,[:tenant, :mimic] => 'smartkhata:validate_tenant' do |task, args|
+  task :sync_with_csv_data,[:tenant, :mimic, :user_id] => 'smartkhata:validate_tenant' do |task, args|
     #
     #  If there is match for nepse_code or ac_code in CSV file
     #   -over-write attributes in db with that in CSV(if present in latter.)
@@ -343,7 +350,7 @@ namespace :client_account do
     #
 
     mimic = args[:mimic] == 'true' ? true : false
-
+    current_user_id = args.user_id || User.admin.first.id
     dir = "#{Rails.root}/test_files/"
     client_account_csv_file =  dir + 'client_accounts.csv'
 
@@ -438,7 +445,7 @@ namespace :client_account do
         if nepse_code_match || ac_code_match
           # Update relevant attributes from csv to db
           relevant_attributes.each do |attr|
-            if client_account_from_csv[attr].present?
+            if client_account_from_csv[aClientAccountttr].present?
               if integer_attrs.include?(attr)
                 client_account_from_csv[attr] =  client_account_from_csv[attr].to_i
               end
@@ -451,6 +458,7 @@ namespace :client_account do
             puts "*" * 80
             client_account_match_in_db.skip_validation_for_system = true
             if not mimic
+              client_account_match_in_db.current_user_id = current_user_id
               client_account_match_in_db.save!
             end
           end

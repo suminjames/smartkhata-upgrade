@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe Vouchers::Create do
 
   include_context 'session_setup'
+  include ActiveSupport::Testing::TimeHelpers
+  include  FiscalYearModule
+  let(:current_user){@user}
 
   let(:client_account) { create(:client_account, branch_id: @branch.id)}
   let(:ledger) { client_account.ledger }
@@ -14,17 +17,17 @@ RSpec.describe Vouchers::Create do
   let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000, branch_id: @branch.id) }
 
   before do
+    travel_to "2017-01-01".to_date
     # user session needs to be set for doing any activity
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
      create( :ledger, name: "Cash")
   end
-
   describe "vouchers" do
     context "when journal voucher" do
       context "when particular description is not present" do
-        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration")}
+        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration", date: Date.today)}
         let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
         let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
         it "should display voucher narration" do
@@ -32,7 +35,11 @@ RSpec.describe Vouchers::Create do
           voucher.particulars << c_particular
           voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                   voucher: voucher,
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1,
+                                                  )
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
@@ -48,10 +55,14 @@ RSpec.describe Vouchers::Create do
           voucher.particulars << c_particular
           voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                   voucher: voucher,
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1)
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(["description for dr particular", 'description for cr particular'])
+          # expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
+          # expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
         end
       end
     end
@@ -67,7 +78,10 @@ RSpec.describe Vouchers::Create do
           voucher_creation = Vouchers::Create.new(voucher_type: 1,
                                                   voucher: voucher,
                                                   voucher_settlement_type: "default",
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
@@ -84,10 +98,13 @@ RSpec.describe Vouchers::Create do
           voucher_creation = Vouchers::Create.new(voucher_type: 1,
                                                   voucher: voucher,
                                                   voucher_settlement_type: "default",
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1)
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
+                          ["description for dr particular", 'description for cr particular'])
         end
       end
     end
@@ -103,7 +120,10 @@ RSpec.describe Vouchers::Create do
           voucher_creation = Vouchers::Create.new(voucher_type: 2,
                                                   voucher: voucher,
                                                   voucher_settlement_type: "default",
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
@@ -120,10 +140,14 @@ RSpec.describe Vouchers::Create do
           voucher_creation = Vouchers::Create.new(voucher_type: 2,
                                                   voucher: voucher,
                                                   voucher_settlement_type: "default",
-                                                  tenant_full_name: "Trishakti")
+                                                  tenant_full_name: "Trishakti",
+                                                  current_user: User.first,
+                                                  selected_fy_code: get_fy_code,
+                                                  selected_branch_id: 1)
           expect(voucher_creation.process).to be_truthy
-          expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
-          expect(voucher_creation.voucher.particulars.last.description).to eq("description for cr particular")
+          expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
+                ["description for dr particular", 'description for cr particular'])
+
         end
       end
     end
@@ -138,7 +162,10 @@ RSpec.describe Vouchers::Create do
 
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("JVR")
     end
@@ -152,7 +179,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("PVR")
     end
@@ -166,7 +196,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("RCP")
     end
@@ -184,9 +217,11 @@ RSpec.describe Vouchers::Create do
           voucher_type: voucher_type,
           voucher: voucher_1,
           voucher_settlement_type: "default",
-          tenant_full_name: "Trishakti"
+          tenant_full_name: "Trishakti",
+          current_user: User.first,
+          selected_fy_code: get_fy_code,
+          selected_branch_id: 1
       )
-
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
 
@@ -196,7 +231,10 @@ RSpec.describe Vouchers::Create do
           voucher_type: voucher_type,
           voucher: voucher_2,
           voucher_settlement_type: "default",
-          tenant_full_name: "Trishakti"
+          tenant_full_name: "Trishakti",
+          current_user: User.first,
+          selected_fy_code: get_fy_code,
+          selected_branch_id: 1
       )
       expect(voucher_creation_2.process).to_not be_truthy
       expect(voucher_creation_2.error_message).to eq("Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first.")
@@ -213,7 +251,10 @@ RSpec.describe Vouchers::Create do
           voucher_type: voucher_type,
           voucher: voucher_1,
           voucher_settlement_type: "default",
-          tenant_full_name: "Trishakti"
+          tenant_full_name: "Trishakti",
+          current_user: User.first,
+          selected_fy_code: get_fy_code,
+          selected_branch_id: 1
       )
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
@@ -226,7 +267,10 @@ RSpec.describe Vouchers::Create do
           voucher_type: voucher_type,
           voucher: voucher_2,
           voucher_settlement_type: "default",
-          tenant_full_name: "Trishakti"
+          tenant_full_name: "Trishakti",
+          current_user: User.first,
+          selected_fy_code: get_fy_code,
+          selected_branch_id: 1
       )
       expect(voucher_creation_2.process).to be_truthy
       expect(voucher_creation_2.error_message).to be_nil
@@ -248,7 +292,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       voucher_creation.process
 
       expect(voucher_creation.error_message).to be_nil
@@ -282,7 +329,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       voucher_creation.process
       expect(voucher_creation.error_message).to be_nil
       expect(voucher_creation.voucher.voucher_code).to eq("RCP")
@@ -317,7 +367,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       voucher_creation.process
       expect(voucher_creation.error_message).to be_nil
       expect(voucher_creation.voucher.voucher_code).to eq("RCP")
@@ -347,7 +400,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
 
       voucher_creation.process
       expect(voucher_creation.error_message).to be_nil
@@ -378,7 +434,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       voucher_creation.process
       sales_bill = Bill.find(sales_bill_id)
 
@@ -408,7 +467,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
 
       voucher_creation.process
       sales_bill = Bill.find(sales_bill_id)
@@ -444,7 +506,10 @@ RSpec.describe Vouchers::Create do
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
                                               voucher_settlement_type: "default",
-                                              tenant_full_name: "Trishakti")
+                                              tenant_full_name: "Trishakti",
+                                              current_user: User.first,
+                                              selected_fy_code: get_fy_code,
+                                              selected_branch_id: 1)
       voucher_creation.process
 
       expect(voucher_creation.error_message).to be_nil
@@ -488,15 +553,24 @@ RSpec.describe Vouchers::Create do
 
         voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                 voucher: voucher,
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                 voucher: voucher1,
                                                 voucher_settlement_type: "default",
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                 voucher: voucher2,
                                                 voucher_settlement_type: "default",
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
 
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
@@ -523,15 +597,24 @@ RSpec.describe Vouchers::Create do
 
         voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                 voucher: voucher,
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                  voucher: voucher1,
                                                  voucher_settlement_type: "default",
-                                                 tenant_full_name: "Trishakti")
+                                                 tenant_full_name: "Trishakti",
+                                                 current_user: User.first,
+                                                 selected_fy_code: get_fy_code,
+                                                 selected_branch_id: 1)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                  voucher: voucher2,
                                                  voucher_settlement_type: "default",
-                                                 tenant_full_name: "Trishakti")
+                                                 tenant_full_name: "Trishakti",
+                                                 current_user: User.first,
+                                                 selected_fy_code: get_fy_code,
+                                                 selected_branch_id: 1)
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
         expect(voucher_creation2.process).to be_truthy
@@ -539,16 +622,16 @@ RSpec.describe Vouchers::Create do
     end
 
     context 'when client particular present' do
-      let(:branch){create(:branch, address: 'PKR')}
+      let(:branch2){create(:branch, address: 'PKR')}
       let(:bank_account) {create(:bank_account)}
-      let(:client_account) {create(:client_account, branch_id: branch.id)}
+      let(:client_account) {create(:client_account, branch_id: branch2.id)}
       let(:ledgerb) { create(:ledger, bank_account_id: bank_account.id)}
-      let(:ledgerc) { create(:ledger, client_account_id: client_account.id, branch_id: branch.id)}
+      let(:ledgerc) { create(:ledger, client_account_id: client_account.id, branch_id: branch2.id)}
       let(:voucher) { build(:voucher, voucher_type: 0)}
       let(:voucher1) { build(:voucher, voucher_type: 1)}
       let(:voucher2) { build(:voucher, voucher_type: 2)}
       let(:debit_particular) { build(:particular, amount: 100, transaction_type: 0, ledger_id: ledgerb.id) }
-      let(:credit_particular) { build(:particular, amount: 100, transaction_type: 1, ledger_id: ledgerc.id, branch_id: branch.id) }
+      let(:credit_particular) { build(:particular, amount: 100, transaction_type: 1, ledger_id: ledgerc.id, branch_id: branch2.id) }
 
       it 'should return true' do
         voucher.particulars << debit_particular
@@ -565,15 +648,24 @@ RSpec.describe Vouchers::Create do
 
         voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                 voucher: voucher,
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                 voucher: voucher1,
                                                 voucher_settlement_type: "default",
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                 voucher: voucher2,
                                                 voucher_settlement_type: "default",
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
         expect(voucher_creation2.process).to be_truthy
@@ -595,7 +687,10 @@ RSpec.describe Vouchers::Create do
         voucher.particulars << credit_particular
         voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                 voucher: voucher,
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         expect(voucher_creation.process).to be_truthy
       end
     end
@@ -611,7 +706,10 @@ RSpec.describe Vouchers::Create do
         voucher.particulars << credit_particular
         voucher_creation = Vouchers::Create.new(voucher_type: 0,
                                                 voucher: voucher,
-                                                tenant_full_name: "Trishakti")
+                                                tenant_full_name: "Trishakti",
+                                                current_user: User.first,
+                                                selected_fy_code: get_fy_code,
+                                                selected_branch_id: 1)
         expect(voucher_creation.process).to be_truthy
       end
     end
@@ -650,6 +748,10 @@ RSpec.describe Vouchers::Create do
           end
         end
       end
+  after do
+    travel_back
+  end
+end
 
       context 'and voucher has cheque entry' do
         context 'and is payment' do

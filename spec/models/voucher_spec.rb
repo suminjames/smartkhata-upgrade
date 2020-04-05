@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Voucher, type: :model do
-	include_context 'session_setup'
+  include_context 'session_setup'
 	subject{create(:voucher)}
 
   describe ".voucher_code" do
@@ -377,7 +377,7 @@ RSpec.describe Voucher, type: :model do
           particular_dr.has_bank!
           particular_cr.has_bank!
 
-          # debugger
+
           subject.reload.send(:assign_cheque)
 
           expect(particular_dr.cheque_entries_on_payment.size).to eq(1)

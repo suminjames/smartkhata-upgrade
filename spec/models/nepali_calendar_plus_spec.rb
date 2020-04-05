@@ -47,7 +47,7 @@ RSpec.describe NepaliCalendarPlus::CalendarPlus, type: :model do
   				expect(subject.get_bs_date(26826,"2000/09/17")).to eq({:year=>2074, :month=>2, :day=>29})
   			end
   		end
-  		
+
   	end
 
     describe ".bs_to_ad" do
@@ -122,7 +122,7 @@ RSpec.describe NepaliCalendarPlus::CalendarPlus, type: :model do
             expect(subject.bs_date_in_range?(date,reference_date)).to be_truthy
           end
         end
-        
+
       end
 
     end

@@ -1,4 +1,5 @@
 module FiscalYearModule
+
   @@fiscal_year_breakpoint = [
       [6869, Date.parse('2011-7-17'), Date.parse('2012-7-15')],
       [6970, Date.parse('2012-7-16'), Date.parse('2013-7-15')],
@@ -22,7 +23,7 @@ module FiscalYearModule
       '2072/2073' => 7273,
       '2073/2074' => 7374,
       '2074/2075' => 7475,
-      '2075/2076' => 7676,
+      '2075/2076' => 7576,
       '2076/2077' => 7677,
   }
 
@@ -74,7 +75,7 @@ module FiscalYearModule
           return fiscal
         end
       else
-        if fy_code == fiscal[0]
+        if fy_code.to_i == fiscal[0]
           return fiscal
         end
       end
@@ -86,7 +87,7 @@ module FiscalYearModule
   #
   # get first day of a fiscal year
   #
-  def fiscal_year_first_day(fy_code = UserSession.selected_fy_code)
+  def fiscal_year_first_day(fy_code)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
     return fiscal_year_breakpoint_single[1] if fiscal_year_breakpoint_single.present?
     return Time.now.to_date
@@ -95,18 +96,18 @@ module FiscalYearModule
   #
   # get last day of a fiscal year
   #
-  def fiscal_year_last_day(fy_code = UserSession.selected_fy_code)
+  def fiscal_year_last_day(fy_code)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
     return fiscal_year_breakpoint_single[2] if fiscal_year_breakpoint_single.present?
     return Time.now.to_date
   end
 
 
-  def date_valid_for_fy_code(date, fy_code=UserSession.selected_fy_code)
+  def date_valid_for_fy_code(date, fy_code)
     fy_code_date = nil
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
-      if fy_code == fiscal[0]
+      if fy_code.to_i == fiscal[0]
         fy_code_date = fiscal
       end
     end
@@ -131,13 +132,25 @@ module FiscalYearModule
   def get_full_fy_codes_after_date(date, exclude = false)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
     fy_code =  fiscal_year_breakpoint_single[0]
+    get_fy_codes_after_fy_code(fy_code, exclude)
+  end
+
+  def get_fy_codes_after_fy_code(fy_code, exclude = false, upto_current = false)
     fy_codes = available_fy_codes
     index = fy_codes.find_index(fy_code.to_i)
+    final_index = -1
+
+
+    if upto_current
+      final_index = fy_codes.find_index(get_fy_code.to_i)
+    end
+
+
     if index
       if exclude
-        return fy_codes[(index +1) .. -1]
+        return fy_codes[(index +1) .. final_index]
       else
-        return fy_codes[index .. -1]
+        return fy_codes[index .. final_index]
       end
     end
   end

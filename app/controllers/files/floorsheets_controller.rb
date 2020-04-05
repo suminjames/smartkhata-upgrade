@@ -7,7 +7,7 @@ class Files::FloorsheetsController < Files::FilesController
   include FiscalYearModule
 
   @@file_type = FileUpload::file_types[:floorsheet]
-  @@file_name_contains = "FLOORSHEET"
+  @@file_name_contains = "floor_sheet"
 
   # amount above which it has to be settled within brokers.
   THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
@@ -16,11 +16,6 @@ class Files::FloorsheetsController < Files::FilesController
     floorsheets = FileUpload.where(file_type: @@file_type)
     @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
     @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
-    # if (@file_list.count > 1)
-    # 	if((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
-    # 		flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
-    # 	end
-    # end
   end
 
   def index
@@ -35,12 +30,11 @@ class Files::FloorsheetsController < Files::FilesController
     @file = params[:file]
     @is_partial_upload = params[:is_partial_upload] == '1'
     if (is_invalid_file(@file, @@file_name_contains))
-      file_error("Please Upload a valid file and make sure the file name contains floorsheet.") and return
+      file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @is_partial_upload)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @is_partial_upload)
     floorsheet_upload.process
-    @processed_data = floorsheet_upload.processed_data
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message
       if floorsheet_upload.error_type == 'new_client_accounts_present'

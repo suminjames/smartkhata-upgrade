@@ -38,11 +38,16 @@ module MenuPermissionModule
   # Check if the path is blocked or not
   #
   def is_blocked_path(path, blocked_path_list = get_blocked_path_list)
-    !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include? path)
+    !( current_user.admin? || current_user.sys_admin?) && ( blocked_path_list.include?(agnostic_path(path)))
   end
 
   def user_has_access_to?(link)
-    admin_and_above? || current_user.client? || !current_user.blocked_path_list.include?(link)
+    admin_and_above? || current_user.client? || !current_user.blocked_path_list.include?(agnostic_path(link))
+  end
+
+  def agnostic_path link
+    link_params = link.split('/')
+    "/#{link_params[3..-1].join('/')}"
   end
 
 end

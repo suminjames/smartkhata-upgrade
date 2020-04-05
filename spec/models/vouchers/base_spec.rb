@@ -6,15 +6,14 @@ RSpec.describe Vouchers::Base do
 
   let(:client_account) { create(:client_account)}
   let(:ledger) { client_account.ledger }
-  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000, branch_id: @branch.id) }
-  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000, branch_id: @branch.id) }
-
-  # before do
-  #   # user session needs to be set for doing any activity
-  #   @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
-  #     expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
-  #   }
-  # end
+  let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
+  let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
+  before do
+    # user session needs to be set for doing any activity
+    @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
+      voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger, false, 1, 7374)}
+    }
+  end
 
   context ".set_bill_client" do
     it "should set bill client should return correct values for purchase bills" do
@@ -27,7 +26,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374 ) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
@@ -47,7 +46,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
@@ -67,7 +66,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 2
@@ -91,7 +90,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 2
@@ -105,7 +104,6 @@ RSpec.describe Vouchers::Base do
       # in this case the amount to receive from client should be 2000 not the bill amount of 3000 because client has some advance amount
       ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: 2000, branch_id: @branch.id)
       client_account_id = client_account.id
-
       bill_ids = [purchase_bill.id]
 
       voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
@@ -115,13 +113,13 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
-      expect(amount.to_f).to eq 3000
+      expect(amount.to_f).to eq 3000.0
       expect(settlement_by_clearance).to eq false
-      expect(bill_ledger_adjustment).to eq 0
+      expect(bill_ledger_adjustment).to eq 0.0
       expect(voucher_type).to eq 2
     end
 
@@ -139,13 +137,13 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, false, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 1
-      expect(amount.to_f).to eq 2000
+      expect(amount.to_f).to eq 2000.0
       expect(settlement_by_clearance).to eq false
-      expect(bill_ledger_adjustment).to eq 0
+      expect(bill_ledger_adjustment).to eq 0.0
       expect(voucher_type).to eq 1
     end
 
@@ -169,15 +167,25 @@ RSpec.describe Vouchers::Base do
     #   @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false)
     # end
 
-    # it "should return error when other bill ids are sent" do
-    #   client_account_b = create(:client_account, name: 'subas')
-    #   client_account_id = client_account.id
-    #   bill_b = create(:purchase_bill, client_account: client_account_b, net_amount: 2000, balance_to_pay: 2000)
-    #   bill_ids = [purchase_bill.id, bill_b.id]
-    #   voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
-    #
-    #   @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false)
-    # end
+    it "should return error for sales bill with ledger balanc greater than zero" do
+      ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -2000)
+      client_account_id = client_account.id
+
+      bill_ids = [purchase_bill.id]
+
+      voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
+      @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false)
+    end
+
+    it "should return error when other bill ids are sent" do
+      client_account_b = create(:client_account, name: 'subas')
+      client_account_id = client_account.id
+      bill_b = create(:purchase_bill, client_account: client_account_b, net_amount: 2000, balance_to_pay: 2000)
+      bill_ids = [purchase_bill.id, bill_b.id]
+      voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
+
+      expect { @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false) }.to raise_error(SmartKhataError)
+    end
 
 
     it "should return error when other client account id are nto sent for clear ledgers and bills" do
@@ -200,7 +208,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id,nil,nil,true) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id,nil,nil,true, 1, 7374) }
 
 
 
@@ -225,7 +233,7 @@ RSpec.describe Vouchers::Base do
           amount,
           voucher_type,
           settlement_by_clearance,
-          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id,nil,nil,true) }
+          bill_ledger_adjustment = voucher_base.instance_eval{ set_bill_client(client_account_id,nil,nil, true, 1, 7374) }
 
       expect(client_account_t.id).to eq client_account.id
       expect(bills.count).to eq 2

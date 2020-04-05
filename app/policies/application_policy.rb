@@ -61,9 +61,12 @@ class ApplicationPolicy
 
   # blacklisting: the current implementation
   def authorized_to_access?(link)
+    return false unless link
+    return unless user.can_access_branch?
+    link_params = link.split('/')
+    link = "/#{link_params[3..-1].join('/')}"
     !user.blocked_path_list.include?(link)
   end
-
 
   #
   # authorization for <designation> and above requires the permitted actions for a user

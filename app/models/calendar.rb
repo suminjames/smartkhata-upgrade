@@ -70,9 +70,17 @@ class Calendar < ActiveRecord::Base
     calendar_date_obj.ad_date
   end
 
+  def self.t_plus_x_working_days(from_ad_date, number_of_days)
+    calendar_date_obj = Calendar.not_applicable.where('ad_date >?', from_ad_date).limit(number_of_days).last
+    calendar_date_obj.ad_date
+  end
+
   # Get T+3 trading date
   def self.t_plus_3_trading_days(from_ad_date)
     self.t_plus_x_trading_days(from_ad_date, 3)
   end
 
+  def self.t_plus_3_working_days(from_ad_date)
+    self.t_plus_x_working_days(from_ad_date, 3)
+  end
 end

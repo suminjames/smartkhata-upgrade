@@ -28,6 +28,13 @@ RSpec.describe NumberFormatterModule, type: :helper do
         expect(dummy_class.arabic_number(nil)).to eq('0.00')
       end
     end
+
+    context 'when decimal number is negative' do
+      it 'should return negative amount' do
+        expect(dummy_class.arabic_number(-45.677)).to eq('-45.68')
+      end
+    end
+
   end
 
   describe '.monetary_decimal' do

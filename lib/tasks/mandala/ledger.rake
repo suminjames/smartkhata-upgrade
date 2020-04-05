@@ -132,7 +132,6 @@ namespace :mandala do
           # considering the cases where the particular was from smartkhata
           # having no entry on the mandala when migrated.
           if mandala_ledgers.count > 1
-            debugger
             raise ArgumentError
           end
 

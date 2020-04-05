@@ -15,6 +15,7 @@ class VisitorsController < ApplicationController
       end
     elsif user_signed_in?
       @invalid_certificate = true
+
     end
 
   end

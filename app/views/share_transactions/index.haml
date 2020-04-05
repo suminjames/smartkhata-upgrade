@@ -15,10 +15,10 @@
         .col-sm-3
           %label
             Client
-          - if User.client_logged_in?
+          - if user_signed_in? && current_user.client?
             - client_id = params.dig(:filterrific, :by_client_id)
             %br
-            = ClientAccount.find_by_id(client_id).try(:name_and_nepse_code)
+            = current_user.try(:name_and_nepse_code)
             = f.hidden_field(:by_client_id, :value => client_id)
           - else
             = f.collection_select(                        |
@@ -30,7 +30,7 @@
               {class: 'form-control combobox combobox-select min-3', id: 'client_accounts_index_combobox', 'data-placeholder': '- Any -' }) |
           %div.top-buffer-md
             = f.submit 'Search', :class => 'btn btn-sm btn-primary btn-flat'
-            - unless User.client_logged_in?
+            - unless user_signed_in?
               = link_to('Reset filters', reset_filterrific_url, class: 'filterrific-reset')
             = image_tag("ajax-loader.gif", class: "spinner-circular hidden ", id: 'filteriffic-spinner')
         .col-sm-3
@@ -51,27 +51,18 @@
               @filterrific.select_options[:by_transaction_type], |
               {include_blank: true},                 |
               {class: 'form-control combobox combobox-select', 'data-placeholder': '- Any -' }) |
-        .col-sm-2
+        .col-sm-2.clear-date-position
           %label
             Date
-          = f.text_field(                 |
-            :by_date,                     |
-            :placeholder => 'YYYY-MM-DD', |
-            class: 'form-control' ) |
+          = datepicker_input(f, 'by_date')
         .col-sm-2.text-center
           %label
             Date Range
           .clearfix
-            .row
-              = f.text_field(                 |
-                :by_date_from,                |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' )       |
-            .row.top-buffer-sm
-              = f.text_field(                 |
-                :by_date_to,                  |
-                :placeholder => 'YYYY-MM-DD', |
-                class: 'form-control' ) |
+            .row.st-row.clear-date-position
+              = datepicker_input(f, 'by_date_from')
+            .row.top-buffer-sm.clear-date-position
+              = datepicker_input(f, :by_date_to)
         -if params[:paginate] != 'false'
           .col-sm-2.text-center
             %label

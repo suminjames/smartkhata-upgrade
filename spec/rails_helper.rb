@@ -5,6 +5,15 @@ require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
+require 'pry-rails'
+require 'capybara-screenshot/rspec'
+require 'webdrivers'
+require 'webdrivers/chromedriver'
+require 'webdrivers/geckodriver'
+# require 'webdrivers/iedriver'
+# require 'webdrivers/edgedriver'
+require "selenium-webdriver"
+
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # require 'capybara-screenshot/rspec'
@@ -58,9 +67,12 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  config.include Devise::TestHelpers, :type => :controller
+  config.include ActiveSupport::Testing::TimeHelpers
+  config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::ControllerHelpers, type: :view
   config.extend ControllerMacros, :type => :controller
   config.include Warden::Test::Helpers, :type => :feature
+  config.include Warden::Test::Helpers, :type => :request
 
   # Capybara::Screenshot.webkit_options = { width: 1586, height: 768 }
 end
