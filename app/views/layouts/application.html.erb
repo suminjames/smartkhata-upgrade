@@ -16,6 +16,9 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
   <%= csrf_meta_tags %>
+
+  <!-- REQUIRED JS SCRIPTS -->
+  <%= javascript_include_tag 'application', 'data-turbolinks-eval' => false %>
 </head>
 <body class="<%= (user_signed_in? && !current_user.client?) ? 'employee': 'client' %>  skin-blue layout-top-nav fixed-top">
 <div class="wrapper">
@@ -68,9 +71,6 @@
   </footer>
 
 </div><!-- ./wrapper -->
-
-<!-- REQUIRED JS SCRIPTS -->
-<%= javascript_include_tag 'application', 'data-turbolinks-eval' => false %>
 <%= yield :page_js %>
 
 <!-- HOTKEYS BEGINS -->
