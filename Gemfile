@@ -1,21 +1,20 @@
 source 'https://rubygems.org'
-ruby '2.3.1'
+ruby '2.6.5'
 
-gem 'rails', '4.2.4'
-# gem 'sass-rails', '~> 5.0'
-gem 'draper', '~> 1.3'
+gem 'rails', '5.2'
+gem 'draper'
 gem 'uglifier'
-gem 'coffee-rails', '~> 4.1.0'
+gem 'coffee-rails'
 gem 'jquery-rails'
-gem 'turbolinks', '2.5.3'
-gem 'jbuilder', '~> 2.0'
-gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
+gem 'turbolinks'
+gem 'jbuilder'
+gem 'jquery-hotkeys-rails'
 gem 'kaminari'
 gem 'has_scope'
 gem 'filterrific'
 gem 'bootstrap-kaminari-views'
 gem 'prawn'
-gem 'prawn-table', '~> 0.2.2'
+gem 'prawn-table'
 gem 'sidekiq'
 gem 'sinatra', '>= 1.3.0', require: false
 gem 'apartment-sidekiq'
@@ -34,15 +33,15 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
-gem 'audited', '~> 4.3'
+gem 'audited'
 gem 'simplecov', :require => false, :group => :test
 # Converts array that is returned during ActiveRecord pluck to hash
 gem 'pluck_to_hash'
 gem 'nepali_calendar'
 gem 'jquery-turbolinks'
-gem 'roo', '~> 2.1.0'
+gem 'roo'
 gem 'roo-xls'
-gem 'mechanize', '2.7.3'
+gem 'mechanize'
 gem 'haml'
 gem 'haml-rails'
 gem 'sankhya'
@@ -55,11 +54,11 @@ gem 'jquery-minicolors-rails'
 gem 'aws-sdk-s3', '~> 1'
 
 group :production do
-  gem 'puma', '~>4.3.3'
+  gem 'puma'
 end
 
 group :development do
-  gem 'web-console', '~> 2.0'
+  # gem 'web-console'
   gem 'spring'
   gem 'brakeman', :require => false
   gem 'traceroute'
@@ -67,14 +66,14 @@ group :development do
   gem 'better_errors'
   gem 'annotate'
   gem 'hirb'
-  gem 'capistrano', '~> 3.1'
+  gem 'capistrano'
   gem 'capistrano-bundler'
-  gem 'capistrano-rails', '~> 1.1.0'
+  gem 'capistrano-rails'
   gem 'capistrano-rails-console'
-  gem 'capistrano-rvm', '~> 0.1.1'
+  gem 'capistrano-rvm'
   gem 'capistrano-sidekiq'
 
-  gem 'quiet_assets'
+  # gem 'quiet_assets'
   gem 'rails_layout'
   gem 'bullet'
   gem 'uniform_notifier'
@@ -85,30 +84,29 @@ group :development do
   gem 'guard'
   gem 'guard-rspec', require: false
   gem 'spring-commands-rspec'
-  gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+  gem 'guard-minitest'
 end
 
 group :development, :test do
   gem 'byebug'
-  gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'pry-rails'
   gem 'pry-byebug'
 end
 
 group :test do
-  gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
+  gem 'minitest-reporters'
   gem 'capybara'
   gem 'capybara-screenshot'
   gem "database_cleaner"
 #  gem "poltergeist"
   gem "shoulda-matchers"
-  gem 'shoulda-callback-matchers', '~> 1.1.1'
+  gem 'shoulda-callback-matchers'
   gem 'mocha'
   gem "webmock"
   gem "vcr"
   gem 'selenium-webdriver'
-  gem 'chromedriver-helper'
-  gem 'webdrivers', '~> 4.0'
+  gem 'webdrivers'
 end
 gem 'sassc-rails'
