@@ -16,15 +16,24 @@
 #
 # This would use the information in config/locales/es.yml.
 #
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
 # To learn more, please read the Rails Internationalization guide
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
   hello: "Hello world"
-
   threshold_transaction_detail: "Threshold Transaction Detail"
   informer_name: "Informer Name"
-  
+
   serial_no: "SN."
   dmat_no: "Dmat No."
   name_of_buyer_seller: "Name of Buyer/Seller"
@@ -41,11 +50,11 @@ en:
   
   number:
     currency:
-        format:
-            format: "%u%n"
-            unit: ""
-            # These three are to override number.format and are optional
-            separator: "."
-            delimiter: ","
-            precision: 2
-            negative_format: '(%u%n)'
+      format:
+        format: "%u%n"
+        unit: ""
+        # These three are to override number.format and are optional
+        separator: "."
+        delimiter: ","
+        precision: 2
+        negative_format: '(%u%n)'

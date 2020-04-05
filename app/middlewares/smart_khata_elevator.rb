@@ -1,7 +1,5 @@
 require 'public_suffix'
-
-class SmartKhataElevator  < Apartment::Elevators::Generic
-
+class SmartKhataElevator < Apartment::Elevators::Generic
   def self.excluded_subdomains
     @excluded_subdomains ||= ['www']
   end
@@ -57,6 +55,4 @@ class SmartKhataElevator  < Apartment::Elevators::Generic
   def parse_host(host)
     (PublicSuffix.parse(host, ignore_private: true).trd || '').split('.')
   end
-
-
 end

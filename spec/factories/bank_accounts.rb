@@ -1,11 +1,11 @@
 FactoryBot.define do
   factory :bank_account do
     sequence(:account_number)
-    bank_branch "chabahil"
+    bank_branch { "chabahil" }
     branch
     bank
-    default_for_payment true
-    default_for_receipt true
+    default_for_payment { true }
+    default_for_receipt { true }
     current_user_id { User.first&.id || create(:user).id }
     creator_id { User.first&.id || create(:user).id }
     updater_id { User.first&.id || create(:user).id }

@@ -25,7 +25,6 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Compress JavaScripts and CSS.
-  # config.assets.js_compressor = :uglifier
   config.assets.js_compressor = Uglifier.new(harmony: true)
   # config.assets.css_compressor = :sass
 
@@ -57,14 +56,14 @@ Rails.application.configure do
   config.log_level = :debug
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [ :request_id ]
+  config.log_tags = [ :subdomain, :uuid ]
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment)
   # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "testapp_#{Rails.env}"
+  # config.active_job.queue_name_prefix = "smartkhata_#{Rails.env}"
 
   config.action_mailer.perform_caching = false
 
@@ -88,7 +87,7 @@ Rails.application.configure do
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger           = ActiveSupport::Logger.new(STDOUT)
-    logger.formatter = config.log_formatter
+    logger.formatter = ::Logger::Formatter.new
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
 
@@ -110,5 +109,14 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = false
+  config.active_record.dump_schema_after_migration = false
+
+  Rails.application.config.middleware.use ExceptionNotification::Rack,
+                                          :email => {
+                                            :email_prefix => "[SMARTKHATA EXCEPTION] ",
+                                            :sender_address => %{exception-notifier@smartkhata.com.np},
+                                            :exception_recipients => %w{mesubas@gmail.com, alt.sarojk@gmail.com, ranjanbajra@gmail.com}
+                                          }
 
 end
+

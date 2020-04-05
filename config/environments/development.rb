@@ -49,7 +49,6 @@ Rails.application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-
   # IMPORTANT! The following is set to true by default. Setting it to false makes page loading faster but has its own (apparently trivial to this project) complexities. See for more: http://stackoverflow.com/questions/16357785/what-exactly-config-assets-debug-setting-does Also see: http://artandlogic.com/2012/12/faster-rails-dev/
   config.assets.debug = false
 
@@ -66,32 +65,41 @@ Rails.application.configure do
   # For mailcatcher
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = { :address => "localhost", :port => 1025 }
+  # Suppress logger output for asset requests.
+  #config.assets.quiet = true
+
   # ActionMailer Config
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   config.action_mailer.raise_delivery_errors = true
   # Send email in development mode?
   config.action_mailer.perform_deliveries = true
+  # Raises error for missing translations
+  # config.action_view.raise_on_missing_translations = true
 
-  # # Bullet gem's config excerpted from https://github.com/flyerhzm/bullet
-  # config.after_initialize do
-  #   Bullet.enable = true
-  #   # TODO Turn it back to on to get javascript alerts
-  #   Bullet.alert = false
-  #   Bullet.bullet_logger = true
-  #   Bullet.console = true
-  #   # Bullet.growl = true
-  #   # Bullet.xmpp = { :account  => 'bullets_account@jabber.org',
-  #   #   :password => 'bullets_password_for_jabber',
-  #   #   :receiver => 'your_account@jabber.org',
-  #   #   :show_online_status => true }
-  #   Bullet.rails_logger = true
-  #   # Bullet.honeybadger = true
-  #   # Bullet.bugsnag = true
-  #   # Bullet.airbrake = true
-  #   # Bullet.rollbar = true
-  #   Bullet.add_footer = true
-  #   Bullet.stacktrace_includes = [ 'your_gem', 'your_middleware' ]
-  #   Bullet.stacktrace_excludes = [ 'their_gem', 'their_middleware' ]
-  #   # Bullet.slack = { webhook_url: 'http://some.slack.url', foo: 'bar' }
-  # end
+  # Use an evented file watcher to asynchronously detect changes in source code,
+  # routes, locales, etc. This feature depends on the listen gem.
+  config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  # Bullet gem's config excerpted from https://github.com/flyerhzm/bullet
+  config.after_initialize do
+    Bullet.enable = true
+    # TODO Turn it back to on to get javascript alerts
+    Bullet.alert = false
+    Bullet.bullet_logger = true
+    Bullet.console = true
+    # Bullet.growl = true
+    # Bullet.xmpp = { :account  => 'bullets_account@jabber.org',
+    #   :password => 'bullets_password_for_jabber',
+    #   :receiver => 'your_account@jabber.org',
+    #   :show_online_status => true }
+    Bullet.rails_logger = true
+    # Bullet.honeybadger = true
+    # Bullet.bugsnag = true
+    # Bullet.airbrake = true
+    # Bullet.rollbar = true
+    Bullet.add_footer = true
+    Bullet.stacktrace_includes = [ 'your_gem', 'your_middleware' ]
+    Bullet.stacktrace_excludes = [ 'their_gem', 'their_middleware' ]
+    # Bullet.slack = { webhook_url: 'http://some.slack.url', foo: 'bar' }
+  end
 end
