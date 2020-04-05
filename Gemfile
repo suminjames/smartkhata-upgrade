@@ -2,6 +2,10 @@ source 'https://rubygems.org'
 ruby '2.6.5'
 
 gem 'rails', '5.2'
+# Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', '>= 1.1.0', require: false
+
+
 gem 'draper'
 gem 'uglifier'
 gem 'coffee-rails'

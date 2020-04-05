@@ -64,8 +64,6 @@ GEM
     apartment-sidekiq (1.2.0)
       apartment (>= 1.0)
       sidekiq (>= 2.11)
-    archive-zip (0.12.0)
-      io-like (~> 0.3.0)
     arel (9.0.0)
     ast (2.4.0)
     audited (4.9.0)
@@ -106,6 +104,8 @@ GEM
       coderay (>= 1.0.0)
       erubi (>= 1.0.0)
       rack (>= 0.9.0)
+    bootsnap (1.4.5)
+      msgpack (~> 1.0)
     bootstrap-kaminari-views (0.0.5)
       kaminari (>= 0.13)
       rails (>= 3.1)
@@ -154,9 +154,6 @@ GEM
       launchy
     childprocess (3.0.0)
     choice (0.2.0)
-    chromedriver-helper (2.1.1)
-      archive-zip (~> 0.10)
-      nokogiri (~> 1.8)
     chronic (0.10.2)
     code_analyzer (0.5.1)
       sexp_processor
@@ -257,7 +254,6 @@ GEM
     i18n (1.8.2)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    io-like (0.3.1)
     jbuilder (2.10.0)
       activesupport (>= 5.0.0)
     jmespath (1.4.0)
@@ -322,6 +318,7 @@ GEM
       minitest (>= 5.0)
       ruby-progressbar
     mocha (1.11.2)
+    msgpack (1.3.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nenv (0.3.0)
@@ -589,6 +586,7 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1)
   axlsx
   better_errors
+  bootsnap (>= 1.1.0)
   bootstrap-kaminari-views
   bootstrap-sass
   brakeman
@@ -603,7 +601,6 @@ DEPENDENCIES
   capistrano3-puma
   capybara
   capybara-screenshot
-  chromedriver-helper
   coffee-rails
   database_cleaner
   devise

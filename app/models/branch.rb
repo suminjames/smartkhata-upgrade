@@ -27,6 +27,9 @@ class Branch < ActiveRecord::Base
       permitted_ids = BranchPermission.where(user_id: user.id).pluck(:branch_id)
       branches = Branch.where(id: permitted_ids)
       branches = Branch.all if user.admin?
+
+      branches = branches.to_a
+
       if branches.size == Branch.all.count
         branches << Branch.new(code: 'ALL', id: 0)
       end
