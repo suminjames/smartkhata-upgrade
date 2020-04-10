@@ -19,7 +19,7 @@
 
 
   <!-- REQUIRED JS SCRIPTS -->
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload', defer: true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-eval' => 'false' %>
   <%= yield :page_js %>
 </head>
 <body class="<%= (user_signed_in? && !current_user.client?) ? 'employee': 'client' %>  skin-blue layout-top-nav fixed-top">
