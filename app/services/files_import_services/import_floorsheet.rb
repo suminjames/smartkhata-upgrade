@@ -643,10 +643,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
   def get_client_ledger(client, client_nepse_code, client_name, client_group)
-    Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
+    ledger = Ledger.find_by(client_account_id: client.id, client_code: client_nepse_code)
+    ledger ||= client.ledger
+    ledger ||= Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
       ledger.name = client_name
       ledger.client_account_id = client.id
       ledger.group_id = client_group.id
+      ledger.client_code = client_nepse_code
     end
+    ledger
   end
 end
