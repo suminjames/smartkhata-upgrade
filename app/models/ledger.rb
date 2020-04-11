@@ -146,7 +146,8 @@ class Ledger < ActiveRecord::Base
 
   def unscoped_ledger_balances(fy_code, branch_id)
     balances = LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code)
-    balance = balances.where(branch_id: branch_id ) unless branch_id == 0
+    balances = balances.where(branch_id: branch_id ) unless branch_id == 0
+    balances
   end
   #
   # Where applicable,
