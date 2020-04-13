@@ -8,7 +8,7 @@ class Report::TrialBalanceController < ApplicationController
       @date = ad_to_bs_string(fiscal_year_last_day(selected_fy_code))
     end
 
-    @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params.to_unsafe_h))
+    @download_path_xlsx =  report_trial_balance_index_path(@ledger, params.permit(:format).merge({format: 'xlsx'}))
 
     @sort_by = ['name', 'closing_balance'].include?(params[:sort_by]) ? params[:sort_by] : 'name';
     _order = @sort_by == 'closing_balance' ? 'desc' : 'asc'
