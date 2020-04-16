@@ -1,4 +1,4 @@
-class AddBranchIdToBankAccount < ActiveRecord::Migration
+class AddBranchIdToBankAccount < ActiveRecord::Migration[4.2]
   def change
     add_column :bank_accounts, :branch_id, :integer, index: true
     add_column :bank_accounts, :bank_branch, :string

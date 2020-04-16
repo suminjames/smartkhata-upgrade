@@ -1,4 +1,4 @@
-class CreateVoucherNumberConfiguration < ActiveRecord::Migration
+class CreateVoucherNumberConfiguration < ActiveRecord::Migration[4.2]
   def change
     create_table :voucher_number_configuration do |t|
       t.string :no_code

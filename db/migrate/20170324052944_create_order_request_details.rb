@@ -1,4 +1,4 @@
-class CreateOrderRequestDetails < ActiveRecord::Migration
+class CreateOrderRequestDetails < ActiveRecord::Migration[4.2]
   def change
     create_table :order_request_details do |t|
       t.integer :quantity

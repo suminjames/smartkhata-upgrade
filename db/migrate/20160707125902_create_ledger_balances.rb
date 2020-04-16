@@ -1,4 +1,4 @@
-class CreateLedgerBalances < ActiveRecord::Migration
+class CreateLedgerBalances < ActiveRecord::Migration[4.2]
   def change
     create_table :ledger_balances do |t|
       t.decimal :opening_balance, precision: 15, scale: 4, default: 0.00

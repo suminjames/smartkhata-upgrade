@@ -1069,12 +1069,14 @@ ActiveRecord::Schema.define(version: 2020_03_05_111232) do
   end
 
   create_table "particulars", id: :serial, force: :cascade do |t|
+    t.decimal "opening_blnc", precision: 15, scale: 4, default: "0.0"
     t.integer "transaction_type"
     t.integer "ledger_type", default: 0
     t.bigint "cheque_number"
     t.string "name"
     t.string "description"
     t.decimal "amount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "running_blnc", precision: 15, scale: 4, default: "0.0"
     t.integer "additional_bank_id"
     t.integer "particular_status", default: 1
     t.string "date_bs"
@@ -1515,8 +1517,8 @@ ActiveRecord::Schema.define(version: 2020_03_05_111232) do
     t.datetime "invitation_sent_at"
     t.datetime "invitation_accepted_at"
     t.integer "invitation_limit"
-    t.integer "invited_by_id"
     t.string "invited_by_type"
+    t.integer "invited_by_id"
     t.integer "invitations_count", default: 0
     t.integer "branch_id"
     t.integer "user_access_role_id"

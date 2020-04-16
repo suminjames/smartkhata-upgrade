@@ -1,4 +1,4 @@
-class CreateBills < ActiveRecord::Migration
+class CreateBills < ActiveRecord::Migration[4.2]
   def change
     create_table :bills do |t|
     	t.integer :bill_number
@@ -16,7 +16,7 @@ class CreateBills < ActiveRecord::Migration
       t.references :client_account,  index: true
       t.integer :creator_id, index: true
       t.integer :updater_id, index: true
-      t.integer :fy_code, index: true
+      # t.integer :fy_code, index: true
       t.integer :branch_id, index: true
     end
     add_index :bills, [:fy_code, :bill_number], unique: true

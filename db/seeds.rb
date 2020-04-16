@@ -24,6 +24,16 @@ tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, La
 ]
 
 
+def create_klass( attrs, klass, user_id, relation_params = {})
+  if attrs.is_a? Array
+    attrs.map{|attr| attr.merge!(relation_params).merge!(current_user_id: user_id) }
+  else
+    attrs.merge!(relation_params).merge!(current_user_id: user_id)
+  end
+  klass.create(attrs)
+end
+
+
 
 count = 0
 @tenants.each do |t|
@@ -52,32 +62,33 @@ count = 0
     end
     puts 'CREATED ADMIN USER: ' << new_user.email  if verbose
     UserSession.user = new_user
+    current_user_id = new_user.id
 
-    Group.create!([
+    create_klass([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
-                     {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}])
+                     {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}], Group, current_user_id)
 
-    group = Group.create({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']})
-    groups = Group.create([
-                              { name: "Profit & Loss Account", for_trial_balance: true},
-                              {name: "General Reserve"},
-                              {name: "Capital Reserve"},
-                              # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-                              # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-                              {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                              {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                              { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
-                              {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
-                          ])
+    group = create_klass({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}, Group, current_user_id)
+    create_klass([
+                   { name: "Profit & Loss Account", for_trial_balance: true},
+                  {name: "General Reserve"},
+                  {name: "Capital Reserve"},
+                  # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
+                  # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
+                  {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+                  {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+                  { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
+                  {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
+                  ], Group, current_user_id, { group_id: group.id })
 
-    group.children << groups
-    group.save!
+    # group.children << groups
+    # group.save!
 
     group = Group.find_by(name: "Direct Income")
-    ledgers = Ledger.create([{name: "Purchase Commission"},{name: "Sales Commission"}])
-    group.ledgers << ledgers
-    group.save!
+    create_klass([{name: "Purchase Commission" },{name: "Sales Commission" }], Ledger, current_user_id, { group_id: group.id })
 
+    # TODO: Ranjan take from here
+    #
     group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
     groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
     group.children << groups

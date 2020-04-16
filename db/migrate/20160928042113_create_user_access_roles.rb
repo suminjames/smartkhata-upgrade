@@ -1,4 +1,4 @@
-class CreateUserAccessRoles < ActiveRecord::Migration
+class CreateUserAccessRoles < ActiveRecord::Migration[4.2]
   def change
     create_table :user_access_roles do |t|
       t.integer :role_type, default: 0

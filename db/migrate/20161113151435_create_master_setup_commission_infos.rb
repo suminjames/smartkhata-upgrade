@@ -1,4 +1,4 @@
-class CreateMasterSetupCommissionInfos < ActiveRecord::Migration
+class CreateMasterSetupCommissionInfos < ActiveRecord::Migration[4.2]
   def change
     create_table :master_setup_commission_infos do |t|
       t.date :start_date

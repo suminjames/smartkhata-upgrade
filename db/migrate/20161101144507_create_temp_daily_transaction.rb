@@ -1,4 +1,4 @@
-class CreateTempDailyTransaction < ActiveRecord::Migration
+class CreateTempDailyTransaction < ActiveRecord::Migration[4.2]
   def change
     create_table :temp_daily_transaction do |t|
       t.string :transaction_no

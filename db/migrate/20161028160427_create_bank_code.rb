@@ -1,4 +1,4 @@
-class CreateBankCode < ActiveRecord::Migration
+class CreateBankCode < ActiveRecord::Migration[4.2]
   def change
     create_table :bank_code do |t|
       t.string :bank_code

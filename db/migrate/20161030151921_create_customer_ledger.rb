@@ -1,4 +1,4 @@
-class CreateCustomerLedger < ActiveRecord::Migration
+class CreateCustomerLedger < ActiveRecord::Migration[4.2]
   def change
     create_table :customer_ledger do |t|
       t.string :customer_code
