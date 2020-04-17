@@ -24,13 +24,22 @@ tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, La
 ]
 
 
-def create_klass( attrs, klass, user_id, relation_params = {})
+def general_klass_setup(attrs, klass, user_id, relation_params = {})
   if attrs.is_a? Array
     attrs.map{|attr| attr.merge!(relation_params).merge!(current_user_id: user_id) }
   else
     attrs.merge!(relation_params).merge!(current_user_id: user_id)
   end
   klass.create(attrs)
+end
+
+def commission_klass_setup(attrs, klass, relation_params = {})
+  if attrs.is_a? Array
+    attrs.map{|attr| attr.merge!(relation_params)}
+  else
+    attrs.merge!(relation_params)
+  end
+  klass == MasterSetup::CommissionInfo ? klass.new(attrs) : klass.create(attrs)
 end
 
 count = 0
@@ -62,13 +71,13 @@ count = 0
     UserSession.user = new_user
     current_user_id = new_user.id
 
-    create_klass([
+    general_klass_setup([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
                      {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}
                  ], Group, current_user_id)
 
-    group = create_klass({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}, Group, current_user_id)
-    create_klass([
+    group = general_klass_setup({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}, Group, current_user_id)
+    general_klass_setup([
                     { name: "Profit & Loss Account", for_trial_balance: true},
                     {name: "General Reserve"},
                     {name: "Capital Reserve"},
@@ -81,24 +90,24 @@ count = 0
                   ], Group, current_user_id, { parent_id: group.id })
 
     group = Group.find_by(name: "Direct Income")
-    create_klass([
+    general_klass_setup([
                    {name: "Purchase Commission" },
                    {name: "Sales Commission" }
                  ], Ledger, current_user_id, { group_id: group.id })
 
-    group = create_klass({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
-    create_klass([
+    group = general_klass_setup({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    general_klass_setup([
                    { name: "Secured Loan"},
                    {name: "Unsecured Loan"}
                  ], Group, current_user_id, { parent_id: group.id })
 
-    group = create_klass({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
-    create_klass([
+    group = general_klass_setup({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    general_klass_setup([
                    { name: "Duties & Taxes"},
                    {name: "Sundry Creditors"},
                    {name: "Account Payables"}
                  ], Group, current_user_id, { parent_id: group.id })
-    create_klass([
+    general_klass_setup([
                    {name: "DP Fee/ Transfer"},
                    {name: "Nepse Purchase"},
                    {name: "Nepse Sales"},
@@ -106,50 +115,42 @@ count = 0
                    {name: 'Compliance Fee'}
                  ], Ledger, current_user_id, { group_id: group.id})
     
-    group = create_klass({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}, Group, current_user_id)
-    create_klass([
+    group = general_klass_setup({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}, Group, current_user_id)
+    general_klass_setup([
                    { name: "Advances and Receivables"},
                    {name: "Sundry Debtors"},
                    {name: "Account Receivables"},
                    {name: "Clients"},
                    {name: "Clearing Account"}
                  ], Group, current_user_id, parent_id: group.id)
-    create_klass([
+    general_klass_setup([
                    {name: "TDS"},
                    {name: "Cash"},
                    {name: 'Close Out'}
                  ], Ledger, current_user_id, group_id: group.id)
 
-    create_klass([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}], Bank, current_user_id)
+    general_klass_setup([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}], Bank, current_user_id)
 
     puts "populating commission details"  if verbose
-    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25)
-    commission_details = MasterSetup::CommissionDetail
-                             .create([
-                                         {start_amount: 0, limit_amount: 2500, commission_amount: 25},
-                                         {start_amount: 2500, limit_amount: 50000.0, commission_rate: 1.0},
-                                         {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.9},
-                                         {start_amount: 500000.0, limit_amount: 1000000.0, commission_rate: 0.8},
-                                         {start_amount: 	1000000.0, limit_amount: 99999999999.0, commission_rate: 0.7},
-                                     ])
-
-    commission_rate.commission_details << commission_details
-    commission_rate.save!
-
-    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20)
-
-    commission_details = MasterSetup::CommissionDetail
-                             .create([
-                                         {start_amount: 0, limit_amount: 4166.67, commission_amount: 25},
-                                         {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.6},
-                                         {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.55},
-                                         {start_amount: 500000.0, limit_amount: 2000000.0, commission_rate: 0.5},
-                                         {start_amount: 2000000.0, limit_amount: 	10000000.0, commission_rate: 0.45},
-                                         {start_amount: 	10000000.0, limit_amount: 99999999999.0, commission_rate: 0.4},
-                                     ])
-
-    commission_rate.commission_details << commission_details
-    commission_rate.save!
+    
+    commission_rate = commission_klass_setup({start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25}, MasterSetup::CommissionInfo)
+    commission_klass_setup([
+                                 {start_amount: 0, limit_amount: 2500, commission_amount: 25},
+                                 {start_amount: 2500, limit_amount: 50000.0, commission_rate: 1.0},
+                                 {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.9},
+                                 {start_amount: 500000.0, limit_amount: 1000000.0, commission_rate: 0.8},
+                                 {start_amount: 	1000000.0, limit_amount: 99999999999.0, commission_rate: 0.7},
+                           ], MasterSetup::CommissionDetail, master_setup_commission_info_id: commission_rate.id)
+    
+    commission_rate = commission_klass_setup({start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20}, MasterSetup::CommissionInfo)
+    commission_klass_setup([
+                                 {start_amount: 0, limit_amount: 4166.67, commission_amount: 25},
+                                 {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.6},
+                                 {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.55},
+                                 {start_amount: 500000.0, limit_amount: 2000000.0, commission_rate: 0.5},
+                                 {start_amount: 2000000.0, limit_amount: 	10000000.0, commission_rate: 0.45},
+                                 {start_amount: 	10000000.0, limit_amount: 99999999999.0, commission_rate: 0.4},
+                           ], MasterSetup::CommissionDetail, master_setup_commission_info_id: commission_rate.id)
     
     puts " Populating calendar..." if verbose
     Calendar.populate_calendar
