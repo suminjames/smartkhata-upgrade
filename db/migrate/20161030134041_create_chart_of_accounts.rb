@@ -1,4 +1,4 @@
-class CreateChartOfAccounts < ActiveRecord::Migration
+class CreateChartOfAccounts < ActiveRecord::Migration[4.2]
   def change
     create_table :chart_of_account do |t|
       t.string :ac_code

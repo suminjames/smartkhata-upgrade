@@ -1,4 +1,4 @@
-class CreateBrokerProfiles < ActiveRecord::Migration
+class CreateBrokerProfiles < ActiveRecord::Migration[4.2]
   def change
     create_table :broker_profiles do |t|
       t.string :broker_name

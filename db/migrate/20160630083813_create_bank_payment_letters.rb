@@ -1,4 +1,4 @@
-class CreateBankPaymentLetters < ActiveRecord::Migration
+class CreateBankPaymentLetters < ActiveRecord::Migration[4.2]
   def change
     create_table :bank_payment_letters do |t|
       t.decimal :settlement_amount, precision: 15, scale: 4, default: 0

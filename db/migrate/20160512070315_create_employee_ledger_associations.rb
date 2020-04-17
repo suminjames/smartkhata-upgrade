@@ -1,4 +1,4 @@
-class CreateEmployeeLedgerAssociations < ActiveRecord::Migration
+class CreateEmployeeLedgerAssociations < ActiveRecord::Migration[4.2]
   def change
     create_table :employee_ledger_associations do |t|
       t.references :employee_account, index: true

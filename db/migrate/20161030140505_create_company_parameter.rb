@@ -1,4 +1,4 @@
-class CreateCompanyParameter < ActiveRecord::Migration
+class CreateCompanyParameter < ActiveRecord::Migration[4.2]
   def change
     create_table :company_parameter do |t|
       t.string :company_code

@@ -1,4 +1,4 @@
-class CreateParticularSettlementAssociation < ActiveRecord::Migration
+class CreateParticularSettlementAssociation < ActiveRecord::Migration[4.2]
   def change
     create_table :particular_settlement_associations, :id => false  do |t|
       t.integer :association_type, default: 0

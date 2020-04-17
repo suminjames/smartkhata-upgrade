@@ -1,4 +1,4 @@
-class CreateBuySettlement < ActiveRecord::Migration
+class CreateBuySettlement < ActiveRecord::Migration[4.2]
   def change
     create_table :buy_settlement do |t|
       t.string :transaction_no

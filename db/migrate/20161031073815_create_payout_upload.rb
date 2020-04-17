@@ -1,4 +1,4 @@
-class CreatePayoutUpload < ActiveRecord::Migration
+class CreatePayoutUpload < ActiveRecord::Migration[4.2]
   def change
     create_table :payout_upload do |t|
       t.string :transaction_no

@@ -1,4 +1,4 @@
-class CreateVoucherParticulars < ActiveRecord::Migration
+class CreateVoucherParticulars < ActiveRecord::Migration[4.2]
   def change
     create_table :voucher_particulars do |t|
       t.string :bill_no

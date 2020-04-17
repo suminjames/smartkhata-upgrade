@@ -1,4 +1,4 @@
-class CreateSectorParameter < ActiveRecord::Migration
+class CreateSectorParameter < ActiveRecord::Migration[4.2]
   def change
     create_table :sector_parameter do |t|
       t.string :sector_code

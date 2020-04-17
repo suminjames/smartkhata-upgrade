@@ -1,4 +1,4 @@
-class CreateSalesSettlements < ActiveRecord::Migration
+class CreateSalesSettlements < ActiveRecord::Migration[4.2]
   def change
     create_table :sales_settlements do |t|
       t.decimal :settlement_id, precision: 18, scale: 0

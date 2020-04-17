@@ -1,4 +1,4 @@
-class CreateLedgerDailies < ActiveRecord::Migration
+class CreateLedgerDailies < ActiveRecord::Migration[4.2]
   def change
     create_table :ledger_dailies do |t|
       t.date :date
