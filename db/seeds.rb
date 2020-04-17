@@ -33,8 +33,6 @@ def create_klass( attrs, klass, user_id, relation_params = {})
   klass.create(attrs)
 end
 
-
-
 count = 0
 @tenants.each do |t|
   begin
@@ -66,49 +64,63 @@ count = 0
 
     create_klass([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
-                     {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}], Group, current_user_id)
+                     {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}
+                 ], Group, current_user_id)
 
     group = create_klass({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}, Group, current_user_id)
     create_klass([
-                   { name: "Profit & Loss Account", for_trial_balance: true},
-                  {name: "General Reserve"},
-                  {name: "Capital Reserve"},
-                  # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
-                  # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
-                  {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                  {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
-                  { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
-                  {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
-                  ], Group, current_user_id, { group_id: group.id })
-
-    # group.children << groups
-    # group.save!
+                    { name: "Profit & Loss Account", for_trial_balance: true},
+                    {name: "General Reserve"},
+                    {name: "Capital Reserve"},
+                    # {name: "Purchase", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense']},
+                    # {name: "Sales", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income']},
+                    {name: "Direct Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+                    {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
+                    { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
+                    {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
+                  ], Group, current_user_id, { parent_id: group.id })
 
     group = Group.find_by(name: "Direct Income")
-    create_klass([{name: "Purchase Commission" },{name: "Sales Commission" }], Ledger, current_user_id, { group_id: group.id })
+    create_klass([
+                   {name: "Purchase Commission" },
+                   {name: "Sales Commission" }
+                 ], Ledger, current_user_id, { group_id: group.id })
 
-    # TODO: Ranjan take from here
-    #
-    group = Group.create({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
-    groups = Group.create([{ name: "Secured Loan"},{name: "Unsecured Loan"}])
-    group.children << groups
-    group.save!
+    group = create_klass({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    create_klass([
+                   { name: "Secured Loan"},
+                   {name: "Unsecured Loan"}
+                 ], Group, current_user_id, { parent_id: group.id })
 
-    group = Group.create({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true})
-    groups = Group.create([{ name: "Duties & Taxes"},{name: "Sundry Creditors"},{name: "Account Payables"}])
-    ledgers = Ledger.create([{name: "DP Fee/ Transfer"}, {name: "Nepse Purchase"}, {name: "Nepse Sales"}, {name: "Clearing Account"}, {name: 'Compliance Fee'}])
-    group.children << groups
-    group.ledgers << ledgers
-    group.save!
+    group = create_klass({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    create_klass([
+                   { name: "Duties & Taxes"},
+                   {name: "Sundry Creditors"},
+                   {name: "Account Payables"}
+                 ], Group, current_user_id, { parent_id: group.id })
+    create_klass([
+                   {name: "DP Fee/ Transfer"},
+                   {name: "Nepse Purchase"},
+                   {name: "Nepse Sales"},
+                   {name: "Clearing Account"},
+                   {name: 'Compliance Fee'}
+                 ], Ledger, current_user_id, { group_id: group.id})
+    
+    group = create_klass({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}, Group, current_user_id)
+    create_klass([
+                   { name: "Advances and Receivables"},
+                   {name: "Sundry Debtors"},
+                   {name: "Account Receivables"},
+                   {name: "Clients"},
+                   {name: "Clearing Account"}
+                 ], Group, current_user_id, parent_id: group.id)
+    create_klass([
+                   {name: "TDS"},
+                   {name: "Cash"},
+                   {name: 'Close Out'}
+                 ], Ledger, current_user_id, group_id: group.id)
 
-    group = Group.create({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true})
-    groups = Group.create([{ name: "Advances and Receivables"},{name: "Sundry Debtors"},{name: "Account Receivables"}, {name: "Clients"}, {name: "Clearing Account"}])
-    group.children << groups
-    ledgers = Ledger.create([{name: "TDS"},{name: "Cash"},{name: 'Close Out'}])
-    group.ledgers << ledgers
-    group.save!
-
-    Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
+    create_klass([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}], Bank, current_user_id)
 
     puts "populating commission details"  if verbose
     commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25)
@@ -138,9 +150,7 @@ count = 0
 
     commission_rate.commission_details << commission_details
     commission_rate.save!
-
-
-
+    
     puts " Populating calendar..." if verbose
     Calendar.populate_calendar
 
