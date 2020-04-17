@@ -17,6 +17,6 @@
 #  skype_id        :string
 #
 
-class Mandala::CustomerRegistrationDetail < ActiveRecord::Base
+class Mandala::CustomerRegistrationDetail < ApplicationRecord
   self.table_name = "customer_registration_detail"
 end

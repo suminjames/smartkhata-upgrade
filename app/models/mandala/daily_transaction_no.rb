@@ -7,6 +7,6 @@
 #  fiscal_year    :string
 #
 
-class Mandala::DailyTransactionNo < ActiveRecord::Base
+class Mandala::DailyTransactionNo < ApplicationRecord
   self.table_name = "daily_transaction_no"
 end

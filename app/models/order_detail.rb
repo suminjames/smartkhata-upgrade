@@ -21,7 +21,7 @@
 
 
 
-class OrderDetail < ActiveRecord::Base
+class OrderDetail < ApplicationRecord
   include Auditable
   belongs_to :isin_info
   belongs_to :order

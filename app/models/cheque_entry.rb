@@ -28,7 +28,7 @@
 #  void_narration     :text
 #
 
-class ChequeEntry < ActiveRecord::Base
+class ChequeEntry < ApplicationRecord
   include Auditable
 
   extend CustomDateModule

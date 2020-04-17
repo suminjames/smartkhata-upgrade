@@ -36,7 +36,7 @@
 #  temp_password          :string
 #
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include Auditable
 
   include MenuPermissionModule

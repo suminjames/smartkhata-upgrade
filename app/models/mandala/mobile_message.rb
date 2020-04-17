@@ -12,6 +12,6 @@
 #  message_type     :string
 #
 
-class Mandala::MobileMessage < ActiveRecord::Base
+class Mandala::MobileMessage < ApplicationRecord
   self.table_name = "mobile_message"
 end

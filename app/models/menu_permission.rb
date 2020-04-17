@@ -11,7 +11,7 @@
 #  updated_at          :datetime         not null
 #
 
-class MenuPermission < ActiveRecord::Base
+class MenuPermission < ApplicationRecord
   include Auditable
   include ::Models::Updater
   belongs_to :menu_item

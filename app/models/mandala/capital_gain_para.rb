@@ -8,6 +8,6 @@
 #  remarks    :string
 #
 
-class Mandala::CapitalGainPara < ActiveRecord::Base
+class Mandala::CapitalGainPara < ApplicationRecord
   self.table_name = "capital_gain_para"
 end

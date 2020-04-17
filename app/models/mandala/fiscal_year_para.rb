@@ -14,6 +14,6 @@
 #  fy_end_date_bs   :string
 #
 
-class Mandala::FiscalYearPara < ActiveRecord::Base
+class Mandala::FiscalYearPara < ApplicationRecord
   self.table_name = "fiscal_year_para"
 end

@@ -27,7 +27,7 @@
 #  hide_for_client        :boolean          default(FALSE)
 #
 
-class Particular < ActiveRecord::Base
+class Particular < ApplicationRecord
   include Auditable
   include CustomDateModule
   include FiscalYearModule

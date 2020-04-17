@@ -25,7 +25,7 @@
 #  closing_balance_org :decimal(15, 4)   default(0.0)
 #
 
-class Ledger < ActiveRecord::Base
+class Ledger < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
@@ -199,7 +199,7 @@ class Ledger < ActiveRecord::Base
   def save_custom(params = nil, fy_code = nil, branch_id = nil)
     self.enforce_validation = true
     begin
-      ActiveRecord::Base.transaction do
+      ApplicationRecord.transaction do
         if params
           self.current_user_id = current_user_id
           if self.update(params)

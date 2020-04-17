@@ -25,7 +25,7 @@
 #  cash_amount               :decimal(15, 2)
 #
 
-class Settlement < ActiveRecord::Base
+class Settlement < ApplicationRecord
 ########################################
 # Constants
 

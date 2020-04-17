@@ -10,6 +10,6 @@
 #  status       :string
 #
 
-class Mandala::VoucherUser < ActiveRecord::Base
+class Mandala::VoucherUser < ApplicationRecord
   self.table_name = "voucher_user"
 end

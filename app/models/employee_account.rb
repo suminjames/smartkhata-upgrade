@@ -46,7 +46,7 @@
 #  updated_at                :datetime         not null
 #
 
-class EmployeeAccount < ActiveRecord::Base
+class EmployeeAccount < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch
   attr_accessor :user_access_role_id

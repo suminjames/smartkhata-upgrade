@@ -18,7 +18,7 @@
 #  contact_no          :string
 #
 
-class BankAccount < ActiveRecord::Base
+class BankAccount < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch
   attr_reader :bank_account_name
@@ -99,7 +99,7 @@ class BankAccount < ActiveRecord::Base
       self.ledger.group_id = _group_id
       self.bank_name = _bank.name
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           if self.save
             LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, branch_id, current_user_id)
             return true

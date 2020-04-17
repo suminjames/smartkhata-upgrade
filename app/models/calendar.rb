@@ -15,7 +15,7 @@
 #  updated_at     :datetime         not null
 #
 
-class Calendar < ActiveRecord::Base
+class Calendar < ApplicationRecord
   include ::Models::Updater
   enum holiday_type: [:not_applicable, :saturday, :public_holiday, :unforeseen_holiday]
 

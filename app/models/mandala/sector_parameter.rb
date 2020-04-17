@@ -7,6 +7,6 @@
 #  sector_name :string
 #
 
-class Mandala::SectorParameter < ActiveRecord::Base
+class Mandala::SectorParameter < ApplicationRecord
   self.table_name = "sector_parameter"
 end

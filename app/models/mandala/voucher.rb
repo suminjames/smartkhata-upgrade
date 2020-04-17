@@ -28,7 +28,7 @@
 #  voucher_date_parsed   :date
 #
 
-class Mandala::Voucher < ActiveRecord::Base
+class Mandala::Voucher < ApplicationRecord
 
   include FiscalYearModule
 

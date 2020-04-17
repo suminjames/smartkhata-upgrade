@@ -14,7 +14,7 @@
 #  updated_at        :datetime         not null
 #
 
-class Group < ActiveRecord::Base
+class Group < ApplicationRecord
   include Auditable
 
   include ::Models::Updater

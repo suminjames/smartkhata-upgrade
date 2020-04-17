@@ -16,7 +16,7 @@
 #  closeout_settlement_automatic :boolean          default(FALSE)
 #
 
-class Tenant < ActiveRecord::Base
+class Tenant < ApplicationRecord
   attr_accessor :locale
 
   after_initialize :set_attr

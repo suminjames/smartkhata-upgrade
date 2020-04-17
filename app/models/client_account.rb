@@ -67,7 +67,7 @@
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
-class ClientAccount < ActiveRecord::Base
+class ClientAccount < ApplicationRecord
   ########################################
   # Constants
 

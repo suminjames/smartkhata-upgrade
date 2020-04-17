@@ -9,6 +9,6 @@
 #  remarks   :string
 #
 
-class Mandala::BankParameter < ActiveRecord::Base
+class Mandala::BankParameter < ApplicationRecord
   self.table_name = "bank_parameter"
 end

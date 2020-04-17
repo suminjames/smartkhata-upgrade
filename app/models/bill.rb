@@ -25,7 +25,7 @@
 #  closeout_charge            :decimal(15, 4)   default(0.0)
 #
 
-class Bill < ActiveRecord::Base
+class Bill < ApplicationRecord
   include Auditable
 
   extend CustomDateModule

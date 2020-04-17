@@ -63,7 +63,7 @@
 #  client_account_id             :integer
 #
 
-class Mandala::CustomerRegistration < ActiveRecord::Base
+class Mandala::CustomerRegistration < ApplicationRecord
   self.table_name = "customer_registration"
   belongs_to :client_account
 

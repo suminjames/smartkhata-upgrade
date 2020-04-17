@@ -17,7 +17,7 @@
 #  reviewer_id         :integer          default(0)
 #
 
-class BankPaymentLetter < ActiveRecord::Base
+class BankPaymentLetter < ApplicationRecord
 
   include Auditable
 

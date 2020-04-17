@@ -13,7 +13,7 @@
 
 
 
-class EmployeeLedgerAssociation < ActiveRecord::Base
+class EmployeeLedgerAssociation < ApplicationRecord
   include ::Models::Updater
 
   belongs_to :employee_account

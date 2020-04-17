@@ -21,6 +21,6 @@
 #  receivable_amount       :string
 #
 
-class Mandala::PayoutUpload < ActiveRecord::Base
+class Mandala::PayoutUpload < ApplicationRecord
   self.table_name = "payout_upload"
 end

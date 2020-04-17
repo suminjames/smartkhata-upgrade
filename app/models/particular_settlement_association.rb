@@ -7,7 +7,7 @@
 #  settlement_id    :integer
 #
 
-class ParticularSettlementAssociation < ActiveRecord::Base
+class ParticularSettlementAssociation < ApplicationRecord
   belongs_to :particular
   belongs_to :settlement
   enum association_type: [:dr, :cr]

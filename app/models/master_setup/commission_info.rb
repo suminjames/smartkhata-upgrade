@@ -12,7 +12,7 @@
 #  updated_at            :datetime         not null
 #
 
-class MasterSetup::CommissionInfo < ActiveRecord::Base
+class MasterSetup::CommissionInfo < ApplicationRecord
 
   ########################################
   # Relationships

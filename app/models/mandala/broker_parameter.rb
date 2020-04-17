@@ -13,6 +13,6 @@
 #  mobile         :string
 #
 
-class Mandala::BrokerParameter < ActiveRecord::Base
+class Mandala::BrokerParameter < ApplicationRecord
   self.table_name = "broker_parameter"
 end
