@@ -45,14 +45,13 @@ class Settlement < ApplicationRecord
   belongs_to :client_account, optional: true
   belongs_to :vendor_account, optional: true
 
-  has_and_belongs_to_many :particulars
   has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
   has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
   has_many :particular_settlement_associations
+  has_many :particulars, through: :particular_settlement_associations
 
   has_many :debited_particulars, through: :for_dr, source: :particular
   has_many :credited_particulars, through: :for_cr, source: :particular
-  has_many :particulars, through: :particular_settlement_associations
 
   belongs_to :voucher, optional: true
 
