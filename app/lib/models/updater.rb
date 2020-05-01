@@ -5,8 +5,8 @@ module Models::Updater
       before_validation :set_creator, :set_updater
 
       # to keep track of the user who created and last updated the ledger
-      belongs_to :creator,  class_name: 'User'
-      belongs_to :updater,  class_name: 'User'
+      belongs_to :creator,  class_name: 'User', optional: true
+      belongs_to :updater,  class_name: 'User', optional: true
 
       attr_accessor :current_user_id
     end
