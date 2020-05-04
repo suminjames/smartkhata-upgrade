@@ -11,22 +11,22 @@ menus:
         code: FS_UPL
         menu_items:
           - name: FloorSheet
-            path: "<%= new_files_floorsheet_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_files_floorsheet_path(@selected_fy_code, @selected_branch_id)%>"
             code: FS_UPL_FLS
           - name: Sales CM
-            path: "<%= new_files_sale_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_files_sale_path(@selected_fy_code, @selected_branch_id)%>"
             code: FS_UPL_SCM
           - name: CM 31
-            path: "<%= new_files_cm31_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_files_cm31_path(@selected_fy_code, @selected_branch_id)%>"
             code: FS_UPL_CM3
           - name: Order
-            path: "<%= new_files_order_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_files_order_path(@selected_fy_code, @selected_branch_id)%>"
             code: FS_UPL_ORD
       - name: Pending
         code: FS_PND
         menu_items:
           - name: Pending Sales Settlement
-            path: "<%= nepse_settlements_path(pending: true, selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= nepse_settlements_path(@selected_fy_code, @selected_branch_id, pending: true)%>"
             code: FS_PND_SAS
   - name: Account Section
     code: AS
@@ -35,75 +35,75 @@ menus:
         code: AS_VOU
         menu_items:
           - name: Journal
-            path: "<%= new_voucher_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_voucher_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_VOU_JOU
           - name: Receipt
-            path: "<%= new_voucher_path(voucher_type: Voucher.voucher_types[:receipt], selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_voucher_path(@selected_fy_code, @selected_branch_id, voucher_type: Voucher.voucher_types[:receipt])%>"
             code: AS_VOU_REC
           - name: Payment
-            path: "<%= new_voucher_path(voucher_type: Voucher.voucher_types[:payment], selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_voucher_path(@selected_fy_code, @selected_branch_id, voucher_type: Voucher.voucher_types[:payment])%>"
             code: AS_VOU_PAY
           - name: Pending Payment
-            path: "<%= pending_vouchers_vouchers_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= pending_vouchers_vouchers_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_VOU_PEP
       - name: Ledgers
         code: AS_LED
         menu_items:
           - name: Ledger List
-            path: "<%= ledgers_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= ledgers_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_LED_LEL
           - name: Group Member Balance Transfer
-            path: "<%= group_member_ledgers_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= group_member_ledgers_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_LED_GMB
           - name: New Ledger
             request_type: :get
-            path: "<%= new_ledger_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_ledger_path(@selected_fy_code, @selected_branch_id)%>"
             hide_on_main_navigation: true
             code: AS_LED_NEL
           - name: Restricted Ledgers
-            path: "<%= restricted_ledgers_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= restricted_ledgers_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_LED_RES
           - name: Ledger Merge List
-            path: "<%= ledgers_merge_ledger_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= ledgers_merge_ledger_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_LED_MRL
       - name: Billing
         code: AS_BIL
         menu_items:
           - name: Bill List
-            path: "<%= bills_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= bills_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_BIL
           - name: New Provisional Bill
-            path: "<%= new_bill_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_bill_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_NPB
           - name: Deal Cancel
-            path: "<%= deal_cancel_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= deal_cancel_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_DEC
           - name: Approve Deal Cancel
-            path: "<%= pending_deal_cancel_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= pending_deal_cancel_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_ADC
           - name: Transaction Messages
-            path: "<%= transaction_messages_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= transaction_messages_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_TRM
           - name: Sales Bill Payment
-            path: "<%= sales_payment_bills_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= sales_payment_bills_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BIL_BPM
       - name: Bank
         code: AS_BAN
         menu_items:
           - name: Banks
-            path: "<%= banks_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= banks_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BAN_BAN
           - name: Bank Accounts
-            path: "<%= bank_accounts_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= bank_accounts_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BAN_BAA
           - name: Cheque Entries
-            path: "<%= cheque_entries_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= cheque_entries_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_BAN_CHE
       - name: Nepse
         code: AS_NEP
         menu_items:
           - name: Nepse Chalan
-            path: "<%= nepse_chalans_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= nepse_chalans_path(@selected_fy_code, @selected_branch_id)%>"
             code: AS_NEP_NEC
   - name: Register
     code: RG
@@ -112,45 +112,45 @@ menus:
         code: RG_CLR
         menu_items:
           - name: Clients
-            path: "<%= client_accounts_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= client_accounts_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_CLR_CLI
           - name: Invite Clients
-            path: "<%= client_accounts_path(invite: true, selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= client_accounts_path(@selected_fy_code, @selected_branch_id, invite: true)%>"
             code: RG_CLR_CIN
             hide_on_main_navigation: true
       - name: Employee Register
         code: RG_EMR
         menu_items:
           - name: Employees
-            path: "<%= employee_accounts_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= employee_accounts_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_EMR_EMP
           - name: Edit Employee Permissions
-            path: "<%= employee_accounts_employee_access_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= employee_accounts_employee_access_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_EMR_EEP
             hide_on_main_navigation: true
       - name: Broker Register
         code: RG_BER
         menu_items:
           - name: Brokers
-            path: "<%= broker_profiles_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= broker_profiles_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_BER_BPP
       - name: Vendor Register
         code: RG_VDR
         menu_items:
           - name: Vendors
-            path: "<%= vendor_accounts_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= vendor_accounts_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_VDR_VAP
       - name: Company Register
         code: RG_CMP
         menu_items:
           - name: Listed Company Register
-            path: "<%= isin_infos_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= isin_infos_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_CMP_IND
       - name: Order Register
         code: RG_ORD
         menu_items:
           - name: Client Request Register
-            path: "<%= order_request_details_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= order_request_details_path(@selected_fy_code, @selected_branch_id)%>"
             code: RG_ORD_CLR
   - name: Reports
     code: RS
@@ -159,73 +159,73 @@ menus:
         code: RS_FIR
         menu_items:
           - name: Balance Sheet
-            path: "<%= report_balancesheet_index_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= report_balancesheet_index_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_FIR_BAS
           - name: Profit & Loss
-            path: "<%= report_profitandloss_index_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= report_profitandloss_index_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_FIR_PNL
           - name: Trial Balance
-            path: "<%= report_trial_balance_index_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= report_trial_balance_index_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_FIR_TRB
       - name: Transactions / Orders
         code: RS_TRO
         menu_items:
           - name: Share Inventory
-            path: "<%= share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_SHI
           - name: Orders
-            path: "<%= orders_path(show: 'report', selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= orders_path(@selected_fy_code, @selected_branch_id, show: 'report')%>"
             code: RS_TRO_ORD
           - name: Order Requests Report
-            path: "<%= client_report_order_request_details_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= client_report_order_request_details_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_OCR
           - name: Cancelled Transactions
-            path: "<%= share_transactions_path('filterrific[by_transaction_cancel_status]':'deal_cancel_complete', selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= share_transactions_path(@selected_fy_code, @selected_branch_id, 'filterrific[by_transaction_cancel_status]':'deal_cancel_complete')%>"
             code: RS_TRO_CAT
           - name: Closeout Transactions
-            path: "<%= closeouts_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= closeouts_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_CLT
           - name: Threshold Transactions Report
-            path: "<%= threshold_transactions_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= threshold_transactions_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_TTR
           - name: Contract Note Details
-            path: "<%= contract_note_details_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= contract_note_details_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_CND
           - name: Securities Balance
-            path: "<%= securities_flow_share_transactions_path('only_balance':'true', selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= securities_flow_share_transactions_path(@selected_fy_code, @selected_branch_id, 'only_balance':'true')%>"
             code: RS_TRO_SBA
           - name: Securities In/Out
-            path: "<%= securities_flow_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= securities_flow_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_SIO
           - name: SEBO Report
-            path: "<%= sebo_report_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= sebo_report_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_TRO_SBO
       - name: Settlements
         code: RS_SET
         menu_items:
           - name: Receipt
-            path: "<%= settlements_path('filterrific[by_settlement_type]':'receipt', selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= settlements_path(@selected_fy_code, @selected_branch_id, 'filterrific[by_settlement_type]':'receipt')%>"
             code: RS_SET_REC
           - name: Payment
-            path: "<%= settlements_path('filterrific[by_settlement_type]':'payment', selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= settlements_path(@selected_fy_code, @selected_branch_id, 'filterrific[by_settlement_type]':'payment')%>"
             code: RS_SET_PAY
           - name: All
-            path: "<%= settlements_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= settlements_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_SET_ALL
       - name: SMS
         code: RS_SMS
         menu_items:
           - name: SMS History
-            path: "<%= sms_messages_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= sms_messages_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_SMS_HIS
       - name: Miscellaneous
         code: RS_MIS
         menu_items:
           - name: Bill Ageing Analysis
-            path: "<%= ageing_analysis_bills_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= ageing_analysis_bills_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_MIS_BIL
           - name: Capital Gain Report
-            path: "<%= capital_gain_report_share_transactions_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= capital_gain_report_share_transactions_path(@selected_fy_code, @selected_branch_id)%>"
             code: RS_MIS_CAP
   - name: Administration
     code: ADS
@@ -234,26 +234,26 @@ menus:
         code: ADS_RLM
         menu_items:
           - name: View User Roles
-            path: "<%= user_access_roles_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= user_access_roles_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_RLM_ARP
           - name: Create User Role
-            path: "<%= new_user_access_role_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= new_user_access_role_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_RLM_CUR
           - name: Audit Trails
-            path: "<%= reports_audit_trails_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= reports_audit_trails_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_RLM_AUD
       - name: Branch Management
         code: ADS_BRM
         menu_items:
           - name: Branches
-            path: "<%= branches_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= branches_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_BRM_BRA
       - name: Misc
         code: ADS_MIS
         menu_items:
           - name: Broker Profile Management
-            path: "<%= master_setup_broker_profiles_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= master_setup_broker_profiles_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_MIS_BPM
           - name: Commission Rates Management
-            path: "<%= master_setup_commission_infos_path(selected_fy_code: :fy_code, selected_branch_id: :branch_id)%>"
+            path: "<%= master_setup_commission_infos_path(@selected_fy_code, @selected_branch_id)%>"
             code: ADS_MIS_CIM
