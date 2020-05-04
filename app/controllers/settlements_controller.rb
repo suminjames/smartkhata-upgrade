@@ -23,7 +23,7 @@ class SettlementsController < ApplicationController
     # In case of cheque creation during voucher client_account_id is not assigned to the cheques
     # to compensate that or condition is inserted
 
-    @total_sum = arabic_number(@filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).uniq.map{|x| x.amount}.sum.to_f)
+    @total_sum = arabic_number(@filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).distinct.select(:amount, :id).map{|x| x.amount}.sum.to_f)
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
     # TODO(sarojk): Due to new implmentation of model associations, where conditions below are probably redundant. Get rid of them as necessary after migration.
