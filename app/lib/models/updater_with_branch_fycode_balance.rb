@@ -12,7 +12,6 @@ module Models::UpdaterWithBranchFycodeBalance
       belongs_to :updater,  class_name: 'User'
       belongs_to :branch, required: false
 
-      validates_presence_of :creator_id, :updater_id
       scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
       scope :by_fy_code_org, -> (fy_code) { where(fy_code: fy_code, branch_id: nil)}
       scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
