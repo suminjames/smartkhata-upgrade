@@ -105,3 +105,4 @@ rails_best_practises_output.html
 
 # ignore misc
 logfile
+/node_modules

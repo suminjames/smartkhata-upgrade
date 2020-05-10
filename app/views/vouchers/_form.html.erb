@@ -16,7 +16,7 @@
     <div class="col-sm-4">
       <div>
         <h4>Date</h4>
-        <%= datepicker_input(f, 'date_bs','', (f.object.date_bs || date))  %>
+        <%= datepicker_input(f, 'date_bs', value: (f.object.date_bs || date))  %>
       </div>
     </div>
   </div>
