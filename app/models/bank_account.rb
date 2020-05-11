@@ -40,7 +40,7 @@ class BankAccount < ApplicationRecord
 
   # alphanumeric account number with atleast a single digit
   validates :account_number, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}
-  validates_presence_of :bank, :account_number, :bank_branch
+  validates_presence_of :account_number, :bank_branch
   accepts_nested_attributes_for :ledger
 
 

@@ -23,7 +23,7 @@ class BrokerProfile < ApplicationRecord
   enum locale: [:english, :nepali]
 
   default_scope { is_other_broker }
-  belongs_to :ledger
+  belongs_to :ledger, optional: true
 
   validates_presence_of :broker_name, :broker_number, :locale
 

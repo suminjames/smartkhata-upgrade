@@ -54,9 +54,6 @@ class Bill < ApplicationRecord
 
   attr_accessor :provisional_base_price
 
-  # validations
-  validates_presence_of :client_account
-
   # callbacks
   before_save :process_bill
   validates_uniqueness_of :bill_number, :scope => [:fy_code ]
