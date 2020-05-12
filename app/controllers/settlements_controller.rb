@@ -8,7 +8,7 @@ class SettlementsController < ApplicationController
   # GET /settlements.json
   def index
     @filterrific = initialize_filterrific(
-        Settlement.by_branch_fy_code(params[:selected_branch_id], params[:selected_fy_code]),
+        Settlement.by_branch_fy_code(selected_branch_id, selected_fy_code),
         params[:filterrific],
         select_options: {
             by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
@@ -23,7 +23,7 @@ class SettlementsController < ApplicationController
     # In case of cheque creation during voucher client_account_id is not assigned to the cheques
     # to compensate that or condition is inserted
 
-    @total_sum = arabic_number(@filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).uniq.select(:amount, :id).map{|x| x.amount}.sum.to_f)
+    @total_sum = arabic_number(@filterrific.find.uniq.select(:amount, :id).map{|x| x.amount}.sum.to_f)
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
     # TODO(sarojk): Due to new implmentation of model associations, where conditions below are probably redundant. Get rid of them as necessary after migration.
