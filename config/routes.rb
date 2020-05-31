@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   # match '/' => redirect('users/sign_in'), via: [:get]
   get '/' => 'visitors#index'
   root to: 'visitors#index'
+
+  match '/convert_date' => 'vouchers#convert_date', via: [:get]
+
   scope "/:selected_fy_code/:selected_branch_id" do
 
     resources :order_request_details do
@@ -162,6 +165,7 @@ Rails.application.routes.draw do
     resources :vouchers do
       collection do
         get 'pending_vouchers'
+        get 'get_bs_date'
         # post 'new'
         post 'finalize_payment'
       end

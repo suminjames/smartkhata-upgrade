@@ -34,3 +34,11 @@
     margin-top: 10px;
   }
 }
+
+.input-group .date-input-wrapper .form-control {
+  float: unset;
+}
+
+.date-input-wrapper .clear-date {
+  z-index: 3;
+}

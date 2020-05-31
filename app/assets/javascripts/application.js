@@ -30,6 +30,7 @@
 //= require react-bootstrap
 //= require components
 //= require common_functions
+//= require bootstrap-datepicker
 //= require nepali_datepicker/nepali-datepicker
 //= require nepali_datepicker/datepicker
 //= require_tree .

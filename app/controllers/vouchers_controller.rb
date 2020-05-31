@@ -3,7 +3,7 @@ class VouchersController < ApplicationController
   before_action :set_voucher_general_params, only: [:new, :create]
   before_action :set_voucher_creation_params, only: [:create]
 
-  before_action :authorize_voucher, only: [:index, :pending_vouchers, :new, :create, :finalize_payment, :set_bill_client]
+  before_action :authorize_voucher, only: [:convert_date, :index, :pending_vouchers, :new, :create, :finalize_payment, :set_bill_client]
   before_action :authorize_single_voucher, only: [:show, :edit, :update, :destroy]
 
   layout 'application_custom', only: [:new, :create]
@@ -320,6 +320,20 @@ class VouchersController < ApplicationController
     end
     amount = amount.round(2)
     return client_account, bill, bills, amount
+  end
+
+
+  def convert_date
+    begin
+      if params[:convert_to] == 'bs'
+        date = ad_to_bs(params[:date])
+      elsif params[:convert_to] == 'ad'
+        date = bs_to_ad(params[:date])
+      end
+      render json: { date: date || '' }, status: :ok
+    rescue
+      render json: { error: 'Invalid Date'}, status: :forbidden
+    end
   end
 
   private

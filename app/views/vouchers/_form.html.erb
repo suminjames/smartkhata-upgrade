@@ -12,11 +12,18 @@
   <% end %>
 
   <%= f.error_notification %>
+  <h4>Date</h4>
   <div class="form-inputs row new-voucher">
-    <div class="col-sm-4">
-      <div>
-        <h4>Date</h4>
+    <div class="col-sm-3">
+      <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">B.S.</span>
         <%= datepicker_input(f, 'date_bs', value: (f.object.date_bs || date))  %>
+      </div>
+    </div>
+    <div class="col-sm-3">
+      <div class="input-group">
+        <span class="input-group-addon" id="basic-addon1">A.D.</span>
+        <input class="string optional voucher-datepicker form-control" value="<%= f.object.date %>" placeholder="YYYY-MM-DD" type="text">
       </div>
     </div>
   </div>
