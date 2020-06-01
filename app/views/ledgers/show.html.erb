@@ -104,7 +104,11 @@
           </colgroup>
           <% @particulars.each do |particular| %>
               <tr>
-                <td><%= ad_to_bs(particular.transaction_date) %></td>
+                <td>
+                  <b><%= ad_to_bs(particular.transaction_date) %></b>
+                  <br>
+                  <em><small><%= particular.transaction_date.to_s %></small></em>
+                </td>
 
                 <td>
                   <% name = particular.get_description %><%= link_to name, voucher_path(particular.voucher), remote: true %></td>
