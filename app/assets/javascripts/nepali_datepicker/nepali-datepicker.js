@@ -85,7 +85,7 @@ var calendarFunctions = {};
             }
         };
     $.extend(calendarFunctions, {
-        getNepaliNumber: function (number) {
+        getNepaliNumber: function (number, doubleDigit = false) {
             if(isNaN(number)) {
                  number = 0
             }
@@ -93,7 +93,14 @@ var calendarFunctions = {};
             if ("number" != typeof number || number < 0) throw new Error("Number should be positive integer");
             var prefixNum = Math.floor(number / 10),
                 suffixNum = number % 10;
-            return 0 !== prefixNum ? calendarFunctions.getNepaliNumber(prefixNum) + calendarData.nepaliNumbers[suffixNum] : calendarData.nepaliNumbers[suffixNum]
+
+            if (prefixNum !== 0) {
+              return calendarFunctions.getNepaliNumber(prefixNum) + calendarData.nepaliNumbers[suffixNum];
+            } else {
+              return doubleDigit ? '0' + calendarData.nepaliNumbers[suffixNum] : calendarData.nepaliNumbers[suffixNum] ;
+            }
+
+            // return 0 !== prefixNum ? calendarFunctions.getNepaliNumber(prefixNum) + calendarData.nepaliNumbers[suffixNum] : calendarData.nepaliNumbers[suffixNum]
         },
         getNumberByNepaliNumber: function (nepaliNumber) {
             if ("undefined" == typeof nepaliNumber) throw new Error("Parameter nepaliNumber is required");
@@ -238,7 +245,7 @@ var calendarFunctions = {};
             var eqAdDate = calendarFunctions.getAdDateByBsDate(bsYear, bsMonth, bsDate),
                 weekDay = eqAdDate.getDay() + 1,
                 formattedDate = dateFormatPattern;
-            return formattedDate = formattedDate.replace(/%d/g, calendarFunctions.getNepaliNumber(bsDate)), formattedDate = formattedDate.replace(/%y/g, calendarFunctions.getNepaliNumber(bsYear)), formattedDate = formattedDate.replace(/%m/g, calendarFunctions.getNepaliNumber(bsMonth)), formattedDate = formattedDate.replace(/%M/g, calendarData.bsMonths[bsMonth - 1]), formattedDate = formattedDate.replace(/%D/g, calendarData.bsDays[weekDay - 1])
+            return formattedDate = formattedDate.replace(/%d/g, calendarFunctions.getNepaliNumber(bsDate, true)), formattedDate = formattedDate.replace(/%y/g, calendarFunctions.getNepaliNumber(bsYear)), formattedDate = formattedDate.replace(/%m/g, calendarFunctions.getNepaliNumber(bsMonth, true)), formattedDate = formattedDate.replace(/%M/g, calendarData.bsMonths[bsMonth - 1]), formattedDate = formattedDate.replace(/%D/g, calendarData.bsDays[weekDay - 1])
         },
         parseFormattedBsDate: function (dateFormat, dateFormattedText) {
             validationFunctions.validateRequiredParameters({
