@@ -4,11 +4,11 @@ class EdisReport < ActiveRecord::Base
   belongs_to :nepse_provisional_settlement
   has_many :edis_items, through: :nepse_provisional_settlement
 
-  attr_accessor :current_user_id
+  attr_accessor :current_user_id, :previous_record
   # accepts_nested_attributes_for :edis_items
 
   validates :business_date, :nepse_provisional_settlement_id, presence: true
-  validate :pending_for_business_date, on: :create
+  validate :pending_for_business_date, :available_edis_items, on: :create
 
   enum status: { available: 0, blocked: 1 }
 
@@ -22,8 +22,10 @@ class EdisReport < ActiveRecord::Base
 
 
   def pending_for_business_date
-    if EdisReport.blocked.where(business_date: business_date).any?
+    record = EdisReport.blocked.where(business_date: business_date, nepse_provisional_settlement_id: nepse_provisional_settlement_id).last
+    if record.present?
       errors.add(:business_date, 'Pending CNS response file for the day')
+      self.previous_record = record
     end
   end
 

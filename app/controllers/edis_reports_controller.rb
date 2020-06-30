@@ -55,12 +55,16 @@ class EdisReportsController < ApplicationController
   # POST /edis_reports.json
   def create
     @edis_report = EdisReport.new(edis_report_params)
+
     respond_to do |format|
       if @edis_report.save
         format.html { redirect_to edis_report_path(@edis_report, format: :csv) }
         format.json { render :show, status: :created, location: @edis_report }
       else
-        format.html { render :new }
+        format.html do
+          redirect_to edis_report_path(@edis_report.previous_record, format: :csv) and return if @edis_report.previous_record.present?
+          render :new
+        end
         format.json { render json: @edis_report.errors, status: :unprocessable_entity }
       end
     end
