@@ -1,0 +1,10 @@
+= simple_form_for(@merge_rebate) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :scrip
+    = f.input :rebate_start
+    = f.input :rebate_end
+
+  .form-actions
+    = f.button :submit

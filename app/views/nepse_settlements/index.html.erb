@@ -12,7 +12,7 @@
     <% @nepse_settlements.each do |nepse_settlement| %>
         <tr>
           <td><%= nepse_settlement.settlement_id %></td>
-          <td><%= link_to 'Show', sti_nepse_settlement_path(nepse_settlement.type, nepse_settlement) %></td>
+          <td><%= link_to 'Show', sti_nepse_settlement_path(nepse_settlement.type, nepse_settlement, @show) %></td>
         </tr>
     <% end %>
     </tbody>

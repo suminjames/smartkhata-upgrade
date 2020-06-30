@@ -21,7 +21,7 @@
                               <li><p><strong><%= sub_menu['name'] %></strong></p></li>
                               <% sub_menu['menu_items'].each do |menu_item| %>
                                   <% if menu_item['hide_on_main_navigation'].blank? || menu_item['hide_on_main_navigation'] == false %>
-                                      <li><%= link_to menu_item['name'], menu_item['path'] %></li>
+                                      <li><%= link_to menu_item['name'], menu_item['path'].gsub(':branch_id', @selected_branch_id.to_s).gsub(':fy_code', @selected_fy_code.to_s) rescue menu_item['path'] %></li>
                                   <% end %>
                               <% end %>
                             </ul>

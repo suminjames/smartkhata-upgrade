@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@babel/preset-react": "^7.10.1",
+    "@rails/webpacker": "4.2.2",
+    "axios": "^0.19.2",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "immutability-helper": "^3.1.1",
+    "moment": "^2.26.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-bootstrap": "0.33.1",
+    "react-datetime": "^2.16.3",
+    "react-dom": "^16.13.1",
+    "react-select": "^3.1.0"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.11.0"
+  }
+}

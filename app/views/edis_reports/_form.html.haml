@@ -1,0 +1,17 @@
+- provide(:section_title, "Download Edis Report File")
+= simple_form_for @edis_report do |f|
+
+  .row
+    .col-sm-3
+      .form-group
+        %label Settlement ID
+        .form-inputs
+          = f.collection_select(:nepse_provisional_settlement_id, [@edis_report.nepse_provisional_settlement].compact, :id, :settlement_id, {}, { class: 'form-control combobox select-provisional-settlement', id: 'edis_reports_attributes_settlement_id' })
+    .col-sm-3
+      %label Business Date
+      .input-group
+        %span.input-group-addon#basic-addon1 A.D.
+        = f.input :business_date, input_html: { class: 'string optional voucher-datepicker form-control', placeholder: "YYYY-MM-DD" }, as: :string, label: false
+
+  .form-actions
+    = f.button :submit, 'Download Report'

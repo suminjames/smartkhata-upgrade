@@ -4,8 +4,16 @@ class MenuItemService
 
   def find_or_create_by_code(params)
     menu_item = MenuItem.find_by(code: params[:code])
-    return menu_item if  menu_item.present?
-    menu_item = MenuItem.create(params)
+    if menu_item.present?
+      menu_item.assign_attributes(params)
+    else
+      menu_item = MenuItem.create(params)
+    end
+    menu_item
+  end
+
+  def self.call(verbose =  true)
+    new.call(verbose)
   end
 
   def call(verbose = true)

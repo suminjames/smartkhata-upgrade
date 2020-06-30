@@ -1,0 +1,8 @@
+%p#notice= notice
+- provide(:section_title, "Reports: WACC")
+%br
+%br
+#root{ edis_report: @nepse_settlement.to_json, items_path: transfer_requests_nepse_provisional_settlement_path(@nepse_settlement.id, format: :json)}
+
+= link_to 'Back', nepse_provisional_settlement_path(show: :transfer_requests)
+= javascript_pack_tag 'EdisReportApp', 'data-turbolinks-track': 'false'

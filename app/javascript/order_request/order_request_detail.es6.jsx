@@ -1,10 +1,14 @@
-var OrderRequestDetail =  React.createClass({
-  getInitialState() {
-    return {
+class OrderRequestDetail extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       orderRequest: this.props.orderRequest,
       hidden: false
     }
-  },
+    this.approve = this.approve.bind(this);
+    this.reject = this.reject.bind(this);
+  }
+
   approve(){
     this.setState({hidden: true})
     var that = this;
@@ -15,7 +19,7 @@ var OrderRequestDetail =  React.createClass({
         that.setState({hidden: true});
       }
     });
-  },
+  }
   reject(){
     this.setState({hidden: true})
     var that = this;
@@ -26,7 +30,8 @@ var OrderRequestDetail =  React.createClass({
         that.setState({hidden: true});
       }
     });
-  },
+  }
+
   render () {
     return (
       <tr className={this.state.hidden ? "hidden": ""}>
@@ -45,6 +50,6 @@ var OrderRequestDetail =  React.createClass({
       </tr>
     );
   }
-})
+}
 
 

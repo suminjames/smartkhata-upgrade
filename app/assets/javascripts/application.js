@@ -25,10 +25,6 @@
 //= require layout.min.js
 //= require filterrific/filterrific-jquery
 //= require select2.min.js
-//= require react
-//= require react_ujs
-//= require react-bootstrap
-//= require components
 //= require common_functions
 //= require bootstrap-datepicker
 //= require nepali_datepicker/nepali-datepicker
@@ -36,211 +32,232 @@
 //= require_tree .
 
 $(document).on("ready page:load", function(){
-    var url_prefix_with_fy_code_branch = url_prefix_smart()
+  var url_prefix_with_fy_code_branch = url_prefix_smart()
 
-    $('.combobox-select').select2({
-        theme: 'bootstrap',
-        allowClear: true
-    });
-    $('.combobox-select.min-3').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
-        minimumInputLength: 3,
-    });
-    $( "select[id^='ledgers_index_combobox']").select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term, // search term
-                    search_type: 'generic', // search type,
-                    restricted:  $('#ledgers_index_combobox').data('restricted')
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
-    $('#bills_index_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
-    $('#employee_accounts_index_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/employee_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
-    $('#orders_index_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
-    $('#client_accounts_index_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
+  $('.combobox-select').select2({
+      theme: 'bootstrap',
+      allowClear: true
+  });
+  $('.combobox-select.min-3').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      // minimum input required so that the huge set filtering doesn't hog up client-side browser cpu.
+      minimumInputLength: 3,
+  });
+  $( "select[id^='ledgers_index_combobox']").select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  search_type: 'generic', // search type,
+                  restricted:  $('#ledgers_index_combobox').data('restricted')
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
+  $('#bills_index_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
+  $('#employee_accounts_index_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/employee_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
+  $('#orders_index_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
 
-    $('#client_accounts_group_leader_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
+  $('#edis_reports_attributes_settlement_id').select2({
+    theme: 'bootstrap',
+    allowClear: true,
+    minimumInputLength: 3,
+    ajax: {
+      url: url_prefix_with_fy_code_branch + "/nepse_provisional_settlements/ajax_filter",
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term // search term
+        };
+      },
+      processResults: function (data, params) {
+        return {
+          results: data.map(function(x) { return {id: x.id, text: x.settlement_id }})
+        };
+      }
+    }
+  });
+  $('#client_accounts_index_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
 
-    $('#client_accounts_referrer_name_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        tags: true
-    });
+  $('#client_accounts_group_leader_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
 
-    $('#voucher_group_leader_ledger_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term, // search term
-                    search_type: 'client_group_leader_ledger'// search type
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
+  $('#client_accounts_referrer_name_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      tags: true
+  });
 
-    $('#provisional_bill_client_accounts_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
+  $('#voucher_group_leader_ledger_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/ledgers/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term, // search term
+                  search_type: 'client_group_leader_ledger'// search type
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
 
-    $('#isin_info_isin_index_combobox').select2({
-        theme: 'bootstrap',
-        allowClear: true,
-        minimumInputLength: 3,
-        ajax: {
-            url: url_prefix_with_fy_code_branch + "/isin_infos/combobox_ajax_filter",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data, params) {
-                return {
-                    results: data
-                };
-            }
-        }
-    });
+  $('#provisional_bill_client_accounts_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/client_accounts/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
+
+  $('#isin_info_isin_index_combobox').select2({
+      theme: 'bootstrap',
+      allowClear: true,
+      minimumInputLength: 3,
+      ajax: {
+          url: url_prefix_with_fy_code_branch + "/isin_infos/combobox_ajax_filter",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+              return {
+                  q: params.term // search term
+              };
+          },
+          processResults: function (data, params) {
+              return {
+                  results: data
+              };
+          }
+      }
+  });
 
   $('#cheque_entries_index_beneficiary_name_combobox').select2({
     theme: 'bootstrap',

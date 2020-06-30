@@ -1,0 +1,19 @@
+= render 'form'
+
+
+- if @pending_reports.present?
+  %br
+  %h4 Pending Response File from CNS
+  %table.table
+    %thead
+      %tr
+        %th FileName
+        %th Business Date
+
+    %tbody
+      - @pending_reports.each do |edis_report|
+        %tr
+          %td= edis_report.file_name
+          %td= edis_report.business_date.to_s
+  %br
+= link_to 'Back', edis_reports_path

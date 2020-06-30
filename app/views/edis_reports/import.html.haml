@@ -1,0 +1,12 @@
+- provide(:section_title, "Upload Response File")
+= simple_form_for(@edis_report_form, url: process_import_edis_reports_path) do |f|
+  = f.error_notification
+  .row
+    .col-sm-2
+      .form-group
+        .form-inputs
+          = f.input :current_user_id, as: :hidden, input_html: { value: current_user.id }
+          = f.input :file, as: :file
+
+  .form-actions
+    = f.button :submit, "Upload"

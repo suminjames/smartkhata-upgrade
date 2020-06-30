@@ -34,9 +34,10 @@ class NepseSettlement < ActiveRecord::Base
 
   scope :purchases, -> { where(type: 'NepsePurchaseSettlement') }
   scope :sales, -> { where(type: 'NepseSaleSettlement') }
+  scope :cns, -> { where(type: 'NepseProvisionalSettlement')}
 
   def self.settlement_types
-    %w(NepsePurchaseSettlement NepseSaleSettlement)
+    %w(NepsePurchaseSettlement NepseSaleSettlement NepseProvisionalSettlement)
   end
 end
-  
+

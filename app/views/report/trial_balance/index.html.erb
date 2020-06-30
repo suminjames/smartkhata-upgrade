@@ -60,6 +60,10 @@
     <br><br>
 
     <div class="box-body ledger trial">
-      <%= react_component('TrialBalance', ledger_groups: @balance_report) %>
+      <%= content_tag :div,
+                      id: "trial_balance",
+                      ledger_groups: @balance_report.to_json do %>
+      <% end %>
     </div>
 <% end %>
+<%= javascript_pack_tag 'TrialBalanceApp' %>

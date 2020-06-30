@@ -47,13 +47,13 @@ gem 'haml'
 gem 'haml-rails'
 gem 'sankhya'
 gem 'apartment'
-gem 'react-rails'
 gem 'slim'
 gem 'whenever', :require => false
 gem 'exception_notification'
 gem 'jquery-minicolors-rails'
 gem 'aws-sdk-s3', '~> 1'
 gem 'bootstrap-datepicker-rails'
+gem 'webpacker'
 
 group :production do
   gem 'puma', '~>4.3.3'

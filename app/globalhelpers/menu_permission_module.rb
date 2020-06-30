@@ -47,7 +47,7 @@ module MenuPermissionModule
 
   def agnostic_path link
     link_params = link.split('/')
-    "/#{link_params[3..-1].join('/')}"
+    "/:fy_code/:branch_id/#{link_params[3..-1].join('/')}" rescue link
   end
 
 end

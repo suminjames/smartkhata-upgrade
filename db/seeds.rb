@@ -134,7 +134,7 @@ count = 0
     Calendar.populate_calendar
 
     puts "putting the menus"  if verbose
-    MenuItemService.new.call
+    MenuItemService.call
 
   rescue => error
     puts error.message  if verbose

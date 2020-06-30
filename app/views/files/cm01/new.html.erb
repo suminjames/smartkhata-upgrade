@@ -1,0 +1,25 @@
+<% provide(:section_title, "Upload CM01 File") %>
+
+<div>
+  <%= form_tag import_files_cm01_index_path, multipart: true do %>
+      <div class="form-group">
+        <%= file_field_tag :file %>
+      </div>
+      <p class="text-muted"> Note: Upload file should be in csv format </p>
+      <div class="form-group">
+        <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
+      </div>
+
+  <% end %>
+</div>
+
+
+<%= render 'list', provisional_settlements: @provisional_settlements %>
+
+<% if @list_incomplete %>
+  <div class="text-center">
+    <%= link_to "View Full List", files_cm01_index_path %>
+  </div>
+<% end %>
+
+

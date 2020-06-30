@@ -1,4 +1,6 @@
-class TrialBalance extends React.Component {
+import React from 'react';
+
+export default class TrialBalance extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

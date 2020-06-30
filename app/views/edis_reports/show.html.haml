@@ -1,0 +1,8 @@
+%p#notice= notice
+- provide(:section_title, "Reports: WACC")
+%br
+%br
+#root{ edis_report: @edis_report.to_json, items_path: edis_items_path(format: :json)}
+
+= link_to 'Back', edis_reports_path
+= javascript_pack_tag 'EdisReportApp', 'data-turbolinks-track': 'false'

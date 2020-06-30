@@ -95,7 +95,7 @@ class IsinInfosController < ApplicationController
     isin_infos = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
     if search_term && search_term.length >= 3
-     isin_infos = IsinInfo.find_similar_to_term search_term
+     isin_infos = IsinInfo.find_similar_to_term(search_term, params[:full_record])
     end
     respond_to do |format|
       format.json { render json: isin_infos, status: :ok }

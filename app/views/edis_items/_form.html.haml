@@ -1,0 +1,15 @@
+= simple_form_for(@edis_item) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :contract_number
+    = f.input :settlement_id
+    = f.input :settlement_date
+    = f.input :scrip
+    = f.input :boid
+    = f.input :client_code
+    = f.input :quantity
+    = f.input :wacc
+
+  .form-actions
+    = f.button :submit

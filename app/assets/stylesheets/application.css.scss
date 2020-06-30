@@ -16,6 +16,16 @@
  *= require_self
  */
 
+.edis-modal{
+  .modal-content{
+    padding: 20px;
+  }
+
+  .label {
+    color: #555555;
+  }
+}
+
 /* Mixins */
 @mixin box-shadow($shadow...) {
   -webkit-box-shadow: $shadow;

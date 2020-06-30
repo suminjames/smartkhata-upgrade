@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200305111232) do
+ActiveRecord::Schema.define(version: 20200629141339) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -712,6 +712,39 @@ ActiveRecord::Schema.define(version: 20200305111232) do
     t.string "district_name"
   end
 
+  create_table "edis_items", force: :cascade do |t|
+    t.integer  "contract_number",     limit: 8
+    t.integer  "settlement_id",       limit: 8
+    t.date     "settlement_date"
+    t.string   "scrip"
+    t.string   "boid"
+    t.string   "client_code"
+    t.integer  "quantity"
+    t.integer  "reference_id",        limit: 8
+    t.integer  "creator_id"
+    t.integer  "updater_id"
+    t.integer  "reason_code"
+    t.integer  "status",                                       default: 0
+    t.decimal  "wacc",                          precision: 15, default: 0
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+    t.integer  "sales_settlement_id"
+    t.text     "status_message"
+  end
+
+  add_index "edis_items", ["reference_id"], name: "index_edis_items_on_reference_id", using: :btree
+  add_index "edis_items", ["sales_settlement_id"], name: "index_edis_items_on_sales_settlement_id", using: :btree
+
+  create_table "edis_reports", force: :cascade do |t|
+    t.integer  "nepse_provisional_settlement_id", limit: 8
+    t.integer  "sequence_number",                           default: 1
+    t.integer  "status",                                    default: 0
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
+    t.date     "business_date"
+    t.string   "file_name"
+  end
+
   create_table "employee_accounts", force: :cascade do |t|
     t.string   "name"
     t.string   "address1",                  default: " "
@@ -973,6 +1006,16 @@ ActiveRecord::Schema.define(version: 20200305111232) do
   add_index "menu_permissions", ["updater_id"], name: "index_menu_permissions_on_updater_id", using: :btree
   add_index "menu_permissions", ["user_access_role_id"], name: "index_menu_permissions_on_user_access_role_id", using: :btree
 
+  create_table "merge_rebates", force: :cascade do |t|
+    t.string   "scrip"
+    t.date     "rebate_start"
+    t.date     "rebate_end"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "merge_rebates", ["scrip"], name: "index_merge_rebates_on_scrip", using: :btree
+
   create_table "mobile_message", force: :cascade do |t|
     t.string "customer_code"
     t.string "mobile_no"
@@ -1003,6 +1046,13 @@ ActiveRecord::Schema.define(version: 20200305111232) do
   add_index "nepse_chalans", ["fy_code"], name: "index_nepse_chalans_on_fy_code", using: :btree
   add_index "nepse_chalans", ["updater_id"], name: "index_nepse_chalans_on_updater_id", using: :btree
   add_index "nepse_chalans", ["voucher_id"], name: "index_nepse_chalans_on_voucher_id", using: :btree
+
+  create_table "nepse_provisional_settlements", force: :cascade do |t|
+    t.integer  "settlement_id", limit: 8
+    t.integer  "status"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
 
   create_table "nepse_settlements", force: :cascade do |t|
     t.decimal  "settlement_id",   precision: 18
@@ -1209,6 +1259,28 @@ ActiveRecord::Schema.define(version: 20200305111232) do
 
   add_index "receipt_payment_slip", ["voucher_code"], name: "index_receipt_payment_slip_on_voucher_code", using: :btree
   add_index "receipt_payment_slip", ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no", using: :btree
+
+  create_table "sales_settlements", force: :cascade do |t|
+    t.integer  "settlement_id",                   limit: 8
+    t.datetime "tradestartdate"
+    t.datetime "tradeenddate"
+    t.datetime "secpayindt"
+    t.datetime "secpayoutdt"
+    t.integer  "contract_no",                     limit: 8
+    t.string   "scriptshortname"
+    t.integer  "scriptnumber"
+    t.string   "clientcode"
+    t.integer  "quantity"
+    t.integer  "cmid"
+    t.integer  "sellerodrno",                     limit: 8
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.integer  "share_transaction_id"
+    t.integer  "nepse_provisional_settlement_id"
+  end
+
+  add_index "sales_settlements", ["nepse_provisional_settlement_id"], name: "index_sales_settlements_on_nepse_provisional_settlement_id", using: :btree
+  add_index "sales_settlements", ["share_transaction_id"], name: "index_sales_settlements_on_share_transaction_id", using: :btree
 
   create_table "sector_parameter", force: :cascade do |t|
     t.string "sector_code"
@@ -1737,6 +1809,7 @@ ActiveRecord::Schema.define(version: 20200305111232) do
   add_foreign_key "bill_voucher_associations", "vouchers"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
+  add_foreign_key "edis_items", "sales_settlements"
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"

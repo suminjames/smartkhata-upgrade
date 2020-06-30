@@ -1,0 +1,33 @@
+%p#notice= notice
+
+%p
+  %b Edis report:
+  = @edis_item.edis_report
+%p
+  %b Contract number:
+  = @edis_item.contract_number
+%p
+  %b Settlement:
+  = @edis_item.settlement_id
+%p
+  %b Settlement date:
+  = @edis_item.settlement_date
+%p
+  %b Scrip:
+  = @edis_item.scrip
+%p
+  %b Boid:
+  = @edis_item.boid
+%p
+  %b Client code:
+  = @edis_item.client_code
+%p
+  %b Quantity:
+  = @edis_item.quantity
+%p
+  %b Wacc:
+  = @edis_item.wacc
+
+= link_to 'Edit', edit_edis_item_path(@edis_item)
+\|
+= link_to 'Back', edis_items_path

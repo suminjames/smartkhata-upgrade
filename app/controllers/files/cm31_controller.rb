@@ -1,6 +1,7 @@
 class Files::Cm31Controller < Files::FilesController
   before_action -> {authorize self}
 
+  
   @@file_name_contains = "CM31"
 
   def index

@@ -20,6 +20,6 @@ module Models::Updater
   end
 
   def set_creator
-    self.creator_id = current_user_id
+    self.creator_id ||= current_user_id
   end
 end

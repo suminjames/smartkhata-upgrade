@@ -1,0 +1,25 @@
+%p{id: 'notice'}= notice
+- provide(:section_title, "Listing Merge Rebates")
+- unless @merge_rebates.empty?
+  %table.table.table-striped
+    %thead
+      %th Scrip
+      %th Rebate start
+      %th Rebate end
+      %th
+      %th
+      %th
+    %tbody
+      - @merge_rebates.each do |merge_rebate|
+        %tr
+          %td= merge_rebate.scrip
+          %td= merge_rebate.rebate_start
+          %td= merge_rebate.rebate_end
+          %td= link_to 'Show', merge_rebate
+          %td= link_to 'Edit', edit_merge_rebate_path(merge_rebate)
+          %td= link_to 'Destroy', merge_rebate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+- else
+  %p.warning No Records!
+%br
+
+= link_to 'New Merge rebate', new_merge_rebate_path

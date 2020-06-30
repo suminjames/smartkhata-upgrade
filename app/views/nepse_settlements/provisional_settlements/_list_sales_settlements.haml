@@ -1,0 +1,18 @@
+-# This view is called by the controller during a settled nepse_settlement's show view.
+- unless smart_listing.empty?
+  %table.table.table-striped
+    %thead
+      %th= "ScriptshortName"
+      %th= "ContractNo"
+      %th= "ClientCode"
+      %th= "Quantity"
+    %tbody
+      - smart_listing.collection.each do |o|
+        - o.sales_settlements.each do |obj|
+          %tr.editable{data: {id: obj.id}}
+            -# Render share transaction row partial
+            = smart_listing.render object: obj, partial: "nepse_settlements/provisional_settlements/sales_settlement_record", locals: {object: obj}
+  = smart_listing.paginate
+  = smart_listing.pagination_per_page_links
+- else
+  %p.warning No records!

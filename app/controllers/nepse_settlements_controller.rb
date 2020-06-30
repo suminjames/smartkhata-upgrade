@@ -1,8 +1,9 @@
 class NepseSettlementsController < ApplicationController
   before_action :set_settlement_type
-  before_action :set_nepse_settlement, only: [:show, :edit, :update, :destroy]
+  before_action :set_nepse_settlement, only: [:show, :edit, :update, :destroy, :transfer_requests]
   before_action -> {authorize @nepse_settlement}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize NepseSettlement}, only: [:index, :new, :create, :generate_bills]
+  before_action -> {authorize NepseSettlement}, only: [:index, :new, :create, :generate_bills, :ajax_filter]
+  before_action -> {authorize NepseProvisionalSettlement}, only: [ :transfer_requests]
 
   # helper for smart listing
   include SmartListing::Helper::ControllerExtensions
@@ -11,29 +12,45 @@ class NepseSettlementsController < ApplicationController
   # GET /nepse_settlements
   # GET /nepse_settlements.json
   def index
+    @show = params[:show]
+
     if params[:pending]
       @nepse_settlements = nepse_settlement_class.pending.order(settlement_id: :desc)
     else
       @nepse_settlements = nepse_settlement_class.all.order(settlement_id: :desc)
     end
+  end
 
+  def transfer_requests
+    respond_to do |format|
+      format.html
+      format.json {
+        render json: @nepse_settlement.edis_items.includes(:sales_settlement)
+      }
+    end
   end
 
   # GET /nepse_settlements/1
   # GET /nepse_settlements/1.json
   def show
     #TODO move this to model
-    if params[:type] == 'NepsePurchaseSettlement'
+    if nepse_settlement_type == 'NepsePurchaseSettlement'
       @share_transactions = ShareTransaction.buying.where(settlement_id: @nepse_settlement.settlement_id, deleted_at: nil)
+    elsif nepse_settlement_type == 'NepseProvisionalSettlement'
+      @provisional_settlements = nepse_settlement_class.where(settlement_id: @nepse_settlement.settlement_id)
     else
       @share_transactions = ShareTransaction.selling.where(settlement_id: @nepse_settlement.settlement_id, deleted_at: nil)
     end
 
     @receipt_bank_account = BankAccount.by_branch_id(@selected_branch_id).where(:default_for_payment => true).first
-    if @nepse_settlement.complete? || params[:type] == 'NepsePurchaseSettlement'
-      @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list_complete", page_sizes: [50])
+
+    partial = "share_transactions/list_complete"
+    partial = "share_transactions/list" if @nepse_settlement.complete? && params[:type] != 'NepsePurchaseSettlement'
+
+    if nepse_settlement_type == "NepseProvisionalSettlement"
+      @provisional_settlements_raw = smart_listing_create(:provisional_settlements, @provisional_settlements, partial: "nepse_settlements/provisional_settlements/list_sales_settlements", page_sizes: [50])
     else
-      @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: "share_transactions/list", page_sizes: [50])
+      @share_transactions_raw = smart_listing_create(:share_transactions, @share_transactions, partial: partial, page_sizes: [50])
     end
   end
 
@@ -103,6 +120,18 @@ class NepseSettlementsController < ApplicationController
   end
 
 
+  def ajax_filter
+    search_term = params[:q]
+    settlements = []
+
+    if search_term && search_term.length >= 3
+      settlements = nepse_settlement_class.find_similar_to_term(search_term)
+    end
+    respond_to do |format|
+      format.json { render json: settlements, status: :ok }
+    end
+  end
+
 
   private
   # Use callbacks to share common setup or constraints between actions.
@@ -113,6 +142,7 @@ class NepseSettlementsController < ApplicationController
   def nepse_settlement_type
     NepseSettlement.settlement_types.include?(params[:type]) ? params[:type] : "NepseSaleSettlement"
   end
+
   def nepse_settlement_class
     nepse_settlement_type.constantize
   end
@@ -125,6 +155,4 @@ class NepseSettlementsController < ApplicationController
   def nepse_settlement_params
     params.fetch(:nepse_settlement, {})
   end
-
-
 end

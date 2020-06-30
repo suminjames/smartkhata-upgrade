@@ -31,7 +31,6 @@ db/*.sqlite3
 .redcar/
 .sass-cache
 /config/config.yml
-/config/secrets.yml
 /config/database.yml
 /coverage.data
 app/controllers/coverage/
@@ -106,3 +105,10 @@ rails_best_practises_output.html
 # ignore misc
 logfile
 /node_modules
+
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
