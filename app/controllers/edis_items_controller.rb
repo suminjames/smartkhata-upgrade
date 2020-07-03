@@ -38,10 +38,11 @@ class EdisItemsController < ApplicationController
     @edis_item_form = EdisItemForm.new(edis_item_form_params)
     if @edis_item_form.valid?
       @edis_item_form.import_file
-      redirect_to import_edis_items_path, notice: 'Successfully imported'
-    else
-      render 'import'
+      if @edis_item_form.errors.blank?
+        redirect_to import_edis_items_path, notice: 'Successfully imported' and return
+      end
     end
+    render 'import'
   end
 
   # POST /edis_items

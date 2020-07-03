@@ -41,10 +41,11 @@ class EdisReportsController < ApplicationController
     @edis_report_form = EdisReportForm.new(edis_report_form_params)
     if @edis_report_form.valid?
       @edis_report_form.import_file
-      redirect_to import_edis_reports_path, notice: 'Successfully imported'
-    else
-      render 'import'
+      if @edis_report_form.errors.blank?
+        redirect_to import_edis_reports_path, notice: 'Successfully imported' and return
+      end
     end
+    render 'import'
   end
 
   # GET /edis_reports/1/edit
