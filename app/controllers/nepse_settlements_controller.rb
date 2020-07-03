@@ -44,8 +44,8 @@ class NepseSettlementsController < ApplicationController
 
     @receipt_bank_account = BankAccount.by_branch_id(@selected_branch_id).where(:default_for_payment => true).first
 
-    partial = "share_transactions/list_complete"
-    partial = "share_transactions/list" if @nepse_settlement.complete? && params[:type] != 'NepsePurchaseSettlement'
+    partial = "share_transactions/list"
+    partial = "share_transactions/list_complete" if @nepse_settlement.complete? || params[:type] == 'NepsePurchaseSettlement'
 
     if nepse_settlement_type == "NepseProvisionalSettlement"
       @provisional_settlements_raw = smart_listing_create(:provisional_settlements, @provisional_settlements, partial: "nepse_settlements/provisional_settlements/list_sales_settlements", page_sizes: [50])
