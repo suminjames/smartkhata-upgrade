@@ -19,7 +19,7 @@ class EdisReportForm
       response_record = EdisReport.find_by(file_name: uploaded_filename)
       if response_record.present?
         CSV.read(file.path).each do |record|
-          edis_items = NepseProvisionalSettlement.where(settlement_id: record[1]).first.edis_items.where(contract_number: record[2])
+          edis_items = NepseProvisionalSettlement.where(settlement_id: record[1]).first.edis_items.where(contract_number: record[2]) rescue []
           edis_items.each do |item|
             item.status = (record[6].to_i == 0 && record[7].downcase == 'success') ? EdisItem.statuses[:success] : EdisItem.statuses[:error]
             item.status_message = record[7]
