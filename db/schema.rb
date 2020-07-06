@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200629141339) do
+ActiveRecord::Schema.define(version: 20200706054804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -724,10 +724,10 @@ ActiveRecord::Schema.define(version: 20200629141339) do
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "reason_code"
-    t.integer  "status",                                       default: 0
-    t.decimal  "wacc",                          precision: 15, default: 0
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.integer  "status",                                                 default: 0
+    t.decimal  "wacc",                          precision: 12, scale: 2, default: 0.0
+    t.datetime "created_at",                                                           null: false
+    t.datetime "updated_at",                                                           null: false
     t.integer  "sales_settlement_id"
     t.text     "status_message"
   end
