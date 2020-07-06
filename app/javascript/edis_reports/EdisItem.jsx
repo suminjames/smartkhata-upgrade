@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import EdisItemEdit from './EdisItemEdit';
 
+const formatNumber =(number, decimalPlaces = 2 ) => {
+  if (number) {
+    const seed = 10 ** decimalPlaces
+    return (Math.round(number * seed) / seed).toFixed(decimalPlaces)
+  }
+  return 0;
+}
+
 export default function EdisItem({ item, newItem, sn, addItem}) {
   const [editMode, setEditMode] = useState(newItem ? true : false);
   const [edisItem, setEdisItem ] = useState({});
@@ -32,7 +40,7 @@ export default function EdisItem({ item, newItem, sn, addItem}) {
         <td>{ client_code }</td>
         <td>{ quantity }</td>
         <td>{ reason_code }</td>
-        <td>{ wacc }</td>
+        <td className='text-right'>{ formatNumber(wacc) }</td>
       </tr>
     )
   }

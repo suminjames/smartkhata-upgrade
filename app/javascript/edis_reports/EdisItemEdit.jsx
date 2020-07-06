@@ -101,10 +101,11 @@ export default function EdisItem({ item, newItem, addItem, updateItem, edisRepor
             addItem(newItems)
           }
           updateItem(inputs)
+          setModal(false);
         } else {
           addItem(inputs);
+          setModal(false);
         }
-        setModal(false);
       })
       .catch((err) => {
         addError(err, false);
