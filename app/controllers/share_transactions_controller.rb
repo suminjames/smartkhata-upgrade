@@ -543,7 +543,7 @@ class ShareTransactionsController < ApplicationController
 
   def pending_deal_cancel
     if params[:id].present?
-      deal_cancel = DealCancelService.new(transaction_id: params[:id], approval_action: params[:approval_action], broker_code: current_tenant.broker_code)
+      deal_cancel = DealCancelService.new(transaction_id: params[:id], approval_action: params[:approval_action], broker_code: current_tenant.broker_code, current_user: current_user)
       deal_cancel.process
       if deal_cancel.error_message.present?
         flash.now[:error] = deal_cancel.error_message
