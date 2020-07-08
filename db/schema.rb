@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200706054804) do
+ActiveRecord::Schema.define(version: 20200708062557) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -732,7 +732,7 @@ ActiveRecord::Schema.define(version: 20200706054804) do
     t.text     "status_message"
   end
 
-  add_index "edis_items", ["reference_id"], name: "index_edis_items_on_reference_id", using: :btree
+  add_index "edis_items", ["reference_id"], name: "index_edis_items_on_reference_id", unique: true, using: :btree
   add_index "edis_items", ["sales_settlement_id"], name: "index_edis_items_on_sales_settlement_id", using: :btree
 
   create_table "edis_reports", force: :cascade do |t|
