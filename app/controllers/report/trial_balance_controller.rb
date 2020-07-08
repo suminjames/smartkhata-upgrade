@@ -58,7 +58,7 @@ class Report::TrialBalanceController < ApplicationController
             end
 
 
-            ledgers_with_no_transactons = Ledger.where(id: ledger_ids, ledger_dailies: { id: nil }).joins("left outer join ledger_dailies on ledger_dailies.ledger_id = ledgers.id and ledger_dailies.fy_code = #{fy_code} and ledger_dailies.branch_id IS #{branch_id ? branch_id: 'NULL'} AND ledger_dailies.date <= '#{date_ad}'").pluck(:id)
+            ledgers_with_no_transactons = Ledger.where(id: ledger_ids, ledger_dailies: { id: nil }).joins("left outer join ledger_dailies on ledger_dailies.ledger_id = ledgers.id and ledger_dailies.fy_code = #{fy_code} and ledger_dailies.branch_id #{branch_id ? '= ' + branch_id.to_s : 'IS NULL'} AND ledger_dailies.date <= '#{date_ad}'").pluck(:id)
 
             lb = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0').where(ledgers: {id: ledgers_with_no_transactons}).as_json
 
