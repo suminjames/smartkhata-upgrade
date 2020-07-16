@@ -24,7 +24,7 @@ class EdisItemForm
             break
           end
           # skip those without wacc
-          next if record['wacc'].blank? || record['wacc'] == 0
+          next if record['wacc'].blank? || record['wacc'].to_i == 0
 
           item = EdisItem.where.not(reference_id: nil).where(reference_id: record['id']).first
           # skip already success state
