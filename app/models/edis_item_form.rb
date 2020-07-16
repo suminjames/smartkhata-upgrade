@@ -23,6 +23,8 @@ class EdisItemForm
             self.errors.add(:file, 'CMO1 has not been uploaded for these records')
             break
           end
+          # skip those without wacc
+          next if record['wacc'].blank? || record['wacc'] == 0
 
           item = EdisItem.where.not(reference_id: nil).where(reference_id: record['id']).first
           # skip already success state
