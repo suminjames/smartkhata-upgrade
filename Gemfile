@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
-ruby '2.3.1'
+ruby '2.5.1'
 
-gem 'rails', '4.2.4'
+gem 'rails', '4.2.11.3'
 # gem 'sass-rails', '~> 5.0'
 gem 'draper', '~> 1.3'
 gem 'uglifier'
@@ -17,7 +17,6 @@ gem 'bootstrap-kaminari-views'
 gem 'prawn'
 gem 'prawn-table', '~> 0.2.2'
 gem 'sidekiq'
-gem 'sinatra', '>= 1.3.0', require: false
 gem 'apartment-sidekiq'
 gem 'scout_apm'
 gem 'awesome_print'
@@ -64,7 +63,7 @@ group :development do
   gem 'spring'
   gem 'brakeman', :require => false
   gem 'traceroute'
-  gem 'rack-mini-profiler'
+  # gem 'rack-mini-profiler'
   gem 'better_errors'
   gem 'annotate'
   gem 'hirb'
