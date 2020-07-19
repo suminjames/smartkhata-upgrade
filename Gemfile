@@ -86,6 +86,7 @@ group :development do
   gem 'guard-rspec', require: false
   gem 'spring-commands-rspec'
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+  gem 'openssl'
 end
 
 group :development, :test do

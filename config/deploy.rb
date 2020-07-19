@@ -20,7 +20,7 @@ set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/sys
 set :keep_releases, 2
 set :rvm_type, :user
 # set :rvm_ruby_version, 'jruby-1.7.19' # Edit this if you are using MRI Ruby
-set :rvm_ruby_version, '2.3.1' # Edit this if you are using MRI Ruby
+set :rvm_ruby_version, '2.5.1' # Edit this if you are using MRI Ruby
 
 
 set :puma_rackup, -> { File.join(current_path, 'config.ru') }
