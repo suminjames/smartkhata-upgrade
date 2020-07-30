@@ -1,6 +1,9 @@
 class MasterSetup::InterestRatesController < ApplicationController
   before_action :set_master_setup_interest_rate, only: [:show, :edit, :update, :destroy]
 
+  before_action -> {authorize @master_setup_interest_rate}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize MasterSetup::InterestRate}, only: [:index, :new, :create]
+
   # GET /master_setup/interest_rates
   # GET /master_setup/interest_rates.json
   def index
