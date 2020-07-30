@@ -1,0 +1,27 @@
+%h1 Listing master_setup_interest_rates
+
+%table
+  %thead
+    %tr
+      %th Start date
+      %th End date
+      %th Interest type
+      %th Rate
+      %th
+      %th
+      %th
+
+  %tbody
+    - @master_setup_interest_rates.each do |master_setup_interest_rate|
+      %tr
+        %td= master_setup_interest_rate.start_date
+        %td= master_setup_interest_rate.end_date
+        %td= master_setup_interest_rate.interest_type
+        %td= master_setup_interest_rate.rate
+        %td= link_to 'Show', master_setup_interest_rate
+        %td= link_to 'Edit', edit_master_setup_interest_rate_path(master_setup_interest_rate)
+        %td= link_to 'Destroy', master_setup_interest_rate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Interest rate', new_master_setup_interest_rate_path

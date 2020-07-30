@@ -1,0 +1,2 @@
+module MasterSetup::InterestRatesHelper
+end

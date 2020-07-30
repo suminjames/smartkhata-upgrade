@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200708062557) do
+ActiveRecord::Schema.define(version: 20200730075529) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -977,6 +977,15 @@ ActiveRecord::Schema.define(version: 20200708062557) do
     t.float    "nepse_commission_rate"
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
+  end
+
+  create_table "master_setup_interest_rates", force: :cascade do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "interest_type"
+    t.integer  "rate"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
   end
 
   create_table "menu_items", force: :cascade do |t|
