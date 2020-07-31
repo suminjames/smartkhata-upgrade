@@ -1,6 +1,6 @@
-class CreateMasterSetupInterestRates < ActiveRecord::Migration
+class CreateInterestRates < ActiveRecord::Migration
   def change
-    create_table :master_setup_interest_rates do |t|
+    create_table :interest_rates do |t|
       t.date :start_date
       t.date :end_date
       t.integer :interest_type

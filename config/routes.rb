@@ -1,7 +1,6 @@
 Rails.application.routes.draw do
-  namespace :master_setup do
-    resources :interest_rates
-  end
+  resources :interest_rates
+
   # get '/', to: '/hello/hi', via: [:get]
   # root :to => redirect('visitors#index')
   # scope "#{session[user_selected_fy_code]}/#{session[user_selected_branch_id]}" do

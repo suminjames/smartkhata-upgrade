@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Start date:
+  = @interest_rate.start_date
+%p
+  %b End date:
+  = @interest_rate.end_date
+%p
+  %b Interest type:
+  = @interest_rate.interest_type
+%p
+  %b Rate:
+  = @interest_rate.rate
+
+= link_to 'Edit', edit_interest_rate_path(@interest_rate)
+\|
+= link_to 'Back', interest_rates_path

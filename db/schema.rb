@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200730075529) do
+ActiveRecord::Schema.define(version: 20200731042717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -849,6 +849,15 @@ ActiveRecord::Schema.define(version: 20200730075529) do
   add_index "groups", ["creator_id"], name: "index_groups_on_creator_id", using: :btree
   add_index "groups", ["updater_id"], name: "index_groups_on_updater_id", using: :btree
 
+  create_table "interest_rates", force: :cascade do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "interest_type"
+    t.integer  "rate"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
   create_table "isin_infos", force: :cascade do |t|
     t.string   "company"
     t.string   "isin"
@@ -977,15 +986,6 @@ ActiveRecord::Schema.define(version: 20200730075529) do
     t.float    "nepse_commission_rate"
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
-  end
-
-  create_table "master_setup_interest_rates", force: :cascade do |t|
-    t.date     "start_date"
-    t.date     "end_date"
-    t.integer  "interest_type"
-    t.integer  "rate"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
   end
 
   create_table "menu_items", force: :cascade do |t|
