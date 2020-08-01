@@ -24,10 +24,10 @@ class InterestRate < ActiveRecord::Base
   private
 
   def validate_interest_rate_overlap
-    range_sql = ":end_date >= start_date and end_date >= :start_date"
-    interest_rates_all = InterestRate.where(interest_type: InterestRate.interest_types[interest_type])
-    is_overlapping = interest_rates_all.where(range_sql, start_date: start_date, end_date: end_date).exists?
-    errors.add :start_date, "A interest rate record in the given date range already exists!" if is_overlapping
+    date_range_sql = ":end_date >= start_date and end_date >= :start_date"
+    interest_rate_records = InterestRate.where(interest_type: InterestRate.interest_types[interest_type])
+    is_overlapping = interest_rate_records.where(date_range_sql, start_date: start_date, end_date: end_date).exists?
+    errors.add :start_date, "An interest rate record in the given date range already exists!" if is_overlapping
   end
 
   def validate_date_range

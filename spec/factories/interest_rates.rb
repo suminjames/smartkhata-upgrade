@@ -13,9 +13,9 @@
 
 FactoryGirl.define do
   factory :interest_rate do
-    start_date "2020-07-31"
-    end_date "2020-07-31"
-    interest_type 1
-    rate 1
+    start_date { Date.today - 30.days }
+    end_date { Date.today - 2.days }
+    interest_type 0
+    rate 10
   end
 end
