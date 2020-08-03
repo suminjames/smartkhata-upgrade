@@ -31,6 +31,7 @@ class InterestRate < ActiveRecord::Base
   end
 
   def validate_date_range
+    return if start_date.blank? || end_date.blank?
     errors.add :start_date, "Start date should be before the end date" if start_date >= end_date
   end
 end
