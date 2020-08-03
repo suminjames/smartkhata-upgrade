@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200731042717) do
+ActiveRecord::Schema.define(version: 20200803134806) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1183,6 +1183,7 @@ ActiveRecord::Schema.define(version: 20200731042717) do
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
     t.boolean  "hide_for_client",                                           default: false
+    t.date     "value_date"
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree
