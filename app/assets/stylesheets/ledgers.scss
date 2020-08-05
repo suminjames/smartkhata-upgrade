@@ -82,7 +82,7 @@ $table-row-hover-bg: rgba(60, 141, 188, 0.3);
       }
       // No of Shares
       .col-2 {
-        width: 22%;
+        width: 15%;
       }
       // Company Name
       .col-3 {
@@ -110,6 +110,9 @@ $table-row-hover-bg: rgba(60, 141, 188, 0.3);
       }
       .col-9 {
         width:11%;
+      }
+      .col10 {
+        width: 7%;
       }
     }
   }

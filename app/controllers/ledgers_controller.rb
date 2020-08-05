@@ -1,9 +1,9 @@
 class LedgersController < ApplicationController
-  before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction]
+  before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction, :edit_particular, :update_particular]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
   before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all, :restricted, :toggle_restriction, :merge_ledger]
-  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy, :edit_particular, :update_particular]
 
   # GET /ledgers
   # GET /ledgers.json
@@ -226,6 +226,22 @@ class LedgersController < ApplicationController
       @ledgers = (@client_account.get_group_members_ledgers_with_balance if @client_account) || []
     end
     @client_with_group_members = ClientAccount.having_group_members.uniq
+  end
+
+  def edit_particular
+    @particular = Particular.find_by(id: params[:id])
+    respond_to do |format|
+      format.js
+    end
+  end
+  
+  def update_particular
+    @particular = Particular.find_by(id: params[:particular_id])
+    value_date_params = params["particular"].map{|k,v| v}.join("-").to_date
+    @particular.update(value_date: value_date_params)
+    respond_to do |format|
+      format.js
+    end
   end
 
   def restricted

@@ -90,6 +90,7 @@
             <th class="text-center">Pay / Receipt No</th>
             <th class="text-center" colspan="2">Transaction Amount</th>
             <th class="text-center">Balance</th>
+            <th class="text-center">Value Date</th>
           </tr>
           <colgroup>
             <col class="col-1">
@@ -101,68 +102,10 @@
             <col class="col-7">
             <col class="col-8">
             <col class="col-9">
+            <col class="col-10">
           </colgroup>
           <% @particulars.each do |particular| %>
-              <tr>
-                <td>
-                  <b><%= ad_to_bs(particular.transaction_date) %></b>
-                  <br>
-                  <em><small><%= particular.transaction_date.to_s %></small></em>
-                </td>
-
-                <td>
-                  <% name = particular.get_description %><%= link_to name, voucher_path(particular.voucher), remote: true %></td>
-                <td><%= link_to "#{particular.voucher.voucher_code} #{particular.voucher.fy_code}-#{particular.voucher.voucher_number}", voucher_path(particular.voucher), remote: true %></td>
-
-                <td>
-                  <% particular.bills.each do |bill| %>
-                      <% if bill.client_account_id == @ledger.client_account_id || @ledger.client_account_id == nil %>
-                          <%= link_to "#{bill.fy_code}-#{bill.bill_number}", bill_path(bill), remote: true  %> <br>
-                      <% end %>
-                  <% end %>
-                </td>
-                <td>
-                  <% particular.cheque_entries.each do |cheque| %>
-                      <%= link_to cheque.cheque_number, cheque_entry_path(cheque.id), remote: true %> <br>
-                  <% end %>
-                  <% if particular.nepse_chalan.present? %>
-                      <%= link_to particular.nepse_chalan.nepse_settlement_id, nepse_chalan_path(particular.nepse_chalan.id), :target => "_blank" %>
-                      <br>
-                  <% end %>
-                </td>
-                <td>
-                  <% particular.settlements.each do |settlement| %>
-                      <%= link_to "#{settlement.id }", settlement_path(settlement.id), remote: true %><br>
-                  <% end %>
-                </td>
-                  <td class='text-right'>
-                    <% if particular.dr? %>
-                    <span class="debit-amount">
-                        <%= "#{number_to_currency(particular.amount)} Dr" %>
-                      </span>
-                    <% end %>
-                  </td>
-                <td class='text-right'>
-                  <% if particular.cr? %>
-                      <span class="credit-amount">
-                        <%= "#{number_to_currency(particular.amount)} Cr" %>
-                      </span>
-                  <% end %>
-                </td>
-                  <td class='text-right'>
-                    <!-- -0.01 + 0.01 is equal to zero -->
-                    <% if particular[:running_total] + margin_of_error_amount < 0 %>
-              <span class="credit-amount">
-                <%= "#{number_to_currency(particular[:running_total].abs)} Cr" %>
-              </span>
-                    <% else %>
-              <span class="debit-amount">
-                <%= "#{number_to_currency(particular[:running_total].abs)} Dr" %>
-              </span>
-                    <% end %>
-
-                  </td>
-                  </tr>
+            <%= render 'particulars_list', particular: particular %>
           <% end %>
         </table>
       </div>
