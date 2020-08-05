@@ -95,8 +95,7 @@ class Particular < ActiveRecord::Base
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
-  before_save :process_particular
-  before_save :default_value_date
+  before_save :process_particular, :default_value_date
 
   def get_description
     if self.description.present?

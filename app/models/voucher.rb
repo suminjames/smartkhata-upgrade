@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :assign_value_date
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
