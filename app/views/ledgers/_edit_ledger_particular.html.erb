@@ -5,7 +5,7 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Edit value date</h4>
       </div>
-      <%= simple_form_for @particular, url: update_particular_ledger_path(@particular.ledger.id, @particular.id), method: :patch, remote: true do |f| %>
+      <%= simple_form_for @particular, url: update_particular_ledger_path(@particular.ledger_id, @particular.id), method: :patch, remote: true do |f| %>
         <div class="modal-body">
           <%= f.input :value_date %>
         </div>

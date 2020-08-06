@@ -62,7 +62,7 @@
     <div id="single_particular_<%= particular.id%>">
       <%= "#{particular.value_date}" %>
     </div>
-    <%= link_to "<i class='fa fa-pencil'></i>".html_safe,  edit_particular_ledger_path(particular.ledger.id, particular.id), remote: true, class: "btn btn-primary"%>
+    <%= link_to "<i class='fa fa-pencil'></i>".html_safe,  edit_particular_ledger_path(particular.ledger_id, particular.id), remote: true, class: "btn btn-primary"%>
   </td>
 
 </tr>

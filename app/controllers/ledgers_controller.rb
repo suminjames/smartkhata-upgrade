@@ -229,7 +229,7 @@ class LedgersController < ApplicationController
   end
 
   def edit_particular
-    @particular = Particular.find_by(id: params[:id])
+    @particular = Particular.find_by(id: params[:particular_id])
     respond_to do |format|
       format.js
     end
