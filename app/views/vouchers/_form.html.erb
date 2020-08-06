@@ -58,6 +58,7 @@
             <div class="col-sk-4"><h4>Cheque Issuing Bank</h4></div>
             <div class="col-sk-4"><h4>Bills</h4></div>
             <div class="col-sk-3"><h4>Branch</h4></div>
+            <div class="col-sk-3"><h4>Value Date</h4></div>
           </div>
           <%= f.fields_for :particulars do |p| %>
             <%= render :partial => 'particular_fields',
@@ -170,6 +171,7 @@
           <div class="col-sk-3"><h4>Cheque</h4></div>
           <div class="col-sk-4"><h4>Cheque Issuing Bank</h4></div>
           <div class="col-sk-4"><h4>Bills</h4></div>
+          <div class="col-sk-3"><h4>Value Date</h4></div>
           <div class="col-sk-3"><h4>Branch</h4></div>
         </div>
         <%= f.fields_for :particulars do |p| %>
