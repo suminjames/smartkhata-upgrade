@@ -6,6 +6,10 @@
       <div class="form-group">
         <%= file_field_tag :file %>
       </div>
+    <div class="form-group">
+      <%= label_tag :value_date, "Value Date" %>
+      <%= date_field_tag :value_date, Date.today %>
+    </div>
       <div class="form-group">
         <%= check_box_tag  'is_partial_upload' %>
         <a class='no-hover warning-text' data-toggle='tooltip' title='Only select this if the floorsheet being uploaded is partial for its date.'>Partial Upload</a>

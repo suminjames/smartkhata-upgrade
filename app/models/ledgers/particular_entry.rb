@@ -2,19 +2,21 @@ class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
 
-  attr_reader :current_user_id
+  attr_reader :current_user_id, :value_date
 
   def initialize(current_user_id)
     @current_user_id = current_user_id
+    @value_date = value_date
   end
 
-  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
+  def insert(ledger, value_date, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
     process(ledger: ledger,
             voucher: voucher,
             debit: debit,
             amount: amount,
             descr: descr,
             branch_id: branch_id,
+            value_date: value_date,
             accounting_date: accounting_date,
             creator_id: current_user_id,
             updater_id: current_user_id,
@@ -40,6 +42,7 @@ class Ledgers::ParticularEntry
     accounting_date = particular.transaction_date
     calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, current_user_id)
     particular.fy_code = fy_code
+    particular.value_date = value_date
     particular.complete!
     ledger.save!
   end
@@ -55,6 +58,7 @@ class Ledgers::ParticularEntry
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
     reversed_cheque_entry = attrs[:reversed_cheque_entry]
+    value_date = attrs[:value_date]
     creator_id = attrs[:creator_id]
     updater_id = attrs[:updater_id]
     current_user_id = attrs[:current_user_id]
@@ -93,6 +97,7 @@ class Ledgers::ParticularEntry
         transaction_date: accounting_date,
         branch_id: branch_id,
         fy_code: get_fy_code(accounting_date),
+        value_date: value_date,
         creator_id: creator_id,
         updater_id: updater_id,
         current_user_id: current_user_id

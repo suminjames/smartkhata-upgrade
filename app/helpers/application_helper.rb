@@ -38,12 +38,12 @@ module ApplicationHelper
   end
 
   # process accounts to make changes on ledgers
-  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date,current_user)
-    Ledgers::ParticularEntry.new(current_user.id).insert(ledger, voucher, debit, amount, descr, branch_id,transaction_date,current_user.id)
+  def process_accounts(ledger, value_date, voucher, debit, amount, descr, branch_id, transaction_date,current_user)
+    Ledgers::ParticularEntry.new(current_user.id).insert(ledger, value_date, voucher, debit, amount, descr, branch_id,transaction_date,current_user.id)
   end
 
-  def reverse_accounts(particular, voucher, descr, adjustment = 0.0, cheque_entry = nil, current_user_id)
-    Ledgers::ParticularEntry.new(current_user_id).revert(particular, voucher, descr, adjustment = 0.0, cheque_entry, current_user_id)
+  def reverse_accounts(particular, value_date, voucher, descr, adjustment = 0.0, cheque_entry = nil, current_user_id)
+    Ledgers::ParticularEntry.new(current_user_id).revert(particular, value_date, voucher, descr, adjustment = 0.0, cheque_entry, current_user_id)
   end
 
   # method to calculate the broker commission
