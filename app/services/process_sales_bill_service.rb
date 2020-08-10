@@ -16,6 +16,7 @@ class ProcessSalesBillService
 
   def process
     fy_code = get_fy_code(@date)
+    value_date = @nepse_settlement.value_date
     manual_cheque = false
 
 
@@ -120,7 +121,7 @@ class ProcessSalesBillService
           voucher.bills_on_settlement << bill
           _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
           # particular = process_accounts(client_ledger, voucher, true, amount_to_settle, _description)
-          particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: @date, particular_status: :pending, fy_code: fy_code, branch_id: _branch_id, current_user_id: @current_user.id)
+          particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: @date, particular_status: :pending, fy_code: fy_code, branch_id: _branch_id, value_date: value_date, current_user_id: @current_user.id)
 
           particulars << particular
           net_paid_amount += amount_to_settle
@@ -153,7 +154,7 @@ class ProcessSalesBillService
         # particular = process_accounts(bank_ledger, voucher, false, net_paid_amount, description
         short_description = "Settlement by bank payment for settlement ID #{@nepse_settlement.settlement_id}"
         # This particular is for bank of the tenant that is credited.
-        credit_particular = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code,branch_id: _branch_id, current_user_id: @current_user.id)
+        credit_particular = Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: short_description, voucher_id: voucher.id, amount: net_paid_amount,transaction_date: @date, particular_status: :pending, ledger_type: :has_bank, fy_code: fy_code,branch_id: _branch_id, value_date: value_date, current_user_id: @current_user.id)
         credit_particular.credit_settlements << settlements
         credit_particular.cheque_entries << cheque_entries
 
