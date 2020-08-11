@@ -1,3 +1,4 @@
+<% date = ad_to_bs_string(Date.today) %>
 <% provide(:section_title, "Upload FloorSheet File") %>
 <p class="text-muted"> Note: Upload file should be in xls format</p>
 
@@ -8,10 +9,20 @@
       </div>
 
       <label for="value_date">Value Date</label>
-      <div class="row">
-        <div class="col-sm-2">
-          <div class="form-group">
-            <%= text_field_tag :value_date, nil, placeholder: "YYYY-MM-DD", :autofocus => true, class: 'form-control' %>
+      <div class="form-group">
+        <div class="form-inputs row">
+          <div class="col-sm-3">
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">A.D.</span>
+              <%= text_field_tag :value_date, Date.today, class: "string optional voucher-datepicker form-control", placeholder: "YYYY-MM-DD" %>
+            </div>
+          </div>
+
+          <div class="col-sm-3">
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">B.S.</span>
+              <input class="form-control nepali-datepicker" value="<%= date %>" placeholder="YYYY-MM-DD" type="text">
+            </div>
           </div>
         </div>
       </div>

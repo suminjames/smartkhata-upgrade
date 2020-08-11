@@ -385,5 +385,4 @@ class VouchersController < ApplicationController
     end
     clear_ledger
   end
-
 end
