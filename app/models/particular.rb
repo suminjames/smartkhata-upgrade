@@ -84,6 +84,7 @@ class Particular < ActiveRecord::Base
 
 
   validates_presence_of :ledger_id
+  
   enum transaction_type: [:dr, :cr]
   enum particular_status: [:pending, :complete]
   enum ledger_type: [:general, :has_bank]

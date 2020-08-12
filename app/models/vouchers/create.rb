@@ -352,6 +352,11 @@ class Vouchers::Create < Vouchers::Base
         particular.updater_id = current_user&.id
         particular.branch_id ||= branch_id
         particular.current_user_id = current_user&.id
+
+        unless value_date_valid_for_fy_code(particular.value_date, selected_fy_code)
+          error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
+          raise ActiveRecord::Rollback
+        end
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
 

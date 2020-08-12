@@ -120,6 +120,23 @@ module FiscalYearModule
     false
   end
 
+  def value_date_valid_for_fy_code(date, fy_code)
+    return false if date.blank?
+
+    fy_code_date = nil
+    fiscal_year_breakpoint = get_fiscal_breakpoint
+    fiscal_year_breakpoint.each do |fiscal|
+      if fy_code.to_i == fiscal[0]
+        fy_code_date = fiscal
+      end
+    end
+
+    if fy_code_date.present?
+      return true if date >= Date.today && date <= fy_code_date[2]
+    end
+    false
+  end
+
   def get_fy_code_from_fiscal_year(fiscal_year)
     @@fiscal_year_mapping[fiscal_year]
   end

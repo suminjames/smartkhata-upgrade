@@ -2,11 +2,10 @@ class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
 
-  attr_reader :current_user_id, :value_date
+  attr_reader :current_user_id
 
   def initialize(current_user_id)
     @current_user_id = current_user_id
-    @value_date = value_date
   end
 
   def insert(ledger, value_date, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
@@ -42,7 +41,6 @@ class Ledgers::ParticularEntry
     accounting_date = particular.transaction_date
     calculate_balances(ledger, accounting_date, particular.dr?, particular.amount, fy_code, particular.branch_id, current_user_id)
     particular.fy_code = fy_code
-    particular.value_date = value_date
     particular.complete!
     ledger.save!
   end
