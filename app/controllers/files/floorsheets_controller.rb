@@ -29,8 +29,9 @@ class Files::FloorsheetsController < Files::FilesController
     # get file from import
     @file = params[:file]
     @value_date = params[:value_date].to_date
+
     unless date_valid_for_fy_code(@value_date, selected_fy_code)
-      file_error("Value date must be the greater date than the current date and within the current fiscal year!") and return
+      file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
     end
 
     @is_partial_upload = params[:is_partial_upload] == '1'

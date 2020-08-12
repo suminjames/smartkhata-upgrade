@@ -18,7 +18,12 @@ class Files::SalesController < Files::FilesController
     # authorize self
     @file = params[:file]
     @settlement_date = params[:settlement_date]
-    @value_date = params[:value_date]
+    @value_date = params[:value_date].to_date
+
+    unless date_valid_for_fy_code(@value_date, selected_fy_code)
+      file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
+    end
+
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
     payout_upload = ImportPayout.new(@file, selected_fy_code, current_user, @settlement_date, @value_date)
