@@ -35,29 +35,29 @@ export default class TrialBalance extends React.Component {
                   {
                     ledgers.map(function(ledger, index_inner){
 
-                      opening_balance_dr += ((ledger.opening_balance > 1) ? positive_currency_raw(ledger.opening_balance) : 0.00);
+                      opening_balance_dr += ((ledger.opening_balance > 0) ? positive_currency_raw(ledger.opening_balance) : 0.00);
                       opening_balance_cr += ((ledger.opening_balance < 0) ? positive_currency_raw(ledger.opening_balance) : 0);
                       dr_amount += positive_currency_raw(ledger.dr_amount);
                       cr_amount += positive_currency_raw(ledger.cr_amount);
-                      closing_balance_dr += ((ledger.closing_balance > 1) ? positive_currency_raw(ledger.closing_balance) : 0);
+                      closing_balance_dr += ((ledger.closing_balance > 0) ? positive_currency_raw(ledger.closing_balance) : 0);
                       closing_balance_cr += ((ledger.closing_balance < 0) ? positive_currency_raw(ledger.closing_balance) : 0);
 
-                      total_opening_balance_dr += ((ledger.opening_balance > 1) ? positive_currency_raw(ledger.opening_balance) : 0);
+                      total_opening_balance_dr += ((ledger.opening_balance > 0) ? positive_currency_raw(ledger.opening_balance) : 0);
                       total_opening_balance_cr += ((ledger.opening_balance < 0) ? positive_currency_raw(ledger.opening_balance) : 0);
                       total_dr_amount += positive_currency_raw(ledger.dr_amount);
                       total_cr_amount += positive_currency_raw(ledger.cr_amount);
-                      total_closing_balance_dr += ((ledger.closing_balance > 1) ? positive_currency_raw(ledger.closing_balance) : 0);
+                      total_closing_balance_dr += ((ledger.closing_balance > 0) ? positive_currency_raw(ledger.closing_balance) : 0);
                       total_closing_balance_cr += ((ledger.closing_balance < 0) ? positive_currency_raw(ledger.closing_balance) : 0);
 
 
                       return(
                         <tr className="ledger-single" key={index_inner}>
                           <td>{ ledger.name }</td>
-                          <td className="text-right">{ ledger.opening_balance > 1 ? number_to_currency(ledger.opening_balance) : '0.00' }</td>
+                          <td className="text-right">{ ledger.opening_balance > 0 ? number_to_currency(ledger.opening_balance) : '0.00' }</td>
                           <td className="text-right">{ ledger.opening_balance < 0 ? number_to_currency(ledger.opening_balance) : '0.00' }</td>
                           <td className="text-right">{ number_to_currency(ledger.dr_amount) }</td>
                           <td className="text-right">{ number_to_currency(ledger.cr_amount) }</td>
-                          <td className="text-right">{ ledger.closing_balance > 1 ? number_to_currency(ledger.closing_balance) : '0.00' }</td>
+                          <td className="text-right">{ ledger.closing_balance > 0 ? number_to_currency(ledger.closing_balance) : '0.00' }</td>
                           <td className="text-right">{ ledger.closing_balance < 0 ? number_to_currency(ledger.closing_balance) : '0.00' }</td>
                         </tr>
                       )
