@@ -18,7 +18,7 @@ class InterestParticular < ActiveRecord::Base
     interest_particulars = ClientAccount.to_a.map do |ca|
       ledger = ca.ledger
 
-      particular_net_sum = InterestCalculator.call(ledger, date)
+      particular_net_sum = InterestCalculator.new(ledger, date).call
       interest_type = particular_net_sum.positive? ? 'cr' : 'dr'
       interest_condition = particular_net_sum.positive? ? 'receivable' : 'payable'
       applicable_interest_rate = InterestRate.between_record_range(date, fy_first_day, fy_last_day).where(interest_type: interest_condition).first
