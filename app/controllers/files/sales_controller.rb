@@ -26,7 +26,7 @@ class Files::SalesController < Files::FilesController
       file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
     end
 
-    payout_upload = ImportPayout.new(@file, selected_fy_code, current_user, @settlement_date, @value_date)
+    payout_upload = ImportPayout.new(@file, selected_fy_code, current_user, @value_date, @settlement_date)
     payout_upload.process
 
     if payout_upload.error_message

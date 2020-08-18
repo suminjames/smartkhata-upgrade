@@ -116,6 +116,6 @@ class Particular < ActiveRecord::Base
   end
 
   def default_value_date
-    self.value_date = self.transaction_date if value_date.nil?
+    self.value_date ||= self.transaction_date
   end
 end

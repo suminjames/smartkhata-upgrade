@@ -39,7 +39,7 @@ class Files::FloorsheetsController < Files::FilesController
       file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, @value_date, current_user, selected_fy_code, @is_partial_upload)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @value_date, @is_partial_upload)
     floorsheet_upload.process
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message
