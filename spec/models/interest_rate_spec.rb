@@ -35,7 +35,6 @@ RSpec.describe InterestRate, type: :model do
     context "when start_date is nil" do
       let(:start_date) { nil }
       it "fails the validation" do
-        subject.start_date = start_date
         subject.valid?
         expect(subject.errors[:start_date]).to eq(["can't be blank"])
       end
@@ -44,7 +43,6 @@ RSpec.describe InterestRate, type: :model do
     context "when the end_date is nil" do
       let(:end_date) { nil }
       it "fails the validation" do
-        subject.end_date = end_date
         subject.valid?
         expect(subject.errors[:end_date]).to eq(["can't be blank"])
       end
@@ -54,6 +52,8 @@ RSpec.describe InterestRate, type: :model do
   describe "validate_date_range" do
 
     context "when start_date is greater than the end_date" do
+      let(:start_date){ end_date + 1.day }
+      let(:end_date) { Date.today }
       it "raises the validation error" do
         subject.start_date = Date.today - 15.days
         subject.end_date = Date.today - 20.days
@@ -63,8 +63,9 @@ RSpec.describe InterestRate, type: :model do
     end
 
     context "when start_date is equal to end_date" do
+      let(:start_date){ end_date }
+      let(:end_date) { Date.today }
       it "raises the validation error" do
-        subject.start_date, subject.end_date = Date.today, Date.today
         subject.valid?
         expect(subject.errors[:start_date]).to eq(["Start date should be before the end date"])
       end
