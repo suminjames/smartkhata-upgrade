@@ -1,4 +1,10 @@
 $('<%= j render "edit_ledger_particular" %>').on('hidden.bs.modal', function (e) {
   $(this).remove();
   $('.modal-backdrop').remove();
+  }).on('shown.bs.modal', function () {
+  $("#particular_value_date").datepicker({
+    todayHighlight: true,
+    orientation: 'auto bottom',
+    format: 'yyyy-mm-dd'
+  });
 }).modal();

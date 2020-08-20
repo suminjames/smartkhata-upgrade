@@ -143,3 +143,9 @@ $bill_background_color: rgba(236, 240, 245, 0.42);
   }
 }
 
+.ledger-particular-modal {
+  .modal-dialog {
+    max-width: 600px;
+    margin: auto;
+  }
+}
