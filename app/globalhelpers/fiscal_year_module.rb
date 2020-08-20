@@ -103,7 +103,7 @@ module FiscalYearModule
   end
 
 
-  def date_valid_for_fy_code(date, fy_code)
+  def date_valid_for_fy_code(date, fy_code, current_date = nil)
     return false if date.blank?
 
     fy_code_date = nil
@@ -115,24 +115,11 @@ module FiscalYearModule
     end
 
     if fy_code_date.present?
-      return true if date >= fy_code_date[1] && date <= fy_code_date[2]
-    end
-    false
-  end
-
-  def value_date_valid_for_fy_code(date, fy_code)
-    return false if date.blank?
-
-    fy_code_date = nil
-    fiscal_year_breakpoint = get_fiscal_breakpoint
-    fiscal_year_breakpoint.each do |fiscal|
-      if fy_code.to_i == fiscal[0]
-        fy_code_date = fiscal
+      if current_date.present?
+        return true if date >= current_date && date <= fy_code_date[2]
+      else
+        return true if date >= fy_code_date[1] && date <= fy_code_date[2]
       end
-    end
-
-    if fy_code_date.present?
-      return true if date >= Date.today && date <= fy_code_date[2]
     end
     false
   end

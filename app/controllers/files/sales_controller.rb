@@ -19,10 +19,11 @@ class Files::SalesController < Files::FilesController
     @file = params[:file]
     @settlement_date = params[:settlement_date]
     @value_date = params[:value_date].to_date
+    current_date = Date.today
 
     file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
-    unless value_date_valid_for_fy_code(@value_date, selected_fy_code)
+    unless date_valid_for_fy_code(@value_date, selected_fy_code, current_date)
       file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
     end
 

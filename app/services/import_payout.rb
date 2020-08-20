@@ -172,7 +172,7 @@ class ImportPayout < ImportFile
           if multiple_settlement_ids_allowed
             @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
           else
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id,  value_date: value_date, settlement_date: @nepse_settlement_date).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id,  value_date: @value_date, settlement_date: @nepse_settlement_date).id
           end
 
         end

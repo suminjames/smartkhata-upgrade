@@ -320,6 +320,7 @@ class Vouchers::Create < Vouchers::Base
     res = false
     settlement = nil
     settlements = []
+    current_date = Date.today
 
     set_current_user = lambda { |l| l.current_user_id = @current_user_id }
 
@@ -353,7 +354,7 @@ class Vouchers::Create < Vouchers::Base
         particular.branch_id ||= branch_id
         particular.current_user_id = current_user&.id
 
-        unless value_date_valid_for_fy_code(particular.value_date, selected_fy_code)
+        unless date_valid_for_fy_code(particular.value_date, selected_fy_code, current_date)
           error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
           raise ActiveRecord::Rollback
         end
