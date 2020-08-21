@@ -21,9 +21,6 @@ class InterestRate < ActiveRecord::Base
 
   enum interest_type: %i[payable receivable]
 
-  scope :between_record_range, -> (current_date, start_fy_date, end_fy_date) {
-    where "('#{current_date}' BETWEEN #{start_fy_date} AND #{end_fy_date})"
-  }
 
   private
 

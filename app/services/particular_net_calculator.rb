@@ -1,4 +1,4 @@
-class InterestCalculator
+class ParticularNetCalculator
   include ApplicationHelper
   
   def initialize(ledger, date = Date.today)

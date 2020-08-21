@@ -850,7 +850,7 @@ ActiveRecord::Schema.define(version: 20200813082456) do
   add_index "groups", ["updater_id"], name: "index_groups_on_updater_id", using: :btree
 
   create_table "interest_particulars", force: :cascade do |t|
-    t.string   "amount"
+    t.integer  "amount"
     t.integer  "rate"
     t.date     "date"
     t.integer  "interest_type"

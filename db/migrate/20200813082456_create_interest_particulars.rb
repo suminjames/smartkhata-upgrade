@@ -1,7 +1,7 @@
 class CreateInterestParticulars < ActiveRecord::Migration
   def change
     create_table :interest_particulars do |t|
-      t.string :amount
+      t.integer :amount
       t.integer :rate
       t.date :date
       t.integer :interest_type

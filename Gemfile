@@ -53,6 +53,7 @@ gem 'jquery-minicolors-rails'
 gem 'aws-sdk-s3', '~> 1'
 gem 'bootstrap-datepicker-rails'
 gem 'webpacker'
+gem 'activerecord-import'
 
 group :production do
   gem 'puma', '~>4.3.3'
