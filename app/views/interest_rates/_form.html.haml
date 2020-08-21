@@ -5,7 +5,7 @@
     = f.input :start_date
     = f.input :end_date
     = f.input :interest_type, label: 'Interest Type' do
-      = f.select :interest_type, [["Payable", "payable"], ["Receivable", "receivable"]]
+      = f.select :interest_type, InterestRate.interest_types.keys.map { |x| [x.humanize, x] }
     = f.input :rate
 
   .form-actions

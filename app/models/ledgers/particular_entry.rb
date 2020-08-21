@@ -8,18 +8,18 @@ class Ledgers::ParticularEntry
     @current_user_id = current_user_id
   end
 
-  def insert(ledger, value_date, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
+  def insert(ledger,  voucher, debit, amount, descr, branch_id, accounting_date, current_user_id, value_date)
     process(ledger: ledger,
             voucher: voucher,
             debit: debit,
             amount: amount,
             descr: descr,
             branch_id: branch_id,
-            value_date: value_date,
             accounting_date: accounting_date,
             creator_id: current_user_id,
             updater_id: current_user_id,
-            current_user_id: current_user_id
+            current_user_id: current_user_id,
+            value_date: value_date
     )
   end
 
@@ -56,10 +56,10 @@ class Ledgers::ParticularEntry
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
     reversed_cheque_entry = attrs[:reversed_cheque_entry]
-    value_date = attrs[:value_date]
     creator_id = attrs[:creator_id]
     updater_id = attrs[:updater_id]
     current_user_id = attrs[:current_user_id]
+    value_date = attrs[:value_date]
     # when all branch selected fall back to the user's branch id
     branch_id = UserSession.branch_id if branch_id == 0
     fy_code = voucher.fy_code || UserSession.selected_fy_code
@@ -95,10 +95,10 @@ class Ledgers::ParticularEntry
         transaction_date: accounting_date,
         branch_id: branch_id,
         fy_code: get_fy_code(accounting_date),
-        value_date: value_date,
         creator_id: creator_id,
         updater_id: updater_id,
-        current_user_id: current_user_id
+        current_user_id: current_user_id,
+        value_date: value_date
         )
 
     if particular

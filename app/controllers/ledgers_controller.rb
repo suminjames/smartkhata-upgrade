@@ -237,8 +237,7 @@ class LedgersController < ApplicationController
   
   def update_particular
     @particular = Particular.find_by(id: params[:particular_id])
-    value_date_params = params["particular"].map{|k,v| v}.join("-").to_date
-    @particular.update(value_date: value_date_params)
+    @particular.update(value_date: params[:particular][:value_date])
     respond_to do |format|
       format.js
     end
