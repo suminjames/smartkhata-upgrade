@@ -21,7 +21,6 @@ class InterestRate < ActiveRecord::Base
 
   enum interest_type: %i[payable receivable]
 
-
   private
 
   def validate_interest_rate_overlap
