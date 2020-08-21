@@ -4,7 +4,7 @@ class CreateInterestParticulars < ActiveRecord::Migration
       t.string :amount
       t.integer :rate
       t.date :date
-      t.string :interest_type
+      t.integer :interest_type
       t.references :ledger, index: true, foreign_key: true
 
       t.timestamps null: false

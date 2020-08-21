@@ -853,7 +853,7 @@ ActiveRecord::Schema.define(version: 20200813082456) do
     t.string   "amount"
     t.integer  "rate"
     t.date     "date"
-    t.string   "interest_type"
+    t.integer  "interest_type"
     t.integer  "ledger_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
