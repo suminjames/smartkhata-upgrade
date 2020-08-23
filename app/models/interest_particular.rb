@@ -3,7 +3,7 @@
 # Table name: interest_particulars
 #
 #  id            :integer          not null, primary key
-#  amount        :string
+#  amount        :float
 #  rate          :integer
 #  date          :date
 #  interest_type :integer
@@ -25,7 +25,7 @@ class InterestParticular < ActiveRecord::Base
 
     interest_particulars = []
 
-    ClientAccount.all.to_a.map do |ca|
+    ClientAccount.all.each do |ca|
       ledger = ca.ledger
       next if ledger.particulars.size == 0
 
@@ -42,5 +42,6 @@ class InterestParticular < ActiveRecord::Base
 
     InterestParticular.import interest_particulars, batch: 200
     # can be used later for returning ids or results only as well
+
     end
   end

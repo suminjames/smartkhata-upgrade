@@ -3,7 +3,7 @@
 # Table name: interest_particulars
 #
 #  id            :integer          not null, primary key
-#  amount        :string
+#  amount        :float
 #  rate          :integer
 #  date          :date
 #  interest_type :integer
