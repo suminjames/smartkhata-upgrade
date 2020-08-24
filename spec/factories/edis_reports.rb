@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :edis_report do
-    settlement_id ""
+    settlement_id { "" }
   end
 end

@@ -124,16 +124,19 @@ count = 0
     puts "populating commission details"  if verbose
     
     commission_rate = general_klass_setup({start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25}, MasterSetup::CommissionInfo, nil, {}, false)
-    general_klass_setup([
+    commission_details = general_klass_setup([
                                  {start_amount: 0, limit_amount: 2500, commission_amount: 25},
                                  {start_amount: 2500, limit_amount: 50000.0, commission_rate: 1.0},
                                  {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.9},
                                  {start_amount: 500000.0, limit_amount: 1000000.0, commission_rate: 0.8},
                                  {start_amount: 	1000000.0, limit_amount: 99999999999.0, commission_rate: 0.7},
                            ], MasterSetup::CommissionDetail, nil, { master_setup_commission_info_id: commission_rate.id })
+
+    commission_rate.commission_details << commission_details
+    commission_rate.save!
     
     commission_rate = general_klass_setup({start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20}, MasterSetup::CommissionInfo, nil, {}, false)
-    general_klass_setup([
+    commission_details = general_klass_setup([
                                  {start_amount: 0, limit_amount: 4166.67, commission_amount: 25},
                                  {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.6},
                                  {start_amount: 50000, limit_amount: 500000.0, commission_rate: 0.55},
@@ -142,6 +145,9 @@ count = 0
                                  {start_amount: 	10000000.0, limit_amount: 99999999999.0, commission_rate: 0.4},
                            ], MasterSetup::CommissionDetail, nil, { master_setup_commission_info_id: commission_rate.id })
     
+    commission_rate.commission_details << commission_details
+    commission_rate.save!
+
     puts " Populating calendar..." if verbose
     Calendar.populate_calendar
 
