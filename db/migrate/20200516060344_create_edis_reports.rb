@@ -1,4 +1,4 @@
-class CreateEdisReports < ActiveRecord::Migration
+class CreateEdisReports < ActiveRecord::Migration[4.2]
   def change
     create_table :edis_reports do |t|
       t.bigint :settlement_id
