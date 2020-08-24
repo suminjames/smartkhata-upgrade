@@ -70,15 +70,19 @@ class IsinInfo < ApplicationRecord
     options
   end
 
-  def self.find_similar_to_term(search_term)
+  def self.find_similar_to_term(search_term, isin_only = false)
     search_term = search_term.present? ? search_term.to_s : ''
     isin_infos = IsinInfo.where("company ILIKE :search OR isin ILIKE :search", search: "%#{search_term}%").order(:isin).pluck_to_hash(:id, :company, :isin)
     isin_infos.collect do |isin_info|
-      identifier = "#{isin_info['isin']}"
-      if isin_info['company'].present?
-        identifier += " (#{isin_info['company']})"
+      if isin_only
+        isin_info
+      else
+        identifier = "#{isin_info['isin']}"
+        if isin_info['company'].present?
+          identifier += " (#{isin_info['company']})"
+        end
+        { :text=> identifier, :id => isin_info['id'].to_s }
       end
-      { :text=> identifier, :id => isin_info['id'].to_s }
     end
   end
 

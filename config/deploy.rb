@@ -14,13 +14,13 @@ set :git_shallow_clone, 1
 set :pty, false
 
 set :linked_files, %w{config/database.yml config/secrets.yml}
-set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads}
+set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads}
 
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
 set :keep_releases, 2
 set :rvm_type, :user
 # set :rvm_ruby_version, 'jruby-1.7.19' # Edit this if you are using MRI Ruby
-set :rvm_ruby_version, '2.3.1' # Edit this if you are using MRI Ruby
+set :rvm_ruby_version, '2.5.1' # Edit this if you are using MRI Ruby
 
 
 set :puma_rackup, -> { File.join(current_path, 'config.ru') }

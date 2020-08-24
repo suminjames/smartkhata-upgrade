@@ -11,9 +11,20 @@
  * file per style scope.
  *
  *= require jquery.minicolors
+ *= require bootstrap-datepicker3
  *= require_tree .
  *= require_self
  */
+
+.edis-modal{
+  .modal-content{
+    padding: 20px;
+  }
+
+  .label {
+    color: #555555;
+  }
+}
 
 /* Mixins */
 @mixin box-shadow($shadow...) {

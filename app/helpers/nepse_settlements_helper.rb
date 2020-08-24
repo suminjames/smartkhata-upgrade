@@ -1,6 +1,6 @@
 module NepseSettlementsHelper
   # Returns a dynamic path based on the provided parameters
-  def sti_nepse_settlement_path(settlement_type = "nepse_settlement", nepse_settlement = nil, action = nil)
+  def sti_nepse_settlement_path(settlement_type = "nepse_settlement", nepse_settlement = nil, action= nil)
     send "#{format_sti(action, settlement_type, nepse_settlement)}_path", nepse_settlement
   end
 

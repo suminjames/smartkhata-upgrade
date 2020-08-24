@@ -321,8 +321,6 @@ class Vouchers::Create < Vouchers::Base
     settlement = nil
     settlements = []
 
-    set_current_user = lambda { |l| l.current_user_id = @current_user_id }
-
     Voucher.transaction do
 
       # @receipt = nil
@@ -390,16 +388,13 @@ class Vouchers::Create < Vouchers::Base
             #   cheque is receipt type if issued from the client
             #
             #TODO major change to be rollback on future
-            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, branch_id: branch_id, &set_current_user)
-
+            set_required_data = lambda { |l| l.branch_id =  particular.branch_id; l.current_user_id = @current_user_id }
+            cheque_entry = ChequeEntry.find_or_create_by!(cheque_number: particular.cheque_number, bank_account_id: bank_account.id, additional_bank_id: particular.additional_bank_id, &set_required_data)
             if voucher.is_payment?
               cheque_entry.cheque_date = DateTime.now
             else
               cheque_entry.cheque_date = voucher.date
             end
-
-            # assign cheque to the branch of particualar
-            cheque_entry.branch_id = particular.branch_id
 
             # For receipt cheques,
             # - if the cheque received from client is already entered to system, reject it

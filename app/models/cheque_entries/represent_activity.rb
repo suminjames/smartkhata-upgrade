@@ -43,10 +43,10 @@ class ChequeEntries::RepresentActivity < ChequeEntries::Activity
 
     ActiveRecord::Base.transaction do
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(@cheque_entry.represent_date), date: @cheque_entry.represent_date)
+      new_voucher = Voucher.create!(date_bs: ad_to_bs_string(@cheque_entry.represent_date), date: @cheque_entry.represent_date, branch_id: @selected_branch_id, current_user_id: @current_user.id)
       description = "Cheque number #{@cheque_entry.cheque_number} represented at #{ad_to_bs(@cheque_entry.represent_date)}. #{@cheque_entry.represent_narration}"
       voucher.particulars.each do |particular|
-        reverse_accounts(particular, new_voucher, description)
+        reverse_accounts(particular, new_voucher, description, 0.0, nil, current_user_id)
       end
 
       @cheque_entry.represented!

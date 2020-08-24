@@ -3,7 +3,7 @@ class DealCancelService
   include ApplicationHelper
 
   @@approval_action = %w{approve reject}
-  attr_reader :error_message, :info_message, :share_transaction
+  attr_reader :error_message, :info_message, :share_transaction, :acting_user
 
   def initialize(attrs = {})
     @transaction_id = attrs[:transaction_id].to_i
@@ -12,6 +12,7 @@ class DealCancelService
     @error_message = nil
     @info_message = nil
     @broker_id = attrs[:broker_code]
+    @acting_user = attrs[:current_user]
   end
 
   def process
@@ -34,7 +35,7 @@ class DealCancelService
 
     voucher = @share_transaction.voucher
     bill = @share_transaction.bill
-    
+
     # if approval action is not present
     # it is deal cancel initial process
     unless @approval_action.present?
@@ -99,10 +100,15 @@ class DealCancelService
       return
     else
       if @approval_action == "approve"
+        if voucher.blank?
+          @error_message = "The transaction number could not be cancelled. Contact Support"
+          return
+        end
+
         # condition when bill has not been created yet
         if bill.blank?
           ActiveRecord::Base.transaction do
-            update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+            update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, acting_user, @share_transaction.buying?, true)
             @share_transaction.quantity = 0
             @share_transaction.transaction_cancel_status = :deal_cancel_complete
             @share_transaction.save!
@@ -127,10 +133,10 @@ class DealCancelService
           end
 
           # remove the transacted amount from the share inventory
-          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, @share_transaction.buying?, true)
+          update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, acting_user, @share_transaction.buying?, true)
           # create a new voucher and add the bill reference to it
           date_bs = ad_to_bs_string(@share_transaction.date)
-          new_voucher = Voucher.create!(date: @share_transaction.date, date_bs: date_bs, voucher_status: Voucher.voucher_statuses[:complete])
+          new_voucher = Voucher.create!(date: @share_transaction.date, date_bs: date_bs, voucher_status: Voucher.voucher_statuses[:complete], branch_id: bill.branch_id, current_user_id: acting_user.id)
           new_voucher.bills_on_settlement << bill
 
           description = "Deal cancelled(#{@share_transaction.quantity}*#{@share_transaction.isin_info.isin}@#{@share_transaction.share_rate}) of Bill: (#{bill.fy_code}-#{bill.bill_number})"

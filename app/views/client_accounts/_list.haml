@@ -34,9 +34,10 @@
               %i.fa.fa-user{'aria-hidden': "true"}
           %th.col-xs-2= 'Name'
           %th.col-xs-1= 'Nepse Code'
-          %th.col-xs-2= 'Phone'
+          %th.col-xs-1= 'Phone'
           %th.col-xs-2= 'Email'
-          %th.col-xs-2= 'Temp Password'
+          %th.col-xs-1= 'BoID'
+          %th.col-xs-1= 'Temp Password'
           %th.col-xs-1
         %tbody
           -if client_accounts.present?
@@ -51,6 +52,7 @@
                 %td= client_account.nepse_code
                 %td= client_account.commaed_contact_numbers
                 %td= client_account.email
+                %td= client_account.boid
                 %td
                   - if client_account.user_id && client_account.temp_password.present?
                     = client_account.temp_password

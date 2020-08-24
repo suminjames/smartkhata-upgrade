@@ -1,0 +1,43 @@
+<br>
+<div class="panel panel-default top-buffer">
+  <div class="panel-heading">
+    List of files uploaded
+  </div>
+  <div class="panel-body">
+    <% if provisional_settlements.present? %>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Settlement Id</th>
+            <th>Report Date</th>
+            <th>Upload Date</th>
+            <th>Status</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% provisional_settlements.each do |settlement| %>
+            <tr>
+              <td><%= settlement.settlement_id %> </td>
+              <td></td>
+              <td>
+                <%= "#{ad_to_bs_string(settlement.created_at.to_date)} BS" %>
+                <br>
+                <%= "#{settlement.created_at.to_date} AD" %>
+              </td>
+              <td><%= settlement.complete? ? 'Processed' : 'Pending' %> </td>
+              <td>
+                <%= link_to 'view', sti_nepse_settlement_path(settlement.type, settlement) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center text-muted">
+        No settlements uploaded yet.
+      </div>
+    <% end %>
+  </div>
+</div>

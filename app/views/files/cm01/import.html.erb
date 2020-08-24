@@ -1,0 +1,6 @@
+<% provide(:section_title, "Upload CM01 file") %>
+<% if (!@error) %>
+    File Successfully processed
+<% else %>
+    <%= link_to "Upload CMO1 file", new_files_cm01_path %>
+<% end %>

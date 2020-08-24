@@ -16,7 +16,7 @@
         .col-xs-6
           = f.input :pan_no, label: "PAN"
         .col-xs-6
-          = datepicker_input(f, 'dob','','',true)
+          = datepicker_input(f, 'dob', is_input: true)
 
       = f.input :father_mother , label: "Father/Mother's Name",placeholder: "Father/Mother's Name"
       = f.input :granfather_father_inlaw , label: "GrandFather's Name",placeholder: "GrandFather/Father In Law's Name"

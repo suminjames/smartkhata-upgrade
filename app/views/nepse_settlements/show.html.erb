@@ -1,3 +1,7 @@
 <% provide(:section_title, "#{@type.underscore.humanize.pluralize}") %>
-<%= smart_listing_render(:share_transactions) %>
+<% if params[:type] == "NepseProvisionalSettlement" %>
+  <%= smart_listing_render(:provisional_settlements) %>
+<% else %>
+  <%= smart_listing_render(:share_transactions) %>
+<% end %>
 <%= link_to 'Back', sti_nepse_settlement_path(@nepse_settlement.type) %>

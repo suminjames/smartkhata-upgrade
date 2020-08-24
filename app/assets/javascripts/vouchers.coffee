@@ -47,6 +47,17 @@ $.fn.extend
           }
       });`
 
+date_conversion = (value, convertTo, target) ->
+  $.ajax
+    url: '/convert_date'
+    type: 'get'
+    data: { date: value, convert_to: convertTo }
+    dataType: 'json'
+    success: (data, textStatus, jqXHR) ->
+      $(target).val(data.date).datepicker("update");
+      if (convertTo == 'bs')
+        $('.nepali-date-picker').remove()
+        $(target).nepaliDatePicker({ dateFormat: "%y-%m-%d", closeOnDateSelect: true})
 
 ready = ->
   jQuery ->
@@ -65,6 +76,18 @@ ready = ->
       theme: "bootstrap",
       selectOnClose: true,
     })
+
+    $(document).on 'change', '.new-voucher .nepali-datepicker', (e) ->
+      date = e.target.value
+      date_conversion(date, 'ad', '.new-voucher .voucher-datepicker');
+
+    $(document).on 'dateChange', '.new-voucher .nepali-datepicker', (e) ->
+      date = e.target.value
+      date_conversion(date, 'ad', '.new-voucher .voucher-datepicker');
+
+    $('.voucher-datepicker').datepicker({ format: 'yyyy-mm-dd'}).on 'changeDate', (e) ->
+      date = e.target.value
+      date_conversion(date, 'bs', '.new-voucher .nepali-datepicker');
 
     fix_autocomplete()
 

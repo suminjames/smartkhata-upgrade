@@ -1,0 +1,18 @@
+// Place all the styles related to the edis_reports controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: https://sass-lang.com/
+
+
+table.edis {
+  .info {
+    td {
+      border-color: transparent!important;
+    }
+
+    &.actions {
+      td {
+        border-bottom-color: white!important;
+      }
+    }
+  }
+}

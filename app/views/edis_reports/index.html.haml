@@ -1,0 +1,16 @@
+= provide(:section_title, "Transfer Requests")
+%table.table
+  %thead
+    %tr
+      %th Settlement
+      %th
+
+  %tbody
+    - @edis_reports.each do |edis_report|
+      %tr
+        %td= edis_report.settlement_id
+        %td= link_to 'Show', edis_report
+%br
+%br
+%br
+= link_to 'New Edis report', new_edis_report_path

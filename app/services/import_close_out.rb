@@ -4,9 +4,12 @@ class ImportCloseOut < ImportFile
   include ShareInventoryModule
   include FiscalYearModule
 
-  def initialize(file, type)
+  attr_reader :branch_id
+  def initialize(file, type, current_user, branch_id)
     super(file)
     @closeout_type = type
+    @current_user = current_user
+    @branch_id = branch_id
   end
 
   def process
@@ -73,7 +76,7 @@ class ImportCloseOut < ImportFile
             # debit is for sales
             if closeout.debit?
 
-              update_share_inventory(transaction.client_account_id, transaction.isin_info_id, closeout.shortage_quantity, false)
+              update_share_inventory(transaction.client_account_id, transaction.isin_info_id, closeout.shortage_quantity, current_user, false)
 
               commission_amount = get_commission_by_rate(transaction.commission_rate, net_amount)
               dp_fee = 0.0
@@ -83,7 +86,7 @@ class ImportCloseOut < ImportFile
 
               closeout_amount = commission_amount + dp_fee + closeout.net_amount
               closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")
-              default_bank_purchase = BankAccount.by_branch_id.where(:default_for_payment => true).first
+              default_bank_purchase = BankAccount.by_branch_id(branch_id).where(:default_for_payment => true).first
 
 
               if default_bank_purchase.present?
@@ -93,14 +96,14 @@ class ImportCloseOut < ImportFile
 
                   date = transaction.date
                   # update ledgers value
-                  voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date))
+                  voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: transaction.branch_id, current_user_id: current_user.id)
                   voucher.share_transactions << transaction
                   voucher.desc = description
                   voucher.complete!
                   voucher.save!
 
-                  process_accounts(default_bank_purchase.ledger, voucher, true, closeout_amount, description, session[:user_selected_branch_id], Time.now.to_date)
-                  process_accounts(closeout_ledger, voucher, false, closeout_amount, description, session[:user_selected_branch_id],  Time.now.to_date)
+                  Ledgers::ParticularEntry.new(current_user.id).insert(default_bank_purchase.ledger, voucher, true, closeout_amount, description, branch_id, Time.now.to_date,current_user.id)
+                  Ledgers::ParticularEntry.new(current_user.id).insert(closeout_ledger.ledger, voucher, false, closeout_amount, description, branch_id, Time.now.to_date, current_user.id)
                 end
               else
                 import_error("Please assign a default bank account for sales")

@@ -76,31 +76,33 @@ namespace :voucher do
   end
 
 
-  task :change_date, [:tenant, :id, :new_date] =>  'smartkhata:validate_tenant' do |task, args|
+  task :change_date, [:tenant, :ids, :new_date] =>  'smartkhata:validate_tenant' do |task, args|
     include CustomDateModule
     tenant = args.tenant
-    abort 'Please voucher' unless args.id.present?
+    abort 'Please voucher' unless args.ids.present?
     abort 'Please valid date bs' unless args.new_date.split('-').size == 3
 
-    voucher_ids = [args.id]
+    voucher_ids = args.ids.split(" ")
     new_date_bs = args.new_date
     vouchers = Voucher.where(id: voucher_ids)
-    ledgers = Particular.where(voucher_id: voucher_ids).pluck(:ledger_id).uniq.join(' ')
+    ledgers = Particular.where(voucher_id: voucher_ids).pluck(:ledger_id).uniq
+    fy_code = vouchers.first.fy_code
 
     branches  = (vouchers.pluck(:branch_id) + Particular.where(voucher_id: voucher_ids).pluck(:branch_id)).uniq
+    affected_dates = vouchers.pluck(:date).uniq + [bs_to_ad(new_date_bs)]
 
     ActiveRecord::Base.transaction do
       vouchers.each do |v|
         v.skip_cheque_assign = true
         v.skip_number_assign = true
-        v.update_attributes(date: bs_to_ad(new_date_bs), date_bs: new_date_bs)
-        v.particulars.update_all(date_bs: new_date_bs, transaction_date:  bs_to_ad(new_date_bs))
-        v.payment_receipts.update_all(date: bs_to_ad(new_date_bs), date_bs: new_date_bs)
-        v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs))
+        v.update_attributes(date: bs_to_ad(new_date_bs), date_bs: new_date_bs, updater_id: current_user_id)
+        v.particulars.update_all(date_bs: new_date_bs, transaction_date:  bs_to_ad(new_date_bs), updater_id: current_user_id)
+        v.payment_receipts.update_all(date: bs_to_ad(new_date_bs), date_bs: new_date_bs, updater_id: current_user_id)
+        v.cheque_entries.update_all(cheque_date: bs_to_ad(new_date_bs), updater_id: current_user_id)
       end
 
       branches.each do |branch_id|
-        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledgers, current_user_id, false, branch_id, v.fy_code)
+        Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledgers, current_user_id, false, branch_id, fy_code, affected_dates)
       end
     end
   end

@@ -5,8 +5,11 @@ Rails.application.routes.draw do
   # match '/' => redirect('users/sign_in'), via: [:get]
   get '/' => 'visitors#index'
   root to: 'visitors#index'
-  scope "/:selected_fy_code/:selected_branch_id" do
 
+  match '/convert_date' => 'vouchers#convert_date', via: [:get]
+  match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
+
+  scope "/:selected_fy_code/:selected_branch_id" do
     resources :order_request_details do
       collection do
         get :client_report
@@ -98,6 +101,30 @@ Rails.application.routes.draw do
 
     resources :nepse_purchase_settlements, controller: 'nepse_settlements', type: 'NepsePurchaseSettlement'
     resources :nepse_sale_settlements, controller: 'nepse_settlements', type: 'NepseSaleSettlement'
+    resources :nepse_provisional_settlements, controller: 'nepse_settlements', type: 'NepseProvisionalSettlement' do
+      member do
+        get :transfer_requests
+      end
+      collection do
+        get :ajax_filter
+        get :transfer_groups
+      end
+    end
+
+    resources :merge_rebates
+    resources :edis_items do
+      collection do
+        get :import
+        post :process_import
+      end
+    end
+
+    resources :edis_reports do
+      collection do
+        get :import
+        post :process_import
+      end
+    end
 
     resources :share_transactions do
       collection do
@@ -162,6 +189,7 @@ Rails.application.routes.draw do
     resources :vouchers do
       collection do
         get 'pending_vouchers'
+        get 'get_bs_date'
         # post 'new'
         post 'finalize_payment'
       end
@@ -209,6 +237,9 @@ Rails.application.routes.draw do
       resources :sys_admin_tasks, only: [:new] do
         collection {post :import}
       end
+      resources :cm01, only: [:new, :index] do
+        collection {post :import}
+      end
     end
 
     namespace 'reports' do
@@ -231,6 +262,8 @@ Rails.application.routes.draw do
       mount Sidekiq::Web => '/sidekiq'
     end
   end
+
+
 
 
   # routes without fycode

@@ -1,0 +1,24 @@
+<% provide(:section_title, "Upload Edis Report File") %>
+
+<div>
+  <%= form_tag edis_reports_path, multipart: true do %>
+    <label for="settlement_id">Settlement Id</label>
+    <div class="row">
+      <div class="col-sm-2">
+        <div class="form-group">
+          <%= text_field_tag :settlement_id, nil, placeholder: "Settlement Id", :autofocus => true, class: 'form-control'  %>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= file_field_tag :file %>
+    </div>
+    <p class="text-muted"> Note: Upload file should be in csv format </p>
+    <div class="form-group">
+      <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
+    </div>
+
+  <% end %>
+</div>
+

@@ -1,0 +1,6 @@
+<% provide(:section_title, "Sales Settlements") %>
+
+<%= render 'shared/pagination', collection_to_paginate: @provisional_settlements %>
+<%= render 'list', provisional_settlements: @provisional_settlements %>
+<%= render 'shared/pagination', collection_to_paginate: @provisional_settlements %>
+

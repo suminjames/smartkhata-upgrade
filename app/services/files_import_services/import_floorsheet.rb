@@ -85,7 +85,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @raw_data << data_hash
 
       company_symbol, client_name, client_nepse_code, bank_deposit = selected_columns_from_data_hash(data_hash, %i[company_symbol client_name client_nepse_code bank_deposit])
-      client_nepse_code = client_nepse_code.upcase
+      client_nepse_code = client_nepse_code.strip.upcase
 
       # check for the bank deposit value which is available only for buying
       # store the count of transaction for unique client,company, and type of transaction
@@ -312,12 +312,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       full_bill_number = "#{fy_code}-#{bill.bill_number}"
 
       client_group = Group.find_or_create_by!(name: "Clients")
-      # create client ledger if not exist
-      client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
-        ledger.name = client_name
-        ledger.client_account_id = client.id
-        ledger.group_id = client_group.id
-      end
+      client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
 
       # find or create predefined ledgers
       purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
@@ -570,11 +565,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       client_group = Group.find_or_create_by!(name: "Clients")
       # create client ledger if not exist
-      client_ledger = Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
-        ledger.name = client_name
-        ledger.client_account_id = client.id
-        ledger.group_id = client_group.id
-      end
+      client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
 
       # find or create predefined ledgers
       purchase_commission_ledger = find_or_create_ledger_by_name( "Purchase Commission")
@@ -650,4 +641,16 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     error_message.html_safe
   end
 
+
+  def get_client_ledger(client, client_nepse_code, client_name, client_group)
+    ledger = Ledger.find_by(client_account_id: client.id, client_code: client_nepse_code)
+    ledger ||= client.ledger
+    ledger ||= Ledger.find_or_create_by!(client_code: client_nepse_code) do |ledger|
+      ledger.name = client_name
+      ledger.client_account_id = client.id
+      ledger.group_id = client_group.id
+      ledger.client_code = client_nepse_code
+    end
+    ledger
+  end
 end

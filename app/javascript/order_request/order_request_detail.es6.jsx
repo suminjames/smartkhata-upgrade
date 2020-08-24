@@ -1,5 +1,3 @@
-import React from 'react';
-
 class OrderRequestDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -7,9 +5,11 @@ class OrderRequestDetail extends React.Component {
       orderRequest: this.props.orderRequest,
       hidden: false
     }
+    this.approve = this.approve.bind(this);
+    this.reject = this.reject.bind(this);
   }
 
-  approve =() =>{
+  approve(){
     this.setState({hidden: true})
     var that = this;
     $.ajax({
@@ -20,7 +20,7 @@ class OrderRequestDetail extends React.Component {
       }
     });
   }
-  reject =() =>{
+  reject(){
     this.setState({hidden: true})
     var that = this;
     $.ajax({
@@ -50,6 +50,6 @@ class OrderRequestDetail extends React.Component {
       </tr>
     );
   }
-};
+}
 
-export default OrderRequestDetail;
+

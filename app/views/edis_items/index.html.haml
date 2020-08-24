@@ -1,0 +1,35 @@
+%h1 Listing edis_items
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th Contract number
+      %th Settlement
+      %th Settlement date
+      %th Scrip
+      %th Boid
+      %th Client code
+      %th Quantity
+      %th Wacc
+      %th
+      %th
+      %th
+
+  %tbody
+    - @edis_items.each do |edis_item|
+      %tr
+        %td= edis_item.contract_number
+        %td= edis_item.settlement_id
+        %td= edis_item.settlement_date
+        %td= edis_item.scrip
+        %td= edis_item.boid
+        %td= edis_item.client_code
+        %td= edis_item.quantity
+        %td= edis_item.wacc
+        %td= link_to 'Show', edis_item
+        %td= link_to 'Edit', edit_edis_item_path(edis_item)
+        %td= link_to 'Destroy', edis_item, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Edis item', new_edis_item_path

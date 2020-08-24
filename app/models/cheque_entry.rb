@@ -164,7 +164,7 @@ class ChequeEntry < ApplicationRecord
   end
 
   def self.options_for_bank_account_select(branch_id = 0)
-    BankAccount.by_branch_id(branch_id).all.order(:bank_name)
+    BankAccount.includes(:bank).by_branch_id(branch_id).all.order(:bank_name)
   end
 
   def self.options_for_beneficiary_name(filterrific_params)

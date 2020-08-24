@@ -101,7 +101,7 @@ class BankAccount < ApplicationRecord
       begin
         ApplicationRecord.transaction do
           if self.save
-            LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, branch_id, current_user_id)
+            LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, current_user_id)
             return true
           end
         end

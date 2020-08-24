@@ -64,7 +64,7 @@ class ApplicationPolicy
     return false unless link
     return unless user.can_access_branch?
     link_params = link.split('/')
-    link = "/#{link_params[3..-1].join('/')}"
+    link = "/:fy_code/:branch_id/#{link_params[3..-1].join('/')}"
     !user.blocked_path_list.include?(link)
   end
 

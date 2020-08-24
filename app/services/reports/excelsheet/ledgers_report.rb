@@ -3,7 +3,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
   include ApplicationHelper
 
   # Blank column to merge later.
-  TABLE_HEADER = ["Date", "Particulars", "Voucher", "Bill", "Cheque", "Pay/Receipt No", "Transaction Amount", "", "Balance"]
+  TABLE_HEADER = ["Date", "Date AD", "Particulars", "Voucher", "Bill", "Cheque", "Pay/Receipt No", "Transaction Amount", "", "Balance"]
 
   def initialize(ledger, params, current_tenant, ledger_query)
     super(ledger, params, current_tenant)
@@ -54,7 +54,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
 
   def populate_table_header
     # Override base method to add condition
-    TABLE_HEADER[4] = "Settlement ID" if @ledger.name == "Nepse Purchase"
+    TABLE_HEADER[5] = "Settlement ID" if @ledger.name == "Nepse Purchase"
     @sheet.add_row TABLE_HEADER, style: @styles[:table_header]
     @sheet.add_row (['']*(@column_count-2)).insert(@transxn_amt_first_col, *['dr', 'cr']), style: @styles[:table_header]
 
@@ -62,12 +62,11 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # table header rows to merge
     i, j = @doc_header_row_count+1, @doc_header_row_count+2
     # skip the two "transaction amount" columns in the middle
-    cell_ranges_to_merge = ('A'..'F').inject([]){|k,v| k.push("#{v}#{i}:#{v}#{j}")}.push "I#{i}:I#{j}" # static columns mention
+    # due to the cr and dr
+    cell_ranges_to_merge = ('A'..'G').inject([]){|k,v| k.push("#{v}#{i}:#{v}#{j}")}.push "J#{i}:J#{j}" # static columns mention
     cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
-
     # Finally merge the two horizontal cells
-    # @sheet.merge_cells("#{letters[@transxn_amt_first_col]}#{i}:#{@transxn_amt_first_col+1}#{i}")
-    @sheet.merge_cells("G#{i}:H#{i}") # static column mention
+    @sheet.merge_cells("H#{i}:I#{i}") # static column mention
   end
 
   def particulars_query
@@ -93,6 +92,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
       query.where(id: photo_ids).each_with_index do |p, index|
         # normal_style_row, striped_style_row = normal_style_row_default, striped_style_row_default
         date = p.date_bs
+        date_ad = p.transaction_date.to_s
         desc = p.get_description
         voucher = "#{p.voucher.voucher_code} #{p.voucher.fy_code}-#{p.voucher.voucher_number.to_s.rjust(5,'0')}"
 
@@ -116,7 +116,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
         running_total + margin_of_error_amount < 0 ? balance << " cr" : balance << " dr"
 
         row_style = index.even? ? normal_style_row : striped_style_row
-        @sheet.add_row [date, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style
+        @sheet.add_row [date, date_ad, desc, voucher, bills, cheque_entries, settlements, transaction_amt_dr, transaction_amt_cr, balance], style: row_style
       end
     end
   end
@@ -130,7 +130,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     # @sheet.column_info.second.width = 40
 
     # Make 'cr' & 'dr' of the same width.
-    @sheet.column_widths 12, 40, nil, nil, nil, nil, 15, 15
+    @sheet.column_widths 12, 12, 40, nil, nil, nil, nil, 15, 15
   end
 
   # def data_valid?

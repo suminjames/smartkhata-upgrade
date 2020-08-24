@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Scrip:
+  = @merge_rebate.scrip
+%p
+  %b Rebate start:
+  = @merge_rebate.rebate_start
+%p
+  %b Rebate end:
+  = @merge_rebate.rebate_end
+
+= link_to 'Edit', edit_merge_rebate_path(@merge_rebate)
+\|
+= link_to 'Back', merge_rebates_path

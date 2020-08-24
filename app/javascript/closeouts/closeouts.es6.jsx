@@ -1,8 +1,7 @@
-import React from 'react';
-import { Button, Modal, FormGroup, Radio } from 'react-bootstrap';
-import CloseOut from './closeout';
-import BalancingTransaction from './balancing_transaction';
-
+var Button = ReactBootstrap.Button;
+var Modal = ReactBootstrap.Modal;
+var FormGroup = ReactBootstrap.FormGroup;
+var Radio = ReactBootstrap.Radio;
 
 class Closeouts extends React.Component {
   constructor(props) {
@@ -229,5 +228,3 @@ class Closeouts extends React.Component {
     );
   }
 };
-
-export default Closeouts;
