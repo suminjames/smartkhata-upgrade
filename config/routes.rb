@@ -181,6 +181,8 @@ Rails.application.routes.draw do
 
       member do
         get 'toggle_restriction'
+        get 'particulars/:particular_id/edit', to: 'ledgers#edit_particular', as: :edit_particular
+        patch 'particulars/:particular_id/update', to: 'ledgers#update_particular', as: :update_particular
       end
     end
     # end

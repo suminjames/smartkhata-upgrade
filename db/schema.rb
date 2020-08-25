@@ -1183,6 +1183,7 @@ ActiveRecord::Schema.define(version: 20200731042717) do
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
     t.boolean  "hide_for_client",                                           default: false
+    t.date     "value_date"
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree

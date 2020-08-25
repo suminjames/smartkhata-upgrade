@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
@@ -37,6 +37,7 @@ class Voucher < ActiveRecord::Base
   # Callbacks
 
   before_save :process_voucher
+
   # before_validation :validate_fy_code
   after_save :assign_cheque, unless: :skip_cheque_assign
 
@@ -227,6 +228,4 @@ class Voucher < ActiveRecord::Base
 
     end
   end
-
-#   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
 end
