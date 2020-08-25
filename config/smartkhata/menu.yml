@@ -280,3 +280,6 @@ menus:
     - name: Commission Rates Management
       path: "<%= master_setup_commission_infos_path(':fy_code', ':branch_id')%>"
       code: ADS_MIS_CIM
+    - name: Interest Rate Management
+      path: "<%= interest_rates_path(':fy_code', ':branch_id')%>"
+      code: ADS_MIS_IRM
