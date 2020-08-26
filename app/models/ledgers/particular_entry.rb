@@ -2,10 +2,11 @@ class Ledgers::ParticularEntry
   include FiscalYearModule
   # create a new particulars
 
-  attr_reader :current_user_id
+  attr_reader :current_user_id, :current_user
 
   def initialize(current_user_id)
     @current_user_id = current_user_id
+    @current_user = User.find_by(id: current_user_id)
   end
 
   def insert(ledger,  voucher, debit, amount, descr, branch_id, accounting_date, current_user_id, value_date)
@@ -61,8 +62,8 @@ class Ledgers::ParticularEntry
     current_user_id = attrs[:current_user_id]
     value_date = attrs[:value_date]
     # when all branch selected fall back to the user's branch id
-    branch_id = UserSession.branch_id if branch_id == 0
-    fy_code = voucher.fy_code || UserSession.selected_fy_code
+    branch_id = current_user.branch_id if branch_id == 0
+    fy_code = voucher.fy_code
 
     # If the case is for revert transaction
     if particular

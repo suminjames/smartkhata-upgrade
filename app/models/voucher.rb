@@ -228,7 +228,4 @@ class Voucher < ActiveRecord::Base
 
     end
   end
-  #   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
-
-
 end
