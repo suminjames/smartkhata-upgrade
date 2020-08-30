@@ -19,29 +19,14 @@ class InterestParticular < ActiveRecord::Base
 
   enum interest_type: %i[dr cr]
 
-  def self.calculate_interest(date)
-    fy_first_day = fiscal_year_first_day(get_fy_code(date))
-    fy_last_day = fiscal_year_last_day(get_fy_code(date))
-
+  def self.calculate_interest(date = Date.today, payable_interest_rate = nil, receivable_interest_rate = nil)
     interest_particulars = []
 
-    ClientAccount.all.each do |ca|
-      ledger = ca.ledger
-      next if ledger.particulars.size == 0
-
-      particular_net_sum = ParticularNetCalculator.new(ledger, date).call
-      interest_type = particular_net_sum.to_f.positive? ? 'cr' : 'dr'
-      interest_condition = particular_net_sum.to_f.positive? ? 'receivable' : 'payable'
-
-      date_range_sql = ":end_date >= '#{date}' and '#{date}' >= :start_date"
-      applicable_interest_rate = InterestRate.where(date_range_sql, start_date: fy_first_day, end_date: fy_last_day).where(interest_type: interest_condition).first
-      calculated_interest_amount = (particular_net_sum.to_f.abs * applicable_interest_rate.rate.to_f) / 100.0
-
-      interest_particulars << InterestParticular.new(amount: calculated_interest_amount, rate: applicable_interest_rate.rate, date: date, interest_type: interest_type, ledger_id: ledger.id)
+    Ledger.particulars_from_client_ledger.find_each do |ledger|
+      interest_calculable_data = InterestCalculationService.new(ledger, date, payable_interest_rate, receivable_interest_rate).call
+      interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger.id)
     end
 
-    InterestParticular.import interest_particulars, batch: 200
-    # can be used later for returning ids or results only as well
-
-    end
+    InterestParticular.import interest_particulars, batch_size: 1000
   end
+end

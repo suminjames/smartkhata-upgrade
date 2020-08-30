@@ -1,6 +1,6 @@
 class ParticularNetCalculator
   include ApplicationHelper
-  
+
   def initialize(ledger, date = Date.today)
     @ledger = ledger
     @date = date
