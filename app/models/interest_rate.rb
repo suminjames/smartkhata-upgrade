@@ -20,21 +20,21 @@ class InterestRate < ActiveRecord::Base
   validate :validate_interest_rate_overlap
 
   enum interest_type: %i[payable receivable]
-  
+
   scope :by_interest_type, ->(interest_type) { where(interest_type: InterestRate.interest_types[interest_type]) }
   scope :for_date, -> (date) { where('start_date <= ? AND end_date >= ?', date, date) }
 
   def self.get_rate(date, interest_type)
     InterestRate.for_date(date).by_interest_type(interest_type).first&.rate
   end
-  
+
   private
 
   def validate_interest_rate_overlap
     date_range_sql = ":end_date >= start_date and end_date >= :start_date"
-    interest_rate_records = InterestRate.where(interest_type: InterestRate.interest_types[interest_type])
-    is_overlapping = interest_rate_records.where(date_range_sql, start_date: start_date, end_date: end_date).exists?
-    errors.add :start_date, "An interest rate record in the given date range already exists!" if is_overlapping
+    if InterestRate.where(date_range_sql, start_date: start_date, end_date: end_date).by_interest_type(interest_type).where.not(id: id).exists?
+      errors.add :start_date, "An interest rate record in the given date range already exists!"
+    end
   end
 
   def validate_date_range

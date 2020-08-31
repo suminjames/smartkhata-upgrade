@@ -84,7 +84,6 @@ class Particular < ActiveRecord::Base
 
 
   validates_presence_of :ledger_id
-  
   enum transaction_type: [:dr, :cr]
   enum particular_status: [:pending, :complete]
   enum ledger_type: [:general, :has_bank]
@@ -96,7 +95,7 @@ class Particular < ActiveRecord::Base
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
-  before_save :process_particular, :default_value_date
+  before_save :process_particular, :assign_default_value_date
 
   def get_description
     if self.description.present?
@@ -112,10 +111,10 @@ class Particular < ActiveRecord::Base
   def process_particular
     self.transaction_date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.transaction_date)
-    # self.fy_code = get_fy_code(self.transaction_date)
+    self.fy_code ||= get_fy_code(self.transaction_date)
   end
 
-  def default_value_date
+  def assign_default_value_date
     self.value_date ||= self.transaction_date
   end
 end
