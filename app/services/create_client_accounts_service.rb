@@ -38,6 +38,7 @@ class CreateClientAccountsService
   end
 
   def bulk_client_ledgers
+    # activerecord import doesn't support callbacks by default so need to create ledgers manually for every clientaccount
     client_group = Group.find_or_create_by!(name: "Clients")
 
     client_ledgers = []
