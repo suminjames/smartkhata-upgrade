@@ -19,11 +19,11 @@ class InterestParticular < ActiveRecord::Base
 
   enum interest_type: %i[dr cr]
 
-  def self.calculate_interest(date = Date.today, payable_interest_rate = nil, receivable_interest_rate = nil)
+  def self.calculate_interest(date = Date.today)
     interest_particulars = []
 
-    Ledger.particulars_from_client_ledger.find_each do |ledger|
-      interest_calculable_data = InterestCalculationService.new(ledger, date, payable_interest_rate, receivable_interest_rate).call
+    Ledger.with_particulars_from_client_ledger(date).find_each do |ledger|
+      interest_calculable_data = InterestCalculationService.new(ledger, date).call
       interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger.id)
     end
 

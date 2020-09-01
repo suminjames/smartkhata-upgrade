@@ -87,17 +87,12 @@ class Ledgers::ParticularEntry
 
     transaction_type = debit ? Particular.transaction_types['dr'] : Particular.transaction_types['cr']
     calculate_balances(ledger, accounting_date, debit, amount, fy_code, branch_id, current_user_id)
-    new_particular = Particular.create!(
-        transaction_type: transaction_type,
-        ledger_id: ledger.id,
-        name: descr,
-        voucher_id: voucher.id,
-        amount: amount,
-        transaction_date: accounting_date,
-        branch_id: branch_id,
+    new_particular = Particular.create!(       transaction_type: transaction_type,
+        ledger_id: ledger.id, name: descr,
+        voucher_id: voucher.id, amount: amount,
+        transaction_date: accounting_date, branch_id: branch_id,
         fy_code: get_fy_code(accounting_date),
-        creator_id: creator_id,
-        updater_id: updater_id,
+        creator_id: creator_id, updater_id: updater_id,
         current_user_id: current_user_id,
         value_date: value_date
         )

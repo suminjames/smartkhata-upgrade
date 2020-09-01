@@ -3,9 +3,9 @@ class InterestCalculationService
   
   attr_reader :ledger, :date, :payable_interest_rate, :receivable_interest_rate
   
-  def initialize(ledger, date = nil, payable_interest_rate = nil, receivable_interest_rate = nil)
+  def initialize(ledger, date, payable_interest_rate = nil, receivable_interest_rate = nil)
     @ledger = ledger
-    @date = date || Date.today
+    @date = date
     @payable_interest_rate = payable_interest_rate
     @receivable_interest_rate = receivable_interest_rate
   end
