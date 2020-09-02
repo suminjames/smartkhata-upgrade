@@ -1,29 +1,23 @@
 source 'https://rubygems.org'
 ruby '2.6.5'
 
-gem 'rails', '5.2'
+gem 'rails', '~> 5.2.4.3'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
-
+# gem 'sass-rails', '~> 5.0'
 gem 'draper'
-# gem 'draper', '~> 1.3'
 gem 'uglifier'
 gem 'coffee-rails'
-# gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
-gem 'jbuilder'
-gem 'jquery-hotkeys-rails'
-# gem 'turbolinks', '2.5.3'
-# gem 'jbuilder', '~> 2.0'
-# gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
+gem 'jbuilder', '~> 2.0'
+gem 'jquery-hotkeys-rails', '~> 0.7.9.1'
 gem 'kaminari'
 gem 'has_scope'
 gem 'filterrific'
 gem 'bootstrap-kaminari-views'
 gem 'prawn'
-gem 'prawn-table'
-# gem 'prawn-table', '~> 0.2.2'
+gem 'prawn-table', '~> 0.2.2'
 gem 'sidekiq'
 gem 'sinatra', '>= 1.3.0', require: false
 gem 'apartment-sidekiq'
@@ -42,19 +36,15 @@ gem 'virtus'
 gem 'ancestry'
 gem 'zip-zip'
 gem 'axlsx'
-gem 'audited'
-# gem 'audited', '~> 4.3'
+gem 'audited', '~> 4.3'
 gem 'simplecov', :require => false, :group => :test
 # Converts array that is returned during ActiveRecord pluck to hash
 gem 'pluck_to_hash'
 gem 'nepali_calendar'
 gem 'jquery-turbolinks'
 gem 'roo', '~> 2.1.0'
-gem 'roo-xls', '~>1.0.0'
-gem 'mechanize'
-# gem 'roo', '~> 2.1.0'
-# gem 'roo-xls'
-# gem 'mechanize', '2.7.3'
+gem 'roo-xls', '1.1.0'
+gem 'mechanize', '2.7.3'
 gem 'haml'
 gem 'haml-rails'
 gem 'sankhya'
@@ -69,8 +59,7 @@ gem 'bootstrap-datepicker-rails'
 gem 'webpacker'
 
 group :production do
-  gem 'puma'
-  # gem 'puma', '~>4.3.3'
+  gem 'puma', '~>4.3.3'
 end
 
 group :development do
@@ -79,18 +68,15 @@ group :development do
   gem 'spring'
   gem 'brakeman', :require => false
   gem 'traceroute'
-  gem 'rack-mini-profiler'
+  # gem 'rack-mini-profiler'
   gem 'better_errors'
   gem 'annotate'
   gem 'hirb'
-  gem 'capistrano'
+  gem 'capistrano', '~> 3.1'
   gem 'capistrano-bundler'
-  gem 'capistrano-rails'
+  gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
-  gem 'capistrano-rvm'
-  # gem 'capistrano', '~> 3.1'
-  # gem 'capistrano-rails', '~> 1.1.0'
-  # gem 'capistrano-rvm', '~> 0.1.1'
+  gem 'capistrano-rvm', '~> 0.1.1'
   gem 'capistrano-sidekiq'
   
   # gem 'quiet_assets'
@@ -104,36 +90,31 @@ group :development do
   gem 'guard'
   gem 'guard-rspec', require: false
   gem 'spring-commands-rspec'
-  gem 'guard-minitest'
-  # gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
+  gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
   gem 'openssl'
 end
 
 group :development, :test do
   gem 'byebug'
-  gem 'rspec-rails'
-  # gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails', '~> 3.5'
   gem 'factory_bot_rails'
   gem 'pry-rails'
   gem 'pry-byebug'
 end
 
 group :test do
-  gem 'minitest-reporters'
-  # gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
+  gem 'minitest-reporters', '~> 1.1', '>= 1.1.8'
   gem 'capybara'
   gem 'capybara-screenshot'
   gem "database_cleaner"
   #  gem "poltergeist"
   gem "shoulda-matchers"
-  gem 'shoulda-callback-matchers'
-  # gem 'shoulda-callback-matchers', '~> 1.1.1'
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'mocha'
   gem "webmock"
   gem "vcr"
   gem 'selenium-webdriver'
   gem 'chromedriver-helper'
-  gem 'webdrivers'
-  # gem 'webdrivers', '~> 4.0'
+  gem 'webdrivers', '~> 4.0'
 end
 gem 'sassc-rails'
