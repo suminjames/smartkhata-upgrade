@@ -775,7 +775,6 @@ end
         end
       end
     end
-  end
 
   describe '.voucher_has_cheque_entry?' do
     let(:voucher) {create(:voucher)}
@@ -803,6 +802,7 @@ end
       end
     end
   end
-
 end
+
+
 

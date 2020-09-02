@@ -317,7 +317,8 @@ RSpec.describe Ledger, type: :model do
 
       context "when employee account id is present" do
         let(:employee_account){create(:employee_account, name: "john")}
-        subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}it "should return attributes for employee account"do
+        subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
+        it "should return attributes for employee account"do
           employee_account
           subject.employee_ledger_associations = employee_account.employee_ledger_associations
           expect(Ledger.find_similar_to_term("le", nil)).to eq([{:text=>"ledger1 (**Employee**)", :id=>"#{subject.id}"}])
