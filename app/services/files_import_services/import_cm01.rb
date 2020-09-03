@@ -1,9 +1,11 @@
 class FilesImportServices::ImportCm01 < ImportFile
-  
+
   include ApplicationHelper
 
-  def initialize(file)
+  attr_reader :skip_missing
+  def initialize(file, skip_missing = false)
     super(file)
+    @skip_missing = skip_missing
   end
 
   def process
@@ -35,6 +37,8 @@ class FilesImportServices::ImportCm01 < ImportFile
         share_transaction = ShareTransaction.selling.where(contract_no: contract_no).first
 
         if share_transaction.blank?
+          next if  skip_missing
+
           import_error("The file you have uploaded contains contract number  #{contract_no} which is not in system")
           raise ActiveRecord::Rollback
           break
