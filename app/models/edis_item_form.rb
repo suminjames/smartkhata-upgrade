@@ -3,13 +3,17 @@ class EdisItemForm
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :file, :current_user_id
+  attr_accessor :file, :current_user_id, :skip_missing_transactions
   validates_presence_of :file, :current_user_id
 
   def initialize(attributes = {})
     attributes.each do |name, value|
       send("#{name}=", value)
     end
+  end
+
+  def skip_missing_transactions?
+    skip_missing_transactions == '1'
   end
 
 
@@ -20,6 +24,8 @@ class EdisItemForm
         CSV.read(file.path, headers: true,  header_converters: converter).each do |record|
           sale_settlement = SalesSettlement.where(contract_no: record['contract_number']).first
           if sale_settlement.blank?
+            next if skip_missing_transactions?
+
             self.errors.add(:file, 'CMO1 has not been uploaded for these records')
             break
           end
