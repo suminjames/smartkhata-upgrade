@@ -1,9 +1,9 @@
-var Button = ReactBootstrap.Button;
-var Modal = ReactBootstrap.Modal;
-var FormGroup = ReactBootstrap.FormGroup;
-var Radio = ReactBootstrap.Radio;
+import React from 'react';
+import { Modal, Button, FormGroup, Radio } from 'react-bootstrap';
+import Closeout from './Closeout';
+import BalancingTransaction from './BalancingTransaction';
 
-class Closeouts extends React.Component {
+export default class Closeouts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -123,13 +123,13 @@ class Closeouts extends React.Component {
 
   render() {
     var self = this;
-    closeouts = this.state.transactions.map( function(transaction) {
+    const closeouts = this.state.transactions.map( function(transaction) {
       return (
         <Closeout transaction={transaction} key={transaction.id} process={self.processSettlement}  />
       );
     });
 
-    balancingTransactions = this.state.balancing_transactions.map( function(transaction) {
+    const balancingTransactions = this.state.balancing_transactions.map( function(transaction) {
       return (
         <BalancingTransaction transaction={transaction} key={transaction.id}  handleChange={ self.handleChange } />
       );
