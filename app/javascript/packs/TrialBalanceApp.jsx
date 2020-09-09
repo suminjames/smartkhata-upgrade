@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TrialBalance from '../reports/TrialBalance';
 
-document.addEventListener('DOMContentLoaded', () => {
+const loadPage = () => {
   const node = document.getElementById('trial_balance');
   const ledger_groups = JSON.parse(node.getAttribute('ledger_groups')) || {};
 
@@ -10,4 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     <TrialBalance ledger_groups={ledger_groups} />,
     node
   );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPage();
+});
+
+document.addEventListener('page:load', () => {
+  loadPage();
 });

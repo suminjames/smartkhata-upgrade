@@ -63,8 +63,7 @@ group :production do
 end
 
 group :development do
-  # gem 'web-console'
-  gem 'web-console', '~> 2.0'
+  gem 'web-console', '~> 3.0'
   gem 'spring'
   gem 'brakeman', :require => false
   gem 'traceroute'
@@ -86,7 +85,7 @@ group :development do
   gem 'capistrano3-puma'
   gem 'rails_best_practices'
   gem 'rails-erd'
-  
+
   gem 'guard'
   gem 'guard-rspec', require: false
   gem 'spring-commands-rspec'

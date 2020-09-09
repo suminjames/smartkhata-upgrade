@@ -6,6 +6,11 @@
         <%= file_field_tag :file %>
       </div>
       <p class="text-muted"> Note: Upload file should be in csv format </p>
+      <% if @skip_missing_allowed.present? %>
+        <%= check_box_tag  'skip_missing' %>
+        <a class='no-hover warning-text' data-toggle='tooltip' title='Only select this if the file is correct.'>Skip transactions not in system </a>
+        <br>
+      <% end %>
       <div class="form-group">
         <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
       </div>

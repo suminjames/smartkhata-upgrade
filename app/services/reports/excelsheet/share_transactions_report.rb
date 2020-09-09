@@ -102,7 +102,7 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
 
   def populate_data_rows
     # inserts the actual data rows through iteration.
-    normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format_left], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
+    normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:int_format], *[@styles[:wrap]]*2, *[@styles[:normal_style]]*2, *[@styles[:int_with_commas]]*5, @styles[:float_format]]
     striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:int_format_left_striped], *[@styles[:wrap_striped]]*2, *[@styles[:striped_style]]*2, *[@styles[:int_with_commas_striped]]*5, @styles[:float_format_striped]]
 
     isin_total_style_row = [@styles[:total_values]] * 12
@@ -135,7 +135,10 @@ class Reports::Excelsheet::ShareTransactionsReport < Reports::Excelsheet
       row_style = index.even? ? normal_style_row : striped_style_row
       row_style = @actual_row_index_count.even? ? normal_style_row : striped_style_row
       row = [sn, date, contract_num, company, client, bill_num, broker, q_in, q_out, rate, m_rate, share_amt, comm_amt]
-      @sheet.add_row conditional_row(row), style: conditional_row_style(row_style)
+      added_row = @sheet.add_row conditional_row(row), style: conditional_row_style(row_style)
+      # force the contract number to be string
+      added_row.cells[2].type = :string
+
       @actual_row_index_count += 1
 
       if @group_by_company
