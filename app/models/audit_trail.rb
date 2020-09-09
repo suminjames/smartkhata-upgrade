@@ -20,7 +20,7 @@
 #
 
 class AuditTrail < Audited::Audit
-  belongs_to :user, optional: true
+  belongs_to :user
 
   def detailed_info
     info = ""

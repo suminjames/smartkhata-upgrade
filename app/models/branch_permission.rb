@@ -13,7 +13,7 @@
 
 class BranchPermission < ApplicationRecord
   include ::Models::Updater
-  belongs_to :branch, optional: true
+  belongs_to :branch
   include Auditable
 
   def self.delete_previous_permissions_for(user_id)
