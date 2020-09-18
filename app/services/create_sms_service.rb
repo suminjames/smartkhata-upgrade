@@ -56,6 +56,7 @@ class CreateSmsService
   def create_by_floorsheet_date
     # check if transaction message is created for the floorsheet date
     count_of_messages = TransactionMessage.where(transaction_date: @transaction_date).count
+
     if count_of_messages > 0
       @error = "The Transaction Messages are already created for the date #{ad_to_bs(@transaction_date)}"
       return
@@ -135,6 +136,7 @@ class CreateSmsService
       client_account_id = transaction_record.client_account_id
       full_bill_number = "#{bill.fy_code}-#{bill.bill_number}" if bill.present?
       transaction_type = transaction_record.buying? ? :buy : :sell
+
 
       if @grouped_records.key?(client_code)
         group_by_client_and_transaction_type(client_code, transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id, full_bill_number, transaction_record)
@@ -217,24 +219,38 @@ class CreateSmsService
 
       share_quantity_rate_message = ""
       total = 0.0
+
       # transaction data contains both buy and sell order
       transaction_data.each do |type_of_transaction, data|
         str = ""
 
         data.each do |symbol, symbol_data|
           str += ";#{symbol}"
+          total_transactions_amount_arr = []
+          quantity_arr = []
+
           symbol_data.each do |rate, rate_data|
-            str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
-            if type_of_transaction == :buy
-              total += rate_data[:receivable_from_client].to_f
-            end
+            quantity = rate_data[:quantity]
+            total_amount = quantity * strip_redundant_decimal_zeroes(rate)
+
+            total_transactions_amount_arr << total_amount
+            quantity_arr << quantity
+
+            total += rate_data[:receivable_from_client].to_f if type_of_transaction == :buy
             # merge two arrays
             share_transactions |= rate_data[:share_transactions]
           end
+          # Sum Arrays [ Ruby 2.5 ]
+          total_quantity_sum = quantity_arr.sum
+          total_transactions_amount_sum = total_transactions_amount_arr.sum
+
+          avg_transaction_amount = (total_transactions_amount_sum.to_f / total_quantity_sum.to_f).round(2)
+          str += ",#{total_quantity_sum}@#{avg_transaction_amount}"
         end
 
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
         str[0] = ""
+
         if type_of_transaction == :sell
           has_sales_transaction = true
           share_quantity_rate_message += ";sold #{str}"
@@ -262,8 +278,8 @@ class CreateSmsService
 
       sms_message = "#{sms_message}.BNo #{@broker_code}"
 
-
       transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
+
       transaction_message.share_transactions << share_transactions
       transaction_messages << transaction_message
 
