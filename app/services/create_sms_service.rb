@@ -219,33 +219,20 @@ class CreateSmsService
 
       share_quantity_rate_message = ""
       total = 0.0
-
       # transaction data contains both buy and sell order
       transaction_data.each do |type_of_transaction, data|
         str = ""
 
         data.each do |symbol, symbol_data|
           str += ";#{symbol}"
-          total_transactions_amount_arr = []
-          quantity_arr = []
-
           symbol_data.each do |rate, rate_data|
-            quantity = rate_data[:quantity]
-            total_amount = quantity * strip_redundant_decimal_zeroes(rate)
-
-            total_transactions_amount_arr << total_amount
-            quantity_arr << quantity
-
-            total += rate_data[:receivable_from_client].to_f if type_of_transaction == :buy
+            str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
+            if type_of_transaction == :buy
+              total += rate_data[:receivable_from_client].to_f
+            end
             # merge two arrays
             share_transactions |= rate_data[:share_transactions]
           end
-          # Sum Arrays [ Ruby 2.5 ]
-          total_quantity_sum = quantity_arr.sum
-          total_transactions_amount_sum = total_transactions_amount_arr.sum
-
-          avg_transaction_amount = (total_transactions_amount_sum.to_f / total_quantity_sum.to_f).round(2)
-          str += ",#{total_quantity_sum}@#{avg_transaction_amount}"
         end
 
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
