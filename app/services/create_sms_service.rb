@@ -11,6 +11,7 @@ class CreateSmsService
   include NumberFormatterModule
   attr_accessor :error
 
+  attr_reader :transaction_date, :transaction_date_short, :transaction_message
   def initialize(attrs = {})
     @floorsheet_records = attrs[:floorsheet_records]
     @grouped_records = Hash.new
@@ -55,14 +56,13 @@ class CreateSmsService
   # create transaction message by floorsheet date
   def create_by_floorsheet_date
     # check if transaction message is created for the floorsheet date
-    count_of_messages = TransactionMessage.where(transaction_date: @transaction_date).count
+    count_of_messages = TransactionMessage.where(transaction_date: transaction_date).count
 
     if count_of_messages > 0
-      @error = "The Transaction Messages are already created for the date #{ad_to_bs(@transaction_date)}"
+      @error = "The Transaction Messages are already created for the date #{ad_to_bs(transaction_date)}"
       return
     end
-
-    share_transactions = ShareTransaction.where(date: @transaction_date).not_cancelled
+    share_transactions = ShareTransaction.where(date: transaction_date).not_cancelled
     group_share_transaction_records(share_transactions)
     transaction_messages =iterate_grouped_transactions(@grouped_records)
     transaction_messages.each(&:save)
@@ -74,18 +74,18 @@ class CreateSmsService
     # if @transaction_message.blank?
     #   return false
     # end
-    share_transactions = @transaction_message.share_transactions.not_cancelled
+    share_transactions = transaction_message.share_transactions.not_cancelled
 
     # if transaction message had only one share transaction
     # just soft delete the transaction message
     if share_transactions.size < 1
-      @transaction_message.soft_delete
+      transaction_message.soft_delete
       res = true
     else
       group_share_transaction_records(share_transactions)
       new_transaction_message =iterate_grouped_transactions(@grouped_records).first
-      @transaction_message.sms_message = new_transaction_message.sms_message
-      @transaction_message.save!
+      transaction_message.sms_message = new_transaction_message.sms_message
+      transaction_message.save!
       res = true
     end
   end
@@ -93,7 +93,6 @@ class CreateSmsService
   # group by the array from floorsheet
   def group_floorsheet_records
     @floorsheet_records.each do |transaction_record|
-      contract_no = transaction_record[0]
       company_symbol = transaction_record[1]
       client_name = transaction_record[4]
       client_code = transaction_record[5]
@@ -102,7 +101,6 @@ class CreateSmsService
       client_dr = transaction_record[11]
       bill_id = transaction_record[16]
       is_purchase = transaction_record[17]
-      transaction_date = transaction_record[18]
       client_account_id = transaction_record[19]
       full_bill_number = transaction_record[20]
       share_transaction = transaction_record[21]
@@ -124,7 +122,6 @@ class CreateSmsService
       # bill = transaction_record.bill
       bill = Bill.unscoped.find_by(id: transaction_record.bill_id)
       client_account = transaction_record.client_account
-      contract_no = transaction_record.contract_no
       company_symbol = transaction_record.isin_info.isin
       client_name = client_account.name
       client_code = client_account.nepse_code
@@ -132,7 +129,6 @@ class CreateSmsService
       rate = transaction_record.share_rate
       client_dr = transaction_record.net_amount
       bill_id = transaction_record.bill_id
-      transaction_date = transaction_record.date
       client_account_id = transaction_record.client_account_id
       full_bill_number = "#{bill.fy_code}-#{bill.bill_number}" if bill.present?
       transaction_type = transaction_record.buying? ? :buy : :sell
@@ -152,10 +148,11 @@ class CreateSmsService
   def get_client_initial_hash(transaction_type, company_symbol, rate, quantity, client_dr, share_transaction,
                               client_name, bill_id, client_account_id, full_bill_number)
     client_single_record = HashTree.new
-    client_single_record[:data][transaction_type][company_symbol][rate][:quantity] = quantity
-    client_single_record[:data][transaction_type][company_symbol][rate][:receivable_from_client] = client_dr
+    client_single_record[:data][transaction_type][company_symbol][:quantity] = quantity
+    client_single_record[:data][transaction_type][company_symbol][:receivable_from_client] = client_dr
+    client_single_record[:data][transaction_type][company_symbol][:rate] = rate
     # cant use |= during first initialization
-    client_single_record[:data][transaction_type][company_symbol][rate][:share_transactions] = [share_transaction]
+    client_single_record[:data][transaction_type][company_symbol][:share_transactions] = [share_transaction]
     client_single_record[:info][:name] = client_name
     client_single_record[:info][:client_account_id] = client_account_id
     client_single_record[:info][:bill_id] = bill_id
@@ -167,33 +164,31 @@ class CreateSmsService
   def group_by_client_and_transaction_type(client_code, transaction_type, company_symbol, rate, quantity, client_dr, client_name, bill_id, client_account_id, full_bill_number, share_transaction)
     if @grouped_records[client_code][:data].key? transaction_type
       if @grouped_records[client_code][:data][transaction_type].key? company_symbol
-        if @grouped_records[client_code][:data][transaction_type][company_symbol].key? rate
-          _record = @grouped_records[client_code][:data][transaction_type][company_symbol][rate]
-          _record[:quantity] += quantity
-          _record[:receivable_from_client] += client_dr
-          _record[:share_transactions] |= [share_transaction]
-          @grouped_records[client_code][:data][transaction_type][company_symbol][rate] = _record
-        else
-          _record = Hash.new
-          _record[:quantity] = quantity
-          _record[:receivable_from_client] = client_dr
-          _record[:share_transactions] = [share_transaction]
-          @grouped_records[client_code][:data][transaction_type][company_symbol][rate] = _record
-        end
+        _record = @grouped_records[client_code][:data][transaction_type][company_symbol]
+        _record[:receivable_from_client] += client_dr
+        _record[:share_transactions] |= [share_transaction]
+
+        final_quantity = _record[:quantity] + quantity
+        _record[:rate] = (_record[:rate] * _record[:quantity] + rate * quantity)/final_quantity
+        _record[:quantity] = final_quantity
+
+        @grouped_records[client_code][:data][transaction_type][company_symbol]= _record
       else
         _record = HashTree.new
-        _record[rate][:quantity] = quantity
-        _record[rate][:receivable_from_client] = client_dr
-        _record[rate][:share_transactions] = [share_transaction]
+        _record[:quantity] = quantity
+        _record[:receivable_from_client] = client_dr
+        _record[:share_transactions] = [share_transaction]
+        _record[:rate] = rate
         @grouped_records[client_code][:data][transaction_type][company_symbol] = _record
       end
     else
       # Other type  of transaction record is present
       # Hence either append or modify the hash values
       _record = HashTree.new
-      _record[company_symbol][rate][:quantity] = quantity
-      _record[company_symbol][rate][:receivable_from_client] = client_dr
-      _record[company_symbol][rate][:share_transactions] = [share_transaction]
+      _record[company_symbol][:quantity] = quantity
+      _record[company_symbol][:rate] = rate
+      _record[company_symbol][:receivable_from_client] = client_dr
+      _record[company_symbol][:share_transactions] = [share_transaction]
       @grouped_records[client_code][:data][transaction_type] = _record
 
       @grouped_records[client_code][:info][:bill_id] ||= bill_id
@@ -225,14 +220,15 @@ class CreateSmsService
 
         data.each do |symbol, symbol_data|
           str += ";#{symbol}"
-          symbol_data.each do |rate, rate_data|
-            str += ",#{rate_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(rate)}"
-            if type_of_transaction == :buy
-              total += rate_data[:receivable_from_client].to_f
-            end
-            # merge two arrays
-            share_transactions |= rate_data[:share_transactions]
+          # symbol_data.each do |rate, rate_data|
+          #
+          # end
+          str += ",#{symbol_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(symbol_data[:rate].round)}"
+          if type_of_transaction == :buy
+            total += symbol_data[:receivable_from_client].to_f
           end
+          # merge two arrays
+          share_transactions |= symbol_data[:share_transactions]
         end
 
         # hack used to remove ; from the beginning of symbol ;ccbl,1@23,2@33;nmmb,234@12
@@ -251,12 +247,12 @@ class CreateSmsService
       sms_message = ""
 
       if !has_purchase_transaction
-        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{@transaction_date_short}"
+        sms_message = "#{client_name}, #{share_quantity_rate_message};On #{transaction_date_short}"
       else
         # if bill is present which is true for the case of changing the message
         # override total amount with bill amount
         total = @bill.net_amount if @bill.present?
-        sms_message = "#{client_name} #{share_quantity_rate_message};On #{@transaction_date_short} Bill No#{full_bill_number} .Pay Rs #{total.round(2)}"
+        sms_message = "#{client_name} #{share_quantity_rate_message};On #{transaction_date_short} Bill No#{full_bill_number} .Pay Rs #{total.round(2)}"
       end
 
       if has_sales_transaction
@@ -265,7 +261,7 @@ class CreateSmsService
 
       sms_message = "#{sms_message}.BNo #{@broker_code}"
 
-      transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: @transaction_date, sms_message: sms_message)
+      transaction_message = TransactionMessage.new(client_account_id: client_account_id, bill_id: bill_id, transaction_date: transaction_date, sms_message: sms_message)
 
       transaction_message.share_transactions << share_transactions
       transaction_messages << transaction_message
