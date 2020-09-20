@@ -223,7 +223,7 @@ class CreateSmsService
           # symbol_data.each do |rate, rate_data|
           #
           # end
-          str += ",#{symbol_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(symbol_data[:rate].ceil)}"
+          str += ",#{symbol_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(symbol_data[:rate].round(2))}"
           if type_of_transaction == :buy
             total += symbol_data[:receivable_from_client].to_f
           end

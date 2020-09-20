@@ -29,7 +29,7 @@ RSpec.describe CreateSmsService do
           subject.create_by_floorsheet_date
 
           expect(TransactionMessage.count).to eq(2)
-          expect(TransactionMessage.first.sms_message).to eq('John bought SHPC,100@200;EBL,105@303;sold EBL,150@500;On 06/02 Bill No .Pay Rs 349467.81.Please do WACC and EDIS after sales.BNo 11')
+          expect(TransactionMessage.first.sms_message).to eq('John bought SHPC,100@200;EBL,105@302.62;sold EBL,150@500;On 06/02 Bill No .Pay Rs 349467.81.Please do WACC and EDIS after sales.BNo 11')
           expect(TransactionMessage.first.share_transactions.to_a).to eq([share_transaction_purchase, share_transaction_second_purchase, share_transaction_third_purchase, share_transaction_sell])
           expect(TransactionMessage.second.sms_message).to eq('Ben, sold SHPC,200@700;On 06/02.Please do WACC and EDIS after sales.BNo 11')
           expect(TransactionMessage.last.share_transactions.to_a).to eq([share_transaction_random])
