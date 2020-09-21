@@ -17,20 +17,20 @@ RSpec.describe SmartkhataMailer, type: :mailer do
       before do
         bill.share_transactions << share_transaction
       end
-      
+
       it "renders the sender email" do
         expect(mail.from).to eq(["accounts@example.com"])
       end
-      
+
       it "renders the receiver email" do
         expect(mail.to).to eq([client_account.email])
       end
-      
-      it "renders the subject" do
+
+      it "renders the appropriate subject" do
         expect(mail.subject).to eq("Your transaction message and bill from Danphe")
       end
       
-      it "renders the attachments" do
+      it "renders the both bill and transaction attachments" do
         attachments = mail.attachments
         expect(attachments.size).to eq(2)
         expect(attachments[0].filename).to eq("TransactionMessage_2020-09-21_4.pdf")
@@ -39,14 +39,15 @@ RSpec.describe SmartkhataMailer, type: :mailer do
     end
     
     context "when the transaction message has no associated bill" do
-      let!(:transaction_message) { create(:transaction_message, client_account_id: client_account.id, transaction_date: date) }
-      
-      it "renders the subject" do
-        expect(mail.subject).to eq("Your transaction message from Danphe")
+      let!(:another_transaction_message) { create(:transaction_message, client_account_id: client_account.id, transaction_date: date) }
+      let!(:another_mail) { SmartkhataMailer.transaction_message_email(another_transaction_message.id, tenant.id) }
+
+      it "renders the appropriate subject" do
+        expect(another_mail.subject).to eq("Your transaction message from Danphe")
       end
       
       it "renders the transactions message attachment only" do
-        attachments = mail.attachments
+        attachments = another_mail.attachments
         expect(attachments.size).to eq(1)
         expect(attachments[0].filename).to eq("TransactionMessage_2020-09-21_6.pdf")
       end
