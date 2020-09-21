@@ -13,7 +13,7 @@ RSpec.describe SmartkhataMailer, type: :mailer do
   let(:mail) { SmartkhataMailer.transaction_message_email(transaction_message.id, tenant.id) }
   
   describe ".transaction_message_email" do
-    context "when the transaction message has no associated bill" do
+    context "when the transaction message has associated bill" do
       before do
         bill.share_transactions << share_transaction
       end
