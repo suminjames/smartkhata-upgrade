@@ -28,7 +28,7 @@ class SmartkhataMailer < ApplicationMailer
 
     @transaction_message.email_queued!
     email = @transaction_message.client_account.email
-    subject = @bill.present? ? email_subject(@current_tenant, @bill) : email_subject(@current_tenant)
+    subject = email_subject_for_transaction(@current_tenant, @bill)
     transaction_message_pdf = Pdf::PdfTransactionMessage.new(@transaction_message.transaction_date, @transaction_message.client_account, @current_tenant)
     attachments["TransactionMessage_#{@transaction_message.transaction_date}_#{@transaction_message.id}.pdf"] = transaction_message_pdf.render
 
@@ -51,7 +51,7 @@ class SmartkhataMailer < ApplicationMailer
     "accounts@#{Rails.application.secrets.domain_name}"
   end
 
-  def email_subject(tenant, bill = nil)
+  def email_subject_for_transaction(tenant, bill = nil)
     if bill.present?
       "Your transaction message and bill from #{tenant.full_name}"
     else
