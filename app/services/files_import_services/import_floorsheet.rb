@@ -616,7 +616,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def is_invalid_file_data(xlsx)
     file_info = xlsx.sheet(0).row(4)
     return true unless file_info.include?("Broker-Wise Floor Sheet")
-    xlsx.sheet(0).row(11)[1].to_s.tr(' ', '') != 'Contract No.' && xlsx.sheet(0).row(12)[0].nil?
+    row_count = xlsx.sheet(0).count rescue 0
+    # records start from 7th row  and we have 1 more row for total
+    # hence to have some meaningful data the count of rows should be more than 7
+    return true unless row_count > 7
+    xlsx.sheet(0).row(7)[1].to_s.tr(' ', '') != 'Contract No.' && xlsx.sheet(0).row(row_count)[0].nil?
   end
 
 

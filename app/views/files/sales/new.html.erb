@@ -17,6 +17,10 @@
       </div>
       <p class="text-muted"> Note: Upload file should be in csv format </p>
       <div class="form-group">
+        <%= check_box_tag  'is_partial_upload' %>
+        <a class='no-hover warning-text' data-toggle='tooltip' title='Only select this if the payout being uploaded is partial for its date.'>Partial Upload</a>
+        <br>
+        <br>
         <%= button_tag "Import", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Uploading..." } , :class => 'btn btn-primary btn-flat'}  %>
       </div>
 
