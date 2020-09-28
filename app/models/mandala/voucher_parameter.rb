@@ -18,6 +18,6 @@
 #  voucher_no_code :string
 #
 
-class Mandala::VoucherParameter < ApplicationRecord
+class Mandala::VoucherParameter < ActiveRecord::Base
   self.table_name = "voucher_parameter"
 end

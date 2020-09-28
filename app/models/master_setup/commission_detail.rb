@@ -12,7 +12,7 @@
 #  updated_at                      :datetime         not null
 #
 
-class MasterSetup::CommissionDetail < ApplicationRecord
+class MasterSetup::CommissionDetail < ActiveRecord::Base
   # belongs_to :master_setup_commission_info
   ########################################
   # Constants

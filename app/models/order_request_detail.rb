@@ -14,7 +14,7 @@
 #  fy_code          :integer
 #
 
-class OrderRequestDetail < ApplicationRecord
+class OrderRequestDetail < ActiveRecord::Base
 
   include CustomDateModule
   extend CustomDateModule

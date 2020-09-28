@@ -15,7 +15,7 @@
 
 
 
-class VendorAccount < ApplicationRecord
+class VendorAccount < ActiveRecord::Base
   include Auditable
   include ::Models::UpdaterWithBranch
   has_many :ledgers

@@ -8,6 +8,6 @@
 #  zone_name     :string
 #
 
-class Mandala::ZonePara < ApplicationRecord
+class Mandala::ZonePara < ActiveRecord::Base
   self.table_name = "zone_para"
 end

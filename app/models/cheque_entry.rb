@@ -28,7 +28,7 @@
 #  void_narration     :text
 #
 
-class ChequeEntry < ApplicationRecord
+class ChequeEntry < ActiveRecord::Base
   include Auditable
 
   extend CustomDateModule
@@ -43,10 +43,10 @@ class ChequeEntry < ApplicationRecord
   # For represent activity view
   attr_accessor :represent_date_bs
 
-  belongs_to :client_account, optional: true
-  belongs_to :vendor_account, optional: true
+  belongs_to :client_account
+  belongs_to :vendor_account
   belongs_to :bank_account
-  belongs_to :additional_bank, class_name: "Bank", optional: true
+  belongs_to :additional_bank, class_name: "Bank"
   has_one :bank, through: :bank_account
 
   # belongs_to :particular

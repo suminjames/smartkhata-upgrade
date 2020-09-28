@@ -10,7 +10,7 @@
 #  updated_at  :datetime         not null
 #  access_level  :integer        default: 0
 
-class UserAccessRole < ApplicationRecord
+class UserAccessRole < ActiveRecord::Base
   has_many :menu_permissions, dependent: :destroy
   has_many :menu_items, through: :menu_permissions
 

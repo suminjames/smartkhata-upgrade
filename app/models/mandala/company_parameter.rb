@@ -16,7 +16,7 @@
 #  isin_info_id    :integer
 #
 
-class Mandala::CompanyParameter < ApplicationRecord
+class Mandala::CompanyParameter < ActiveRecord::Base
   self.table_name = "company_parameter"
 
   def create_isin_info

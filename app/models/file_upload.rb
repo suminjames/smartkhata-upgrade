@@ -13,7 +13,7 @@
 #  updated_at  :datetime         not null
 #
 
-class FileUpload < ApplicationRecord
+class FileUpload < ActiveRecord::Base
   include Auditable
   include ::Models::Updater
 

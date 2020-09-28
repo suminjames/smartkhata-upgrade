@@ -17,15 +17,14 @@
 #  reviewer_id         :integer          default(0)
 #
 
-class BankPaymentLetter < ApplicationRecord
+class BankPaymentLetter < ActiveRecord::Base
 
   include Auditable
 
-  # belongs_to validation doesn't exist in rails 4. Added optional_true for present associations.
-  belongs_to :nepse_settlement, optional: true
-  belongs_to :branch, optional: true
-  belongs_to :voucher, optional: true
-  belongs_to :bank_account, optional: true
+  belongs_to :nepse_settlement
+  belongs_to :branch
+  belongs_to :voucher
+  belongs_to :bank_account
   has_many :particulars
   delegate :bills, :to => :voucher, :allow_nil => true
 

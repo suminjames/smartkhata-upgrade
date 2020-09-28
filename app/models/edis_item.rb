@@ -16,7 +16,7 @@ class EdisItem < ActiveRecord::Base
   validate :valid_merge_rebate
   validate :valid_split_options
 
-  enum reason_code: { merger: 18, regular: 19 }
+  enum reason_code: { merge: 18, regular: 19 }
   enum status: { pending: 0, success: 1, error: 2 }
 
   scope :available_for_cns, -> { where.not(status: EdisItem.statuses[:success]) }

@@ -20,7 +20,7 @@
 #  updated_at       :datetime         not null
 #
 
-class Voucher < ApplicationRecord
+class Voucher < ActiveRecord::Base
   include Auditable
   # include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
@@ -53,18 +53,13 @@ class Voucher < ApplicationRecord
   # this might be the one in use
   has_many :payment_receipts, :through => :particulars, source: :settlements
   has_one :nepse_chalan
-
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
   has_many :bill_voucher_associations,  dependent: :destroy
-  has_many :bills_on_creation,
-           ->{ where(bill_voucher_associations: {association_type: :on_creation})},
-           through: :bill_voucher_associations,
-           source: :bill
-  has_many :bills_on_settlement,
-           ->{ where(bill_voucher_associations: {association_type: :on_settlement})},
-           through: :bill_voucher_associations,
-           source: :bill
+  has_many :bills_on_creation, through: :on_creation, source: :bill
+  has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
-  belongs_to :reviewer, class_name: 'User', required: false
+  belongs_to :reviewer, class_name: 'User'
 
   has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################

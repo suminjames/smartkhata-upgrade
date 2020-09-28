@@ -11,6 +11,6 @@
 #  remarks       :string
 #
 
-class Mandala::ShareReceipt < ApplicationRecord
+class Mandala::ShareReceipt < ActiveRecord::Base
   self.table_name = "share_receipt"
 end

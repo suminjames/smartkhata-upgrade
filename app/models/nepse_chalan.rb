@@ -17,7 +17,7 @@
 #  branch_id           :integer
 #
 
-class NepseChalan < ApplicationRecord
+class NepseChalan < ActiveRecord::Base
   include Auditable
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode

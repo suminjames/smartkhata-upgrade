@@ -12,7 +12,7 @@
 
 
 
-class BillVoucherAssociation < ApplicationRecord
+class BillVoucherAssociation < ActiveRecord::Base
   belongs_to :bill
   belongs_to :voucher
   enum association_type: [:on_creation, :on_settlement]

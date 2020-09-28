@@ -7,6 +7,6 @@
 #  quantity       :string
 #
 
-class Mandala::TempNameTransfer < ApplicationRecord
+class Mandala::TempNameTransfer < ActiveRecord::Base
   self.table_name = "temp_name_transfer"
 end

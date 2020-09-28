@@ -8,6 +8,6 @@
 #  effective_date_to   :string
 #
 
-class Mandala::Commission < ApplicationRecord
+class Mandala::Commission < ActiveRecord::Base
   self.table_name = "commission"
 end

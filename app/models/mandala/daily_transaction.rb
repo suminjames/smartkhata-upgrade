@@ -55,7 +55,7 @@
 #  share_transaction_id     :integer
 #
 
-class Mandala::DailyTransaction < ApplicationRecord
+class Mandala::DailyTransaction < ActiveRecord::Base
   # include CommissionModule
   self.table_name = "daily_transaction"
 

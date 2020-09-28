@@ -12,6 +12,6 @@
 #  paid_value_share :string
 #
 
-class Mandala::CompanyParameterList < ApplicationRecord
+class Mandala::CompanyParameterList < ActiveRecord::Base
   self.table_name = "company_parameter_list"
 end

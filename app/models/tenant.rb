@@ -16,7 +16,7 @@
 #  closeout_settlement_automatic :boolean          default(FALSE)
 #
 
-class Tenant < ApplicationRecord
+class Tenant < ActiveRecord::Base
   attr_accessor :locale
 
   after_initialize :set_attr
@@ -46,7 +46,7 @@ class Tenant < ApplicationRecord
   def broker_profile
     MasterSetup::BrokerProfile.where(
       locale: BrokerProfile.locales[@locale],
-      # profile_type: BrokerProfile.profile_types[:is_self_broker],
+      profile_type: BrokerProfile.profile_types[:is_self_broker],
     ).first
   end
 

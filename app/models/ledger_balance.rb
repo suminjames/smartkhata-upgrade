@@ -20,7 +20,7 @@
 # Maintains the most up-to-date(rather up-to-moment) ledger attribute for the given branch_id.
 #  If branch_id is nil, the organisation ledger is being referred. This organisation ledger is already up-to-moment with
 #  its branches' ledger balance attributes.
-class LedgerBalance < ApplicationRecord
+class LedgerBalance < ActiveRecord::Base
   belongs_to :ledger
   include ::Models::UpdaterWithBranchFycodeBalance
   # attr_accessor :opening_balance_type

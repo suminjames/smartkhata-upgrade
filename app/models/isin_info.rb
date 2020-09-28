@@ -13,7 +13,7 @@
 #  updated_at :datetime         not null
 #
 
-class IsinInfo < ApplicationRecord
+class IsinInfo < ActiveRecord::Base
   has_many :share_transactions
 
   # The 'skip_company_validation' flag is true while importing floorsheet file.

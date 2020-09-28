@@ -25,7 +25,7 @@
 #  closing_balance_org :decimal(15, 4)   default(0.0)
 #
 
-class Ledger < ApplicationRecord
+class Ledger < ActiveRecord::Base
   include Auditable
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
@@ -49,9 +49,9 @@ class Ledger < ApplicationRecord
   has_many :particulars
   has_many :vouchers, :through => :particulars
   belongs_to :group
-  belongs_to :bank_account, optional: true
-  belongs_to :client_account, optional: true
-  belongs_to :vendor_account, optional: true
+  belongs_to :bank_account
+  belongs_to :client_account
+  belongs_to :vendor_account
   has_many :ledger_dailies
   has_many :ledger_balances
   has_many :employee_ledger_associations
@@ -200,7 +200,7 @@ class Ledger < ApplicationRecord
   def save_custom(params = nil, fy_code = nil, branch_id = nil)
     self.enforce_validation = true
     begin
-      ApplicationRecord.transaction do
+      ActiveRecord::Base.transaction do
         if params
           self.current_user_id = current_user_id
           if self.update(params)

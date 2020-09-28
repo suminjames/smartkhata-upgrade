@@ -23,7 +23,7 @@
 #  serial_no         :string
 #
 
-class Mandala::VoucherDetail < ApplicationRecord
+class Mandala::VoucherDetail < ActiveRecord::Base
   self.table_name = "voucher_detail"
   # attr_accessor :ac_name
 

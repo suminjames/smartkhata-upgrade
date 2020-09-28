@@ -15,7 +15,7 @@
 #  cheque_entry_id :integer
 #
 
-class Mandala::ReceiptPaymentDetail < ApplicationRecord
+class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   self.table_name = "receipt_payment_detail"
   belongs_to :cheque_entry
 

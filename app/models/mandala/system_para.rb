@@ -23,7 +23,7 @@
 #  sebon_regularity_fee_ac :string
 #
 
-class Mandala::SystemPara < ApplicationRecord
+class Mandala::SystemPara < ActiveRecord::Base
   self.table_name = "system_para"
 
   @ledgers_smartkhata_map = {

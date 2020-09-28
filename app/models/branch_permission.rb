@@ -11,7 +11,7 @@
 #  id         :integer          not null, primary key
 #
 
-class BranchPermission < ApplicationRecord
+class BranchPermission < ActiveRecord::Base
   include ::Models::Updater
   belongs_to :branch
   include Auditable

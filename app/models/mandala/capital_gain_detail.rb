@@ -9,6 +9,6 @@
 #  effective_to     :string
 #
 
-class Mandala::CapitalGainDetail < ApplicationRecord
+class Mandala::CapitalGainDetail < ActiveRecord::Base
   self.table_name = "capital_gain_detail"
 end

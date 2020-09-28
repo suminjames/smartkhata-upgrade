@@ -35,7 +35,7 @@
 #  bill_date_parsed      :date
 #
 
-class Mandala::Bill < ApplicationRecord
+class Mandala::Bill < ActiveRecord::Base
   include FiscalYearModule
 
   self.table_name = "bill"

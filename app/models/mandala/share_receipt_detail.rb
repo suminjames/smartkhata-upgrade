@@ -18,6 +18,6 @@
 #  fiscal_year        :string
 #
 
-class Mandala::ShareReceiptDetail < ApplicationRecord
+class Mandala::ShareReceiptDetail < ActiveRecord::Base
   self.table_name = "share_receipt_detail"
 end

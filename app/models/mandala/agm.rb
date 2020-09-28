@@ -13,6 +13,6 @@
 #  fiscal_year     :string
 #
 
-class Mandala::Agm < ApplicationRecord
+class Mandala::Agm < ActiveRecord::Base
   self.table_name = "agm"
 end

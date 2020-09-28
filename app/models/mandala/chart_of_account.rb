@@ -18,7 +18,7 @@
 #  group_id        :integer
 #
 
-class Mandala::ChartOfAccount < ApplicationRecord
+class Mandala::ChartOfAccount < ActiveRecord::Base
   self.table_name = "chart_of_account"
   belongs_to :ledger, class_name: '::Ledger'
 

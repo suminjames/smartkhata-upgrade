@@ -13,6 +13,6 @@
 #  transaction_fee :string
 #
 
-class Mandala::VoucherParticular < ApplicationRecord
+class Mandala::VoucherParticular < ActiveRecord::Base
   self.table_name = "voucher_particulars"
 end

@@ -25,7 +25,7 @@
 #  closeout_charge            :decimal(15, 4)   default(0.0)
 #
 
-class Bill < ApplicationRecord
+class Bill < ActiveRecord::Base
   include Auditable
 
   extend CustomDateModule
@@ -39,20 +39,20 @@ class Bill < ApplicationRecord
   belongs_to :client_account
   has_many :isin_infos, through: :share_transactions
 
-
+  has_and_belongs_to_many :vouchers
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
   has_many :bill_voucher_associations
-  has_many :vouchers_on_creation,
-           ->{ where(bill_voucher_associations: {association_type: :on_creation})},
-           through: :bill_voucher_associations,
-           source: :voucher
-  has_many :vouchers_on_settlement,
-           ->{ where(bill_voucher_associations: {association_type: :on_settlement})},
-           through: :bill_voucher_associations,
-           source: :voucher
+
+  has_many :vouchers_on_creation, through: :on_creation, source: :voucher
+  has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
 
   attr_accessor :provisional_base_price
+
+  # validations
+  validates_presence_of :client_account
 
   # callbacks
   before_save :process_bill

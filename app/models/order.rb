@@ -13,7 +13,7 @@
 
 
 
-class Order < ApplicationRecord
+class Order < ActiveRecord::Base
   include Auditable
   extend CustomDateModule
   belongs_to :client_account

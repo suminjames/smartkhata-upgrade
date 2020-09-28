@@ -21,6 +21,6 @@
 #  settlement_tag   :string
 #
 
-class Mandala::CustomerLedger < ApplicationRecord
+class Mandala::CustomerLedger < ActiveRecord::Base
   self.table_name = "customer_ledger"
 end

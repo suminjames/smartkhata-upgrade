@@ -13,13 +13,13 @@
 
 
 
-class EmployeeLedgerAssociation < ApplicationRecord
+class EmployeeLedgerAssociation < ActiveRecord::Base
   include ::Models::Updater
 
   belongs_to :employee_account
   belongs_to :ledger
 
   def self.delete_previous_associations_for(employee_account_id)
-    self.where(employee_account_id: "#{employee_account_id}").destroy_all
+    self.destroy_all(employee_account_id: "#{employee_account_id}")
   end
 end

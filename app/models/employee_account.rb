@@ -46,7 +46,7 @@
 #  updated_at                :datetime         not null
 #
 
-class EmployeeAccount < ApplicationRecord
+class EmployeeAccount < ActiveRecord::Base
   include Auditable
   include ::Models::UpdaterWithBranch
   attr_accessor :user_access_role_id
@@ -70,11 +70,9 @@ class EmployeeAccount < ApplicationRecord
 
   # create employee ledger
   def create_ledger
-    employee_group = Group.find_or_create_by!(name: "Employees")
     employee_ledger = Ledger.create!(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
-      ledger.group_id = employee_group.id
     end
   end
 

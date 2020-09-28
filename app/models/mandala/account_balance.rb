@@ -14,7 +14,7 @@
 #  closed_date        :string
 #
 
-class Mandala::AccountBalance < ApplicationRecord
+class Mandala::AccountBalance < ActiveRecord::Base
   self.table_name = "account_balance"
   include FiscalYearModule
 

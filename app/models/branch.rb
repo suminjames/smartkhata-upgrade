@@ -11,7 +11,7 @@
 
 
 
-class Branch < ApplicationRecord
+class Branch < ActiveRecord::Base
   validates_presence_of :code, :address
   validates :code, uniqueness: {case_sensitive: false}
   include Auditable
@@ -27,9 +27,6 @@ class Branch < ApplicationRecord
       permitted_ids = BranchPermission.where(user_id: user.id).pluck(:branch_id)
       branches = Branch.where(id: permitted_ids)
       branches = Branch.all if user.admin?
-
-      branches = branches.to_a
-
       if branches.size == Branch.all.count
         branches << Branch.new(code: 'ALL', id: 0)
       end

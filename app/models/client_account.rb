@@ -67,7 +67,7 @@
 # - From dpa5, pretty much everything including BOID (but not Nepse-code) of a client can be fetched
 # - From floorsheet, only client name and NEPSE-code of a client can be fetched.
 # The current implementation doesn't have  a way to match a client's BOID with Nepse-code but from manual intervention.
-class ClientAccount < ApplicationRecord
+class ClientAccount < ActiveRecord::Base
   ########################################
   # Constants
 
@@ -78,9 +78,12 @@ class ClientAccount < ApplicationRecord
 
   ########################################
   # Relationships
-  belongs_to :group_leader, class_name: 'ClientAccount', required: false
+  # to keep track of the user who created and last updated the ledger
+  belongs_to :creator, class_name: 'User'
+  belongs_to :updater, class_name: 'User'
+  belongs_to :group_leader, class_name: 'ClientAccount'
   has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
-  belongs_to :user, required: false
+  belongs_to :user
   has_one :ledger
   has_many :share_inventories
   has_many :bills
