@@ -1,4 +1,4 @@
-class CreateVoucherParameter < ActiveRecord::Migration[4.2]
+class CreateVoucherParameter < ActiveRecord::Migration
   def change
     create_table :voucher_parameter do |t|
       t.string :voucher_code

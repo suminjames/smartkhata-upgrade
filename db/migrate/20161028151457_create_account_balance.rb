@@ -1,4 +1,4 @@
-class CreateAccountBalance < ActiveRecord::Migration[4.2]
+class CreateAccountBalance < ActiveRecord::Migration
   def change
     create_table :account_balance do |t|
       t.string :ac_code

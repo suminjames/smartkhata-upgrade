@@ -1,4 +1,4 @@
-class AddTopNavBarColorToBranch < ActiveRecord::Migration[4.2]
+class AddTopNavBarColorToBranch < ActiveRecord::Migration
   def change
     add_column :branches, :top_nav_bar_color, :string
   end

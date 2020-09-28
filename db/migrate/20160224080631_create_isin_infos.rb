@@ -1,4 +1,4 @@
-class CreateIsinInfos < ActiveRecord::Migration[4.2]
+class CreateIsinInfos < ActiveRecord::Migration
   def change
     create_table :isin_infos do |t|
     	t.string :company

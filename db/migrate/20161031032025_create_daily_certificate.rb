@@ -1,4 +1,4 @@
-class CreateDailyCertificate < ActiveRecord::Migration[4.2]
+class CreateDailyCertificate < ActiveRecord::Migration
   def change
     create_table :daily_certificate do |t|
       t.string :transaction_no

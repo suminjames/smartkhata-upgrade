@@ -1,4 +1,4 @@
-class CreateSystemPara < ActiveRecord::Migration[4.2]
+class CreateSystemPara < ActiveRecord::Migration
   def change
     create_table :system_para do |t|
       t.string :nepse_purchase_ac

@@ -1,4 +1,4 @@
-class CreateMenuPermissions < ActiveRecord::Migration[4.2]
+class CreateMenuPermissions < ActiveRecord::Migration
   def change
     create_table :menu_permissions do |t|
       t.integer :creator_id, index: true

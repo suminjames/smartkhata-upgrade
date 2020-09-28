@@ -1,4 +1,4 @@
-class CreateSupplierBillDetail < ActiveRecord::Migration[4.2]
+class CreateSupplierBillDetail < ActiveRecord::Migration
   def change
     create_table :supplier_bill_detail do |t|
       t.string :bill_no

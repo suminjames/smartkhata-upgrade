@@ -1,4 +1,4 @@
-class AddBillIdToBill < ActiveRecord::Migration[4.2]
+class AddBillIdToBill < ActiveRecord::Migration
   def change
     add_column :bill, :bill_id, :integer
   end

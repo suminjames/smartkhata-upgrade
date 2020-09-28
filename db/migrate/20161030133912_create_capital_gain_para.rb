@@ -1,4 +1,4 @@
-class CreateCapitalGainPara < ActiveRecord::Migration[4.2]
+class CreateCapitalGainPara < ActiveRecord::Migration
   def change
     create_table :capital_gain_para do |t|
       t.string :group_code

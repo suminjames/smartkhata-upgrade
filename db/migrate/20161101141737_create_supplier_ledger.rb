@@ -1,4 +1,4 @@
-class CreateSupplierLedger < ActiveRecord::Migration[4.2]
+class CreateSupplierLedger < ActiveRecord::Migration
   def change
     create_table :supplier_ledger do |t|
       t.string :supplier_id

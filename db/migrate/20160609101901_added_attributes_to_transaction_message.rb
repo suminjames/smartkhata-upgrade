@@ -1,4 +1,4 @@
-class AddedAttributesToTransactionMessage < ActiveRecord::Migration[4.2]
+class AddedAttributesToTransactionMessage < ActiveRecord::Migration
   def change
     add_column :transaction_messages, :deleted_at, :date
     add_column :transaction_messages, :sent_sms_count, :integer

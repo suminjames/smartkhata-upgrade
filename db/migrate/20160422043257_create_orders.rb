@@ -1,4 +1,4 @@
-class CreateOrders < ActiveRecord::Migration[4.2]
+class CreateOrders < ActiveRecord::Migration
   # Sr. No.		Order ID			Symbol		Client Name			Client Code	Price			Quantity		Amount				Pending Quantity	Order Time	Order Type	Order Segment	Order Condition		Order State
   def change
     create_table :orders do |t|

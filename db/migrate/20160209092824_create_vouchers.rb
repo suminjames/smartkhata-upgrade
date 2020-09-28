@@ -1,4 +1,4 @@
-class CreateVouchers < ActiveRecord::Migration[4.2]
+class CreateVouchers < ActiveRecord::Migration
   def change
     create_table :vouchers do |t|
       t.integer :fy_code

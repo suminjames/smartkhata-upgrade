@@ -1,4 +1,4 @@
-class CreateShareInventories < ActiveRecord::Migration[4.2]
+class CreateShareInventories < ActiveRecord::Migration
   def change
     create_table :share_inventories do |t|
       t.string :isin_desc

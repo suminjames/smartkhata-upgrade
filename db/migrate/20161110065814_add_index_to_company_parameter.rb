@@ -1,4 +1,4 @@
-class AddIndexToCompanyParameter < ActiveRecord::Migration[4.2]
+class AddIndexToCompanyParameter < ActiveRecord::Migration
   def change
     add_index :company_parameter, :company_code
   end

@@ -1,4 +1,4 @@
-class AddIndexToVoucherDetail < ActiveRecord::Migration[4.2]
+class AddIndexToVoucherDetail < ActiveRecord::Migration
   def change
     add_index :voucher_detail, :voucher_code
     add_index :voucher_detail, :voucher_no

@@ -1,4 +1,4 @@
-class CreateCommissionRates < ActiveRecord::Migration[4.2]
+class CreateCommissionRates < ActiveRecord::Migration
   def change
     create_table :commission_rate do |t|
       t.string :un_id

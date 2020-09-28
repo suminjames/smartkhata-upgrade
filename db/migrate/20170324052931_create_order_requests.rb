@@ -1,4 +1,4 @@
-class CreateOrderRequests < ActiveRecord::Migration[4.2]
+class CreateOrderRequests < ActiveRecord::Migration
   def change
     create_table :order_requests do |t|
       t.references :client_account, index: true, foreign_key: true

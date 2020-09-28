@@ -1,4 +1,4 @@
-class AddTempPasswordToUser < ActiveRecord::Migration[4.2]
+class AddTempPasswordToUser < ActiveRecord::Migration
   def change
     add_column :users, :temp_password, :string
   end

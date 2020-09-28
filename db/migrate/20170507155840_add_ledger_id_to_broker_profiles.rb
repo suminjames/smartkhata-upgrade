@@ -1,4 +1,4 @@
-class AddLedgerIdToBrokerProfiles < ActiveRecord::Migration[4.2]
+class AddLedgerIdToBrokerProfiles < ActiveRecord::Migration
   def change
     add_column :broker_profiles, :ledger_id, :integer
   end

@@ -1,4 +1,4 @@
-class AddIsinInfoOrderDetails < ActiveRecord::Migration[4.2]
+class AddIsinInfoOrderDetails < ActiveRecord::Migration
   def change
     add_foreign_key :order_details, :isin_infos
   end

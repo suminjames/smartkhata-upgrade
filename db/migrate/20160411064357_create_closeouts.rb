@@ -1,4 +1,4 @@
-class CreateCloseouts < ActiveRecord::Migration[4.2]
+class CreateCloseouts < ActiveRecord::Migration
   def change
     create_table :closeouts do |t|
       t.decimal :settlement_id, precision: 18, scale: 0

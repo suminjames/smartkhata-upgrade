@@ -1,4 +1,4 @@
-class CreateShareParameter < ActiveRecord::Migration[4.2]
+class CreateShareParameter < ActiveRecord::Migration
   def change
     create_table :share_parameter do |t|
       t.string :share_code

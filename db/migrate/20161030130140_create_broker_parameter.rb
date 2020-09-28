@@ -1,4 +1,4 @@
-class CreateBrokerParameter < ActiveRecord::Migration[4.2]
+class CreateBrokerParameter < ActiveRecord::Migration
   def change
     create_table :broker_parameter do |t|
       t.string :org_name

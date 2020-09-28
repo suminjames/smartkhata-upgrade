@@ -1,4 +1,4 @@
-class CreateShareReceipt < ActiveRecord::Migration[4.2]
+class CreateShareReceipt < ActiveRecord::Migration
   def change
     create_table :share_receipt do |t|
       t.string :receipt_no

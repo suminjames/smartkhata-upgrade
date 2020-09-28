@@ -1,4 +1,4 @@
-class CreateNepseProvisionalSettlements < ActiveRecord::Migration[4.2]
+class CreateNepseProvisionalSettlements < ActiveRecord::Migration
   def change
     create_table :nepse_provisional_settlements do |t|
       t.bigint :settlement_id

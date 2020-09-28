@@ -1,4 +1,4 @@
-class CreateTaxPara < ActiveRecord::Migration[4.2]
+class CreateTaxPara < ActiveRecord::Migration
   def change
     create_table :tax_para do |t|
       t.string :unit_id

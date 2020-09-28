@@ -1,4 +1,4 @@
-class AddIndexToReceiptPaymentDetail < ActiveRecord::Migration[4.2]
+class AddIndexToReceiptPaymentDetail < ActiveRecord::Migration
   def change
     add_index :receipt_payment_detail, :fiscal_year
     add_index :receipt_payment_detail, :slip_type

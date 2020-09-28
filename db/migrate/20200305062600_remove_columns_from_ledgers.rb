@@ -1,4 +1,4 @@
-class RemoveColumnsFromLedgers < ActiveRecord::Migration[4.2]
+class RemoveColumnsFromLedgers < ActiveRecord::Migration
   def up
     remove_column :ledgers, :opening_blnc
     remove_column :ledgers, :opening_balance_org

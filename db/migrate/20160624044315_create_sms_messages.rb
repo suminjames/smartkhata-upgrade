@@ -1,4 +1,4 @@
-class CreateSmsMessages < ActiveRecord::Migration[4.2]
+class CreateSmsMessages < ActiveRecord::Migration
   def change
     create_table :sms_messages do |t|
 

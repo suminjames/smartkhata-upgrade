@@ -1,4 +1,4 @@
-class CreateShareTransactions < ActiveRecord::Migration[4.2]
+class CreateShareTransactions < ActiveRecord::Migration
   def change
     create_table :share_transactions do |t|
       t.decimal :contract_no, precision: 18, scale: 0

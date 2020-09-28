@@ -1,4 +1,4 @@
-class CreateFiscalYearPara < ActiveRecord::Migration[4.2]
+class CreateFiscalYearPara < ActiveRecord::Migration
   def change
     create_table :fiscal_year_para do |t|
       t.string :fiscal_year

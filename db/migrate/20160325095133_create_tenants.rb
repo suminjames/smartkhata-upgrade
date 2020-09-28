@@ -1,4 +1,4 @@
-class CreateTenants < ActiveRecord::Migration[4.2]
+class CreateTenants < ActiveRecord::Migration
   def change
     create_table :tenants do |t|
       t.string :name

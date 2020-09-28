@@ -1,4 +1,4 @@
-class AddIsinInfoIdToCompanyParameter < ActiveRecord::Migration[4.2]
+class AddIsinInfoIdToCompanyParameter < ActiveRecord::Migration
   def change
     add_column :company_parameter, :isin_info_id, :integer
   end

@@ -1,4 +1,4 @@
-class CreateCalendarParameter < ActiveRecord::Migration[4.2]
+class CreateCalendarParameter < ActiveRecord::Migration
   def change
     create_table :calendar_parameter do |t|
       t.string :ad_date

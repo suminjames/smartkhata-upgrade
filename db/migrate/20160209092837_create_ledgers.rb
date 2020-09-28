@@ -1,4 +1,4 @@
-class CreateLedgers < ActiveRecord::Migration[4.2]
+class CreateLedgers < ActiveRecord::Migration
   def change
     create_table :ledgers do |t|
     	t.string :name

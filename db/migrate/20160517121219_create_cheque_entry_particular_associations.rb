@@ -1,4 +1,4 @@
-class CreateChequeEntryParticularAssociations < ActiveRecord::Migration[4.2]
+class CreateChequeEntryParticularAssociations < ActiveRecord::Migration
   def change
     create_table :cheque_entry_particular_associations do |t|
       t.integer :association_type

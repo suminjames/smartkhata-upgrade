@@ -1,4 +1,4 @@
-class CreateZonePara < ActiveRecord::Migration[4.2]
+class CreateZonePara < ActiveRecord::Migration
   def change
     create_table :zone_para do |t|
       t.string :regional_code

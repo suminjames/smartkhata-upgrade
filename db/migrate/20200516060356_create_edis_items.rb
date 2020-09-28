@@ -1,4 +1,4 @@
-class CreateEdisItems < ActiveRecord::Migration[4.2]
+class CreateEdisItems < ActiveRecord::Migration
   def change
     create_table :edis_items do |t|
       t.references :edis_report, index: true

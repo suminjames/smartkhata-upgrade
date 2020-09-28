@@ -1,4 +1,4 @@
-class AddDateToSettlements < ActiveRecord::Migration[4.2]
+class AddDateToSettlements < ActiveRecord::Migration
   extend CustomDateModule
 
   def up

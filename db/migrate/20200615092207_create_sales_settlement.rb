@@ -1,4 +1,4 @@
-class CreateSalesSettlement < ActiveRecord::Migration[4.2]
+class CreateSalesSettlement < ActiveRecord::Migration
   def change
     create_table :sales_settlements do |t|
       t.bigint :settlement_id

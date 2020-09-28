@@ -1,4 +1,4 @@
-class AddIdToBranchPermissions < ActiveRecord::Migration[4.2]
+class AddIdToBranchPermissions < ActiveRecord::Migration
   def change
     add_column :branch_permissions, :id, :primary_key
   end

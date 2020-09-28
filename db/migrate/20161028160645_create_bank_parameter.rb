@@ -1,4 +1,4 @@
-class CreateBankParameter < ActiveRecord::Migration[4.2]
+class CreateBankParameter < ActiveRecord::Migration
   def change
     create_table :bank_parameter do |t|
       t.string :bank_code

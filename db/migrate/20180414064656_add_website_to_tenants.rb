@@ -1,4 +1,4 @@
-class AddWebsiteToTenants < ActiveRecord::Migration[4.2]
+class AddWebsiteToTenants < ActiveRecord::Migration
   def change
     add_column :tenants, :website, :string
   end

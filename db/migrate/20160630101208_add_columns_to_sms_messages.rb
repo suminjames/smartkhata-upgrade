@@ -1,4 +1,4 @@
-class AddColumnsToSmsMessages < ActiveRecord::Migration[4.2]
+class AddColumnsToSmsMessages < ActiveRecord::Migration
   def change
     add_column :sms_messages, :phone, :string
     add_column :sms_messages, :phone_type, :integer, default: 0

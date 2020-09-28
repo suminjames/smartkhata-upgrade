@@ -1,4 +1,4 @@
-class CreateMobileMessage < ActiveRecord::Migration[4.2]
+class CreateMobileMessage < ActiveRecord::Migration
   def change
     create_table :mobile_message do |t|
       t.string :customer_code

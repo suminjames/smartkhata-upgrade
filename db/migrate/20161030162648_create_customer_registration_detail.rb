@@ -1,4 +1,4 @@
-class CreateCustomerRegistrationDetail < ActiveRecord::Migration[4.2]
+class CreateCustomerRegistrationDetail < ActiveRecord::Migration
   def change
     create_table :customer_registration_detail do |t|
       t.string :customer_code

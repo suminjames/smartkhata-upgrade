@@ -1,4 +1,4 @@
-class CreateOrderDetails < ActiveRecord::Migration[4.2]
+class CreateOrderDetails < ActiveRecord::Migration
   def change
     create_table :order_details do |t|
       t.references :order, index: true

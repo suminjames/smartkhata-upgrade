@@ -1,4 +1,4 @@
-class AddUsernameToUser < ActiveRecord::Migration[4.2]
+class AddUsernameToUser < ActiveRecord::Migration
   def change
     add_column :users, :username, :string
     add_column :users, :pass_changed, :boolean, default: false

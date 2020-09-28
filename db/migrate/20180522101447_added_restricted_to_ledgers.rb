@@ -1,4 +1,4 @@
-class AddedRestrictedToLedgers < ActiveRecord::Migration[4.2]
+class AddedRestrictedToLedgers < ActiveRecord::Migration
   def change
     add_column :ledgers, :restricted, :boolean, default: false
   end

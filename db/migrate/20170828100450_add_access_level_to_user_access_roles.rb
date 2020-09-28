@@ -1,4 +1,4 @@
-class AddAccessLevelToUserAccessRoles < ActiveRecord::Migration[4.2]
+class AddAccessLevelToUserAccessRoles < ActiveRecord::Migration
   def change
     add_column :user_access_roles, :access_level, :integer, default: 0
   end

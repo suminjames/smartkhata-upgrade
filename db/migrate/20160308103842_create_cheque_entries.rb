@@ -1,4 +1,4 @@
-class CreateChequeEntries < ActiveRecord::Migration[4.2]
+class CreateChequeEntries < ActiveRecord::Migration
   def change
     create_table :cheque_entries do |t|
       t.string    :beneficiary_name

@@ -1,4 +1,4 @@
-class CreateCalendars < ActiveRecord::Migration[4.2]
+class CreateCalendars < ActiveRecord::Migration
   def change
     create_table :calendars do |t|
       t.text :bs_date, null: false  # should be of format yyyy-mm-dd

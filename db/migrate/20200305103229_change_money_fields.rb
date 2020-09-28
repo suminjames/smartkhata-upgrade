@@ -1,4 +1,4 @@
-class ChangeMoneyFields < ActiveRecord::Migration[4.2]
+class ChangeMoneyFields < ActiveRecord::Migration
   def up
     change_column :bank_payment_letters, :settlement_amount, :decimal, :precision => 12, :scale => 2
     change_column :bills, :net_amount, :decimal, :precision => 15, :scale => 2, default: 0.0

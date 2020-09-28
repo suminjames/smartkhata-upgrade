@@ -1,4 +1,4 @@
-class AddColumnToEdisItems < ActiveRecord::Migration[4.2]
+class AddColumnToEdisItems < ActiveRecord::Migration
   def change
     add_column :edis_items, :status_message, :text
   end

@@ -1,4 +1,4 @@
-class AddCloseoutSettlementOptionToTenant < ActiveRecord::Migration[4.2]
+class AddCloseoutSettlementOptionToTenant < ActiveRecord::Migration
   def change
     add_column :tenants, :closeout_settlement_automatic, :boolean, default: :false
   end

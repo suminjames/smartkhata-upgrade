@@ -1,4 +1,4 @@
-class AddIndexToBill < ActiveRecord::Migration[4.2]
+class AddIndexToBill < ActiveRecord::Migration
   def change
     add_index :bill, :bill_no
   end

@@ -1,4 +1,4 @@
-class CreateMasterSetupCommissionDetails < ActiveRecord::Migration[4.2]
+class CreateMasterSetupCommissionDetails < ActiveRecord::Migration
   def change
     create_table :master_setup_commission_details do |t|
       t.decimal :start_amount, precision: 15, scale: 4

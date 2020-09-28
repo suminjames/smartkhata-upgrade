@@ -1,4 +1,4 @@
-class AddClientAccountToOrders < ActiveRecord::Migration[4.2]
+class AddClientAccountToOrders < ActiveRecord::Migration
   def change
     add_foreign_key :orders, :client_accounts
   end

@@ -1,4 +1,4 @@
-class AddBranchToUser < ActiveRecord::Migration[4.2]
+class AddBranchToUser < ActiveRecord::Migration
   def change
     add_column :users, :branch_id, :integer
   end

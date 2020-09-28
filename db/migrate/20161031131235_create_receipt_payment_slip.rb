@@ -1,4 +1,4 @@
-class CreateReceiptPaymentSlip < ActiveRecord::Migration[4.2]
+class CreateReceiptPaymentSlip < ActiveRecord::Migration
   def change
     create_table :receipt_payment_slip do |t|
       t.string :title

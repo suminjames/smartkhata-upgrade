@@ -1,4 +1,4 @@
-class CreateNepseChalans < ActiveRecord::Migration[4.2]
+class CreateNepseChalans < ActiveRecord::Migration
   def change
     create_table :nepse_chalans do |t|
       t.decimal :chalan_amount, precision: 15, scale: 4, default: 0

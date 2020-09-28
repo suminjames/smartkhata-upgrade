@@ -1,8 +1,8 @@
 
-class CreateParticulars < ActiveRecord::Migration[4.2]
+class CreateParticulars < ActiveRecord::Migration
   def change
     create_table :particulars do |t|
-    	t.decimal :opening_blnc , precision: 15, scale: 4, default: 0
+    	t.decimal :opening_balance , precision: 15, scale: 4, default: 0
     	t.integer :transaction_type
       t.integer :ledger_type, default: 0
       t.integer :cheque_number

@@ -1,4 +1,4 @@
-class CreateOrganisationParameter < ActiveRecord::Migration[4.2]
+class CreateOrganisationParameter < ActiveRecord::Migration
   def change
     create_table :organisation_parameter do |t|
       t.string :org_name

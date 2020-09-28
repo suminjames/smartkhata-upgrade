@@ -1,4 +1,4 @@
-class AddParticularIdToLedger < ActiveRecord::Migration[4.2]
+class AddParticularIdToLedger < ActiveRecord::Migration
   def change
     add_column :ledger, :particular_id, :integer
   end

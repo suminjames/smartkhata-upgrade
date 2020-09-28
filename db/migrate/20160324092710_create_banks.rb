@@ -1,4 +1,4 @@
-class CreateBanks < ActiveRecord::Migration[4.2]
+class CreateBanks < ActiveRecord::Migration
   def change
     create_table :banks do |t|
       t.string :name

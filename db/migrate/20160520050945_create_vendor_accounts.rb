@@ -1,4 +1,4 @@
-class CreateVendorAccounts < ActiveRecord::Migration[4.2]
+class CreateVendorAccounts < ActiveRecord::Migration
   def change
     create_table :vendor_accounts do |t|
       t.string :name

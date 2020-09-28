@@ -1,4 +1,4 @@
-class CreateCommission < ActiveRecord::Migration[4.2]
+class CreateCommission < ActiveRecord::Migration
   def change
     create_table :commission do |t|
       t.string :un_id
