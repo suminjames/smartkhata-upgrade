@@ -1,4 +1,4 @@
-class CreateBillVoucherAssociations < ActiveRecord::Migration
+class CreateBillVoucherAssociations < ActiveRecord::Migration[4.2]
   def change
     create_table :bill_voucher_associations do |t|
       t.integer :association_type

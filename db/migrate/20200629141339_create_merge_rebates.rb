@@ -1,4 +1,4 @@
-class CreateMergeRebates < ActiveRecord::Migration
+class CreateMergeRebates < ActiveRecord::Migration[4.2]
   def change
     create_table :merge_rebates do |t|
       t.string :scrip, index: true

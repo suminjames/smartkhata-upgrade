@@ -1,4 +1,4 @@
-class CreateAgm < ActiveRecord::Migration
+class CreateAgm < ActiveRecord::Migration[4.2]
   def change
     create_table :agm do |t|
       t.string :company_code

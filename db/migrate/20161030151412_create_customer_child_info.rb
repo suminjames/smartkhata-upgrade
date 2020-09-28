@@ -1,4 +1,4 @@
-class CreateCustomerChildInfo < ActiveRecord::Migration
+class CreateCustomerChildInfo < ActiveRecord::Migration[4.2]
   def change
     create_table :customer_child_info do |t|
       t.string :customer_code

@@ -1,4 +1,4 @@
-class CreateParticularsShareTransactions < ActiveRecord::Migration
+class CreateParticularsShareTransactions < ActiveRecord::Migration[4.2]
   def change
     create_table :particulars_share_transactions, id:false do |t|
       t.references :particular, index: true, foreign_key: true

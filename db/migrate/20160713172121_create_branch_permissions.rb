@@ -1,4 +1,4 @@
-class CreateBranchPermissions < ActiveRecord::Migration
+class CreateBranchPermissions < ActiveRecord::Migration[4.2]
   def change
     create_table :branch_permissions, id:false do |t|
       t.integer :branch_id

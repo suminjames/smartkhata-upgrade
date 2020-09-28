@@ -1,4 +1,4 @@
-class CreateMandalaBill < ActiveRecord::Migration
+class CreateMandalaBill < ActiveRecord::Migration[4.2]
   def change
     create_table :bill do |t|
       t.string :bill_no

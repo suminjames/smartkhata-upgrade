@@ -1,4 +1,4 @@
-class CreateClientAccounts < ActiveRecord::Migration
+class CreateClientAccounts < ActiveRecord::Migration[4.2]
   def change
     create_table :client_accounts do |t|
     	t.string :boid

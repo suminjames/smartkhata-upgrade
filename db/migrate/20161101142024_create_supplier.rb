@@ -1,4 +1,4 @@
-class CreateSupplier < ActiveRecord::Migration
+class CreateSupplier < ActiveRecord::Migration[4.2]
   def change
     create_table :supplier do |t|
       t.string :supplier_name
