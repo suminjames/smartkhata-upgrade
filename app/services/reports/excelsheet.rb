@@ -12,7 +12,7 @@ class Reports::Excelsheet
     end
     @date = ad_to_bs Date.today
     @column_count = get_column_count
-    @last_column = @column_count-1 #starting from 0
+    @last_column = @column_count - 1 # starting from 0
     @doc_header_row_count = 0
   end
 
@@ -201,13 +201,13 @@ class Reports::Excelsheet
       styles_to_add.merge!(additional_styles(style_helpers))
     end
 
-    @styles = styles_to_add.inject(Hash.new){|p,w| p[w[0]] = obj.add_style(w[1]); p}
+    @styles = styles_to_add.each_with_object({}) { |w, p| p[w[0]] = obj.add_style(w[1]); }
   end
 
   def add_document_headings_base(heading, *additional_infos, sub_heading_present: true, additional_infos_come_after_custom_block: true)
     # Current tenant info
     if t = @current_tenant
-      broker_info = [t.full_name, t.broker_code, t.address, t.phone_number].select &:present?
+      broker_info = [t.full_name, t.broker_code, t.address, t.phone_number].select(&:present?)
       if broker_info.present?
         broker_info.each do |info|
           info.prepend "Broker No. " if info == t.broker_code
@@ -263,8 +263,7 @@ class Reports::Excelsheet
     cell_ranges_to_merge = []
 
     last_col_alphabet = ('A'..'Z').to_a[@last_column]
-    1.upto(@doc_header_row_count){|n| cell_ranges_to_merge << "A#{n}:#{last_col_alphabet}#{n}"}
+    1.upto(@doc_header_row_count) { |n| cell_ranges_to_merge << "A#{n}:#{last_col_alphabet}#{n}"}
     cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
   end
-
 end

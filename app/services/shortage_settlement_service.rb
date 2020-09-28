@@ -3,9 +3,9 @@ class ShortageSettlementService
   include ApplicationHelper
   attr_reader :share_transaction, :error, :settlement_by, :balancing_transactions
 
-  SETTLEMENT_TYPES = %w(client broker counter_broker)
+  SETTLEMENT_TYPES = %w[client broker counter_broker].freeze
 
-  def initialize( transaction, settlement_by, current_tenant, params={})
+  def initialize(transaction, settlement_by, current_tenant, params={})
     @current_user = params[:current_user]
     @branch = params[:branch]
     @share_transaction = transaction
@@ -13,26 +13,26 @@ class ShortageSettlementService
     @settlement_by = settlement_by
     @balancing_transactions_ids = params[:balancing_transaction_ids]
     @balancing_transactions = ShareTransaction.unscoped.where(id: @balancing_transactions_ids)
-    @closeout_quantity = @share_transaction.raw_quantity -  @share_transaction.quantity
+    @closeout_quantity = @share_transaction.raw_quantity - @share_transaction.quantity
     @current_tenant = current_tenant
   end
 
   def process
     return unless validate?
+
     ActiveRecord::Base.transaction do
       process_sales_closeout if share_transaction.selling?
       process_buy_closeout if share_transaction.buying?
     end
   end
 
-
   def validate?
-  #   make sure the the balancing transactions are of same client
+    #   make sure the the balancing transactions are of same client
     if @share_transaction.closeout_settled
       @error = 'It has already been processed'
       return false
     end
-  #   settlement by allowed is only client and broker
+    #   settlement by allowed is only client and broker
     unless SETTLEMENT_TYPES.include?(settlement_by)
       @error = 'This is not a valid request'
       return false
@@ -53,44 +53,41 @@ class ShortageSettlementService
     end
 
     # the transactions that balance the closeout should have equal quantity
-    if @balancing_transactions_ids.present? && ( balancing_transactions.sum(:quantity) != @closeout_quantity)
+    if @balancing_transactions_ids.present? && (balancing_transactions.sum(:quantity) != @closeout_quantity)
       @error = 'This is not a valid request'
       return false
     end
-    return true
+    true
   end
 
   def receipt_bank_account_ledger
     BankAccount.default_receipt_account(@branch.id).try(:ledger)
   end
 
-
   def counter_broker_ledger
     ledger = nil
-    broker_profile = BrokerProfile.english.where(broker_number: @share_transaction.counter_broker ).first
+    broker_profile = BrokerProfile.english.where(broker_number: @share_transaction.counter_broker).first
     ledger = broker_profile.ledger if broker_profile
     ledger
   end
 
   def counter_broker_ledger_mapped?
-    (@share_transaction.buyer == @share_transaction.seller) ||  counter_broker_ledger.present?
+    (@share_transaction.buyer == @share_transaction.seller) || counter_broker_ledger.present?
   end
-
 
   def process_sales_closeout
     share_transaction.closeout_settled = true
     bill = share_transaction.bill
 
     # bill should be present
-    (@error = 'Please make sure it is a correct branch';return false) unless bill
-
+    (@error = 'Please make sure it is a correct branch'; return false) unless bill
 
     company_symbol = share_transaction.isin_info.isin
     share_rate = share_transaction.share_rate
     client_account = share_transaction.client_account
     client_name = client_account.name
     cost_center_id = client_account.branch_id
-    settlement_date = Time.now
+    settlement_date = Time.zone.now
     closeout_ledger = Ledger.find_by(name: "Close Out")
     client_ledger = Ledger.find_by(client_code: client_account.nepse_code)
 
@@ -101,7 +98,7 @@ class ShortageSettlementService
       description = "Shortage Sales adjustment (#{@closeout_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{share_transaction.contract_no}) of #{client_name}"
       voucher = Voucher.create!(date: settlement_date, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id)
       voucher.desc = description
-      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date,@current_user)
+      process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       process_accounts(client_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       voucher.complete!
       voucher.save!
@@ -114,14 +111,14 @@ class ShortageSettlementService
     bill = share_transaction.bill
 
     # bill should be present
-    (@error = 'Please make sure it is a correct branch';return false) unless bill
+    (@error = 'Please make sure it is a correct branch'; return false) unless bill
 
     company_symbol = share_transaction.isin_info.isin
     share_rate = share_transaction.share_rate
     client_account = share_transaction.client_account
     client_name = client_account.name
     cost_center_id = client_account.branch_id
-    settlement_date = Time.now
+    settlement_date = Time.zone.now
     closeout_ledger = Ledger.find_by(name: "Close Out")
     client_ledger = Ledger.find_by(client_code: client_account.nepse_code)
 
@@ -141,17 +138,12 @@ class ShortageSettlementService
       voucher.save!
     end
 
-
-
-
-    if ( settlement_by == 'broker' || settlement_by == 'counter_broker')
+    if settlement_by == 'broker' || settlement_by == 'counter_broker'
 
       client_nepse_code = 'SKBRKRCLST' if settlement_by == 'broker'
       client_nepse_code = "SKBRKR#{share_transaction.seller}" if settlement_by == 'counter_broker'
 
-      if settlement_by == 'counter_broker'
-        account_for_bill = counter_broker_ledger.try(:client_account)
-      end
+      account_for_bill = counter_broker_ledger.try(:client_account) if settlement_by == 'counter_broker'
 
       account_for_bill = ClientAccount.find_or_create_by!(nepse_code: client_nepse_code, branch_id: @branch.id, creator_id: @current_user.id, updater_id: @current_user.id) do |client|
         client.name = @current_tenant.full_name if settlement_by == 'broker'
@@ -168,9 +160,7 @@ class ShortageSettlementService
 
       # verify if bill needs to be generated or not
       bill_ids = balancing_transactions.pluck(:bill_id).uniq
-      if bill_ids.count == 1
-        share_transaction_count = ShareTransaction.unscoped.where(bill_id: bill_ids.first).count
-      end
+      share_transaction_count = ShareTransaction.unscoped.where(bill_id: bill_ids.first).count if bill_ids.count == 1
 
       if bill_ids.count != 1 && share_transaction_count != balancing_transactions.count
         # get the fy_code from sales settlement date
@@ -193,14 +183,14 @@ class ShortageSettlementService
 
       process_accounts(receipt_bank_account_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
       process_accounts(closeout_ledger, voucher, false, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
-      if (settlement_by == 'counter_broker')
+      if settlement_by == 'counter_broker'
         process_accounts(closeout_ledger, voucher, true, share_transaction.closeout_amount, description, cost_center_id, settlement_date, @current_user)
 
         if (share_transaction.closeout_amount - client_reversal_amount) != 0
-          if (share_transaction.closeout_amount - client_reversal_amount ) > 0.01
-            process_accounts(counter_broker_ledger, voucher, false, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date, @current_user)
+          if (share_transaction.closeout_amount - client_reversal_amount) > 0.01
+            process_accounts(counter_broker_ledger, voucher, false, (share_transaction.closeout_amount - client_reversal_amount).abs, description, cost_center_id, settlement_date, @current_user)
           else
-            process_accounts(counter_broker_ledger, voucher, true, (share_transaction.closeout_amount - client_reversal_amount ).abs, description, cost_center_id, settlement_date, @current_user)
+            process_accounts(counter_broker_ledger, voucher, true, (share_transaction.closeout_amount - client_reversal_amount).abs, description, cost_center_id, settlement_date, @current_user)
           end
         end
       else

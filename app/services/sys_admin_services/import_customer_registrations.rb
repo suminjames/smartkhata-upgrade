@@ -1,4 +1,4 @@
-class SysAdminServices::ImportCustomerRegistrations  < ImportFile
+class SysAdminServices::ImportCustomerRegistrations < ImportFile
   include ApplicationHelper
 
   def process
@@ -7,10 +7,7 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
       ActiveRecord::Base.transaction do
         @processed_data.each do |hash|
           # we will consider clients with  account code and the nepse customer code
-          if hash['AC_CODE'].blank? || hash['NEPSE_CUSTOMER_CODE'].blank?
-            next
-          end
-
+          next if hash['AC_CODE'].blank? || hash['NEPSE_CUSTOMER_CODE'].blank?
 
           # look for the clients with the nepse code and update the account code for the same
           # the following case is valid when we have clients present in the database
@@ -19,11 +16,11 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
           if client_account
             # skip if client_account has same ac code
             next if client_account.ac_code == hash['AC_CODE']
+
             client_account.ac_code = hash['AC_CODE']
           else
             client_account = ClientAccount.new(ac_code: hash["AC_CODE"], nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
           end
-
 
           # grab information from the file and store to the database where applicable
           client_account.name ||= hash["CUSTOMER_NAME"]
@@ -46,8 +43,8 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
           # mobile number can not have -
           client_account.mobile_number ||= hash["MOBILE_NO"] if hash["MOBILE_NO"].is_a? Integer
           client_account.phone_perm ||= hash["PER_TEL_NO"]
-          client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{ hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
-          client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{ hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
+          client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
+          client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
 
           client_account.citizen_passport_date = client_account.citizen_passport_date.gsub('/','-')
           client_account.dob = client_account.dob.gsub('/','-')
@@ -55,15 +52,13 @@ class SysAdminServices::ImportCustomerRegistrations  < ImportFile
 
           # some issues due to invalid dates in database
           begin
-           client_account.save!
-          rescue
+            client_account.save!
+          rescue StandardError
             client_account.mobile_number = nil
             client_account.citizen_passport_date = nil
             client_account.dob = nil
             client_account.save!
           end
-
-
         end
       end
     end

@@ -45,7 +45,7 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
     770
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -72,18 +72,18 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
       document_headings.push("Filter: #{ClientAccount.pretty_string_of_filter_identifier(filter_used)}")
     end
 
-    table_data  = []
+    table_data = []
     document_headings.each do |heading|
       table_data << [
-          heading
+        heading
       ]
     end
     table_width = page_width - 2
     table table_data do |t|
       t.row(0..1).font_style = :bold
       t.row(0..1).size = 9
-      t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
-      t.column(0).style(:align => :center)
+      t.cell_style = {border_width: 0, padding: [2, 4, 2, 2]}
+      t.column(0).style(align: :center)
       t.column_widths = {0 => table_width}
     end
   end
@@ -106,62 +106,59 @@ class Reports::Pdf::ClientAccountsReport < Prawn::Document
       bank_account = client_account.bank_account
 
       table_data << [
-          sn,
-          name,
-          nepse_code,
-          boid,
-          mobile_number,
-          phone,
-          phone_perm,
-          email,
-          [bank_name,bank_address].compact.split("").flatten.join(","),
-          bank_account
+        sn,
+        name,
+        nepse_code,
+        boid,
+        mobile_number,
+        phone,
+        phone_perm,
+        email,
+        [bank_name, bank_address].compact.split("").flatten.join(","),
+        bank_account
       ]
     end
 
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.7/15.5,
-                     1 => table_width * 1.4/15.5,
-                     2 => table_width * 1.2/15.5,
-                     3 => table_width * 1.9/15.5,
-                     4 => table_width * 1.6/15.5,
-                     5 => table_width * 1.6/15.5,
-                     6 => table_width * 1.6/15.5,
-                     7 => table_width * 1.8/15.5,
-                     8 => table_width * 1.8/15.5,
-                     10 =>table_width * 1.8/15.5
-    }
+    column_widths = {0 => table_width * 0.7 / 15.5,
+                     1 => table_width * 1.4 / 15.5,
+                     2 => table_width * 1.2 / 15.5,
+                     3 => table_width * 1.9 / 15.5,
+                     4 => table_width * 1.6 / 15.5,
+                     5 => table_width * 1.6 / 15.5,
+                     6 => table_width * 1.6 / 15.5,
+                     7 => table_width * 1.8 / 15.5,
+                     8 => table_width * 1.8 / 15.5,
+                     10 => table_width * 1.8 / 15.5}
     table table_data do |t|
       t.header = true
       t.row(0).font_style = :bold
       t.row(0).size = 9
       t.row(1..-1).size = 8
-      t.row(0).style(:align => :center)
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
+      t.row(0).style(align: :center)
+      t.cell_style = {border_width: 1, padding: [2, 4, 2, 2]}
       t.column_widths = column_widths
     end
   end
 
   def generate_page_number
     string = "page <page> of <total>"
-    options = { :at => [bounds.right - 150, 0],
-                :width => 150,
-                :align => :right,
-                :start_count_at => 1
-    }
+    options = { at: [bounds.right - 150, 0],
+                width: 150,
+                align: :right,
+                start_count_at: 1}
     number_pages string, options
   end
 
   def company_header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(9)) do
-      text "<b>#{@current_tenant.full_name}</b>", :inline_format => true, :size => 11
-      text "#{@current_tenant.address}"
+    bounding_box([0, row_cursor], width: col(9)) do
+      text "<b>#{@current_tenant.full_name}</b>", inline_format: true, size: 11
+      text @current_tenant.address.to_s
       text "Phone: #{@current_tenant.phone_number}"
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
     end
     hr
   end
-
 end

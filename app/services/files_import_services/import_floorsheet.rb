@@ -1,22 +1,21 @@
-class FilesImportServices::ImportFloorsheet  < ImportFile
+class FilesImportServices::ImportFloorsheet < ImportFile
   attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code
 
   include CommissionModule
   include ShareInventoryModule
   include ApplicationHelper
 
-  FILETYPE = FileUpload::file_types[:floorsheet]
+  FILETYPE = FileUpload.file_types[:floorsheet]
   @@transaction_type_buying = ShareTransaction.transaction_types['buying']
-  @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
+  @@transaction_type_selling = ShareTransaction.transaction_types['selling']
 
-  def initialize(file, acting_user , selected_fy_code, is_partial_upload = false)
+  def initialize(file, acting_user, selected_fy_code, is_partial_upload = false)
     @date = nil
     @acting_user = acting_user
     @is_partial_upload = is_partial_upload
     @selected_fy_code = selected_fy_code
     super(file)
   end
-
 
   def process
     if @is_partial_upload
@@ -32,11 +31,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # hash to store unique combination of isin, transaction type (buying/selling), client
     hash_dp_count = Hash.new 0
-    hash_dp = Hash.new
+    hash_dp = {}
 
     @raw_data = []
 
-    import_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
+    import_error("Please verify and Upload a valid file") and return if is_invalid_file_data(xlsx)
+
     # grab date from the first record
     date_data = date_from_excel(xlsx)
     # convert a string to date
@@ -44,17 +44,15 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     import_error("Please upload a valid file. Are you uploading the processed floorsheet file?") and return if @date.nil?
     # fiscal year and date should match
-    unless date_valid_for_fy_code(@date, selected_fy_code)
-      import_error("Please change the fiscal year.") and return
-    end
+    import_error("Please change the fiscal year.") and return unless date_valid_for_fy_code(@date, selected_fy_code)
 
-    if !is_partial
+    unless is_partial
       # do not reprocess file if it is already uploaded
       floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
       # raise soft error and return if the file is already uploaded
       import_error("The file is already uploaded") and return unless floorsheet_file.nil?
     end
-    settlement_date = Calendar::t_plus_3_working_days(@date)
+    settlement_date = Calendar.t_plus_3_working_days(@date)
     fy_code = get_fy_code(@date)
 
     # get bill number once and increment it on rails code
@@ -77,9 +75,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       if is_partial
         # If share transaction already in db, skip it!
-        if ShareTransaction.find_by_contract_no(contract_no).present?
-          next
-        end
+        next if ShareTransaction.find_by(contract_no: contract_no).present?
       end
 
       @raw_data << data_hash
@@ -91,32 +87,32 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # store the count of transaction for unique client,company, and type of transaction
       transaction_type = bank_deposit.blank? ? :selling : :buying
 
-      if !is_partial
+      unless is_partial
         hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
         # Maintain list of new client accounts not in the system yet.
         unless ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
           # add  new client if not present hash
-          add_client_account(client_name, client_nepse_code,new_client_accounts)
+          add_client_account(client_name, client_nepse_code, new_client_accounts)
         end
       end
 
-      if is_partial
-        client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
-        if client.present?
-          if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
-            # add hash_dp_count new key value
-            hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
-          end
-          hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
-        else
-          # Maintain list of new client accounts not in the system yet.
-          add_client_account(client_name,client_nepse_code, new_client_accounts)
+      next unless is_partial
+
+      client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
+      if client.present?
+        if (hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db']).zero?
+          # add hash_dp_count new key value
+          hash_dp_count_increment(transaction_type, client, company_symbol, client_nepse_code, hash_dp_count)
         end
+        hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
+      else
+        # Maintain list of new client accounts not in the system yet.
+        add_client_account(client_name, client_nepse_code, new_client_accounts)
       end
     end
 
     # Client information should be available before file upload.
-    unless new_client_accounts.blank?
+    if new_client_accounts.present?
       @error_type = 'new_client_accounts_present'
       @new_client_accounts = new_client_accounts
       import_error(new_client_accounts_error_message(new_client_accounts)) and return
@@ -166,30 +162,24 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   def is_relevant_data_invalid? data_hash
     required_data_array = data_hash.except(:serial, :bank_deposit).values
-    required_data_array.select{|x| x.blank? }.present? ||
+    required_data_array.select(&:blank?).present? ||
       !equal_amounts?(data_hash[:amount], data_hash[:rate] * data_hash[:quantity])
   end
 
-
-  def add_client_account(client_name,client_nepse_code,new_client_accounts)
-    client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
-    unless new_client_accounts.include?(client_account_hash)
-      new_client_accounts << client_account_hash
-    end
+  def add_client_account(client_name, client_nepse_code, new_client_accounts)
+    client_account_hash = { client_name: client_name, client_nepse_code: client_nepse_code}
+    new_client_accounts << client_account_hash unless new_client_accounts.include?(client_account_hash)
   end
 
-  def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
+  def hash_dp_count_increment(transaction_type, client, company_symbol, client_nepse_code, hash_dp_count)
     company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
 
-    relevant_share_transactions_count = relevant_share_transactions_count(@date,client.id,company_info.id, ShareTransaction.transaction_types[transaction_type] )
+    relevant_share_transactions_count = relevant_share_transactions_count(@date, client.id, company_info.id, ShareTransaction.transaction_types[transaction_type])
 
     hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
     # Switch the flag `**_counted_from_db` to true
     hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] = 1
   end
-
-
-
 
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
   def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
@@ -221,18 +211,18 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # hash_dp is used to group transactions into bill
     # bill contains all the transactions done for a user for each type( purchase / sales)
     if bank_deposit.blank?
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
+      dp = 25.0 / hash_dp_count[client_nepse_code + company_symbol.to_s + 'selling']
       type_of_transaction = @@transaction_type_selling
     else
       is_purchase = true
       # create or find a bill by the number
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
+      dp = 25.0 / hash_dp_count[client_nepse_code + company_symbol.to_s + 'buying']
       # group all the share transactions for a client for the day
-      if hash_dp.key?(client_nepse_code+'buying')
-        bill = find_or_create_bill(hash_dp[client_nepse_code+'buying'],fy_code,@date,client.id)
+      if hash_dp.key?(client_nepse_code + 'buying')
+        bill = find_or_create_bill(hash_dp[client_nepse_code + 'buying'], fy_code, @date, client.id)
       else
-        hash_dp[client_nepse_code+'buying'] = @bill_number
-        bill = find_or_create_bill(@bill_number,fy_code,@date,client.id) do |b|
+        hash_dp[client_nepse_code + 'buying'] = @bill_number
+        bill = find_or_create_bill(@bill_number, fy_code, @date, client.id) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
@@ -252,7 +242,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # commission_rate = get_commission_rate(amount, commission_info)
     commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
-    commission = get_commission_by_rate( commission_rate, amount).round(2)
+    commission = get_commission_by_rate(commission_rate, amount).round(2)
     nepse = _commission
     broker_purchase_commission = commission - nepse
 
@@ -315,12 +305,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
 
       # find or create predefined ledgers
-      purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
+      purchase_commission_ledger = find_or_create_ledger_by_name("Purchase Commission")
       nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
       tds_ledger = find_or_create_ledger_by_name("TDS")
       dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
-      compliance_ledger = find_or_create_ledger_by_name( "Compliance Fee")
-
+      compliance_ledger = find_or_create_ledger_by_name("Compliance Fee")
 
       # update description
       description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
@@ -338,32 +327,27 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       #TODO replace bill from particulars with bill from voucher
       process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,@acting_user)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,@acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,@acting_user)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp.positive?
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user)
     end
 
-    arr = Array.new
-    data_hash.each do |key, value|
+    arr = []
+    data_hash.each do |_key, value|
       arr.push(value)
     end
 
-     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
-    #true
-
+    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
+    # true
   end
-
-
-
 
   def repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
     processed_share_transactions_for_the_date.each do |share_transaction|
-
       # Patch dp fee in share transaction (but not quite yet on voucher)
 
-      relevant_share_transactions_count =  relevant_share_transactions_count(share_transaction.date,share_transaction.client_account.id,
-                                                                             share_transaction.isin_info.id,ShareTransaction.transaction_types[share_transaction.transaction_type])
+      relevant_share_transactions_count = relevant_share_transactions_count(share_transaction.date, share_transaction.client_account.id,
+                                                                            share_transaction.isin_info.id, ShareTransaction.transaction_types[share_transaction.transaction_type])
 
       stale_dp_fee_for_st = share_transaction.dp_fee
       updated_dp_fee_for_st = 25.0 / relevant_share_transactions_count
@@ -373,35 +357,31 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       # Readjustment of dp fee in vouchers, and other voucher related necessary adjustment only required for purchase transactions.
       # If no changes in (apparently) stale and new dp_fee, no further changes needed.
-      if share_transaction.buying? && difference_of_dp_fee_for_st.abs > 0.1
-        # Readjust share_transaction's net_amount
-        client_dr = share_transaction.net_amount - stale_dp_fee_for_st + share_transaction.dp_fee
-        share_transaction.net_amount = client_dr
-        share_transaction.save!
+      next unless share_transaction.buying? && difference_of_dp_fee_for_st.abs > 0.1
 
-        # Readjust dp fee in vouchers
-        description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
-        date = share_transaction.date
-        client_branch_id = share_transaction.client_account.branch_id
-        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, current_user_id: @acting_user&.id, desc: description)
+      # Readjust share_transaction's net_amount
+      client_dr = share_transaction.net_amount - stale_dp_fee_for_st + share_transaction.dp_fee
+      share_transaction.net_amount = client_dr
+      share_transaction.save!
 
+      # Readjust dp fee in vouchers
+      description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
+      date = share_transaction.date
+      client_branch_id = share_transaction.client_account.branch_id
+      new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, current_user_id: @acting_user&.id, desc: description)
 
+      client_ledger = share_transaction.client_account.ledger
+      process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user)
 
+      # Re-process the (dp_fee updated) share transaction
+      dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
+      process_accounts(dp_ledger, new_voucher, true, difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user)
 
-        client_ledger = share_transaction.client_account.ledger
-        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
-
-        # Re-process the (dp_fee updated) share transaction
-        dp_ledger = find_or_create_ledger_by_name( "DP Fee/ Transfer")
-        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
-
-        # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
-      end
-
+      # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
     end
   end
 
-  def relevant_share_transactions_count(date, client_account_id,isin_info_id,transaction_type)
+  def relevant_share_transactions_count(date, client_account_id, isin_info_id, transaction_type)
     ShareTransaction.where(
         date: date,
         client_account_id:client_account_id,
@@ -409,6 +389,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         transaction_type: transaction_type
     ).size
   end
+
   # TODO: Change arr to hash (maybe)
   # arr =[
   # 	Contract No.,
@@ -434,7 +415,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     share_quantity = arr[6].to_i
     share_rate = arr[7]
     share_net_amount = arr[8]
-    #TODO look into the usage of arr[9] (Stock Commission)
+    # TODO: look into the usage of arr[9] (Stock Commission)
     _commission = arr[9]
     bank_deposit = arr[10]
     # arr[11] = NIL
@@ -456,35 +437,35 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # bill contains all the transactions done for a user for each type( purchase / sales)
     if bank_deposit.blank?
       # Sales
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
+      dp = 25.0 / hash_dp_count[client_nepse_code + company_symbol.to_s + 'selling']
       type_of_transaction = @@transaction_type_selling
     else
       # Purchase
       is_purchase = true
       # create or find a bill by the number
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
+      dp = 25.0 / hash_dp_count[client_nepse_code + company_symbol.to_s + 'buying']
 
       # group all the share transactions for a client for the day
       # The following if logic is first for the first purchase transaction for a client
-      if hash_dp.key?(client_nepse_code+'buying')
-        bill = find_or_create_bill(hash_dp[client_nepse_code+'buying'],fy_code,@date,client.id)
+      if hash_dp.key?(client_nepse_code + 'buying')
+        bill = find_or_create_bill(hash_dp[client_nepse_code + 'buying'], fy_code, @date, client.id)
       else
         # The following sets key for a client during her first purchase transaction iteration.
         # Account for pre-processed relevant share transactions' associate bill for the date.
         _bill_number = nil
         pre_processed_relevant_share_transactions = ShareTransaction.where(
-            date: @date,
-            client_account_id: client.id,
-            transaction_type: ShareTransaction.transaction_types[:buying]
+          date: @date,
+          client_account_id: client.id,
+          transaction_type: ShareTransaction.transaction_types[:buying]
         )
-        if pre_processed_relevant_share_transactions.size > 0
+        if pre_processed_relevant_share_transactions.size.positive?
           _bill_number = pre_processed_relevant_share_transactions.first.bill.bill_number
         else
           _bill_number = @bill_number
           @bill_number += 1
         end
-        hash_dp[client_nepse_code+'buying'] = _bill_number
-        bill = find_or_create_bill(_bill_number,fy_code,date,client.id) do |b|
+        hash_dp[client_nepse_code + 'buying'] = _bill_number
+        bill = find_or_create_bill(_bill_number, fy_code, date, client.id) do |b|
           b.bill_type = Bill.bill_types['purchase']
           b.client_name = client_name
           b.branch_id = client_branch_id
@@ -503,10 +484,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # commission_rate = get_commission_rate(amount, commission_info)
     commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
-      commission = get_commission_by_rate( commission_rate, amount).round(2)
+    commission = get_commission_by_rate(commission_rate, amount).round(2)
     nepse = _commission
     broker_purchase_commission = commission - nepse
-      tds = broker_purchase_commission * 0.15
+    tds = broker_purchase_commission * 0.15
 
     # # since compliance fee is debit from broker purchase commission
     # # reduce amount of the purchase commission in the system.
@@ -551,13 +532,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     bill_number = nil
     full_bill_number = nil
 
-    if type_of_transaction ==   @@transaction_type_buying
+    if type_of_transaction == @@transaction_type_buying
       bill.share_transactions << transaction
       bill.net_amount += transaction.net_amount
       bill.balance_to_pay += transaction.net_amount
-      if bill.partial? || bill.settled?
-        bill.status = Bill.statuses[:partial]
-      end
+      bill.status = Bill.statuses[:partial] if bill.partial? || bill.settled?
       bill.settlement_date = settlement_date
       bill.save!
       bill_id = bill.id
@@ -568,12 +547,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
 
       # find or create predefined ledgers
-      purchase_commission_ledger = find_or_create_ledger_by_name( "Purchase Commission")
-      nepse_ledger = find_or_create_ledger_by_name( "Nepse Purchase")
-      tds_ledger = find_or_create_ledger_by_name( "TDS")
+      purchase_commission_ledger = find_or_create_ledger_by_name("Purchase Commission")
+      nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
+      tds_ledger = find_or_create_ledger_by_name("TDS")
       dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
       compliance_ledger = find_or_create_ledger_by_name("Compliance Fee")
-
 
       # update description
       description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
@@ -587,16 +565,15 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       voucher.complete!
       voucher.save!
 
-      #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
+      # TODO: replace bill from particulars with bill from voucher
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,@acting_user)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,@acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date,@acting_user)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp.positive?
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user)
 
     end
-
 
     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
@@ -612,20 +589,28 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
           yield b
         end
   end
+
   # return true if the floor sheet data is invalid
   def is_invalid_file_data(xlsx)
     file_info = xlsx.sheet(0).row(4)
     return true unless file_info.include?("Broker-Wise Floor Sheet")
-    row_count = xlsx.sheet(0).count rescue 0
+
+    row_count = begin
+                  xlsx.sheet(0).count
+                rescue StandardError
+                  0
+                end
     # records start from 7th row  and we have 1 more row for total
     # hence to have some meaningful data the count of rows should be more than 7
     return true unless row_count > 7
+
     xlsx.sheet(0).row(7)[1].to_s.tr(' ', '') != 'Contract No.' && xlsx.sheet(0).row(row_count)[0].nil?
   end
 
-
   def date_from_excel(xlsx)
-    xlsx.sheet(0).row(5)[0][/\((.+)\)/, 1].strip rescue nil
+    xlsx.sheet(0).row(5)[0][/\((.+)\)/, 1].strip
+  rescue StandardError
+    nil
   end
 
   def find_or_create_ledger_by_name(name)
@@ -638,13 +623,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     Bill.new_bill_number(fy_code)
   end
 
-  def new_client_accounts_error_message(new_client_accounts)
+  def new_client_accounts_error_message(_new_client_accounts)
     error_message = "FLOORSHEET IMPORT CANCELLED!<br>New client accounts found in the file!<br>"
     error_message += "Please manually create the client accounts for the following in the system first, before re-uploading the floorsheet.<br>"
     error_message += "If applicable, please make sure to assign the correct branch to the client account so that billing is tagged to the appropriate branch.<br>"
     error_message.html_safe
   end
-
 
   def get_client_ledger(client, client_nepse_code, client_name, client_group)
     ledger = Ledger.find_by(client_account_id: client.id, client_code: client_nepse_code)

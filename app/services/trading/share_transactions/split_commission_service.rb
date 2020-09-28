@@ -1,7 +1,6 @@
 module Trading
   module ShareTransactions
     class SplitCommissionService
-
       include CommissionModule
       include CustomDateModule
       include FiscalYearModule
@@ -19,21 +18,19 @@ module Trading
             share_amount = transaction.raw_quantity * transaction.share_rate
 
             nepse_related_share_amount = share_amount
-            if share_amount > 5000000
-              nepse_related_share_amount = 0
-            end
+            nepse_related_share_amount = 0 if share_amount > 5_000_000
 
-            if transaction.bank_deposit && transaction.bank_deposit != 0
-              nepse_deposit = transaction.bank_deposit
-            else
-              if transaction.selling?
-                nepse_deposit = nepse_related_share_amount - tds - nepse_commission - transaction.sebo.to_f - transaction.cgt.to_f - transaction.closeout_amount.to_f
-              else
-                nepse_deposit = nepse_related_share_amount + tds + nepse_commission + transaction.sebo
-              end
-            end
+            nepse_deposit = if transaction.bank_deposit && transaction.bank_deposit != 0
+                              transaction.bank_deposit
+                            else
+                              if transaction.selling?
+                                nepse_related_share_amount - tds - nepse_commission - transaction.sebo.to_f - transaction.cgt.to_f - transaction.closeout_amount.to_f
+                              else
+                                nepse_related_share_amount + tds + nepse_commission + transaction.sebo
+                              end
+                            end
 
-            transaction.update_attributes(tds: tds, nepse_commission: nepse_commission, bank_deposit: nepse_deposit)
+            transaction.update(tds: tds, nepse_commission: nepse_commission, bank_deposit: nepse_deposit)
           end
         end
       end
