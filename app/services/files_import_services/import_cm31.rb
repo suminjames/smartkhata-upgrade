@@ -26,9 +26,7 @@ class FilesImportServices::ImportCm31 < ImportFile
 
       begin
         @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-        unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
-          @error_message = "Date is invalid for selected fiscal year"
-        end
+        @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
       rescue
         @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
       end
@@ -55,24 +53,22 @@ class FilesImportServices::ImportCm31 < ImportFile
           settlement_ids.add(settlement_id)
 
           # corrupt file check
-          unless hash['CONTRACTNUMBER'].present?
+          if hash['CONTRACTNUMBER'].blank?
             import_error("The file you have uploaded has missing contract number")
             raise ActiveRecord::Rollback
             break
           end
 
           transaction = ShareTransaction.includes(:client_account).find_by(
-              contract_no: hash['CONTRACTNUMBER'].to_i,
-              transaction_type: ShareTransaction.transaction_types[:buying]
+            contract_no: hash['CONTRACTNUMBER'].to_i,
+            transaction_type: ShareTransaction.transaction_types[:buying]
           )
-
 
           if transaction.nil?
             import_error("Please upload corresponding Floorsheet First. Missing floorsheet data for transaction number #{hash['CONTRACTNUMBER']}")
             raise ActiveRecord::Rollback
             break
           end
-
 
           shortage_quantity = hash['SHORTAGEQTY'].to_i
           trade_quantity = hash['TRADEDQTY'].to_i
@@ -82,7 +78,6 @@ class FilesImportServices::ImportCm31 < ImportFile
             raise ActiveRecord::Rollback
             break
           end
-
 
           close_out_amount = hash['CLOSEOUTCRAMT'].delete(',').to_f
           transaction.settlement_id = hash['SETTLEMENTID']
@@ -95,12 +90,8 @@ class FilesImportServices::ImportCm31 < ImportFile
           cost_center_id = client_account.branch_id
           settlement_date = @settlement_date
 
-          if transaction.closeout_amount.present? && transaction.closeout_amount > 0
-            transaction.quantity = transaction.raw_quantity - shortage_quantity
-          end
-          if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, false)
-          end
+          transaction.quantity = transaction.raw_quantity - shortage_quantity if transaction.closeout_amount.present? && transaction.closeout_amount.positive?
+          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, false) if shortage_quantity.positive? && transaction.deleted_at.nil?
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
           voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: cost_center_id, current_user_id: @current_user.id)
@@ -135,8 +126,6 @@ class FilesImportServices::ImportCm31 < ImportFile
         end
       end
     end
-
-
   end
 
   def extract_xls(file)

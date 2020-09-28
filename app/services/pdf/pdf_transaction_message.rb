@@ -36,7 +36,7 @@ class Pdf::PdfTransactionMessage < Prawn::Document
     770
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -54,44 +54,43 @@ class Pdf::PdfTransactionMessage < Prawn::Document
     share_transactions.each_with_index do |share_transaction, index|
       # TODO(sarojk): Ask subash whether raw_quantity or quanity of share_transaction to be shown?
       data << [
-          index + 1,
-          share_transaction.contract_no,
-          share_transaction.transaction_type.titleize,
-          share_transaction.isin_info.isin,
-          share_transaction.quantity,
-          share_transaction.share_rate,
-          share_transaction.share_amount
+        index + 1,
+        share_transaction.contract_no,
+        share_transaction.transaction_type.titleize,
+        share_transaction.isin_info.isin,
+        share_transaction.quantity,
+        share_transaction.share_rate,
+        share_transaction.share_amount
       ]
     end
     table_width = page_width - 2
-    column_widths = {0 => table_width * 1/12.0,
-                     1 => table_width * 2/12.0,
-                     2 => table_width * 1/12.0,
-                     3 => table_width * 1.3/12.0,
-                     4 => table_width * 2/12.0,
-                     5 => table_width * 2/12.0,
-                     6 => table_width * 2/12.0,
-    }
+    column_widths = {0 => table_width * 1 / 12.0,
+                     1 => table_width * 2 / 12.0,
+                     2 => table_width * 1 / 12.0,
+                     3 => table_width * 1.3 / 12.0,
+                     4 => table_width * 2 / 12.0,
+                     5 => table_width * 2 / 12.0,
+                     6 => table_width * 2 / 12.0}
     table data do |t|
       t.header = true
       t.row(0).font_style = :bold
       t.row(0).size = 9
-      t.columns(0..5).style(:align => :center)
-      t.column(6).style(:align => :right)
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
+      t.columns(0..5).style(align: :center)
+      t.column(6).style(align: :right)
+      t.cell_style = {border_width: 1, padding: [2, 4, 2, 2]}
       t.column_widths = column_widths
     end
   end
 
   def client_information
-    text "Transactions of <b>#{@client_account.name} (#{@client_account.nepse_code})</b> dated <b>#{@date_ad}</b>.", :inline_format => true
+    text "Transactions of <b>#{@client_account.name} (#{@client_account.nepse_code})</b> dated <b>#{@date_ad}</b>.", inline_format: true
   end
 
   def header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(9)) do
-      text "<b>#{@current_tenant.full_name}</b>", :inline_format => true, :size => 11
-      text "#{@current_tenant.address}"
+    bounding_box([0, row_cursor], width: col(9)) do
+      text "<b>#{@current_tenant.full_name}</b>", inline_format: true, size: 11
+      text @current_tenant.address.to_s
       text "Phone: #{@current_tenant.phone_number}"
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
@@ -99,18 +98,17 @@ class Pdf::PdfTransactionMessage < Prawn::Document
   end
 
   def isin_abbreviation_index
-    unique_isins = Set.new()
+    unique_isins = Set.new
     share_transactions = ShareTransaction.where(client_account_id: @client_account.id, date: @date_ad)
     share_transactions.each do |share_transaction|
       unique_isins.add(share_transaction.isin_info)
     end
     isin_abbreviation_index_str = ''
     unique_isins.each do |isin|
-      isin_abbreviation_index_str += "#{isin.isin}: #{isin.company.present? ? isin.company : 'N/A'} | "
+      isin_abbreviation_index_str += "#{isin.isin}: #{isin.company.presence || 'N/A'} | "
     end
     # strip the trailing '| ' and return
-    text '<b><i>Company Code Index</i></b>:', :inline_format => true
-    text isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length-2)
+    text '<b><i>Company Code Index</i></b>:', inline_format: true
+    text isin_abbreviation_index_str.slice(0, isin_abbreviation_index_str.length - 2)
   end
-
 end

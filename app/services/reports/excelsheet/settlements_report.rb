@@ -1,5 +1,5 @@
 class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
-  TABLE_HEADER = ["SN.", "Name", "Amount", "Bank", "Cheque Number", "Date", "Description", "Type"]
+  TABLE_HEADER = ["SN.", "Name", "Amount", "Bank", "Cheque Number", "Date", "Description", "Type"].freeze
 
   def initialize(settlements, params, current_tenant, total_sum)
     super(settlements, params, current_tenant, total_sum)
@@ -19,7 +19,7 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
       @settlement_type.capitalize
     else
       'Payment/Receipt'
-    end
+                      end
     headings = ["#{settlement_type} Report"]
     @file_name = "#{settlement_type.sub('/', '')}Report"
     if @client_account
@@ -33,9 +33,9 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
   def add_document_headings(headings)
     headings << "" if headings.count == 1 # empty subheadings
     # Adds rows with document headings.
-    add_document_headings_base(*headings) {
+    add_document_headings_base(*headings) do
       # if date queries present
-      if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present? }
+      if @params && %i[by_date by_date_from by_date_to].any? { |x| @params[x].present? }
         date_info = ""
         add_date_info = lambda {
           add_header_row(date_info, :info)
@@ -43,27 +43,27 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
         if @params[:by_date].present?
           date_info = "Date: #{@params[:by_date]}"
           add_date_info.call
-        elsif [:by_date_from, :by_date_to].any? {|x| @params[x].present?}
-          date_from = @params[:by_date_from].present? ? @params[:by_date_from] : '*'
-          date_to = @params[:by_date_to].present? ? @params[:by_date_to] : '*'
+        elsif %i[by_date_from by_date_to].any? { |x| @params[x].present?}
+          date_from = @params[:by_date_from].presence || '*'
+          date_to = @params[:by_date_to].presence || '*'
           date_info = "Date Range: #{date_from} to #{date_to}"
           add_date_info.call
         end
         add_blank_row
       end
-    }
+    end
   end
 
   def populate_data_rows
     # inserts the actual data rows through iteration.
-    normal_style_row = [@styles[:normal_center]].push(*[@styles[:wrap]]*6).insert(2, @styles[:float_format])
+    normal_style_row = [@styles[:normal_center]].push(*[@styles[:wrap]] * 6).insert(2, @styles[:float_format])
     # striped_style_row = [@styles[:striped_center]].push(*[@styles[:wrap_striped]]*6).insert(2, @styles[:float_format_striped])
     row_index = 0
     @settlements.each_with_index do |s, index|
       sn = index + 1
       cheque_numbers, bank_codes, amounts = s.cheque_cash_details
                                     .values_at(:cheque_numbers, :bank_codes, :amounts)
-                                    .map{|d| d.split '<br>'}
+                                    .map { |d| d.split '<br>'}
 
       # shift: pops the first element. Empty string just in case..
       cheque_num = cheque_numbers.shift || ''
@@ -80,12 +80,12 @@ class Reports::Excelsheet::SettlementsReport < Reports::Excelsheet
         amount = amounts[sub_index] || ''
         row_style = normal_style_row
         # make a row of 5 columns and insert 3 more, total columns 8
-        @sheet.add_row (['']*5).insert(2, *[amount, bank_code, cheque_num]), style: row_style
+        @sheet.add_row ([''] * 5).insert(2, amount, bank_code, cheque_num), style: row_style
         row_index += 1
       end
     end
-      style = [*[@styles[:table_header]]*2,@styles[:total_amt],*[@styles[:table_header]]*5]
-      @sheet.add_row ["","Grand Total"," #{@total_sum}","","","","",""],style: style
+    style = [*[@styles[:table_header]] * 2, @styles[:total_amt], *[@styles[:table_header]] * 5]
+    @sheet.add_row ["", "Grand Total", " #{@total_sum}", "", "", "", "", ""], style: style
   end
 
   def set_column_widths

@@ -1,5 +1,4 @@
 class FilesImportServices::ImportCm01 < ImportFile
-
   include ApplicationHelper
 
   attr_reader :skip_missing
@@ -37,13 +36,12 @@ class FilesImportServices::ImportCm01 < ImportFile
         share_transaction = ShareTransaction.selling.where(contract_no: contract_no).first
 
         if share_transaction.blank?
-          next if  skip_missing
+          next if skip_missing
 
           import_error("The file you have uploaded contains contract number  #{contract_no} which is not in system")
           raise ActiveRecord::Rollback
           break
         end
-
 
         SalesSettlement.find_or_create_by!(settlement_id: settlement_id, contract_no: contract_no) do |ss|
           ss.share_transaction_id = share_transaction.id
