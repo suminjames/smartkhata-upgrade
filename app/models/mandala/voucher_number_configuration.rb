@@ -7,6 +7,6 @@
 #  voucher_no_format :string
 #
 
-class Mandala::VoucherNumberConfiguration < ActiveRecord::Base
+class Mandala::VoucherNumberConfiguration < ApplicationRecord
   self.table_name = "voucher_number_configuration"
 end

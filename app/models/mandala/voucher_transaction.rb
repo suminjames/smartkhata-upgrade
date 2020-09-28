@@ -8,6 +8,6 @@
 #  fiscal_year  :string
 #
 
-class Mandala::VoucherTransaction < ActiveRecord::Base
+class Mandala::VoucherTransaction < ApplicationRecord
   self.table_name = "voucher_transaction"
 end

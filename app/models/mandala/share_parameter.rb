@@ -7,6 +7,6 @@
 #  share_description :string
 #
 
-class Mandala::ShareParameter < ActiveRecord::Base
+class Mandala::ShareParameter < ApplicationRecord
   self.table_name = "share_parameter"
 end

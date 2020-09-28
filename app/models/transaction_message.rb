@@ -18,7 +18,7 @@
 #  remarks_sms       :string
 #
 
-class TransactionMessage < ActiveRecord::Base
+class TransactionMessage < ApplicationRecord
   include Auditable
   extend CustomDateModule
 

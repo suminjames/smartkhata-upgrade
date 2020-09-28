@@ -15,7 +15,7 @@
 
 
 
-class MenuItem < ActiveRecord::Base
+class MenuItem < ApplicationRecord
   include Auditable
   has_ancestry
   # belongs_to :parent, :class_name => 'MenuItem'

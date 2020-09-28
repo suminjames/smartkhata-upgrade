@@ -15,6 +15,6 @@
 #  ac_code      :string
 #
 
-class Mandala::SupplierBill < ActiveRecord::Base
+class Mandala::SupplierBill < ApplicationRecord
   self.table_name = "supplier_bill"
 end

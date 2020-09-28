@@ -9,7 +9,7 @@
 #  updated_at        :datetime         not null
 #
 
-class OrderRequest < ActiveRecord::Base
+class OrderRequest < ApplicationRecord
   belongs_to :client_account
   has_many :order_request_details
   has_many :isin_infos, through: :order_request_details

@@ -15,6 +15,6 @@
 #  settlement_id    :string
 #
 
-class Mandala::BuySettlement < ActiveRecord::Base
+class Mandala::BuySettlement < ApplicationRecord
   self.table_name = "buy_settlement"
 end

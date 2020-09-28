@@ -18,7 +18,7 @@
 #
 
 require 'net/http'
-class SmsMessage < ActiveRecord::Base
+class SmsMessage < ApplicationRecord
   include Auditable
   extend CustomDateModule
 

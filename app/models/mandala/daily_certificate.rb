@@ -16,6 +16,6 @@
 #  transaction_type              :string
 #
 
-class Mandala::DailyCertificate < ActiveRecord::Base
+class Mandala::DailyCertificate < ApplicationRecord
   self.table_name = "daily_certificate"
 end

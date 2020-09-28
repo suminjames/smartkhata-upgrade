@@ -31,7 +31,7 @@
 #  updated_at        :datetime         not null
 #
 
-class ShareInventory < ActiveRecord::Base
+class ShareInventory < ApplicationRecord
   include Auditable
   include ::Models::Updater
 

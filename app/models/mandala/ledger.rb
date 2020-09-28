@@ -32,7 +32,7 @@
 #  particular_id              :integer
 #
 
-class Mandala::Ledger < ActiveRecord::Base
+class Mandala::Ledger < ApplicationRecord
   self.table_name = "ledger"
   belongs_to :particular
 

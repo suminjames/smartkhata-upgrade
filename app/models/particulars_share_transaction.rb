@@ -7,7 +7,7 @@
 #  association_type     :integer
 #
 
-class ParticularsShareTransaction < ActiveRecord::Base
+class ParticularsShareTransaction < ApplicationRecord
   include Auditable
   belongs_to :particular
   belongs_to :share_transaction

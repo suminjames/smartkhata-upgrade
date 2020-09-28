@@ -36,7 +36,7 @@
 #  temp_password          :string
 #
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include Auditable
 
   include MenuPermissionModule
@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
 
   has_many :menu_permissions, through: :user_access_role
   has_many :branch_permissions
-  belongs_to :user_access_role
+  belongs_to :user_access_role, required: false
 
   ########################################
   # Validation

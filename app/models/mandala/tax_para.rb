@@ -10,6 +10,6 @@
 #  tax_name            :string
 #
 
-class Mandala::TaxPara < ActiveRecord::Base
+class Mandala::TaxPara < ApplicationRecord
   self.table_name = "tax_para"
 end

@@ -14,13 +14,13 @@
 #  updated_at        :datetime         not null
 #
 
-class Group < ActiveRecord::Base
+class Group < ApplicationRecord
   include Auditable
 
   include ::Models::Updater
   include FiscalYearModule
 
-  belongs_to :parent, :class_name => 'Group'
+  belongs_to :parent, :class_name => 'Group', required: false
   has_many :children, :class_name => 'Group', :foreign_key => 'parent_id'
   has_many :ledgers
 

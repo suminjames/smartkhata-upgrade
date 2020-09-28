@@ -27,7 +27,7 @@
 #  close_out_amount      :string
 #
 
-class Mandala::BillDetail < ActiveRecord::Base
+class Mandala::BillDetail < ApplicationRecord
   self.table_name = "bill_detail"
 
   def daily_transactions

@@ -10,6 +10,6 @@
 #  commission_amount :string
 #
 
-class Mandala::CommissionRate < ActiveRecord::Base
+class Mandala::CommissionRate < ApplicationRecord
   self.table_name = "commission_rate"
 end

@@ -21,6 +21,6 @@
 #  quantity         :string
 #
 
-class Mandala::SupplierLedger < ActiveRecord::Base
+class Mandala::SupplierLedger < ApplicationRecord
   self.table_name = "supplier_ledger"
 end

@@ -9,6 +9,6 @@
 #  day         :string
 #
 
-class Mandala::CalendarParameter < ActiveRecord::Base
+class Mandala::CalendarParameter < ApplicationRecord
   self.table_name = "calendar_parameter"
 end

@@ -30,7 +30,7 @@
 #  settlement_id  :integer
 #
 
-class Mandala::ReceiptPaymentSlip < ActiveRecord::Base
+class Mandala::ReceiptPaymentSlip < ApplicationRecord
   self.table_name = "receipt_payment_slip"
   belongs_to :settlement
 

@@ -13,7 +13,7 @@
 #  type            :string
 #
 
-class NepseSettlement < ActiveRecord::Base
+class NepseSettlement < ApplicationRecord
   include Auditable
   enum status: [:pending, :complete]
   include ::Models::Updater

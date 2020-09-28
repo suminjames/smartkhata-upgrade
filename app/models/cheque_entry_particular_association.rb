@@ -8,7 +8,7 @@
 #  particular_id    :integer
 #
 
-class ChequeEntryParticularAssociation < ActiveRecord::Base
+class ChequeEntryParticularAssociation < ApplicationRecord
   belongs_to :cheque_entry
   belongs_to :particular
   enum association_type: [:payment, :receipt, :reversal]

@@ -44,19 +44,20 @@
 #  closeout_settled          :boolean          default(FALSE)
 #
 
-class ShareTransaction < ActiveRecord::Base
+class ShareTransaction < ApplicationRecord
   # include Auditable
   include CommissionModule
   extend FiscalYearModule
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
-  belongs_to :bill
+  belongs_to :bill, optional: true
+  belongs_to :branch
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
-  belongs_to :nepse_chalan
-  belongs_to :transaction_message
+  belongs_to :nepse_chalan, required: false
+  belongs_to :transaction_message, required: false
 
   # many to many association between share transaction and particulars
   # required in case of payment letter
@@ -253,7 +254,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def self.securities_flows(tenant_broker_id, isin_id, date_bs, date_from_bs, date_to_bs, branch_id )
-    ar_connection = ActiveRecord::Base.connection
+    ar_connection = ApplicationRecord.connection
     where_conditions =  []
 
     if isin_id.present?
@@ -302,7 +303,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def self.sebo_report isin_id, date_from_bs, date_to_bs, branch_id, selected_fy_code
-    ar_connection = ActiveRecord::Base.connection
+    ar_connection = ApplicationRecord.connection
     where_conditions =  []
 
     if isin_id.present?
@@ -367,7 +368,7 @@ class ShareTransaction < ActiveRecord::Base
   end
 
   def self.threshold_report date_bs, client_account_id, date_from_bs, date_to_bs, selected_fy_code
-    ar_connection = ActiveRecord::Base.connection
+    ar_connection = ApplicationRecord.connection
     where_conditions =  []
 
     if client_account_id.present?
@@ -416,7 +417,7 @@ class ShareTransaction < ActiveRecord::Base
 
   def self.where_conditions_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
     where_conditions =  []
-    ar_connection = ActiveRecord::Base.connection
+    ar_connection = ApplicationRecord.connection
     if client_id.present?
       client_id = ar_connection.quote(client_id)
       where_conditions << "client_account_id = #{client_id}"

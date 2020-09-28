@@ -11,6 +11,6 @@
 #  remarks     :string
 #
 
-class Mandala::SupplierBillDetail < ActiveRecord::Base
+class Mandala::SupplierBillDetail < ApplicationRecord
   self.table_name = "supplier_bill_detail"
 end
