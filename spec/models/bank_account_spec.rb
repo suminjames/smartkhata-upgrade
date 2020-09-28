@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2', branch_id: @branch.id)}
-  let(:bank_account_1) {create(:bank_account, branch_id: @branch.id)}
+  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
+  let(:bank_account_1) {create(:bank_account)}
   include_context 'session_setup'
 
   describe "validations" do
@@ -66,11 +66,9 @@ RSpec.describe BankAccount, type: :model do
   end
 
   describe ".save_custom" do
-    # let(:bank){create(:bank)}
     it "should create ledger for bank account" do
-      # subject.bank_id =  bank.id
-      group = create(:group, name: 'Current Assets')
-      allow(subject).to receive(:get_current_assets_group).and_return(group.id)
+      allow(subject).to receive(:get_current_assets_group).and_return(5)
+
       expect(subject.save_custom(7374, 1, User.first.id)).to be_truthy
       expect(subject.ledger.name).to eq("Bank:"+subject.bank.name+"(#{subject.account_number})")
     end

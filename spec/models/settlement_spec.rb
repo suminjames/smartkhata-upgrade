@@ -42,7 +42,7 @@ RSpec.describe Settlement, type: :model do
   		end
   		
   		context "when settlement is present" do
-  			subject{create(:settlement, branch_id: @branch.id, settlement_type: 0, date_bs: "2074-03-05", fy_code: 7374)}
+  			subject{create(:settlement, branch_id: 1, settlement_type: 0, date_bs: "2074-03-05", fy_code: 7374)}
   			it "should get new settlement number" do
           expect(Settlement.new_settlement_number("7374",subject.branch_id,subject.settlement_type)).to eq(2)
   			end	
@@ -50,7 +50,7 @@ RSpec.describe Settlement, type: :model do
   	end
 
   	describe ".assign_settlement_number" do
-  		subject{build(:settlement, fy_code: "7374", branch_id: @branch.id, settlement_type: 0,date_bs: "2074-03-05")}
+  		subject{build(:settlement, fy_code: "7374", branch_id:1, settlement_type: 0,date_bs: "2074-03-05")}
   		it "should assign settlement number" do
   			allow(Settlement).to receive(:new_settlement_number).and_return(2)
   			subject.assign_settlement_number
