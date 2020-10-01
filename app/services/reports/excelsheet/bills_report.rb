@@ -82,7 +82,7 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
         if @params[:by_date].present?
           date_info = "Date: #{@params[:by_date]}"
           add_date_info.call
-        elsif %i[by_date_from by_date_to].any? { |x| @params[x].present?}
+        elsif %i[by_date_from by_date_to].any? { |x| @params[x].present? }
           date_from = @params[:by_date_from].presence || '*'
           date_to = @params[:by_date_to].presence || '*'
           date_info = "Date Range: #{date_from} to #{date_to}"

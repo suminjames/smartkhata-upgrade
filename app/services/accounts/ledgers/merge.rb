@@ -12,19 +12,18 @@ module Accounts
       def call
         res = false
         ActiveRecord::Base.transaction do
-         ledger_not_to_merge = ["Purchase Commission",
-                                "Sales Commission",
-                                "DP Fee/ Transfer",
-                                "Nepse Purchase",
-                                "Nepse Sales",
-                                "Clearing Account",
-                                "Compliance Fee",
-                                "TDS",
-                                "Cash",
-                                "Close Out"]
-          if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
-            raise ActiveRecord::Rollback
-          end
+          ledger_not_to_merge = ["Purchase Commission",
+                                 "Sales Commission",
+                                 "DP Fee/ Transfer",
+                                 "Nepse Purchase",
+                                 "Nepse Sales",
+                                 "Clearing Account",
+                                 "Compliance Fee",
+                                 "TDS",
+                                 "Cash",
+                                 "Close Out"]
+          raise ActiveRecord::Rollback if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+
           fix_opening_balances
           fix_ledger_dailies_and_closing_balances
           merge_client_accounts

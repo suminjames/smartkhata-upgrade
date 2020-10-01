@@ -262,28 +262,28 @@ class FilesImportServices::ImportFloorsheet < ImportFile
     # TODO: Include base price
 
     transaction = ShareTransaction.create(
-        contract_no: contract_no,
-        isin_info_id: company_info.id,
-        buyer: buyer_broking_firm_code,
-        seller: seller_broking_firm_code,
-        raw_quantity: share_quantity,
-        quantity: share_quantity,
-        share_rate: share_rate,
-        share_amount: share_net_amount,
-        sebo: sebon,
-        commission_rate: commission_rate,
-        commission_amount: commission,
-        dp_fee: dp,
-        cgt: cgt,
-        net_amount: @client_dr, #calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
-        bank_deposit: bank_deposit,
-        transaction_type: type_of_transaction,
-        date: @date,
-        client_account_id: client.id,
-        tds: tds,
-        nepse_commission: nepse,
-        branch_id: client_branch_id,
-        current_user_id: @acting_user.id
+      contract_no: contract_no,
+      isin_info_id: company_info.id,
+      buyer: buyer_broking_firm_code,
+      seller: seller_broking_firm_code,
+      raw_quantity: share_quantity,
+      quantity: share_quantity,
+      share_rate: share_rate,
+      share_amount: share_net_amount,
+      sebo: sebon,
+      commission_rate: commission_rate,
+      commission_amount: commission,
+      dp_fee: dp,
+      cgt: cgt,
+      net_amount: @client_dr, # calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
+      bank_deposit: bank_deposit,
+      transaction_type: type_of_transaction,
+      date: @date,
+      client_account_id: client.id,
+      tds: tds,
+      nepse_commission: nepse,
+      branch_id: client_branch_id,
+      current_user_id: @acting_user.id
     )
     # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
     update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
@@ -505,26 +505,26 @@ class FilesImportServices::ImportFloorsheet < ImportFile
     # TODO: Include base price
 
     transaction = ShareTransaction.create(
-        contract_no: contract_no,
-        isin_info_id: company_info.id,
-        buyer: buyer_broking_firm_code,
-        seller: seller_broking_firm_code,
-        raw_quantity: share_quantity,
-        quantity: share_quantity,
-        share_rate: share_rate,
-        share_amount: share_net_amount,
-        sebo: sebon,
-        commission_rate: commission_rate,
-        commission_amount: commission,
-        dp_fee: dp,
-        cgt: cgt,
-        net_amount: @client_dr, #calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
-        bank_deposit: bank_deposit,
-        transaction_type: type_of_transaction,
-        date: @date,
-        client_account_id: client.id,
-        branch_id: client_branch_id,
-        current_user_id: @acting_user.id
+      contract_no: contract_no,
+      isin_info_id: company_info.id,
+      buyer: buyer_broking_firm_code,
+      seller: seller_broking_firm_code,
+      raw_quantity: share_quantity,
+      quantity: share_quantity,
+      share_rate: share_rate,
+      share_amount: share_net_amount,
+      sebo: sebon,
+      commission_rate: commission_rate,
+      commission_amount: commission,
+      dp_fee: dp,
+      cgt: cgt,
+      net_amount: @client_dr, # calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
+      bank_deposit: bank_deposit,
+      transaction_type: type_of_transaction,
+      date: @date,
+      client_account_id: client.id,
+      branch_id: client_branch_id,
+      current_user_id: @acting_user.id
     )
     update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
 
@@ -580,14 +580,15 @@ class FilesImportServices::ImportFloorsheet < ImportFile
 
   def find_or_create_bill(bill_number, fy_code, date, client_account_id)
     Bill.find_or_create_by!(
-        bill_number: bill_number,
-        fy_code: fy_code,
-        date: date,
-        updater_id: @acting_user&.id,
-        creator_id: @acting_user&.id,
-        client_account_id: client_account_id) do |b|
-          yield b
-        end
+      bill_number: bill_number,
+      fy_code: fy_code,
+      date: date,
+      updater_id: @acting_user&.id,
+      creator_id: @acting_user&.id,
+      client_account_id: client_account_id
+    ) do |b|
+      yield b
+    end
   end
 
   # return true if the floor sheet data is invalid

@@ -32,7 +32,7 @@ module Accounts
             puts "Settlements affected: #{settlements_affected.count}"
             puts "Particulars affected: #{particulars_on_other_branch_count}"
             puts "Sharetransactions affected: #{sharetransactions_affected.count}"
-            return nil, nil, nil
+            [ nil, nil, nil ]
           else
             bills_affected.update_all(branch_id: branch_id)
             settlements_affected.update_all(branch_id: branch_id)
@@ -52,7 +52,7 @@ module Accounts
           end
           particulars_to_move.update_all(branch_id: branch_id)
         else
-          return nil, nil, nil
+          [ nil, nil, nil ]
         end
         ledger_ids << ledger.id
         [ledger_ids, fy_codes, dates_affected]

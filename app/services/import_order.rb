@@ -97,36 +97,36 @@ class ImportOrder < ImportFile
     raise NotImplementedError
   end
 
-# Signature of a row
-# [
-# 0 => 1.0,  (S.N)
-# 1 => nil,
-# 2 => 201601016317326.0, (Order Id)
-# 3 => nil,
-# 4 => nil,
-# 5 => nil,
-# 6 => "RHPC", (Symbol)
-# 7 => nil,
-# 8 => "ANIL SHRESTHA", (Client Name)
-# 9 => nil,
-# 10 => "ANS17", (Client Code)
-# 11 => nil,
-# 12 => 368.0, (Price)
-# 13 => nil,
-# 14 => 1.0, (Quantity)
-# 15 => nil,
-# 16 => 368.0, (Amount)
-# 17 => nil,
-# 18 => nil,
-# 19 => nil,
-# 20 => 0.0,  (Pending Quantity)
-# 21 => Fri, 01 Jan 2016, (Order Date Time)
-# 22 => "Buy", (Order Type)
-# 23 => "CT", (Order Segment)
-# 24 => "None", (Order Condition)
-# 25 => nil,
-# 26 => "Executed" (Order State)
-# ]
+  # Signature of a row
+  # [
+  # 0 => 1.0,  (S.N)
+  # 1 => nil,
+  # 2 => 201601016317326.0, (Order Id)
+  # 3 => nil,
+  # 4 => nil,
+  # 5 => nil,
+  # 6 => "RHPC", (Symbol)
+  # 7 => nil,
+  # 8 => "ANIL SHRESTHA", (Client Name)
+  # 9 => nil,
+  # 10 => "ANS17", (Client Code)
+  # 11 => nil,
+  # 12 => 368.0, (Price)
+  # 13 => nil,
+  # 14 => 1.0, (Quantity)
+  # 15 => nil,
+  # 16 => 368.0, (Amount)
+  # 17 => nil,
+  # 18 => nil,
+  # 19 => nil,
+  # 20 => 0.0,  (Pending Quantity)
+  # 21 => Fri, 01 Jan 2016, (Order Date Time)
+  # 22 => "Buy", (Order Type)
+  # 23 => "CT", (Order Segment)
+  # 24 => "None", (Order Condition)
+  # 25 => nil,
+  # 26 => "Executed" (Order State)
+  # ]
 
   def non_nil_row_indices
     # The indices below not working with "Today's Orders" but "Historic Orders". The latter is date_from - date_to order list
@@ -162,36 +162,36 @@ class ImportOrder < ImportFile
     true
   end
 
-# Signature of a stripped row
-# [
-# 0 => 1.0,  (S.N)
-# 1 => nil,
-# 2 => 201601016317326.0, (Order Id)
-# 3 => nil,
-# 4 => nil,
-# 5 => nil,
-# 6 => "RHPC", (Symbol)
-# 7 => nil,
-# 8 => "ANIL SHRESTHA", (Client Name)
-# 9 => nil,
-# 10 => "ANS17", (Client Code)
-# 11 => nil,
-# 12 => 368.0, (Price)
-# 13 => nil,
-# 14 => 1.0, (Quantity)
-# 15 => nil,
-# 16 => 368.0, (Amount)
-# 17 => nil,
-# 18 => nil,
-# 19 => nil,
-# 20 => 0.0,  (Pending Quantity)
-# 21 => Fri, 01 Jan 2016, (Order Time)
-# 22 => "Buy", (Order Type)
-# 23 => "CT", (Order Segment)
-# 24 => "None", (Order Condition)
-# 25 => nil,
-# 26 => "Executed" (Order State)
-# ]
+  # Signature of a stripped row
+  # [
+  # 0 => 1.0,  (S.N)
+  # 1 => nil,
+  # 2 => 201601016317326.0, (Order Id)
+  # 3 => nil,
+  # 4 => nil,
+  # 5 => nil,
+  # 6 => "RHPC", (Symbol)
+  # 7 => nil,
+  # 8 => "ANIL SHRESTHA", (Client Name)
+  # 9 => nil,
+  # 10 => "ANS17", (Client Code)
+  # 11 => nil,
+  # 12 => 368.0, (Price)
+  # 13 => nil,
+  # 14 => 1.0, (Quantity)
+  # 15 => nil,
+  # 16 => 368.0, (Amount)
+  # 17 => nil,
+  # 18 => nil,
+  # 19 => nil,
+  # 20 => 0.0,  (Pending Quantity)
+  # 21 => Fri, 01 Jan 2016, (Order Time)
+  # 22 => "Buy", (Order Type)
+  # 23 => "CT", (Order Segment)
+  # 24 => "None", (Order Condition)
+  # 25 => nil,
+  # 26 => "Executed" (Order State)
+  # ]
   def strip_row_of_nil_entries(row)
     stripped_valid_row = []
     non_nil_row_indices.each do |index|
@@ -216,38 +216,38 @@ class ImportOrder < ImportFile
     hashed_row
   end
 
-# Grand Total row Signature
-# [
-# 0 => "Grand Total",
-# 1 => nil,
-# 2 => nil,
-# 3 => nil,
-# 4 => nil,
-# 5 => nil,
-# 6 => nil,
-# 7 => nil,
-# 8 => nil,
-# 9  => nil,
-# 10 => nil,
-# 11 => nil,
-# 12 => nil,
-# 13 => nil,
-# 14 => 5740200.0,  (total_quantity)
-# 15 => nil,
-# 16 => 3055787848.22, (total_amount)
-# 17 => nil,
-# 18 => nil,
-# 19 => nil,
-# 20 => 2518498.0, (total_pending_quantity)
-# 21 => nil,
-# 22 => nil,
-# 23 => nil,
-# 24 => nil,
-# 25 => nil,
-# 26 => nil
-# ]
-# Note: The literal last row has Nepal Stock Exchange Company contact information. However, the last non-trivial(or relevant) row is few rows above the literal last row, and it has 'Grand Total' cell in it.
-# If 'Grand Total' row not found, return -1
+  # Grand Total row Signature
+  # [
+  # 0 => "Grand Total",
+  # 1 => nil,
+  # 2 => nil,
+  # 3 => nil,
+  # 4 => nil,
+  # 5 => nil,
+  # 6 => nil,
+  # 7 => nil,
+  # 8 => nil,
+  # 9  => nil,
+  # 10 => nil,
+  # 11 => nil,
+  # 12 => nil,
+  # 13 => nil,
+  # 14 => 5740200.0,  (total_quantity)
+  # 15 => nil,
+  # 16 => 3055787848.22, (total_amount)
+  # 17 => nil,
+  # 18 => nil,
+  # 19 => nil,
+  # 20 => 2518498.0, (total_pending_quantity)
+  # 21 => nil,
+  # 22 => nil,
+  # 23 => nil,
+  # 24 => nil,
+  # 25 => nil,
+  # 26 => nil
+  # ]
+  # Note: The literal last row has Nepal Stock Exchange Company contact information. However, the last non-trivial(or relevant) row is few rows above the literal last row, and it has 'Grand Total' cell in it.
+  # If 'Grand Total' row not found, return -1
   def grand_total_row_index(excel_sheet)
     row_stop = excel_sheet.last_row
     if row_stop > ORDER_BEGIN_ROW
@@ -258,21 +258,20 @@ class ImportOrder < ImportFile
     -1
   end
 
-# runtime_total = Hash.new(0)
-#initialize runtime_totals as a global variable
-# $runtime_totals = {:total_quantity => 0, :total_amount => 0, :total_pending_quantity => 0 }
+  # runtime_total = Hash.new(0)
+  # initialize runtime_totals as a global variable
+  # $runtime_totals = {:total_quantity => 0, :total_amount => 0, :total_pending_quantity => 0 }
 
-
-# Runtime_total's signature similar to Grand Total row hash Signature
-# {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
+  # Runtime_total's signature similar to Grand Total row hash Signature
+  # {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
   def update_runtime_totals(hashed_row)
     @runtime_totals[:total_quantity] += hashed_row[:QUANTITY]
     @runtime_totals[:total_amount] += hashed_row[:AMOUNT]
     @runtime_totals[:total_pending_quantity] += hashed_row[:PENDING_QUANTITY]
   end
 
-# Grand Total row hash Signature
-# {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
+  # Grand Total row hash Signature
+  # {:total_quanity => 'QUANTITY_HERE', :total_amount => 'AMOUNT_HERE', :total_pending_quantity => 'PENDING AMOUNT HERE'}
   def grand_total_row_hash(excel_sheet)
     grand_total_row = excel_sheet.row(grand_total_row_index(excel_sheet))
     grand_total = {}
@@ -282,9 +281,9 @@ class ImportOrder < ImportFile
     grand_total
   end
 
-# Bottom-most order row (before Grand Total)
-# Note: There is an empty row in between the bottom-most order row & grand_total_row
-# If row not found, return -1
+  # Bottom-most order row (before Grand Total)
+  # Note: There is an empty row in between the bottom-most order row & grand_total_row
+  # If row not found, return -1
   def bottom_most_order_row_index(excel_sheet)
     grand_total_row = grand_total_row_index(excel_sheet)
     if grand_total_row > ORDER_BEGIN_ROW
@@ -318,11 +317,11 @@ class ImportOrder < ImportFile
           hashed_row[:CLIENT_CODE] = ClientAccount.new(nepse_code: hashed_row[:CLIENT_CODE]).format_nepse_code
           update_runtime_totals(hashed_row)
           # Looks at only the first order listed in the excel sheet, checks its availability in the db, and decide if the file has already been uploaded before.
-          #if i == ORDER_BEGIN_ROW
-          #if is_previously_uploaded_file(hashed_row[:ORDER_ID])
-          #@error_message = "Looks like you are trying to upload an already uploaded file! Please upload a valid file." and return
-          #end
-          #end
+          # if i == ORDER_BEGIN_ROW
+          # if is_previously_uploaded_file(hashed_row[:ORDER_ID])
+          # @error_message = "Looks like you are trying to upload an already uploaded file! Please upload a valid file." and return
+          # end
+          # end
           @processed_data << hashed_row
         else
           @error_message = "Row #{i} is invalid! Please upload a valid file." and return
@@ -333,7 +332,7 @@ class ImportOrder < ImportFile
         _client_nepse_code = hashed_row[:CLIENT_CODE]
         next if ClientAccount.unscoped.find_by(nepse_code: _client_nepse_code)
 
-        client_account_hash = {client_name: _client_name, client_nepse_code: _client_nepse_code}
+        client_account_hash = { client_name: _client_name, client_nepse_code: _client_nepse_code}
         new_client_accounts << client_account_hash unless new_client_accounts.include?(client_account_hash)
       end
     else

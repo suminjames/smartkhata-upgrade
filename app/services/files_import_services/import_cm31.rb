@@ -27,7 +27,7 @@ class FilesImportServices::ImportCm31 < ImportFile
       begin
         @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
         @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
-      rescue
+      rescue StandardError
         @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
       end
       return if @error_message
@@ -128,7 +128,7 @@ class FilesImportServices::ImportCm31 < ImportFile
     end
   end
 
-  def extract_xls(file)
+  def extract_xls(_file)
     @error_message = "Please Upload a CSV file." and return
   end
 end

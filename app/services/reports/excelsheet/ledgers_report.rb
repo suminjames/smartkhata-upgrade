@@ -135,12 +135,12 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
   end
 
   # def data_valid?
-    #   if @particulars.any?{|p| p.try(:ledger) != @ledger}
-    #     # if one or more particulars doesn't belong to the relevant ledger.
-    #     @error = "Inconsistent or invalid particulars provided!"
-    #     false
-    #   else
-    #     true
-    #   end
+  #   if @particulars.any?{|p| p.try(:ledger) != @ledger}
+  #     # if one or more particulars doesn't belong to the relevant ledger.
+  #     @error = "Inconsistent or invalid particulars provided!"
+  #     false
+  #   else
+  #     true
+  #   end
   # end
 end

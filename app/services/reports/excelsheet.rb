@@ -49,7 +49,7 @@ class Reports::Excelsheet
   # internal methods
   private
 
-  def data_present_or_set_error(data, err_msg="No data to generate report!")
+  def data_present_or_set_error(data, err_msg = "No data to generate report!")
     # Returns true if data is supplied, else sets error & returns false
     !(@error = data.present? ? nil : err_msg)
   end

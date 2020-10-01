@@ -62,7 +62,7 @@ class FilesImportServices::ImportCm01 < ImportFile
     end
   end
 
-  def extract_xls(file)
+  def extract_xls(_file)
     @error_message = "Please Upload a CSV file."
   end
 end
