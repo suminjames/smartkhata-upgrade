@@ -58,10 +58,8 @@ class CreateSmsService
     # check if transaction message is created for the floorsheet date
     count_of_messages = TransactionMessage.where(transaction_date: transaction_date).count
 
-    if count_of_messages.positive?
-      @error = "The Transaction Messages are already created for the date #{ad_to_bs(transaction_date)}"
-      return
-    end
+    @error = "The Transaction Messages are already created for the date #{ad_to_bs(transaction_date)}" if count_of_messages.positive?
+
     share_transactions = ShareTransaction.where(date: transaction_date).not_cancelled
     group_share_transaction_records(share_transactions)
     transaction_messages = iterate_grouped_transactions(@grouped_records)
@@ -218,7 +216,6 @@ class CreateSmsService
         data.each do |symbol, symbol_data|
           str += ";#{symbol}"
           # symbol_data.each do |rate, rate_data|
-          #
           # end
           str += ",#{symbol_data[:quantity].to_i}@#{strip_redundant_decimal_zeroes(symbol_data[:rate].round(2))}"
           total += symbol_data[:receivable_from_client].to_f if type_of_transaction == :buy

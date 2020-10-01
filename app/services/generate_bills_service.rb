@@ -28,7 +28,7 @@ class GenerateBillsService
     end
   end
 
-  def valid_date? date_string
+  def valid_date?(date_string)
     Date.valid_date?(*date_string.split('-').map(&:to_i))
   end
 

@@ -33,7 +33,7 @@ class SysAdminServices::ImportCustomerRegistrations < ImportFile
           # mandala doesnt enforce it so can find bs date in dob column and vice versa
 
           client_account.dob ||= hash["DOB"] || hash["DOB_BS"]
-          client_account.citizen_passport_date ||= hash["CTZNP_ISSUED_DATE_BS"].gsub('/','-') #validation requires date in format yyyy-mm-dd
+          client_account.citizen_passport_date ||= hash["CTZNP_ISSUED_DATE_BS"].tr('/', '-') # validation requires date in format yyyy-mm-dd
           client_account.citizen_passport_district = hash["CTZNP_ISSUED_DISTRICT_CODE"]
           client_account.husband_spouse = hash["HUSBAND_WIFE_NAME"]
           client_account.profession_code = hash["OCCUPATION"]
@@ -46,9 +46,8 @@ class SysAdminServices::ImportCustomerRegistrations < ImportFile
           client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
           client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
 
-          client_account.citizen_passport_date = client_account.citizen_passport_date.gsub('/','-')
-          client_account.dob = client_account.dob.gsub('/','-')
-
+          client_account.citizen_passport_date = client_account.citizen_passport_date.tr('/', '-')
+          client_account.dob = client_account.dob.tr('/', '-')
 
           # some issues due to invalid dates in database
           begin
