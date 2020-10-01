@@ -18,7 +18,7 @@ module Accounts
         end
         particulars_on_other_branch_count = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id).count
         # LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all
-        if particulars_on_other_branch_count > 0
+        if particulars_on_other_branch_count.positive?
 
           bills_affected = Bill.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
           settlements_affected = Settlement.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)

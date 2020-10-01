@@ -52,8 +52,8 @@ module Accounts
       end
 
       def patch_ledger_dailies(ledger_ids, branch_id, fy_code, current_user_id, affected_dates)
-        branch_ids = branch_id == 0 ? Branch.all.pluck(:id) : [branch_id]
-        
+        branch_ids = branch_id.zero? ? Branch.all.pluck(:id) : [branch_id]
+
         branch_ids.each do |branch_id|
           Accounts::Ledgers::PopulateLedgerDailiesService.new.process(ledger_ids, current_user_id, false, branch_id, fy_code, affected_dates)
         end
@@ -67,7 +67,7 @@ module Accounts
 
       private
 
-      def valid_date? date_string
+      def valid_date?(date_string)
         Date.valid_date?(*date_string.split('-').map(&:to_i))
       end
     end

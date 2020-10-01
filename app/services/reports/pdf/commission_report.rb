@@ -65,22 +65,22 @@ class Reports::Pdf::CommissionReport < Prawn::Document
     table_data = []
     # table_data.unshift %w(id name address)
     th_data = [
-        "S.no",
-        "Client Name",
-        "Total Transaction",
-        "Total Quantity",
-        "Total Amount",
-        "Total Commission Paid"
-        ]
+      "S.no",
+      "Client Name",
+      "Total Transaction",
+      "Total Quantity",
+      "Total Amount",
+      "Total Commission Paid"
+    ]
     table_data << th_data
     @commission_reports.each_with_index do |share_transaction, index|
       td_data = [
-          index + 1,
-          share_transaction.client_account.name,
-          share_transaction["transaction_count"],
-          share_transaction["total_quantity"],
-          share_transaction["total_amount"],
-          share_transaction["total_commission_amount"]
+        index + 1,
+        share_transaction.client_account.name,
+        share_transaction["transaction_count"],
+        share_transaction["total_quantity"],
+        share_transaction["total_amount"],
+        share_transaction["total_commission_amount"]
       ]
       table_data << td_data
     end

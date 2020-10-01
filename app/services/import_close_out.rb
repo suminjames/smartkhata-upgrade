@@ -29,31 +29,30 @@ class ImportCloseOut < ImportFile
 
           # inorder to prevent duplication
           closeout = Closeout.find_or_create_by!(
-              contract_number: hash['CONTRACTNUMBER'],
-              closeout_type: Closeout.closeout_types[@closeout_type]
+            contract_number: hash['CONTRACTNUMBER'],
+            closeout_type: Closeout.closeout_types[@closeout_type]
           )
 
           # update the attributes
           closeout.update!(
-              settlement_id: hash['SETTLEMENTID'],
-              contract_number: hash['CONTRACTNUMBER'],
-              seller_cm: hash['SELLERCM'],
-              seller_client: hash['SELLERCLIENT'],
-              buyer_cm: hash['BUYERCM'],
-              buyer_client: hash['BUYERCLIENT'],
-              isin: hash['ISIN'],
-              scrip_name: hash['SCRIPNAME'],
-              quantity: hash['TRADEDQTY'],
-              shortage_quantity: hash['SHORTAGEQTY'],
-              rate: hash['RATE'],
-              net_amount: closeout.debit? ? hash['CLOSEOUTDBTAMT'] : hash['CLOSEOUTCRAMT']
+            settlement_id: hash['SETTLEMENTID'],
+            contract_number: hash['CONTRACTNUMBER'],
+            seller_cm: hash['SELLERCM'],
+            seller_client: hash['SELLERCLIENT'],
+            buyer_cm: hash['BUYERCM'],
+            buyer_client: hash['BUYERCLIENT'],
+            isin: hash['ISIN'],
+            scrip_name: hash['SCRIPNAME'],
+            quantity: hash['TRADEDQTY'],
+            shortage_quantity: hash['SHORTAGEQTY'],
+            rate: hash['RATE'],
+            net_amount: closeout.debit? ? hash['CLOSEOUTDBTAMT'] : hash['CLOSEOUTCRAMT']
           )
 
           # calculation based on debit or credit
           transaction = ShareTransaction.includes(:bill).find_by(
-              contract_no: closeout.contract_number,
-              transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buying] : ShareTransaction.transaction_types[:selling]
-
+            contract_no: closeout.contract_number,
+            transaction_type: @closeout_type == 'debit' ? ShareTransaction.transaction_types[:buying] : ShareTransaction.transaction_types[:selling]
           )
 
           # transaction need to be present

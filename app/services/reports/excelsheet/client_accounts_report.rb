@@ -33,7 +33,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       extra_infos << "single_"
     end
     if @params && @params[:client_filter].present?
-      sub_headings << "filter: #{@params[:client_filter].sub('no', 'without').gsub('_', ' ')}"
+      sub_headings << "filter: #{@params[:client_filter].sub('no', 'without').tr('_', ' ')}"
       extra_infos << "filtered_"
     end
     sub_headings << "All clients" if sub_headings.empty?

@@ -167,7 +167,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
   end
 
   def add_client_account(client_name, client_nepse_code, new_client_accounts)
-    client_account_hash = { client_name: client_name, client_nepse_code: client_nepse_code}
+    client_account_hash = { client_name: client_name, client_nepse_code: client_nepse_code }
     new_client_accounts << client_account_hash unless new_client_accounts.include?(client_account_hash)
   end
 
@@ -324,8 +324,8 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       voucher.complete!
       voucher.save!
 
-      #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
+      # TODO: replace bill from particulars with bill from voucher
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user)
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user)
@@ -383,10 +383,10 @@ class FilesImportServices::ImportFloorsheet < ImportFile
 
   def relevant_share_transactions_count(date, client_account_id, isin_info_id, transaction_type)
     ShareTransaction.where(
-        date: date,
-        client_account_id:client_account_id,
-        isin_info_id: isin_info_id,
-        transaction_type: transaction_type
+      date: date,
+      client_account_id: client_account_id,
+      isin_info_id: isin_info_id,
+      transaction_type: transaction_type
     ).size
   end
 

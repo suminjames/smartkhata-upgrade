@@ -150,7 +150,7 @@ class ImportOrder < ImportFile
        ORDER_STATE]
   end
 
-  def is_valid_row?(row=[])
+  def is_valid_row?(row = [])
     # 27 is apparently not for "Today's Orders" but "Historic Orders".
     # expected_row_length = 27
     expected_row_length = 25
