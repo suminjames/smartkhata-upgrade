@@ -27,9 +27,9 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
+        expect(bill.purchase?).to be_truthy
         expect(Voucher.count).to eq 1
-        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
+        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-115130.67)
         expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
       end
 
@@ -39,17 +39,17 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq  100106.6726
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq 109106.67
         expect(bill.closeout_charge).to eq 15024
         expect(Voucher.count).to eq 2
-        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(-100106.6726)
+        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-100106.67)
         expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(2)
         expect(sales_share_transaction_with_closeout.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
-        expect(closeout_ledger.closing_balance(@fy_code)).to eq(0)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(100564.802)
+        expect(closeout_ledger.closing_balance((@fy_code).to_f)).to eq(0)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(100564.8)
       end
 
       it 'should not generate the bill for full closeout and ledger entry' do
@@ -58,21 +58,22 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq   -23841.3274
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq -14841.33
         expect(bill.closeout_charge).to eq 138972
 
 
         expect(Voucher.count).to eq 2
-        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(23841.3274)
+        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code).to_f).to eq(23841.33)
         expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(2)
         expect(sales_share_transaction_with_full_closeout.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(0)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(-23383.198)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(-23383.2)
       end
     end
+
     context "automatic settlement by system" do
       it 'should generate the bill for normal transaction' do
         sales_share_transaction
@@ -80,9 +81,9 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
+        expect(bill.purchase?).to be_truthy
         expect(Voucher.count).to eq 1
-        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
+        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-115130.67)
         expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
       end
 
@@ -92,17 +93,17 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq  100106.6726
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq  109106.67
         expect(bill.closeout_charge).to eq 15024
         expect(Voucher.count).to eq 2
-        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(7374)).to eq(-100106.6726)
+        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(7374).to_f).to eq(-100106.67)
         expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(2)
         expect(sales_share_transaction_with_closeout.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(0)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(100564.802)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(100564.8)
       end
 
       it 'should not generate the bill for full closeout and ledger entry' do
@@ -111,19 +112,19 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq   -23841.3274
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq   -14841.33
         expect(bill.closeout_charge).to eq 138972
 
 
         expect(Voucher.count).to eq 2
-        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(23841.3274)
+        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code).to_f).to eq(23841.33)
         expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(2)
         expect(sales_share_transaction_with_full_closeout.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(0)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(-23383.198)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(-23383.2)
       end
     end
     context "manual interventions for closeouts" do
@@ -133,9 +134,9 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
+        expect(bill.purchase?).to be_truthy
         expect(Voucher.count).to eq 1
-        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
+        expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-115130.67)
         expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
       end
 
@@ -146,17 +147,17 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq  115130.6726
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq  124130.67
         expect(bill.closeout_charge).to eq 0
         expect(Voucher.count).to eq 1
-        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
+        expect(sales_share_transaction_with_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.67)
         expect(sales_share_transaction_with_closeout.client_account.ledger.particulars.count).to eq(1)
         expect(sales_share_transaction_with_closeout.closeout_settled).to_not be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(15024)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(100564.802)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(100564.8)
       end
 
       it 'should generate the bill for full closeout and ledger entry' do
@@ -166,22 +167,23 @@ RSpec.describe GenerateBillsService  do
         generate_bill_service.process
         expect(Bill.count).to eq 1
         bill = Bill.first
-        expect(bill.sales?).to be_truthy
-        expect(bill.net_amount).to eq  115130.6726
+        expect(bill.purchase?).to be_truthy
+        expect(bill.net_amount.to_f).to eq  124130.67
         expect(bill.closeout_charge).to eq 0
 
 
         expect(Voucher.count).to eq 1
-        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
+        expect(sales_share_transaction_with_full_closeout.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-115130.67)
         expect(sales_share_transaction_with_full_closeout.client_account.ledger.particulars.count).to eq(1)
         expect(sales_share_transaction_with_full_closeout.closeout_settled).to_not be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.present?).to be_truthy
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(138972)
-        expect(nepse_ledger.closing_balance(@fy_code)).to eq(-23383.198)
+        expect(nepse_ledger.closing_balance(@fy_code).to_f).to eq(-23383.2)
       end
     end
   end
+
 
   context "manual interventions to create missing bills" do
 
@@ -222,7 +224,7 @@ RSpec.describe GenerateBillsService  do
       generate_bill_service.process
       expect(Bill.count).to eq 1
       bill = Bill.first
-      expect(bill.sales?).to be_truthy
+      expect(bill.purchase?).to be_truthy
       expect(Voucher.count).to eq 0
       expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code)).to eq(0)
       expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(0)
@@ -234,7 +236,7 @@ RSpec.describe GenerateBillsService  do
       generate_bill_service.process
       expect(Bill.count).to eq 1
       bill = Bill.first
-      expect(bill.sales?).to be_truthy
+      expect(bill.purchase?).to be_truthy
       expect(Voucher.count).to eq 1
       expect(sales_share_transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-115130.6726)
       expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
