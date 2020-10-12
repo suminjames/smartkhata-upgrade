@@ -62,7 +62,7 @@ class Reports::Excelsheet::TrialBalanceReport < Reports::Excelsheet
         name = ledger[:name]
         ledger = LedgerBalance.new(ledger.except(:name, 'lname'))
 
-        blnc_dr = ledger.opening_balance > 1 ? ledger.opening_balance.round(2) : ''
+        blnc_dr = ledger.opening_balance > 0 ? ledger.opening_balance.round(2) : ''
         blnc_cr = ledger.opening_balance < 0 ? ledger.opening_balance.abs.round(2) : ''
         net_debit = ledger.dr_amount.round(2)
         net_credit = ledger.cr_amount.round(2)
