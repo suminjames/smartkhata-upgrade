@@ -12,6 +12,6 @@
 #  issued_place       :string
 #
 
-class Mandala::CustomerChildInfo < ActiveRecord::Base
+class Mandala::CustomerChildInfo < ApplicationRecord
   self.table_name = "customer_child_info"
 end

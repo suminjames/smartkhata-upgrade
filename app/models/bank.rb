@@ -13,9 +13,7 @@
 #  updated_at :datetime         not null
 #
 
-
-
-class Bank < ActiveRecord::Base
+class Bank < ApplicationRecord
   include Auditable
   include ::Models::Updater
   has_many :bank_accounts

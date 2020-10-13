@@ -16,7 +16,7 @@
 #  closeout_settlement_automatic :boolean          default(FALSE)
 #
 
-class Tenant < ActiveRecord::Base
+class Tenant < ApplicationRecord
   attr_accessor :locale
 
   after_initialize :set_attr
@@ -45,42 +45,42 @@ class Tenant < ActiveRecord::Base
 
   def broker_profile
     MasterSetup::BrokerProfile.where(
-      locale: BrokerProfile.locales[@locale],
-      profile_type: BrokerProfile.profile_types[:is_self_broker],
+      locale: BrokerProfile.locales[@locale]
+      # profile_type: BrokerProfile.profile_types[:is_self_broker],
     ).first
   end
 
   def dp_id
-    broker_profile.try(:dp_code) || read_attribute(:dp_id)
+    broker_profile.try(:dp_code) || self[:dp_id]
   end
 
   def full_name
-    broker_profile.try(:broker_name) || read_attribute(:full_name)
+    broker_profile.try(:broker_name) || self[:full_name]
   end
 
   def phone_number
-    broker_profile.try(:phone_number) || read_attribute(:phone_number)
+    broker_profile.try(:phone_number) || self[:phone_number]
   end
 
   def address
-    broker_profile.try(:address) || read_attribute(:address)
+    broker_profile.try(:address) || self[:address]
   end
 
   def pan_number
-    broker_profile.try(:pan_number) || read_attribute(:pan_number)
+    broker_profile.try(:pan_number) || self[:pan_number]
   end
 
   def fax_number
-    broker_profile.try(:fax_number) || read_attribute(:fax_number)
+    broker_profile.try(:fax_number) || self[:fax_number]
   end
 
   def broker_code
-    broker_profile.try(:broker_number) || read_attribute(:broker_code)
+    broker_profile.try(:broker_number) || self[:broker_code]
   end
 
   private
+
   def set_attr
     @locale = :english
   end
-
 end

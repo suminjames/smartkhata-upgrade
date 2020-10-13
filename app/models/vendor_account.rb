@@ -13,9 +13,7 @@
 #  updated_at   :datetime         not null
 #
 
-
-
-class VendorAccount < ActiveRecord::Base
+class VendorAccount < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch
   has_many :ledgers

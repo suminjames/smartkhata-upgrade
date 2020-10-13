@@ -28,8 +28,7 @@
 #  voucher_date_parsed   :date
 #
 
-class Mandala::Voucher < ActiveRecord::Base
-
+class Mandala::Voucher < ApplicationRecord
   include FiscalYearModule
 
   # validates_uniqueness_of :voucher_no, :scope => [ :voucher_code, :fiscal_year ]
@@ -60,40 +59,40 @@ class Mandala::Voucher < ActiveRecord::Base
   scope :rcp, -> { where(voucher_code: 'RCP') }
   scope :pvb, -> { where(voucher_code: 'PVR') }
   scope :rcb, -> { where(voucher_code: 'RCB') }
-  scope :pending, -> {where(migration_completed: false)}
+  scope :pending, -> { where(migration_completed: false) }
 
   def fy_code
     get_fy_code_from_fiscal_year(fiscal_year)
   end
 
-  def pending
+  def pending; end
 
-  end
   def new_smartkhata_voucher
     fy_code = get_fy_code
     fy_code ||= get_fy_code_from_fiscal_year(fiscal_year)
 
     ::Voucher.new({
-        fy_code: fy_code,
-        voucher_number: get_fy_stripped_voucher_no,
-        voucher_type: voucher_mapping,
-        date: Date.parse(voucher_date),
-        date_bs: bs_date,
-        desc: narration,
-        voucher_status: :complete })
+                    fy_code: fy_code,
+                    voucher_number: get_fy_stripped_voucher_no,
+                    voucher_type: voucher_mapping,
+                    date: Date.parse(voucher_date),
+                    date_bs: bs_date,
+                    desc: narration,
+                    voucher_status: :complete
+                  })
   end
 
   def voucher_mapping
     vouchers = {
-        'JVR' => :journal,
-        'PMT' => :payment,
-        'RCV' => :receipt,
-        'CVR' => :contra,
-        'PVR' => :payment_cash,
-        'RCP' => :receipt_cash,
-        'PVB' => :payment_bank,
-        'RCB' => :receipt_bank,
-        'CDB' => :receipt_bank_deposit
+      'JVR' => :journal,
+      'PMT' => :payment,
+      'RCV' => :receipt,
+      'CVR' => :contra,
+      'PVR' => :payment_cash,
+      'RCP' => :receipt_cash,
+      'PVB' => :payment_bank,
+      'RCB' => :receipt_bank,
+      'CDB' => :receipt_bank_deposit
     }
     ::Voucher.voucher_types[vouchers[self.voucher_code]]
   end
@@ -101,17 +100,16 @@ class Mandala::Voucher < ActiveRecord::Base
   def get_fy_stripped_voucher_no
     voucher_info = voucher_no.split('-')
     if voucher_info.size > 1
-      return voucher_info[1]
+      voucher_info[1]
     else
-      return voucher_info[0]
+      voucher_info[0]
     end
   end
 
   def get_fy_code
     voucher_info = voucher_no.split('-')
-    if voucher_info.size > 1
-      return voucher_info[0]
-    end
-    return nil
+    return voucher_info[0] if voucher_info.size > 1
+
+    nil
   end
 end

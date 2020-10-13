@@ -14,32 +14,32 @@
 #  updated_at        :datetime         not null
 #
 
-class Group < ActiveRecord::Base
+class Group < ApplicationRecord
   include Auditable
 
   include ::Models::Updater
   include FiscalYearModule
 
-  belongs_to :parent, :class_name => 'Group'
-  has_many :children, :class_name => 'Group', :foreign_key => 'parent_id'
+  belongs_to :parent, class_name: 'Group'
+  has_many :children, class_name: 'Group', foreign_key: 'parent_id'
   has_many :ledgers
 
-  enum reports: ["PNL", "Balance"]
-  enum sub_reports: ["Income", "Expense", "Assets", "Liabilities"]
+  enum reports: { "PNL" => 0, "Balance" => 1 }
+  enum sub_reports: { "Income" => 0, "Expense" => 1, "Assets" => 2, "Liabilities" => 3 }
 
-  scope :top_level, -> {
-    where(:parent_id => nil)
+  scope :top_level, lambda {
+    where(parent_id: nil)
   }
-  scope :trial_balance, -> { where(:for_trial_balance => true) }
+  scope :trial_balance, -> { where(for_trial_balance: true) }
 
-  scope :balance_sheet, -> {
-    where(:parent_id => nil, :report => reports['Balance'])
+  scope :balance_sheet, lambda {
+    where(parent_id: nil, report: reports['Balance'])
   }
-  scope :pnl, -> {
-    where(:report => reports['PNL'])
+  scope :pnl, lambda {
+    where(report: reports['PNL'])
   }
 
-  # TODO add some uniqueness other than name
+  # TODO: add some uniqueness other than name
   validates :name, uniqueness: true
   # not so good approach
   # kept for performance test later on
@@ -61,16 +61,15 @@ class Group < ActiveRecord::Base
     self.descendent_ledgers_bad.sum(&:closing_balance)
   end
 
-
   # get the ledger and groups based on level selected
   # level 1 which is default will return only the balance
   def get_ledger_group(attrs = {})
     level = attrs[:drill_level] || 1
     fy_code = attrs[:fy_code]
     branch_id = attrs[:branch_id]
-    group_ledger = Hash.new
-    child_group = Hash.new
-    group_ledger[:balance] = self.closing_balance(fy_code,branch_id)
+    group_ledger = {}
+    child_group = {}
+    group_ledger[:balance] = self.closing_balance(fy_code, branch_id)
     group_ledger[:ledgers] = []
 
     # dont load all the clients
@@ -78,11 +77,11 @@ class Group < ActiveRecord::Base
     if level > 1 && self.name != 'Clients'
       group_ledger[:ledgers] = self.ledgers
       self.children.each do |child|
-        child_group[child.name] = child.get_ledger_group(drill_level: level-1, fy_code: fy_code)
+        child_group[child.name] = child.get_ledger_group(drill_level: level - 1, fy_code: fy_code)
       end
     end
     group_ledger[:child_group] = child_group
-    return group_ledger
+    group_ledger
   end
 
   # get all the descendents and their balances
@@ -95,12 +94,12 @@ class Group < ActiveRecord::Base
     self.class.tree_for(self)
   end
 
-  def descendent_ledgers(fy_code = get_fy_code)
+  def descendent_ledgers(_fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
     Ledger.where("group_id IN (#{subtree})").order(name: :asc)
   end
 
-  def closing_balance(fy_code,branch_id)
+  def closing_balance(fy_code, branch_id)
     # self.descendent_ledgers(fy_code).to_a.sum(&:closing_balance)
     self.descendent_ledgers.inject(0) { |sum, p| sum + p.closing_balance(fy_code, branch_id) }
   end
@@ -124,6 +123,4 @@ class Group < ActiveRecord::Base
       SELECT id FROM search_tree ORDER BY path
     SQL
   end
-
-
 end

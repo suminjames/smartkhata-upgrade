@@ -19,6 +19,6 @@
 #  nepse_code          :string
 #
 
-class Mandala::TempDailyTransaction < ActiveRecord::Base
+class Mandala::TempDailyTransaction < ApplicationRecord
   self.table_name = "temp_daily_transaction"
 end

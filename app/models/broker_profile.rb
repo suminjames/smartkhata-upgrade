@@ -18,28 +18,27 @@
 #  ledger_id     :integer
 #
 
-class BrokerProfile < ActiveRecord::Base
-  enum profile_type: [:is_self_broker, :is_other_broker]
-  enum locale: [:english, :nepali]
+class BrokerProfile < ApplicationRecord
+  enum profile_type: { is_self_broker: 0, is_other_broker: 1 }
+  enum locale: { english: 0, nepali: 1 }
 
   default_scope { is_other_broker }
   belongs_to :ledger
 
-  validates_presence_of :broker_name, :broker_number, :locale
+  validates :broker_name, :broker_number, :locale, presence: true
 
-  validates :broker_number, :numericality => { :greater_than => 0 }
+  validates :broker_number, numericality: { greater_than: 0 }
   validates :broker_number, uniqueness: { scope: :locale }
 
   before_validation :assign_default_locale
 
   # since we need to show the ledger and due to ajax we are not loading all the ledgers
   def ledger_map
-    ledgers = []
-    ledgers = [self.ledger] if self.ledger
-    ledgers
+    [ledger.presence].compact
   end
 
   private
+
   def strip_blanks(*fields)
     fields.each do |field|
       # self[field] = self.send(field).strip
@@ -48,6 +47,6 @@ class BrokerProfile < ActiveRecord::Base
   end
 
   def assign_default_locale
-    self.locale ||=  BrokerProfile.locales[:english]
+    self.locale ||= BrokerProfile.locales[:english]
   end
 end

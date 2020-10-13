@@ -25,12 +25,12 @@
 #  cash_amount               :decimal(15, 2)
 #
 
-class Settlement < ActiveRecord::Base
-########################################
-# Constants
+class Settlement < ApplicationRecord
+  ########################################
+  # Constants
 
-########################################
-# Includes
+  ########################################
+  # Includes
 
   class << self
     include CustomDateModule
@@ -39,20 +39,19 @@ class Settlement < ActiveRecord::Base
   include ::Models::Updater
   include ::Models::SearchableByBranchFycode
 
-########################################
-# Relationships
+  ########################################
+  # Relationships
 
   belongs_to :client_account
   belongs_to :vendor_account
 
-  has_and_belongs_to_many :particulars
   has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
   has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
   has_many :particular_settlement_associations
+  has_many :particulars, through: :particular_settlement_associations
 
   has_many :debited_particulars, through: :for_dr, source: :particular
   has_many :credited_particulars, through: :for_cr, source: :particular
-  has_many :particulars, through: :particular_settlement_associations
 
   belongs_to :voucher
 
@@ -62,26 +61,26 @@ class Settlement < ActiveRecord::Base
   # has_many :cheque_particulars, through: :debited_particulars, source: :particular
   has_many :cheque_entries, through: :debited_particulars
 
-########################################
-# Callbacks
+  ########################################
+  # Callbacks
 
   before_create :assign_settlement_number
   before_validation :add_date_from_date_bs
 
-########################################
-# Validations
+  ########################################
+  # Validations
 
-  validates_presence_of :date_bs
-  validates_presence_of :branch_id , :fy_code
+  validates :date_bs, presence: true
+  validates :branch_id, :fy_code, presence: true
 
-########################################
-# Enums
+  ########################################
+  # Enums
 
-  enum settlement_type: [:receipt, :payment]
-  enum settlement_by_cheque_type: [:not_implemented, :has_single_cheque, :has_multiple_cheques]
+  enum settlement_type: { receipt: 0, payment: 1 }
+  enum settlement_by_cheque_type: { not_implemented: 0, has_single_cheque: 1, has_multiple_cheques: 2 }
 
-########################################
-# Scopes
+  ########################################
+  # Scopes
 
   # default_scope {where(fy_code: UserSession.selected_fy_code)}
 
@@ -94,11 +93,11 @@ class Settlement < ActiveRecord::Base
   #   end
   # end
 
-  scope :by_settlement_type, -> (type) { where(:settlement_type => Settlement.settlement_types[type]) }
+  scope :by_settlement_type, ->(type) { where(settlement_type: Settlement.settlement_types[type]) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(date: date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -109,47 +108,47 @@ class Settlement < ActiveRecord::Base
     where('settlements.date <= ?', date_ad.end_of_day)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :by_client_id, ->(id) { where(client_account_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
-    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-       order("settlements.id #{ direction }")
+        order("settlements.id #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
 
   # might not work always with only the scope,
   # hack to make it work with the controller
-  scope :with_bank_account_id, ->(bank_account_id){ includes(:cheque_entries).where(cheque_entries: {:bank_account_id => bank_account_id}) }
+  scope :with_bank_account_id, ->(bank_account_id) { includes(:cheque_entries).where(cheque_entries: { bank_account_id: bank_account_id }) }
 
   # Old implementation! Delete when successful migration to new implementation.
-# scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
+  # scope :not_rejected, -> { joins(:voucher).where.not(vouchers: {voucher_status: Voucher.voucher_statuses[:rejected]}) }
 
-  scope :not_rejected, -> { joins( :particulars => [:voucher]).where(vouchers: {voucher_status: Voucher.voucher_statuses[:complete]}) }
+  scope :not_rejected, -> { joins(particulars: [:voucher]).where(vouchers: { voucher_status: Voucher.voucher_statuses[:complete] }) }
 
-########################################
-# Attributes
+  ########################################
+  # Attributes
 
-########################################
-# Delegations
+  ########################################
+  # Delegations
 
-########################################
-# Methods
+  ########################################
+  # Methods
 
   filterrific(
-      default_filter_params: {sorted_by: 'id'},
-      available_filters: [
-          :sorted_by,
-          :by_settlement_type,
-          :by_date,
-          :by_date_from,
-          :by_date_to,
-          :by_client_id,
-          :with_bank_account_id
-      ]
+    default_filter_params: { sorted_by: 'id' },
+    available_filters: %i[
+      sorted_by
+      by_settlement_type
+      by_date
+      by_date_from
+      by_date_to
+      by_client_id
+      with_bank_account_id
+    ]
   )
 
   # TODO(sarojk): IMPORTANT! Older model implementation. Delete after migration and no hiccups.
@@ -189,7 +188,7 @@ class Settlement < ActiveRecord::Base
   end
 
   def self.options_for_settlement_type_select
-    [["Receipt", "receipt"], ["Payment", "payment"]]
+    [%w[Receipt receipt], %w[Payment payment]]
   end
 
   #

@@ -17,12 +17,11 @@
 #  branch_id           :integer
 #
 
-class NepseChalan < ActiveRecord::Base
+class NepseChalan < ApplicationRecord
   include Auditable
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
   belongs_to :voucher
   has_many :share_transactions
-
 end

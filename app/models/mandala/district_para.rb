@@ -8,6 +8,6 @@
 #  district_name :string
 #
 
-class Mandala::DistrictPara < ActiveRecord::Base
+class Mandala::DistrictPara < ApplicationRecord
   self.table_name = "district_para"
 end

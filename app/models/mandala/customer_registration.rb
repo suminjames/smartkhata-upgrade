@@ -63,15 +63,14 @@
 #  client_account_id             :integer
 #
 
-class Mandala::CustomerRegistration < ActiveRecord::Base
+class Mandala::CustomerRegistration < ApplicationRecord
   self.table_name = "customer_registration"
   belongs_to :client_account
-
 
   def find_or_create_smartkhata_client_account
     return self.client_account if self.client_account_id.present?
 
-    client_account =  find_or_create_smartkhata_client_account_from_hash(self.attributes)
+    client_account = find_or_create_smartkhata_client_account_from_hash(self.attributes)
     self.client_account_id = client_account.id
     self.save!
 
@@ -80,9 +79,9 @@ class Mandala::CustomerRegistration < ActiveRecord::Base
 
   def find_or_new_smartkhata_client_account
     return self.client_account if self.client_account_id.present?
+
     find_or_new_smartkhata_client_account_from_hash(self.attributes)
   end
-
 
   def find_or_new_smartkhata_client_account_from_hash(hash)
     # to make sure the json and the csv files are compatible
@@ -90,18 +89,16 @@ class Mandala::CustomerRegistration < ActiveRecord::Base
     client_account = nil
     # look for the clients with the nepse code and update the account code for the same
     # the following case is valid when we have clients present in the database
-    if hash['NEPSE_CUSTOMER_CODE'].present?
-      client_account = ::ClientAccount.find_by(nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
-    end
+    client_account = ::ClientAccount.find_by(nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase) if hash['NEPSE_CUSTOMER_CODE'].present?
 
     if client_account
       # skip if client_account has same ac code
       return client_account if client_account.ac_code == hash['AC_CODE']
+
       client_account.ac_code = hash['AC_CODE']
     else
       client_account = ::ClientAccount.new(ac_code: hash["AC_CODE"], nepse_code: hash['NEPSE_CUSTOMER_CODE'].upcase)
     end
-
 
     # grab information from the file and store to the database where applicable
     client_account.name ||= hash["CUSTOMER_NAME"]
@@ -114,7 +111,7 @@ class Mandala::CustomerRegistration < ActiveRecord::Base
     # mandala doesnt enforce it so can find bs date in dob column and vice versa
 
     client_account.dob ||= hash["DOB"] || hash["DOB_BS"]
-    client_account.citizen_passport_date ||= hash["CTZNP_ISSUED_DATE_BS"].gsub('/','-') #validation requires date in format yyyy-mm-dd
+    client_account.citizen_passport_date ||= hash["CTZNP_ISSUED_DATE_BS"].tr('/', '-') # validation requires date in format yyyy-mm-dd
     client_account.citizen_passport_district = hash["CTZNP_ISSUED_DISTRICT_CODE"]
     client_account.husband_spouse = hash["HUSBAND_WIFE_NAME"]
     client_account.profession_code = hash["OCCUPATION"]
@@ -124,11 +121,11 @@ class Mandala::CustomerRegistration < ActiveRecord::Base
     # mobile number can not have -
     client_account.mobile_number ||= hash["MOBILE_NO"] if hash["MOBILE_NO"].is_a? Integer
     client_account.phone_perm ||= hash["PER_TEL_NO"]
-    client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{ hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
-    client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{ hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
+    client_account.address1 ||= "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
+    client_account.address1_perm ||= "#{hash['PER_VDC_MP_SMP_NAME']} - #{hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
 
-    client_account.citizen_passport_date = client_account.citizen_passport_date.gsub('/','-')
-    client_account.dob = client_account.dob.gsub('/','-')
+    client_account.citizen_passport_date = client_account.citizen_passport_date.tr('/', '-')
+    client_account.dob = client_account.dob.tr('/', '-')
 
     client_account
   end

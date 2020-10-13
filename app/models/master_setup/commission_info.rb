@@ -12,8 +12,7 @@
 #  updated_at            :datetime         not null
 #
 
-class MasterSetup::CommissionInfo < ActiveRecord::Base
-
+class MasterSetup::CommissionInfo < ApplicationRecord
   ########################################
   # Relationships
   has_many :commission_details, class_name: '::MasterSetup::CommissionDetail', foreign_key: 'master_setup_commission_info_id'
@@ -25,15 +24,14 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
 
   ########################################
   # Validations
-  validates :nepse_commission_rate, presence: true, :inclusion => {in: 0..100, message:"is out of range."}
+  validates :nepse_commission_rate, presence: true, inclusion: { in: 0..100, message: "is out of range." }
   validate :validate_date_range
   validate :validate_details
 
   ########################################
   # Constants
-  MAX = 99999999999
+  MAX = 99_999_999_999
   MIN = 0
-
 
   ########################################
   # Scopes
@@ -42,14 +40,14 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   # Methods
 
   def is_latest?
-    self == self.class.all.order(:start_date => :desc).first
+    self == self.class.all.order(start_date: :desc).first
   end
 
   private
 
   def validate_date_range
     # get the last commission info ordered by start date
-    commission_info_latest = self.class.all.order(:start_date => :desc).first
+    commission_info_latest = self.class.all.order(start_date: :desc).first
     if start_date >= end_date
       errors.add :start_date, "Start date should be before the end date"
       return
@@ -60,9 +58,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
       end_date_to_compare = commission_info_latest.end_date
 
       # cases where the one being edited is the last entry
-      if self.id == commission_info_latest.id
-        end_date_to_compare = self.start_date.yesterday
-      end
+      end_date_to_compare = self.start_date.yesterday if self.id == commission_info_latest.id
 
       # cant have 2 commission details for same day
       # cant have dates without commission rates

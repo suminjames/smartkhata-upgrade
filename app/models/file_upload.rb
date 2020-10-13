@@ -13,10 +13,10 @@
 #  updated_at  :datetime         not null
 #
 
-class FileUpload < ActiveRecord::Base
+class FileUpload < ApplicationRecord
   include Auditable
   include ::Models::Updater
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
-  enum file_type: [:unknown, :floorsheet, :dpa5, :orders]
+  enum file_type: { unknown: 0, floorsheet: 1, dpa5: 2, orders: 3 }
 end

@@ -17,8 +17,7 @@
 #  reviewer_id         :integer          default(0)
 #
 
-class BankPaymentLetter < ActiveRecord::Base
-
+class BankPaymentLetter < ApplicationRecord
   include Auditable
 
   belongs_to :nepse_settlement
@@ -26,7 +25,7 @@ class BankPaymentLetter < ActiveRecord::Base
   belongs_to :voucher
   belongs_to :bank_account
   has_many :particulars
-  delegate :bills, :to => :voucher, :allow_nil => true
+  delegate :bills, to: :voucher, allow_nil: true
 
-  enum letter_status: [:pending, :approved, :cancelled]
+  enum letter_status: { pending: 0, approved: 1, cancelled: 2 }
 end

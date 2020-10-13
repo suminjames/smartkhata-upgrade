@@ -14,5 +14,3 @@
 #
 
 class NepsePurchaseSettlement < NepseSettlement; end
-
-  

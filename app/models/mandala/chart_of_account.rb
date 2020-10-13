@@ -18,18 +18,18 @@
 #  group_id        :integer
 #
 
-class Mandala::ChartOfAccount < ActiveRecord::Base
+class Mandala::ChartOfAccount < ApplicationRecord
   self.table_name = "chart_of_account"
   belongs_to :ledger, class_name: '::Ledger'
 
   @@account_group_map = {
-      '10301' => 'Clients'
+    '10301' => 'Clients'
   }
 
   @@client_mgr_ac_code = '10301'
 
-  scope :non_ledger,  -> { where.not(account_type: 'T')}
-  scope :primary, -> {non_ledger.where(mgr_ac_code: '') }
+  scope :non_ledger, -> { where.not(account_type: 'T') }
+  scope :primary, -> { non_ledger.where(mgr_ac_code: '') }
 
   def child_groups
     self.class.non_ledger.where(mgr_ac_code: self.ac_code)
@@ -38,7 +38,7 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
   def find_or_create_ledger
     ledger = nil
     if self.ledger_id.present?
-      ledger =  self.ledger
+      ledger = self.ledger
     else
       # client ledgers
       if mgr_ac_code == @@client_mgr_ac_code
@@ -63,6 +63,7 @@ class Mandala::ChartOfAccount < ActiveRecord::Base
 
   def smartkhata_group_id
     return self.group_id if self.group_id.present?
+
     parent_account.smartkhata_group_id if parent_account.present?
   end
 

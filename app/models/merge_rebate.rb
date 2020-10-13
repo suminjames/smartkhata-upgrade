@@ -1,4 +1,4 @@
-class MergeRebate < ActiveRecord::Base
+class MergeRebate < ApplicationRecord
   before_validation :process_scrip
   validates :scrip, :rebate_start, :rebate_end, presence: true
   validates :scrip, uniqueness: true

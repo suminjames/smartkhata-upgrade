@@ -16,10 +16,8 @@ class Vouchers::Base
     validate
   end
 
-
-
-
   private
+
   # attr_accessor :bill_ids, :client_account_id, :clear_ledger
   def set_bill_client(client_account_id, bill_ids, voucher_type, clear_ledger = false, selected_branch_id, selected_fy_code)
     # set default values to nil
@@ -44,7 +42,7 @@ class Vouchers::Base
     #   4. specific bill
     #         process a specific bill
 
-    if (clear_ledger || bill_ids.size > 0) && client_account.present?
+    if (clear_ledger || bill_ids.size.positive?) && client_account.present?
 
       client_ledger = client_account.ledger
       ledger_balance = client_ledger.closing_balance(selected_fy_code, selected_branch_id)
@@ -86,10 +84,10 @@ class Vouchers::Base
       #     need to receive from bills and ledger has advances to cover up the bill amount
       #       use the balance and create general voucher, settle all bills
 
-      # TODO change the voucher types to its sub class for payment receipt
+      # TODO: change the voucher types to its sub class for payment receipt
 
       if clear_ledger
-        if ledger_balance > 0
+        if ledger_balance.positive?
           voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment, *bills_receive]
         else
@@ -136,10 +134,9 @@ class Vouchers::Base
           #   end
           # end
 
-
           voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment, *bills_receive]
-          amount = (amount_to_receive_or_pay).abs
+          amount = amount_to_receive_or_pay.abs
         else
           # this case for condition when amount to pay is greater than amount to receive
 
@@ -178,7 +175,7 @@ class Vouchers::Base
 
           voucher_type = Voucher.voucher_types[:payment]
           bills = [*bills_receive, *bills_payment]
-          amount = (amount_to_receive_or_pay).abs
+          amount = amount_to_receive_or_pay.abs
         end
       end
     else
@@ -221,9 +218,8 @@ class Vouchers::Base
       # end
     end
 
-
     amount = amount.round(2)
-    return client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment
+    [client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment]
   end
 
   def get_new_voucher(voucher_type)
@@ -234,18 +230,16 @@ class Vouchers::Base
 
   # validate self
   def validate
-  #   when bill ids are present client account should also be present
-  #   since bill is always tied up to client
-    raise SmartKhataError if (( @bill_ids.present? || @clear_ledger) && !@client_account_id.present?)
+    #   when bill ids are present client account should also be present
+    #   since bill is always tied up to client
+    raise SmartKhataError if (@bill_ids.present? || @clear_ledger) && @client_account_id.blank?
   end
-
-
 
   def client_account_and_bill(client_account_id)
     # find the client account
     client_account = nil
     client_account = ClientAccount.find(client_account_id) if client_account_id.present?
-    return client_account
+    client_account
   end
 
   def bills_have_pending_deal_cancel(bill_list)
@@ -253,12 +247,12 @@ class Vouchers::Base
     bill_number = nil
     bill_list ||= []
     bill_list.each do |bill|
-      if bill.share_transactions.deal_cancel_pending.size > 0
-        res = true
-        bill_number = bill.bill_number
-        break
-      end
+      next unless bill.share_transactions.deal_cancel_pending.size.positive?
+
+      res = true
+      bill_number = bill.bill_number
+      break
     end
-    return res, bill_number
+    [res, bill_number]
   end
 end

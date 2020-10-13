@@ -1,4 +1,4 @@
-  # == Schema Information
+# == Schema Information
 #
 # Table name: master_setup_commission_details
 #
@@ -12,13 +12,12 @@
 #  updated_at                      :datetime         not null
 #
 
-class MasterSetup::CommissionDetail < ActiveRecord::Base
+class MasterSetup::CommissionDetail < ApplicationRecord
   # belongs_to :master_setup_commission_info
   ########################################
   # Constants
-  MAX = 99999999999
+  MAX = 99_999_999_999
   MIN = 0
-
 
   ########################################
   # Callbacks
@@ -26,17 +25,17 @@ class MasterSetup::CommissionDetail < ActiveRecord::Base
 
   ########################################
   # Vaidations
-  validates_presence_of :start_amount, unless: :limit_amount?
-  validates_presence_of :limit_amount, unless: :start_amount?
-  validates_presence_of :commission_rate, unless: :commission_amount?
+  validates :start_amount, presence: { unless: :limit_amount? }
+  validates :limit_amount, presence: { unless: :start_amount? }
+  validates :commission_rate, presence: { unless: :commission_amount? }
   validate :validate_amounts
   ########################################
   # Methods
+
   private
+
   def validate_amounts
-    if self.start_amount > self.limit_amount
-      errors.add :start_amount, "Starting price cant be less than the limit"
-    end
+    errors.add :start_amount, "Starting price cant be less than the limit" if self.start_amount > self.limit_amount
   end
 
   def set_max_min_amount

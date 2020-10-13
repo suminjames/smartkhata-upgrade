@@ -1,11 +1,10 @@
-# encoding: utf-8
 # author: Subas Poudel
 # email: dit.subas@gmail.com
 class Ledgers::Query
   attr_reader :error_message, :branch_id, :fy_code, :opening_balance_calculated
   include CustomDateModule
 
-  def initialize(params, ledger, branch_id=nil, fy_code=nil)
+  def initialize(params, ledger, branch_id = nil, fy_code = nil)
     @particulars = ''
     @params = params
     @ledger = ledger
@@ -19,26 +18,26 @@ class Ledgers::Query
     @fy_code = fy_code
   end
 
-  def particular_size(no_pagination=true)
-    return unless (@branch_id.present?  && @fy_code.present?)
+  def particular_size(no_pagination = true)
+    return unless @branch_id.present? && @fy_code.present?
+
     ledger_with_particulars(no_pagination, false)
-    return @particulars.count
+    @particulars.count
   end
 
   def particular_ids(no_pagination)
     ledger_with_particulars(no_pagination, false)
-    return @particulars.pluck(:id)
+    @particulars.pluck(:id)
   end
 
-  def ledger_with_particulars(no_pagination = false, lazy_load=true)
-    return unless (branch_id.present?  && fy_code.present?)
+  def ledger_with_particulars(no_pagination = false, lazy_load = true)
+    return unless branch_id.present? && fy_code.present?
+
     page = @params[:page].to_i - 1 if @params[:page].present? || 0
     @opening_balance_calculated = @ledger.opening_balance(fy_code, branch_id) if lazy_load
 
     # no pagination is required for xls/pdf file generation
-    if no_pagination
-      page = 0
-    end
+    page = 0 if no_pagination
 
     if @params[:show] == "all"
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
@@ -55,19 +54,16 @@ class Ledgers::Query
           date_from_ad = bs_to_ad(date_from_bs)
           date_to_ad = bs_to_ad(date_to_bs)
 
-
-
           if lazy_load
             # sum of total credit and debit amount
             @total_credit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).cr.sum(:amount)
             @total_debit = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).find_by_date_range(date_from_ad, date_to_ad).dr.sum(:amount)
 
-            previous_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date < ?',date_from_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
+            previous_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date < ?', date_from_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
-            last_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date <= ?',date_to_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
+            last_day_balance = @ledger.particulars.complete.by_branch_fy_code(branch_id, fy_code).where('transaction_date <= ?', date_to_ad).sum("CASE WHEN transaction_type = 0 THEN amount ELSE amount * -1 END", 0)
 
-
-            @closing_balance_sorted = @opening_balance_calculated+ last_day_balance
+            @closing_balance_sorted = @opening_balance_calculated + last_day_balance
             @opening_balance_sorted = @opening_balance_calculated + previous_day_balance
             @opening_balance_calculated = @opening_balance_sorted
           end
@@ -80,13 +76,12 @@ class Ledgers::Query
     elsif !@params[:search_by]
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination, lazy_load)
     end
-    return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
+    [@particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted]
   end
-
 
   def ledger_particulars_with_running_total(no_pagination = false)
     ledger_with_particulars(no_pagination)
-    return @particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted
+    [@particulars, @total_credit, @total_debit, @closing_balance_sorted, @opening_balance_sorted]
   end
 
   #
@@ -97,10 +92,8 @@ class Ledgers::Query
     particulars = particulars.find_by_date_range(date_from_ad, date_to_ad) if date_from_ad.present? && date_to_ad.present?
     particulars = particulars.where.not(hide_for_client: true) if @params[:for_client] == 1
     particulars = particulars.includes(:nepse_chalan, :voucher, :cheque_entries, :settlements, voucher: :bills) if lazy_load
-    particulars = particulars.order('particulars.transaction_date ASC','particulars.created_at ASC')
-    unless no_pagination
-      particulars = particulars.page(page).per(limit)
-    end
+    particulars = particulars.order('particulars.transaction_date ASC', 'particulars.created_at ASC')
+    particulars = particulars.page(page).per(limit) unless no_pagination
     particulars.select("*, SUM( amount * CASE WHEN transaction_type = 0 THEN 1  ELSE -1 END)  OVER (ORDER BY transaction_date ASC, created_at ASC ) +  #{@opening_balance_calculated}  AS running_total")
   end
 end

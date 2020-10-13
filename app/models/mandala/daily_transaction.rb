@@ -55,38 +55,37 @@
 #  share_transaction_id     :integer
 #
 
-class Mandala::DailyTransaction < ActiveRecord::Base
+class Mandala::DailyTransaction < ApplicationRecord
   # include CommissionModule
   self.table_name = "daily_transaction"
 
   belongs_to :share_transaction
 
   def bill_detail(bill_no = nil)
-    if bill_no
-      bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type, bill_no: bill_no)
-    else
-      bill_details = Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type)
-    end
+    bill_details = if bill_no
+                     Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type, bill_no: bill_no)
+                   else
+                     Mandala::BillDetail.where(transaction_no: transaction_no, transaction_type: transaction_type)
+                   end
 
-    if bill_details.size != 1
-      raise NotImplementedError
-    end
+    raise NotImplementedError if bill_details.size != 1
+
     bill_details.first
   end
 
   def dp_fee
-
-    if self.transaction_type == 'P'
-      daily_transactions = Mandala::DailyTransaction.where(:customer_code => customer_code_from_data, :transaction_date => transaction_date, :transaction_type => transaction_type, :company_code => company_code)
-    else
-      daily_transactions = Mandala::DailyTransaction.where(:seller_customer_code => customer_code_from_data, :transaction_date => transaction_date, :transaction_type => transaction_type, :company_code => company_code)
-    end
-    if daily_transactions.size == 0
+    daily_transactions = if self.transaction_type == 'P'
+                           Mandala::DailyTransaction.where(customer_code: customer_code_from_data, transaction_date: transaction_date, transaction_type: transaction_type, company_code: company_code)
+                         else
+                           Mandala::DailyTransaction.where(seller_customer_code: customer_code_from_data, transaction_date: transaction_date, transaction_type: transaction_type, company_code: company_code)
+                         end
+    if daily_transactions.size.zero?
       raise NotImplementedError
     else
       dp_fee = 25.0 / daily_transactions.size
     end
-    return dp_fee
+
+    dp_fee
   end
 
   # Missing share transactions(and their corresponding bills) can occur for days whose payout report haven't been
@@ -97,53 +96,52 @@ class Mandala::DailyTransaction < ActiveRecord::Base
     date_ad = Date.parse(transaction_date)
     commission_info = get_commission_info_with_detail(date_ad)
     ::ShareTransaction.new({
-                               contract_no: transaction_no,
-                               quantity: final_quantity,
-                               raw_quantity: quantity,
-                               share_rate: rate,
-                               share_amount: total_amount,
-                               commission_rate: get_commission_rate(total_amount, commission_info),
-                               commission_amount: get_commission(total_amount, commission_info),
-                               buyer: buyer,
-                               seller: seller,
-                               isin_info_id: isin_info_id,
-                               client_account_id: get_client_account_id,
-                               date: date_ad,
-                               settlement_date: Date.parse(settlement_date),
-                               sebo: total_amount.to_f * 0.00015   ,
-                               base_price: base_price.to_f,
-                               cgt: 0,
-                               dp_fee: dp_fee,
-                               adjusted_sell_price: adjusted_purchase_price,
-                               closeout_amount: closeout_amount,
-                               transaction_type: sk_transaction_type,
+                             contract_no: transaction_no,
+                             quantity: final_quantity,
+                             raw_quantity: quantity,
+                             share_rate: rate,
+                             share_amount: total_amount,
+                             commission_rate: get_commission_rate(total_amount, commission_info),
+                             commission_amount: get_commission(total_amount, commission_info),
+                             buyer: buyer,
+                             seller: seller,
+                             isin_info_id: isin_info_id,
+                             client_account_id: get_client_account_id,
+                             date: date_ad,
+                             settlement_date: Date.parse(settlement_date),
+                             sebo: total_amount.to_f * 0.00015,
+                             base_price: base_price.to_f,
+                             cgt: 0,
+                             dp_fee: dp_fee,
+                             adjusted_sell_price: adjusted_purchase_price,
+                             closeout_amount: closeout_amount,
+                             transaction_type: sk_transaction_type
                            })
-
   end
 
   def new_smartkhata_share_transaction(bill_no = nil)
     _bill_detail = bill_detail(bill_no)
     ::ShareTransaction.new({
-        contract_no: transaction_no,
-        quantity: final_quantity,
-        raw_quantity: quantity,
-        share_rate: rate,
-        share_amount: total_amount,
-        commission_rate: commission_rate(bill_no),
-        commission_amount: commission_amount(bill_no),
-        buyer: buyer,
-        seller: seller,
-        isin_info_id: isin_info_id,
-        client_account_id: get_client_account_id,
-        date: Date.parse(transaction_date),
-        settlement_date: Date.parse(settlement_date),
-        sebo: total_amount.to_f * 0.00015   ,
-        base_price: _bill_detail.base_price.to_f,
-        cgt: _bill_detail.capital_gain.to_f,
-        dp_fee: _bill_detail.demat_rate.to_f,
-        adjusted_sell_price: adjusted_purchase_price,
-        closeout_amount: closeout_amount,
-        transaction_type: sk_transaction_type,
+                             contract_no: transaction_no,
+                             quantity: final_quantity,
+                             raw_quantity: quantity,
+                             share_rate: rate,
+                             share_amount: total_amount,
+                             commission_rate: commission_rate(bill_no),
+                             commission_amount: commission_amount(bill_no),
+                             buyer: buyer,
+                             seller: seller,
+                             isin_info_id: isin_info_id,
+                             client_account_id: get_client_account_id,
+                             date: Date.parse(transaction_date),
+                             settlement_date: Date.parse(settlement_date),
+                             sebo: total_amount.to_f * 0.00015,
+                             base_price: _bill_detail.base_price.to_f,
+                             cgt: _bill_detail.capital_gain.to_f,
+                             dp_fee: _bill_detail.demat_rate.to_f,
+                             adjusted_sell_price: adjusted_purchase_price,
+                             closeout_amount: closeout_amount,
+                             transaction_type: sk_transaction_type
                            })
   end
 
@@ -151,6 +149,7 @@ class Mandala::DailyTransaction < ActiveRecord::Base
     isin_info = Mandala::CompanyParameter.where(company_code: company_code).first
     isin_info.present? ? isin_info.get_isin_info_id : nil
   end
+
   # close out consideration
   def final_quantity
     self.quantity
@@ -175,14 +174,15 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   def customer_code_from_data
     self.transaction_type == 'P' ? customer_code : seller_customer_code
   end
+
   def buyer
     if self.transaction_type == 'P'
       self_broker_no
     else
       broker_no
     end
-
   end
+
   def seller
     if self.transaction_type == 'S'
       self_broker_no
@@ -192,10 +192,8 @@ class Mandala::DailyTransaction < ActiveRecord::Base
   end
 
   def get_client_account_id
-    begin
     Mandala::CustomerRegistration.where(customer_code: customer_code_from_data).first.find_or_create_smartkhata_client_account.id
-    rescue
-       p 'rescued'
-    end
+  rescue
+    p 'rescued'
   end
 end

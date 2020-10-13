@@ -22,6 +22,6 @@
 #  org_logo        :string
 #
 
-class Mandala::OrganisationParameter < ActiveRecord::Base
+class Mandala::OrganisationParameter < ApplicationRecord
   self.table_name = "organisation_parameter"
 end

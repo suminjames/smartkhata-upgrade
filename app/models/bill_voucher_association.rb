@@ -10,10 +10,8 @@
 #  updated_at       :datetime         not null
 #
 
-
-
-class BillVoucherAssociation < ActiveRecord::Base
+class BillVoucherAssociation < ApplicationRecord
   belongs_to :bill
   belongs_to :voucher
-  enum association_type: [:on_creation, :on_settlement]
+  enum association_type: { on_creation: 0, on_settlement: 1 }
 end

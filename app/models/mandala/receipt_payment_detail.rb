@@ -15,23 +15,25 @@
 #  cheque_entry_id :integer
 #
 
-class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
+class Mandala::ReceiptPaymentDetail < ApplicationRecord
   self.table_name = "receipt_payment_detail"
   belongs_to :cheque_entry
 
   def new_smartkhata_cheque_entry(date, fy_code)
-    ::ChequeEntry.new(
-                     cheque_number: cheque_no,
-                     additional_bank_id: bank_id(bank_code),
-                     beneficiary_name: beneficiary_name,
-                     cheque_issued_type: cheque_issued_type,
-                     status: :approved,
-                     print_status: :printed,
-                     cheque_date: date,
-                     fy_code: fy_code,
-                     amount: amount,
-                     client_account_id: beneficiary_client_id
-    ) if ( !cheque_no.blank? && valid_cheque?)
+    if cheque_no.present? && valid_cheque?
+      ::ChequeEntry.new(
+        cheque_number: cheque_no,
+        additional_bank_id: bank_id(bank_code),
+        beneficiary_name: beneficiary_name,
+        cheque_issued_type: cheque_issued_type,
+        status: :approved,
+        print_status: :printed,
+        cheque_date: date,
+        fy_code: fy_code,
+        amount: amount,
+        client_account_id: beneficiary_client_id
+      )
+    end
   end
 
   def find_cheque_entry
@@ -49,9 +51,7 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   def bank_id(bank_code)
     if bank_code.present?
       bank = Bank.find_by(bank_code: bank_code)
-      unless bank.present?
-        bank = Bank.create!(bank_code: bank_code, name: "Unknown", skip_name_validation: true)
-      end
+      bank = Bank.create!(bank_code: bank_code, name: "Unknown", skip_name_validation: true) if bank.blank?
       bank.id
     end
   end
@@ -61,6 +61,6 @@ class Mandala::ReceiptPaymentDetail < ActiveRecord::Base
   end
 
   def valid_cheque?
-    /\A[-+]?\d+\z/ === cheque_no && cheque_no != 'cash' && bank_code.present?
+    cheque_no =~ /\A[-+]?\d+\z/ && cheque_no != 'cash' && bank_code.present?
   end
 end

@@ -11,7 +11,6 @@
 #  number_format    :string
 #
 
-
-class Mandala::VoucherNumberDetail < ActiveRecord::Base
+class Mandala::VoucherNumberDetail < ApplicationRecord
   self.table_name = "voucher_number_detail"
 end

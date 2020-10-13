@@ -1,4 +1,3 @@
-
 # == Schema Information
 #
 # Table name: employee_accounts
@@ -46,12 +45,12 @@
 #  updated_at                :datetime         not null
 #
 
-class EmployeeAccount < ActiveRecord::Base
+class EmployeeAccount < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch
   attr_accessor :user_access_role_id
-  validates_presence_of :name, :email
-  validates :email, uniqueness: true, format: {with: EMAIL_REGEX}
+  validates :name, :email, presence: true
+  validates :email, uniqueness: true, format: { with: EMAIL_REGEX }
 
   after_create :create_ledger
 
@@ -62,17 +61,19 @@ class EmployeeAccount < ActiveRecord::Base
   has_many :branch_permissions, through: :user
 
   # defines employee association with ledgers
-  enum has_access_to: [:everyone, :some, :nobody]
+  enum has_access_to: { everyone: 0, some: 1, nobody: 2 }
   accepts_nested_attributes_for :employee_ledger_associations
 
-  scope :find_by_employee_name, -> (name) { where("name ILIKE ?", "%#{name}%") }
-  scope :find_by_employee_id, -> (id) { where(id: id) }
+  scope :find_by_employee_name, ->(name) { where("name ILIKE ?", "%#{name}%") }
+  scope :find_by_employee_id, ->(id) { where(id: id) }
 
   # create employee ledger
   def create_ledger
-    employee_ledger = Ledger.create!(name: self.name) do |ledger|
+    employee_group = Group.find_or_create_by!(name: "Employees")
+    Ledger.create!(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
+      ledger.group_id = employee_group.id
     end
   end
 
@@ -93,13 +94,14 @@ class EmployeeAccount < ActiveRecord::Base
     search_term = search_term.present? ? search_term.to_s : ''
     employee_accounts = EmployeeAccount.where("name ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name)
     employee_accounts.collect do |employee_account|
-      { :text=> "#{employee_account['name']} (#{employee_account['id']})", :id => "#{employee_account['id']}" }
+      { text: "#{employee_account['name']} (#{employee_account['id']})", id: (employee_account['id']).to_s }
     end
   end
 
   def user_access_role_id
     self.user_access_role.id if self.user_access_role.present?
   end
+
   #
   # As Employee Accounts don't have a unique identifier except for the id, append id with name.
   #

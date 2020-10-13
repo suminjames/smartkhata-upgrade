@@ -1,5 +1,4 @@
 class ChequeEntries::Activity
-
   include ApplicationHelper
 
   attr_accessor :cheque_entry, :error_message, :selected_branch_id, :selected_fy_code, :current_user_id
@@ -21,6 +20,7 @@ class ChequeEntries::Activity
     set_error('Please select the current fiscal year') and return unless valid_for_the_fiscal_year?
     return unless can_activity_be_done?
     set_error('Please select the correct branch') and return unless valid_branch?
+
     perform_action
   end
 
@@ -29,15 +29,15 @@ class ChequeEntries::Activity
   end
 
   def can_activity_be_done?
-    return false
+    false
   end
 
   def valid_branch?
-    @cheque_entry.branch_id == @selected_branch_id
+    cheque_entry.branch_id == selected_branch_id
   end
 
   def valid_for_the_fiscal_year?
-    @selected_fy_code == get_fy_code
+    selected_fy_code == get_fy_code
   end
 
   def set_error(error_message)
@@ -45,16 +45,14 @@ class ChequeEntries::Activity
   end
 
   def get_bank_name_and_date
-    if @cheque_entry.additional_bank_id.present?
-      @bank = Bank.find_by(id: @cheque_entry.additional_bank_id)
-      @name = @current_tenant_full_name
+    if cheque_entry.additional_bank_id.present?
+      bank = Bank.find_by(id: cheque_entry.additional_bank_id)
+      name = current_tenant_full_name
     else
-      @bank = @cheque_entry&.bank_account&.bank
-      @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
+      bank = cheque_entry&.bank_account&.bank
+      name = cheque_entry.beneficiary_name.presence || "Internal Ledger"
     end
-    @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
-    return @bank, @name, @cheque_date
+    cheque_date = cheque_entry.cheque_date.presence || DateTime.now
+    [bank, name, cheque_date]
   end
-
-
 end
