@@ -64,7 +64,7 @@ class Reports::Excelsheet::LedgersReport < Reports::Excelsheet
     j = @doc_header_row_count + 2
     # skip the two "transaction amount" columns in the middle
     # due to the cr and dr
-    cell_ranges_to_merge = ('A'..'G').inject([]) { |k, v| k.push("#{v}#{i}:#{v}#{j}")}.push "J#{i}:J#{j}" # static columns mention
+    cell_ranges_to_merge = ('A'..'G').inject([]) { |k, v| k.push("#{v}#{i}:#{v}#{j}") }.push "J#{i}:J#{j}" # static columns mention
     cell_ranges_to_merge.each { |range| @sheet.merge_cells(range) }
     # Finally merge the two horizontal cells
     @sheet.merge_cells("H#{i}:I#{i}") # static column mention

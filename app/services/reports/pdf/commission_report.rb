@@ -5,7 +5,7 @@ class Reports::Pdf::CommissionReport < Prawn::Document
   include ApplicationHelper
   include ShareTransactionsHelper
 
-  def initialize(commission_reports, params, current_tenant, print_in_letter_head=nil)
+  def initialize(commission_reports, params, current_tenant, print_in_letter_head = nil)
     @commission_reports = commission_reports
     @params = params
     @current_tenant = current_tenant

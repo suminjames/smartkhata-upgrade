@@ -3,7 +3,7 @@ module Accounts
     class PopulateLedgerDailiesService
       include FiscalYearModule
 
-      def fiscal_years all_fiscal_years, fy_code
+      def fiscal_years(all_fiscal_years, fy_code)
         fy_codes = if all_fiscal_years
                      available_fy_codes
                    elsif fy_code

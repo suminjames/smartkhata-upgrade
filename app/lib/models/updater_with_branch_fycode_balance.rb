@@ -1,6 +1,4 @@
-# encoding: utf-8
 module Models::UpdaterWithBranchFycodeBalance
-
   include FiscalYearModule
 
   def self.included(base)
@@ -10,11 +8,11 @@ module Models::UpdaterWithBranchFycodeBalance
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
-      belongs_to :branch, required: false
+      belongs_to :branch, optional: true
 
-      scope :by_fy_code, -> (fy_code) { where(fy_code: fy_code)}
-      scope :by_fy_code_org, -> (fy_code) { where(fy_code: fy_code, branch_id: nil)}
-      scope :by_branch, -> (branch_id) { where(branch_id: branch_id)}
+      scope :by_fy_code, ->(fy_code) { where(fy_code: fy_code)}
+      scope :by_fy_code_org, ->(fy_code) { where(fy_code: fy_code, branch_id: nil)}
+      scope :by_branch, ->(branch_id) { where(branch_id: branch_id)}
 
       attr_accessor :current_user_id
       # # scope based on the branch and fycode selection
@@ -29,17 +27,11 @@ module Models::UpdaterWithBranchFycodeBalance
       # for non balance records
       # use this for read only
       # TODO(SUBAS) stupid mistake of using default scope here
-      scope :by_branch_fy_code, ->(branch_id = 0, fy_code) do
-        if branch_id == 0
-          where(branch_id: nil, fy_code: fy_code)
-        else
-          where(branch_id: branch_id, fy_code: fy_code)
-        end
-      end
-
+      scope :by_branch_fy_code, lambda { |branch_id = 0, fy_code|
+        branch_id.zero? ? where(branch_id: nil, fy_code: fy_code) : where(branch_id: branch_id, fy_code: fy_code)
+      }
     end
   end
-
 
   private
 
@@ -59,5 +51,4 @@ module Models::UpdaterWithBranchFycodeBalance
   # def get_branch_id_from_session
   #   UserSession.selected_branch_id == 0 ? nil : UserSession.selected_branch_id
   # end
-
 end

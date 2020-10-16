@@ -332,7 +332,7 @@ class ImportOrder < ImportFile
         _client_nepse_code = hashed_row[:CLIENT_CODE]
         next if ClientAccount.unscoped.find_by(nepse_code: _client_nepse_code)
 
-        client_account_hash = { client_name: _client_name, client_nepse_code: _client_nepse_code}
+        client_account_hash = { client_name: _client_name, client_nepse_code: _client_nepse_code }
         new_client_accounts << client_account_hash unless new_client_accounts.include?(client_account_hash)
       end
     else

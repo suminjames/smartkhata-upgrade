@@ -1,4 +1,3 @@
-# encoding: utf-8
 module Models::Updater
   def self.included(base)
     base.instance_eval do

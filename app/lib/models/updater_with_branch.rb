@@ -1,7 +1,5 @@
-# encoding: utf-8
-# TODO how to remove the code repetition
+# TODO: how to remove the code repetition
 module Models::UpdaterWithBranch
-
   include FiscalYearModule
 
   def self.included(base)
@@ -15,11 +13,9 @@ module Models::UpdaterWithBranch
 
       attr_accessor :current_user_id
 
-      scope :by_branch_id, ->(branch_id) do
-        if branch_id != 0
-          where(branch_id: branch_id)
-        end
-      end
+      scope :by_branch_id, lambda { |branch_id|
+        where(branch_id: branch_id) if branch_id != 0
+      }
     end
   end
 
