@@ -33,7 +33,7 @@ class EdisItemForm
           next if  record['wacc(cns)'].to_i !=0 || record['wacc'].blank? || record['wacc'].to_i == 0
 
           # skip those with missing status
-          next if record['status'] == 'MISSED' && skip_invalid_transactions?
+          next if skip_invalid_transactions? && ['MISSED', 'Overdue  due to Insufficient balance'].include?(record['status'])
 
           item = EdisItem.where.not(reference_id: nil).where(reference_id: record['id']).first
           # skip already success state
@@ -48,8 +48,6 @@ class EdisItemForm
           item.sales_settlement_id = sale_settlement.id
 
           unless item.save
-            next if skip_invalid_transactions?
-
             self.errors.add(:file, "Contains invalid records for #{item.contract_number}, Error: #{item.errors.full_messages.join(",")}")
             break
           end
