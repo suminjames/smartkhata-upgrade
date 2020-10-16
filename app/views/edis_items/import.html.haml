@@ -9,7 +9,7 @@
         .form-inputs
           = f.input :current_user_id, as: :hidden, input_html: { value: current_user.id }
           = f.input :file, as: :file
-          = f.input :skip_missing_transactions, as: :boolean
+          = f.input :skip_invalid_transactions, as: :boolean
 
   .form-actions
     = f.button :submit, "Upload"

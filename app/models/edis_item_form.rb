@@ -3,7 +3,7 @@ class EdisItemForm
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :file, :current_user_id, :skip_missing_transactions
+  attr_accessor :file, :current_user_id, :skip_invalid_transactions
   validates_presence_of :file, :current_user_id
 
   def initialize(attributes = {})
@@ -12,8 +12,8 @@ class EdisItemForm
     end
   end
 
-  def skip_missing_transactions?
-    skip_missing_transactions == '1'
+  def skip_invalid_transactions?
+    skip_invalid_transactions == '1'
   end
 
 
@@ -24,7 +24,7 @@ class EdisItemForm
         CSV.read(file.path, headers: true,  header_converters: converter).each do |record|
           sale_settlement = SalesSettlement.where(contract_no: record['contract_number']).first
           if sale_settlement.blank?
-            next if skip_missing_transactions?
+            next if skip_invalid_transactions?
 
             self.errors.add(:file, 'CMO1 has not been uploaded for these records')
             break
@@ -32,9 +32,8 @@ class EdisItemForm
           # skip those without wacc, manual wacc
           next if  record['wacc(cns)'].to_i !=0 || record['wacc'].blank? || record['wacc'].to_i == 0
 
-
           # skip those with missing status
-          next if record['status'] == 'MISSED' && skip_missing_transactions?
+          next if skip_invalid_transactions? && ['MISSED', 'Overdue  due to Insufficient balance'].include?(record['status'])
 
           item = EdisItem.where.not(reference_id: nil).where(reference_id: record['id']).first
           # skip already success state
