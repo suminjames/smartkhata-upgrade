@@ -38,7 +38,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     voucher = @cheque_entry.vouchers.uniq.first
     # particular_ids = ChequeEntryParticularAssociation.where(cheque_entry_id: @cheque_entry).pluck(:particular_id)
     # voucher = Particular.unscoped.where(id: particular_ids).first.try(:voucher)
-    voucher.cheque_entries.uniq.count == 1 ? bounce_for_single_voucher(voucher): bounce_for_multiple_associated_cheques(voucher)
+    voucher.cheque_entries.uniq.count == 1 ? bounce_for_single_voucher(voucher) : bounce_for_multiple_associated_cheques(voucher)
   end
 
   def bounce_for_single_voucher(voucher)

@@ -75,7 +75,7 @@ class Vouchers::Create < Vouchers::Base
     # convert the bs date to english date for storage
     begin
       date_ad = bs_to_ad(@voucher.date_bs)
-    rescue
+    rescue StandardError
       @error_message = "Invalid Date!"
       return
     end
@@ -548,23 +548,23 @@ class Vouchers::Create < Vouchers::Base
     # logic to make the voucher comply to new standard
     # splitting the payment and receipt to multiple types
     if is_payment_receipt && voucher_has_cheque_entry
-      if voucher.is_payment?
-        voucher_type = Voucher.voucher_types[:payment_bank]
-      else
-        voucher_type = Voucher.voucher_types[:receipt_bank]
-      end
+      voucher_type = if voucher.is_payment?
+                       Voucher.voucher_types[:payment_bank]
+                     else
+                       Voucher.voucher_types[:receipt_bank]
+                     end
     elsif is_payment_receipt
-      if voucher.is_payment?
-        voucher_type = Voucher.voucher_types[:payment_cash]
-      else
-        voucher_type = Voucher.voucher_types[:receipt_cash]
-      end
+      voucher_type = if voucher.is_payment?
+                       Voucher.voucher_types[:payment_cash]
+                     else
+                       Voucher.voucher_types[:receipt_cash]
+                     end
     end
-    return voucher_type
+    voucher_type
   end
 
   def voucher_has_cheque_entry?(voucher)
-    voucher.particulars.find{|p| p.cheque_number}.present?
+    voucher.particulars.find(&:cheque_number).present?
   end
 
   def purchase_nepse_settlement(voucher, attrs = {})

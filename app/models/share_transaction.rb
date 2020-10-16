@@ -441,7 +441,7 @@ class ShareTransaction < ApplicationRecord
     ).order("total_commission_amount DESC")
   end
 
-  def self.total_count_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
+  def self.total_count_for_commission_report(client_id, date_from_bs, date_to_bs, selected_fy_code)
     where_conditions =  where_conditions_for_commission_report client_id, date_from_bs, date_to_bs, selected_fy_code
     where_condition_str = where_conditions.join(" AND ").to_s
     ShareTransaction.where(where_condition_str).pluck(:client_account_id).uniq.count

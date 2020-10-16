@@ -54,7 +54,7 @@ class User < ApplicationRecord
 
   has_many :menu_permissions, through: :user_access_role
   has_many :branch_permissions
-  belongs_to :user_access_role, required: false
+  belongs_to :user_access_role, optional: true
 
   ########################################
   # Validation
@@ -163,7 +163,7 @@ class User < ApplicationRecord
 
   def can_access_branch?
     available_branch_ids.include?(current_url_link.split('/')[2].to_i)
-  rescue
+  rescue StandardError
     false
   end
 end
