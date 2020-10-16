@@ -44,7 +44,7 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
     770
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -60,20 +60,19 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
 
   def generate_page_number
     string = "page <page> of <total>"
-    options = { :at => [bounds.right - 150, 0],
-                :width => 150,
-                :align => :right,
-                :start_count_at => 1
-    }
+    options = { at: [bounds.right - 150, 0],
+                width: 150,
+                align: :right,
+                start_count_at: 1}
     number_pages string, options
   end
 
   def letter_top
-    text "Date: #{@bank_payment_letter.created_at.strftime("%Y-%m-%d")}", :align => :right
+    text "Date: #{@bank_payment_letter.created_at.strftime("%Y-%m-%d")}", align: :right
     br
     text 'The Manager'
-    text "#{@bank_payment_letter.bank_account.bank_name}"
-    text "#{@bank_payment_letter.bank_account.bank.address}"
+    text @bank_payment_letter.bank_account.bank_name.to_s
+    text @bank_payment_letter.bank_account.bank.address.to_s
     br
     text 'Dear Sir/Madam,'
     br
@@ -103,7 +102,6 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
     end
     text signee_name
     text designation
-
   end
 
   def client_accounts_list
@@ -115,61 +113,54 @@ class Pdf::PdfBankPaymentLetter < Prawn::Document
                "Bank\nBranch",
                "Bank\nAccount #",
                'Bill',
-               "Amount\n(in NRs.)"
-    ]
+               "Amount\n(in NRs.)"]
     data << th_data
     @bank_payment_letter.particulars.each_with_index do |p, index|
-
       bills_str = ''
       p.bills.each do |bill|
-        if bill.client_account_id == p.ledger.client_account_id
-          bills_str += "#{bill.fy_code}-#{bill.bill_number}\n"
-        end
+        bills_str += "#{bill.fy_code}-#{bill.bill_number}\n" if bill.client_account_id == p.ledger.client_account_id
       end
 
       data << [
-          index + 1,
-          p.ledger.client_account.name,
-          p.ledger.client_account.nepse_code,
-          p.ledger.client_account.bank_name,
-          p.ledger.client_account.bank_address,
-          p.ledger.client_account.bank_account,
-          bills_str,
-          arabic_number(p.amount)
+        index + 1,
+        p.ledger.client_account.name,
+        p.ledger.client_account.nepse_code,
+        p.ledger.client_account.bank_name,
+        p.ledger.client_account.bank_address,
+        p.ledger.client_account.bank_account,
+        bills_str,
+        arabic_number(p.amount)
       ]
-
     end
     table_width = page_width - 2
-    column_widths = {0 => table_width * 0.5/12.0,
-                     1 => table_width * 2/12.0,
-                     2 => table_width * 1.2/12.0,
-                     3 => table_width * 2.1/12.0,
-                     4 => table_width * 1.6/12.0,
-                     5 => table_width * 1.8/12.0,
-                     6 => table_width * 1.3/12.0,
-                     7 => table_width * 1.5/12.0,
-    }
+    column_widths = {0 => table_width * 0.5 / 12.0,
+                     1 => table_width * 2 / 12.0,
+                     2 => table_width * 1.2 / 12.0,
+                     3 => table_width * 2.1 / 12.0,
+                     4 => table_width * 1.6 / 12.0,
+                     5 => table_width * 1.8 / 12.0,
+                     6 => table_width * 1.3 / 12.0,
+                     7 => table_width * 1.5 / 12.0}
     table data do |t|
       t.header = true
       t.row(0).font_style = :bold
       t.row(0).size = 9
-      t.column(0..6).style(:align => :center)
-      t.column(7).style(:align => :right)
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
+      t.column(0..6).style(align: :center)
+      t.column(7).style(align: :right)
+      t.cell_style = {border_width: 1, padding: [2, 4, 2, 2]}
       t.column_widths = column_widths
     end
   end
 
   def header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(9)) do
-      text "<b>#{@current_tenant.full_name}</b>", :inline_format => true, :size => 11
-      text "#{@current_tenant.address}"
+    bounding_box([0, row_cursor], width: col(9)) do
+      text "<b>#{@current_tenant.full_name}</b>", inline_format: true, size: 11
+      text @current_tenant.address.to_s
       text "Phone: #{@current_tenant.phone_number}"
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
     end
     hr
   end
-
 end

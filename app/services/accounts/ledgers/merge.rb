@@ -12,19 +12,18 @@ module Accounts
       def call
         res = false
         ActiveRecord::Base.transaction do
-         ledger_not_to_merge = ["Purchase Commission",
-                                "Sales Commission",
-                                "DP Fee/ Transfer",
-                                "Nepse Purchase",
-                                "Nepse Sales",
-                                "Clearing Account",
-                                "Compliance Fee",
-                                "TDS",
-                                "Cash",
-                                "Close Out"]
-          if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
-            raise ActiveRecord::Rollback
-          end
+          ledger_not_to_merge = ["Purchase Commission",
+                                 "Sales Commission",
+                                 "DP Fee/ Transfer",
+                                 "Nepse Purchase",
+                                 "Nepse Sales",
+                                 "Clearing Account",
+                                 "Compliance Fee",
+                                 "TDS",
+                                 "Cash",
+                                 "Close Out"]
+          raise ActiveRecord::Rollback if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+
           fix_opening_balances
           fix_ledger_dailies_and_closing_balances
           merge_client_accounts
@@ -44,7 +43,7 @@ module Accounts
           end
           res = true
         end
-        return res
+        res
       end
 
       def fix_ledger_dailies_and_closing_balances
@@ -64,17 +63,17 @@ module Accounts
 
       def fix_opening_balances
         available_fy_codes.each do |fy_code|
-          Branch.all.pluck(:id).push(nil).each_with_index do |branch_id, index|
+          Branch.all.pluck(:id).push(nil).each_with_index do |branch_id, _index|
             ledger_balance = LedgerBalance.unscoped.where(branch_id: branch_id, ledger_id: ledger_to_merge_to.id, fy_code: fy_code).first
             ledger_balance_other = LedgerBalance.unscoped.where(branch_id: branch_id, ledger_id: ledger_to_merge_from.id, fy_code: fy_code).first
 
-            if ledger_balance && ledger_balance_other
-              ledger_balance.opening_balance  += ledger_balance_other.opening_balance
-              ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr': 'cr'
-              ledger_balance.current_user_id = @current_user.id
-              ledger_balance.updater_id = ledger_balance.current_user_id
-              ledger_balance.save!
-            end
+            next unless ledger_balance && ledger_balance_other
+
+            ledger_balance.opening_balance += ledger_balance_other.opening_balance
+            ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr' : 'cr'
+            ledger_balance.current_user_id = @current_user.id
+            ledger_balance.updater_id = ledger_balance.current_user_id
+            ledger_balance.save!
           end
         end
       end
@@ -86,10 +85,7 @@ module Accounts
         if client_account_to_delete
           if client_account_to_persist && client_account_to_persist != client_account_to_delete
 
-            if Ledger.where(client_account_id: client_account_to_delete).count > 1
-              raise ActiveRecord::Rollback
-            end
-
+            raise ActiveRecord::Rollback if Ledger.where(client_account_id: client_account_to_delete).count > 1
 
             # for blank nepse codes take nepse code from the deleted ones
             if client_account_to_persist.nepse_code.blank?

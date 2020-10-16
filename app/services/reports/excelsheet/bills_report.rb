@@ -16,7 +16,7 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
       @selected_date = @params[:by_date] if @params[:by_date].present?
     end
     @column_count = get_column_count
-    @last_column = @column_count-1
+    @last_column = @column_count - 1
     generate_excelsheet
   end
 
@@ -38,7 +38,7 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
       @file_name << "_#{@bill_type}"
     end
     if @bill_status
-       headings << "with \"#{@bill_status}\" status"
+      headings << "with \"#{@bill_status}\" status"
       @file_name << "_#{@bill_status}"
     end
 
@@ -46,17 +46,16 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
     @file_name << "_#{@date}"
   end
 
-
   def get_header
-    if @selected_date && @bill_type
-      _header = ["S.N.", "Bill No.",  "Client", "Phone",  "Status", "Companies Transacted", "Net Bill Amount"]
-    elsif @selected_date
-      _header = ["S.N.", "Bill No.", "Client", "Phone", "Type", "Status", "Companies Transacted", "Net Bill Amount"]
-    elsif @bill_type
-      _header = ["S.N.", "Bill No.", "Date (BS)", "Client", "Phone", "Status", "Companies Transacted", "Net Bill Amount"]
-    else
-      _header = ["S.N.", "Bill No.", "Date (BS)", "Client", "Phone", "Type", "Status", "Companies Transacted", "Net Bill Amount"]
-    end
+    _header = if @selected_date && @bill_type
+                ["S.N.", "Bill No.", "Client", "Phone", "Status", "Companies Transacted", "Net Bill Amount"]
+              elsif @selected_date
+                ["S.N.", "Bill No.", "Client", "Phone", "Type", "Status", "Companies Transacted", "Net Bill Amount"]
+              elsif @bill_type
+                ["S.N.", "Bill No.", "Date (BS)", "Client", "Phone", "Status", "Companies Transacted", "Net Bill Amount"]
+              else
+                ["S.N.", "Bill No.", "Date (BS)", "Client", "Phone", "Type", "Status", "Companies Transacted", "Net Bill Amount"]
+              end
     _header
   end
 
@@ -73,9 +72,9 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
   def add_document_headings(headings)
     # Adds rows with document headings.
     sub_heading_present = !!(@bill_number || @client_account)
-    add_document_headings_base(*headings, sub_heading_present: sub_heading_present, additional_infos_come_after_custom_block: false) {
+    add_document_headings_base(*headings, sub_heading_present: sub_heading_present, additional_infos_come_after_custom_block: false) do
       # if date queries present
-      if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present? }
+      if @params && %i[by_date by_date_from by_date_to].any? { |x| @params[x].present? }
         date_info = ""
         add_date_info = lambda {
           add_header_row(date_info, :info)
@@ -83,34 +82,31 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
         if @params[:by_date].present?
           date_info = "Date: #{@params[:by_date]}"
           add_date_info.call
-        elsif [:by_date_from, :by_date_to].any? {|x| @params[x].present?}
-          date_from = @params[:by_date_from].present? ? @params[:by_date_from] : '*'
-          date_to = @params[:by_date_to].present? ? @params[:by_date_to] : '*'
+        elsif %i[by_date_from by_date_to].any? { |x| @params[x].present? }
+          date_from = @params[:by_date_from].presence || '*'
+          date_to = @params[:by_date_to].presence || '*'
           date_info = "Date Range: #{date_from} to #{date_to}"
           add_date_info.call
         end
         # add_blank_row
       end
-    }
+    end
   end
 
   def populate_data_rows
-
-
     if @selected_date && @bill_type
-      normal_style_row = ([@styles[:normal_center], @styles[:normal_style], @styles[:wrap], @styles[:wrap], @styles[:normal_style], @styles[:wrap], @styles[:float_format_right]])
-      striped_style_row = ([@styles[:striped_center], @styles[:striped_style], @styles[:wrap_striped], @styles[:wrap_striped], @styles[:striped_style], @styles[:wrap_striped], @styles[:float_format_right_striped]])
+      normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:wrap], @styles[:wrap], @styles[:normal_style], @styles[:wrap], @styles[:float_format_right]]
+      striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:wrap_striped], @styles[:wrap_striped], @styles[:striped_style], @styles[:wrap_striped], @styles[:float_format_right_striped]]
     elsif @selected_date
-      normal_style_row = ([@styles[:normal_center], @styles[:normal_style], @styles[:wrap], @styles[:wrap], *[@styles[:normal_style]]*2, @styles[:wrap], @styles[:float_format_right]])
-      striped_style_row = ([@styles[:striped_center], @styles[:striped_style], @styles[:wrap_striped], @styles[:wrap_striped], *[@styles[:striped_style]]*2, @styles[:wrap_striped], @styles[:float_format_right_striped]])
+      normal_style_row = [@styles[:normal_center], @styles[:normal_style], @styles[:wrap], @styles[:wrap], *[@styles[:normal_style]] * 2, @styles[:wrap], @styles[:float_format_right]]
+      striped_style_row = [@styles[:striped_center], @styles[:striped_style], @styles[:wrap_striped], @styles[:wrap_striped], *[@styles[:striped_style]] * 2, @styles[:wrap_striped], @styles[:float_format_right_striped]]
     elsif @bill_type
-      normal_style_row = ([@styles[:normal_center], *[@styles[:normal_style]]*2, @styles[:wrap], @styles[:wrap], @styles[:normal_style], @styles[:wrap], @styles[:float_format_right]])
-      striped_style_row = ([@styles[:striped_center], *[@styles[:striped_style]]*2, @styles[:wrap_striped], @styles[:wrap_striped], @styles[:striped_style], @styles[:wrap_striped], @styles[:float_format_right_striped]])
+      normal_style_row = [@styles[:normal_center], *[@styles[:normal_style]] * 2, @styles[:wrap], @styles[:wrap], @styles[:normal_style], @styles[:wrap], @styles[:float_format_right]]
+      striped_style_row = [@styles[:striped_center], *[@styles[:striped_style]] * 2, @styles[:wrap_striped], @styles[:wrap_striped], @styles[:striped_style], @styles[:wrap_striped], @styles[:float_format_right_striped]]
     else
-      normal_style_row = ([@styles[:normal_center], *[@styles[:normal_style]]*2, @styles[:wrap], @styles[:wrap], *[@styles[:normal_style]]*2, @styles[:wrap], @styles[:float_format_right]])
-      striped_style_row = ([@styles[:striped_center], *[@styles[:striped_style]]*2, @styles[:wrap_striped], @styles[:wrap_striped], *[@styles[:striped_style]]*2, @styles[:wrap_striped], @styles[:float_format_right_striped]])
+      normal_style_row = [@styles[:normal_center], *[@styles[:normal_style]] * 2, @styles[:wrap], @styles[:wrap], *[@styles[:normal_style]] * 2, @styles[:wrap], @styles[:float_format_right]]
+      striped_style_row = [@styles[:striped_center], *[@styles[:striped_style]] * 2, @styles[:wrap_striped], @styles[:wrap_striped], *[@styles[:striped_style]] * 2, @styles[:wrap_striped], @styles[:float_format_right_striped]]
     end
-
 
     # inserts the actual data rows through iteration.
     @bills.each_with_index do |b, index|
@@ -139,7 +135,6 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
         @sheet.add_row [sn, bill_num, date_bs, client, phone, type, status, companies, net_amt],
                        style: row_style
       end
-
     end
   end
 
@@ -150,5 +145,4 @@ class Reports::Excelsheet::BillsReport < Reports::Excelsheet
     @sheet.column_info.fourth.width = 25 if @client_account
     @sheet.column_info.first.width = 6
   end
-
 end

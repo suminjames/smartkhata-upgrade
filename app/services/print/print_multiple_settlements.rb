@@ -13,9 +13,7 @@ class Print::PrintMultipleSettlements < Print::PrintSettlement
   def call_multiple
     @settlements.each_with_index do |settlement, index|
       call(settlement)
-      if index != @settlements.length-1
-        start_new_page
-      end
+      start_new_page if index != @settlements.length - 1
     end
   end
 end

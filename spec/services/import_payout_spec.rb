@@ -24,8 +24,8 @@ RSpec.describe ImportPayout  do
     import_payout_service.instance_variable_set(:@processed_data, [{"SETT_ID"=>"1211002016255", "TRADE_DATE"=>"28-Nov-16", "CMID"=>"99", "BUY_CM_ID"=>"25", "SCRIPTSHORTNAME"=>"NIBPO", "SCRIPTNUMBER"=>"2060", "CONTRACTNO"=>"201611284117936", "CLIENTCODE"=>"USER FOUR (SK4)", "QUANTITY"=>"185", "RATE"=>"626", "CONTRACTAMT"=>"115810", "NEPSE_COMMISSION"=>"127.391", "SEBON_COMMISSION"=>"17.372", "TDS"=>"76.435", "CGT"=>"0", "CLOSEOUT_AMOUNT"=>"0", "AMOUNTRECEIVABLE"=>"115588.802", "REMARKS"=>"Normal Trade", "PURCHASE_PRICE"=>"150716.32", "CG"=>"0", "ADJ_SELL_PRICE"=>"115130.673", nil=>nil}])
 
     import_payout_service.process
-    expect(sales_share_transaction.reload.net_amount).to eq(115130.6726)
-    expect(sales_share_transaction.reload.amount_receivable).to eq(115588.802)
+    expect(sales_share_transaction.reload.net_amount.to_f).to eq(115130.6692)
+    expect(sales_share_transaction.reload.amount_receivable.to_f).to eq(115588.8)
   end
 
   it 'should process sales for partial closeout' do
@@ -39,9 +39,9 @@ RSpec.describe ImportPayout  do
     import_payout_service.process
     expect(sales_share_transaction.reload.closeout_amount).to eq(15024.0)
 
-    expect(sales_share_transaction.reload.net_amount).to eq(115130.6726)
+    expect(sales_share_transaction.reload.net_amount.to_f).to eq(115130.6692)
     # expect(sales_share_transaction.reload.net_amount).to eq(100106.6726)
-    expect(sales_share_transaction.reload.amount_receivable).to eq(100564.802)
+    expect(sales_share_transaction.reload.amount_receivable.to_f).to eq(100564.8)
 
   end
 
@@ -55,7 +55,7 @@ RSpec.describe ImportPayout  do
 
     import_payout_service.process
     # expect(sales_share_transaction.reload.net_amount).to eq(-23841.3274)
-    expect(sales_share_transaction.reload.net_amount).to eq(115130.6726)
-    expect(sales_share_transaction.reload.amount_receivable).to eq(-23383.198)
+    expect(sales_share_transaction.reload.net_amount.to_f).to eq(115130.6692)
+    expect(sales_share_transaction.reload.amount_receivable.to_f).to eq(-23383.2)
   end
 end

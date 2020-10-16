@@ -1,4 +1,3 @@
-# encoding: utf-8
 class BaseServiceOld
   include Virtus.model
   extend ActiveModel::Naming
@@ -18,8 +17,9 @@ class BaseServiceOld
   end
 
   private
+
   def has_error?
-    self.errors.size > 0
+    self.errors.size.positive?
   end
 
   def set_errors(*models)
@@ -35,10 +35,10 @@ class BaseServiceOld
   end
 
   # Returns true if calls
-  def commit_or_rollback(&b)
+  def commit_or_rollback
     res = true
     ActiveRecord::Base.transaction do
-      res = b.call
+      res = yield
       raise ActiveRecord::Rollback unless res
     end
 

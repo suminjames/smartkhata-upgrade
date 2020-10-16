@@ -27,7 +27,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       bottom_margin = 18
     end
 
-    @hide_company_column =  @group_by_company
+    @hide_company_column = @group_by_company
     @hide_client_account_column = @client_account.present?
 
     super(top_margin: top_margin, right_margin: 38, bottom_margin: bottom_margin, left_margin: 18)
@@ -41,15 +41,15 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if @params[:by_client_id].present?
       @isin_info = IsinInfo.find_by(id: @params[:by_isin_id]) if @params[:by_isin_id].present?
     end
-    if @client_account && @isin_info
-      @file_name = "ClientCompany_ShareTransactionReport_#{@client_account.nepse_code}_#{@isin_info.isin}_"
-    elsif @client_account
-      @file_name = "ClientWise_ShareTransactionReport_#{@client_account.nepse_code}"
-    elsif @isin_info
-      @file_name = "CompanyWise_ShareTransactionReport_#{@isin_info.isin}"
-    else # full report
-      @file_name = "ShareTransactionReport_#{Date.today}"
-    end
+    @file_name = if @client_account && @isin_info
+                   "ClientCompany_ShareTransactionReport_#{@client_account.nepse_code}_#{@isin_info.isin}_"
+                 elsif @client_account
+                   "ClientWise_ShareTransactionReport_#{@client_account.nepse_code}"
+                 elsif @isin_info
+                   "CompanyWise_ShareTransactionReport_#{@isin_info.isin}"
+                 else # full report
+                   "ShareTransactionReport_#{Date.today}"
+                 end
   end
 
   def draw
@@ -71,7 +71,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     770
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -99,24 +99,22 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       @file_name = "CompanyWise_ShareTransactionReport_#{@isin_info.id}_#{@date}"
     else # full report
       sub_heading = "All transactions"
-      sub_heading << " of" if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present?}
+      sub_heading << " of" if @params && %i[by_date by_date_from by_date_to].any? { |x| @params[x].present?}
       document_headings.push("Share Inventory Report", sub_heading)
       @file_name = "ShareTransactionReport_#{@date}"
     end
 
-    if @transaction_type.present?
-      document_headings.push("Transaction Type: #{@transaction_type.titleize}")
-    end
+    document_headings.push("Transaction Type: #{@transaction_type.titleize}") if @transaction_type.present?
 
-    if @params && [:by_date, :by_date_from, :by_date_to].any? {|x| @params[x].present? }
+    if @params && %i[by_date by_date_from by_date_to].any? { |x| @params[x].present? }
       date_info = ""
       date_info = date_info.prepend "Transaction " if @client_account || @isin_info
       if @params[:by_date].present?
         date_info += "Date: #{@params[:by_date]}"
         document_headings.push(date_info)
-      elsif [:by_date_from, :by_date_to].any? {|x| @params[x].present?}
-        date_from = @params[:by_date_from].present? ? @params[:by_date_from] : '*'
-        date_to = @params[:by_date_to].present? ? @params[:by_date_to] : '*'
+      elsif %i[by_date_from by_date_to].any? { |x| @params[x].present?}
+        date_from = @params[:by_date_from].presence || '*'
+        date_to = @params[:by_date_to].presence || '*'
         date_info += "Date Range: #{date_from} to #{date_to}"
         document_headings.push(date_info)
       end
@@ -125,18 +123,18 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     report_date = ad_to_bs Date.today
     document_headings.push("Report Date: #{report_date}")
 
-    table_data  = []
+    table_data = []
     document_headings.each do |heading|
       table_data << [
-          heading
+        heading
       ]
     end
     table_width = page_width - 2
     table table_data do |t|
       t.row(0..1).font_style = :bold
       t.row(0..1).size = 9
-      t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
-      t.column(0).style(:align => :center)
+      t.cell_style = {border_width: 0, padding: [2, 4, 2, 2]}
+      t.column(0).style(align: :center)
       t.column_widths = {0 => table_width}
     end
   end
@@ -172,17 +170,17 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       total_comm_amt += comm_amt
 
       table_data << [
-          sn,
-          date,
-          contract_num,
-          company,
-          client_name,
-          bill_num,
-          q_in_str,
-          q_out_str,
-          arabic_number_integer(m_rate),
-          arabic_number_integer(share_amt),
-          arabic_number(comm_amt)
+        sn,
+        date,
+        contract_num,
+        company,
+        client_name,
+        bill_num,
+        q_in_str,
+        q_out_str,
+        arabic_number_integer(m_rate),
+        arabic_number_integer(share_amt),
+        arabic_number(comm_amt)
       ]
 
       if @group_by_company
@@ -197,37 +195,37 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
 
       # Logic for adding total row for groups of companies in the listing.
       break_group = false
-      break_group = @group_by_company && ( (@share_transactions.size - 1) == index || st.isin_info_id != @share_transactions[index + 1].isin_info_id )
-      if break_group
-        isin_balances[:floorsheet_blnc_sum] = isin_balances[:total_in_sum] - isin_balances[:total_out_sum]
-        grouped_isin_total_row = [
-            {:content => "Company: #{st.isin_info.isin}\n(#{st.isin_info.company})", :colspan => grouped_isin_total_row_colspan},
-            "Total",
-            "Qty\nIn:\n#{isin_balances[:total_in_sum].to_i}",
-            "Qty\nOut:\n#{isin_balances[:total_out_sum].to_i}",
-            "Qty\nBlnc:\n#{isin_balances[:floorsheet_blnc_sum].to_i}",
-            "Amount:\nBalance\n#{arabic_number(isin_balances[:balance_share_amount])}",
-            ""
-        ]
-        table_data << grouped_isin_total_row
-        # Track index of grouped isin total rows for custom formatting (later).
-        grouped_isin_total_rows << (index + 2 + grouped_isin_total_rows.size)
-        isin_balances = Hash.new(0)
-      end
+      break_group = @group_by_company && ((@share_transactions.size - 1) == index || st.isin_info_id != @share_transactions[index + 1].isin_info_id)
+      next unless break_group
+
+      isin_balances[:floorsheet_blnc_sum] = isin_balances[:total_in_sum] - isin_balances[:total_out_sum]
+      grouped_isin_total_row = [
+        {content: "Company: #{st.isin_info.isin}\n(#{st.isin_info.company})", colspan: grouped_isin_total_row_colspan},
+        "Total",
+        "Qty\nIn:\n#{isin_balances[:total_in_sum].to_i}",
+        "Qty\nOut:\n#{isin_balances[:total_out_sum].to_i}",
+        "Qty\nBlnc:\n#{isin_balances[:floorsheet_blnc_sum].to_i}",
+        "Amount:\nBalance\n#{arabic_number(isin_balances[:balance_share_amount])}",
+        ""
+      ]
+      table_data << grouped_isin_total_row
+      # Track index of grouped isin total rows for custom formatting (later).
+      grouped_isin_total_rows << (index + 2 + grouped_isin_total_rows.size)
+      isin_balances = Hash.new(0)
     end
 
     total_row_data = [
-        '',
-        '',
-        '',
-        '',
-        '',
-        'Grand Total',
-        total_q_in,
-        total_q_out,
-        '',
-        arabic_number(total_share_amt),
-        arabic_number(total_comm_amt)
+      '',
+      '',
+      '',
+      '',
+      '',
+      'Grand Total',
+      total_q_in,
+      total_q_out,
+      '',
+      arabic_number(total_share_amt),
+      arabic_number(total_comm_amt)
     ]
     table_data << total_row_data
 
@@ -250,10 +248,10 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
       t.header = true
       t.row(0).font_style = :bold
       t.row(0).size = 9
-      t.column(0..6).style(:align => :center)
-      t.column(5..-1).style(:align => :right)
-      t.row(0).style(:align => :center)
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
+      t.column(0..6).style(align: :center)
+      t.column(5..-1).style(align: :right)
+      t.row(0).style(align: :center)
+      t.cell_style = {border_width: 1, padding: [2, 4, 2, 2]}
       t.column_widths = column_widths
       t.row(-1).size = 9
       t.row(-1).font_style = :bold
@@ -261,17 +259,12 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         t.row(row_number).font_style = :bold_italic
       end
     end
-
   end
 
   def grouped_isin_total_row_colspan
     colspan = 5
-    if @hide_company_column
-      colspan -=  1
-    end
-    if @hide_client_account_column
-      colspan -=  1
-    end
+    colspan -=  1 if @hide_company_column
+    colspan -=  1 if @hide_client_account_column
     colspan
   end
 
@@ -279,17 +272,17 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     table_width = page_width - 2
 
     col_width = {}
-    col_width[:sn] = table_width * 0.7/12.0
-    col_width[:date] = table_width * 1.2/12.0
-    col_width[:transaction_no] = table_width * 1.8/12.0
-    col_width[:company] = table_width * 1.1/12.0
-    col_width[:client_account] = table_width * 1.1/12.0
-    col_width[:bill_no] = table_width * 1.2/12.0
-    col_width[:qty_in] = table_width * 0.7/12.0
-    col_width[:qty_out] = table_width * 0.7/12.0
-    col_width[:rate] = table_width * 0.8/12.0
-    col_width[:amount] = table_width * 1.4/12.0
-    col_width[:commission] = table_width * 1.3/12.0
+    col_width[:sn] = table_width * 0.7 / 12.0
+    col_width[:date] = table_width * 1.2 / 12.0
+    col_width[:transaction_no] = table_width * 1.8 / 12.0
+    col_width[:company] = table_width * 1.1 / 12.0
+    col_width[:client_account] = table_width * 1.1 / 12.0
+    col_width[:bill_no] = table_width * 1.2 / 12.0
+    col_width[:qty_in] = table_width * 0.7 / 12.0
+    col_width[:qty_out] = table_width * 0.7 / 12.0
+    col_width[:rate] = table_width * 0.8 / 12.0
+    col_width[:amount] = table_width * 1.4 / 12.0
+    col_width[:commission] = table_width * 1.3 / 12.0
 
     column_widths = {0 => col_width[:sn],
                      1 => col_width[:date],
@@ -301,8 +294,7 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
                      7 => col_width[:qty_out],
                      8 => col_width[:rate],
                      9 => col_width[:amount],
-                     10 => col_width[:commission]
-    }
+                     10 => col_width[:commission]}
 
     total_deleted_column_width = 0
     total_available_columns = 0
@@ -333,15 +325,12 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
         column_widths[key] = column_widths[key + total_deleted_columns]
       end
       column_widths.delete(10)
-    else
-      # default column_widths
-      # do nothing
     end
 
     if @hide_company_column || @hide_client_account_column
       additional_width_per_column = total_deleted_column_width / total_available_columns
       # Distribute (deleted) additional width to remaining columns.
-      column_widths.each do |key, value|
+      column_widths.each do |key, _value|
         column_widths[key] += additional_width_per_column
       end
     end
@@ -349,27 +338,24 @@ class Reports::Pdf::ShareTransactionsReport < Prawn::Document
     column_widths
   end
 
-
   def generate_page_number
     string = "page <page> of <total>"
-    options = { :at => [bounds.right - 150, 0],
-                :width => 150,
-                :align => :right,
-                :start_count_at => 1
-    }
+    options = { at: [bounds.right - 150, 0],
+                width: 150,
+                align: :right,
+                start_count_at: 1}
     number_pages string, options
   end
 
   def company_header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(9)) do
-      text "<b>#{@current_tenant.full_name}</b>", :inline_format => true, :size => 11
-      text "#{@current_tenant.address}"
+    bounding_box([0, row_cursor], width: col(9)) do
+      text "<b>#{@current_tenant.full_name}</b>", inline_format: true, size: 11
+      text @current_tenant.address.to_s
       text "Phone: #{@current_tenant.phone_number}"
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
     end
     hr
   end
-
 end

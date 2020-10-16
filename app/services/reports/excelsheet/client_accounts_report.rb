@@ -1,11 +1,9 @@
 class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
-  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email","Bank", "Bank Account"]
+  TABLE_HEADER = ["SN.", "Name", "Nepse Code", "BOID", "Phone", "Email", "Bank", "Bank Account"].freeze
 
   def initialize(client_accounts, params, current_tenant)
     super(client_accounts, params, current_tenant)
-    if params && @params[:by_client_id].present?
-      @client_account = ClientAccount.find_by(id: @params[:by_client_id])
-    end
+    @client_account = ClientAccount.find_by(id: @params[:by_client_id]) if params && @params[:by_client_id].present?
 
     generate_excelsheet if params_valid?
   end
@@ -35,7 +33,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       extra_infos << "single_"
     end
     if @params && @params[:client_filter].present?
-      sub_headings << "filter: #{@params[:client_filter].sub('no', 'without').gsub('_', ' ')}"
+      sub_headings << "filter: #{@params[:client_filter].sub('no', 'without').tr('_', ' ')}"
       extra_infos << "filtered_"
     end
     sub_headings << "All clients" if sub_headings.empty?
@@ -60,7 +58,7 @@ class Reports::Excelsheet::ClientAccountsReport < Reports::Excelsheet
       bank_account = c.bank_account
 
       row_style = index.even? ? normal_style_row : striped_style_row
-      @sheet.add_row [sn, name, nepse, boid, contract_nums, email,[bank_name,bank_address].compact.split("").flatten.join(","),bank_account], style: row_style
+      @sheet.add_row [sn, name, nepse, boid, contract_nums, email, [bank_name, bank_address].compact.split("").flatten.join(","), bank_account], style: row_style
     end
   end
 

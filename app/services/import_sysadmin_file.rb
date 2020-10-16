@@ -1,12 +1,13 @@
 class ImportSysadminFile < ImportFile
   include ApplicationHelper
-  def initialize(file, from_nepse , nepse_boid, boid_nepse = false)
+  def initialize(file, from_nepse, nepse_boid, boid_nepse = false)
     @from_nepse = from_nepse || false
     @nepse_boid = nepse_boid || false
     @boid_nepse = boid_nepse
     super(file)
   end
-# process the file
+
+  # process the file
   def process
     open_file(@file)
 
@@ -16,25 +17,23 @@ class ImportSysadminFile < ImportFile
         ActiveRecord::Base.transaction do
           @processed_data.each do |hash|
             client_account = ClientAccount.find_by(nepse_code:
-              hash['Code']
-            )
-            if client_account.present?
-              if SmsMessage.messageable_phone_number?(hash['Phone'])
-                client_account.mobile_number = hash['Phone']
-              else
-                client_account.phone_perm = hash['Phone']
-              end
+              hash['Code'])
+            next if client_account.blank?
 
-              client_account.save!
+            if SmsMessage.messageable_phone_number?(hash['Phone'])
+              client_account.mobile_number = hash['Phone']
+            else
+              client_account.phone_perm = hash['Phone']
             end
+
+            client_account.save!
           end
         end
       elsif @nepse_boid
         ActiveRecord::Base.transaction do
           @processed_data.each do |hash|
             client_account = ClientAccount.find_by(nepse_code:
-                                                       hash['Client Code']
-            )
+                                                       hash['Client Code'])
             if client_account.present?
               client_account.boid = hash['BO ID']
               client_account.save!
@@ -45,8 +44,7 @@ class ImportSysadminFile < ImportFile
         ActiveRecord::Base.transaction do
           @processed_data.each do |hash|
             client_account = ClientAccount.find_by(boid:
-                                                       hash['BO ID']
-            )
+                                                       hash['BO ID'])
             if client_account.present?
               client_account.nepse_code = hash['Client Code']
               client_account.skip_validation_for_system = true
@@ -54,15 +52,12 @@ class ImportSysadminFile < ImportFile
             else
               puts 'wtf'
             end
-
           end
         end
       else
         ActiveRecord::Base.transaction do
           @processed_data.each do |hash|
-            if hash['AC_CODE'].blank? || hash['NEPSE_CUSTOMER_CODE'].blank?
-              next
-            end
+            next if hash['AC_CODE'].blank? || hash['NEPSE_CUSTOMER_CODE'].blank?
 
             client_account = ClientAccount.find_by(ac_code: hash["AC_CODE"]) || ClientAccount.new(ac_code: hash["AC_CODE"])
             client_account.name = hash["CUSTOMER_NAME"]
@@ -81,8 +76,8 @@ class ImportSysadminFile < ImportFile
             client_account.nepse_code = hash["NEPSE_CUSTOMER_CODE"].upcase
             client_account.mobile_number = hash["MOBILE_NO"]
             client_account.phone_perm = hash["PER_TEL_NO"]
-            client_account.address1 = "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{ hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
-            client_account.address1_perm = "#{hash['PER_VDC_MP_SMP_NAME']} - #{ hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
+            client_account.address1 = "#{hash['TEMP_VDC_MP_SMP_NAME']} - #{hash['TEMP_TOLE']} - #{hash['TEMP_WARD_NO']}"
+            client_account.address1_perm = "#{hash['PER_VDC_MP_SMP_NAME']} - #{hash['PER_TOLE']} - #{hash['PER_WARD_NO']}"
             # product.attributes = row.to_hash.slice(*accessible_attributes)
 
             client_account.save!
@@ -92,5 +87,4 @@ class ImportSysadminFile < ImportFile
     end
     @processed_data
   end
-
 end

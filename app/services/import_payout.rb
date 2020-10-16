@@ -1,4 +1,4 @@
-#TODO (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
+# TODO: (subas): Move 'is already uploaded file' logic FROM after open_file completion TO right after the first valid row in excel is parsed.
 
 class ImportPayout < ImportFile
   # process the file
@@ -23,7 +23,6 @@ class ImportPayout < ImportFile
     # initial constants
     tds_rate = 0.15
 
-
     open_file(@file)
 
     # inorder to icorporate both row to hash in csv and the hash from roo xls
@@ -42,10 +41,8 @@ class ImportPayout < ImportFile
       unless multiple_settlement_ids_allowed
         begin
           @nepse_settlement_date = bs_to_ad(@nepse_settlement_date_bs)
-          unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
-            @error_message = "Date is invalid for selected fiscal year"
-          end
-        rescue
+          @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
+        rescue StandardError
           @error_message = "Date is invalid for selected fiscal year" unless parsable_date?(@nepse_settlement_date) && date_valid_for_fy_code(@nepse_settlement_date, @selected_fy_code)
         end
         return if @error_message
@@ -53,7 +50,6 @@ class ImportPayout < ImportFile
 
       # @date = Time.now.to_date
       ActiveRecord::Base.transaction do
-
         # list of settlement_ids for multiple settlements.
         settlement_ids = Set.new
 
@@ -80,14 +76,13 @@ class ImportPayout < ImportFile
           end
 
           # corrupt file check
-          unless hash['CONTRACTNO'].present?
+          if hash['CONTRACTNO'].blank?
             import_error("The file you have uploaded has missing contract number")
             raise ActiveRecord::Rollback
             break
           end
 
-
-          unless hash['TRADE_DATE'].present?
+          if hash['TRADE_DATE'].blank?
             import_error("Please upload a correct file. Trade date is missing")
             raise ActiveRecord::Rollback
             break
@@ -95,11 +90,9 @@ class ImportPayout < ImportFile
 
           # @date = Date.parse(hash['TRADE_DATE'])
 
-
-
           transaction = ShareTransaction.includes(:client_account).find_by(
-              contract_no: hash['CONTRACTNO'].to_i,
-              transaction_type: ShareTransaction.transaction_types[:selling]
+            contract_no: hash['CONTRACTNO'].to_i,
+            transaction_type: ShareTransaction.transaction_types[:selling]
           )
 
           if transaction.nil?
@@ -119,7 +112,6 @@ class ImportPayout < ImportFile
           chargeable_on_sale_rate = broker_commission_rate(transaction.date) * (1 - tds_rate)
           chargeable_by_nepse = nepse_commission_rate(transaction.date) + broker_commission_rate(transaction.date) * tds_rate
 
-
           amount_receivable = hash['AMOUNTRECEIVABLE'].delete(',').to_f
           transaction.settlement_id = hash['SETT_ID']
           transaction.closeout_amount = hash['CLOSEOUT_AMOUNT']
@@ -130,15 +122,10 @@ class ImportPayout < ImportFile
           transaction.adjusted_sell_price = hash['ADJ_SELL_PRICE']
           transaction.base_price = transaction.calculate_base_price
 
-
           # get the shortage quantity
-          shortage_quantity = ((transaction.closeout_amount / transaction.share_rate) * 10/12).to_i
-          if transaction.closeout_amount.present? && transaction.closeout_amount > 0
-            transaction.quantity = transaction.raw_quantity - shortage_quantity
-          end
-          if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true)
-          end
+          shortage_quantity = ((transaction.closeout_amount / transaction.share_rate) * 10 / 12).to_i
+          transaction.quantity = transaction.raw_quantity - shortage_quantity if transaction.closeout_amount.present? && transaction.closeout_amount.positive?
+          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true) if shortage_quantity.positive? && transaction.deleted_at.nil?
 
           # net amount is the amount that is payble to the client after charges
           # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
@@ -155,11 +142,11 @@ class ImportPayout < ImportFile
 
           # this is the case for close out
           # calculate the charges
-          if transaction.closeout_amount > 0
-            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
-          else
-            transaction.net_amount = amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
-          end
+          transaction.net_amount = if transaction.closeout_amount.positive?
+                                     amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
+                                   else
+                                     amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee
+                                   end
 
           # transaction.net_amount = (transaction.raw_quantity * transaction.share_rate) -  ( transaction.commission_amount * chargeable_on_sale_rate ) - transaction.dp_fee
           transaction.amount_receivable = amount_receivable
@@ -169,20 +156,17 @@ class ImportPayout < ImportFile
         # return list of sales settlement ids
         # that track the file uploads for different settlement
         settlement_ids.each do |settlement_id|
-          if multiple_settlement_ids_allowed
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
-          else
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
-          end
-
+          @nepse_settlement_ids << if multiple_settlement_ids_allowed
+                                     NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
+                                   else
+                                     NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
+                                   end
         end
       end
     end
-
-
   end
 
-  def extract_xls(file)
+  def extract_xls(_file)
     # xlsx = Roo::Spreadsheet.open(file)
     # begin
     # 	xlsx.sheet(0).each(
@@ -212,5 +196,4 @@ class ImportPayout < ImportFile
     # @processed_data = @processed_data.drop(1) if @processed_data[0][:SETT_ID]=='Settlement ID'
     @error_message = "Please Upload a CSV file." and return
   end
-
 end

@@ -540,6 +540,33 @@ class Vouchers::Create < Vouchers::Base
     voucher.particulars.find(&:cheque_number).present?
   end
 
+  def get_voucher_type(voucher, is_payment_receipt)
+    voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
+
+    voucher_type = voucher.voucher_type
+
+    # logic to make the voucher comply to new standard
+    # splitting the payment and receipt to multiple types
+    if is_payment_receipt && voucher_has_cheque_entry
+      if voucher.is_payment?
+        voucher_type = Voucher.voucher_types[:payment_bank]
+      else
+        voucher_type = Voucher.voucher_types[:receipt_bank]
+      end
+    elsif is_payment_receipt
+      if voucher.is_payment?
+        voucher_type = Voucher.voucher_types[:payment_cash]
+      else
+        voucher_type = Voucher.voucher_types[:receipt_cash]
+      end
+    end
+    return voucher_type
+  end
+
+  def voucher_has_cheque_entry?(voucher)
+    voucher.particulars.find{|p| p.cheque_number}.present?
+  end
+
   def purchase_nepse_settlement(voucher, attrs = {})
     ledger = attrs[:ledger]
     client_account = attrs[:client_account]

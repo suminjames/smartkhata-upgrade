@@ -168,8 +168,8 @@ class ShareTransactionsController < ApplicationController
 
     @securities_flows = Kaminari::paginate_array(@securities_flows).page(params[:page]).per(items_per_page)
 
-    @download_path_xlsx = securities_flow_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-    @download_path_pdf = securities_flow_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @download_path_xlsx = securities_flow_share_transactions_path(params.permit(:format).merge({format: 'xlsx', paginate: 'false'}))
+    @download_path_pdf = securities_flow_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
 
     respond_to do |format|
       format.html
@@ -236,8 +236,8 @@ class ShareTransactionsController < ApplicationController
           selected_fy_code
       )
       fiscal_year = get_fiscal_year_from_fycode(selected_fy_code)
-      @download_path_xlsx = sebo_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-      @download_path_pdf = sebo_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+      @download_path_xlsx = sebo_report_share_transactions_path(params.permit(:format).merge({format: 'xlsx', paginate: 'false'}))
+      @download_path_pdf = sebo_report_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
     end
 
     respond_to do |format|
@@ -309,8 +309,8 @@ class ShareTransactionsController < ApplicationController
     # @commission_reports.instance_variable_set(:@total_count, 100)
     @commission_reports = Kaminari::paginate_array(@commission_reports).page(params[:page]).per(@items_per_page)
 
-    @download_path_xlsx = commission_report_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-    @download_path_pdf = commission_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @download_path_xlsx = commission_report_share_transactions_path(params.permit(:format).merge({format: 'xlsx', paginate: 'false'}))
+    @download_path_pdf = commission_report_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
     respond_to do |format|
       format.html
       format.js
@@ -368,8 +368,8 @@ class ShareTransactionsController < ApplicationController
       )
     end
 
-    @download_path_pdf = threshold_transactions_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
-    @download_path_pdf_for_letter_head = threshold_transactions_share_transactions_path({format:'pdf', paginate: 'false', print_in_letter_head: 1}.merge params)
+    @download_path_pdf = threshold_transactions_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
+    @download_path_pdf_for_letter_head = threshold_transactions_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false',  print_in_letter_head: 1}))
 
     respond_to do |format|
       format.html
@@ -449,8 +449,8 @@ class ShareTransactionsController < ApplicationController
     end
     
     @share_transactions = @share_transactions.page(params[:page]).per(items_per_page).decorate
-    @download_path_xlsx = capital_gain_report_share_transactions_path({format:'xlsx'}.merge params)
-    @download_path_pdf = capital_gain_report_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @download_path_xlsx = capital_gain_report_share_transactions_path(params.permit(:format).merge({format: 'xlsx'}))
+    @download_path_pdf = capital_gain_report_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
 
     respond_to do |format|
       format.html
@@ -501,8 +501,8 @@ class ShareTransactionsController < ApplicationController
 
     @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account).decorate
 
-    @download_path_xlsx = contract_note_details_share_transactions_path({format:'xlsx'}.merge params)
-    @download_path_pdf =  contract_note_details_share_transactions_path({format:'pdf'}.merge params)
+    @download_path_xlsx = contract_note_details_share_transactions_path(params.permit(:format).merge({format: 'xlsx', paginate: 'false'}))
+    @download_path_pdf =  contract_note_details_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
 
     if params.dig(:filterrific, :by_date).present?
       @share_transactions = @filterrific.find.includes(:isin_info, :client_account).order(contract_no: :desc)
@@ -595,8 +595,8 @@ class ShareTransactionsController < ApplicationController
 
     end
 
-    @download_path_xlsx = closeouts_share_transactions_path({format:'xlsx', paginate: 'false'}.merge params)
-    @download_path_pdf = closeouts_share_transactions_path({format:'pdf', paginate: 'false'}.merge params)
+    @download_path_xlsx = closeouts_share_transactions_path(params.permit(:format).merge({format: 'xlsx', paginate: 'false'}))
+    @download_path_pdf = closeouts_share_transactions_path(params.permit(:format).merge({format: 'pdf', paginate: 'false'}))
     respond_to do |format|
       format.html
       format.js

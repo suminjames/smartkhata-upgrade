@@ -46,9 +46,9 @@ class Ledger < ApplicationRecord
   has_many :particulars
   has_many :vouchers, through: :particulars
   belongs_to :group
-  belongs_to :bank_account
-  belongs_to :client_account
-  belongs_to :vendor_account
+  belongs_to :bank_account, optional: true
+  belongs_to :client_account, optional: true
+  belongs_to :vendor_account, optional: true
   has_many :ledger_dailies
   has_many :ledger_balances
   has_many :employee_ledger_associations
@@ -196,7 +196,7 @@ class Ledger < ApplicationRecord
   def save_custom(params = nil, fy_code = nil, _branch_id = nil)
     self.enforce_validation = true
     begin
-      ActiveRecord::Base.transaction do
+      ApplicationRecord.transaction do
         if params
           self.current_user_id = current_user_id
           if self.update(params)
