@@ -17,5 +17,4 @@ class OrderRequest < ApplicationRecord
   has_one :ledger, through: :client_account
 
   accepts_nested_attributes_for :order_request_details
-
 end

@@ -17,6 +17,7 @@ class BaseService
   # end
 
   private
+
   def set_error message
     @error = message
   end

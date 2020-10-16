@@ -39,13 +39,13 @@ class Mandala::Ledger < ApplicationRecord
   def new_smartkhata_particular(voucher_id, attrs = {})
     fy_code = attrs[:fy_code]
     ::Particular.unscoped.new(
-                    description: particulars,
-                    transaction_date: Date.parse(effective_transaction_date),
-                    ledger_id: self.ledger_id,
-                    amount: nrs_amount,
-                    transaction_type: self.sk_transaction_type,
-                    fy_code: fy_code,
-                    voucher_id: voucher_id
+      description: particulars,
+      transaction_date: Date.parse(effective_transaction_date),
+      ledger_id: self.ledger_id,
+      amount: nrs_amount,
+      transaction_type: self.sk_transaction_type,
+      fy_code: fy_code,
+      voucher_id: voucher_id
     )
   end
 
@@ -58,8 +58,6 @@ class Mandala::Ledger < ApplicationRecord
   end
 
   def sk_transaction_type
-
     self.transaction_type == 'DR' ? ::Particular.transaction_types['dr'] : ::Particular.transaction_types['cr']
   end
-
 end

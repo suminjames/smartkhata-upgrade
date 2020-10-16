@@ -30,7 +30,6 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     draw
   end
 
-
   def draw
     font_size(8) do
       move_down(3)
@@ -52,7 +51,7 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
     770
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -68,133 +67,125 @@ class Reports::Pdf::ThresholdShareTransactionsReport < Prawn::Document
 
   def signee_information
     table_data = [
-        ['Signature of reporter', ':'],
-        ['Name', ':'],
-        ['Designation', ':'],
-        ['Phone', ": #{@current_tenant.phone_number}"],
-        ['Email', ':'],
-        ['Fax', ": #{@current_tenant.fax_number}"],
-        ['Date', ':'],
+      ['Signature of reporter', ':'],
+      ['Name', ':'],
+      ['Designation', ':'],
+      ['Phone', ": #{@current_tenant.phone_number}"],
+      ['Email', ':'],
+      ['Fax', ": #{@current_tenant.fax_number}"],
+      ['Date', ':']
     ]
     table_width = page_width - 2
     column_widths = {
-        0 => table_width * 3/12.0,
-        1 => table_width * 6/12.0
+      0 => table_width * 3 / 12.0,
+      1 => table_width * 6 / 12.0
     }
     t = make_table table_data do |t|
-      t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
+      t.cell_style = {border_width: 0, padding: [2, 4, 2, 2]}
       t.column_widths = column_widths
     end
 
-    if (cursor - t.height) < 0
-      start_new_page
-    end
+    start_new_page if (cursor - t.height).negative?
 
     t.draw
   end
 
   def report_header
     table_data = [
-        ['Annexure 1'],
-        ['Threshold Transaction Detail'],
-        ["Informer Name: #{@current_tenant.full_name}"]
+      ['Annexure 1'],
+      ['Threshold Transaction Detail'],
+      ["Informer Name: #{@current_tenant.full_name}"]
     ]
     table_width = page_width - 2
     column_widths = {
-        0 => table_width * 12/12.0,
+      0 => table_width * 12 / 12.0
     }
     table table_data do |t|
-      t.cell_style = {:border_width => 0, :padding => [2, 4, 2, 2]}
-      t.column(0).style(:align => :center)
+      t.cell_style = {border_width: 0, padding: [2, 4, 2, 2]}
+      t.column(0).style(align: :center)
       t.column(0).font_style = :bold
       t.column_widths = column_widths
     end
-
   end
-
 
   def share_transactions_list
     table_data = []
     th_data = [
-        "SN.",
-        "Dmat No.",
-        "Name of\n Buyer/Seller",
-        "Occupation",
-        "Branch\n(if any)",
-        "Transaction\nDate",
-        "Transaction\nType",
-        "Transaction\nAmount",
-        "Source\nof\n Fund",
-        "Remarks",
+      "SN.",
+      "Dmat No.",
+      "Name of\n Buyer/Seller",
+      "Occupation",
+      "Branch\n(if any)",
+      "Transaction\nDate",
+      "Transaction\nType",
+      "Transaction\nAmount",
+      "Source\nof\n Fund",
+      "Remarks"
     ]
     table_data << th_data
     @share_transactions.each_with_index do |share_transaction, index|
       table_data << [
-          index + 1,
-          share_transaction.client_account.boid,
-          share_transaction.client_account.name.titleize,
-          share_transaction.client_account.profession_code,
-          "",
-          ad_to_bs_string(share_transaction.date),
-          share_transaction.unique_types,
-          arabic_number(share_transaction.grouped_amount),
-          "",
-          "",
+        index + 1,
+        share_transaction.client_account.boid,
+        share_transaction.client_account.name.titleize,
+        share_transaction.client_account.profession_code,
+        "",
+        ad_to_bs_string(share_transaction.date),
+        share_transaction.unique_types,
+        arabic_number(share_transaction.grouped_amount),
+        "",
+        ""
       ]
-
     end
     table_width = page_width - 2
     column_widths = {
-        0 => table_width * 0.6/12.0,
-        1 => table_width * 1.9/12.0,
-        2 => table_width * 1.6/12.0,
-        3 => table_width * 1.3/12.0,
-        4 => table_width * 0.8/12.0,
-        5 => table_width * 1.1/12.0,
-        6 => table_width * 1.1/12.0,
-        7 => table_width * 1.5/12.0,
-        8 => table_width * 1.1/12.0,
-        9 => table_width * 1/12.0,
+      0 => table_width * 0.6 / 12.0,
+      1 => table_width * 1.9 / 12.0,
+      2 => table_width * 1.6 / 12.0,
+      3 => table_width * 1.3 / 12.0,
+      4 => table_width * 0.8 / 12.0,
+      5 => table_width * 1.1 / 12.0,
+      6 => table_width * 1.1 / 12.0,
+      7 => table_width * 1.5 / 12.0,
+      8 => table_width * 1.1 / 12.0,
+      9 => table_width * 1 / 12.0
     }
     table table_data do |t|
-      t.cell_style = {:border_width => 1, :padding => [2, 4, 2, 2]}
-      t.column(0).style(:align => :right)
-      t.column(1).style(:align => :right)
-      t.column(2).style(:align => :left)
-      t.column(3).style(:align => :center)
-      t.column(4).style(:align => :left)
-      t.column(5).style(:align => :center)
-      t.column(6).style(:align => :center)
-      t.column(7).style(:align => :right)
-      t.column(8).style(:align => :left)
-      t.column(9).style(:align => :left)
-      t.row(0).style(:align => :center)
+      t.cell_style = {border_width: 1, padding: [2, 4, 2, 2]}
+      t.column(0).style(align: :right)
+      t.column(1).style(align: :right)
+      t.column(2).style(align: :left)
+      t.column(3).style(align: :center)
+      t.column(4).style(align: :left)
+      t.column(5).style(align: :center)
+      t.column(6).style(align: :center)
+      t.column(7).style(align: :right)
+      t.column(8).style(align: :left)
+      t.column(9).style(align: :left)
+      t.row(0).style(align: :center)
       t.row(0).font_style = :bold
       t.column_widths = column_widths
     end
-
   end
 
   def generate_page_number
     string = "page <page> of <total>"
-    options = { :at => [bounds.right - 150, 0],
-                :width => 150,
-                :align => :right,
-                :start_count_at => 1
-    }
+    options = { at: [bounds.right - 150, 0],
+                width: 150,
+                align: :right,
+                start_count_at: 1}
     number_pages string, options
   end
 
   def company_header
     row_cursor = cursor
-    bounding_box([0, row_cursor], :width => col(9)) do
-      text "<b>#{@current_tenant.full_name}</b>", :inline_format => true, :size => 11
-      text "#{@current_tenant.address}"
+    bounding_box([0, row_cursor], width: col(9)) do
+      text "<b>#{@current_tenant.full_name}</b>", inline_format: true, size: 11
+      text @current_tenant.address.to_s
       text "Phone: #{@current_tenant.phone_number}"
       text "Fax: #{@current_tenant.fax_number}"
       text "PAN: #{@current_tenant.pan_number}"
     end
-    #hr
+    # hr
   end
-
 end

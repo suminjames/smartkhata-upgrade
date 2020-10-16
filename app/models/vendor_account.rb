@@ -13,8 +13,6 @@
 #  updated_at   :datetime         not null
 #
 
-
-
 class VendorAccount < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch

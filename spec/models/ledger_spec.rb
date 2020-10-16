@@ -7,6 +7,7 @@ RSpec.describe Ledger, type: :model do
   describe "validations" do
     it { should validate_presence_of (:name)}
     #custom validation left
+
     # it "should raise error" do
     # 	expect{create(:ledger, opening_blnc: -1000)}.to raise_error("can't be negative or blank")
     # end
@@ -212,6 +213,7 @@ RSpec.describe Ledger, type: :model do
           end
         end
       end
+
     end
 
     context "when session branch is branch office" do
@@ -221,6 +223,8 @@ RSpec.describe Ledger, type: :model do
         expect(subject.closing_balance(7374, @branch.id)).to eq(3000)
       end
     end
+
+
   end
 
   describe ".opening_balance" do
@@ -237,6 +241,7 @@ RSpec.describe Ledger, type: :model do
         expect(subject.opening_balance(7374, @branch.id)).to eq(0)
       end
     end
+
   end
 
   describe ".dr_amount" do
@@ -318,11 +323,12 @@ RSpec.describe Ledger, type: :model do
       context "when employee account id is present" do
         let(:employee_account){create(:employee_account, name: "john")}
         subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
-        it "should return attributes for employee account"do
+        it "should return attributes for employee account" do
           employee_account
           subject.employee_ledger_associations = employee_account.employee_ledger_associations
           expect(Ledger.find_similar_to_term("le", nil)).to eq([{:text=>"ledger1 (**Employee**)", :id=>"#{subject.id}"}])
         end
+
       end
 
       context "when vendor account id is present" do
@@ -402,7 +408,6 @@ RSpec.describe Ledger, type: :model do
     subject{create(:ledger)}
     let(:ledger_balance){create(:ledger_balance)}
     let(:ledger_daily){create(:ledger_daily, date: Date.today)}
-
     it "should delete ledger balance" do
       subject
       subject.ledger_balances << ledger_balance

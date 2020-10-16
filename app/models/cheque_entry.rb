@@ -65,22 +65,21 @@ class ChequeEntry < ApplicationRecord
   has_many :dr_settlements, through: :particulars_on_payment, source: :debit_settlements
   has_many :cr_settlements, through: :particulars_on_receipt, source: :credit_settlements
 
-
   has_many :vouchers, through: :particulars
 
   # validate foreign key: ensures that the bank account exists
-  validates :bank_account, presence: true , :unless => :additional_bank_id?
-  validates :cheque_number, presence: true, uniqueness: {scope: [:additional_bank_id, :bank_account_id, :cheque_issued_type], message: "should be unique"}
-  validates :cheque_number, numericality: {only_integer: true, greater_than: 0} , unless: :skip_cheque_number_validation
+  validates :bank_account, presence: true, unless: :additional_bank_id?
+  validates :cheque_number, presence: true, uniqueness: { scope: %i[additional_bank_id bank_account_id cheque_issued_type], message: "should be unique" }
+  validates :cheque_number, numericality: { only_integer: true, greater_than: 0 }, unless: :skip_cheque_number_validation
 
-  # TODO (subas) make sure to do the necessary settings
+  # TODO: (subas) make sure to do the necessary settings
   #
   #  pending_approval for payment
   #  pending_clearance for receipt
   #
-  enum status: [:unassigned, :pending_approval, :pending_clearance, :void, :approved, :bounced, :represented]
-  enum print_status: [:to_be_printed, :printed]
-  enum cheque_issued_type: [:payment, :receipt]
+  enum status: { unassigned: 0, pending_approval: 1, pending_clearance: 2, void: 3, approved: 4, bounced: 5, represented: 6 }
+  enum print_status: { to_be_printed: 0, printed: 1 }
+  enum cheque_issued_type: { payment: 0, receipt: 1 }
 
   # scope based on the branch
   # default_scope do
@@ -90,24 +89,24 @@ class ChequeEntry < ApplicationRecord
   # end
 
   filterrific(
-      default_filter_params: { sorted_by: 'id_asc' },
-      available_filters: [
-          :sorted_by,
-          :by_date,
-          :by_date_from,
-          :by_date_to,
-          :by_client_id,
-          :by_beneficiary_name,
-          :by_bank_account_id,
-          :by_cheque_entry_status,
-          :by_cheque_issued_type,
-          :by_cheque_number
-      ]
+    default_filter_params: { sorted_by: 'id_asc' },
+    available_filters: %i[
+      sorted_by
+      by_date
+      by_date_from
+      by_date_to
+      by_client_id
+      by_beneficiary_name
+      by_bank_account_id
+      by_cheque_entry_status
+      by_cheque_issued_type
+      by_cheque_number
+    ]
   )
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:cheque_date => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(cheque_date: date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -119,9 +118,10 @@ class ChequeEntry < ApplicationRecord
   }
 
   # can we go with arel now?
-  scope :by_client_id, -> (id) { where(client_account_id: id)
-  ledger_id = Ledger.find_by(client_account_id: id)
-  where([ %(
+  scope :by_client_id, lambda { |id|
+    where(client_account_id: id)
+    ledger_id = Ledger.find_by(client_account_id: id)
+    where([%(
       EXISTS (
         SELECT 1
           FROM particulars p
@@ -129,38 +129,36 @@ class ChequeEntry < ApplicationRecord
           ON c.particular_id = p.id AND c.cheque_entry_id = cheque_entries.id
         WHERE p.ledger_id = ?
       )
-    ),ledger_id ])
+    ), ledger_id])
   }
 
-  scope :by_beneficiary_name, -> (name) { where("beneficiary_name ILIKE ?", "%#{name}%") }
+  scope :by_beneficiary_name, ->(name) { where("beneficiary_name ILIKE ?", "%#{name}%") }
 
-  scope :by_bank_account_id, -> (id) { where(bank_account_id: id) }
-  scope :by_cheque_entry_status, lambda {|status|
+  scope :by_bank_account_id, ->(id) { where(bank_account_id: id) }
+  scope :by_cheque_entry_status, lambda { |status|
     if status == 'assigned'
-      where.not(:status => ChequeEntry.statuses['unassigned'])
+      where.not(status: ChequeEntry.statuses['unassigned'])
     else
-      where(:status => ChequeEntry.statuses[status])
+      where(status: ChequeEntry.statuses[status])
     end
   }
-  scope :by_cheque_issued_type, -> (type) { where(:cheque_issued_type => ChequeEntry.cheque_issued_types[type]) }
-  scope :by_cheque_number, ->(cheque_number) {where(:cheque_number => cheque_number)}
-
-
+  scope :by_cheque_issued_type, ->(type) { where(cheque_issued_type: ChequeEntry.cheque_issued_types[type]) }
+  scope :by_cheque_number, ->(cheque_number) { where(cheque_number: cheque_number) }
 
   scope :sorted_by, lambda { |sort_option|
-    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("cheque_entries.id #{ direction }")
+        order("cheque_entries.id #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
 
   def self.find_beneficiary_name_similar_to_term(search_term)
     search_term = search_term.present? ? search_term.to_s : ''
     beneficiary_names = ChequeEntry.where("beneficiary_name ILIKE :search", search: "%#{search_term}%").order(:beneficiary_name).pluck_to_hash(:beneficiary_name)
-    beneficiary_names.uniq.collect { |beneficiary_name| {:text=> beneficiary_name[:beneficiary_name], :id=> beneficiary_name[:beneficiary_name]} }
+    beneficiary_names.uniq.collect { |beneficiary_name| { text: beneficiary_name[:beneficiary_name], id: beneficiary_name[:beneficiary_name] } }
   end
 
   def self.options_for_bank_account_select(branch_id = 0)
@@ -173,34 +171,30 @@ class ChequeEntry < ApplicationRecord
 
   def self.options_for_cheque_entry_status
     [
-        ["Assigned" ,"assigned"],
-        ["Unassigned" ,"unassigned"],
-        ["Pending Approval" ,"pending_approval"],
-        ["Pending Clearance" ,"pending_clearance"],
-        ["Void" ,"void"],
-        ["Approved" ,"approved"],
-        ["Bounced" ,"bounced"],
-        ["Represented" ,"represented"]
+      %w[Assigned assigned],
+      %w[Unassigned unassigned],
+      ["Pending Approval", "pending_approval"],
+      ["Pending Clearance", "pending_clearance"],
+      %w[Void void],
+      %w[Approved approved],
+      %w[Bounced bounced],
+      %w[Represented represented]
     ]
   end
 
   def self.options_for_cheque_issued_type
     [
-        ['Payment', 'payment'],
-        ['Receipt', 'receipt']
+      %w[Payment payment],
+      %w[Receipt receipt]
     ]
   end
 
   def can_print_cheque?
-    if self.receipt? || self.printed? || self.unassigned?|| self.void?
-      return false
-    else
-      return true
-    end
+   self.receipt? || self.printed? || self.unassigned? || self.void? ? false : true
   end
 
   def associated_bank_particulars
-    particulars = self.particulars.where(cheque_number: self.cheque_number)
+    self.particulars.where(cheque_number: self.cheque_number)
   end
 
   def self.next_available_serial_cheque(bank_account_id)
@@ -208,9 +202,11 @@ class ChequeEntry < ApplicationRecord
     if last_cheque.present?
       available = self.unscoped.payment.where(bank_account_id: bank_account_id).where("cheque_number > ?", last_cheque.cheque_number).order(:cheque_number).first
       return available if available
+
       date = self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).order(created_at: :desc).first.try(:created_at)
       return nil unless date
-      self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).where('created_at > ?',date.to_date).order(:cheque_number).first
+
+      self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).where('created_at > ?', date.to_date).order(:cheque_number).first
     else
       self.unscoped.payment.unassigned.where(bank_account_id: bank_account_id).first
     end

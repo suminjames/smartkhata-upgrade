@@ -1,5 +1,4 @@
 class ChequeEntries::RepresentActivity < ChequeEntries::Activity
-
   # TODO(sarojk): Currently, cheque representation have been disabled. It needs reviving in the future.
   # The codes in the relevant areas (controller, models) depend on the following migration, which have been omitted. Re-generate as need arises.
   # class AddRepresentActivityToChequeEntries < ActiveRecord::Migration
@@ -16,8 +15,7 @@ class ChequeEntries::RepresentActivity < ChequeEntries::Activity
   end
 
   def can_activity_be_done?
-
-    if @cheque_entry.payment? || ( @cheque_entry.additional_bank_id!= nil && !@cheque_entry.bounced? )
+    if @cheque_entry.payment? || (!@cheque_entry.additional_bank_id.nil? && !@cheque_entry.bounced?)
       @error_message = "The cheque can not be represented."
       return false
     end

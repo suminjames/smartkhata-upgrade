@@ -40,6 +40,7 @@ class LedgerDaily < ApplicationRecord
   # end
 
   private
+
   def process_daily_ledger
     self.date_bs ||= ad_to_bs_string(self.date)
   end

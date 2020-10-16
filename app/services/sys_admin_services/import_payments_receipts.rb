@@ -1,7 +1,7 @@
-class SysAdminServices::ImportPaymentsReceipts  < ImportFile
+class SysAdminServices::ImportPaymentsReceipts < ImportFile
   include ApplicationHelper
 
-  VOUCHER_CODES = %w(PVB RCB RCP)
+  VOUCHER_CODES = %w[PVB RCB RCP].freeze
   # process the file
   def process(reverse = false)
     open_file(@file)
@@ -11,12 +11,12 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
         fy_code = UserSession.selected_fy_code
         branch_id = UserSession.selected_branch_id
 
-        bank_account= BankAccount.by_branch_id.first
+        bank_account = BankAccount.by_branch_id.first
         cash_ledger = Ledger.find_or_create_by!(name: "Cash")
         # we need the bank account to process
         import_error("No Bank account") and return if bank_account.nil?
-        bank_ledger = bank_account.ledger
 
+        bank_ledger = bank_account.ledger
 
         @processed_data.each do |hash|
           # find the client account with ac_code
@@ -59,19 +59,19 @@ class SysAdminServices::ImportPaymentsReceipts  < ImportFile
           voucher.complete!
           voucher.save!
         end
-
       end
     end
   end
 
   def skip_records(hash, client_account, fy_code)
     if hash["CUSTOMER_CODE"].nil? ||
-        Date.parse(hash["ENTERED_DATE"]).strftime('%Y/%m/%d').to_date < fiscal_year_first_day(fy_code) ||
-        !VOUCHER_CODES.include?(hash["VOUCHER_CODE"]) ||
-        (hash["VOID"] ? hash["VOID"].strip ==  'Y' : false) ||
-        client_account.nil?
+       Date.parse(hash["ENTERED_DATE"]).strftime('%Y/%m/%d').to_date < fiscal_year_first_day(fy_code) ||
+       !VOUCHER_CODES.include?(hash["VOUCHER_CODE"]) ||
+       (hash["VOID"] ? hash["VOID"].strip == 'Y' : false) ||
+       client_account.nil?
       return true
     end
+
     false
   end
 end

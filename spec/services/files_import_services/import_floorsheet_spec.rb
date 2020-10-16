@@ -341,20 +341,20 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
       import_floorsheet.instance_variable_set(:@bill_number, 2)
       import_floorsheet.instance_variable_set(:@date, '2016-11-28'.to_date)
       import_floorsheet.process_record_for_partial_upload(array, hash_dp, fy_code, hash_dp_count,'2016-12-01'.to_date, commission_info)
-      expect(ShareTransaction.where(contract_no: 201611284122142).first.dp_fee).to eq(3.5714)
+      expect(ShareTransaction.where(contract_no: 201611284122142).first.dp_fee.to_f).to eq(3.57)
       expect(ShareTransaction.where(contract_no: 201611284122142).first.net_amount).to eq(20217.1249)
       expect(ShareTransaction.where(contract_no: 201611284122251).first.dp_fee).to eq(25.0)
       expect(ShareTransaction.where(contract_no: 201611284122251).first.net_amount).to eq(20641.0135)
       expect(Voucher.count).to eq(8)
       repatched_share_transactions = import_floorsheet.repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
-      expect(ShareTransaction.where(contract_no: 201611284122142).first.dp_fee).to eq(3.125)
-      expect(ShareTransaction.where(contract_no: 201611284122142).first.net_amount).to eq(20216.6785)
+      expect(ShareTransaction.where(contract_no: 201611284122142).first.dp_fee.to_f).to eq(3.13)
+      expect(ShareTransaction.where(contract_no: 201611284122142).first.net_amount.to_f).to eq(20216.6849)
       expect(Voucher.where(voucher_number: 9).first.desc).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122142 due to partial uploads for 2073-08-13.')
       expect(Voucher.where(voucher_number: 9).first.particulars.first.name).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122142 due to partial uploads for 2073-08-13.')
       expect(Voucher.where(voucher_number: 9).first.particulars.last.name).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122142 due to partial uploads for 2073-08-13.')
 
-      expect(ShareTransaction.where(contract_no: 201611284122251).first.dp_fee).to eq(3.125)
-      expect(ShareTransaction.where(contract_no: 201611284122251).first.net_amount).to eq(20619.1385)
+      expect(ShareTransaction.where(contract_no: 201611284122251).first.dp_fee.to_f).to eq(3.13)
+      expect(ShareTransaction.where(contract_no: 201611284122251).first.net_amount.to_f).to eq(20619.1435)
       expect(Voucher.last.desc).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122251 due to partial uploads for 2073-08-13.')
       expect(Voucher.last.particulars.first.name).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122251 due to partial uploads for 2073-08-13.')
       expect(Voucher.last.particulars.last.name).to eq('Reverse entry to accomodate dp fee for transaction number 201611284122251 due to partial uploads for 2073-08-13.')
@@ -580,6 +580,8 @@ RSpec.describe FilesImportServices::ImportFloorsheet do
         import_floorsheet.process
         import_floorsheet = FilesImportServices::ImportFloorsheet.new(invalid_file, current_user, @fy_code, true)
         xlsx = Roo::Spreadsheet.open(invalid_file, extension: :xml)
+        debugger
+        
         expect(import_floorsheet.process_full_partial(true)).to eq(nil)
         expect(import_floorsheet.error_message).to eq('Please verify and Upload a valid file')
       end

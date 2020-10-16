@@ -78,9 +78,9 @@ class ClientAccount < ApplicationRecord
 
   ########################################
   # Relationships
-  belongs_to :group_leader, class_name: 'ClientAccount', required: false
-  has_many :group_members, :class_name => 'ClientAccount', :foreign_key => 'group_leader_id'
-  belongs_to :user, required: false
+  belongs_to :group_leader, class_name: 'ClientAccount'
+  has_many :group_members, class_name: 'ClientAccount', foreign_key: 'group_leader_id'
+  belongs_to :user
   has_one :ledger
   has_many :share_inventories
   has_many :bills
@@ -102,41 +102,39 @@ class ClientAccount < ApplicationRecord
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
-  validates_presence_of :name
-                        # :unless => :nepse_code?
-  validates_presence_of :branch_id, :if => lambda { Branch.has_multiple_branches? }
-  validates_presence_of :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system}
-  validates_presence_of :address1_perm, :city_perm, :state_perm, :country_perm,
-                        :if => lambda {|record| record.nepse_code.blank?  && record.corporate? && !record.skip_validation_for_system}
-  validates_format_of :dob, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system
-  validates_format_of :citizen_passport_date, with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true,  unless: :skip_validation_for_system
-  validates_format_of :email, with: EMAIL_REGEX, allow_blank: true
-  validates_numericality_of :mobile_number, only_integer: true, allow_blank: true, unless: :skip_validation_for_system # length?
-  validates_presence_of :bank_name, :bank_address, :bank_account, :if => :any_bank_field_present?
-  validates :bank_account, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}, :if => :any_bank_field_present?
-  validates_uniqueness_of :nepse_code, :allow_blank => true
+  validates :name, presence: true
+  # :unless => :nepse_code?
+  validates :branch_id, presence: { if: -> { Branch.has_multiple_branches? } }
+  validates :citizen_passport, :dob, :father_mother, :granfather_father_inlaw, :address1_perm, :city_perm, :state_perm, :country_perm,
+            presence: { if: ->(record) { record.nepse_code.blank?  && record.individual? && !record.skip_validation_for_system } }
+  validates :address1_perm, :city_perm, :state_perm, :country_perm,
+            presence: { if: ->(record) { record.nepse_code.blank?  && record.corporate? && !record.skip_validation_for_system } }
+  validates :dob, format: { with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system }
+  validates :citizen_passport_date, format: { with: DATE_REGEX, message: 'should be in YYYY-MM-DD format', allow_blank: true, unless: :skip_validation_for_system }
+  validates :email, format: { with: EMAIL_REGEX, allow_blank: true }
+  validates :mobile_number, numericality: { only_integer: true, allow_blank: true, unless: :skip_validation_for_system } # length?
+  validates :bank_name, :bank_address, :bank_account, presence: { if: :any_bank_field_present? }
+  validates :bank_account, uniqueness: true, format: { with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric' }, if: :any_bank_field_present?
+  validates :nepse_code, uniqueness: { allow_blank: true }
   # validates :name, :father_mother, :granfather_father_inlaw, format: { with: /\A[[:alpha:][:blank:]]+\Z/, message: 'only alphabets allowed' }
   # validates :address1_perm, :city_perm, :state_perm, :country_perm, format: { with: /\A[[:alpha:]\d,. ]+\Z/, message: 'special characters not allowed' }
   validate :bank_details_present?
 
   ########################################
   # Enums
-  enum client_type: [:individual, :corporate]
+  enum client_type: { individual: 0, corporate: 1 }
 
   ########################################
   # Scopes
-  scope :by_client_id, -> (id) { where(id: id) }
-  scope :find_by_boid, -> (boid) { where("boid" => "#{boid}") }
+  scope :by_client_id, ->(id) { where(id: id) }
+  scope :find_by_boid, ->(boid) { where("boid" => boid.to_s) }
   # for future reference only .. delete if you feel you know things well enough
   # scope :having_group_members, includes(:group_members).where.not(group_members_client_accounts: {id: nil})
   scope :having_group_members, -> { joins(:group_members).uniq }
-  scope :by_selected_session_branch_id, lambda {|session_branch_id|
-    if session_branch_id != 0
-      where(branch_id: session_branch_id)
-    end
+  scope :by_selected_session_branch_id, lambda { |session_branch_id|
+    where(branch_id: session_branch_id) if session_branch_id != 0
   }
-  scope :client_filter, lambda {|status|
+  scope :client_filter, lambda { |status|
     # [
     #     ["without Mobile Number", "no_mobile_number"],
     #     ["without any Phone Number", "no_any_phone_number"],
@@ -146,35 +144,35 @@ class ClientAccount < ApplicationRecord
     # ]
     case status
       when 'no_mobile_number'
-        where(:mobile_number => [nil, '']).order('name asc')
+        where(mobile_number: [nil, '']).order('name asc')
       when 'no_any_phone_number'
-        where(:mobile_number => [nil, '']).where(:phone_perm => [nil, '']).where(:phone => [nil, '']).order('name asc')
+        where(mobile_number: [nil, '']).where(phone_perm: [nil, '']).where(phone: [nil, '']).order('name asc')
       when 'no_email'
-        where(:email => [nil, '']).order('name asc')
+        where(email: [nil, '']).order('name asc')
       when 'no_boid'
-        where(:boid => [nil, '']).order('name asc')
+        where(boid: [nil, '']).order('name asc')
       when 'no_nepse_code'
-        where(:nepse_code => [nil, '']).order('name asc')
+        where(nepse_code: [nil, '']).order('name asc')
       when 'with_boid'
-        where.not(:boid => [nil, '']).order('name asc')
+        where.not(boid: [nil, '']).order('name asc')
       when 'with_nepse_code'
-        where.not(:nepse_code => [nil, '']).order('name asc')
+        where.not(nepse_code: [nil, '']).order('name asc')
     end
   }
   scope :sorted_by, lambda { |sort_option|
-    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^name/
-        order("client_accounts.name #{ direction }")
+        order("client_accounts.name #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
 
   ########################################
   # Attributes
   attr_accessor :skip_validation_for_system, :skip_ledger_creation, :branch_changed, :move_all_particulars, :dont_move_particulars
-  delegate :temp_password,:username, to: :user
+  delegate :temp_password, :username, to: :user
 
   ########################################
   # Delegations
@@ -183,13 +181,13 @@ class ClientAccount < ApplicationRecord
   # Methods
 
   filterrific(
-      default_filter_params: { sorted_by: 'name_asc' },
-      available_filters: [
-          :sorted_by,
-          :by_client_id,
-          :client_filter,
-          :by_selected_session_branch_id
-      ]
+    default_filter_params: { sorted_by: 'name_asc' },
+    available_filters: %i[
+      sorted_by
+      by_client_id
+      client_filter
+      by_selected_session_branch_id
+    ]
   )
 
   def change_ledger_name
@@ -210,10 +208,7 @@ class ClientAccount < ApplicationRecord
   #   - Remove more than one spaces from in between name.
   #
   def format_name
-    if self.name.present?
-      self.name.squish!
-    end
-    self.name
+    self.name.squish! if self.name.present?
   end
 
   def skip_or_nepse_code_present?
@@ -221,16 +216,14 @@ class ClientAccount < ApplicationRecord
   end
 
   def bank_details_present?
-    if bank_account.present? && (bank_name.blank? || bank_address.blank?)
-      errors.add :bank_account, "Please fill the required bank details"
-    end
+    errors.add :bank_account, "Please fill the required bank details" if bank_account.present? && (bank_name.blank? || bank_address.blank?)
   end
 
   def check_client_branch
     if self.persisted?
       ledger_id = self.ledger.try(:id)
-      if (ledger_id && Particular.unscoped.where(ledger_id: ledger_id).count > 0)
-        if (self.move_all_particulars == "1" || self.dont_move_particulars == "1")
+      if ledger_id && Particular.unscoped.where(ledger_id: ledger_id).count.positive?
+        if self.move_all_particulars == "1" || self.dont_move_particulars == "1"
           self.branch_changed = true
         else
           errors.add :branch_id, "Client has entry in other branch"
@@ -262,6 +255,7 @@ class ClientAccount < ApplicationRecord
 
   def find_or_create_ledger
     return self.ledger if self.ledger.present?
+
     create_ledger
   end
 
@@ -340,11 +334,7 @@ class ClientAccount < ApplicationRecord
   end
 
   def name_and_nepse_code
-    if self.nepse_code.present?
-      "#{self.name.titleize} (#{self.nepse_code})"
-    else
-      "#{self.name.titleize}"
-    end
+    self.nepse_code.present? ? "#{self.name.titleize} (#{self.nepse_code})" : self.name.titleize
   end
 
   def commaed_contact_numbers
@@ -357,20 +347,18 @@ class ClientAccount < ApplicationRecord
     # str[-2..-1]= '' if str[-2..-1] == ', '
 
     [self.mobile_number, self.phone, self.phone_perm].reject(&:blank?).join(',')
-
   end
 
   def pending_bills_path(selected_fy_code, selected_branch_id)
-    Rails.application.routes.url_helpers.bills_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}", "filterrific[by_bill_status]":"pending")
+    Rails.application.routes.url_helpers.bills_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]": self.id.to_s, "filterrific[by_bill_status]": "pending")
   end
 
   def share_inventory_path(selected_fy_code, selected_branch_id)
-    Rails.application.routes.url_helpers.share_transactions_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]":"#{self.id}")
+    Rails.application.routes.url_helpers.share_transactions_path(selected_fy_code: selected_fy_code, selected_branch_id: selected_branch_id, "filterrific[by_client_id]": self.id.to_s)
   end
 
-
-  def ledger_closing_balance(fy_code,branch_id)
-    self.ledger.closing_balance(fy_code,branch_id)
+  def ledger_closing_balance(fy_code, branch_id)
+    self.ledger.closing_balance(fy_code, branch_id)
   end
 
   def self.existing_referrers_names
@@ -397,12 +385,12 @@ class ClientAccount < ApplicationRecord
 
   def self.options_for_client_filter
     [
-        ["without Mobile Number", "no_mobile_number"],
-        ["without any Phone Number", "no_any_phone_number"],
-        ["without Email", "no_email"],
-        ["without BOID", "no_boid"],
-        ["without Nepse Code", "no_nepse_code"],
-        ["with BOID", "with_boid"]
+      ["without Mobile Number", "no_mobile_number"],
+      ["without any Phone Number", "no_any_phone_number"],
+      ["without Email", "no_email"],
+      ["without BOID", "no_boid"],
+      ["without Nepse Code", "no_nepse_code"],
+      ["with BOID", "with_boid"]
     ]
   end
 
@@ -430,12 +418,12 @@ class ClientAccount < ApplicationRecord
     search_term = search_term.present? ? search_term.to_s : ""
     client_accounts = ClientAccount.by_selected_session_branch_id(branch_id).where("name ILIKE :search OR nepse_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :nepse_code)
     client_accounts.collect do |client_account|
-      if client_account['nepse_code'].present?
-        identifier = "#{client_account['name']} (#{client_account['nepse_code']})"
-      else
-        identifier = "#{client_account['name']}"
-      end
-      { :text=> identifier, :id => client_account['id'].to_s }
+      identifier = if client_account['nepse_code'].present?
+                     "#{client_account['name']} (#{client_account['nepse_code']})"
+                   else
+                     (client_account['name']).to_s
+                   end
+      { text: identifier, id: client_account['id'].to_s }
     end
   end
 
@@ -452,22 +440,23 @@ class ClientAccount < ApplicationRecord
     #  has_many :bills
     #  belongs_to :branch
     return_val = true
-    unless (self.group_members.empty? &&
-        self.group_leader.nil? &&
-        self.user.nil?)
+    unless self.group_members.empty? &&
+           self.group_leader.nil? &&
+           self.user.nil?
       puts "Client Account has atleast one of the following: group members, group leader, user." if verbose
       return false unless verbose
+
       return_val = false
     end
 
     if self.ledger.present?
       relevant_ledger = self.ledger
-      if Particular.unscoped.where(ledger_id: relevant_ledger.id).size != 0
+      unless Particular.unscoped.where(ledger_id: relevant_ledger.id).empty?
         puts "Relevant ledger has particulars" if verbose
         return_val = false
         return false unless verbose
       end
-      if LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).size !=0
+      unless LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).empty?
         puts "Relevant ledger has balance(s)." if verbose
         return_val = false
         return false unless verbose
@@ -480,24 +469,22 @@ class ClientAccount < ApplicationRecord
     # - settlement
     # - share_transactions
     # - transaction_messages
-    ['Bill', 'ChequeEntry', 'Order', 'Settlement', 'ShareTransaction', 'TransactionMessage'].each do |model|
+    %w[Bill ChequeEntry Order Settlement ShareTransaction TransactionMessage].each do |model|
       model = model.constantize
-      if model.unscoped.where(client_account_id: self.id).size != 0
-        puts "Relevant #{model} association present." if verbose
-        return_val = false
-        return false unless verbose
-      end
+      next if model.unscoped.where(client_account_id: self.id).empty?
+
+      puts "Relevant #{model} association present." if verbose
+      return_val = false
+      return false unless verbose
     end
     return_val
   end
-  def as_json(options={})
-    super.as_json(options).merge({:name_and_nepse_code => name_and_nepse_code})
 
+  def as_json(options = {})
+    super.as_json(options).merge({ name_and_nepse_code: name_and_nepse_code })
   end
 
   def move_particulars
-    if self.branch_changed && (self.move_all_particulars == "1")
-      MoveClientParticularJob.perform_later(self.id, self.branch_id, updater_id)
-    end
+    MoveClientParticularJob.perform_later(self.id, self.branch_id, updater_id) if self.branch_changed && (self.move_all_particulars == "1")
   end
 end

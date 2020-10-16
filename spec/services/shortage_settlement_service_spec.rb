@@ -28,7 +28,7 @@ RSpec.describe ShortageSettlementService do
         transaction = sales_share_transaction_with_closeout
         closeout_settlement_service = ShortageSettlementService.new(transaction, 'client', current_tenant, current_user: current_user, branch: branch)
         closeout_settlement_service.process
-        expect(transaction.bill.reload.net_amount).to eq(100106.6726)
+        expect(transaction.bill.reload.net_amount.to_f).to eq(100106.67)
         expect(transaction.bill.reload.closeout_charge).to eq(15024)
         expect(transaction.client_account.ledger.closing_balance(@fy_code)).to eq(15024)
         expect(transaction.reload.closeout_settled).to be_truthy
@@ -40,7 +40,7 @@ RSpec.describe ShortageSettlementService do
         transaction = sales_share_transaction_with_closeout
         closeout_settlement_service = ShortageSettlementService.new(transaction, 'broker', current_tenant, current_user: current_user, branch: branch)
         closeout_settlement_service.process
-        expect(transaction.bill.reload.net_amount).to eq(115130.6726)
+        expect(transaction.bill.reload.net_amount.to_f).to eq(115130.67)
         expect(transaction.bill.reload.closeout_charge).to eq(0)
         expect(transaction.client_account.ledger.closing_balance(@fy_code)).to eq(0)
         expect(transaction.reload.closeout_settled).to be_truthy
@@ -64,18 +64,18 @@ RSpec.describe ShortageSettlementService do
 
         expect(closeout_settlement_service.error).to be_nil
         # no change on bill amount
-        expect(transaction.bill.reload.net_amount).to eq(116489.27 )
+        expect(transaction.bill.reload.net_amount.to_f).to eq(116489.27)
         expect(transaction.bill.reload.closeout_charge).to eq(0)
 
         # since we have not made the entry to the client the amount will be credited to client
         # it should have debited exact amount making it zero
-        expect(transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-12818.351)
+        expect(transaction.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-12818.35)
         expect(transaction.client_account.ledger.particulars.last.hide_for_client).to be_truthy
 
         expect(transaction.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
         expect(closeout_ledger.closing_balance(@fy_code)).to eq(0)
-        expect(broker_ledger.closing_balance(@fy_code)).to eq(-2205.649)
+        expect(broker_ledger.closing_balance(@fy_code).to_f).to eq(-2205.65)
       end
 
       it "should settle by broker appropriately" do
@@ -97,12 +97,12 @@ RSpec.describe ShortageSettlementService do
         # since we have not made the entry to the client the amount will be credited to client
         # it should have debited exact amount making it zero
 
-        expect(transaction.client_account.ledger.closing_balance(@fy_code)).to eq(-12818.351)
+        expect(transaction.client_account.ledger.closing_balance(@fy_code).to_f).to eq(-12818.35)
         expect(transaction.client_account.ledger.particulars.last.hide_for_client).to be_truthy
 
         expect(transaction.reload.closeout_settled).to be_truthy
         closeout_ledger = Ledger.find_by(name: "Close Out")
-        expect(closeout_ledger.closing_balance(@fy_code)).to eq(-2205.649)
+        expect(closeout_ledger.closing_balance(@fy_code).to_f).to eq(-2205.65)
       end
     end
   end

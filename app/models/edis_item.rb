@@ -1,4 +1,4 @@
-class EdisItem < ActiveRecord::Base
+class EdisItem < ApplicationRecord
   include Auditable
   include Models::Updater
 
@@ -38,9 +38,7 @@ class EdisItem < ActiveRecord::Base
   def valid_merge_rebate
     if merge?
       transaction_date = sales_settlement.share_transaction&.date
-      unless MergeRebate.where('rebate_start <= ? and rebate_end >= ?', transaction_date, transaction_date).any?
-        errors.add(:reason_code, 'Merge Rebate is not applicable')
-      end
+      errors.add(:reason_code, 'Merge Rebate is not applicable') unless MergeRebate.where('rebate_start <= ? and rebate_end >= ?', transaction_date, transaction_date).any?
     end
   end
 
@@ -62,19 +60,15 @@ class EdisItem < ActiveRecord::Base
   end
 
   def client_code_exists
-    unless ClientAccount.where(nepse_code: client_code.upcase).any?
-      errors.add(:client_code, 'invalid')
+    if ClientAccount.where(nepse_code: client_code.upcase).any?
+      self.boid = ClientAccount.where(nepse_code: client_code.upcase).first&.boid if self.boid.blank?
     else
-      if self.boid.blank?
-        self.boid = ClientAccount.where(nepse_code: client_code.upcase).first&.boid
-      end
+      errors.add(:client_code, 'invalid')
     end
   end
 
   def contract_number_exists
-    unless ShareTransaction.selling.where(contract_no: contract_number).any?
-      errors.add(:contract_number, 'invalid')
-    else
+    if ShareTransaction.selling.where(contract_no: contract_number).any?
       if self.sales_settlement_id.blank?
         sales_settlement = SalesSettlement.where(contract_no: contract_number).first
         if sales_settlement.blank?
@@ -89,19 +83,19 @@ class EdisItem < ActiveRecord::Base
           self.scrip ||= isin_info.isin
         end
       end
+    else
+      errors.add(:contract_number, 'invalid')
     end
   end
 
   # takes care of scrip and quantity
   def quantity_less_than_transaction
-    if ((calculated_quantity || 0) + EdisItem.where.not(id: id, reference_id: reference_id).where(contract_number: contract_number).sum(:quantity)) > ShareTransaction.selling.includes(:isin_info).where(contract_no: contract_number, isin_infos: { isin: scrip }).sum(:quantity)
-      errors.add(:quantity, "does not match")
-    end
+    errors.add(:quantity, "does not match") if ((calculated_quantity || 0) + EdisItem.where.not(id: id, reference_id: reference_id).where(contract_number: contract_number).sum(:quantity)) > ShareTransaction.selling.includes(:isin_info).where(contract_no: contract_number, isin_infos: { isin: scrip }).sum(:quantity)
   end
 
   def calculated_quantity
     if valid_for_split?
-      quantity + split_options.map {|s| s[:quantity].to_f}.reduce(0, :+)
+      quantity + split_options.map { |s| s[:quantity].to_f }.reduce(0, :+)
     else
       quantity
     end
@@ -110,7 +104,6 @@ class EdisItem < ActiveRecord::Base
   def valid_for_split?
     split_options.present? && split_options.is_a?(Array)
   end
-
 
   def split_record
     self.splitted_records = []

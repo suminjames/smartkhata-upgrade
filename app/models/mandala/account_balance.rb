@@ -20,9 +20,8 @@ class Mandala::AccountBalance < ApplicationRecord
 
   def chart_of_account
     chart_of_accounts = Mandala::ChartOfAccount.where(ac_code: ac_code)
-    if chart_of_accounts.size != 1
-      raise NotImplementedError
-    end
+    raise NotImplementedError if chart_of_accounts.size != 1
+
     chart_of_accounts.last
   end
 

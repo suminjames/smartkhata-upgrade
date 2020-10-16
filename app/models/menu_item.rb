@@ -13,22 +13,20 @@
 #  updated_at              :datetime         not null
 #
 
-
-
 class MenuItem < ApplicationRecord
   include Auditable
   has_ancestry
   # belongs_to :parent, :class_name => 'MenuItem'
   # has_many :children, :class_name => 'MenuItem', foreign_key: 'parent_id'
-  has_many :menu_permissions, :dependent => :destroy
+  has_many :menu_permissions, dependent: :destroy
 
   # scope :black_listed_for_user, ->(user_id) { includes(:menu_permissions).where('menu_permissions.id' => nil, 'menu_permissions.user_id' => user_id) }
 
   # # scope :with_no_childrens
   # scope :having_childrens, -> { includes(:children).where.not(children_menu_items: {id: nil}) }
   # scope :first_level_menu_items, -> { where(parent_id: nil) }
-  enum request_type: [:get, :post]
-  validates_uniqueness_of :code
+  enum request_type: { get: 0, post: 1 }
+  validates :code, uniqueness: true
 
   # TODO(subas) optimize this code block
   def self.black_listed_paths_for_user(user_access_role_id)

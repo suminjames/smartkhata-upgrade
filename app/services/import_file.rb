@@ -12,9 +12,8 @@ class ImportFile
     raise NotImplementedError
   end
 
-
   def extract_csv(file)
-    CSV.foreach(file.path, :headers => true) do |row|
+    CSV.foreach(file.path, headers: true) do |row|
       @processed_data << row.to_hash
     end
   end
@@ -30,11 +29,11 @@ class ImportFile
   # open the corresponding file
   def open_file(file)
     case File.extname(file.original_filename)
-      when ".csv" then
+      when ".csv"
         extract_csv(file)
-      when ".xls" then
+      when ".xls"
         extract_xls(file)
-      when ".xlsx" then
+      when ".xlsx"
         extract_xlsx(file)
       # else raise "Unknown file type: #{file.original_filename}"
       else
@@ -45,5 +44,4 @@ class ImportFile
   def import_error(message)
     @error_message = message
   end
-
 end

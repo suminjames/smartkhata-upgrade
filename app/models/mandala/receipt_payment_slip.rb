@@ -35,18 +35,18 @@ class Mandala::ReceiptPaymentSlip < ApplicationRecord
   belongs_to :settlement
 
   def receipt_payment_details
-    Mandala::ReceiptPaymentDetail.where(fiscal_year: self.fiscal_year, slip_type: self.slip_type, slip_no: self.slip_no )
+    Mandala::ReceiptPaymentDetail.where(fiscal_year: self.fiscal_year, slip_type: self.slip_type, slip_no: self.slip_no)
   end
 
   def new_smartkhata_settlement(voucher_id, fy_code)
     ::Settlement.unscoped.new(
-                             amount: amount,
-                             name: self.beneficiary_name,
-                             date: Date.parse(self.slip_date),
-                             settlement_type: self.settlement_type,
-                             voucher_id: voucher_id,
-                             fy_code: fy_code,
-                             branch_id: 1
+      amount: amount,
+      name: self.beneficiary_name,
+      date: Date.parse(self.slip_date),
+      settlement_type: self.settlement_type,
+      voucher_id: voucher_id,
+      fy_code: fy_code,
+      branch_id: 1
     )
   end
 

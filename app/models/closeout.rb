@@ -26,7 +26,7 @@
 class Closeout < ApplicationRecord
   include Auditable
   include ::Models::UpdaterWithBranch
-  enum closeout_type: [:debit, :credit]
+  enum closeout_type: { debit: 0, credit: 1 }
 
   # validates :employee_id, uniqueness: { scope: :area_id }
   validates :net_amount, presence: true

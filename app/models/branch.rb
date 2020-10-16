@@ -9,15 +9,14 @@
 #  updated_at :datetime         not null
 #
 
-
-
 class Branch < ApplicationRecord
-  validates_presence_of :code, :address
-  validates :code, uniqueness: {case_sensitive: false}
+  validates :code, :address, presence: true
+  validates :code, uniqueness: { case_sensitive: false }
   include Auditable
   def code=(val)
-    write_attribute :code, val.try(
-      :upcase)
+    self[:code] = val.try(
+      :upcase
+    )
   end
 
   def self.permitted_branches_for_user(user)
@@ -30,9 +29,7 @@ class Branch < ApplicationRecord
 
       branches = branches.to_a
 
-      if branches.size == Branch.all.count
-        branches << Branch.new(code: 'ALL', id: 0)
-      end
+      branches << Branch.new(code: 'ALL', id: 0) if branches.size == Branch.all.count
     end
     branches
   end
@@ -42,7 +39,6 @@ class Branch < ApplicationRecord
   end
 
   def self.selected_branch(selected_branch_id)
-
     Branch.find_by(id: selected_branch_id)
   end
 end

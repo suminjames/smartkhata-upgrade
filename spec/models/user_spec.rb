@@ -1,12 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  include_context 'session_setup'
   subject {@user}
+  include_context 'session_setup'
 
   describe "validations" do
     it { expect(subject).to be_valid }
-
     it { should validate_uniqueness_of(:username).case_insensitive }
 
     # devise converts the email to downcase before validation, so it behaves like case insesitive
@@ -58,13 +57,13 @@ RSpec.describe User, type: :model do
 
 
   describe ".belongs_to_client_account" do
-    let(:client_account){create(:client_account, user_id: subject.id, branch_id: @branch.id)}
+    let(:client_account){create(:client_account, user_id: subject.id)}
     it "checks whether user object is associated with client account id" do
       subject.client_accounts << client_account
       subject.belongs_to_client_account(client_account.id)
       expect(subject.client_accounts.pluck(:id)).to include(client_account.id)
     end
-  end
+  end 
 
   describe ".blocked_path_list" do
     let!(:user_access_role){create(:user_access_role)}

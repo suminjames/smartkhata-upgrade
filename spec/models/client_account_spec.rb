@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe ClientAccount, type: :model do
-  include_context 'session_setup'
-  subject {build(:client_account, branch_id: @branch.id)}
+  subject {build(:client_account)
+  }
 
+  include_context 'session_setup'
 
   let(:current_user) { create(:user) }
    # before do
@@ -13,40 +14,41 @@ RSpec.describe ClientAccount, type: :model do
    #  UserSession.selected_branch_id =  1
    # end
   describe "validations" do
-    it "should be valid" do
-      expect(subject).to be_valid
-    end
+  	it "should be valid" do
+  		expect(subject).to be_valid
+  	end
 
-    it "branch id should always be present if multiple branches are present" do
-      create(:branch)
-      allow(subject).to receive(:branch_id).and_return(nil)
-      expect(subject).not_to be_valid
-    end
+  	it "branch id should always be present if multiple branches are present" do
+  	   create(:branch)
+  		subject.branch_id = nil
+  		expect(subject).not_to be_valid
+  	end
 
-    context "when nepse code is not present" do
-      subject { build(:client_account_without_nepse_code)}
+  	context "when nepse code is not present" do
+  		subject { build(:client_account_without_nepse_code)}
 
-      it { should validate_presence_of (:name)}
-      it { should validate_presence_of :citizen_passport}
-      it { should validate_presence_of :dob}
-      it { should validate_presence_of :father_mother}
-      it { should validate_presence_of :granfather_father_inlaw}
-      it { should validate_presence_of :city_perm}
-      it { should validate_presence_of :address1_perm}
-      it { should validate_presence_of :state_perm}
-      it { should validate_presence_of :country_perm}
+  		it { should validate_presence_of (:name)}
+  		it { should validate_presence_of :citizen_passport}
+  		it { should validate_presence_of :dob}
+  		it { should validate_presence_of :father_mother}
+  		it { should validate_presence_of :granfather_father_inlaw}
+  		it { should validate_presence_of :city_perm}
+  		it { should validate_presence_of :address1_perm}
+  		it { should validate_presence_of :state_perm}
+  		it { should validate_presence_of :country_perm}
 
-    end
+  		# context ""
+  	end
 
-    context "when date is in YYYY-MM-DD format" do
-      it{ should allow_value("2074-01-13").for(:dob)}
-      it{ should allow_value("2074-01-10").for(:citizen_passport_date)}
-    end
+  	context "when date is in YYYY-MM-DD format" do
+  	 	it{ should allow_value("2074-01-13").for(:dob)}
+  	 	it{ should allow_value("2074-01-10").for(:citizen_passport_date)}
+  	end
 
-    it { should allow_value("hello@example.com").for(:email)}
-    it { should validate_numericality_of(:mobile_number)}
+  	it { should allow_value("hello@example.com").for(:email)}
+  	it { should validate_numericality_of(:mobile_number)}
 
-    context "when any bank field is present" do
+  	context "when any bank field is present" do
       # context "when bank account is present" do
       #   subject { build(:client_account, bank_account: '09999')}
       #   it { should validate_presence_of (:bank_name)}
@@ -60,18 +62,19 @@ RSpec.describe ClientAccount, type: :model do
       it { should validate_presence_of (:bank_name)}
       it { should validate_presence_of (:bank_account)}
       it { should validate_presence_of (:bank_address)}
-    end
+	  end
 
     context "when bank name and address is present" do
-      subject { build(:client_account, bank_name: 'adf', bank_address: 'asdf')}
-      it { expect(subject).not_to allow_values(-1,'qu-o','#ioo').for(:bank_account) }
-      it { should allow_values(5466461, 'ghgbb1').for(:bank_account) }
+        subject { build(:client_account, bank_name: 'adf', bank_address: 'asdf')}
+        it { expect(subject).not_to allow_values(-1,'qu-o','#ioo').for(:bank_account) }
+        it { should allow_values(5466461, 'ghgbb1').for(:bank_account) }
     end
 
 
     context "when nepse code is present" do
       subject{create(:client_account)}
       it "should  validate_uniqueness_of nepse_code" do
+
         new_account = build(:client_account, nepse_code: subject.nepse_code)
         expect(new_account).to_not be_valid
       end
@@ -159,15 +162,12 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".check_client_branch" do
-    subject {create(:client_account, name: "John", branch_id: @branch.id)}
+    subject{create(:client_account, name: "John", branch_id: 1)}
     let!(:ledger){subject.ledger}
-    let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: @branch.id)}
-    let!(:branch){create(:branch)}
-
+    let!(:particular){create(:particular, ledger_id: ledger.id, branch_id: 1)}
     context "when branch not changed" do
       it "should check client's branch" do
-        subject
-        subject.branch_id = branch.id
+        subject.branch_id = 2
         subject.check_client_branch
         expect(subject.errors[:branch_id]).to include 'Client has entry in other branch'
       end
@@ -175,8 +175,7 @@ RSpec.describe ClientAccount, type: :model do
 
     context "when branch changed" do
       it "should return true" do
-        subject
-        subject.branch_id = branch.id
+        subject.branch_id = 2
         subject.move_all_particulars = "1"
         subject.check_client_branch
         expect(subject.branch_changed).to eq(true)
@@ -187,6 +186,7 @@ RSpec.describe ClientAccount, type: :model do
   describe ".find_or_create_ledger" do
     let(:ledger){build(:ledger)}
     context "when ledger is present" do
+
       it "should be true for ledger present" do
         allow(subject).to receive(:ledger).and_return(ledger)
         expect(subject.find_or_create_ledger).to eq(ledger)
@@ -247,22 +247,22 @@ RSpec.describe ClientAccount, type: :model do
   end
 
   describe ".get_all_related_bills" do
-    subject{create(:client_account, branch_id: @branch.id)}
-    let(:group_member) {create(:client_account, group_leader_id: subject.id, branch_id: @branch.id)}
+    subject{create(:client_account)}
+      let(:group_member) {create(:client_account, group_leader_id: subject.id)}
     it "should return  all related bills"  do
-      bill1 = create(:bill, client_account_id: subject.id, branch_id: @branch.id)
-      bill2 = create(:bill, client_account_id: group_member.id, branch_id: @branch.id)
+      bill1 = create(:bill, client_account_id: subject.id)
+      bill2 = create(:bill, client_account_id: group_member.id )
       # fix this,
       expect(subject.get_all_related_bills).to include(bill1, bill2)
     end
   end
 
   describe ".get_all_related_bills_ids" do
-    subject{create(:client_account, branch_id: @branch_id)}
-    let(:group_member) {create(:client_account, group_leader_id: subject.id, branch_id: @branch.id)}
+    subject{create(:client_account)}
+    let(:group_member) {create(:client_account, group_leader_id: subject.id)}
     it "should return  all related bills ids"  do
-      bill1 = create(:bill, client_account_id: subject.id, branch_id: @branch.id)
-      bill2 = create(:bill, client_account_id: group_member.id, branch_id: @branch.id )
+      bill1 = create(:bill, client_account_id: subject.id)
+      bill2 = create(:bill, client_account_id: group_member.id )
       #fix this
       expect(subject.get_all_related_bill_ids).to include(bill1.id, bill2.id)
     end
@@ -270,6 +270,7 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".get_group_members_ledgers" do
     subject{create(:client_account)}
+
     it "should return group member ledgers" do
       group_member = create(:client_account, group_leader_id: subject.id)
       expect(subject.get_group_members_ledgers).to include group_member.ledger
@@ -286,10 +287,10 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".messageable_phone_number" do
     context "when messageable phone number isnot present" do
-      it "should return nil" do
-        allow(SmsMessage).to receive(:messageable_phone_number?).and_return(nil)
-        expect(subject.messageable_phone_number).to eq(nil)
-      end
+        it "should return nil" do
+          allow(SmsMessage).to receive(:messageable_phone_number?).and_return(nil)
+          expect(subject.messageable_phone_number).to eq(nil)
+        end
     end
 
     context "when messageable phone number is present" do
@@ -322,7 +323,7 @@ RSpec.describe ClientAccount, type: :model do
   describe ".can_be_invited_by_email?" do
     context "when email is present" do
       it "should invite by email" do
-        allow(subject).to receive(:user_id).and_return(nil)
+         allow(subject).to receive(:user_id).and_return(nil)
         expect(subject.can_be_invited_by_email?).to be_truthy
       end
     end
@@ -339,11 +340,11 @@ RSpec.describe ClientAccount, type: :model do
 
   describe ".has_sufficient_bank_account_info?" do
     context "when bank name and bank account are present" do
-      it "should provide bank account info" do
-        subject.bank_name = "RBB"
-        subject.bank_account = "123"
-        expect(subject.has_sufficient_bank_account_info?).to be_truthy
-      end
+        it "should provide bank account info" do
+          subject.bank_name = "RBB"
+          subject.bank_account = "123"
+          expect(subject.has_sufficient_bank_account_info?).to be_truthy
+        end
     end
   end
 
@@ -471,14 +472,14 @@ RSpec.describe ClientAccount, type: :model do
       context "and nepse code is not present" do
         it "should return  attributes with nepse code" do
           subject.update_column(:nepse_code, nil)
-          expect(subject.class.find_similar_to_term("De", subject.branch_id)).to eq([:text=> "Dedra Sorenson", :id => "#{subject.id}"])
+          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson", :id => "#{subject.id}"])
         end
       end
 
       context "and nepse code is present" do
         it "should return  attributes with nepse code" do
           subject.update_column(:nepse_code, "123")
-          expect(subject.class.find_similar_to_term("De", subject.branch_id)).to eq([:text=> "Dedra Sorenson (123)", :id => "#{subject.id}"])
+          expect(subject.class.find_similar_to_term("De",1)).to eq([:text=> "Dedra Sorenson (123)", :id => "#{subject.id}"])
         end
       end
     end
@@ -486,14 +487,14 @@ RSpec.describe ClientAccount, type: :model do
     context "when search term is present and matches nepse_code" do
       it "should return  attributes with nepse code" do
         subject.update_column(:nepse_code, "nps")
-        expect(subject.class.find_similar_to_term("np", subject.branch_id)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+        expect(subject.class.find_similar_to_term("np",1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
       end
     end
 
     context "when search term is not present" do
       it "should return  attributes with nepse code" do
         subject.update_column(:nepse_code, "nps")
-        expect(subject.class.find_similar_to_term(nil, subject.branch_id)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
+        expect(subject.class.find_similar_to_term(nil,1)).to eq([:text=> "Dedra Sorenson (nps)", :id => "#{subject.id}"])
       end
     end
 
@@ -503,12 +504,12 @@ RSpec.describe ClientAccount, type: :model do
 
     it "adds method to json response" do
       expect(subject.as_json.keys).to include :name_and_nepse_code
-      expect(subject.as_json[:name_and_nepse_code]).to eq(subject.name_and_nepse_code)
+      expect(subject.as_json[:name_and_nepse_code]).to eq (subject.name_and_nepse_code)
     end
   end
 
   describe '.move_particulars' do
-    subject { create(:client_account, name: "John", branch_id: @branch.id) }
+    subject { create(:client_account, name: "John", branch_id: 1) }
     it "should move particulars when branch changed" do
       subject.move_all_particulars = "1"
       expect(subject).to receive(:branch_changed).and_return(true)

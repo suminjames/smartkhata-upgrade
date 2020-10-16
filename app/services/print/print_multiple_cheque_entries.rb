@@ -14,13 +14,13 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
   include ApplicationHelper
 
   def initialize(cheque_entry_ids, current_tenant)
-    super(:page_size => [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
+    super(page_size: [page_width, page_height], top_margin: 1, right_margin: 18, bottom_margin: 18, left_margin: 18)
 
     @current_tenant = current_tenant
 
     index = 0
 
-    cheque_entries= ChequeEntry.where(id: cheque_entry_ids).order(:cheque_number)
+    cheque_entries = ChequeEntry.where(id: cheque_entry_ids).order(:cheque_number)
     # cheque_entry_ids.each do |cheque_entry_id|
     cheque_entries.each do |cheque|
       # @cheque_entry = ChequeEntry.where(id: cheque_entry_ids, cheque_number: cheque_number).first
@@ -32,7 +32,7 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
         @name = current_tenant.full_name
       else
         @bank = @cheque_entry.bank_account.bank
-        @name = @cheque_entry.beneficiary_name.present? ? @cheque_entry.beneficiary_name : "Internal Ledger"
+        @name = @cheque_entry.beneficiary_name.presence || "Internal Ledger"
       end
       @cheque_date = @cheque_entry.cheque_date.nil? ? DateTime.now : @cheque_entry.cheque_date
       # Code borrowed from ChequeEntry#show action ENDS
@@ -42,12 +42,9 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
       draw
 
-      if index != cheque_entry_ids.count - 1
-        start_new_page
-      end
+      start_new_page if index != cheque_entry_ids.count - 1
       index += 1
     end
-
   end
 
   def draw
@@ -65,7 +62,7 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
     beneficiary_name = @beneficiary_name
     cheque_number = @cheque_entry.cheque_number
     amount_in_number = @cheque_entry.amount
-    amount_in_word = arabic_word(amount_in_number) +' only'
+    amount_in_word = arabic_word(amount_in_number) + ' only'
     amount_in_number = arabic_number(amount_in_number)
 
     # Dimensions
@@ -74,20 +71,20 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
 
     font_size(9) do
       # Left (to the perforation) side of the cheque
-      text_box date.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 1.6.cm], :width => 2.6.cm
-      text_box beneficiary_name, :at => [cheque_left + 0.8.cm, cheque_top - 2.1.cm], :width => 2.6.cm
-      text_box amount_in_number.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 4.7.cm], :width => 2.6.cm
-      text_box cheque_number.to_s, :at => [cheque_left + 0.8.cm, cheque_top - 7.cm], :width => 2.6.cm
+      text_box date.to_s, at: [cheque_left + 0.8.cm, cheque_top - 1.6.cm], width: 2.6.cm
+      text_box beneficiary_name, at: [cheque_left + 0.8.cm, cheque_top - 2.1.cm], width: 2.6.cm
+      text_box amount_in_number.to_s, at: [cheque_left + 0.8.cm, cheque_top - 4.7.cm], width: 2.6.cm
+      text_box cheque_number.to_s, at: [cheque_left + 0.8.cm, cheque_top - 7.cm], width: 2.6.cm
       # Right (to the perforation) side of the cheque
-      text_box ac_payee_note, :at => [cheque_left + 11.2.cm, cheque_top - 1.1.cm]
-      text_box date.to_s, :at => [cheque_left + 17.9.cm, cheque_top - 1.0.cm]
-      text_box beneficiary_name, :at => [cheque_left + 8.8.cm, cheque_top - 2.2.cm], :width => 11.cm
-      text_box amount_in_number.to_s, :at => [cheque_left + 17.9.cm, cheque_top - 3.0.cm]
-      text_box amount_in_word, :at => [cheque_left + 6.1.cm, cheque_top - 2.9.cm], :width => 9.2.cm
+      text_box ac_payee_note, at: [cheque_left + 11.2.cm, cheque_top - 1.1.cm]
+      text_box date.to_s, at: [cheque_left + 17.9.cm, cheque_top - 1.0.cm]
+      text_box beneficiary_name, at: [cheque_left + 8.8.cm, cheque_top - 2.2.cm], width: 11.cm
+      text_box amount_in_number.to_s, at: [cheque_left + 17.9.cm, cheque_top - 3.0.cm]
+      text_box amount_in_word, at: [cheque_left + 6.1.cm, cheque_top - 2.9.cm], width: 9.2.cm
     end
   end
 
-# - US Letter Dimension:  8.5 by 11.0 inches (215.9 by 279.4 mm)
+  # - US Letter Dimension:  8.5 by 11.0 inches (215.9 by 279.4 mm)
   def page_width
     216.9.mm
   end
@@ -96,7 +93,7 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
     90.mm
   end
 
-  def col (unit)
+  def col(unit)
     unit / 12.0 * page_width
   end
 
@@ -105,5 +102,4 @@ class Print::PrintMultipleChequeEntries < Prawn::Document
       stroke_horizontal_rule
     end
   end
-
 end

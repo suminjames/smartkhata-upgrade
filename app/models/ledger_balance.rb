@@ -27,13 +27,13 @@ class LedgerBalance < ApplicationRecord
 
   # before_create :update_closing_balance
 
-  validates :branch_id, :uniqueness => { scope: [:fy_code, :ledger_id] }
+  validates :branch_id, uniqueness: { scope: %i[fy_code ledger_id] }
 
   validate :check_positive_amount
 
   before_save :update_opening_closing_balance
 
-  enum opening_balance_type: [:dr, :cr]
+  enum opening_balance_type: { dr: 0, cr: 1 }
   # scope based on the branch and fycode selection
 
   # dont know why it was used as 0
@@ -49,22 +49,20 @@ class LedgerBalance < ApplicationRecord
   # end
 
   def update_opening_closing_balance
-    unless self.opening_balance.blank?
+    if self.opening_balance.blank?
+      self.opening_balance = 0
+    else
       if self.opening_balance_type == 'cr'
-        if self.opening_balance > 0
-          self.opening_balance = self.opening_balance * -1
-        end
+        self.opening_balance = self.opening_balance * -1 if self.opening_balance.positive?
       end
 
       # when it is created make the closing balance equal to opening balance
       if self.new_record?
         self.closing_balance = self.opening_balance
       elsif self.opening_balance_changed?
-        self.closing_balance = ( self.opening_balance - self.opening_balance_was ) + self.closing_balance
+        self.closing_balance = (self.opening_balance - self.opening_balance_was) + self.closing_balance
       end
 
-    else
-      self.opening_balance = 0
     end
   end
 
@@ -81,16 +79,16 @@ class LedgerBalance < ApplicationRecord
   # end
 
   def self.new_with_params(params)
-    LedgerBalance.new(branch_id: params[:branch_id],opening_balance_type: params[:opening_balance_type], opening_balance: params[:opening_balance])
+    LedgerBalance.new(branch_id: params[:branch_id], opening_balance_type: params[:opening_balance_type], opening_balance: params[:opening_balance])
   end
 
   def self.update_or_create_org_balance(ledger_id, fy_code, current_user_id)
-    set_current_user = lambda { |l| l.current_user_id = current_user_id }
+    set_current_user = ->(l) { l.current_user_id = current_user_id }
     ledger_balance_org = LedgerBalance.unscoped.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger_id, branch_id: nil, &set_current_user)
     ledger_balance = LedgerBalance.unscoped.by_fy_code(fy_code).where(ledger_id: ledger_id).where.not(branch_id: nil).sum(:opening_balance)
     balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]
     ledger_balance_org.tap(&set_current_user)
-    ledger_balance_org.update_attributes(opening_balance: ledger_balance, opening_balance_type: balance_type)
+    ledger_balance_org.update(opening_balance: ledger_balance, opening_balance_type: balance_type)
   end
 
   def formatted_opening_balance
@@ -102,17 +100,14 @@ class LedgerBalance < ApplicationRecord
     # if not for leagacy support add the balance type.
 
     if self.opening_balance_type.present?
-      if self.opening_balance.to_f < 0 && self.opening_balance_type != "cr"
-        errors.add(:opening_balance, "can't be negative or blank")
-      end
+      errors.add(:opening_balance, "can't be negative or blank") if self.opening_balance.to_f.negative? && self.opening_balance_type != "cr"
     else
-      if self.opening_balance.to_f < 0
-        self.opening_balance_type = 'cr'
-      end
+      self.opening_balance_type = 'cr' if self.opening_balance.to_f.negative?
     end
   end
-  def as_json(options={})
+
+  def as_json(options = {})
     ledger_name = options[:ledger_name] || name
-    super.as_json(options).merge({:name=> ledger_name})
+    super.as_json(options).merge({ name: ledger_name })
   end
 end

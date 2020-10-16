@@ -1,5 +1,4 @@
 class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
-
   def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, current_user, selected_branch_id = nil, selected_fy_code = nil)
     super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user)
     @cheque_entry.bounce_date_bs = bounce_date_bs
@@ -10,11 +9,11 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
   end
 
   def valid_for_the_fiscal_year?
-    @selected_fy_code == get_fy_code(bs_to_ad @cheque_entry.bounce_date_bs)
+    @selected_fy_code == get_fy_code(bs_to_ad(@cheque_entry.bounce_date_bs))
   end
 
   def can_activity_be_done?
-    if @cheque_entry.payment? || ( @cheque_entry.additional_bank_id!= nil && @cheque_entry.bounced? )
+    if @cheque_entry.payment? || (!@cheque_entry.additional_bank_id.nil? && @cheque_entry.bounced?)
       @error_message = "The cheque can not be bounced."
       return false
     end
@@ -39,14 +38,10 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     voucher = @cheque_entry.vouchers.uniq.first
     # particular_ids = ChequeEntryParticularAssociation.where(cheque_entry_id: @cheque_entry).pluck(:particular_id)
     # voucher = Particular.unscoped.where(id: particular_ids).first.try(:voucher)
-    if voucher.cheque_entries.uniq.count != 1
-      bounce_for_multiple_associated_cheques voucher
-    else
-      bounce_for_single_voucher voucher
-    end
+    voucher.cheque_entries.uniq.count == 1 ? bounce_for_single_voucher(voucher): bounce_for_multiple_associated_cheques(voucher)
   end
 
-  def bounce_for_single_voucher voucher
+  def bounce_for_single_voucher(voucher)
     @bills = voucher.bills.purchase.order(id: :desc)
     cheque_amount = @cheque_entry.amount
     processed_bills = []
@@ -87,25 +82,24 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     end
   end
 
-  def bounce_for_multiple_associated_cheques voucher
+  def bounce_for_multiple_associated_cheques(voucher)
     # bounce is for received cheques
     # client particular is cr
     cr_particulars = @cheque_entry.particulars.cr
     bank_particulars = @cheque_entry.associated_bank_particulars
     # assumed that a receipt cheque is attached to a single bank
-    raise SmartKhataError  if bank_particulars.count != 1
+    raise SmartKhataError if bank_particulars.count != 1
+
     dr_particular = bank_particulars.first
 
     cheque_amount = @cheque_entry.amount
     particulars_for_reverse_entry = [dr_particular]
     processed_bills = []
 
-    unless cr_particulars.count == 1
-      cr_particulars = cr_particulars.select{|x| x.amount == cheque_amount}
-    end
+    cr_particulars = cr_particulars.select { |x| x.amount == cheque_amount } unless cr_particulars.count == 1
 
     # case when single payee && multiple cheque
-    if cr_particulars.count == 1 
+    if cr_particulars.count == 1
       # reverse the cheque amount only
       particular = cr_particulars.first
       particular.amount = cheque_amount
@@ -152,5 +146,4 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     end
     # set_error('The cheque can not be bounced...Please contact technical support.')
   end
-
 end

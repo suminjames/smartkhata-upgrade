@@ -24,7 +24,6 @@ class SmsMessage < ApplicationRecord
 
   include ::Models::UpdaterWithBranchFycode
 
-
   ########################################
   # Notes
 
@@ -75,28 +74,27 @@ class SmsMessage < ApplicationRecord
   # Constants
 
   SPARROW_MAX_MESSAGE_BLOCK_LENGTH = 459
-  SPARROW_TOKEN = 'Q2qMoJIpim0AgFn34WUz'
-  
+  SPARROW_TOKEN = 'Q2qMoJIpim0AgFn34WUz'.freeze
+
   # Update(Feb 21, 2018):
   # Ncell numbers should now see the message sender id as `Trishakti` instead of 36001. Non-ncell numbers will see the latter.
-  SPARROW_FROM = 'Trishakti'
-
+  SPARROW_FROM = 'Trishakti'.freeze
 
   ########################################
   # Enums
 
   # Expand the enum type to add additional types in the future (For eg: password change PIN sms, etc)
-  enum sms_type: [:undefined_sms_type, :transaction_message_sms]
-  enum phone_type: [:undefined_phone_type, :ntc, :ncell]
+  enum sms_type: { undefined_sms_type: 0, transaction_message_sms: 1 }
+  enum phone_type: { undefined_phone_type: 0, ntc: 1, ncell: 2 }
 
   ########################################
   # Scopes
 
-  scope :by_sms_message_type, -> (type) { where(:sms_type => SmsMessage.sms_types[type]).order(id: :desc) }
+  scope :by_sms_message_type, ->(type) { where(sms_type: SmsMessage.sms_types[type]).order(id: :desc) }
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:updated_at => date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
+    where(updated_at: date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
   }
 
   scope :by_date_from, lambda { |date_bs|
@@ -114,32 +112,31 @@ class SmsMessage < ApplicationRecord
   }
 
   scope :sorted_by, lambda { |sort_option|
-    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("sms_messages.id #{ direction }")
+        order("sms_messages.id #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
 
   filterrific(
-      default_filter_params: {sorted_by: 'id_desc'},
-      available_filters: [
-          :sorted_by,
-          :by_sms_message_type,
-          :by_date,
-          :by_date_from,
-          :by_date_to,
-          :by_client_id,
-      ]
+    default_filter_params: { sorted_by: 'id_desc' },
+    available_filters: %i[
+      sorted_by
+      by_sms_message_type
+      by_date
+      by_date_from
+      by_date_to
+      by_client_id
+    ]
   )
-
 
   ########################################
   # Instance Methods
 
-  def initialize (args = {})
+  def initialize(args = {})
     super
     self.phone_type = self.class.get_phone_type(self.phone)
     self.credit_used = 0
@@ -149,7 +146,7 @@ class SmsMessage < ApplicationRecord
   # Class Methods
 
   def self.options_for_sms_message_type_select
-    [["Transaction Message", "transaction_message_sms"], ["Undefined", "undefined_sms_type"]]
+    [["Transaction Message", "transaction_message_sms"], %w[Undefined undefined_sms_type]]
   end
 
   def self.sparrow_test_message
@@ -181,7 +178,7 @@ class SmsMessage < ApplicationRecord
   end
 
   def self.sparrow_push_sms(mobile_number, message)
-    mobile_number= self.manipulate_phone_number(mobile_number)
+    mobile_number = self.manipulate_phone_number(mobile_number)
     api_url = "http://api.sparrowsms.com/v2/sms/?token=#{SPARROW_TOKEN}&from=#{SPARROW_FROM}&to=#{mobile_number}&text=#{CGI.escape(message)}"
     response = Net::HTTP.get_response(URI.parse(api_url)).body
     response_json = JSON.parse(response)
@@ -197,7 +194,6 @@ class SmsMessage < ApplicationRecord
     sms_message_obj = SmsMessage.new(phone: _mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id, branch_id: _branch_id, current_user_id: current_user.id)
     _full_message = transaction_message.sms_message
 
-
     # 459 is size of max block sendable via sparrow sms
     valid_message_blocks = _full_message.scan(/.{1,459}/)
     sms_failed = false
@@ -211,7 +207,6 @@ class SmsMessage < ApplicationRecord
       end
     end
 
-
     if sms_failed
       transaction_message.sms_unsent!
     else # sms success
@@ -221,15 +216,15 @@ class SmsMessage < ApplicationRecord
     end
   end
 
-  def self.message= (msg)
-    @message = msg
+  class << self
+    attr_writer :message
   end
 
   def self.replace_at_sign(msg)
     msg.gsub('@', 'at')
   end
 
-  def self.mobile_number= (number)
+  def self.mobile_number=(number)
     @mobile_number = self.manipulate_phone_number(number)
   end
 
@@ -249,7 +244,7 @@ class SmsMessage < ApplicationRecord
   #
   def self.messageable_phone_number?(number)
     number = self.manipulate_phone_number(number)
-    return number.length == 13
+    number.length == 13
   end
 
   def self.sparrow_credit_required(message)
@@ -258,7 +253,7 @@ class SmsMessage < ApplicationRecord
     single_page_length = 160
     multi_page_block_length = 153
     message_length = message.length
-    if message_length <= single_page_length && message_length > 0
+    if message_length <= single_page_length && message_length.positive?
       credit_required = 1
     elsif message_length > single_page_length
       credit_required = (message_length / multi_page_block_length.to_f).ceil
@@ -275,11 +270,11 @@ class SmsMessage < ApplicationRecord
     # The phone number after mainpulate_phone_number has country code (977) appended to it.
     non_country_code_segment = phone[3..-1]
     if non_country_code_segment.starts_with?('984', '985', '986')
-      return SmsMessage.phone_types[:ntc]
+      SmsMessage.phone_types[:ntc]
     elsif non_country_code_segment.starts_with?('980', '981')
-      return SmsMessage.phone_types[:ncell]
+      SmsMessage.phone_types[:ncell]
     else
-      return SmsMessage.phone_types[:undefined_phone_type]
+      SmsMessage.phone_types[:undefined_phone_type]
     end
   end
 
@@ -296,7 +291,11 @@ class SmsMessage < ApplicationRecord
   # Used in a cron job by `whenever` gem.
   def self.check_for_sms_credit_shortage
     notification_threshold = 5000
-    current_credit = SmsMessage.sparrow_credit.to_i rescue nil
+    current_credit = begin
+                       SmsMessage.sparrow_credit.to_i
+                     rescue
+                       nil
+                     end
     if current_credit.blank? || current_credit <= notification_threshold
       notification_message = []
       notification_message << "*" * 80
@@ -316,6 +315,4 @@ class SmsMessage < ApplicationRecord
       # Do nothing. If no output to the system, no cron mail notification is sent out.
     end
   end
-
 end
-

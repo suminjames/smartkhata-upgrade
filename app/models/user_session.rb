@@ -10,28 +10,21 @@ class UserSession
 
     def user=(usr)
       raise 'You must pass a User class' unless usr.is_a?(User)
+
       @user = usr
     end
 
-    def user_id
-      user.id
-    end
+    delegate :id, to: :user, prefix: true
 
     # def user_full_name
     #   user.employee_acount.present? ? user.employee_acount.name : 'asdf'
     # end
 
-    def selected_fy_code=(fy_code)
-      @selected_fy_code = fy_code
-    end
+    attr_writer :selected_fy_code
 
-    def selected_branch_id=(branch_id)
-      @selected_branch_id = branch_id
-    end
+    attr_writer :selected_branch_id
 
-    def tenant=(tenant)
-      @tenant = tenant
-    end
+    attr_writer :tenant
 
     # def branch_id
     #   user.branch_id
@@ -43,7 +36,7 @@ class UserSession
     def set_console(tenant, fy_code = nil, selected_branch_id = 0)
       Apartment::Tenant.switch!(tenant)
       UserSession.user = User.first
-      UserSession.tenant = Tenant.find_by_name(tenant)
+      UserSession.tenant = Tenant.find_by(name: tenant)
       UserSession.selected_fy_code = fy_code || Object.new.extend(FiscalYearModule).get_fy_code
       UserSession.selected_branch_id = selected_branch_id
     end

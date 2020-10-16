@@ -13,8 +13,6 @@
 #  updated_at :datetime         not null
 #
 
-
-
 class Bank < ApplicationRecord
   include Auditable
   include ::Models::Updater

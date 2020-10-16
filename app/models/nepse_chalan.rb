@@ -24,5 +24,4 @@ class NepseChalan < ApplicationRecord
 
   belongs_to :voucher
   has_many :share_transactions
-
 end

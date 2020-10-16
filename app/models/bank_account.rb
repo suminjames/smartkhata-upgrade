@@ -39,67 +39,56 @@ class BankAccount < ApplicationRecord
   belongs_to :bank
 
   # alphanumeric account number with atleast a single digit
-  validates :account_number, uniqueness: true, format: {with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric'}
-  validates_presence_of :account_number, :bank_branch
+  validates :account_number, uniqueness: true, format: { with: ACCOUNT_NUMBER_REGEX, message: 'should be numeric or alphanumeric' }
+  validates :account_number, :bank_branch, presence: true
   accepts_nested_attributes_for :ledger
-
 
   def test_dummy
     raise SmartKhataError
   end
+
   # change the default for purchase and sales bank accounts
   # so that the current one becomes the default if opted
   def change_default
-    if self.default_for_payment
-      bank_accounts = BankAccount.by_branch_id(branch_id).where(:default_for_payment => true)
-      bank_accounts = BankAccount.by_branch_id(branch_id).where.not(:id => self.id)
-      bank_accounts.update_all(:default_for_payment => false)
-    end
+    BankAccount.by_branch_id(branch_id).where.not(id: self.id).update_all(default_for_payment: false) if self.default_for_payment
 
-    if self.default_for_receipt
-      bank_accounts = BankAccount.by_branch_id(branch_id).where(:default_for_receipt => true)
-      bank_accounts = BankAccount.by_branch_id(branch_id).where.not(:id => self.id)
-      bank_accounts.update_all(:default_for_receipt => false)
-    end
-
+    BankAccount.by_branch_id(branch_id).where.not(id: self.id).update_all(default_for_receipt: false) if self.default_for_receipt
   end
 
   def self.default_for_payment(branch_id)
-    BankAccount.by_branch_id(branch_id).where(:default_for_payment => true).first
+    BankAccount.by_branch_id(branch_id).where(default_for_payment: true).first
   end
 
   def self.default_receipt_account(branch_id)
-    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id(branch_id).where(:default_for_receipt => true).first
+    default_for_receipt_bank_account_in_branch = BankAccount.by_branch_id(branch_id).where(default_for_receipt: true).first
     # Check for availability of default bank accounts for payment and receipt in the current branch.
     # If not available in the current branch, resort to using whichever is available from all available branches.
-    default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
+    default_for_receipt_bank_account_in_branch.presence || BankAccount.where(default_for_receipt: true).first
   end
 
   def name
-    "#{self.bank.bank_code }-#{self.account_number}"
+    "#{self.bank.bank_code}-#{self.account_number}"
   end
 
   def bank_account_name
-    "#{self.bank.bank_code }-#{self.account_number}"
+    "#{self.bank.bank_code}-#{self.account_number}"
   end
 
   def bank_name
-    "#{self.bank.name}"
+    self.bank.name
   end
 
   def get_current_assets_group
     Group.find_by(name: "Current Assets").id
   end
 
-  def save_custom(fy_code, branch_id, current_user_id)
+  def save_custom(fy_code, _branch_id, current_user_id)
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?
-      self.ledger.name = ledger_name
-      self.ledger.group_id = _group_id
       self.bank_name = _bank.name
       begin
-        ApplicationRecord.transaction do
+        ActiveRecord::Base.transaction do
           if self.save
             LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, current_user_id)
             return true
@@ -109,11 +98,11 @@ class BankAccount < ApplicationRecord
         self.errors.add(:base, "Please make sure one entry per branch")
       end
     end
-    return false
+    false
   end
 
   def ledger_name
-    "Bank:"+bank.name+"(#{account_number})"
+    "Bank:" + bank.name + "(#{account_number})"
   end
 
   def update_ledger_name
