@@ -117,11 +117,7 @@ class Ledger < ApplicationRecord
   scope :by_branch_id, ->(id) { where(branch_id: id) if id }
 
   def self.allowed(show_restricted)
-    if show_restricted
-      self.all
-    else
-      self.unrestricted
-    end
+    show_restricted ? self.all : self.unrestricted
   end
 
   def self.user_can_view_restricted?(user, path)
@@ -142,9 +138,7 @@ class Ledger < ApplicationRecord
   end
 
   def unscoped_ledger_balances(fy_code, branch_id)
-    balances = LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code)
-    balances = balances.where(branch_id: branch_id) unless branch_id.zero?
-    balances
+    LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code).where(branch_id: branch_id) unless branch_id.zero?
   end
 
   #

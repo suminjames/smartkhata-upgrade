@@ -47,7 +47,7 @@ class ChequeEntries::Activity
   def get_bank_name_and_date
     if cheque_entry.additional_bank_id.present?
       bank = Bank.find_by(id: cheque_entry.additional_bank_id)
-      name = current_tenant_full_name
+      name = @current_tenant_full_name
     else
       bank = cheque_entry&.bank_account&.bank
       name = cheque_entry.beneficiary_name.presence || "Internal Ledger"

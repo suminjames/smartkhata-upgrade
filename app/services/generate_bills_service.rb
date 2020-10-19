@@ -19,7 +19,7 @@ class GenerateBillsService
       raise NotImplementedError if @contract_numbers.blank?
 
       share_transactions = ShareTransaction.where(contract_no: @contract_numbers)
-      debugger
+
       raise NotImplementedError if share_transactions.pluck(:settlement_id).uniq.count != 1
       raise NotImplementedError if share_transactions.where.not(bill_id: nil).count.positive?
 

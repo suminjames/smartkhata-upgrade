@@ -67,6 +67,7 @@ RSpec.describe Vouchers::Setup do
       expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
     end
+
     it "should build a receipt voucher when ledger balance is in dr" do
       ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 3000 )
       voucher,
@@ -77,9 +78,8 @@ RSpec.describe Vouchers::Setup do
           voucher_type,
           vendor_account_list,
           client_ledger_list = Vouchers::Setup.new(voucher_type: 0, client_account_id: client_account.id, clear_ledger: true).voucher_and_relevant(1, 7374)
-      expect(voucher.voucher_code).to eq("RCV")
+      expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
     end
   end
-
 end

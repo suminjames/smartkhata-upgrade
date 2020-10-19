@@ -75,7 +75,7 @@ class Vouchers::Create < Vouchers::Base
     # convert the bs date to english date for storage
     begin
       date_ad = bs_to_ad(@voucher.date_bs)
-    rescue StandardError
+    rescue
       @error_message = "Invalid Date!"
       return
     end
@@ -539,33 +539,33 @@ class Vouchers::Create < Vouchers::Base
   def voucher_has_cheque_entry?(voucher)
     voucher.particulars.find(&:cheque_number).present?
   end
-
-  def get_voucher_type(voucher, is_payment_receipt)
-    voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
-
-    voucher_type = voucher.voucher_type
-
-    # logic to make the voucher comply to new standard
-    # splitting the payment and receipt to multiple types
-    if is_payment_receipt && voucher_has_cheque_entry
-      voucher_type = if voucher.is_payment?
-                       Voucher.voucher_types[:payment_bank]
-                     else
-                       Voucher.voucher_types[:receipt_bank]
-                     end
-    elsif is_payment_receipt
-      voucher_type = if voucher.is_payment?
-                       Voucher.voucher_types[:payment_cash]
-                     else
-                       Voucher.voucher_types[:receipt_cash]
-                     end
-    end
-    voucher_type
-  end
-
-  def voucher_has_cheque_entry?(voucher)
-    voucher.particulars.find(&:cheque_number).present?
-  end
+  #
+  # def get_voucher_type(voucher, is_payment_receipt)
+  #   voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
+  #
+  #   voucher_type = voucher.voucher_type
+  #
+  #   # logic to make the voucher comply to new standard
+  #   # splitting the payment and receipt to multiple types
+  #   if is_payment_receipt && voucher_has_cheque_entry
+  #     voucher_type = if voucher.is_payment?
+  #                      Voucher.voucher_types[:payment_bank]
+  #                    else
+  #                      Voucher.voucher_types[:receipt_bank]
+  #                    end
+  #   elsif is_payment_receipt
+  #     voucher_type = if voucher.is_payment?
+  #                      Voucher.voucher_types[:payment_cash]
+  #                    else
+  #                      Voucher.voucher_types[:receipt_cash]
+  #                    end
+  #   end
+  #   voucher_type
+  # end
+  #
+  # def voucher_has_cheque_entry?(voucher)
+  #   voucher.particulars.find(&:cheque_number).present?
+  # end
 
   def purchase_nepse_settlement(voucher, attrs = {})
     ledger = attrs[:ledger]

@@ -217,14 +217,15 @@ class Bill < ApplicationRecord
       self.errors[:date_bs] << "Invalid Transaction Date. Date format is YYYY-MM-DD"
       return self
     end
-    # get all the share transaction for the day
-    share_transactions = ShareTransaction.selling.find_by(date: date_ad).where(client_account_id: self.client_account_id)
 
     # validates base price and return if error
     if self.provisional_base_price.blank?
       self.errors[:provisional_base_price] << "Invalid Base Price"
       return self
     end
+
+    # get all the share transaction for the day
+    share_transactions = ShareTransaction.selling.where(date: date_ad).where(client_account_id: self.client_account_id)
 
     # make sure there are share transactions for the date
     if share_transactions.empty?

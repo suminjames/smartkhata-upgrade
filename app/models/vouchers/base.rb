@@ -66,6 +66,8 @@ class Vouchers::Base
 
       amount_to_receive = bills_receive.sum(:balance_to_pay)
       amount_to_pay = bills_payment.sum(:balance_to_pay)
+      
+      
 
       # negative if the company has to pay
       # positive if the client needs to pay
@@ -136,6 +138,7 @@ class Vouchers::Base
 
           voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment, *bills_receive]
+          
           amount = amount_to_receive_or_pay.abs
         else
           # this case for condition when amount to pay is greater than amount to receive
@@ -175,6 +178,7 @@ class Vouchers::Base
 
           voucher_type = Voucher.voucher_types[:payment]
           bills = [*bills_receive, *bills_payment]
+          
           amount = amount_to_receive_or_pay.abs
         end
       end
@@ -217,7 +221,7 @@ class Vouchers::Base
       #     end
       # end
     end
-
+    
     amount = amount.round(2)
     [client_account, bills, amount, voucher_type, settlement_by_clearance, bill_ledger_adjustment]
   end

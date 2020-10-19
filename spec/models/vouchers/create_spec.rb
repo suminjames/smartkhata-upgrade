@@ -4,17 +4,18 @@ RSpec.describe Vouchers::Create do
 
   include_context 'session_setup'
   include ActiveSupport::Testing::TimeHelpers
-  include  FiscalYearModule
+  include FiscalYearModule
   let(:current_user){@user}
 
   let(:client_account) { create(:client_account)}
   let(:ledger) { client_account.ledger }
+  let(:another_ledger){ create(:ledger) }
   let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
   let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
-  let(:client_particular) {build(:particular, ledger: ledger, amount: 5000)}
-  let(:voucher) {build(:voucher, voucher_type: 0)}
-  let(:dr_particular) { build(:debit_particular, voucher: voucher, amount: 5000) }
-  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000) }
+  let(:client_particular) {build(:particular, ledger: another_ledger, amount: 5000)}
+  let(:voucher) { build(:voucher, voucher_type: 0) }
+  let(:dr_particular) { build(:debit_particular, voucher: voucher, amount: 5000, ledger: another_ledger) }
+  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000, ledger: another_ledger) }
 
   before do
     travel_to "2017-01-01".to_date
@@ -40,7 +41,9 @@ RSpec.describe Vouchers::Create do
                                                   selected_fy_code: get_fy_code,
                                                   selected_branch_id: 1,
                                                   )
+          
           expect(voucher_creation.process).to be_truthy
+          
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
         end
@@ -153,19 +156,18 @@ RSpec.describe Vouchers::Create do
     end
   end
 
-
   describe "basic vouchers" do
     it "should create a journal voucher" do
-      voucher_type = 0
       voucher.particulars << dr_particular
       voucher.particulars << cr_particular
 
-      voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
+      voucher_creation = Vouchers::Create.new(voucher_type: voucher.voucher_type,
                                               voucher: voucher,
                                               tenant_full_name: "Trishakti",
                                               current_user: User.first,
                                               selected_fy_code: get_fy_code,
                                               selected_branch_id: 1)
+
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("JVR")
     end
@@ -184,7 +186,7 @@ RSpec.describe Vouchers::Create do
                                               selected_fy_code: get_fy_code,
                                               selected_branch_id: 1)
       expect(voucher_creation.process).to be_truthy
-      expect(voucher_creation.voucher.voucher_code).to eq("PVR")
+      expect(voucher_creation.voucher.voucher_code).to eq("PMT")
     end
 
     it "should create a receipt voucher" do
@@ -201,7 +203,7 @@ RSpec.describe Vouchers::Create do
                                               selected_fy_code: get_fy_code,
                                               selected_branch_id: 1)
       expect(voucher_creation.process).to be_truthy
-      expect(voucher_creation.voucher.voucher_code).to eq("RCP")
+      expect(voucher_creation.voucher.voucher_code).to eq("RCV")
     end
   end
 
@@ -224,7 +226,6 @@ RSpec.describe Vouchers::Create do
       )
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
-
 
       voucher_2 = Voucher.new(voucher_params)
       voucher_creation_2 = Vouchers::Create.new(
@@ -256,6 +257,7 @@ RSpec.describe Vouchers::Create do
           selected_fy_code: get_fy_code,
           selected_branch_id: 1
       )
+      
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
 
@@ -487,7 +489,6 @@ RSpec.describe Vouchers::Create do
 
   describe "complex payment and receipt" do
     it "should settle both type of bills" do
-      voucher.voucher_type = 2
       voucher_type = 2
       ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 1000 )
 
@@ -501,8 +502,6 @@ RSpec.describe Vouchers::Create do
 
       voucher.particulars << dr_particular
       voucher.particulars << client_particular
-
-
 
       voucher_creation = Vouchers::Create.new(voucher_type: voucher_type,
                                               voucher: voucher,
@@ -530,6 +529,7 @@ RSpec.describe Vouchers::Create do
       expect(voucher_creation.voucher.is_payment_bank?).to_not be_truthy
     end
   end
+
   describe 'valid branch' do
     let(:bank_account1) { create(:bank_account)}
     let(:bank_account2) { create(:bank_account)}
@@ -579,6 +579,7 @@ RSpec.describe Vouchers::Create do
       end
 
       let(:branch) {create(:branch, address: 'PKR')}
+      
       it 'should return true' do
         bank_account1.branch_id = branch.id
         bank_account2.branch_id = branch.id
@@ -683,6 +684,7 @@ RSpec.describe Vouchers::Create do
       let(:voucher) {build(:voucher, voucher_type: 0)}
       let(:debit_particular) {build(:particular, amount: 300, transaction_type: 0, ledger_id: ledger1.id, branch_id: branch1.id) }
       let(:credit_particular) {build(:particular, amount: 300, transaction_type: 1, ledger_id: ledger2.id, branch_id: branch2.id) }
+
       it 'should return true' do
         voucher.particulars << debit_particular
         voucher.particulars << credit_particular
@@ -701,6 +703,7 @@ RSpec.describe Vouchers::Create do
       let(:employee_account) {create(:employee_account, branch_id: branch.id)}
       let(:ledger_e) {create(:ledger, employee_account_id: employee_account.id, branch_id: branch.id)}
       let(:credit_particular) {build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger_e.id, branch_id: branch.id)}
+
       it 'should return true' do
         voucher.particulars << debit_particular
         voucher.particulars << credit_particular
@@ -714,6 +717,7 @@ RSpec.describe Vouchers::Create do
       end
     end
   end
+
   after do
     travel_back
   end

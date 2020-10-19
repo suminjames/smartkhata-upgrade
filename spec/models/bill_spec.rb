@@ -8,7 +8,7 @@ RSpec.describe Bill, type: :model do
 
   describe "validations" do
     it { expect(subject).to be_valid }
-  	it {should validate_presence_of (:client_account)}
+    it { should belong_to(:client_account) }
     it { should validate_uniqueness_of(:bill_number).scoped_to(:fy_code) }
   end
   # it "client_account_id should not be empty" do
@@ -35,9 +35,9 @@ RSpec.describe Bill, type: :model do
     end
   end
 
-  describe ".get_net_commission" do 
+  describe ".get_net_commission" do
     it "should return total commission" do
-      expect(subject.get_net_commission).to eq(636.955)
+      expect(subject.get_net_commission.to_f).to eq(636.96)
     end
   end
 
@@ -89,7 +89,7 @@ RSpec.describe Bill, type: :model do
       it "should get new bill number" do
         expect(subject.class.new_bill_number(subject.fy_code)).to eq(subject.bill_number + 1 )
       end
-    end  
+    end
   end
 
   describe ".full_bill_number" do
@@ -103,12 +103,12 @@ RSpec.describe Bill, type: :model do
       it "should return bill number" do
         expect(subject.class.strip_fy_code_from_full_bill_number('7374-1509')).to eq('1509')
       end
-    end 
+    end
     context "when fycode is not prepended" do
       it "should return bill number" do
         expect(subject.class.strip_fy_code_from_full_bill_number('1509')).to eq('1509')
       end
-    end  
+    end
   end
 
   # make provisional(sales bill only)
@@ -121,14 +121,14 @@ RSpec.describe Bill, type: :model do
   describe ".make_provisional" do
     describe "validations" do
       context "when date is invalid" do
-        subject { build(:bill, date_bs: '67544') } 
+        subject { build(:bill, date_bs: '67544') }
         it "should be invalid " do
           expect(subject.make_provisional.errors[:date_bs]).to include 'Invalid Transaction Date. Date format is YYYY-MM-DD'
         end
       end
 
       context "when provisional base_price is blank" do
-        subject { build(:bill) } 
+        subject { build(:bill) }
         it "should be have errors " do
           expect(subject.make_provisional.errors[:provisional_base_price]).to include 'Invalid Base Price'
         end
@@ -136,14 +136,14 @@ RSpec.describe Bill, type: :model do
       
 
        context "when share transaction size is less than 1" do
-        subject { build(:bill, provisional_base_price: 100) } 
+        subject { build(:bill, provisional_base_price: 100) }
         it "should be have errors " do
           expect(subject.make_provisional.errors[:date_bs]).to include 'No Sales Transactions Found'
         end
       end
 
       context "when share transaction bill is present" do
-        subject { build(:bill, provisional_base_price: 100) } 
+        subject { build(:bill, provisional_base_price: 100) }
 
         it "should be have errors " do
           create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), bill: create(:bill), client_account_id: subject.client_account_id)
@@ -154,7 +154,7 @@ RSpec.describe Bill, type: :model do
     end
 
     context "when valid" do
-      subject { build(:bill, provisional_base_price: 100) } 
+      subject { build(:bill, provisional_base_price: 100) }
 
       before do
         create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id)
@@ -166,11 +166,11 @@ RSpec.describe Bill, type: :model do
       end
 
       it "should assign bill type" do
-        expect(subject.make_provisional.sales?).to be_truthy
+        expect(subject.make_provisional.purchase?).to be_truthy
       end
 
       it "should assign status" do
-        expect(subject.make_provisional.provisional?).to be_truthy
+        expect(subject.make_provisional.pending?).to be_truthy
       end
 
       it "should assign bill number" do

@@ -149,6 +149,7 @@ class Ledgers::ParticularEntry
       ledger_blnc_cost_center.closing_balance -= amount
       cr_amount = amount
     end
+
     daily_report_cost_center.dr_amount += dr_amount
     daily_report_cost_center.cr_amount += cr_amount
     daily_report_cost_center.save!
@@ -160,6 +161,7 @@ class Ledgers::ParticularEntry
     ledger_blnc_org.cr_amount += cr_amount
     ledger_blnc_cost_center.dr_amount += dr_amount
     ledger_blnc_cost_center.cr_amount += cr_amount
+
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 

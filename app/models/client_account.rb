@@ -421,7 +421,7 @@ class ClientAccount < ApplicationRecord
       identifier = if client_account['nepse_code'].present?
                      "#{client_account['name']} (#{client_account['nepse_code']})"
                    else
-                     (client_account['name']).to_s
+                     "#{client_account['name']}"
                    end
       { text: identifier, id: client_account['id'].to_s }
     end
