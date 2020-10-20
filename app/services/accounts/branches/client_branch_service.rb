@@ -13,11 +13,14 @@ module Accounts
           date_ad = bs_to_ad(date_bs)
           fy_codes = get_full_fy_codes_after_date(date_ad, false)
         else
+
           fy_codes = [get_fy_code]
           date_ad = fiscal_year_first_day(fy_codes[0])
         end
+        
         particulars_on_other_branch_count = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id).count
         # LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all
+
         if particulars_on_other_branch_count.positive?
 
           bills_affected = Bill.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
@@ -27,7 +30,8 @@ module Accounts
 
           dates_affected = particulars_to_move.pluck(:transaction_date).uniq
 
-          if dry_run
+          if dry_run == true
+            debugger
             puts "Bills affected: #{bills_affected.count}"
             puts "Settlements affected: #{settlements_affected.count}"
             puts "Particulars affected: #{particulars_on_other_branch_count}"
@@ -56,6 +60,7 @@ module Accounts
         end
         ledger_ids << ledger.id
         [ledger_ids, fy_codes, dates_affected]
+        debugger
       end
 
       def patch_client_branch(client_account, branch_id, current_user_id, date_bs = nil, dry_run = false)

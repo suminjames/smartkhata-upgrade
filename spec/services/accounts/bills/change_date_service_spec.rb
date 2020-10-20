@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Accounts::Bills::ChangeDateService do
   include_context 'session_setup'
   let(:current_user){@user}
+  let(:branch) { create(:branch) }
   subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28', current_user_id: current_user.id)}
 
   describe '.get_bills' do
@@ -17,8 +18,10 @@ describe Accounts::Bills::ChangeDateService do
     end
 
     context "when branch_id is present" do
-      subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28', branch_id: 1)}
+      subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28', branch_id: branch.id, current_user_id: current_user.id) }
       it "should get bills for the date" do
+        debugger
+        subject.process
         expect(subject.get_bills.size).to eq(1)
       end
     end

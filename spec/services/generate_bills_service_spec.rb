@@ -242,6 +242,4 @@ RSpec.describe GenerateBillsService  do
       expect(sales_share_transaction.client_account.ledger.particulars.count).to eq(1)
     end
   end
-
-
 end

@@ -45,10 +45,9 @@ module Accounts
       end
 
       def get_bills
-        bills = Bill.unscoped.where(date: current_date)
-        bills = bills.where(branch_id: branch_id) if branch_id
-        bills = bills.where(bill_type: Bill.bill_types[bill_type]) if bill_type
-        bills
+        bills_with_branch_id = Bill.unscoped.where(date: current_date).where(branch_id: branch_id)
+        branch_with_bill_type = Bill.unscoped.where(date: current_date).where(bill_type: Bill.bill_types[bill_type])
+        branch_id.present? ? bills_with_branch_id : branch_with_bill_type
       end
 
       def patch_ledger_dailies(ledger_ids, branch_id, fy_code, current_user_id, affected_dates)

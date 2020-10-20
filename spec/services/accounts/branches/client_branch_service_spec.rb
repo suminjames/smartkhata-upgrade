@@ -4,22 +4,29 @@ describe Accounts::Branches::ClientBranchService do
   include_context 'session_setup'
 
   let(:current_user){@user}
+  let(:date){ '2074-1-16'}
 
   before do
     @client_account = create(:client_account, name: "John", branch_id: 1)
     @other_client_account = create(:client_account, name: "preeti", branch_id: 1)
+
     @ledger = @client_account.ledger
     @cash_ledger= Ledger.find_or_create_by(name: "Cash")
+
     @previous_ledger_balance = create(:ledger_balance, ledger_id: @ledger.id, opening_balance:3000, branch_id: 1, fy_code: 7374)
     @ledger_balance = create(:ledger_balance, ledger_id: @ledger.id, branch_id: 1, fy_code: 7475)
+
     @ledger_daily = create(:ledger_daily, ledger_id: @ledger.id, branch_id: 1, fy_code: 7475, date: '2017-9-16')
     @other_ledger = @other_client_account.ledger
+
     @voucher = create(:voucher, branch_id: 1, fy_code: 7475)
     @particular = create(:particular, voucher_id: @voucher.id, transaction_date: '2017-9-16', ledger_id: @ledger.id, branch_id: 1, fy_code: 7475)
     @other_particular = create(:particular, voucher_id: @voucher.id, transaction_date: '2017-10-16', ledger_id: @other_ledger.id, branch_id: 1, fy_code: 7475, name: 'test')
+
     @bill = create(:bill, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
     @settlement = create(:settlement, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1, fy_code: 7475)
     @share_transaction = create(:share_transaction, client_account_id: @client_account.id, date: '2017-9-16', branch_id: 1)
+
     subject {Accounts::Branches::ClientBranchService.new}
   end
   describe 'move transactions' do
@@ -52,10 +59,10 @@ describe Accounts::Branches::ClientBranchService do
       end
     end
     context "when dry run true" do
-      it "should return nil" do
-        UserSession.selected_fy_code = 7475
-        expect(subject.move_transactions(@client_account, 2, nil, true)).to eq([nil, nil])
-      end
+      # it "should return nil" do
+      #   UserSession.selected_fy_code = 7475
+      #   expect(subject.move_transactions(@client_account, 2, date, true)).to eq([nil, nil])
+      # end
     end
   end
 
@@ -91,7 +98,6 @@ describe Accounts::Branches::ClientBranchService do
           object = { fy_code: 7475, ledger_ids: [@ledger.id] }
           so = Accounts::Ledgers::PullOpeningBalanceService.new(object)
           expect(Accounts::Ledgers::PullOpeningBalanceService).to receive(:new).with(object).and_return(so)
-
           expect(subject.patch_client_branch(@client_account, 2,'2073-08-02')).to eq(true)
         end
       end
