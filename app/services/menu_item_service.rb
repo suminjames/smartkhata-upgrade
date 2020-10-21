@@ -17,8 +17,9 @@ class MenuItemService
 
   def call(verbose = true)
     menu_list_file = Rails.root.join('config', 'smartkhata', 'menu.yml')
-    menu_list = YAML.safe_load(ERB.new(File.read(menu_list_file)).result(binding))
-
+    # YAML.safe_load only supports a limited set of classes by default, such as String, Numeric, and Hash. So allowing symbol
+    # https://www.rubydoc.info/stdlib/psych/Psych.safe_load
+    menu_list = YAML.safe_load(ERB.new(File.read(menu_list_file)).result(binding), [Symbol])
     tenants = Tenant.all
 
     tenants.each do |t|
