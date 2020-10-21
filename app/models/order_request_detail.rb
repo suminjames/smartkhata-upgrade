@@ -35,7 +35,7 @@ class OrderRequestDetail < ApplicationRecord
   delegate :client_account, to: :order_request
   delegate :closing_balance, to: :ledger
 
-  scope :todays_order, -> { where(created_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day) }
+  scope :todays_order, -> { where(created_at: Time.now.beginning_of_day..Time.now.end_of_day) }
   scope :client_order, ->(user_id) { includes(:client_account).where(client_accounts: { user_id: user_id }).references(:client_account) }
 
   def can_be_updated?(client_account_id)

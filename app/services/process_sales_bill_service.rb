@@ -8,7 +8,7 @@ class ProcessSalesBillService
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = ""
-    @date = params[:date] || Time.zone.now
+    @date = params[:date] || Time.now
     @cheque_number = params[:cheque_number]
     @current_user = params[:current_user]
     @branch_id = params[:branch_id]

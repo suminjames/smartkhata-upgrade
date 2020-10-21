@@ -163,7 +163,7 @@ class User < ApplicationRecord
 
   def can_access_branch?
     available_branch_ids.include?(current_url_link.split('/')[2].to_i)
-  rescue StandardError
+  rescue
     false
   end
 end

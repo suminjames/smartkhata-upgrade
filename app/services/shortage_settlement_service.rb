@@ -87,7 +87,7 @@ class ShortageSettlementService
     client_account = share_transaction.client_account
     client_name = client_account.name
     cost_center_id = client_account.branch_id
-    settlement_date = Time.zone.now
+    settlement_date = Time.now
     closeout_ledger = Ledger.find_by(name: "Close Out")
     client_ledger = Ledger.find_by(client_code: client_account.nepse_code)
 
@@ -118,7 +118,7 @@ class ShortageSettlementService
     client_account = share_transaction.client_account
     client_name = client_account.name
     cost_center_id = client_account.branch_id
-    settlement_date = Time.zone.now
+    settlement_date = Time.now
     closeout_ledger = Ledger.find_by(name: "Close Out")
     client_ledger = Ledger.find_by(client_code: client_account.nepse_code)
 

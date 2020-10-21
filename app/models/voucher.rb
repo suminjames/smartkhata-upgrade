@@ -156,7 +156,7 @@ class Voucher < ApplicationRecord
   private
 
   def process_voucher
-    self.date ||= Time.zone.now
+    self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
     fy_code = get_fy_code(self.date)
     # TODO: double check the query for enum

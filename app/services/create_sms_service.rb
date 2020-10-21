@@ -16,7 +16,7 @@ class CreateSmsService
     @floorsheet_records = attrs[:floorsheet_records]
     @grouped_records = {}
     @broker_code = attrs[:broker_code]
-    @transaction_date = attrs[:transaction_date] || Time.zone.now
+    @transaction_date = attrs[:transaction_date] || Time.now
     @transaction_date_short = ad_to_bs(@transaction_date)[5..-1].sub('-', '/')
     # needed to revert the process
     @transaction_message = attrs[:transaction_message]

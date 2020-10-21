@@ -52,7 +52,7 @@ class SysAdminServices::ImportCustomerRegistrations < ImportFile
           # some issues due to invalid dates in database
           begin
             client_account.save!
-          rescue StandardError
+          rescue
             client_account.mobile_number = nil
             client_account.citizen_passport_date = nil
             client_account.dob = nil

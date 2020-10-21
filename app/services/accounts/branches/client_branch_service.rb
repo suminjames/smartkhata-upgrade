@@ -30,8 +30,7 @@ module Accounts
 
           dates_affected = particulars_to_move.pluck(:transaction_date).uniq
 
-          if dry_run == true
-            debugger
+          if dry_run
             puts "Bills affected: #{bills_affected.count}"
             puts "Settlements affected: #{settlements_affected.count}"
             puts "Particulars affected: #{particulars_on_other_branch_count}"
@@ -60,7 +59,6 @@ module Accounts
         end
         ledger_ids << ledger.id
         [ledger_ids, fy_codes, dates_affected]
-        debugger
       end
 
       def patch_client_branch(client_account, branch_id, current_user_id, date_bs = nil, dry_run = false)

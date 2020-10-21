@@ -11,7 +11,7 @@ class CreateBankPaymentLetterService
     bill_ids = params[:bill_ids]
     @bills = Bill.where(id: bill_ids)
     @error_message = 'There was an error'
-    @date = params[:date] || Time.zone.now
+    @date = params[:date] || Time.now
   end
 
   def process
@@ -62,7 +62,7 @@ class CreateBankPaymentLetterService
 
         voucher.bills_on_creation << bill
         _description = "Settlement by bank payment for Bill: #{bill.full_bill_number}"
-        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.zone.now, particular_status: :pending, branch_id: client_account.branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
+        particular = Particular.create!(transaction_type: :dr, ledger_id: client_ledger.id, name: _description, voucher_id: voucher.id, amount: amount_to_settle, transaction_date: Time.now, particular_status: :pending, branch_id: client_account.branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
 
         particulars << particular
         net_paid_amount += amount_to_settle
@@ -73,7 +73,7 @@ class CreateBankPaymentLetterService
         bill.settlement_approval_status = :pending_approval
         bill.save!
       end
-      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount, transaction_date: Time.zone.now, particular_status: :pending, branch_id: @branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
+      Particular.create!(transaction_type: :cr, ledger_id: bank_ledger.id, name: description, voucher_id: voucher.id, amount: net_paid_amount, transaction_date: Time.now, particular_status: :pending, branch_id: @branch_id, current_user_id: @current_user.id, fy_code: @fy_code)
       @bank_payment_letter.voucher = voucher
     end
 

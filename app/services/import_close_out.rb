@@ -95,8 +95,8 @@ class ImportCloseOut < ImportFile
                 voucher.complete!
                 voucher.save!
 
-                Ledgers::ParticularEntry.new(current_user.id).insert(default_bank_purchase.ledger, voucher, true, closeout_amount, description, branch_id, Time.zone.now.to_date, current_user.id)
-                Ledgers::ParticularEntry.new(current_user.id).insert(closeout_ledger.ledger, voucher, false, closeout_amount, description, branch_id, Time.zone.now.to_date, current_user.id)
+                Ledgers::ParticularEntry.new(current_user.id).insert(default_bank_purchase.ledger, voucher, true, closeout_amount, description, branch_id, Time.now.to_date, current_user.id)
+                Ledgers::ParticularEntry.new(current_user.id).insert(closeout_ledger.ledger, voucher, false, closeout_amount, description, branch_id, Time.now.to_date, current_user.id)
               end
             else
               import_error("Please assign a default bank account for sales")

@@ -332,7 +332,7 @@ class Bill < ApplicationRecord
   private
 
   def process_bill
-    self.date ||= Time.zone.now
+    self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
     self.client_name ||= self.client_account.name
   end

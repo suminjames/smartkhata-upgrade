@@ -20,8 +20,6 @@ describe Accounts::Bills::ChangeDateService do
     context "when branch_id is present" do
       subject {Accounts::Bills::ChangeDateService.new('2017-05-29', '2017-05-28', branch_id: branch.id, current_user_id: current_user.id) }
       it "should get bills for the date" do
-        debugger
-        subject.process
         expect(subject.get_bills.size).to eq(1)
       end
     end

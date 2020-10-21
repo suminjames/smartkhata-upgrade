@@ -193,7 +193,7 @@ class Mandala::DailyTransaction < ApplicationRecord
 
   def get_client_account_id
     Mandala::CustomerRegistration.where(customer_code: customer_code_from_data).first.find_or_create_smartkhata_client_account.id
-  rescue StandardError
+  rescue
     p 'rescued'
   end
 end

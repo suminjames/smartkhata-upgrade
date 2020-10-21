@@ -51,7 +51,7 @@ class EdisItemForm
             break
           end
         end
-      rescue StandardError
+      rescue
         self.errors.add(:file, "Another file is being processed. Try again later")
       end
       true

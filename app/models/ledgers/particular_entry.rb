@@ -50,7 +50,7 @@ class Ledgers::ParticularEntry
     amount = attrs[:amount]
     descr = attrs[:descr]
     branch_id = attrs[:branch_id]
-    accounting_date = attrs[:accounting_date] || Time.zone.now.to_date
+    accounting_date = attrs[:accounting_date] || Time.now.to_date
     particular = attrs[:particular]
     adjustment = attrs[:adjustment] || 0.0
     reversed_cheque_entry = attrs[:reversed_cheque_entry]

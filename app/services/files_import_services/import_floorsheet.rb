@@ -598,7 +598,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
 
     row_count = begin
                   xlsx.sheet(0).count
-                rescue StandardError
+                rescue
                   0
                 end
     # records start from 7th row  and we have 1 more row for total
@@ -610,7 +610,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
 
   def date_from_excel(xlsx)
     xlsx.sheet(0).row(5)[0][/\((.+)\)/, 1].strip
-  rescue StandardError
+  rescue
     nil
   end
 
