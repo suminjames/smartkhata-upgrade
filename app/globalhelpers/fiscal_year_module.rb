@@ -27,31 +27,26 @@ module FiscalYearModule
       '2076/2077' => 7677,
   }
 
-
   def get_fiscal_breakpoint
-    return @@fiscal_year_breakpoint
+    @@fiscal_year_breakpoint
   end
 
   def available_fy_codes
-    return @@fiscal_year_breakpoint.map { |row| row[0] }
+    @@fiscal_year_breakpoint.map { |row| row[0] }
   end
 
   def get_previous_fy_code fy_code = nil
     fy_code ||= get_fy_code
     fy_codes =  available_fy_codes
     index = fy_codes.index(fy_code)
-    if index && (index != 0)
-      return fy_codes[index - 1]
-    end
+    fy_codes[index - 1] if index && (index != 0)
   end
 
   def get_next_fy_code fy_code = nil
     fy_code ||= get_fy_code
     fy_codes =  available_fy_codes
     index = fy_codes.index(fy_code)
-    if index && (index != fy_codes.size-1)
-      return fy_codes[index + 1]
-    end
+    fy_codes[index + 1] if index && (index != fy_codes.size - 1)
   end
 
   # Get fy code based on current year
@@ -59,7 +54,8 @@ module FiscalYearModule
   def get_fy_code(date = Date.today)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
     return fiscal_year_breakpoint_single[0] if fiscal_year_breakpoint_single.present?
-    return
+
+    nil
   end
 
   #
@@ -71,17 +67,13 @@ module FiscalYearModule
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
       if date.present?
-        if date >= fiscal[1] && date <= fiscal[2]
-          return fiscal
-        end
+        return fiscal if date >= fiscal[1] && date <= fiscal[2]
       else
-        if fy_code.to_i == fiscal[0]
-          return fiscal
-        end
+        return fiscal if fy_code.to_i == fiscal[0]
       end
     end
 
-    return
+    nil
   end
 
   #
@@ -90,7 +82,8 @@ module FiscalYearModule
   def fiscal_year_first_day(fy_code)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
     return fiscal_year_breakpoint_single[1] if fiscal_year_breakpoint_single.present?
-    return Time.now.to_date
+
+    Time.now.to_date
   end
 
   #
@@ -99,9 +92,9 @@ module FiscalYearModule
   def fiscal_year_last_day(fy_code)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(fy_code: fy_code)
     return fiscal_year_breakpoint_single[2] if fiscal_year_breakpoint_single.present?
-    return Time.now.to_date
-  end
 
+    Time.now.to_date
+  end
 
   def date_valid_for_fy_code(date, fy_code)
     return false if date.blank?
@@ -109,9 +102,7 @@ module FiscalYearModule
     fy_code_date = nil
     fiscal_year_breakpoint = get_fiscal_breakpoint
     fiscal_year_breakpoint.each do |fiscal|
-      if fy_code.to_i == fiscal[0]
-        fy_code_date = fiscal
-      end
+      fy_code_date = fiscal if fy_code.to_i == fiscal[0]
     end
 
     if fy_code_date.present?
@@ -125,7 +116,7 @@ module FiscalYearModule
   end
 
   def get_fiscal_year_from_fycode(fycode)
-    fymapping = @@fiscal_year_mapping.detect{|x,v| v == fycode}
+    fymapping = @@fiscal_year_mapping.detect { |_x, v| v == fycode}
     fymapping[0] if fymapping
   end
 
@@ -133,7 +124,7 @@ module FiscalYearModule
   # exclude true will get next fiscal years
   def get_full_fy_codes_after_date(date, exclude = false)
     fiscal_year_breakpoint_single = fiscal_year_breakpoint_single(date: date)
-    fy_code =  fiscal_year_breakpoint_single[0]
+    fy_code = fiscal_year_breakpoint_single[0]
     get_fy_codes_after_fy_code(fy_code, exclude)
   end
 
@@ -142,21 +133,16 @@ module FiscalYearModule
     index = fy_codes.find_index(fy_code.to_i)
     final_index = -1
 
-
-    if upto_current
-      final_index = fy_codes.find_index(get_fy_code.to_i)
-    end
-
+    final_index = fy_codes.find_index(get_fy_code.to_i) if upto_current
 
     if index
       if exclude
-        return fy_codes[(index +1) .. final_index]
+        fy_codes[(index + 1)..final_index]
       else
-        return fy_codes[index .. final_index]
+        fy_codes[index..final_index]
       end
     end
   end
-
 end
 
 # # code kept for future reference

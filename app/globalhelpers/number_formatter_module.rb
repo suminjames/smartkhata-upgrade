@@ -1,21 +1,19 @@
 module NumberFormatterModule
-
   # Note:
   # Apparently, floats that end have pattern ****.645 don't round off (for precision 2 ) as expected.
-
 
   # Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
   def arabic_word(decimal)
     # Calling arabic number to get the number and wording consistent with rounding off issues.
-    decimal = arabic_number(decimal).gsub(',','').to_f
+    decimal = arabic_number(decimal).delete(',').to_f
     paisa = (('%.2f' % decimal.round(2))[-2..-1]).to_i
     paisa_formatted = "%02d" % paisa
     word = decimal.to_f.to_words
-    if word.kind_of?(Array)
+    if word.is_a?(Array)
       word_before_decimal = word[0]
       word_before_decimal = (word_before_decimal.sub! 'And', '') || word_before_decimal
       word_before_decimal = "#{word_before_decimal} Rupees"
-      word_after_decimal = "And #{paisa_formatted}/100" if paisa > 0
+      word_after_decimal = "And #{paisa_formatted}/100" if paisa.positive?
       word = "#{word_before_decimal} #{word_after_decimal}"
     else
       word = "#{word} Rupees"
@@ -28,17 +26,15 @@ module NumberFormatterModule
   # The `sankhya' gem apparently doesn't do negative value conversion really well. Eg: -999.to_amount returns -,999.00.
   # Therefore, a small tweaking has been done make this method work well with negative values.
   def arabic_number(decimal)
-    if decimal==nil
+    if decimal.nil?
       '0.00'
     else
       is_negative = decimal.negative?
       if is_negative
-        decimal = decimal * -1 # positive decimal
+        decimal *= -1 # positive decimal
       end
       result = decimal.to_f.round(2).to_amount
-      if is_negative
-        result = result.prepend('-')
-      end
+      result = result.prepend('-') if is_negative
       result
     end
   end
@@ -55,7 +51,7 @@ module NumberFormatterModule
 
   # If exists, strips a number of redundant zeroes after decimal.
   def strip_redundant_decimal_zeroes(number)
-    number % 1 == 0 ? number.to_i : number
+    (number % 1).zero? ? number.to_i : number
   end
 
   # # For testing  through console only.
@@ -77,5 +73,4 @@ module NumberFormatterModule
   #     end
   #   end
   # end
-
 end

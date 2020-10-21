@@ -1,33 +1,26 @@
 module CommissionModule
-
   def get_commission_rate_from_floorsheet(amount, nepse_commission, commission_info)
     total_commission = get_commission_from_floorsheet(nepse_commission, commission_info)
     return "flat_25" if total_commission == 25
-    rate = (total_commission*100/amount).round(2)
-    if total_commission > 25 && ((rate * 100).to_i % 5 == 0 )
-      return (total_commission*100/amount).round(2)
-    end
+
+    rate = (total_commission * 100 / amount).round(2)
+    return (total_commission * 100 / amount).round(2) if total_commission > 25 && ((rate * 100).to_i % 5).zero?
+
     raise SmartKhataError
   end
 
-  def get_commission_from_floorsheet nepse_commission, commission_info
-    (nepse_commission / (commission_info.nepse_commission_rate  * 0.01)).round(2)
+  def get_commission_from_floorsheet(nepse_commission, commission_info)
+    (nepse_commission / (commission_info.nepse_commission_rate * 0.01)).round(2)
   end
 
-
   def get_commission_rate(amount, commission_info)
-    details = commission_info.commission_details_array.select{ |x| amount > x.start_amount && amount <= x.limit_amount }
-    if details.size != 1
-      raise NotImplementedError
-    end
+    details = commission_info.commission_details_array.select { |x| amount > x.start_amount && amount <= x.limit_amount }
+    raise NotImplementedError if details.size != 1
 
     commission_detail = details.first
-    if commission_detail.commission_rate.present?
-      return commission_detail.commission_rate
-    end
+    return commission_detail.commission_rate if commission_detail.commission_rate.present?
 
-    return "flat_#{commission_detail.commission_amount}"
-
+    "flat_#{commission_detail.commission_amount}"
 
     # MasterSetup::CommissionRate.commission_rate_for(amount, transaction_date)
     # if transaction_date >= date_of_commission_rate_update
@@ -68,9 +61,7 @@ module CommissionModule
   # get the rates defined for the selected date in the database
   def get_commission_info(transaction_date)
     commission_infos = MasterSetup::CommissionInfo.where(" ? >= start_date AND ? <= end_date", transaction_date, transaction_date)
-    if commission_infos.size != 1
-      raise ArgumentError
-    end
+    raise ArgumentError if commission_infos.size != 1
 
     commission_info = commission_infos.first
     commission_info.broker_commission_rate = 100 - commission_info.nepse_commission_rate
@@ -79,7 +70,7 @@ module CommissionModule
 
   def get_commission_info_with_detail(transaction_date)
     commission_info = get_commission_info(transaction_date)
-    commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
+    commission_info.commission_details_array = commission_info.commission_details.order(start_amount: :asc).to_a
     commission_info
   end
 
@@ -89,10 +80,10 @@ module CommissionModule
   end
 
   def get_commission_by_rate(commission_rate, amount)
-    if (commission_rate.to_s.include? "flat_")
-      return commission_rate.split("flat_")[1].to_f
+    if commission_rate.to_s.include? "flat_"
+      commission_rate.split("flat_")[1].to_f
     else
-      return amount * commission_rate.to_f * 0.01
+      amount * commission_rate.to_f * 0.01
     end
   end
 
@@ -105,11 +96,11 @@ module CommissionModule
   #
   def get_commission_rate_array_for_date(date)
     commission_details_array = get_commission_info_with_detail(date).commission_details_array
-    commission_rates_desc = commission_details_array .select{|r| r.commission_rate.present?}.map{|r| r.commission_rate}.sort.reverse
+    commission_rates_desc = commission_details_array .select { |r| r.commission_rate.present?}.map(&:commission_rate).sort.reverse
 
-    flat_rates_desc = commission_details_array.select{|r| r.commission_rate.blank?}.map{|r| r.commission_amount}.sort.reverse.map{|r| "flat_#{r}"}
+    flat_rates_desc = commission_details_array.select { |r| r.commission_rate.blank?}.map(&:commission_amount).sort.reverse.map { |r| "flat_#{r}"}
 
-    unless flat_rates_desc.blank?
+    if flat_rates_desc.present?
       # Append flat_rates infront of commission_rates
       commission_rates_desc = flat_rates_desc + commission_rates_desc
     end
@@ -127,14 +118,14 @@ module CommissionModule
   # get broker commission( commission for the broker)
   #
   def broker_commission(commission, commission_info)
-    commission * commission_info.broker_commission_rate  * 0.01
+    commission * commission_info.broker_commission_rate * 0.01
   end
 
   #
   #   get nepse commission
   #
   def nepse_commission_amount(commission, commission_info)
-    commission * commission_info.nepse_commission_rate  * 0.01
+    commission * commission_info.nepse_commission_rate * 0.01
   end
 
   # #
@@ -170,11 +161,8 @@ module CommissionModule
     commision_info.nepse_commission_rate * 0.01
   end
 
-
-
   def date_of_commission_rate_update
     # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
     Date.parse('2016-7-24')
   end
-
 end
