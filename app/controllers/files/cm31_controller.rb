@@ -1,11 +1,10 @@
 class Files::Cm31Controller < Files::FilesController
   before_action -> {authorize self}
 
-  
   @@file_name_contains = "CM31"
 
   def index
-    @settlements= NepsePurchaseSettlement.order("settlement_id desc").page(params[:page]).per(20)
+    @settlements = NepsePurchaseSettlement.order("settlement_id desc").page(params[:page]).per(20)
   end
 
   def new
@@ -18,15 +17,12 @@ class Files::Cm31Controller < Files::FilesController
     # authorize self
     @file = params[:file]
     @settlement_date = params[:settlement_date]
-    file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
+    file_error("Please Upload a valid file") and return if is_invalid_file(@file, @@file_name_contains)
 
     cm31_upload = FilesImportServices::ImportCm31.new(@file, current_tenant, selected_fy_code, @settlement_date, current_user)
     cm31_upload.process
 
-    if cm31_upload.error_message
-      file_error(cm31_upload.error_message)
-      return
-    end
+    file_error(cm31_upload.error_message) and return if cm31_upload.error_message
 
     # sales settlement ids will be 1 if single settlement is uploaded
     @nepse_settlement_id = cm31_upload.nepse_settlement_ids.first if cm31_upload.nepse_settlement_ids.size == 1
@@ -36,6 +32,5 @@ class Files::Cm31Controller < Files::FilesController
 
     # else redirect to pending sales settlement
     redirect_to nepse_purchase_settlements_path if cm31_upload.nepse_settlement_ids.size > 1
-
   end
 end

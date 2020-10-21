@@ -9,8 +9,8 @@ class Report::BalancesheetController < ApplicationController
 
     @selected_drill_level = drill_level || 1
     @balance = Group.balance_sheet
-    @balance_dr = Hash.new
-    @balance_cr = Hash.new
+    @balance_dr = {}
+    @balance_cr = {}
     @opening_balance_cr = 0
     @opening_balance_dr = 0
     @opening_balance_diff = 0
@@ -24,8 +24,6 @@ class Report::BalancesheetController < ApplicationController
         @balance_cr[balance.name] = balance.get_ledger_group(drill_level: @selected_drill_level, fy_code: selected_fy_code, branch_id: selected_branch_id)
         @opening_balance_cr += balance.get_ledger_group(fy_code: selected_fy_code, branch_id: selected_branch_id)[:balance]
       end
-
-
     end
     @opening_balance_diff = @opening_balance_dr + @opening_balance_cr
 

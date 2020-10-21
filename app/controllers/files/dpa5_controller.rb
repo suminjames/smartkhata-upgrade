@@ -3,22 +3,20 @@ class Files::Dpa5Controller < ApplicationController
   # after_action :verify_authorized
   before_action -> {authorize self}
 
-  @@file_type = FileUpload::file_types[:dpa5]
+  @@file_type = FileUpload.file_types[:dpa5]
 
   def new
     dpa5_files = FileUpload.where(file_type: @@file_type)
     @file_list = dpa5_files.order("report_date desc").limit(Files::PREVIEW_LIMIT)
     @list_incomplete = dpa5_files.count > Files::PREVIEW_LIMIT
-    if (@file_list.count > 1)
-      if ((@file_list[0].report_date-@file_list[1].report_date).to_i > 1)
-        flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify"
-      end
+    if @file_list.count > 1
+      flash.now[:error] = "There is more than a day difference between last 2 reports.Please verify" if (@file_list[0].report_date - @file_list[1].report_date).to_i > 1
     end
   end
 
   def import
-    @file = params[:file];
-    if @file == nil
+    @file = params[:file]
+    if @file.nil?
       flash.now[:error] = "Please Upload a valid file"
       @error = true
     else
@@ -36,7 +34,6 @@ class Files::Dpa5Controller < ApplicationController
   end
 
   def index
-    @file_list = FileUpload.where(file_type: @@file_type)
-                     .order("report_date DESC")
+    @file_list = FileUpload.where(file_type: @@file_type).order("report_date DESC")
   end
 end

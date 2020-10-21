@@ -22,7 +22,6 @@ class BankPaymentLettersController < ApplicationController
         send_data pdf.render, filename: "BankPaymentLetter#{@bank_payment_letter.id}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
-
   end
 
   # GET /bank_payment_letters/new
@@ -50,22 +49,17 @@ class BankPaymentLettersController < ApplicationController
     @bank_payment_letter = BankPaymentLetter.new(bank_payment_letter_params.merge(branch_id: @selected_branch_id))
     @nepse_settlement = NepseSettlement.find(@bank_payment_letter.nepse_settlement_id)
 
-
-    if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
-      redirect_to @bank_payment_letter, :flash => {:error => 'Please select the current fiscal year'} and return
-    end
+    redirect_to @bank_payment_letter, flash: { error: 'Please select the current fiscal year'} and return if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
 
     particulars = false
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
     payment_letter_generation = CreateBankPaymentLetterService.new(bill_ids: bill_ids, bank_payment_letter: @bank_payment_letter, current_user: current_user, branch_id: @selected_branch_id, fy_code: @selected_fy_code)
-    particulars, settlement_amount, @bank_payment_letter  = payment_letter_generation.process
+    particulars, settlement_amount, @bank_payment_letter = payment_letter_generation.process
 
     if particulars
       @bank_payment_letter.particulars = particulars
       @bank_payment_letter.settlement_amount = settlement_amount
-      if @bank_payment_letter.save
-        result = true
-      end
+      result = true if @bank_payment_letter.save
     end
 
     respond_to do |format|
@@ -101,9 +95,7 @@ class BankPaymentLettersController < ApplicationController
 
             @bank_payment_letter.approved!
 
-            @bank_payment_letter.bills.each do |bill|
-              bill.approved!
-            end
+            @bank_payment_letter.bills.each(&:approved!)
 
             success = true
             message = "Payment Letter  was successfully approved"
@@ -114,14 +106,13 @@ class BankPaymentLettersController < ApplicationController
           @voucher = @bank_payment_letter.voucher
 
           ActiveRecord::Base.transaction do
-
             @bills = @voucher.bills.sales.order(id: :desc)
             processed_bills = []
 
             @bills.each do |bill|
-                bill.balance_to_pay = bill.net_amount
-                bill.status = Bill.statuses[:pending]
-                processed_bills << bill
+              bill.balance_to_pay = bill.net_amount
+              bill.status = Bill.statuses[:pending]
+              processed_bills << bill
             end
 
             processed_bills.each(&:save)
@@ -141,10 +132,10 @@ class BankPaymentLettersController < ApplicationController
     end
 
     respond_to do |format|
-      format.html {
+      format.html do
         redirect_to from_path, notice: message if success
         redirect_to from_path, alert: error_message unless success
-      }
+      end
       format.json { head :no_content }
     end
   end
@@ -174,13 +165,13 @@ class BankPaymentLettersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_bank_payment_letter
-      @bank_payment_letter = BankPaymentLetter.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_bank_payment_letter
+    @bank_payment_letter = BankPaymentLetter.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def bank_payment_letter_params
-      params.require(:bank_payment_letter).permit(:nepse_settlement_id, :bank_account_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def bank_payment_letter_params
+    params.require(:bank_payment_letter).permit(:nepse_settlement_id, :bank_account_id)
+  end
 end

@@ -23,7 +23,7 @@ class MasterSetup::CommissionInfosController < ApplicationController
 
   # GET /master_setup/commission_infos/1/edit
   def edit
-  end
+end
 
   # POST /master_setup/commission_infos
   # POST /master_setup/commission_infos.json
@@ -66,13 +66,13 @@ class MasterSetup::CommissionInfosController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_master_setup_commission_info
-      @master_setup_commission_info = MasterSetup::CommissionInfo.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_master_setup_commission_info
+    @master_setup_commission_info = MasterSetup::CommissionInfo.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def master_setup_commission_info_params
-      params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs, :nepse_commission_rate, commission_details_attributes: [:id, :start_amount,:limit_amount, :commission_rate, :commission_amount])
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def master_setup_commission_info_params
+    params.require(:master_setup_commission_info).permit(:start_date, :end_date, :start_date_bs, :end_date_bs, :nepse_commission_rate, commission_details_attributes: %i[id start_amount limit_amount commission_rate commission_amount])
+  end
 end

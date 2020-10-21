@@ -14,7 +14,7 @@ class BillsController < ApplicationController
     # If logged in client tries to view information of clients which he doesn't have access to, redirect to home with
     # error flash message.
     if current_user.client? &&
-        !current_user&.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
+       !current_user&.belongs_to_client_account(params.dig(:filterrific, :by_client_id).to_i)
       user_not_authorized and return
     end
 
@@ -22,28 +22,28 @@ class BillsController < ApplicationController
     if params['search_by'] == 'client_id'
       @process_selected_bills = true
       @client_account_id = params['search_term'].to_i
-      client_account= ClientAccount.find(@client_account_id)
+      client_account = ClientAccount.find(@client_account_id)
       @bills = client_account.get_all_related_bills.order(date: :asc).decorate
       # render a separate page for bills selection
       render :select_for_settlement and return
     end
 
     @filterrific = initialize_filterrific(
-        Bill.by_branch_fy_code(selected_branch_id, selected_fy_code),
-        params[:filterrific],
-        select_options: {
-            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_bill_type: Bill.options_for_bill_type_select,
-            by_bill_status: Bill.options_for_bill_status_select,
-        },
-        persistence_id: false
+      Bill.by_branch_fy_code(selected_branch_id, selected_fy_code),
+      params[:filterrific],
+      select_options: {
+        by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        by_bill_type: Bill.options_for_bill_type_select,
+        by_bill_status: Bill.options_for_bill_status_select
+      },
+      persistence_id: false
     ) or return
 
-    if ['xlsx', 'pdf'].include? params[:format]
-      @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions,  :isin_infos).decorate
-    else
-      @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).page(params[:page]).per(20).decorate
-    end
+    @bills = if %w[xlsx pdf].include? params[:format]
+               @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).decorate
+             else
+               @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).page(params[:page]).per(20).decorate
+             end
 
     @download_path_xlsx = bills_path(params.permit(:format).merge({format: 'xlsx'}))
     @download_path_pdf = bills_path(params.permit(:format).merge({format: 'pdf'}))
@@ -63,9 +63,9 @@ class BillsController < ApplicationController
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     respond_to do |format|
-      flash.now[:error] = "#{ e.message }"
+      flash.now[:error] = e.message.to_s
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
@@ -75,7 +75,7 @@ class BillsController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
@@ -87,7 +87,7 @@ class BillsController < ApplicationController
     @client_account_id = nil
     @client_account_id = Ledger.find_by(id: @ledger_id).try(:client_account_id)
     if @client_account_id
-      client_account= ClientAccount.find(@client_account_id)
+      client_account = ClientAccount.find(@client_account_id)
       @bills = client_account.get_all_related_bills.order(date: :asc).decorate
     end
 
@@ -99,17 +99,17 @@ class BillsController < ApplicationController
 
   def ageing_analysis
     @filterrific = initialize_filterrific(
-        # Show only purchase and unsettled bills. Used for ageing analysis report.
-        Bill.by_branch_id(selected_branch_id).find_not_settled.purchase,
-        params[:filterrific],
-        select_options: {
-            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_bill_status: Bill.options_for_bill_status_select_for_ageing_analysis,
-            by_bill_age: Bill.options_for_bill_age_select
-        },
-        persistence_id: false
+      # Show only purchase and unsettled bills. Used for ageing analysis report.
+      Bill.by_branch_id(selected_branch_id).find_not_settled.purchase,
+      params[:filterrific],
+      select_options: {
+        by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        by_bill_status: Bill.options_for_bill_status_select_for_ageing_analysis,
+        by_bill_age: Bill.options_for_bill_age_select
+      },
+      persistence_id: false
     ) or return
-    @bills = @filterrific.find.order(bill_number: :asc).includes(:share_transactions => :isin_info).page(params[:page]).per(20).decorate
+    @bills = @filterrific.find.order(bill_number: :asc).includes(share_transactions: :isin_info).page(params[:page]).per(20).decorate
 
     respond_to do |format|
       format.html
@@ -120,7 +120,7 @@ class BillsController < ApplicationController
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     respond_to do |format|
       flash.now[:error] = 'One of the search options provided is invalid.'
       format.html { render :index }
@@ -132,16 +132,15 @@ class BillsController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     redirect_to(reset_filterrific_url(format: :html)) and return
-
   end
 
   # GET /bills/1
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).find(params[:id])
+    @bill = Bill.by_branch_id(selected_branch_id).includes(share_transactions: :isin_info).find(params[:id])
     authorize @bill
     @bill = @bill.decorate
     @has_voucher_pending_approval = false
@@ -165,7 +164,7 @@ class BillsController < ApplicationController
 
   def show_multiple
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
-    bills = Bill.by_branch_id(selected_branch_id).includes(:client_account, :share_transactions => :isin_info).where(id: bill_ids).decorate
+    bills = Bill.by_branch_id(selected_branch_id).includes(:client_account, share_transactions: :isin_info).where(id: bill_ids).decorate
     respond_to do |format|
       format.html
       format.js
@@ -174,7 +173,6 @@ class BillsController < ApplicationController
         send_data pdf.render, filename: "MultipleBills.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
-
   end
 
   # GET /bills/new
@@ -197,9 +195,7 @@ class BillsController < ApplicationController
     res = false
 
     Bill.transaction do
-      if @bill.errors.blank? && @bill.save
-        res = true
-      end
+      res = true if @bill.errors.blank? && @bill.save
     end
 
     respond_to do |format|
@@ -254,7 +250,7 @@ class BillsController < ApplicationController
       @bills = []
       @bills = @nepse_settlement.bills_for_sales_payment_list(@selected_branch_id) if @nepse_settlement.present?
       @is_searched = true
-      return
+      nil
     end
   end
 
@@ -266,11 +262,9 @@ class BillsController < ApplicationController
     bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
 
     @back_path = request.referer
-    if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
-      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
-    end
+    redirect_to @back_path, flash: {error: 'Please select the current fiscal year'} and return if selected_fy_code != get_fy_code(@nepse_settlement.settlement_date)
 
-    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, nepse_settlement: @nepse_settlement , date: @nepse_settlement.settlement_date, cheque_number: @cheque_number, current_user: current_user, branch_id: @selected_branch_id)
+    process_sales_bill = ProcessSalesBillService.new(bill_ids: bill_ids, bank_account: @bank_account, nepse_settlement: @nepse_settlement, date: @nepse_settlement.settlement_date, cheque_number: @cheque_number, current_user: current_user, branch_id: @selected_branch_id)
 
     respond_to do |format|
       if process_sales_bill.process
@@ -286,11 +280,7 @@ class BillsController < ApplicationController
     amount_margin_error = 0.01
 
     @back_path = request.referer || bills_path
-    if @bill_ids.size <= 0
-
-      redirect_to @back_path, :flash => {:error => 'No Bills were Selected'} and return
-    end
-
+    redirect_to @back_path, flash: {error: 'No Bills were Selected'} and return if @bill_ids.size <= 0
 
     client_account = ClientAccount.find(@client_account_id)
     client_ledger = client_account.ledger
@@ -317,17 +307,18 @@ class BillsController < ApplicationController
     #     end
     #   end
     # else
-      redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
+    redirect_to new_voucher_path(client_account_id: @client_account_id, bill_ids: @bill_ids) and return
     # end
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_bill
     # @bill = Bill.find(params[:id])
     # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
     # The bang operator '!' after find_by_id raises an error and halts the script
-    @bill = Bill.by_branch_id(selected_branch_id).find_by_id!(params[:id]).decorate
+    @bill = Bill.by_branch_id(selected_branch_id).find_by!(id: params[:id]).decorate
   end
 
   def authorize_bill
@@ -340,7 +331,6 @@ class BillsController < ApplicationController
     with_branch_user_params(permitted_params)
   end
 
-
   def set_selected_bills_settlement_params
     # get parameters for voucher types and assign it as journal if not available
     @bill_ids = []
@@ -348,5 +338,4 @@ class BillsController < ApplicationController
     @client_account_id = params[:client_account_id].to_i if params[:client_account_id].present?
     @bill_ids = params[:bill_ids].map(&:to_i) if params[:bill_ids].present?
   end
-
 end

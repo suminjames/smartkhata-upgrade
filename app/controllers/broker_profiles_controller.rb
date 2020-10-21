@@ -12,7 +12,7 @@ class BrokerProfilesController < ApplicationController
   # GET /broker_profiles/1
   # GET /broker_profiles/1.json
   def show
-  end
+end
 
   # GET /broker_profiles/new
   def new
@@ -64,13 +64,13 @@ class BrokerProfilesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_broker_profile
-      @broker_profile = BrokerProfile.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_broker_profile
+    @broker_profile = BrokerProfile.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def broker_profile_params
-      params.require(:broker_profile).permit(:broker_name, :broker_number, :address, :dp_code, :phone_number, :fax_number, :email, :pan_number, :profile_type, :ledger_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def broker_profile_params
+    params.require(:broker_profile).permit(:broker_name, :broker_number, :address, :dp_code, :phone_number, :fax_number, :email, :pan_number, :profile_type, :ledger_id)
+  end
 end

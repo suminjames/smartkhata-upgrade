@@ -15,10 +15,10 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
     authorize @user
-    if @user.update_attributes(secure_params)
-      redirect_to users_path, :notice => "User updated."
+    if @user.update(secure_params)
+      redirect_to users_path, notice: "User updated."
     else
-      redirect_to users_path, :alert => "Unable to update user."
+      redirect_to users_path, alert: "Unable to update user."
     end
   end
 
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     user = User.find(params[:id])
     authorize user
     user.destroy
-    redirect_to users_path, :notice => "User deleted."
+    redirect_to users_path, notice: "User deleted."
   end
 
   def reset_temporary_password
@@ -37,16 +37,14 @@ class UsersController < ApplicationController
     temp_password = SecureRandom.hex(3)
     user.password = temp_password
     user.password_confirmation = temp_password
-    user.confirmed_at = Time.now
+    user.confirmed_at = Time.zone.now
     user.temp_password = temp_password
     user.save
     redirect_to @back_path
   end
 
   private
-
   def secure_params
     params.require(:user).permit(:role)
   end
-
 end

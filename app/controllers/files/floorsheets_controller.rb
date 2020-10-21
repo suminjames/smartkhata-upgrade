@@ -6,15 +6,15 @@ class Files::FloorsheetsController < Files::FilesController
   include ShareInventoryModule
   include FiscalYearModule
 
-  @@file_type = FileUpload::file_types[:floorsheet]
+  @@file_type = FileUpload.file_types[:floorsheet]
   @@file_name_contains = "floor_sheet"
 
   # amount above which it has to be settled within brokers.
-  THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
+  THRESHOLD_NEPSE_AMOUNT_LIMIT = 5_000_000
 
   def new
     floorsheets = FileUpload.where(file_type: @@file_type)
-    @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
+    @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT)
     @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
   end
 
@@ -29,9 +29,7 @@ class Files::FloorsheetsController < Files::FilesController
     # get file from import
     @file = params[:file]
     @is_partial_upload = params[:is_partial_upload] == '1'
-    if (is_invalid_file(@file, @@file_name_contains))
-      file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
-    end
+    file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return if is_invalid_file(@file, @@file_name_contains)
 
     floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @is_partial_upload)
     floorsheet_upload.process
@@ -53,4 +51,3 @@ class Files::FloorsheetsController < Files::FilesController
     end
   end
 end
-

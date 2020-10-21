@@ -10,7 +10,7 @@ class Files::CloseoutsController < Files::FilesController
     @file = params[:file]
     @closeout_type = params[:type] == 'debit' ? 'debit' : 'credit'
 
-    file_error("Please Upload a valid file") and return if (is_invalid_file(@file))
+    file_error("Please Upload a valid file") and return if is_invalid_file(@file)
 
     closeout_upload = ImportCloseOut.new(@file, @closeout_type, current_user, @selected_branch_id)
     closeout_upload.process
@@ -18,8 +18,7 @@ class Files::CloseoutsController < Files::FilesController
 
     if closeout_upload.error_message
       file_error(closeout_upload.error_message)
-      return
+      nil
     end
-
   end
 end

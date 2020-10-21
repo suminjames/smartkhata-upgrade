@@ -62,14 +62,14 @@ class MergeRebatesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_merge_rebate
-      @merge_rebate = MergeRebate.find(params[:id])
-      authorize(@merge_rebate)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_merge_rebate
+    @merge_rebate = MergeRebate.find(params[:id])
+    authorize(@merge_rebate)
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def merge_rebate_params
-      params.require(:merge_rebate).permit(:scrip, :rebate_start, :rebate_end)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def merge_rebate_params
+    params.require(:merge_rebate).permit(:scrip, :rebate_start, :rebate_end)
+  end
 end

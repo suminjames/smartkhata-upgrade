@@ -25,7 +25,7 @@ class EmployeeAccountsController < ApplicationController
       search_term = params[:search_term]
       case search_by
       when 'name'
-        @employee_accounts = EmployeeAccount.find_by_employee_id(search_term)
+        @employee_accounts = EmployeeAccount.find_by(employee_id: search_term)
         @selected_employee_for_combobox_in_arr = [@employee_accounts[0]] if @employee_accounts.present?
       else
         @employee_accounts = []
@@ -33,7 +33,7 @@ class EmployeeAccountsController < ApplicationController
     else
       @employee_accounts = []
     end
-    @employee_accounts = @employee_accounts.order(:name).page(params[:page]).per(20) unless @employee_accounts.blank?
+    @employee_accounts = @employee_accounts.order(:name).page(params[:page]).per(20) if @employee_accounts.present?
   end
 
   # GET /employee_accounts/1
@@ -59,17 +59,15 @@ class EmployeeAccountsController < ApplicationController
 
     res = false
     ActiveRecord::Base.transaction do
-
       if @employee_account.save
         # Assign to Employee group
         @employee_account.assign_group("Employees")
         # and invite the user
-        user = User.invite!(:email => @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
+        user = User.invite!(email: @employee_account.email, role: :employee, branch_id: @employee_account.branch_id)
         @employee_account.user_id = user.id
         @employee_account.save!
         res = true
       end
-
     end
 
     respond_to do |format|
@@ -95,7 +93,6 @@ class EmployeeAccountsController < ApplicationController
           format.html { render :edit }
           format.json { render json: @employee_account.errors, status: :unprocessable_entity }
         end
-
       end
     end
   end
@@ -175,9 +172,7 @@ class EmployeeAccountsController < ApplicationController
     search_term = params[:q]
     employee_accounts = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
-    if search_term && search_term.length >= 3
-      employee_accounts = EmployeeAccount.find_similar_to_term search_term
-    end
+    employee_accounts = EmployeeAccount.find_similar_to_term search_term if search_term && search_term.length >= 3
     respond_to do |format|
       format.json { render json: employee_accounts, status: :ok }
     end
@@ -199,7 +194,7 @@ class EmployeeAccountsController < ApplicationController
   end
 
   def employee_account_menu_params
-    params.require(:employee_account).permit(:menu_permission => [])
+    params.require(:employee_account).permit(menu_permission: [])
   end
 
   def employee_account_ledger_association_params
@@ -207,11 +202,11 @@ class EmployeeAccountsController < ApplicationController
     if params[:employee_account][:has_access_to] == 'some'
       employee_ledger_associations_attributes = []
       params[:ledger_associations].each do |ledger_association|
-        employee_ledger_associations_attributes << {:ledger_id => ledger_association}
+        employee_ledger_associations_attributes << {ledger_id: ledger_association}
       end
       # Update of 'has_many: employee_ledger_associations' taking place via employee_ledger_associations_attributes
-      params[:employee_account][:employee_ledger_associations_attributes]= employee_ledger_associations_attributes
-      params.require(:employee_account).permit(:has_access_to, :employee_ledger_associations_attributes => [:ledger_id])
+      params[:employee_account][:employee_ledger_associations_attributes] = employee_ledger_associations_attributes
+      params.require(:employee_account).permit(:has_access_to, employee_ledger_associations_attributes: [:ledger_id])
     else
       params.require(:employee_account).permit(:has_access_to)
     end
@@ -220,34 +215,34 @@ class EmployeeAccountsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def employee_account_params
     permitted_params = params.require(:employee_account).permit(
-        :name,
-        :address1,
-        :address1_perm,
-        :address2,
-        :address2_perm,
-        :address3,
-        :address3_perm,
-        :city,
-        :city_perm,
-        :state,
-        :state_perm,
-        :country,
-        :country_perm,
-        :phone,
-        :phone_perm,
-        :dob,
-        :email,
-        :father_mother,
-        :citizen_passport,
-        :granfather_father_inlaw,
-        :husband_spouse,
-        :citizen_passport_date,
-        :citizen_passport_district,
-        :pan_no,
-        :bank_name,
-        :bank_account,
-        :bank_address,
-        :has_access_to
+      :name,
+      :address1,
+      :address1_perm,
+      :address2,
+      :address2_perm,
+      :address3,
+      :address3_perm,
+      :city,
+      :city_perm,
+      :state,
+      :state_perm,
+      :country,
+      :country_perm,
+      :phone,
+      :phone_perm,
+      :dob,
+      :email,
+      :father_mother,
+      :citizen_passport,
+      :granfather_father_inlaw,
+      :husband_spouse,
+      :citizen_passport_date,
+      :citizen_passport_district,
+      :pan_no,
+      :bank_name,
+      :bank_account,
+      :bank_address,
+      :has_access_to
     )
     with_branch_user_params(permitted_params)
   end

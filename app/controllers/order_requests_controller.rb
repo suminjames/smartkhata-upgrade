@@ -1,9 +1,9 @@
 class OrderRequestsController < ApplicationController
-  before_action :set_order_request, only: [:show, :edit, :update, :destroy]
+  before_action :set_order_request, only: %i[show edit update destroy]
 
-  before_action -> {authorize @order_request}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize OrderRequest}, only: [:index, :new, :create ]
-  
+  before_action -> {authorize @order_request}, only: %i[show edit update destroy]
+  before_action -> {authorize OrderRequest}, only: %i[index new create]
+
   # GET /order_requests
   # GET /order_requests.json
   def index
@@ -13,7 +13,7 @@ class OrderRequestsController < ApplicationController
   # GET /order_requests/1
   # GET /order_requests/1.json
   def show
-  end
+end
 
   # GET /order_requests/new
   def new
@@ -23,7 +23,7 @@ class OrderRequestsController < ApplicationController
 
   # GET /order_requests/1/edit
   def edit
-  end
+end
 
   # POST /order_requests
   # POST /order_requests.json
@@ -66,13 +66,14 @@ class OrderRequestsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_order_request
-      @order_request = OrderRequest.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def order_request_params
-      params.require(:order_request).permit(:client_account_id, :date_bs, order_request_details_attributes: [:id, :isin_info_id, :client_account_id, :rate, :quantity, :order_type ])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_order_request
+    @order_request = OrderRequest.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def order_request_params
+    params.require(:order_request).permit(:client_account_id, :date_bs, order_request_details_attributes: %i[id isin_info_id client_account_id rate quantity order_type])
+  end
 end

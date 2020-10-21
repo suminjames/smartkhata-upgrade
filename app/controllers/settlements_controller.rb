@@ -8,14 +8,14 @@ class SettlementsController < ApplicationController
   # GET /settlements.json
   def index
     @filterrific = initialize_filterrific(
-        Settlement.by_branch_fy_code(selected_branch_id, selected_fy_code),
-        params[:filterrific],
-        select_options: {
-            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-            by_settlement_type: Settlement.options_for_settlement_type_select,
-            with_bank_account_id: ChequeEntry.options_for_bank_account_select(selected_branch_id).to_a << Ledger.find_by(name: "Cash"),
-        },
-        persistence_id: false
+      Settlement.by_branch_fy_code(selected_branch_id, selected_fy_code),
+      params[:filterrific],
+      select_options: {
+        by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        by_settlement_type: Settlement.options_for_settlement_type_select,
+        with_bank_account_id: ChequeEntry.options_for_bank_account_select(selected_branch_id).to_a << Ledger.find_by(name: "Cash")
+      },
+      persistence_id: false
     ) or return
 
     items_per_page = 20
@@ -23,16 +23,16 @@ class SettlementsController < ApplicationController
     # In case of cheque creation during voucher client_account_id is not assigned to the cheques
     # to compensate that or condition is inserted
 
-    @total_sum = arabic_number(@filterrific.find.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).distinct.select(:amount, :id).map{|x| x.amount}.sum.to_f)
+    @total_sum = arabic_number(@filterrific.find.includes(cheque_entries: [{bank_account: :bank}, :additional_bank]).distinct.select(:amount, :id).map(&:amount).sum.to_f)
     order_parameter = params.dig(:filterrific, :by_settlement_type) == 'payment' ? 'cheque_entries.cheque_number ASC' : 'settlements.date ASC, settlements.updated_at ASC'
 
     # TODO(sarojk): Due to new implmentation of model associations, where conditions below are probably redundant. Get rid of them as necessary after migration.
     # cheque entry search by bank account
-    if ['xlsx', 'pdf'].include?(params[:format])
-      @settlements = @filterrific.find.not_rejected.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).decorate
-    else
-      @settlements = @filterrific.find.not_rejected.includes(:cheque_entries => [{:bank_account => :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
-    end
+    @settlements = if %w[xlsx pdf].include?(params[:format])
+                     @filterrific.find.not_rejected.includes(cheque_entries: [{bank_account: :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).decorate
+                   else
+                     @filterrific.find.not_rejected.includes(cheque_entries: [{bank_account: :bank}, :additional_bank]).order(order_parameter).references(:cheque_entries).page(params[:page]).per(items_per_page).decorate
+                   end
 
     @download_path_xlsx = settlements_path(params.permit(:format).merge({format: 'xlsx'}))
     respond_to do |format|
@@ -48,7 +48,7 @@ class SettlementsController < ApplicationController
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     respond_to do |format|
       flash.now[:error] = 'One of the search options provided is invalid.'
       format.html { render :index }
@@ -60,7 +60,7 @@ class SettlementsController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{ e.message }"
+    puts "Had to reset filterrific params: #{e.message}"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
@@ -87,7 +87,7 @@ class SettlementsController < ApplicationController
       format.pdf do
         pdf = Print::PrintMultipleSettlements.new(@settlements, current_tenant)
         pdf.call_multiple
-        send_data pdf.render, filename: "MultipleSettlements_#{@settlement_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
+        send_data pdf.render, filename: "MultipleSettlements_#{@settlement_ids}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
   end

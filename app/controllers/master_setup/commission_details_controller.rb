@@ -1,5 +1,5 @@
 class MasterSetup::CommissionDetailsController < ApplicationController
-  before_action :set_master_setup_commission_detail, only: [:show, :edit, :update, :destroy]
+  before_action :set_master_setup_commission_detail, only: %i[show edit update destroy]
 
   # GET /master_setup/commission_details
   # GET /master_setup/commission_details.json
@@ -62,13 +62,13 @@ class MasterSetup::CommissionDetailsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_master_setup_commission_detail
-      @master_setup_commission_detail = MasterSetup::CommissionDetail.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_master_setup_commission_detail
+    @master_setup_commission_detail = MasterSetup::CommissionDetail.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def master_setup_commission_detail_params
-      params.require(:master_setup_commission_detail).permit(:start_amount, :limit_amount, :commission_rate, :commission_amount, :master_setup_commission_info_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def master_setup_commission_detail_params
+    params.require(:master_setup_commission_detail).permit(:start_amount, :limit_amount, :commission_rate, :commission_amount, :master_setup_commission_info_id)
+  end
 end
