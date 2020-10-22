@@ -124,8 +124,8 @@ class ImportPayout < ImportFile
 
           # get the shortage quantity
           shortage_quantity = ((transaction.closeout_amount / transaction.share_rate) * 10 / 12).to_i
-          transaction.quantity = transaction.raw_quantity - shortage_quantity if transaction.closeout_amount.present? && transaction.closeout_amount.positive?
-          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true) if shortage_quantity.positive? && transaction.deleted_at.nil?
+          transaction.quantity = transaction.raw_quantity - shortage_quantity if transaction.closeout_amount.present? && transaction.closeout_amount > 0
+          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true) if shortage_quantity > 0 && transaction.deleted_at.nil?
 
           # net amount is the amount that is payble to the client after charges
           # amount receivable from nepse  =  share value - tds ( 15 % of broker commission ) - sebon fee - nepse commission(25% of broker commission )
@@ -142,7 +142,7 @@ class ImportPayout < ImportFile
 
           # this is the case for close out
           # calculate the charges
-          transaction.net_amount = if transaction.closeout_amount.positive?
+          transaction.net_amount = if transaction.closeout_amount > 0
                                      amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
                                    else
                                      amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee

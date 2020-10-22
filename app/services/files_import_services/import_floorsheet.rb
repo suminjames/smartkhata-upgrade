@@ -100,7 +100,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
 
       client = ClientAccount.unscoped.find_by(nepse_code: client_nepse_code)
       if client.present?
-        if (hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db']).zero?
+        if (hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db']) == 0
           # add hash_dp_count new key value
           hash_dp_count_increment(transaction_type, client, company_symbol, client_nepse_code, hash_dp_count)
         end
@@ -329,7 +329,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user)
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp.positive?
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user)
     end
 
@@ -458,7 +458,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
           client_account_id: client.id,
           transaction_type: ShareTransaction.transaction_types[:buying]
         )
-        if pre_processed_relevant_share_transactions.size.positive?
+        if pre_processed_relevant_share_transactions.size > 0
           _bill_number = pre_processed_relevant_share_transactions.first.bill.bill_number
         else
           _bill_number = @bill_number
@@ -570,7 +570,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user)
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp.positive?
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user)
 
     end

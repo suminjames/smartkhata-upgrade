@@ -25,7 +25,7 @@ class Ledgers::DaybookQuery
 
     if @params[:search_by] == "all"
       # for pages greater than 0, we need carryover balance
-      opening_balance =  opening_balance_for_page(opening_balance, page) if page.positive?
+      opening_balance =  opening_balance_for_page(opening_balance, page) if page > 0
       @particulars = get_particulars(@params[:page])
     elsif @params[:search_by] && @params[:search_term]
       search_by = @params[:search_by]
@@ -58,7 +58,7 @@ class Ledgers::DaybookQuery
 
             # make the adjustment for the carryover balance, and adjustment for the pagination and running total
             opening_balance += previous_day_balance
-            opening_balance =  opening_balance_for_page(opening_balance, page, date_ad, date_ad) if page.positive?
+            opening_balance =  opening_balance_for_page(opening_balance, page, date_ad, date_ad) if page > 0
 
           else
             @error_message = "Invalid Date"
@@ -91,7 +91,7 @@ class Ledgers::DaybookQuery
 
             # make the adjustment for the carryover balance, and adjustment for the pagination and running total
             opening_balance += previous_day_balance
-            opening_balance =  opening_balance_for_page(opening_balance, page, date_from_ad, date_to_ad) if page.positive?
+            opening_balance =  opening_balance_for_page(opening_balance, page, date_from_ad, date_to_ad) if page > 0
 
           else
             @error_message = "Invalid Date"
@@ -99,7 +99,7 @@ class Ledgers::DaybookQuery
       end
     elsif !@params[:search_by]
       # for pages greater than we need carryover balance
-      opening_balance = opening_balance_for_page(opening_balance, page) if page.positive?
+      opening_balance = opening_balance_for_page(opening_balance, page) if page > 0
       @particulars = get_particulars(@params[:page])
     end
 

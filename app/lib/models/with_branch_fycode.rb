@@ -32,6 +32,6 @@ module Models::WithBranchFycode
   end
 
   def get_branch_id_from_session
-    UserSession.selected_branch_id.zero? ? UserSession.branch_id : UserSession.selected_branch_id
+    UserSession.selected_branch_id == 0 ? UserSession.branch_id : UserSession.selected_branch_id
   end
 end

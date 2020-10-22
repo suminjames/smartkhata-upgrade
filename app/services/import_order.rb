@@ -63,7 +63,7 @@ class ImportOrder < ImportFile
           # Use of Nonee because 'none' is reserved word. See OrderDetail model's 'enum condition' for more.
           order_detail_obj.condition = hash['ORDER_CONDITION'] == 'None' ? 'nonee' : hash['ORDER_CONDITION'].downcase
           # As enum type 'new' is reserved for new object creation, used 'neww' instead.
-          order_detail_obj.state = hash['ORDER_STATE'].casecmp('new').zero? ? 'neww' : hash['ORDER_STATE'].downcase
+          order_detail_obj.state = hash['ORDER_STATE'].casecmp('new') == 0 ? 'neww' : hash['ORDER_STATE'].downcase
           order_detail_obj.save!
         end
 
@@ -206,7 +206,7 @@ class ImportOrder < ImportFile
     row.shift
     hashed_row = {}
     (0..12).each do |i|
-      hashed_row[keys[i]] = if i.zero?
+      hashed_row[keys[i]] = if i == 0
                               # order_id(at index 0) is taken as 201601016317314.0 . Strip the decimal.
                               row[i].to_s.split(".")[0]
                             else

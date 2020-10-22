@@ -30,7 +30,7 @@ class Ledgers::CashbookQuery
       date_from_ad = Date.new(2000)
       date_to_ad = Date.today
       # for pages greater than 0, we need carryover balance
-      opening_balance =  opening_balance_for_page(opening_balance, page) if page.positive?
+      opening_balance =  opening_balance_for_page(opening_balance, page) if page > 0
       @particulars = get_particulars(@params[:page], 20, nil, nil, no_pagination)
 
       # sum of total credit and debit amount
@@ -75,7 +75,7 @@ class Ledgers::CashbookQuery
 
             # make the adjustment for the carryover balance, and adjustment for the pagination and running total
             opening_balance += previous_day_balance
-            opening_balance =  opening_balance_for_page(opening_balance, page, date_ad, date_ad) if page.positive?
+            opening_balance =  opening_balance_for_page(opening_balance, page, date_ad, date_ad) if page > 0
 
           else
             @error_message = "Invalid Date"
@@ -107,7 +107,7 @@ class Ledgers::CashbookQuery
 
             # make the adjustment for the carryover balance, and adjustment for the pagination and running total
             opening_balance += previous_day_balance
-            opening_balance =  opening_balance_for_page(opening_balance, page, date_from_ad, date_to_ad) if page.positive?
+            opening_balance =  opening_balance_for_page(opening_balance, page, date_from_ad, date_to_ad) if page > 0
 
           else
             @error_message = "Invalid Date"
@@ -115,7 +115,7 @@ class Ledgers::CashbookQuery
       end
     elsif !@params[:search_by]
       # for pages greater than we need carryover balance
-      opening_balance = opening_balance_for_page(opening_balance, page) if page.positive?
+      opening_balance = opening_balance_for_page(opening_balance, page) if page > 0
       @particulars = get_particulars(@params[:page])
     end
 
@@ -149,7 +149,7 @@ class Ledgers::CashbookQuery
   def opening_balance_for_page(opening_balance, page, date_from_ad = nil, date_to_ad = nil)
     # raw sql can be potentially dangerous and memory leakage point
     # need to make sure this has proper binding
-    additional_condition = if selected_branch_id.zero?
+    additional_condition = if selected_branch_id == 0
                              "fy_code = #{selected_fy_code}"
                            else
                              "branch_id = #{selected_branch_id} AND fy_code = #{selected_fy_code}"

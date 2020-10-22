@@ -29,7 +29,7 @@ class CreateBankPaymentLetterService
     end
 
     # dont allow for this feature from all branch
-    if @branch_id.zero? || @fy_code.nil?
+    if @branch_id == 0 || @fy_code.nil?
       @error_message = "Invalid Operation, Please select correct fiscal year and branch"
       return false
     end

@@ -84,7 +84,7 @@ class Print::PrintSettlement < Prawn::Document
 
     # Legacy code
     if @settlement.cash_amount.blank?
-      if @settlement.cheque_entries.size.positive?
+      if @settlement.cheque_entries.size > 0
         text 'By Cheque:'
         @settlement.cheque_entries.uniq.each do |cheque|
           bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
@@ -92,7 +92,7 @@ class Print::PrintSettlement < Prawn::Document
         end
       end
     else
-      if @settlement.cheque_entries.size.positive?
+      if @settlement.cheque_entries.size > 0
         text 'By Cheque:'
         amount = 0
         _particulars = if @settlement.receipt? || @settlement.belongs_to_batch_payment?
@@ -114,7 +114,7 @@ class Print::PrintSettlement < Prawn::Document
           end
         end
 
-        text "By Cash: Rs. #{arabic_number(@settlement.cash_amount)}" if @settlement.cash_amount.to_f.positive?
+        text "By Cash: Rs. #{arabic_number(@settlement.cash_amount)}" if @settlement.cash_amount.to_f > 0
       else
         text "By Cash: Rs. #{arabic_number(@settlement.cash_amount)}"
       end

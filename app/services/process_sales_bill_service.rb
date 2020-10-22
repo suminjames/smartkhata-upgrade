@@ -31,7 +31,7 @@ class ProcessSalesBillService
     end
 
     # dont allow for this feature from all branch
-    if @branch_id.zero?
+    if @branch_id == 0
       @error_message = "Invalid Operation, Please select correct branch"
       return false
     end
@@ -200,7 +200,7 @@ def bills_have_pending_deal_cancel(bill_list)
   bill_number = nil
   bill_list ||= []
   bill_list.each do |bill|
-    next unless bill.share_transactions.deal_cancel_pending.size.positive?
+    next unless bill.share_transactions.deal_cancel_pending.size > 0
 
     res = true
     bill_number = bill.bill_number

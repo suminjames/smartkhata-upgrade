@@ -4,7 +4,7 @@ module CommissionModule
     return "flat_25" if total_commission == 25
 
     rate = (total_commission * 100 / amount).round(2)
-    return (total_commission * 100 / amount).round(2) if total_commission > 25 && ((rate * 100).to_i % 5).zero?
+    return (total_commission * 100 / amount).round(2) if total_commission > 25 && ((rate * 100).to_i % 5) == 0
 
     raise SmartKhataError
   end

@@ -131,7 +131,7 @@ class Print::PrintBill < Prawn::Document
       end
       if @bill.bill_type == 'sales'
         tr_data.delete_at(5)
-        tr_data.insert(5, ["Closeout Deduction:", @bill.formatted_net_closeout_amount]) if @bill.closeout_charge.positive?
+        tr_data.insert(5, ["Closeout Deduction:", @bill.formatted_net_closeout_amount]) if @bill.closeout_charge > 0
       end
       table(tr_data, cell_style: {border_width: 0, padding: [0, 2, 0, 2], align: :right})
     end

@@ -79,7 +79,7 @@ class Mandala::DailyTransaction < ApplicationRecord
                          else
                            Mandala::DailyTransaction.where(seller_customer_code: customer_code_from_data, transaction_date: transaction_date, transaction_type: transaction_type, company_code: company_code)
                          end
-    if daily_transactions.size.zero?
+    if daily_transactions.size == 0
       raise NotImplementedError
     else
       dp_fee = 25.0 / daily_transactions.size

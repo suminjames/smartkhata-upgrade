@@ -23,7 +23,7 @@ class MasterSetup::CommissionInfosController < ApplicationController
 
   # GET /master_setup/commission_infos/1/edit
   def edit
-end
+  end
 
   # POST /master_setup/commission_infos
   # POST /master_setup/commission_infos.json

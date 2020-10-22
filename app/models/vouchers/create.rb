@@ -117,7 +117,7 @@ class Vouchers::Create < Vouchers::Base
 
       @processed_bills = []
       # make changes in ledger balances and save the voucher
-      if net_blnc.zero? && has_error == false
+      if net_blnc == 0 && has_error == false
         receipt_amount = net_usable_blnc.abs || 0
         # @processed_bills, description_bills = process_bills(is_payment_receipt, @client_account, net_usable_blnc, @clear_ledger, @voucher_type, @bills, bill_ledger_adjustment)
 
@@ -323,7 +323,7 @@ class Vouchers::Create < Vouchers::Base
       #   settlement = Settlement.create(name: client_account.name, amount: receipt_amount, description: description_bills, date_bs: voucher.date_bs, settlement_type: settlement_type)
       # end
 
-      branch_id = selected_branch_id.to_i.zero? ? voucher.branch_id : selected_branch_id
+      branch_id = selected_branch_id.to_i == 0 ? voucher.branch_id : selected_branch_id
 
       # flag to know if the voucher has cheque entry
       voucher_has_cheque_entry = false
@@ -658,7 +658,7 @@ class Vouchers::Create < Vouchers::Base
   end
 
   def get_branch_id_from_session
-    selected_branch_id.zero? ? current_user.branch_id : selected_branch_id
+    selected_branch_id == 0 ? current_user.branch_id : selected_branch_id
   end
 
   def valid_branch(voucher)

@@ -21,7 +21,7 @@ class GenerateBillsService
       share_transactions = ShareTransaction.where(contract_no: @contract_numbers)
 
       raise NotImplementedError if share_transactions.pluck(:settlement_id).uniq.count != 1
-      raise NotImplementedError if share_transactions.where.not(bill_id: nil).count.positive?
+      raise NotImplementedError if share_transactions.where.not(bill_id: nil).count > 0
 
       share_transactions
     else
@@ -114,7 +114,7 @@ class GenerateBillsService
         bill.share_transactions << transaction
 
         # bill net amount should consider closeout
-        if transaction.closeout_amount.present? && transaction.closeout_amount.positive?
+        if transaction.closeout_amount.present? && transaction.closeout_amount > 0
           if @current_tenant.closeout_settlement_automatic
             bill.net_amount += (transaction.net_amount - transaction.closeout_amount)
             # since in automatic client pays
@@ -174,7 +174,7 @@ class GenerateBillsService
         # TODO: replace bill from particular with that in voucher
         # closeout amout is positive meaning there is a closeout on sales
         # closeout on buy is handled on deal cancel
-        if transaction.closeout_amount.present? && transaction.closeout_amount.positive?
+        if transaction.closeout_amount.present? && transaction.closeout_amount > 0
           # if quantity is zero meaning all transaction is shorted all the amount is moved to closeout
           # else partial amount is moved to closeout
           # in case of zero quantity two vouchers are created.
@@ -185,12 +185,12 @@ class GenerateBillsService
           process_accounts(client_ledger, voucher, false, payable_to_client, description, cost_center_id, settlement_date, @current_user)
 
           # some cases it is negative , like in full closeout
-          process_accounts(nepse_ledger, voucher, nepse_amount.positive? ? true : false, nepse_amount.abs, description, cost_center_id, settlement_date, @current_user)
+          process_accounts(nepse_ledger, voucher, nepse_amount > 0 ? true : false, nepse_amount.abs, description, cost_center_id, settlement_date, @current_user)
 
           # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date, @current_user)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date, @current_user)
-          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee.positive?
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee > 0
 
           description = "Shortage Sales adjustment (#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name}"
           process_accounts(closeout_ledger, voucher, true, closeout_amount, description, cost_center_id, settlement_date, @current_user)
@@ -214,7 +214,7 @@ class GenerateBillsService
           # process_accounts(compliance_ledger, voucher, true, compliance_fee, description, cost_center_id, settlement_date) if compliance_fee > 0
           process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date, @current_user)
           process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date, @current_user)
-          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee.positive?
+          process_accounts(dp_ledger, voucher, false, transaction.dp_fee, description, cost_center_id, settlement_date, @current_user) if transaction.dp_fee > 0
         end
       end
       # mark the sales settlement as complete to prevent future processing
@@ -229,7 +229,7 @@ class GenerateBillsService
     amount_receivable = transaction.amount_receivable
     # this is the case for close out
     # calculate the charges
-    transaction.net_amount = if transaction.closeout_amount.positive?
+    transaction.net_amount = if transaction.closeout_amount > 0
                                amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee + transaction.closeout_amount
                              else
                                amount_receivable - (transaction.commission_amount * chargeable_on_sale_rate) - transaction.dp_fee

@@ -133,7 +133,7 @@ class ShareTransaction < ApplicationRecord
   }
   # current_branch_id = selected_branch_id
   scope :by_branch, lambda { |branch_id|
-    includes(:client_account).where(client_accounts: { branch_id: branch_id }) unless branch_id.zero?
+    includes(:client_account).where(client_accounts: { branch_id: branch_id }) unless branch_id == 0
   }
 
   scope :by_client_id, ->(id) { not_cancelled.where(client_account_id: id) }
@@ -527,7 +527,7 @@ class ShareTransaction < ApplicationRecord
   #
   def calculate_base_price
     calculated_base_price = nil
-    if buying? || settlement_id.blank? || quantity.zero? || purchase_price.zero?
+    if buying? || settlement_id.blank? || quantity == 0 || purchase_price == 0
       calculated_base_price = 0.0
     elsif purchase_price / quantity == 100
       calculated_base_price = 100
@@ -538,7 +538,7 @@ class ShareTransaction < ApplicationRecord
       # Remove unwanted commission rate values other than the possible one.
       # The actual commission rate is bigger than or equal to possible commission rate.
       # Check for only two levels of commission rates, which should be sufficient for the calculation.
-      from_index = index_of_possible_commission_rate.zero? ? 0 : (index_of_possible_commission_rate - 1)
+      from_index = index_of_possible_commission_rate == 0 ? 0 : (index_of_possible_commission_rate - 1)
       to_index = index_of_possible_commission_rate
       commission_rates_desc_snipped = commission_rates_desc[from_index..to_index]
       commission_rates_desc_snipped.reverse_each do |commission_rate|

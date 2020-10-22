@@ -266,7 +266,7 @@ class LedgersController < ApplicationController
     client_account = ClientAccount.find(@client_account_id)
     @back_path = request.referer || group_member_ledgers_path
 
-    redirect_to @back_path, flash: {error: 'Invalid Branch, Please select correct branch'} and return if @selected_branch_id.to_i.zero?
+    redirect_to @back_path, flash: {error: 'Invalid Branch, Please select correct branch'} and return if @selected_branch_id.to_i == 0
 
     redirect_to @back_path, flash: {error: 'No Ledgers were Selected'} and return if @ledger_ids.size <= 0 || client_account.blank?
 

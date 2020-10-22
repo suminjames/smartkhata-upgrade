@@ -78,7 +78,7 @@ class TransactionMessage < ApplicationRecord
   }
 
   scope :by_branch, lambda { |branch_id|
-    includes(:client_account).where(client_accounts: { branch_id: branch_id }) unless branch_id.zero?
+    includes(:client_account).where(client_accounts: { branch_id: branch_id }) unless branch_id == 0
   }
 
   def self.latest_transaction_date

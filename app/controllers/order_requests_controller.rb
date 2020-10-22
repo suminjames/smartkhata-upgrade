@@ -13,7 +13,7 @@ class OrderRequestsController < ApplicationController
   # GET /order_requests/1
   # GET /order_requests/1.json
   def show
-end
+  end
 
   # GET /order_requests/new
   def new
@@ -23,7 +23,7 @@ end
 
   # GET /order_requests/1/edit
   def edit
-end
+  end
 
   # POST /order_requests
   # POST /order_requests.json

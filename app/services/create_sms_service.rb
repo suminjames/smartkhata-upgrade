@@ -58,7 +58,7 @@ class CreateSmsService
     # check if transaction message is created for the floorsheet date
     count_of_messages = TransactionMessage.where(transaction_date: transaction_date).count
 
-    @error = "The Transaction Messages are already created for the date #{ad_to_bs(transaction_date)}" if count_of_messages.positive?
+    @error = "The Transaction Messages are already created for the date #{ad_to_bs(transaction_date)}" if count_of_messages > 0
 
     share_transactions = ShareTransaction.where(date: transaction_date).not_cancelled
     group_share_transaction_records(share_transactions)

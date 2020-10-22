@@ -29,7 +29,7 @@ class MasterSetup::BrokerProfile < BrokerProfile
   default_scope { is_self_broker }
 
   def self.has_profile_in(locale)
-    self.where(locale: BrokerProfile.locales[locale]).count.positive?
+    self.where(locale: BrokerProfile.locales[locale]).count > 0
   end
 
   def self.has_maximum_records?
@@ -37,6 +37,6 @@ class MasterSetup::BrokerProfile < BrokerProfile
   end
 
   def single_locale_record
-    errors.add(:locale, "There is already another Broker Profile for #{self.locale} locale.") if self.class.where(locale: MasterSetup::BrokerProfile.locales[self.locale]).size.positive?
+    errors.add(:locale, "There is already another Broker Profile for #{self.locale} locale.") if self.class.where(locale: MasterSetup::BrokerProfile.locales[self.locale]).size > 0
   end
 end

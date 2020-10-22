@@ -99,7 +99,7 @@ class OrderRequestDetailsController < ApplicationController
 
   # GET /order_request_details/1/edit
   def edit
- end
+  end
 
   # POST /order_request_details.json
   def create

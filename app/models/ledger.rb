@@ -138,7 +138,7 @@ class Ledger < ApplicationRecord
   end
 
   def unscoped_ledger_balances(fy_code, branch_id)
-    LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code).where(branch_id: branch_id) unless branch_id.zero?
+    LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code).where(branch_id: branch_id) unless branch_id == 0
   end
 
   #
@@ -163,12 +163,12 @@ class Ledger < ApplicationRecord
   # check if the ledger name clashes with system reserved ledger name
   #
   def name_from_reserved?
-    if name.present? && INTERNALLEDGERS.any? { |s| s.casecmp(name).zero? }
+    if name.present? && INTERNALLEDGERS.any? { |s| s.casecmp(name) == 0 }
       # make sure the closeout ledger is last to be added programmatically
 
       # errors.add :name, "The name is reserved by system" if Ledger.find_by_name("Close Out").present?
 
-      errors.add :name, "The name is reserved by system" if Ledger.where("name ilike ?", name).count.positive?
+      errors.add :name, "The name is reserved by system" if Ledger.where("name ilike ?", name).count > 0
     end
   end
 

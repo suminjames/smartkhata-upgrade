@@ -74,7 +74,7 @@ class Voucher < ApplicationRecord
   ########################################
   # scopes
   scope :by_branch_fy_code, lambda { |branch_id, fy_code|
-    if branch_id.zero?
+    if branch_id == 0
       where(fy_code: fy_code)
     else
       where(branch_id: branch_id, fy_code: fy_code)
@@ -131,13 +131,13 @@ class Voucher < ApplicationRecord
   def map_payment_receipt_to_new_types
     if self.receipt? || self.payment?
       self.voucher_type = if self.receipt?
-                            if self.cheque_entries.count.positive?
+                            if self.cheque_entries.count > 0
                               :receipt_bank
                             else
                               :receipt_cash
                             end
                           else
-                            if self.cheque_entries.count.positive?
+                            if self.cheque_entries.count > 0
                               :payment_bank
                             else
                               :payment_cash
@@ -185,7 +185,7 @@ class Voucher < ApplicationRecord
       end
 
       cheque_entries.each do |cheque|
-        if dr_particulars.size.positive?
+        if dr_particulars.size > 0
 
           beneficiary_name = if dr_particulars.first.has_bank?
                                current_tenant.full_name
@@ -199,7 +199,7 @@ class Voucher < ApplicationRecord
       # Check to see if transaction between internal banks.
       # If so, add beneficiary names to the other as current tenant's full name.
       cr_particulars = self.particulars.select(&:cr?)
-      if dr_particulars.size.positive? && cr_particulars.size.positive? && dr_particulars.first.has_bank? && cr_particulars.first.has_bank?
+      if dr_particulars.size > 0 && cr_particulars.size > 0 && dr_particulars.first.has_bank? && cr_particulars.first.has_bank?
         cheque_entries = self.cheque_entries.receipt.uniq
         cheque_entries.each do |cheque|
           beneficiary_name = if cr_particulars.first.has_bank?

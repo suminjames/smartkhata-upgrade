@@ -60,9 +60,9 @@ class Vouchers::Setup < Vouchers::Base
 
       bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
 
-      bill_ids = bills.map(&:id) if bill_ids.size.zero?
+      bill_ids = bills.map(&:id) if bill_ids.size == 0
 
-      voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size.positive?
+      voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
 
     end
 
@@ -83,7 +83,7 @@ class Vouchers::Setup < Vouchers::Base
     # it is used to zero the account balance of the client.
     if settlement_by_clearance
       voucher.desc = "Settled with ledger balance clearance"
-      voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size.positive?
+      voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
 
       voucher.particulars << Particular.new(
         ledger_id: client_account.ledger.id,

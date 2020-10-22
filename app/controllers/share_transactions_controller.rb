@@ -633,7 +633,7 @@ class ShareTransactionsController < ApplicationController
   # GET /share_transactions/1
   # GET /share_transactions/1.json
   def show
-end
+  end
 
   # GET /share_transactions/new
   def new
@@ -642,7 +642,7 @@ end
 
   # GET /share_transactions/1/edit
   def edit
-end
+  end
 
   # GET /share_transactions/1/available_balancing_transactions.json
   def available_balancing_transactions

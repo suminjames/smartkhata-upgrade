@@ -222,7 +222,7 @@ class ClientAccount < ApplicationRecord
   def check_client_branch
     if self.persisted?
       ledger_id = self.ledger.try(:id)
-      if ledger_id && Particular.unscoped.where(ledger_id: ledger_id).count.positive?
+      if ledger_id && Particular.unscoped.where(ledger_id: ledger_id).count > 0
         if self.move_all_particulars == "1" || self.dont_move_particulars == "1"
           self.branch_changed = true
         else

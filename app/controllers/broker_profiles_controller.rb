@@ -12,7 +12,7 @@ class BrokerProfilesController < ApplicationController
   # GET /broker_profiles/1
   # GET /broker_profiles/1.json
   def show
-end
+  end
 
   # GET /broker_profiles/new
   def new

@@ -253,7 +253,7 @@ class SmsMessage < ApplicationRecord
     single_page_length = 160
     multi_page_block_length = 153
     message_length = message.length
-    if message_length <= single_page_length && message_length.positive?
+    if message_length <= single_page_length && message_length > 0
       credit_required = 1
     elsif message_length > single_page_length
       credit_required = (message_length / multi_page_block_length.to_f).ceil

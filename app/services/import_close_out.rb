@@ -76,7 +76,7 @@ class ImportCloseOut < ImportFile
 
             commission_amount = get_commission_by_rate(transaction.commission_rate, net_amount)
             dp_fee = 0.0
-            dp_fee = transaction.dp_fee if transaction.quantity.zero?
+            dp_fee = transaction.dp_fee if transaction.quantity == 0
 
             closeout_amount = commission_amount + dp_fee + closeout.net_amount
             closeout_ledger = Ledger.find_or_create_by!(name: "Close Out")

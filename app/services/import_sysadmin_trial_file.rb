@@ -15,7 +15,7 @@ class ImportSysadminTrialFile < ImportFile
 
           ledger = client_account.ledger || Ledger.new
           ledger.name = hash[:ac_name]
-          ledger.opening_balance = (hash[:balance_dr]).positive? ? hash[:balance_dr] : hash[:balance_cr] * -1
+          ledger.opening_balance = (hash[:balance_dr]) > 0 ? hash[:balance_dr] : hash[:balance_cr] * -1
           ledger.closing_balance = ledger.opening_balance
           ledger.client_account_id = client_account.id
           ledger.save!

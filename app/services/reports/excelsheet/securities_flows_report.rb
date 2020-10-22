@@ -28,7 +28,7 @@ class Reports::Excelsheet::SecuritiesFlowsReport < Reports::Excelsheet
     report_headings = report_headings_for_securities_flow(@params, @is_securities_balance_view)
     headings = []
     report_headings.each_with_index do |heading, index|
-      if index.zero?
+      if index == 0
         headings[0] = heading
       else
         headings[1] = "#{headings[1]} #{heading}"

@@ -28,7 +28,7 @@ module Models::UpdaterWithBranchFycodeBalance
       # use this for read only
       # TODO(SUBAS) stupid mistake of using default scope here
       scope :by_branch_fy_code, lambda { |branch_id = 0, fy_code|
-        branch_id.zero? ? where(branch_id: nil, fy_code: fy_code) : where(branch_id: branch_id, fy_code: fy_code)
+        branch_id == 0 ? where(branch_id: nil, fy_code: fy_code) : where(branch_id: branch_id, fy_code: fy_code)
       }
     end
   end

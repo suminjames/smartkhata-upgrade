@@ -25,7 +25,7 @@ class EdisReportForm
                          []
                        end
           edis_items.each do |item|
-            item.status = record[6].to_i.zero? && record[7].casecmp('success').zero? ? EdisItem.statuses[:success] : EdisItem.statuses[:error]
+            item.status = record[6].to_i == 0 && record[7].casecmp('success') == 0 ? EdisItem.statuses[:success] : EdisItem.statuses[:error]
             item.status_message = record[7]
             self.edis_items << item
           end

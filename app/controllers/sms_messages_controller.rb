@@ -45,7 +45,7 @@ class SmsMessagesController < ApplicationController
   # GET /sms_messages/1
   # GET /sms_messages/1.json
   def show
-end
+  end
 
   # GET /sms_messages/new
   def new
@@ -54,7 +54,7 @@ end
 
   # GET /sms_messages/1/edit
   def edit
-end
+  end
 
   # POST /sms_messages
   # POST /sms_messages.json

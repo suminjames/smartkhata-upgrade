@@ -26,6 +26,6 @@ class Report::ProfitandlossController < ApplicationController
     end
 
     @loss_total -= @amount if @amount.negative?
-    @profit_total += @amount if @amount.positive?
+    @profit_total += @amount if @amount > 0
   end
 end

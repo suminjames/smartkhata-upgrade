@@ -53,7 +53,7 @@ class LedgerBalance < ApplicationRecord
       self.opening_balance = 0
     else
       if self.opening_balance_type == 'cr'
-        self.opening_balance = self.opening_balance * -1 if self.opening_balance.positive?
+        self.opening_balance = self.opening_balance * -1 if self.opening_balance > 0
       end
 
       # when it is created make the closing balance equal to opening balance

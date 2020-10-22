@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
   end
 
   def branch_id_for_entry(branch_id)
-    branch_id.to_i.zero? ? current_user&.branch_id : branch_id
+    branch_id.to_i == 0 ? current_user&.branch_id : branch_id
   end
 
   helper_method :active_record_branch_id

@@ -32,12 +32,12 @@ class Files::CalendarsController < ApplicationController
       remarks: 'Remarks'
     ) do |xls_row_hash|
       # Skip header row
-      if count.positive?
+      if count > 0
         calendar_date_hash = {}
         calendar_date_hash[:bs_date] = xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s
         calendar_date_hash[:ad_date] = bs_to_ad(xls_row_hash[:year].to_i.to_s + '-' + xls_row_hash[:month].to_i.to_s + '-' + xls_row_hash[:day].to_i.to_s)
-        calendar_date_hash[:is_holiday] = xls_row_hash[:is_holiday].casecmp('TRUE').zero?
-        calendar_date_hash[:is_trading_day] = xls_row_hash[:is_trading_day].casecmp('TRUE').zero?
+        calendar_date_hash[:is_holiday] = xls_row_hash[:is_holiday].casecmp('TRUE') == 0
+        calendar_date_hash[:is_trading_day] = xls_row_hash[:is_trading_day].casecmp('TRUE') == 0
         if xls_row_hash[:holiday_type].present?
           calendar_date_hash[:holiday_type] = case xls_row_hash[:holiday_type].downcase.strip
             when 'saturday'

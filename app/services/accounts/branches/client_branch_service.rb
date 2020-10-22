@@ -21,7 +21,7 @@ module Accounts
         particulars_on_other_branch_count = Particular.unscoped.where(ledger_id: ledger.id).where('transaction_date >= ?', date_ad).where.not(branch_id: branch_id).count
         # LedgerDaily.unscoped.where(ledger_id: ledger.id).delete_all
 
-        if particulars_on_other_branch_count.positive?
+        if particulars_on_other_branch_count > 0
 
           bills_affected = Bill.unscoped.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
           settlements_affected = Settlement.where(client_account_id: client_account.id).where.not(branch_id: branch_id).where('date >= ?', date_ad)
@@ -47,7 +47,7 @@ module Accounts
             other_particulars = Particular.unscoped.where(voucher_id: voucher.id).where.not(ledger_id: ledger.id)
             other_ledger_ids =  other_particulars.pluck(:ledger_id)
             # make sure other ledgers are internal and do not affect other client accounts
-            if Ledger.where(id: other_ledger_ids).where.not(client_account_id: nil).count.zero?
+            if Ledger.where(id: other_ledger_ids).where.not(client_account_id: nil).count == 0
               other_particulars.update_all(branch_id: branch_id)
               ledger_ids += other_ledger_ids
               voucher.update(branch_id: branch_id)
@@ -65,7 +65,7 @@ module Accounts
         ActiveRecord::Base.transaction do
           ledger_ids, fy_codes, dates_affected = move_transactions(client_account, branch_id, date_bs, dry_run)
           # dont patch ledger when dry run is true or ledger_ids is empty
-          unless dry_run || ledger_ids.size.zero?
+          unless dry_run || ledger_ids.size == 0
             fy_code = fy_codes[0]
             if fy_codes.length > 1
               # currently the fycodes are returned for all after it, need to return only the available ones
@@ -92,7 +92,7 @@ module Accounts
             ledger = client_account.ledger
             ledger_balances = LedgerBalance.unscoped.where(ledger_id: ledger.id, branch_id: branch_id)
             opening_balance_set_for_branch = false
-            ledger_balances.each { |b| (opening_balance_set_for_branch = true; break) if b.opening_balance.positive? }
+            ledger_balances.each { |b| (opening_balance_set_for_branch = true; break) if b.opening_balance > 0 }
             break if opening_balance_set_for_branch
 
             ids, fy_codes = move_transactions(client_account, branch_id, date_bs, dry_run)

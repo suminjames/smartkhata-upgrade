@@ -189,7 +189,7 @@ class Bill < ApplicationRecord
   # Returns total net dp fee
   def get_net_dp_fee
     dp_fee = self.share_transactions.not_cancelled_for_bill.sum(:dp_fee)
-    dp_fee.zero? ? 25 : dp_fee
+    dp_fee == 0 ? 25 : dp_fee
   end
 
   # Returns total net cgt

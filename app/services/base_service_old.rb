@@ -19,7 +19,7 @@ class BaseServiceOld
   private
 
   def has_error?
-    self.errors.size.positive?
+    self.errors.size > 0
   end
 
   def set_errors(*models)

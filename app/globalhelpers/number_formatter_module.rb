@@ -13,7 +13,7 @@ module NumberFormatterModule
       word_before_decimal = word[0]
       word_before_decimal = (word_before_decimal.sub! 'And', '') || word_before_decimal
       word_before_decimal = "#{word_before_decimal} Rupees"
-      word_after_decimal = "And #{paisa_formatted}/100" if paisa.positive?
+      word_after_decimal = "And #{paisa_formatted}/100" if paisa > 0
       word = "#{word_before_decimal} #{word_after_decimal}"
     else
       word = "#{word} Rupees"
@@ -51,7 +51,7 @@ module NumberFormatterModule
 
   # If exists, strips a number of redundant zeroes after decimal.
   def strip_redundant_decimal_zeroes(number)
-    (number % 1).zero? ? number.to_i : number
+    (number % 1) == 0 ? number.to_i : number
   end
 
   # # For testing  through console only.

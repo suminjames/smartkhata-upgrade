@@ -66,7 +66,7 @@ class DealCancelService
           relevant_share_transactions = bill.share_transactions.not_cancelled.where(isin_info_id: @share_transaction.isin_info_id)
           dp_fee_adjustment = 0.0
           total_transaction_count = relevant_share_transactions.length
-          dp_fee_adjustment = (25.00 / (total_transaction_count + 1)) if total_transaction_count.positive?
+          dp_fee_adjustment = (25.00 / (total_transaction_count + 1)) if total_transaction_count > 0
 
           # remove the transacted amount from the share inventory
           update_share_inventory(@share_transaction.client_account_id, @share_transaction.isin_info_id, @share_transaction.quantity, acting_user, @share_transaction.buying?, true)
@@ -107,7 +107,7 @@ class DealCancelService
             dp_fee_adjustment = 0.0
             total_transaction_count = relevant_share_transactions.length
 
-            if total_transaction_count.positive?
+            if total_transaction_count > 0
               dp_fee = 25.00
               dp_fee_per_transaction = dp_fee / total_transaction_count
               # added back since it was removed when deal was cancelled.

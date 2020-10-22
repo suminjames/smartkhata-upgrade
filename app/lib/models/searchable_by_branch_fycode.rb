@@ -7,7 +7,7 @@ module Models::SearchableByBranchFycode
       scope :by_fy_code, ->(fy_code) { where(fy_code: fy_code) }
       scope :by_branch, ->(branch_id) { where(branch_id: branch_id)}
       scope :by_branch_fy_code, lambda { |branch_id, fy_code|
-        branch_id.zero? ? where(fy_code: fy_code) : where(branch_id: branch_id, fy_code: fy_code)
+        branch_id == 0 ? where(fy_code: fy_code) : where(branch_id: branch_id, fy_code: fy_code)
       }
     end
   end

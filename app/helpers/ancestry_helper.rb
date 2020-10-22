@@ -41,7 +41,7 @@ module AncestryHelper
       li_classes += options[:li_class_children]
       # end
 
-      output << if children.size.positive?
+      output << if children.size > 0
                   content_tag(:li, capture(object, &block) + arranged_tree_as_list(children, options, &block).html_safe, class: li_classes)
                 else
                   content_tag(:li, capture(object, &block), class: li_classes).html_safe
@@ -53,7 +53,7 @@ module AncestryHelper
 
       ul_classes = options[:ul_class]
 
-      ul_classes += if current_depth.zero?
+      ul_classes += if current_depth == 0
                       options[:ul_class_top]
                     else
                       options[:ul_class_children]

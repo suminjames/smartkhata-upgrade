@@ -58,7 +58,7 @@ class Ledgers::ParticularEntry
     updater_id = attrs[:updater_id]
     current_user_id = attrs[:current_user_id]
     # when all branch selected fall back to the user's branch id
-    branch_id = current_user.branch_id if branch_id.zero?
+    branch_id = current_user.branch_id if branch_id == 0
     fy_code = voucher.fy_code
 
     # If the case is for revert transaction
@@ -103,9 +103,9 @@ class Ledgers::ParticularEntry
         new_particular.cheque_entries_on_reversal << reversed_cheque_entry
         new_particular.save!
       else
-        if cheque_entries_on_receipt.size.positive? || cheque_entries_on_payment.size.positive?
-          new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size.positive?
-          new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size.positive?
+        if cheque_entries_on_receipt.size > 0 || cheque_entries_on_payment.size > 0
+          new_particular.cheque_entries_on_receipt = cheque_entries_on_receipt if cheque_entries_on_receipt.size > 0
+          new_particular.cheque_entries_on_payment = cheque_entries_on_payment if cheque_entries_on_payment.size > 0
           new_particular.save!
         end
       end

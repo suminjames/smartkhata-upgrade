@@ -42,7 +42,7 @@ class Vouchers::Base
     #   4. specific bill
     #         process a specific bill
 
-    if (clear_ledger || bill_ids.size.positive?) && client_account.present?
+    if (clear_ledger || bill_ids.size > 0) && client_account.present?
 
       client_ledger = client_account.ledger
       ledger_balance = client_ledger.closing_balance(selected_fy_code, selected_branch_id)
@@ -89,7 +89,7 @@ class Vouchers::Base
       # TODO: change the voucher types to its sub class for payment receipt
 
       if clear_ledger
-        if ledger_balance.positive?
+        if ledger_balance > 0
           voucher_type = Voucher.voucher_types[:receipt]
           bills = [*bills_payment, *bills_receive]
         else
@@ -251,7 +251,7 @@ class Vouchers::Base
     bill_number = nil
     bill_list ||= []
     bill_list.each do |bill|
-      next unless bill.share_transactions.deal_cancel_pending.size.positive?
+      next unless bill.share_transactions.deal_cancel_pending.size > 0
 
       res = true
       bill_number = bill.bill_number

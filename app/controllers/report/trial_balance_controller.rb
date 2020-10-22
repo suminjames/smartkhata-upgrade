@@ -23,7 +23,7 @@ class Report::TrialBalanceController < ApplicationController
 
         ledger_ids = balance.descendent_ledgers.pluck(:id)
 
-        b = if branch_id.zero?
+        b = if branch_id == 0
               LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
             else
               LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
@@ -42,7 +42,7 @@ class Report::TrialBalanceController < ApplicationController
           @balance_report = {}
           date_ad = bs_to_ad(date_bs)
           @date = date_bs
-          branch_id = selected_branch_id.zero? ? nil : selected_branch_id
+          branch_id = selected_branch_id == 0 ? nil : selected_branch_id
           fy_code = selected_fy_code
           # index = 1
           @balance.each do |balance|

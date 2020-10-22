@@ -38,7 +38,7 @@ class VouchersController < ApplicationController
       @cheque = @particular_with_bank.cheque_number
 
       # hack to show only the particulars with dr incase of more than one cheque entry in receipt
-      @particulars = if @particulars_with_bank.dr.size.positive?
+      @particulars = if @particulars_with_bank.dr.size > 0
                        @particulars.has_bank.dr
                      else
                        @particulars.general
@@ -104,7 +104,7 @@ class VouchersController < ApplicationController
         settlements = voucher_creation.settlements
 
         format.html do
-          if settlements.size.positive? && !@voucher.is_payment_bank?
+          if settlements.size > 0 && !@voucher.is_payment_bank?
             # settlement_ids = settlements.pluck(:id)
             settlement_ids = settlements.map(&:id)
             # TODO: (Remove this hack to show all the settlements)

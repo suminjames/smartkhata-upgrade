@@ -23,7 +23,7 @@ class MenuPermissionsController < ApplicationController
 
   # GET /menu_permissions/1/edit
   def edit
-end
+  end
 
   # POST /menu_permissions
   # POST /menu_permissions.json

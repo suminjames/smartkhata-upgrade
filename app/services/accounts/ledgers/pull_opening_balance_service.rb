@@ -14,7 +14,7 @@ module Accounts
       def process
         branch_ids = Branch.all.pluck(:id)
         available_ledger_ids = ledger_ids
-        unless available_ledger_ids.size.positive?
+        unless available_ledger_ids.size > 0
           available_ledger_ids = if branch_id
                                    Ledger.where(client_account_id: ClientAccount.where(branch_id: branch_id).pluck(:id)).pluck(:id)
                                  else
@@ -43,7 +43,7 @@ module Accounts
 
         puts "Populating closing balance for #{pulled_ledger_ids.size}"
         puts pulled_ledger_names.join(',') if pulled_ledger_ids.size < 50
-        if pulled_ledger_ids.uniq.size.positive?
+        if pulled_ledger_ids.uniq.size > 0
           branch_ids.each do |branch_id|
             Accounts::Ledgers::PopulateLedgerDailiesService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id, fy_code)
             Accounts::Ledgers::ClosingBalanceService.new.process(pulled_ledger_ids.uniq, current_user_id, false, branch_id, fy_code)
