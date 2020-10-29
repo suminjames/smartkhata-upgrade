@@ -14,11 +14,9 @@ class BillPolicy < ApplicationPolicy
   def show?
     if @user.client?
       client_account_ids = @user.client_accounts.pluck(:id)
-      if client_account_ids.include?(@record.client_account_id)
-        return true
-      end
+      return true if client_account_ids.include?(@record.client_account_id)
     else
-      path_authorized_to_employee_and_above?(self.class.bills_path(0,0))
+      path_authorized_to_employee_and_above?(self.class.bills_path(0, 0))
     end
   end
 end

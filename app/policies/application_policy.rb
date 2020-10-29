@@ -15,7 +15,7 @@ class ApplicationPolicy
   end
 
   def show?
-    scope.where(:id => record.id).exists?
+    scope.where(id: record.id).exists?
   end
 
   def create?
@@ -43,26 +43,19 @@ class ApplicationPolicy
   end
 
   # Methods to check single user designation with ease
-  def sys_admin?
-    user.sys_admin?
-  end
+  delegate :sys_admin?, to: :user
 
-  def admin?
-    user.admin?
-  end
+  delegate :admin?, to: :user
 
-  def employee?
-    user.employee?
-  end
+  delegate :employee?, to: :user
 
-  def client?
-    user.client?
-  end
+  delegate :client?, to: :user
 
   # blacklisting: the current implementation
   def authorized_to_access?(link)
     return false unless link
     return unless user.can_access_branch?
+
     link_params = link.split('/')
     link = "/:fy_code/:branch_id/#{link_params[3..-1].join('/')}"
     !user.blocked_path_list.include?(link)
@@ -167,14 +160,11 @@ class ApplicationPolicy
       define_method("#{action}?") do
         # return false if user cant read write
         # hack for show action
-        unless( action == :show) || global_action || (@user.can_read_write?)
-          return false
-        end
+        return false unless (action == :show) || global_action || @user.can_read_write?
+
         privilege = privilege.to_s
         # mapping privilege text to original method
-        if privilege == 'employee_and_above'
-          privilege.prepend "path_authorized_to_"
-        end
+        privilege.prepend "path_authorized_to_" if privilege == 'employee_and_above'
         self.send("#{privilege}?", path)
       end
     end
@@ -189,7 +179,7 @@ class ApplicationPolicy
   def self.permit_unconditional_access_to_employee_and_above(param)
     # param can be a controller(usual case) or actions array
     # fetch actions if controller passed
-    actions = (param < ApplicationController) ? param.instance_methods(false) : param
+    actions = param < ApplicationController ? param.instance_methods(false) : param
 
     actions.each do |action|
       define_method("#{action}?") do
@@ -197,5 +187,4 @@ class ApplicationPolicy
       end
     end
   end
-
 end
