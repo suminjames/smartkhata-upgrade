@@ -54,7 +54,7 @@ class User < ApplicationRecord
 
   has_many :menu_permissions, through: :user_access_role
   has_many :branch_permissions
-  belongs_to :user_access_role, optional: true
+  belongs_to :user_access_role
 
   ########################################
   # Validation

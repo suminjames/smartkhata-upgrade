@@ -8,7 +8,7 @@ module Models::UpdaterWithBranchFycodeBalance
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'
-      belongs_to :branch, optional: true
+      belongs_to :branch
 
       scope :by_fy_code, ->(fy_code) { where(fy_code: fy_code)}
       scope :by_fy_code_org, ->(fy_code) { where(fy_code: fy_code, branch_id: nil)}
