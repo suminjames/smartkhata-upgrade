@@ -57,7 +57,7 @@ Style/HashTransformValues:
   Enabled: true
 
 Style/HashEachMethods:
-  Enabled: :true
+  Enabled: true
 
 Naming/VariableNumber:
   EnforcedStyle: snake_case
