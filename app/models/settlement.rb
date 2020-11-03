@@ -42,8 +42,8 @@ class Settlement < ApplicationRecord
   ########################################
   # Relationships
 
-  belongs_to :client_account
-  belongs_to :vendor_account
+  belongs_to :client_account, optional: true
+  belongs_to :vendor_account, optional: true
 
   has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
   has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"

@@ -22,7 +22,7 @@ class TransactionMessage < ApplicationRecord
   include Auditable
   extend CustomDateModule
 
-  belongs_to :bill
+  belongs_to :bill, optional: true
   belongs_to :client_account
 
   has_many :share_transactions

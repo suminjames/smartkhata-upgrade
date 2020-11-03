@@ -64,7 +64,7 @@ class Voucher < ApplicationRecord
            through: :bill_voucher_associations,
            source: :bill
   has_many :bills, through: :bill_voucher_associations
-  belongs_to :reviewer, class_name: 'User'
+  belongs_to :reviewer, class_name: 'User', optional: true
 
   has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################

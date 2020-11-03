@@ -78,9 +78,9 @@ class ClientAccount < ApplicationRecord
 
   ########################################
   # Relationships
-  belongs_to :group_leader, class_name: 'ClientAccount'
+  belongs_to :group_leader, class_name: 'ClientAccount', optional: true
   has_many :group_members, class_name: 'ClientAccount', foreign_key: 'group_leader_id'
-  belongs_to :user
+  belongs_to :user, optional: true
   has_one :ledger
   has_many :share_inventories
   has_many :bills

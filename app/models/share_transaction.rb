@@ -56,8 +56,8 @@ class ShareTransaction < ApplicationRecord
   belongs_to :voucher
   belongs_to :isin_info
   belongs_to :client_account
-  belongs_to :nepse_chalan
-  belongs_to :transaction_message
+  belongs_to :nepse_chalan, optional: true
+  belongs_to :transaction_message, optional: true
 
   # many to many association between share transaction and particulars
   # required in case of payment letter

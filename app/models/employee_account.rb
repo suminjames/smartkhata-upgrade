@@ -56,7 +56,7 @@ class EmployeeAccount < ApplicationRecord
 
   has_many :employee_ledger_associations
   has_many :ledgers, through: :employee_ledger_associations
-  belongs_to :user
+  belongs_to :user, optional: true
   has_one :user_access_role, through: :user
   has_many :branch_permissions, through: :user
 
