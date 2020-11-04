@@ -23,6 +23,7 @@ FactoryBot.define do
     sequence(:email) { |n| "test#{n}@gmail.com" }
     password { "password" }
     password_confirmation { "password" }
+    user_access_role_id { UserAccessRole.first&.id || create(:user_access_role).id }
     confirmed_at { Date.today }
     role {User.roles[:admin]}
     branch
@@ -149,10 +150,10 @@ FactoryBot.define do
       nepse_code { nil }
 
       factory :corporate_client_account_without_nepse_code do
-        client_type { 1 } 
+        client_type { 1 }
       end
 
-    end    
+    end
   end
 
   factory :isin_info do

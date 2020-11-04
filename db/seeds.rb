@@ -49,11 +49,13 @@ count = 0
     end
 
     branch = Branch.create(code: "KTM", address: "Kathmandu")
+    user_access_role = UserAccessRole.create(role_type: 1, role_name: "Role-1")
     admin_user_data = @admin_users[count - 1]
     new_user = User.find_or_create_by!(email: admin_user_data[:email]) do |user|
       user.password = admin_user_data[:password]
       user.password_confirmation = admin_user_data[:password]
       user.branch_id = branch.id
+      user.user_access_role_id = user_access_role.id
       user.confirm
       user.admin!
     end

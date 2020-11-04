@@ -46,9 +46,4 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
-
-  # Require `belongs_to` by default in rails 5. https://github.com/rails/rails/pull/18937
-  # Changed to false when migrating the app from rails 4 to rails 5. Once enough test are done
-  # this will be no longer required.
-  config.active_record.belongs_to_required_by_default = false
 end

@@ -20,7 +20,7 @@ class Group < ApplicationRecord
   include ::Models::Updater
   include FiscalYearModule
 
-  belongs_to :parent, class_name: 'Group'
+  belongs_to :parent, class_name: 'Group', optional: true
   has_many :children, class_name: 'Group', foreign_key: 'parent_id'
   has_many :ledgers
 
