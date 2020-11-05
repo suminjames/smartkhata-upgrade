@@ -23,10 +23,10 @@ FactoryBot.define do
     sequence(:email) { |n| "test#{n}@gmail.com" }
     password { "password" }
     password_confirmation { "password" }
-    user_access_role_id { UserAccessRole.first&.id || create(:user_access_role).id }
     confirmed_at { Date.today }
     role {User.roles[:admin]}
     branch
+    user_access_role_id { UserAccessRole.first&.id || create(:user_access_role).id }
   end
 
   factory :cheque_entry do
@@ -38,9 +38,9 @@ FactoryBot.define do
     cheque_date { '2016-7-12' }
     branch_id { Branch.first&.id || create(:branch).id }
     beneficiary_name { 'subas' }
+    current_user_id { User.first&.id || create(:user).id }
     creator_id { User.first&.id || user.id }
     updater_id { User.first&.id || user.id }
-    current_user_id { User.first&.id || create(:user).id }
 
     factory :receipt_cheque_entry do
       cheque_issued_type { :receipt }
@@ -59,6 +59,7 @@ FactoryBot.define do
     cheque_number { nil }
     creator_id { User.first&.id || user.id }
     updater_id { User.first&.id || user.id }
+    current_user_id { User.first&.id || user.id }
     factory :debit_particular do
       transaction_type { 0 }
       ledger
@@ -84,10 +85,6 @@ FactoryBot.define do
     end
   end
 
-
-
-
-
   factory :branch do
     sequence(:code) { |n| "Branch-#{n}" }
     address { 'KTM' }
@@ -98,17 +95,23 @@ FactoryBot.define do
     sequence(:bank_code) { |n| "#{n}" }
     address { 'AnotherString' }
     contact_no { 'AnotherString' }
+    current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
   end
 
   factory :ledger do
     name { 'Ledger' }
-    group_id { 234 }
+    group
     current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
     factory :bank_ledger do
       name { 'Bank' }
       bank_account
     end
   end
+
   factory :ledger_balance do
     opening_balance { 0 }
     # opening_balance_type "dr"
@@ -118,6 +121,8 @@ FactoryBot.define do
     branch
     fy_code { '7374' }
     current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
 
     factory :ledger_balance_org do
       branch_id { nil }
@@ -138,14 +143,15 @@ FactoryBot.define do
     state_perm { 'foo-state' }
     country_perm { 'foo-country' }
     sequence(:nepse_code) { |n| "Nepse-#{n}" }
-    sequence (:email) { |n| "n@example.com"}
+    sequence(:email) { |n| "n@example.com"}
     branch
 
     # association :creator, factory: :user
     # association :updater, factory: :user
-    creator_id { User.first&.id || user.id }
-    updater_id { User.first&.id || user.id }
     current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
+
     factory :client_account_without_nepse_code do
       nepse_code { nil }
 
@@ -166,6 +172,7 @@ FactoryBot.define do
     broker_name { "afggf" }
     broker_number { 123 }
     locale { 0 }
+    ledger
 
     factory :master_broker_profile, class: 'MasterSetup::BrokerProfile' do
       profile_type { 0 }
@@ -177,6 +184,8 @@ FactoryBot.define do
     email { "test@example.com" }
     branch_id { 1 }
     current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
   end
 
   factory :settlement do
@@ -184,6 +193,7 @@ FactoryBot.define do
   end
 
   factory :branch_permission do
+    current_user_id { User.first&.id || create(:user).id }
   end
 
   factory :particulars do
@@ -196,5 +206,4 @@ FactoryBot.define do
     fax_number { '0989' }
     pan_number { '9909' }
   end
-  
 end

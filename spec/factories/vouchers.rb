@@ -6,8 +6,7 @@ FactoryBot.define do
     voucher_status { 1 }
     branch_id { Branch.first&.id || create(:branch).id }
     desc { nil }
-    creator { User.first || create(:user) }
-    updater { User.first || create(:user) }
     current_tenant { Tenant.first || create(:tenant) }
+    current_user_id { User.first&.id || create(:user).id }
   end
 end

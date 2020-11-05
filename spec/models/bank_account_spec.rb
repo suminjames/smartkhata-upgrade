@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2')}
+  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2', bank: bank)}
+  let(:bank){create(:bank)}
+  let(:ledger){create(:ledger)}
+  let(:user){create(:user)}
   let(:bank_account_1) {create(:bank_account)}
   include_context 'session_setup'
 
@@ -61,7 +64,7 @@ RSpec.describe BankAccount, type: :model do
     let(:group) { create(:group, name: "Current Assets") }
     it "should get group id" do
       group
-      expect(subject.get_current_assets_group).to eq(1)
+      expect(subject.get_current_assets_group).to eq(14)
     end
   end
 

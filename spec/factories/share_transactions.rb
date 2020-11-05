@@ -46,7 +46,6 @@ FactoryBot.define do
           closeout_amount { 138972 }
         end
       end
-
     end
 
     factory :buy_transaction_processed_with_closeout do

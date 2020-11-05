@@ -1,11 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe ChequeEntry, type: :model do
-  subject {build(:cheque_entry)}
+  subject { build(:cheque_entry, bank_account: bank_account, additional_bank: bank) }
+  let(:bank) { create(:bank) }
+  let(:bank_account) { create(:bank_account, branch: branch) }
+  let(:branch) { create(:branch) }
   
   include_context 'session_setup'
-
-
+  
   #  before do
   #   # user session needs to be set for doing any activity
   #   UserSession.user = create(:user)
@@ -31,7 +33,7 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe "#find_beneficiary_name_similar_to_term" do
-    subject{create(:cheque_entry)}
+    subject{create(:cheque_entry, additional_bank: bank)}
     it "should return beneficiary name when matched" do
       subject
       expect(ChequeEntry.find_beneficiary_name_similar_to_term('su')).to eq([{:text=>"subas", :id=>"subas"}])
@@ -44,8 +46,8 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe "#options_for_bank_account_select" do
-    let(:bank_account1) { create(:bank_account)}
-    let(:bank_account2) { create(:bank_account, branch_id: 2)}
+    let(:bank_account1) { create(:bank_account, branch: branch)}
+    let(:bank_account2) { create(:bank_account, branch: branch)}
 
     before do
       bank_account2.bank.update_column(:name, 'alpha')
@@ -63,10 +65,10 @@ RSpec.describe ChequeEntry, type: :model do
 
     context "when view  branch is selected" do
       it "should return bank" do
-        expect(ChequeEntry.options_for_bank_account_select(2).count).to eq(1)
+        expect(ChequeEntry.options_for_bank_account_select(branch.id).count).to eq(2)
       end
       it "should return bank in order by name" do
-        expect(ChequeEntry.options_for_bank_account_select(2).first).to eq(bank_account2)
+        expect(ChequeEntry.options_for_bank_account_select(branch.id).first).to eq(bank_account2)
       end
     end
   end
@@ -80,13 +82,13 @@ RSpec.describe ChequeEntry, type: :model do
 
     context "when filterrific params is present" do
       it "should return baneficiary name array" do
-       expect(subject.class.options_for_beneficiary_name({:by_name => "nistha"})).to eq([]) 
+       expect(subject.class.options_for_beneficiary_name({:by_name => "nistha"})).to eq([])
       end
     end
 
     context "when filterrific params is present" do
       it "should return baneficiary name array" do
-       expect(subject.class.options_for_beneficiary_name({:by_beneficiary_name => "nistha"})).to eq(['nistha']) 
+       expect(subject.class.options_for_beneficiary_name({:by_beneficiary_name => "nistha"})).to eq(['nistha'])
       end
     end
   end

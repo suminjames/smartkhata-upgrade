@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :bill do
-    sequence (:bill_number)
+    sequence(:bill_number)
     client_name { 'Harold Hill' }
     net_amount { '9000' }
-    balance_to_pay  { net_amount }
+    balance_to_pay { net_amount }
     bill_type { 0 }
     status { :pending }
     special_case { 0 }
@@ -13,8 +13,9 @@ FactoryBot.define do
     settlement_date { Time.now.to_date }
     client_account
     branch
-    creator_id { User.first.id || create(:user).id }
-    updater_id { User.first.id || create(:user).id }
+    current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
     factory :sales_bill do
       bill_type { :sales }
 

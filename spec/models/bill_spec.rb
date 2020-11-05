@@ -2,7 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Bill, type: :model do
   # we need share transactions for methods
-  subject {create(:sales_bill_with_transaction)}
+  subject { build(:sales_bill_with_transaction, client_account: client_account) }
+  let(:client_account) { create(:client_account, current_user_id: user.id, branch: branch) }
+  let(:user) { create(:user) }
+  let(:branch){ create(:branch) }
   
   include_context 'session_setup'
 

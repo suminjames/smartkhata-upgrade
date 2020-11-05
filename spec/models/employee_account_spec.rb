@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeAccount, type: :model do
-  subject{build(:employee_account)}
+  subject{build(:employee_account, branch: branch, current_user_id: user.id)}
+  let(:branch){create(:branch)}
+  let(:user){ create(:user) }
   include_context 'session_setup'
 
   describe "validations" do
@@ -12,9 +14,9 @@ RSpec.describe EmployeeAccount, type: :model do
   end
 
   describe ".create_ledger" do
-    subject{create(:employee_account)}
 
     it "should create a ledger with same name" do
+      subject.save
       expect(Ledger.where(employee_account_id: subject.id).first.name).to eq(subject.name)
     end
   end
@@ -26,7 +28,7 @@ RSpec.describe EmployeeAccount, type: :model do
 
   describe "#find_similar_to_term" do
     context "when search term is present" do
-      subject{create(:employee_account, name: "john")}
+      subject{create(:employee_account, name: "john", branch: branch)}
       it "should return attributes of employee similar to term" do
         expect(subject.class.find_similar_to_term("jo")).to eq([:text => "john (#{subject.id})", :id => "#{subject.id}"])
       end
@@ -46,7 +48,7 @@ RSpec.describe EmployeeAccount, type: :model do
   # end
 
   describe ".name_with_id" do
-    subject{create(:employee_account, name: "john")}
+    subject{create(:employee_account, name: "john", branch: branch)}
     it "should append id with name" do
       expect(subject.name_with_id).to eq("john (#{subject.id})")
     end

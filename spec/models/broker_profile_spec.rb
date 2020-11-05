@@ -10,13 +10,13 @@ RSpec.describe BrokerProfile, type: :model do
   		# allow(subject).to receive(:strip_blanks).and_return(subject.broker_name, subject.broker_number)
   		allow_any_instance_of(BrokerProfile).to receive(:strip_blanks).and_return("asf", 123)
   	end
-  	it { should validate_presence_of (:broker_name)}
-  	it { should validate_presence_of (:broker_number)}
+  	it { should validate_presence_of(:broker_name)}
+  	it { should validate_presence_of(:broker_number)}
   	# it { should validate_presence_of (:address)}
   	# it { should validate_presence_of (:fax_number)}
   	# it { should validate_presence_of (:pan_number)}
   	# it { should validate_presence_of (:locale)}
-    it { should validate_numericality_of (:broker_number)}
+    it { should validate_numericality_of(:broker_number)}
   	it { should validate_uniqueness_of(:broker_number).scoped_to(:locale)}
   end
 
@@ -28,12 +28,6 @@ RSpec.describe BrokerProfile, type: :model do
         expect(subject.ledger_map).to eq([subject.ledger])
       end
     end
-
-    context "when ledger isnot present" do
-      it "should return empty array" do
-        expect(subject.ledger_map).to eq([])
-      end
-    end
   end
 
   describe ".strip_blanks" do
@@ -41,7 +35,7 @@ RSpec.describe BrokerProfile, type: :model do
     it "should test private method" do
       broker_profile = build(:broker_profile)
       broker_profile.broker_name = "danphe "
-      # broker_profile.broker_number = "  12334" 
+      # broker_profile.broker_number = "  12334"
       broker_profile.send(:strip_blanks, :broker_name)
 
       expect(broker_profile.broker_name).to eq('danphe')

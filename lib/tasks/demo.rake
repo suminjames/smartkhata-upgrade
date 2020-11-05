@@ -31,21 +31,16 @@ namespace :demo do
         branch_id = branch.id
       end
 
-      client = ClientAccount.find_or_create_by!(nepse_code: code) do |client|
+      ClientAccount.find_or_create_by!(nepse_code: code) do |client|
         client.name = client_name.titleize
         client.skip_validation_for_system = true
         client.client_type = client_type
         client.branch_id = branch_id
         client.boid = boid
         client.email = email
-        client.current_user_id = User.first.id
       end
-
     end
 
     Apartment::Tenant.switch!('public')
   end
-
-
-
 end

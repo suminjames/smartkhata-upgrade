@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe ClientAccount, type: :model do
-  subject { build(:client_account) }
+  subject { build(:client_account, branch: branch, current_user_id: user.id) }
   let(:client_branch){ create(:branch) }
+  let(:user) { create(:user) }
+  let(:branch){ create(:branch) }
   
   include_context 'session_setup'
   
@@ -57,9 +59,9 @@ RSpec.describe ClientAccount, type: :model do
         allow_any_instance_of(ClientAccount).to receive(:any_bank_field_present?).and_return(true)
       end
       
-      it { should validate_presence_of (:bank_name) }
-      it { should validate_presence_of (:bank_account) }
-      it { should validate_presence_of (:bank_address) }
+      it { should validate_presence_of(:bank_name) }
+      it { should validate_presence_of(:bank_account) }
+      it { should validate_presence_of(:bank_address) }
     end
     
     context "when bank name and address is present" do
