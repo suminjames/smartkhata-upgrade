@@ -20,7 +20,10 @@ FactoryBot.define do
     bank_deposit { 116031.1406 } #that nepse needs in purchase case
     transaction_type { 0 }
     current_user_id { User.first&.id || create(:user).id }
-    branch_id { 1 }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
+    branch
+    voucher
     # sales as of floorsheet
     factory :sales_share_transaction do
       amount_receivable { 0 }

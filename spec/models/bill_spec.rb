@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Bill, type: :model do
   # we need share transactions for methods
-  subject { build(:sales_bill_with_transaction, client_account: client_account) }
+  subject { create(:sales_bill_with_transaction, client_account: client_account) }
   let(:client_account) { create(:client_account, current_user_id: user.id, branch: branch) }
   let(:user) { create(:user) }
   let(:branch){ create(:branch) }
@@ -11,7 +11,6 @@ RSpec.describe Bill, type: :model do
 
   describe "validations" do
     it { expect(subject).to be_valid }
-    it { should belong_to(:client_account) }
     it { should validate_uniqueness_of(:bill_number).scoped_to(:fy_code) }
   end
   # it "client_account_id should not be empty" do
@@ -149,8 +148,7 @@ RSpec.describe Bill, type: :model do
         subject { build(:bill, provisional_base_price: 100) }
 
         it "should be have errors " do
-          create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), bill: create(:bill), client_account_id: subject.client_account_id)
-
+          create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), bill: create(:bill), client_account: subject.client_account)
           expect(subject.make_provisional.errors[:date_bs]).to include 'Sales Bill already Created for this date'
         end
       end
@@ -160,7 +158,7 @@ RSpec.describe Bill, type: :model do
       subject { build(:bill, provisional_base_price: 100) }
 
       before do
-        create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account_id: subject.client_account_id)
+        create(:sales_share_transaction, date: subject.bs_to_ad(subject.date_bs), client_account: subject.client_account)
       end
 
       it "should assign correct date" do
