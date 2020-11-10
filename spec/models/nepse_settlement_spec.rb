@@ -8,10 +8,11 @@ RSpec.describe NepseSettlement, type: :model do
   describe ".bills_for_payment_letter_list" do
     # status for bill is pending( by default)
     let(:bill1) { create(:bill, net_amount: 3000, branch_id: branch.id) }
+    let(:user){ create(:user) }
     context "when require processing is true" do
       context "when net amount is greater than 0" do
         it "should return bill" do
-          subject { create(:nepse_settlement) }
+          subject { create(:nepse_settlement, current_user_id: user.id) }
           subject.bills << bill1
           allow_any_instance_of(Bill).to receive(:requires_processing?).and_return(true)
           

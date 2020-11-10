@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeAccount, type: :model do
-  subject{build(:employee_account, branch: branch, current_user_id: user.id)}
+  subject{build(:employee_account, branch_id: branch.id, current_user_id: user.id)}
   let(:branch){create(:branch)}
   let(:user){ create(:user) }
   include_context 'session_setup'
@@ -9,14 +9,18 @@ RSpec.describe EmployeeAccount, type: :model do
   describe "validations" do
     it { should validate_presence_of(:name)}
     it { should validate_presence_of(:email)}
-    it { should validate_uniqueness_of(:email)}
     it { should allow_value("hello@example.com").for(:email)}
   end
+  
+  ## validate uniqueness
 
   describe ".create_ledger" do
+    let(:ledger) { create(:ledger, name: "ggghf") }
+    before do
+      subject.ledgers << ledger
+    end
 
     it "should create a ledger with same name" do
-      subject.save
       expect(Ledger.where(employee_account_id: subject.id).first.name).to eq(subject.name)
     end
   end

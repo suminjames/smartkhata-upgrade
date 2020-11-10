@@ -12,13 +12,13 @@ RSpec.describe MenuItem, type: :model do
   	subject{create(:menu_item)}
     let(:menu_item){create(:menu_item, path: "nuhg")}
     let(:user_access_role){create(:user_access_role)}
-  	let(:menu_permission){create(:menu_permission, user_access_role: user_access_role)}
+    let(:user){ create(:user) }
+  	let(:menu_permission){create(:menu_permission, user_access_role: user_access_role, current_user_id: user.id, menu_item: menu_item)}
   	it "should return black listed path" do
   		subject
-      		menu_item
+      menu_item
   		subject.menu_permissions << menu_permission
   		expect(MenuItem.black_listed_paths_for_user(user_access_role.id)).to eq(["nuhg"])
   	end
-
   end
 end
