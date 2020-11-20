@@ -73,7 +73,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
       voucher.particulars.each do |particular|
-        reverse_accounts(particular, new_voucher, description, 0.0, nil, @current_user.id)
+        reverse_accounts(particular, new_voucher, description, @current_user.id, 0.0, nil)
       end
 
       if new_voucher.particulars.size != voucher.particulars.size
@@ -105,7 +105,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
     end
 
     # case when single payee && multiple cheque
-    if cr_particulars.count == 1 
+    if cr_particulars.count == 1
       # reverse the cheque amount only
       particular = cr_particulars.first
       particular.amount = cheque_amount
@@ -138,7 +138,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."
       particulars_for_reverse_entry.each do |particular|
-        reverse_accounts(particular, new_voucher, description, 0.0, cheque_entry, @current_user.id)
+        reverse_accounts(particular, new_voucher, description, @current_user.id, 0.0, cheque_entry)
       end
 
       if new_voucher.particulars.size != particulars_for_reverse_entry.size

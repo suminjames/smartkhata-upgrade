@@ -1,3 +1,4 @@
+<% date = ad_to_bs_string(Date.today) %>
 <% provide(:section_title, "Upload Sales CM File") %>
 
 <div>
@@ -5,9 +6,27 @@
       <label for="settlment_date">Settlement Date (BS)</label>
       <div class="row">
         <div class="col-sm-2">
-
           <div class="form-group">
             <%= text_field_tag :settlement_date, nil, placeholder: "YYYY-MM-DD", :autofocus => true, class: 'form-control'  %>
+          </div>
+        </div>
+        </div>
+
+      <label for="value_date">Value Date</label>
+      <div class="form-group">
+        <div class="form-inputs row new-voucher">
+          <div class="col-sm-3">
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">B.S.</span>
+              <%= text_field_tag :value_date_bs, date, class: "string optional form-control nepali-datepicker", placeholder: "YYYY-MM-DD" %>
+            </div>
+          </div>
+
+          <div class="col-sm-3">
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">A.D.</span>
+              <%= text_field_tag :value_date, Date.today, class: "string optional form-control voucher-datepicker ", placeholder: "YYYY-MM-DD" %>
+            </div>
           </div>
         </div>
       </div>

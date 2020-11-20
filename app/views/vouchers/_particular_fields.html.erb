@@ -10,7 +10,7 @@
 <div class="particular-container">
   <div class="row particular" data-particular="<%= sk_id %>">
     <% if inverse == true %>
-        <div class="col-sk-5">
+        <div class="col-sk-4">
           <%= f.collection_select(:ledger_id,
                                   ledger_list_financial,
                                   :id,
@@ -26,7 +26,7 @@
           %>
         </div>
     <% else %>
-        <div class="col-sk-5">
+        <div class="col-sk-4">
           <%= f.collection_select(:ledger_id,
                                   ledger_list_available,
                                   :id,
@@ -113,7 +113,7 @@
           )
       %>
     </div>
-    <div class="col-sk-4">
+    <div class="col-sk-2">
       <% if ((voucher_type == Voucher.voucher_types[:payment] || voucher_type == Voucher.voucher_types[:receipt]) && inverse == false) %>
           <!-- note this class name is referenced from select_for_settlement.js -->
           <%= f.input :ledger_balance_adjustment,
@@ -136,6 +136,9 @@
           </div>
       <% end %>
     </div>
+
+    <div class="col-sk-3"><%= f.input :value_date, label: false %></div>
+
     <div class="col-sk-3 padding-zero remove-particular">
       <div class="col-sk-16">
         <!--<%= select_tag 'branch_id', options_from_collection_for_select(Branch.all, 'id', 'code', session[:user_selected_branch_id]), class: 'form-control' %>-->

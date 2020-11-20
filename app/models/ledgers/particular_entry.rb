@@ -9,7 +9,7 @@ class Ledgers::ParticularEntry
     @current_user = User.find_by(id: current_user_id)
   end
 
-  def insert(ledger, voucher, debit, amount, descr, branch_id, accounting_date,current_user_id)
+  def insert(ledger,  voucher, debit, amount, descr, branch_id, accounting_date, current_user_id, value_date)
     process(ledger: ledger,
             voucher: voucher,
             debit: debit,
@@ -19,7 +19,8 @@ class Ledgers::ParticularEntry
             accounting_date: accounting_date,
             creator_id: current_user_id,
             updater_id: current_user_id,
-            current_user_id: current_user_id
+            current_user_id: current_user_id,
+            value_date: value_date
     )
   end
 
@@ -59,6 +60,7 @@ class Ledgers::ParticularEntry
     creator_id = attrs[:creator_id]
     updater_id = attrs[:updater_id]
     current_user_id = attrs[:current_user_id]
+    value_date = attrs[:value_date]
     # when all branch selected fall back to the user's branch id
     branch_id = current_user.branch_id if branch_id == 0
     fy_code = voucher.fy_code
@@ -96,7 +98,8 @@ class Ledgers::ParticularEntry
         fy_code: get_fy_code(accounting_date),
         creator_id: creator_id,
         updater_id: updater_id,
-        current_user_id: current_user_id
+        current_user_id: current_user_id,
+        value_date: value_date
         )
 
     if particular

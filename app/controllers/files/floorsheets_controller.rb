@@ -28,12 +28,18 @@ class Files::FloorsheetsController < Files::FilesController
     #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
+    @value_date = params[:value_date].to_date
+
     @is_partial_upload = params[:is_partial_upload] == '1'
     if (is_invalid_file(@file, @@file_name_contains))
       file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @is_partial_upload)
+    unless date_valid_for_fy_code(@value_date, selected_fy_code, Date.today)
+      file_error("Value date must be the greater date than the current date and/or should lie within the current fiscal year!") and return
+    end
+
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @value_date, @is_partial_upload)
     floorsheet_upload.process
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message
