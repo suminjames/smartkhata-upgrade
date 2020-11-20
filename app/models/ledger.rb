@@ -27,6 +27,7 @@
 
 class Ledger < ActiveRecord::Base
   include Auditable
+  extend FiscalYearModule
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation, :changed_in_fiscal_year
@@ -74,6 +75,7 @@ class Ledger < ActiveRecord::Base
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
   scope :restricted, -> { where(restricted: true) }
   scope :unrestricted, -> { where(restricted: false) }
+  scope :with_particulars_from_client_ledger, -> (date) { find_all_client_ledgers.joins("inner join particulars on particulars.ledger_id = ledgers.id and particulars.fy_code = #{get_fy_code(date)}")}
 
   scope :cashbook_ledgers, lambda {
     ledger_ids = []

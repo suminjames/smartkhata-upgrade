@@ -30,6 +30,8 @@ GEM
       activemodel (= 4.2.11.3)
       activesupport (= 4.2.11.3)
       arel (~> 6.0)
+    activerecord-import (1.0.6)
+      activerecord (>= 3.2)
     activesupport (4.2.11.3)
       i18n (~> 0.7)
       minitest (~> 5.1)
@@ -191,6 +193,8 @@ GEM
     factory_girl_rails (4.7.0)
       factory_girl (~> 4.7.0)
       railties (>= 3.0.0)
+    faker (2.2.1)
+      i18n (>= 0.8)
     ffi (1.12.2)
     filterrific (2.0.5)
       rails (>= 3.1.0)
@@ -546,6 +550,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord-import
   ancestry
   annotate
   apartment
@@ -578,6 +583,7 @@ DEPENDENCIES
   draper (~> 1.3)
   exception_notification
   factory_girl_rails
+  faker
   filterrific
   guard
   guard-minitest (~> 2.4, >= 2.4.4)

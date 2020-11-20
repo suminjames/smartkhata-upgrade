@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200810052816) do
+ActiveRecord::Schema.define(version: 20200813082456) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -848,6 +848,18 @@ ActiveRecord::Schema.define(version: 20200810052816) do
 
   add_index "groups", ["creator_id"], name: "index_groups_on_creator_id", using: :btree
   add_index "groups", ["updater_id"], name: "index_groups_on_updater_id", using: :btree
+
+  create_table "interest_particulars", force: :cascade do |t|
+    t.float    "amount"
+    t.integer  "rate"
+    t.date     "date"
+    t.integer  "interest_type"
+    t.integer  "ledger_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "interest_particulars", ["ledger_id"], name: "index_interest_particulars_on_ledger_id", using: :btree
 
   create_table "interest_rates", force: :cascade do |t|
     t.date     "start_date"
@@ -1821,6 +1833,7 @@ ActiveRecord::Schema.define(version: 20200810052816) do
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "edis_items", "sales_settlements"
+  add_foreign_key "interest_particulars", "ledgers"
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
