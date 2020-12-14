@@ -3,13 +3,17 @@ class EdisItemForm
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :file, :current_user_id
+  attr_accessor :file, :current_user_id, :skip_invalid_transactions
   validates_presence_of :file, :current_user_id
 
   def initialize(attributes = {})
     attributes.each do |name, value|
       send("#{name}=", value)
     end
+  end
+
+  def skip_invalid_transactions?
+    skip_invalid_transactions == '1'
   end
 
 
@@ -20,11 +24,16 @@ class EdisItemForm
         CSV.read(file.path, headers: true,  header_converters: converter).each do |record|
           sale_settlement = SalesSettlement.where(contract_no: record['contract_number']).first
           if sale_settlement.blank?
+            next if skip_invalid_transactions?
+
             self.errors.add(:file, 'CMO1 has not been uploaded for these records')
             break
           end
-          # skip those without wacc
-          next if record['wacc'].blank? || record['wacc'].to_i == 0
+          # skip those without wacc, manual wacc
+          next if  record['wacc(cns)'].to_i !=0 || record['wacc'].blank? || record['wacc'].to_i == 0
+
+          # skip those with missing status
+          next if skip_invalid_transactions? && ['MISSED', 'Overdue  due to Insufficient balance'].include?(record['status'])
 
           item = EdisItem.where.not(reference_id: nil).where(reference_id: record['id']).first
           # skip already success state
@@ -39,7 +48,7 @@ class EdisItemForm
           item.sales_settlement_id = sale_settlement.id
 
           unless item.save
-            self.errors.add(:file, "Contains invalid records")
+            self.errors.add(:file, "Contains invalid records for #{item.contract_number}, Error: #{item.errors.full_messages.join(",")}")
             break
           end
         end

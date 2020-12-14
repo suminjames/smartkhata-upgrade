@@ -93,7 +93,7 @@ class EdisItemsController < ApplicationController
     end
 
   def edis_item_form_params
-    params.require(:edis_item_form).permit( :file, :current_user_id)
+    params.require(:edis_item_form).permit( :file, :current_user_id, :skip_invalid_transactions)
   end
 
     # Never trust parameters from the scary internet, only allow the white list through.

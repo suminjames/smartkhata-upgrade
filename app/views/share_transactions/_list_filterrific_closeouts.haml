@@ -14,26 +14,17 @@
           %li
             = link_to 'PDF', @download_path_pdf, :target => "_blank"
     %br
-    %div.row.top-buffer-sm
-      %div.col-xs-12
-        %div.btn-group.action.btnMarkCloseout.processed.btn-disabled
-          %span.glyphicon.glyphicon-transfer
-          %span= 'Mark Selected as Processed'
-          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'closeout-mark-processed'
-        |
-        %div.btn-group.action.btnMarkCloseout.pending.btn-disabled
-          %span.glyphicon.glyphicon-transfer
-          %span= 'Mark Selected as Pending'
-          =image_tag "ajax-loader.gif", class: "spinner-circular hidden ", id: 'closeout-mark-pending'
 
   = render 'shared/pagination', collection_to_paginate: share_transactions
 
   %div#share_transaction_list.items-to-act-container
 
     -if share_transactions
-      =react_component('Closeouts', share_transactions: share_transactions.map{|x| x.as_json})
+      #closeout-transactions{ share_transactions: share_transactions.map{|x| x.as_json.to_json }}
     - if !share_transactions || share_transactions.empty?
       %div.row.text-center.top-buffer-md
         There are no matching share transactions.
 
   = render 'shared/pagination', collection_to_paginate: share_transactions
+
+= javascript_pack_tag 'CloseoutApp', 'data-turbolinks-track': 'false'

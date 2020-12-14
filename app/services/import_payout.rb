@@ -7,9 +7,9 @@ class ImportPayout < ImportFile
   include CustomDateModule
   include FiscalYearModule
 
-  attr_reader :nepse_settlement_ids, :selected_fy_code, :value_date
+  attr_reader :nepse_settlement_ids, :selected_fy_code, :value_date, :is_partial_upload
 
-  def initialize(file, selected_fy_code, current_user, value_date, settlement_date = nil)
+  def initialize(file, selected_fy_code, current_user, value_date, settlement_date = nil, is_partial_upload = false)
     super(file)
     @current_user = current_user
     @nepse_settlement_ids = []
@@ -17,6 +17,7 @@ class ImportPayout < ImportFile
     @nepse_settlement_date = nil
     @value_date = value_date
     @selected_fy_code = selected_fy_code
+    @is_partial_upload = is_partial_upload
   end
 
   def process(multiple_settlement_ids_allowed = false)
@@ -65,7 +66,7 @@ class ImportPayout < ImportFile
           settlement_id = hash['SETT_ID'].to_i
           unless settlement_ids.include? settlement_id
             settlement_cm_file = NepseSaleSettlement.find_by(settlement_id: settlement_id)
-            unless settlement_cm_file.nil?
+            unless settlement_cm_file.nil? || is_partial_upload
               import_error("The file you have uploaded contains  settlement id #{settlement_id} which is already processed")
               raise ActiveRecord::Rollback
               break
