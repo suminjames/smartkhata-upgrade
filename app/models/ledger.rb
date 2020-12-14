@@ -75,7 +75,7 @@ class Ledger < ActiveRecord::Base
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
   scope :restricted, -> { where(restricted: true) }
   scope :unrestricted, -> { where(restricted: false) }
-  scope :with_particulars_from_client_ledger, -> (date) { find_all_client_ledgers.joins("inner join particulars on particulars.ledger_id = ledgers.id and particulars.fy_code = #{get_fy_code(date)}")}
+  # scope :with_particulars_from_client_ledger, -> (date) { find_all_client_ledgers.joins("inner join particulars on particulars.ledger_id = ledgers.id and particulars.fy_code = #{get_fy_code(date)}")}
 
   scope :cashbook_ledgers, lambda {
     ledger_ids = []

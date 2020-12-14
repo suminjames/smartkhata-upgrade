@@ -96,6 +96,15 @@ class Particular < ActiveRecord::Base
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
   before_save :process_particular, :assign_default_value_date
+  after_save :recalculate_interest
+
+
+  def recalculate_interest
+    if value_date < Time.current.to_date
+      InterestParticular.calculate_interest(date: value_date, ledger_id: ledger_id)
+    end
+  end
+
 
   def get_description
     if self.description.present?

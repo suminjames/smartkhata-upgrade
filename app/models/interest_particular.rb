@@ -19,14 +19,26 @@ class InterestParticular < ActiveRecord::Base
 
   enum interest_type: %i[dr cr]
 
-  def self.calculate_interest(date = Date.today, payable_interest_rate = nil, receivable_interest_rate = nil)
+  def self.calculate_interest(date: Date.yesterday, ledger_id: nil, payable_interest_rate: nil, receivable_interest_rate: nil)
     interest_particulars = []
 
-    Ledger.with_particulars_from_client_ledger(date).find_each do |ledger|
-      interest_calculable_data = InterestCalculationService.new(ledger, date, payable_interest_rate, receivable_interest_rate).call
-      interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger.id)
+    fy_code = get_fy_code(date)
+
+    if ledger_id.present?
+      ledgers = Ledger.where(id: [ledger_id])
+    else
+      ledgers = Ledger
+        .find_all_client_ledgers.includes(:particulars)
+        .where( id: Particular.where(fy_code: fy_code).select(:ledger_id))
     end
 
-    InterestParticular.import interest_particulars, batch_size: 1000
+    ledgers.find_each do |ledger|
+      interest_calculable_data = InterestCalculationService.new(ledger, date, payable_interest_rate, receivable_interest_rate).call
+      if interest_calculable_data
+        interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger.id)
+      end
+    end
+
+    InterestParticular.import(interest_particulars, batch_size: 1000, on_duplicate_key_update: {conflict_target: [:ledger_id, :date], columns: [:amount, :rate, :interest_type]}) if interest_particulars.present?
   end
 end

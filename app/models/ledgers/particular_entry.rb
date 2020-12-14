@@ -78,6 +78,7 @@ class Ledgers::ParticularEntry
       if ledger.client_account_id.present?
         amount = amount - adjustment
       end
+      value_date = particular.value_date
     end
 
     # this accounts for the case where whole transaction is cancelled
