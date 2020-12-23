@@ -102,6 +102,11 @@ class Particular < ActiveRecord::Base
   def recalculate_interest
     if value_date < Time.current.to_date
       InterestParticular.calculate_interest(date: value_date, ledger_id: ledger_id)
+
+      # in case of date swap we need to calculate interest for both dates
+      if value_date_was.present? && value_date_was < Time.current.to_date
+        InterestParticular.calculate_interest(date: value_date_was, ledger_id: ledger_id)
+      end
     end
   end
 

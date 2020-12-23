@@ -25,17 +25,18 @@ class InterestParticular < ActiveRecord::Base
     fy_code = get_fy_code(date)
 
     if ledger_id.present?
-      ledgers = Ledger.where(id: [ledger_id])
+      ledgers = Ledger.where(id: [ledger_id]).select(:id)
     else
       ledgers = Ledger
-        .find_all_client_ledgers.includes(:particulars)
-        .where( id: Particular.where(fy_code: fy_code).select(:ledger_id))
+        .find_all_client_ledgers
+        .where( id: Particular.where(value_date: date).distinct(:ledger_id).select(:ledger_id)).select(:id)
     end
 
     ledgers.find_each do |ledger|
-      interest_calculable_data = InterestCalculationService.new(ledger, date, payable_interest_rate, receivable_interest_rate).call
+      ledger_id = ledger.id
+      interest_calculable_data = InterestCalculationService.new(ledger_id, date, payable_interest_rate, receivable_interest_rate).call
       if interest_calculable_data
-        interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger.id)
+        interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger_id)
       end
     end
 

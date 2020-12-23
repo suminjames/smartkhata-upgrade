@@ -1,17 +1,17 @@
 class InterestCalculationService
   include ApplicationHelper
 
-  attr_reader :ledger, :date, :payable_interest_rate, :receivable_interest_rate
+  attr_reader :ledger_id, :date, :payable_interest_rate, :receivable_interest_rate
 
-  def initialize(ledger, date, payable_interest_rate, receivable_interest_rate)
-    @ledger = ledger
+  def initialize(ledger_id, date, payable_interest_rate, receivable_interest_rate)
+    @ledger_id = ledger_id
     @date = date
     @payable_interest_rate = payable_interest_rate
     @receivable_interest_rate = receivable_interest_rate
   end
 
   def call
-    particular_net_sum = ParticularNetCalculator.new(ledger, date).call
+    particular_net_sum = ParticularNetCalculator.new(ledger_id, date).call
     return nil if equal_amounts?(particular_net_sum, 0)
 
     interest_attributes = interest_attributes(particular_net_sum.to_f)
