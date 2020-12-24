@@ -1,0 +1,9 @@
+<% if @client_email.blank? %>
+$('#notice').prepend('<div class="alert alert-danger"> ' +
+  '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+  '   <div id="flash_success">' + "No email account found for Client" + ' </div></div>').find('.alert-danger').fadeOut(5000);
+<% else %>
+$('#notice').prepend('<div class="alert alert-success"> ' +
+  '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+  '   <div id="flash_success">' + 'Email Successfully sent!' + ' </div></div>').find('.alert-success').fadeOut(5000);
+<% end %>

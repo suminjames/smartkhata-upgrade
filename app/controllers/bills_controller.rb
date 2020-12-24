@@ -2,7 +2,7 @@ class BillsController < ApplicationController
   before_action :set_bill, only: [:show, :edit, :update, :destroy]
   before_action :set_selected_bills_settlement_params, only: [:process_selected]
 
-  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :ageing_analysis]
+  before_action :authorize_bill, only: [:index, :show_multiple, :sales_payment, :sales_payment_process, :process_selected, :select_for_settlement, :ageing_analysis, :send_email]
   # also :authorize_single_bill(s) when implemented
 
   # layout 'application_custom', only: [:index]
@@ -77,6 +77,17 @@ class BillsController < ApplicationController
     # There is an issue with the persisted param_set. Reset it.
     puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
+  end
+
+  def send_email
+    selected_bills_id = params[:bill_id].present? ? params[:bill_id].split(",") : params[:bill_ids]
+    selected_bills_id.each do |bill_id|
+      bill = Bill.find_by(id: bill_id)
+      SmartkhataMailer.delay(:retry => false).bills_email(bill.id, current_tenant.id)
+    end
+    respond_to do |format|
+      format.js
+    end
   end
 
   # GET select_for_settlment

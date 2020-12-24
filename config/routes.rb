@@ -152,6 +152,7 @@ Rails.application.routes.draw do
         post 'sales_payment_process'
         get 'select_for_settlement'
         get 'ageing_analysis'
+        get 'send_email'
       end
     end
     resources :transaction_messages do
@@ -179,6 +180,7 @@ Rails.application.routes.draw do
 
       member do
         get 'toggle_restriction'
+        get 'send_email'
       end
     end
     # end
