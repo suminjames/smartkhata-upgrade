@@ -2,10 +2,14 @@
 
   - if bills.present?
     %div.row
+
       %div.btnPrintPDF.bottom-buffer-sm.col-sm-6.download-selected_bill.text-left.btn-disabled
         %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
         %span= 'Download Selected Bills'
       %div.bottom-buffer-sm.col-sm-6.text-right
+        .btn-group
+          %button.btn.btn-sm.btn-default.send-email-selected_bills
+            Send Email
         .btn-group
           %button.btn.btn-sm.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
             %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}

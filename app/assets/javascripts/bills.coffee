@@ -61,6 +61,13 @@ $(document).off('click', '.download-selected_bill').on 'click', ".download-selec
   bills_ids_argument = $.param({bill_ids: selectedBillsIds})
   window.open(url_prefix_smart()+"/bills/show_multiple.pdf?" + bills_ids_argument, '_blank')
 
+$(document). on 'click', '.send-email-selected_bills', (event) ->
+  bills_ids_argument = $.param({bill_ids: selectedBillsIds})
+  $.ajax
+    url: url_prefix_smart() + '/bills/send_email'
+    type: 'GET'
+    data: bills_ids_argument
+
 setButtonsActivenesses= ->
   toggleAllButtons()
 

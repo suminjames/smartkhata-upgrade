@@ -152,6 +152,7 @@ Rails.application.routes.draw do
         post 'sales_payment_process'
         get 'select_for_settlement'
         get 'ageing_analysis'
+        get 'send_email'
       end
     end
     resources :transaction_messages do

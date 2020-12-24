@@ -63,6 +63,22 @@ class SmartkhataMailer < ApplicationMailer
     )
   end
 
+  def bills_email(bill_id, current_tenant_id)
+    @current_tenant = Tenant.find_by_id(current_tenant_id)
+    @bill = Bill.find_by_id(bill_id)
+
+    email = @bill.client_account.email
+    subject = "Your bill from #{@current_tenant.full_name}"
+    bill_pdf = Print::PrintBill.new(@bill.decorate, @current_tenant, 'for_email')
+    attachments["Bill_#{@bill.date}_#{@bill.bill_number}.pdf"] = bill_pdf.render
+    mail(
+      from: sender,
+      to: email,
+      subject: subject,
+      template_path: 'smartkhata_mailer'
+    )
+  end
+
   def sender
     "accounts@#{Rails.application.secrets.domain_name}"
   end
