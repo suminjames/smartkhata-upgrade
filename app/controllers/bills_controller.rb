@@ -80,10 +80,9 @@ class BillsController < ApplicationController
   end
 
   def send_email
-    selected_bills_id = params[:bill_ids] || []
+    selected_bills_id = params[:bill_id].present? ? params[:bill_id].split(",") : params[:bill_ids]
     selected_bills_id.each do |bill_id|
       bill = Bill.find_by(id: bill_id)
-
       SmartkhataMailer.delay(:retry => false).bills_email(bill.id, current_tenant.id)
     end
     respond_to do |format|
