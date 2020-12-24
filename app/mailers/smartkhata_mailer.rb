@@ -47,6 +47,22 @@ class SmartkhataMailer < ApplicationMailer
     @transaction_message.email_sent!
   end
 
+  def ledger_email(ledger_id, report, current_tenant_id)
+    @current_tenant = Tenant.find_by_id(current_tenant_id)
+    @ledger = Ledger.find_by_id(ledger_id)
+
+    email = @ledger.client_account.email
+    subject = "Your Ledger Report from #{@current_tenant.full_name}"
+    attachments["#{report.filename}"] = report.file
+
+    mail(
+      from: sender,
+      to: email,
+      subject: subject,
+      template_path: 'smartkhata_mailer'
+    )
+  end
+
   def sender
     "accounts@#{Rails.application.secrets.domain_name}"
   end

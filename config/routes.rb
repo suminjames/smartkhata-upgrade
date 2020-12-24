@@ -179,6 +179,7 @@ Rails.application.routes.draw do
 
       member do
         get 'toggle_restriction'
+        get 'send_email'
       end
     end
     # end
