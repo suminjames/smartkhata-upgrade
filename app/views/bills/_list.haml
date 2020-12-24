@@ -3,9 +3,13 @@
   - if bills.present?
     %div.row
 
-      %div.btnPrintPDF.bottom-buffer-sm.col-sm-6.download-selected_bill.text-left.btn-disabled
-        %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
-        %span= 'Download Selected Bills'
+      %div.btnPrintPDF.bottom-buffer-sm.col-sm-6.selected_bills.text-left
+        .btn-group
+          %button.btn.btn-sm.btn-default.action.download.btn-disabled
+            %span.glyphicon.glyphicon-download-alt{"aria-hidden" => "true"}
+            Download Selected
+          %button.btn.btn-sm.btn-default.action.email.btn-disabled
+            Email Selected
       %div.bottom-buffer-sm.col-sm-6.text-right
         .btn-group
           %button.btn.btn-sm.btn-default.send-email-selected_bills

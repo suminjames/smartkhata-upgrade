@@ -78,9 +78,9 @@ class LedgersController < ApplicationController
 
   def send_email
     ledger = Ledger.find_by(id: params[:id])
-    return if (@client_email_present = ledger.client_account&.email).blank?
+    return if (@client_email = ledger.client_account&.email).blank?
 
-    SmartkhataMailer.delay(:retry => false).ledger_email(params, ledger.id, current_tenant.id, selected_branch_id, selected_fy_code)
+    SmartkhataMailer.delay(:retry => false).ledger_email(params, ledger.id, current_tenant.id, selected_branch_id, selected_fy_code, @client_email)
     respond_to do |format|
       format.js
     end

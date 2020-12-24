@@ -47,11 +47,9 @@ class SmartkhataMailer < ApplicationMailer
     @transaction_message.email_sent!
   end
 
-  def ledger_email(params, ledger_id, current_tenant_id, branch_id, fy_code)
+  def ledger_email(params, ledger_id, current_tenant_id, branch_id, fy_code, email)
     @current_tenant = Tenant.find_by_id(current_tenant_id)
     @ledger = Ledger.find_by_id(ledger_id)
-
-    email = @ledger.client_account.email
     subject = "Your Ledger Report from #{@current_tenant.full_name}"
 
     ledger_query = Ledgers::Query.new(params, @ledger, branch_id, fy_code)
