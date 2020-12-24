@@ -47,12 +47,15 @@ class SmartkhataMailer < ApplicationMailer
     @transaction_message.email_sent!
   end
 
-  def ledger_email(ledger_id, report, current_tenant_id)
+  def ledger_email(params, ledger_id, current_tenant_id, branch_id, fy_code)
     @current_tenant = Tenant.find_by_id(current_tenant_id)
     @ledger = Ledger.find_by_id(ledger_id)
 
     email = @ledger.client_account.email
     subject = "Your Ledger Report from #{@current_tenant.full_name}"
+
+    ledger_query = Ledgers::Query.new(params, @ledger, branch_id, fy_code)
+    report = Reports::Excelsheet::LedgersReport.new(@ledger, params, @current_tenant, ledger_query)
     attachments["#{report.filename}"] = report.file
 
     mail(

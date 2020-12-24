@@ -1,4 +1,4 @@
-<% if @ledger.client_account&.email.blank? %>
+<% if @client_email_present.blank? %>
 $('#notice').prepend('<div class="alert alert-danger"> ' +
   '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
   '   <div id="flash_success">' + "No email account found for Client" + ' </div></div>').find('.alert-danger').fadeOut(5000);
