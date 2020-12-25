@@ -18,6 +18,11 @@ class InterestParticularsController < ApplicationController
     ) or return
     
     @interest_particulars = @filterrific.find.order(id: :asc).page(params[:page]).per(20).decorate
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   
   rescue ActiveRecord::RecordNotFound => e
     puts "Had to reset filterrific params: #{ e.message }"

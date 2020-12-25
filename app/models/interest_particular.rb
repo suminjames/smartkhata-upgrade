@@ -45,7 +45,7 @@ class InterestParticular < ActiveRecord::Base
     end
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :by_client_id, -> (id) { joins(:ledger).where("ledgers.client_account_id = ?", id) }
 
   scope :by_interest_type, -> (type) { where(interest_type: interest_types[:"#{type}"]) }
 
