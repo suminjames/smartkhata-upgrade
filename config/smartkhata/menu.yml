@@ -250,6 +250,9 @@ menus:
     - name: Capital Gain Report
       path: "<%= capital_gain_report_share_transactions_path(':fy_code', ':branch_id')%>"
       code: RS_MIS_CAP
+    - name: Interest Particulars Report
+      path: "<%= interest_particulars_path(':fy_code', ':branch_id')%>"
+      code: RS_MIS_INT
 - name: Administration
   code: ADS
   sub_menus:

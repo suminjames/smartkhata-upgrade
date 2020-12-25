@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :interest_particulars
   resources :interest_rates
 
   # get '/', to: '/hello/hi', via: [:get]
@@ -285,6 +286,3 @@ Rails.application.routes.draw do
     collection { get :reset_temporary_password }
   end
 end
-
-
-
