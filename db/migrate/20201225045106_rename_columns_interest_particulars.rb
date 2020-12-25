@@ -1,9 +1,9 @@
 class RenameColumnsInterestParticulars < ActiveRecord::Migration
   def self.up
-    rename_column :interest_particulars, :amount, :interest_particulars
+    rename_column :interest_particulars, :amount, :principle
   end
   
   def self.down
-    rename_column :interest_particulars, :interest_particulars, :amount
+    rename_column :interest_particulars, :principle, :amount
   end
 end

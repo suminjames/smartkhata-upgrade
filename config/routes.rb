@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  resources :interest_particulars
-  resources :interest_rates
 
   # get '/', to: '/hello/hi', via: [:get]
   # root :to => redirect('visitors#index')
@@ -13,6 +11,8 @@ Rails.application.routes.draw do
   match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
 
   scope "/:selected_fy_code/:selected_branch_id" do
+    resources :interest_particulars
+    resources :interest_rates
     resources :order_request_details do
       collection do
         get :client_report

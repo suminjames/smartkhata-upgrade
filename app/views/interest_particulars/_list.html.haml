@@ -1,0 +1,27 @@
+%div#filterrific_results
+  - if interest_particulars.present?
+    %div#bill_list.table-responsive
+      %table.table.table-striped
+        %thead
+          %tr
+            %th SN
+            %th Principle
+            %th Rate
+            %th Interest type
+            %th Date
+            %th Ledger ID
+
+        %tbody
+          - interest_particulars.each do |interest_particular|
+            %tr
+              %td= interest_particular.id
+              %td= interest_particular.principle
+              %td= interest_particular.rate
+              %td= interest_particular.interest_type
+              %td= interest_particular.date
+              %td= interest_particular.ledger_id
+  - else
+    %div.row.text-center.top-buffer-md
+      There are no records right now!
+
+  = render 'shared/pagination', collection_to_paginate: interest_particulars
