@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201223170128) do
+ActiveRecord::Schema.define(version: 20201225045106) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -850,13 +850,15 @@ ActiveRecord::Schema.define(version: 20201223170128) do
   add_index "groups", ["updater_id"], name: "index_groups_on_updater_id", using: :btree
 
   create_table "interest_particulars", force: :cascade do |t|
-    t.float    "amount"
+    t.float    "interest_particulars"
     t.integer  "rate"
     t.date     "date"
     t.integer  "interest_type"
     t.integer  "ledger_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.integer  "interest"
+    t.string   "date_bs"
   end
 
   add_index "interest_particulars", ["ledger_id", "date"], name: "index_interest_particulars_on_ledger_id_and_date", unique: true, using: :btree
