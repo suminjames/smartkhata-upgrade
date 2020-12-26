@@ -18,7 +18,8 @@ class InterestParticular < ActiveRecord::Base
   include CustomDateModule
 
   belongs_to :ledger
-
+  delegate :client_account, :to => :ledger, :allow_nil => true
+  before_save :process_particular
   enum interest_type: %i[dr cr]
 
   filterrific(
@@ -45,7 +46,9 @@ class InterestParticular < ActiveRecord::Base
     end
   }
 
-  scope :by_client_id, -> (id) { joins(:ledger).where("ledgers.client_account_id = ?", id) }
+  scope :with_client, -> { joins(ledger: :client_account).select("interest_particulars.*, client_accounts.name as client")}
+
+  scope :by_client_id, -> (id) { with_client.where(client_accounts: { id: id }) }
 
   scope :by_interest_type, -> (type) { where(interest_type: interest_types[:"#{type}"]) }
 
@@ -78,17 +81,35 @@ class InterestParticular < ActiveRecord::Base
     else
       ledgers = Ledger
         .find_all_client_ledgers
-        .where( id: Particular.where(value_date: date).distinct(:ledger_id).select(:ledger_id)).select(:id)
+        .where( id: Particular.where(fy_code: fy_code).distinct(:ledger_id).select(:ledger_id)).select(:id)
     end
-
+    payable_interest_rate = InterestRate.get_rate(date, :payable)
+    receivable_interest_rate = InterestRate.get_rate(date, :receivable)
     ledgers.find_each do |ledger|
       ledger_id = ledger.id
-      interest_calculable_data = InterestCalculationService.new(ledger_id, date, payable_interest_rate, receivable_interest_rate).call
+
+      balance = LedgerBalance.by_branch_fy_code(0,fy_code).where(ledger_id: ledger_id).first
+      opening_principal = balance.dr? ? balance.opening_balance : balance.opening_balance * -1
+
+      interest_calculable_data = InterestCalculationService.new(ledger_id, date, opening_principal, payable_interest_rate, receivable_interest_rate).call
       if interest_calculable_data
-        interest_particulars << InterestParticular.new(amount: interest_calculable_data[:amount], rate: interest_calculable_data[:interest_attributes][:value], date: date, interest_type: interest_calculable_data[:interest_attributes][:type], ledger_id: ledger_id)
+        interest_particulars << InterestParticular.new(
+          interest: interest_calculable_data[:interest],
+          amount: interest_calculable_data[:amount],
+          rate: interest_calculable_data[:interest_attributes][:value],
+          date: date,
+          date_bs: ad_to_bs_string(date),
+          interest_type: interest_calculable_data[:interest_attributes][:type],
+          ledger_id: ledger_id
+        )
       end
     end
 
-    InterestParticular.import(interest_particulars, batch_size: 1000, on_duplicate_key_update: {conflict_target: [:ledger_id, :date], columns: [:amount, :rate, :interest_type]}) if interest_particulars.present?
+    InterestParticular.import(interest_particulars, batch_size: 1000, on_duplicate_key_update: {conflict_target: [:ledger_id, :date], columns: [:amount, :rate, :interest_type, :interest]}) if interest_particulars.present?
+  end
+
+
+  def process_particular
+    self.date_bs ||= ad_to_bs_string(self.date)
   end
 end

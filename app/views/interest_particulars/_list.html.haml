@@ -4,22 +4,37 @@
       %table.table.table-striped
         %thead
           %tr
-            %th SN
-            %th Principle
-            %th Rate
-            %th Interest type
             %th Date
-            %th Ledger ID
+            %th Customer
+            %th.text-right Amount
+            %th.text-right Rate
+            %th.text-right Interest(Payable)
+            %th.text-right Interest(Receivable)
+
 
         %tbody
+          - if (@total_cr || @total_dr)
+            %tr.total-row
+              %td.text-right{colspan: 4}= 'Total'
+              %td.text-right= "Payable:<br>#{@total_cr}".html_safe
+              %td.text-right= "receivable:<br>#{@total_dr}".html_safe
           - interest_particulars.each do |interest_particular|
             %tr
-              %td= interest_particular.id
-              %td= interest_particular.principle
-              %td= interest_particular.rate
-              %td= interest_particular.interest_type.titleize
-              %td= interest_particular.date
-              %td= interest_particular.ledger_id
+              %td
+                = interest_particular.date
+                %br
+                = interest_particular.date_bs
+              %td= interest_particular.client
+              %td.text-right= interest_particular.amount
+              %td.text-right= interest_particular.rate
+              %td.text-right= interest_particular.interest.to_f if interest_particular.cr?
+              %td.text-right= interest_particular.interest.to_f if interest_particular.dr?
+
+          - if (@total_cr || @total_dr)
+            %tr.total-row
+              %td.text-right{colspan: 4}= 'Total'
+              %td.text-right= "Payable:<br>#{@total_cr}".html_safe
+              %td.text-right= "receivable:<br>#{@total_dr}".html_safe
   - else
     %div.row.text-center.top-buffer-md
       There are no records right now!
