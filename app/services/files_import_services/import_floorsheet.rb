@@ -1,5 +1,5 @@
 class FilesImportServices::ImportFloorsheet  < ImportFile
-  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code
+  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code, :value_date
 
   include CommissionModule
   include ShareInventoryModule
@@ -9,11 +9,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   @@transaction_type_buying = ShareTransaction.transaction_types['buying']
   @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
 
-  def initialize(file, acting_user , selected_fy_code, is_partial_upload = false)
+  def initialize(file, acting_user , selected_fy_code, value_date, is_partial_upload = false)
     @date = nil
     @acting_user = acting_user
     @is_partial_upload = is_partial_upload
     @selected_fy_code = selected_fy_code
+    @value_date = value_date
     super(file)
   end
 
@@ -336,12 +337,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       voucher.save!
 
       #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user, value_date)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,@acting_user)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,@acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date,@acting_user)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user, value_date)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user, value_date)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user, value_date) if dp > 0
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user, value_date)
     end
 
     arr = Array.new
@@ -389,11 +390,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
         client_ledger = share_transaction.client_account.ledger
-        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
+        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user, value_date)
 
         # Re-process the (dp_fee updated) share transaction
         dp_ledger = find_or_create_ledger_by_name( "DP Fee/ Transfer")
-        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, client_branch_id, @date,@acting_user)
+        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user, value_date)
 
         # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
       end
@@ -588,12 +589,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       voucher.save!
 
       #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date,@acting_user)
+      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user, value_date)
       # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date,@acting_user)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date,@acting_user)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date,@acting_user)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user, value_date)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user, value_date)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user, value_date) if dp > 0
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date, @acting_user, value_date)
 
     end
 

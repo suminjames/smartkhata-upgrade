@@ -7,14 +7,15 @@ class ImportPayout < ImportFile
   include CustomDateModule
   include FiscalYearModule
 
-  attr_reader :nepse_settlement_ids, :selected_fy_code, :is_partial_upload
+  attr_reader :nepse_settlement_ids, :selected_fy_code, :value_date, :is_partial_upload
 
-  def initialize(file, selected_fy_code, current_user, settlement_date = nil, is_partial_upload = false)
+  def initialize(file, selected_fy_code, current_user, value_date, settlement_date = nil, is_partial_upload = false)
     super(file)
     @current_user = current_user
     @nepse_settlement_ids = []
     @nepse_settlement_date_bs = settlement_date
     @nepse_settlement_date = nil
+    @value_date = value_date
     @selected_fy_code = selected_fy_code
     @is_partial_upload = is_partial_upload
   end
@@ -172,7 +173,7 @@ class ImportPayout < ImportFile
           if multiple_settlement_ids_allowed
             @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
           else
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id, settlement_date: @nepse_settlement_date).id
+            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id,  value_date: @value_date, settlement_date: @nepse_settlement_date).id
           end
 
         end

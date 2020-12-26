@@ -1,0 +1,4 @@
+<% if @particular.errors.blank? %>
+  $('#edit-particular-modal').modal('hide');
+  $('#single_particular_<%= @particular.id %>').html("<%= @particular.value_date %>");
+<% end %>

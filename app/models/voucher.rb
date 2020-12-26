@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date_bs
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
@@ -37,6 +37,7 @@ class Voucher < ActiveRecord::Base
   # Callbacks
 
   before_save :process_voucher
+
   # before_validation :validate_fy_code
   after_save :assign_cheque, unless: :skip_cheque_assign
 
@@ -66,6 +67,10 @@ class Voucher < ActiveRecord::Base
   # Validations
   # validate :date_valid_for_fy_code?
   validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
+
+
+  validate :value_date_after_date
+
   ########################################
   # scopes
   scope :by_branch_fy_code, ->(branch_id, fy_code) do
@@ -152,7 +157,10 @@ class Voucher < ActiveRecord::Base
   def process_voucher
     self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
+    self.value_date ||= self.date
+    self.value_date ||= bs_to_ad(self.value_date_bs)
     fy_code = get_fy_code(self.date)
+
     # TODO double check the query for enum
     # rails enum and query not working properly
     unless skip_number_assign
@@ -228,5 +236,9 @@ class Voucher < ActiveRecord::Base
     end
   end
 
-#   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
+  def value_date_after_date
+    if value_date.present? && value_date < date
+      errors.add(:value_date, "can not be of past date")
+    end
+  end
 end

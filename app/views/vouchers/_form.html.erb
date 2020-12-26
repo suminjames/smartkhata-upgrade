@@ -12,18 +12,40 @@
   <% end %>
 
   <%= f.error_notification %>
-  <h4>Date</h4>
-  <div class="form-inputs row new-voucher">
-    <div class="col-sm-3">
-      <div class="input-group">
-        <span class="input-group-addon" id="basic-addon1">B.S.</span>
-        <%= datepicker_input(f, 'date_bs', value: (f.object.date_bs || date))  %>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <h4>Date</h4>
+      <div class="form-inputs row new-voucher date">
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">B.S.</span>
+            <%= datepicker_input(f, 'date_bs', value: (f.object.date_bs || date))  %>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">A.D.</span>
+            <input class="string optional voucher-datepicker form-control" value="<%= f.object.date %>" placeholder="YYYY-MM-DD" type="text">
+          </div>
+        </div>
       </div>
     </div>
-    <div class="col-sm-3">
-      <div class="input-group">
-        <span class="input-group-addon" id="basic-addon1">A.D.</span>
-        <input class="string optional voucher-datepicker form-control" value="<%= f.object.date %>" placeholder="YYYY-MM-DD" type="text">
+    <div class="col-sm-6">
+      <h4>Value Date</h4>
+      <div class="form-inputs row new-voucher value_date">
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">B.S.</span>
+            <%= datepicker_input(f, 'value_date_bs', value: (f.object.value_date_bs || date))  %>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">A.D.</span>
+            <input class="string optional voucher-value-datepicker form-control" value="<%= f.object.value_date %>" placeholder="YYYY-MM-DD" type="text">
+          </div>
+        </div>
       </div>
     </div>
   </div>

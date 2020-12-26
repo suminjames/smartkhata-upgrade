@@ -95,7 +95,21 @@ class Particular < ActiveRecord::Base
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
-  before_save :process_particular
+  before_save :process_particular, :assign_default_value_date
+  after_save :recalculate_interest
+
+
+  def recalculate_interest
+    if value_date < Time.current.to_date
+      InterestParticular.calculate_interest(date: value_date, ledger_id: ledger_id)
+
+      # in case of date swap we need to calculate interest for both dates
+      if value_date_was.present? && value_date_was < Time.current.to_date
+        InterestParticular.calculate_interest(date: value_date_was, ledger_id: ledger_id)
+      end
+    end
+  end
+
 
   def get_description
     if self.description.present?
@@ -112,5 +126,9 @@ class Particular < ActiveRecord::Base
     self.transaction_date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.transaction_date)
     self.fy_code ||= get_fy_code(self.transaction_date)
+  end
+
+  def assign_default_value_date
+    self.value_date ||= self.transaction_date
   end
 end

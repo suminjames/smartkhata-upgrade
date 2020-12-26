@@ -19,6 +19,11 @@ namespace :smartkhata do
     return FiscalYearModule::get_fy_code
   end
 
+  def fiscal_year_start_date(fy_code)
+    include FiscalYearModule
+    return FiscalYearModule::fiscal_year_first_day(fy_code)
+  end
+
 
   desc "validate against tenant"
   task :validate_tenant, [:tenant] => :environment  do |task, args|

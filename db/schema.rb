@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200708062557) do
+ActiveRecord::Schema.define(version: 20201226155114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -849,6 +849,30 @@ ActiveRecord::Schema.define(version: 20200708062557) do
   add_index "groups", ["creator_id"], name: "index_groups_on_creator_id", using: :btree
   add_index "groups", ["updater_id"], name: "index_groups_on_updater_id", using: :btree
 
+  create_table "interest_particulars", force: :cascade do |t|
+    t.decimal  "amount",        precision: 12, scale: 2, default: 0.0
+    t.decimal  "interest",      precision: 12, scale: 2, default: 0.0
+    t.integer  "rate"
+    t.date     "date"
+    t.integer  "interest_type"
+    t.string   "date_bs"
+    t.integer  "ledger_id"
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
+  end
+
+  add_index "interest_particulars", ["ledger_id", "date"], name: "index_interest_particulars_on_ledger_id_and_date", unique: true, using: :btree
+  add_index "interest_particulars", ["ledger_id"], name: "index_interest_particulars_on_ledger_id", using: :btree
+
+  create_table "interest_rates", force: :cascade do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "interest_type"
+    t.integer  "rate"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
   create_table "isin_infos", force: :cascade do |t|
     t.string   "company"
     t.string   "isin"
@@ -1063,6 +1087,7 @@ ActiveRecord::Schema.define(version: 20200708062557) do
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
     t.string   "type"
+    t.date     "value_date"
   end
 
   add_index "nepse_settlements", ["creator_id"], name: "index_nepse_settlements_on_creator_id", using: :btree
@@ -1174,6 +1199,7 @@ ActiveRecord::Schema.define(version: 20200708062557) do
     t.integer  "voucher_id"
     t.integer  "bank_payment_letter_id"
     t.boolean  "hide_for_client",                                           default: false
+    t.date     "value_date"
   end
 
   add_index "particulars", ["branch_id"], name: "index_particulars_on_branch_id", using: :btree
@@ -1787,6 +1813,7 @@ ActiveRecord::Schema.define(version: 20200708062557) do
     t.boolean  "is_payment_bank"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
+    t.date     "value_date"
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree
@@ -1810,6 +1837,7 @@ ActiveRecord::Schema.define(version: 20200708062557) do
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "edis_items", "sales_settlements"
+  add_foreign_key "interest_particulars", "ledgers"
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"
