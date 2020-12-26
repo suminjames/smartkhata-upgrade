@@ -115,6 +115,10 @@ class BillDecorator < ApplicationDecorator
     client.name.titleize
   end
 
+  def formatted_nepse_code
+    client.nepse_code
+  end
+
   def formatted_bill_dates
     bs_date = object.date_bs + ' BS'
     ad_date = object.date.to_s + ' AD'

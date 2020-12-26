@@ -57,18 +57,25 @@ $(document).on 'click', '.bill#select_all', (event) ->
   $(".bill:input:checkbox").prop('checked', $(this).prop("checked"))
   $(".bill:input:checkbox").attr('disabled', false)
 
-$(document).off('click', '.download-selected_bill').on 'click', ".download-selected_bill", (event) ->
+$(document).off('click', '.selected_bills .action.download').on 'click', ".selected_bills .action.download", (event) ->
   bills_ids_argument = $.param({bill_ids: selectedBillsIds})
   window.open(url_prefix_smart()+"/bills/show_multiple.pdf?" + bills_ids_argument, '_blank')
+
+$(document).off('click', '.selected_bills .action.email').on 'click', ".selected_bills .action.email", (event) ->
+  bills_ids_argument = $.param({bill_ids: selectedBillsIds})
+  $.ajax
+    url: url_prefix_smart() + '/bills/send_email'
+    type: 'GET'
+    data: bills_ids_argument
 
 setButtonsActivenesses= ->
   toggleAllButtons()
 
 toggleAllButtons = ->
-    if isAnyBillSelected()
-      $('.download-selected_bill').removeClass 'btn-disabled'
-    else
-      $('.download-selected_bill').addClass 'btn-disabled'
+  if isAnyBillSelected()
+    $('.selected_bills .action').removeClass 'btn-disabled'
+  else
+    $('.selected_bills .action').addClass 'btn-disabled'
 
 isAnyBillSelected = ->
   return selectedBillsIds.length > 0

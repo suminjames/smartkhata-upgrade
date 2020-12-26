@@ -1,5 +1,5 @@
 <%
-  client = @bill.client_account
+  client = @ledger.client_account
   current_tenant = @current_tenant
 %>
 <!DOCTYPE html>
@@ -12,10 +12,10 @@
   Dear <%= client.name %> (<%= client.nepse_code %>),
 </p>
 <p>
-  Please find the file in attachment to see your bill dated <%= @bill.date_bs%>.
+  Please find the file in attachment to see your ledger report.
 </p>
 <p>
- Thank you.
+  Thank you.
 </p>
 <br>
 <p>

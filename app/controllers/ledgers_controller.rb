@@ -1,9 +1,9 @@
 class LedgersController < ApplicationController
-  before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction, :edit_particular, :update_particular]
+  before_action :set_ledger, only: [:show, :edit, :update, :destroy, :toggle_restriction, :edit_particular, :update_particular, :send_email]
   before_action :get_ledger_ids_for_balance_transfer_params, only: [:transfer_group_member_balance]
 
   before_action -> {authorize Ledger}, only: [:index, :new, :create, :combobox_ajax_filter, :daybook, :cashbook, :group_members_ledgers, :transfer_group_member_balance, :show_all, :restricted, :toggle_restriction, :merge_ledger]
-  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy, :edit_particular, :update_particular]
+  before_action -> {authorize @ledger}, only: [:show, :edit, :update, :destroy, :edit_particular, :update_particular, :send_email]
 
   # GET /ledgers
   # GET /ledgers.json
@@ -73,6 +73,16 @@ class LedgersController < ApplicationController
         format.html { render :show }
         format.json { render json: flash.now[:error], status: :unprocessable_entity }
       end
+    end
+  end
+
+  def send_email
+    ledger = Ledger.find_by(id: params[:id])
+    return if (@client_email = ledger.client_account&.email).blank?
+
+    SmartkhataMailer.delay(:retry => false).ledger_email(params, ledger.id, current_tenant.id, selected_branch_id, selected_fy_code, @client_email)
+    respond_to do |format|
+      format.js
     end
   end
 
@@ -234,7 +244,7 @@ class LedgersController < ApplicationController
       format.js
     end
   end
-  
+
   def update_particular
     @particular = Particular.find_by(id: params[:particular_id])
     @particular.update(value_date: params[:particular][:value_date])

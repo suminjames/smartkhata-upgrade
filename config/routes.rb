@@ -155,6 +155,7 @@ Rails.application.routes.draw do
         post 'sales_payment_process'
         get 'select_for_settlement'
         get 'ageing_analysis'
+        get 'send_email'
       end
     end
     resources :transaction_messages do
@@ -184,6 +185,7 @@ Rails.application.routes.draw do
         get 'toggle_restriction'
         get 'particulars/:particular_id/edit', to: 'ledgers#edit_particular', as: :edit_particular
         patch 'particulars/:particular_id/update', to: 'ledgers#update_particular', as: :update_particular
+        get 'send_email'
       end
     end
     # end
