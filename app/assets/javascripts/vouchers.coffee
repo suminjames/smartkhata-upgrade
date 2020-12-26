@@ -56,7 +56,8 @@ date_conversion = (value, convertTo, target) ->
     success: (data, textStatus, jqXHR) ->
       $(target).val(data.date).datepicker("update");
       if (convertTo == 'bs')
-        $('.nepali-date-picker').remove()
+#        $('.nepali-date-picker').remove()
+        $(target).closest('.new-voucher').find('.nepali-date-picker').remove();
         $(target).nepaliDatePicker({ dateFormat: "%y-%m-%d", closeOnDateSelect: true})
 
 ready = ->
@@ -97,7 +98,7 @@ ready = ->
       date = e.target.value
       date_conversion(date, 'bs', '.new-voucher.date .nepali-datepicker');
 
-    $('voucher-value-datepicker').datepicker({ format: 'yyyy-mm-dd'}).on 'changeDate', (e) ->
+    $('.voucher-value-datepicker').datepicker({ format: 'yyyy-mm-dd'}).on 'changeDate', (e) ->
       date = e.target.value
       date_conversion(date, 'bs', '.new-voucher.value_date .nepali-datepicker');
 

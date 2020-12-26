@@ -157,7 +157,10 @@ class Voucher < ActiveRecord::Base
   def process_voucher
     self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
+    self.value_date ||= self.date
+    self.value_date ||= bs_to_ad(self.value_date_bs)
     fy_code = get_fy_code(self.date)
+
     # TODO double check the query for enum
     # rails enum and query not working properly
     unless skip_number_assign

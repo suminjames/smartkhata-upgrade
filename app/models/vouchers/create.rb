@@ -82,7 +82,16 @@ class Vouchers::Create < Vouchers::Base
       return
     end
 
+    # convert the bs date to english date for storage
+    begin
+      value_date_ad =bs_to_ad(@voucher.value_date_bs)
+    rescue
+      @error_message = "Invalid Date!"
+      return
+    end
+
     @voucher.date = date_ad
+    @voucher.value_date = value_date_ad
     @voucher.fy_code = get_fy_code(date_ad)
     @voucher.branch_id = get_branch_id_from_session
     # check if the user entered date is valid for that fiscal year
@@ -91,7 +100,10 @@ class Vouchers::Create < Vouchers::Base
       return
     end
 
-
+    if @voucher.value_date < @voucher.date
+      @error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
+      return
+    end
 
     # make sure the group leader and vendor are selected where required.
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?
@@ -347,15 +359,16 @@ class Vouchers::Create < Vouchers::Base
       voucher.particulars.each do |particular|
         particular.transaction_date = voucher.date
         particular.date_bs = voucher.date_bs
+        particular.value_date = voucher.value_date
         particular.creator_id ||= current_user&.id
         particular.updater_id = current_user&.id
         particular.branch_id ||= branch_id
         particular.current_user_id = current_user&.id
 
-        unless date_valid_for_fy_code(particular.value_date, selected_fy_code, current_date)
-          error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
-          raise ActiveRecord::Rollback
-        end
+        # unless date_valid_for_fy_code(particular.value_date, selected_fy_code, current_date)
+        #   error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
+        #   raise ActiveRecord::Rollback
+        # end
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
 
