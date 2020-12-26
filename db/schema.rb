@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201223170128) do
+ActiveRecord::Schema.define(version: 20201226155114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1813,6 +1813,7 @@ ActiveRecord::Schema.define(version: 20201223170128) do
     t.boolean  "is_payment_bank"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
+    t.date     "value_date"
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree

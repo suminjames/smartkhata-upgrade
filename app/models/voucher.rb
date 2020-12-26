@@ -26,7 +26,7 @@ class Voucher < ActiveRecord::Base
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date_bs
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
@@ -67,6 +67,10 @@ class Voucher < ActiveRecord::Base
   # Validations
   # validate :date_valid_for_fy_code?
   validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
+
+
+  validate :value_date_after_date
+
   ########################################
   # scopes
   scope :by_branch_fy_code, ->(branch_id, fy_code) do
@@ -226,6 +230,12 @@ class Voucher < ActiveRecord::Base
         cheque.save!
       end
 
+    end
+  end
+
+  def value_date_after_date
+    if value_date.present? && value_date < date
+      errors.add(:value_date, "can not be of past date")
     end
   end
 end
