@@ -37,7 +37,6 @@ class Voucher < ActiveRecord::Base
   # Callbacks
 
   before_save :process_voucher
-
   # before_validation :validate_fy_code
   after_save :assign_cheque, unless: :skip_cheque_assign
 
@@ -69,7 +68,7 @@ class Voucher < ActiveRecord::Base
   validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
 
 
-  validate :value_date_after_date
+  # validate :value_date_after_date
 
   ########################################
   # scopes
@@ -236,9 +235,9 @@ class Voucher < ActiveRecord::Base
     end
   end
 
-  def value_date_after_date
-    if value_date.present? && value_date < date
-      errors.add(:value_date, "can not be of past date")
-    end
-  end
+  # def value_date_after_date
+  #   if value_date.present? && value_date < date
+  #     errors.add(:value_date, "can not be of past date")
+  #   end
+  # end
 end

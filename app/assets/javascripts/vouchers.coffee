@@ -80,10 +80,12 @@ ready = ->
 
     $(document).on 'change', '.new-voucher.date .nepali-datepicker', (e) ->
       date = e.target.value
+      $('.new-voucher.value_date .nepali-datepicker').val(date).datepicker("update");
       date_conversion(date, 'ad', '.new-voucher.date .voucher-datepicker');
 
     $(document).on 'dateChange', '.new-voucher.date .nepali-datepicker', (e) ->
       date = e.target.value
+      $('.new-voucher.value_date .nepali-datepicker').val(date).datepicker("update");
       date_conversion(date, 'ad', '.new-voucher.date .voucher-datepicker');
 
     $(document).on 'change', '.new-voucher.value_date .nepali-datepicker', (e) ->
