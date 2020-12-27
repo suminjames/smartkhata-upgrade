@@ -84,6 +84,8 @@ class Particular < ActiveRecord::Base
 
 
   validates_presence_of :ledger_id
+  validate :value_date_latest_than_date
+
   enum transaction_type: [:dr, :cr]
   enum particular_status: [:pending, :complete]
   enum ledger_type: [:general, :has_bank]
@@ -95,9 +97,16 @@ class Particular < ActiveRecord::Base
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
-  before_save :process_particular, :assign_default_value_date
+  before_validation :assign_default_value_date
+  before_save :process_particular
   after_save :recalculate_interest
 
+
+  def value_date_latest_than_date
+    if value_date < transaction_date
+      errors.add(:value_date, "cant be earlier than transaction date")
+    end
+  end
 
   def recalculate_interest
     _value_date = value_date_was.blank? ? value_date : [value_date, value_date_was].min
