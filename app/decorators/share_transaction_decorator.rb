@@ -37,7 +37,13 @@ class ShareTransactionDecorator < ApplicationDecorator
 
   def formatted_commission_rate
     commission_rate = object.commission_rate
-    commission_rate = commission_rate == "flat_25" ? "Flat NRs 25" : commission_rate.to_f.to_s + "%"
+    if commission_rate == "flat_25"
+      "Flat NRs 25"
+    elsif commission_rate == "flat_10"
+      "Flat NRs 10"
+    else
+      commission_rate.to_f.to_s + "%"
+    end
   end
 
   def formatted_status_indicator_class

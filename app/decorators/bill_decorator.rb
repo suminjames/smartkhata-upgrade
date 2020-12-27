@@ -60,13 +60,23 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
       transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
-      transaction_row[:commission_rate] = transaction_row[:commission_rate] == "flat_25" ? "Flat NRs 25" : transaction_row[:commission_rate].to_f.to_s + "%"
+      transaction_row[:commission_rate] = get_commission_rate_format(transaction_row[:commission_rate])
       transaction_row[:commission_amount] = h.arabic_number(transaction_row[:commission_amount])
       transaction_row[:capital_gain] = h.arabic_number(transaction_row[:capital_gain])
 
       formatted_share_transactions << transaction_row
     end
     formatted_share_transactions
+  end
+
+  def get_commission_rate_format(commission_rate)
+    if commission_rate == "flat_25"
+      "Flat NRs 25"
+    elsif commission_rate == "flat_10"
+      "Flat NRs 10"
+    else
+      commission_rate.to_f.to_s + "%"
+    end
   end
 
   # For an array of strings, returns the length upto which all strings in the array are same.
