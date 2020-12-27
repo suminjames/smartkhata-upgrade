@@ -59,12 +59,12 @@ class InterestParticular < ActiveRecord::Base
 
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date >= ?', date_ad.beginning_of_day)
+    where('interest_particulars.date >= ?', date_ad.beginning_of_day)
   }
 
   scope :by_date_to, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where('date <= ?', date_ad.end_of_day)
+    where('interest_particulars.date <= ?', date_ad.end_of_day)
   }
 
   def self.option_for_interest_type_select
