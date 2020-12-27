@@ -93,19 +93,19 @@ class InterestParticular < ActiveRecord::Base
 
       interest_calculable_data = InterestCalculationService.new(ledger_id, date, opening_principal, payable_interest_rate, receivable_interest_rate).call
       if interest_calculable_data
-        interest_particulars << InterestParticular.new(
-          interest: interest_calculable_data[:interest],
-          amount: interest_calculable_data[:amount],
-          rate: interest_calculable_data[:interest_attributes][:value],
-          date: date,
-          date_bs: ad_to_bs_string(date),
-          interest_type: interest_calculable_data[:interest_attributes][:type],
-          ledger_id: ledger_id
-        )
+        InterestParticular
+          .find_or_initialize_by(date: date, ledger_id: ledger_id)
+          .update(
+            {
+              interest: interest_calculable_data[:interest],
+              amount: interest_calculable_data[:amount],
+              rate: interest_calculable_data[:interest_attributes][:value],
+              date_bs: ad_to_bs_string(date),
+              interest_type: interest_calculable_data[:interest_attributes][:type],
+            }
+          )
       end
     end
-
-    InterestParticular.import(interest_particulars, batch_size: 1000, on_duplicate_key_update: {conflict_target: [:ledger_id, :date], columns: [:amount, :rate, :interest_type, :interest]}) if interest_particulars.present?
   end
 
 
