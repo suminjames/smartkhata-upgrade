@@ -27,8 +27,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     end
   end
 
-  def tplus4(date)
-    new_date = date + 4.days
+  def tplus3(date)
+    new_date = date + 3.days
     new_date.wday == 6 ? new_date + 1 : new_date
   end
 
@@ -54,8 +54,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       import_error("Please change the fiscal year.") and return
     end
 
-    unless date_valid_for_fy_code(@value_date, selected_fy_code, tplus4(@date))
-      import_error("Value date must not be earlier than the T+4 of transaction date") and return
+    unless date_valid_for_fy_code(@value_date, selected_fy_code, tplus3(@date))
+      import_error("Value date must not be earlier than the T+3 of transaction date") and return
     end
 
     if !is_partial
