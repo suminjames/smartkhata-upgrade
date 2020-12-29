@@ -1,11 +1,11 @@
 class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
 
+  attr_reader :current_user
+
   def initialize(cheque_entry, bounce_date_bs, bounce_narration, current_tenant_full_name, current_user, selected_branch_id = nil, selected_fy_code = nil)
-    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user)
+    super(cheque_entry, current_tenant_full_name, current_user.id, selected_branch_id, selected_fy_code)
     @cheque_entry.bounce_date_bs = bounce_date_bs
     @cheque_entry.bounce_narration = bounce_narration
-    @selected_branch_id = selected_branch_id
-    @selected_fy_code = selected_fy_code
     @current_user = current_user
   end
 
@@ -133,7 +133,7 @@ class ChequeEntries::BounceActivity < ChequeEntries::RejectionActivity
       processed_bills.each(&:save)
 
       # create a new voucher and add the bill reference to it
-      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date, branch_id: @selected_branch_id, current_user_id: @current_user.id)
+      new_voucher = Voucher.create!(date: @cheque_entry.bounce_date, branch_id: @selected_branch_id, current_user_id: current_user_id)
       new_voucher.bills_on_settlement = processed_bills
 
       description = "Cheque number #{@cheque_entry.cheque_number} bounced at #{ad_to_bs(@cheque_entry.bounce_date)}. #{@cheque_entry.bounce_narration}."

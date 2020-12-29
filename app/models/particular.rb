@@ -46,7 +46,7 @@ class Particular < ActiveRecord::Base
   has_many :credit_settlements, through: :for_cr, source: :settlement
   has_many :settlements, through: :particular_settlement_associations
 
-  attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger, :ledger_balance_adjustment
+  attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger, :ledger_balance_adjustment, :reverse_transaction
 
   # get the particulars with running total
   # records: collection of particular
@@ -103,7 +103,8 @@ class Particular < ActiveRecord::Base
 
 
   def value_date_latest_than_date
-    if value_date < transaction_date
+    # for reverse transaction value date can reflect the bounce date
+    if !reverse_transaction && value_date < transaction_date
       errors.add(:value_date, "cant be earlier than transaction date")
     end
   end

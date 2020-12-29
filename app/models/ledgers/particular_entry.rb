@@ -25,7 +25,7 @@ class Ledgers::ParticularEntry
   end
 
   # reverse a particular entry
-  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry, current_user_id)
+  def revert(particular, voucher, descr, adjustment, reversed_cheque_entry)
     process(particular: particular,
             voucher: voucher,
             descr: descr,
@@ -61,6 +61,9 @@ class Ledgers::ParticularEntry
     updater_id = attrs[:updater_id]
     current_user_id = attrs[:current_user_id]
     value_date = attrs[:value_date]
+    # used for tracking reverted transaction
+    reverse_transaction = false
+
     # when all branch selected fall back to the user's branch id
     branch_id = current_user.branch_id if branch_id == 0
     fy_code = voucher.fy_code
@@ -79,6 +82,7 @@ class Ledgers::ParticularEntry
         amount = amount - adjustment
       end
       value_date = particular.value_date
+      reverse_transaction = true
     end
 
     # this accounts for the case where whole transaction is cancelled
@@ -95,7 +99,8 @@ class Ledgers::ParticularEntry
         fy_code: get_fy_code(accounting_date),
         creator_id: creator_id, updater_id: updater_id,
         current_user_id: current_user_id,
-        value_date: value_date
+        value_date: value_date,
+        reverse_transaction: reverse_transaction
         )
 
     if particular

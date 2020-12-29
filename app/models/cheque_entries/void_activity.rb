@@ -1,11 +1,9 @@
 class ChequeEntries::VoidActivity < ChequeEntries::RejectionActivity
 
   def initialize(cheque_entry, void_date_bs, void_narration, current_tenant_full_name, current_user, selected_branch_id = nil, selected_fy_code = nil)
-    super(cheque_entry, current_tenant_full_name, selected_branch_id, selected_fy_code, current_user)
+    super(cheque_entry, current_tenant_full_name, current_user.id, selected_branch_id, selected_fy_code)
     @cheque_entry.void_date_bs = void_date_bs
     @cheque_entry.void_narration = void_narration
-    @selected_branch_id = selected_branch_id
-    @selected_fy_code = selected_fy_code
     @current_user = current_user
   end
 
