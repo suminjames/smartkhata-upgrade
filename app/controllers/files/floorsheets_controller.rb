@@ -62,5 +62,25 @@ class Files::FloorsheetsController < Files::FilesController
       end
     end
   end
+
+  def edit
+    @file_upload = FileUpload.find(params[:id])
+  end
+
+  def change
+    @file_upload = FileUpload.find(params[:id])
+    begin
+      @value_date = bs_to_ad(params[:value_date_bs])
+      unless parsable_date?(@value_date) && date_valid_for_fy_code(@value_date, selected_fy_code, @file_upload.report_date)
+        file_error("Value date should lie within the current fiscal year!") and return
+      end
+    rescue
+      file_error("Value date should lie within the current fiscal year!") and return
+    end
+
+    unless @file_upload.update({ value_date: @value_date})
+      file_error("Value date change was not successful") and return
+    end
+  end
 end
 

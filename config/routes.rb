@@ -212,8 +212,13 @@ Rails.application.routes.draw do
       resources :orders, only: [:new, :index] do
         collection {post :import}
       end
-      resources :floorsheets, only: [:new, :index] do
-        collection {post :import}
+      resources :floorsheets, only: [:new, :index, :edit] do
+        collection do
+          post :import
+        end
+        member do
+          post :change
+        end
       end
       resources :sales, only: [:new, :index] do
         collection {post :import}

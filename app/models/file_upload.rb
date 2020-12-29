@@ -19,4 +19,13 @@ class FileUpload < ActiveRecord::Base
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
   enum file_type: [:unknown, :floorsheet, :dpa5, :orders]
+
+  after_save :patch_particulars
+
+
+  def patch_particulars
+    if persisted? && value_date_changed?
+      FloorsheetValueDateJob.perform_later(report_date.to_s, value_date.to_s)
+    end
+  end
 end

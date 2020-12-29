@@ -1,0 +1,32 @@
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Report Date</th>
+      <th>Upload Date</th>
+      <th>Value Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @file_list.each do |file| %>
+    <tr>
+      <td>
+        <%= "#{ad_to_bs_string(file.report_date)} BS" %>
+        <br>
+        <%= "#{file.report_date.to_date} AD" %>
+      </td>
+      <td>
+        <%= "#{ad_to_bs_string(file.updated_at)} BS" %>
+        <br>
+        <%= "#{file.updated_at.to_date} AD" %>
+      </td>
+      <td>
+        <%= "#{file.value_date ? ad_to_bs_string(file.value_date) : ''}" %>
+        <br>
+        <%= link_to 'change', edit_files_floorsheet_path(file) %></td>
+      <td><%= link_to 'view', share_transactions_path(:paginate => false, 'filterrific[by_date]': ad_to_bs_string(file.report_date)) %></td>
+    </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

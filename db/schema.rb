@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201226155114) do
+ActiveRecord::Schema.define(version: 20201229114304) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -816,6 +816,7 @@ ActiveRecord::Schema.define(version: 20201226155114) do
     t.integer  "branch_id"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+    t.date     "value_date"
   end
 
   add_index "file_uploads", ["branch_id"], name: "index_file_uploads_on_branch_id", using: :btree
@@ -861,6 +862,7 @@ ActiveRecord::Schema.define(version: 20201226155114) do
     t.datetime "updated_at",                                           null: false
   end
 
+  add_index "interest_particulars", ["date"], name: "index_interest_particulars_on_date", using: :btree
   add_index "interest_particulars", ["ledger_id", "date"], name: "index_interest_particulars_on_ledger_id_and_date", unique: true, using: :btree
   add_index "interest_particulars", ["ledger_id"], name: "index_interest_particulars_on_ledger_id", using: :btree
 

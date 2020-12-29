@@ -145,7 +145,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @raw_data.each do |data_hash|
         process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
-      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id)
+      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id, value_date: value_date)
     end
   end
 
