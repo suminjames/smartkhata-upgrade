@@ -8,18 +8,6 @@
         <%= file_field_tag :file %>
       </div>
 
-      <label for="value_date">Value Date</label>
-      <div class="form-group">
-        <div class="form-inputs row new-voucher">
-          <div class="col-sm-3">
-            <div class="input-group">
-              <span class="input-group-addon" id="basic-addon1">B.S.</span>
-              <%= text_field_tag :value_date_bs, date, class: "string optional form-control nepali-datepicker", placeholder: "YYYY-MM-DD" %>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="form-group">
         <%= check_box_tag  'is_partial_upload' %>
         <a class='no-hover warning-text' data-toggle='tooltip' title='Only select this if the floorsheet being uploaded is partial for its date.'>Partial Upload</a>

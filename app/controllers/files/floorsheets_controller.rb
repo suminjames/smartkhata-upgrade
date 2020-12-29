@@ -28,14 +28,14 @@ class Files::FloorsheetsController < Files::FilesController
     #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
-    begin
-      @value_date = bs_to_ad(params[:value_date_bs])
-      unless parsable_date?(@value_date) && date_valid_for_fy_code(@value_date, selected_fy_code)
-        file_error("Value date should lie within the current fiscal year!") and return
-      end
-    rescue
-      file_error("Value date should lie within the current fiscal year!") and return
-    end
+    # begin
+    #   @value_date = bs_to_ad(params[:value_date_bs])
+    #   unless parsable_date?(@value_date) && date_valid_for_fy_code(@value_date, selected_fy_code)
+    #     file_error("Value date should lie within the current fiscal year!") and return
+    #   end
+    # rescue
+    #   file_error("Value date should lie within the current fiscal year!") and return
+    # end
 
 
     @is_partial_upload = params[:is_partial_upload] == '1'
@@ -43,7 +43,7 @@ class Files::FloorsheetsController < Files::FilesController
       file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
     end
 
-    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @value_date, @is_partial_upload)
+    floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @is_partial_upload)
     floorsheet_upload.process
     @date = floorsheet_upload.date
     if floorsheet_upload.error_message

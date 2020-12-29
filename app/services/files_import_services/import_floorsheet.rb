@@ -9,12 +9,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   @@transaction_type_buying = ShareTransaction.transaction_types['buying']
   @@transaction_type_selling =  ShareTransaction.transaction_types['selling']
 
-  def initialize(file, acting_user , selected_fy_code, value_date, is_partial_upload = false)
+  def initialize(file, acting_user , selected_fy_code, is_partial_upload = false)
     @date = nil
     @acting_user = acting_user
     @is_partial_upload = is_partial_upload
     @selected_fy_code = selected_fy_code
-    @value_date = value_date
+    # @value_date = value_date
     super(file)
   end
 
@@ -30,6 +30,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def tplus3(date)
     new_date = date + 3.days
     new_date.wday == 6 ? new_date + 1 : new_date
+  end
+
+  def set_value_date(date)
+    @value_date = tplus3(date)
   end
 
   def process_full_partial(is_partial)
@@ -54,9 +58,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       import_error("Please change the fiscal year.") and return
     end
 
-    unless date_valid_for_fy_code(@value_date, selected_fy_code, tplus3(@date))
-      import_error("Value date must not be earlier than the T+3 of transaction date") and return
-    end
+    set_value_date(@date)
+    # unless date_valid_for_fy_code(@value_date, selected_fy_code, tplus3(@date))
+    #   import_error("Value date must not be earlier than the T+3 of transaction date") and return
+    # end
+    #
 
     if !is_partial
       # do not reprocess file if it is already uploaded
