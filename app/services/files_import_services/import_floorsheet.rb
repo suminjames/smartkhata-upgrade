@@ -266,8 +266,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     cgt = 0
     amount = share_net_amount
 
-    # commission_rate = get_commission_rate(amount, commission_info)
-    commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
+    commission_rate = get_commission_rate(amount, commission_info, _commission)
+    # commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
     commission = get_commission_by_rate( commission_rate, amount).round(2)
     nepse = _commission
     broker_purchase_commission = commission - nepse

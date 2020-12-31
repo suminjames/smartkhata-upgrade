@@ -24,4 +24,4 @@
 
       .form-actions
         = link_to 'Cancel', cheque_entry_path(id: @cheque_entry.id), class: 'btn btn-danger btn-flat'
-        = f.button :submit, 'Bounce Cheque'
+        = f.button :submit, 'Bounce Cheque', data: { disable_with: "Submitting..." }

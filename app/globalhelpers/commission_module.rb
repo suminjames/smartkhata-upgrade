@@ -2,12 +2,12 @@ module CommissionModule
 
   def get_commission_rate_from_floorsheet(amount, nepse_commission, commission_info)
     total_commission = get_commission_from_floorsheet(nepse_commission, commission_info)
-    return "flat_25" if total_commission == 25
     return "flat_10" if total_commission == 10
     rate = (total_commission*100/amount).round(2)
     if total_commission > 10 && rate <= 0.4
       return (total_commission*100/amount).round(2)
     end
+    return "flat_25" if total_commission == 25
     raise SmartKhataError
   end
 
@@ -16,7 +16,7 @@ module CommissionModule
   end
 
 
-  def get_commission_rate(amount, commission_info)
+  def get_commission_rate(amount, commission_info, nepse_commission =  nil)
     details = commission_info.commission_details_array.select{ |x| amount > x.start_amount && amount <= x.limit_amount }
     if details.size != 1
       raise NotImplementedError
@@ -24,11 +24,18 @@ module CommissionModule
 
     commission_detail = details.first
     if commission_detail.commission_rate.present?
-      return commission_detail.commission_rate
+      rate =  commission_detail.commission_rate
+    else
+      rate = "flat_#{commission_detail.commission_amount.to_i}"
     end
 
-    return "flat_#{commission_detail.commission_amount}"
+    return rate if nepse_commission.blank?
+    rate_from_file = get_commission_rate_from_floorsheet(amount, nepse_commission, commission_info)
+    unless ["flat_25", "flat_10"].include?(rate_from_file)
+      rate = rate_from_file if rate_from_file < rate
+    end
 
+    return rate
 
     # MasterSetup::CommissionRate.commission_rate_for(amount, transaction_date)
     # if transaction_date >= date_of_commission_rate_update

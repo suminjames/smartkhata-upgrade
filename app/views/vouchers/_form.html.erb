@@ -226,6 +226,6 @@
     <%= f.input :desc, label: false %>
   </div>
   <div class="form-actions">
-    <%= f.submit "Submit", class: 'btn btn-primary btn-flat' %>
+    <%= f.submit "Submit", class: 'btn btn-primary btn-flat', data: { disable_with: "Submitting..." } %>
   </div>
 <% end %>
