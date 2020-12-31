@@ -109,13 +109,13 @@ module CommissionModule
   # Note:
   #   - The use of `*_desc` in variable name might be confusing for ascending sorting as per amount range.
   #   - However, it is to be noted that as amount range increases, commission rate decreases.
-  # An example of array returned: ["flat_25.0", 0.6, 0.55, 0.5, 0.45, 0.4]
+  # An example of array returned: ["flat_25", 0.6, 0.55, 0.5, 0.45, 0.4]
   #
   def get_commission_rate_array_for_date(date)
     commission_details_array = get_commission_info_with_detail(date).commission_details_array
     commission_rates_desc = commission_details_array .select{|r| r.commission_rate.present?}.map{|r| r.commission_rate}.sort.reverse
 
-    flat_rates_desc = commission_details_array.select{|r| r.commission_rate.blank?}.map{|r| r.commission_amount}.sort.reverse.map{|r| "flat_#{r}"}
+    flat_rates_desc = commission_details_array.select{|r| r.commission_rate.blank?}.map{|r| r.commission_amount}.sort.reverse.map{|r| "flat_#{r.to_i}"}
 
     unless flat_rates_desc.blank?
       # Append flat_rates infront of commission_rates
