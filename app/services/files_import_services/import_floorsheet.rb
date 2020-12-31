@@ -269,10 +269,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     commission_rate = get_commission_rate(amount, commission_info, _commission)
     # commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
     commission = get_commission_by_rate( commission_rate, amount).round(2)
-    nepse = _commission
+    nepse = nepse_commission_amount(commission, commission_info)
     broker_purchase_commission = commission - nepse
 
     tds = broker_purchase_commission * 0.15
+
     # # since compliance fee is debit from broker purchase commission
     # # reduce amount of the purchase commission in the system.
     # purchase_commission = broker_purchase_commission - compliance_fee
