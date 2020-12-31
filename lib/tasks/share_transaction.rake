@@ -144,4 +144,70 @@ namespace :share_transaction do
     end
   end
 
+
+  task :fix_commission_change_fix,[:tenant, :date] => 'smartkhata:validate_tenant' do |task, args|
+    tenant = args.tenant
+    date = args.date
+
+    purchase_commission_ledger = Ledger.find_by(name: "Purchase Commission")
+    sales_commission_ledger = Ledger.find_by(name: "Sales Commission")
+    nepse_ledger = Ledger.find_by(name: "Nepse Purchase")
+    nepse_sales = Ledger.find_by(name: "Nepse Sales")
+    tds_ledger = Ledger.find_by(name: "TDS")
+    dp_ledger = Ledger.find_by(name: "DP Fee/ Transfer")
+    compliance_ledger = Ledger.find_by(name:  "Compliance Fee")
+
+    default_ledgers = [purchase_commission_ledger.id, nepse_ledger.id, tds_ledger.id, dp_ledger.id, sales_commission_ledger.id, nepse_sales.id]
+    share_transactions = ShareTransaction.where('date >= ?', date).where(commission_rate: 'flat_25')
+
+    puts share_transactions.to_sql
+    puts "total: #{share_transactions.count}"
+
+    particulars =  Particular.where(voucher_id: share_transactions.select(:voucher_id)).where.not(ledger_id: default_ledgers)
+
+    particulars.cr.update_all("amount = amount + 10.2")
+    particulars.dr.update_all("amount = amount - 15")
+
+    value_dates =  particulars.pluck(:value_date).uniq
+    transaction_dates =  particulars.pluck(:transaction_date).uniq
+    ledgers = particulars.pluck(:ledger_id)
+
+    Particular.where(voucher_id: share_transactions.select(:voucher_id), ledger_id: tds_ledger.id).update_all(amount: 1.2)
+    Particular.where(voucher_id: share_transactions.select(:voucher_id), ledger_id: [nepse_ledger.id]).update_all('amount = amount - 4.8 ')
+    Particular.where(voucher_id: share_transactions.select(:voucher_id), ledger_id: [purchase_commission_ledger.id, sales_commission_ledger.id]).update_all(amount: 8)
+
+    share_transactions.find_each do |st|
+      bill = st.bill
+      if bill.present?
+        amount = bill.sales? ? -10.2 : 15
+        bill.update(net_amount: bill.net_amount - amount, balance_to_pay: bill.balance_to_pay - amount )
+      end
+    end
+
+    share_transactions.buying.update_all("commission_rate = 'flat_10', net_amount = net_amount + 15, commission_amount = 10, nepse_commission = 2")
+    share_transactions.selling.where(bill_id: nil).update_all("commission_rate = 'flat_10', commission_amount = 10, nepse_commission = 2")
+    share_transactions.selling.where.not(bill_id: nil).update_all("commission_rate = 'flat_10', net_amount = net_amount + 10.2, commission_amount = 10, nepse_commission = 2")
+
+    ledger_ids = ledgers + default_ledgers
+
+    Branch.pluck(:id).each do |branch_id|
+      unless ledger_ids.blank?
+        fy_code = current_fy_code
+        ActiveRecord::Base.transaction do
+          Ledger.where(id: ledger_ids).find_each do |ledger|
+            Accounts::Ledgers::PopulateLedgerDailiesService.new.patch_ledger_dailies(ledger, false, current_user_id, branch_id, fy_code, transaction_dates )
+            Accounts::Ledgers::ClosingBalanceService.new.patch_closing_balance(ledger, all_fiscal_years: false, branch_id: branch_id, fy_code: fy_code, current_user_id: current_user_id)
+          end
+        end
+      end
+    end
+
+    value_dates.each do |value_date|
+      if (value_date < Time.current.to_date )
+        ledgers.each do |ledger_id|
+          InterestJob.perform_later(ledger_id, value_date.to_s)
+        end
+      end
+    end
+  end
 end
