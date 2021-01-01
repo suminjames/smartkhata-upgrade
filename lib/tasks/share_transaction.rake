@@ -210,4 +210,10 @@ namespace :share_transaction do
       end
     end
   end
+
+
+  task :fix_commission, [:tenant] => 'smartkhata:validate_tenant' do |task, args|
+    tenant = args.tenant
+    Fixes::ShareTransaction.call
+  end
 end

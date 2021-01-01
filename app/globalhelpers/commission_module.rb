@@ -30,10 +30,10 @@ module CommissionModule
     end
 
     return rate if nepse_commission.blank?
-    rate_from_file = get_commission_rate_from_floorsheet(amount, nepse_commission, commission_info)
-    unless ["flat_25", "flat_10"].include?(rate_from_file)
-      rate = rate_from_file if rate_from_file < rate
-    end
+    # rate_from_file = get_commission_rate_from_floorsheet(amount, nepse_commission, commission_info)
+    # unless ["flat_25", "flat_10"].include?(rate_from_file)
+    #   rate = rate_from_file if rate_from_file < rate
+    # end
 
     return rate
 
