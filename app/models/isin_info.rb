@@ -37,6 +37,13 @@ class IsinInfo < ActiveRecord::Base
       ]
   )
 
+
+  def commission_group
+    return :debenture if sector == 'Corporate Debenture'
+    return :mutual_funds if sector == 'Mutual Fund'
+    :regular
+  end
+
   # Used by combobox in view
   # In rare circumstances, the data crawled from nepse's site has (apparently errorenous) numeric(eg: 001) value as isin code for a company. This method makes it easier to identify a company in these cases.
   def name_and_code(opts={})

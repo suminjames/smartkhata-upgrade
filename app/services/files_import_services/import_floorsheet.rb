@@ -20,11 +20,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
   def process
-    if @is_partial_upload
-      process_full_partial(@is_partial_upload)
-    else
-      process_full_partial(@is_partial_upload)
-    end
+    process_full_partial(@is_partial_upload)
   end
 
   def tplus3(date)
@@ -138,7 +134,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       import_error(new_client_accounts_error_message(new_client_accounts)) and return
     end
 
-    commission_info = get_commission_info_with_detail(@date)
+    commission_info = {
+      regular: get_commission_info_with_detail(@date, :regular),
+      debenture:   get_commission_info_with_detail(@date, :debenture),
+      mutual_funds: get_commission_info_with_detail(@date, :mutual_funds)
+    }
+
 
     # critical functionality happens here
     ActiveRecord::Base.transaction do
@@ -206,9 +207,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
 
+  # def commission_info_by_group(company, commission_info)
+  #   commission_info[company.commission_group]
+  # end
 
   # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-  def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+  def process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info_group)
     _serial,
       contract_no,
       company_symbol,
@@ -266,6 +270,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     cgt = 0
     amount = share_net_amount
 
+    # get company information to store in the share transaction
+    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
+    commission_info = commission_info_group(company_info.commission_group)
     commission_rate = get_commission_rate(amount, commission_info, _commission)
     # commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
     commission = get_commission_by_rate( commission_rate, amount).round(2)
@@ -284,8 +291,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
     @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
 
-    # get company information to store in the share transaction
-    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
     # TODO: Include base price
 
     transaction = ShareTransaction.create(
@@ -520,7 +525,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # commission_rate = get_commission_rate(amount, commission_info)
     commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
-      commission = get_commission_by_rate( commission_rate, amount).round(2)
+    commission = get_commission_by_rate( commission_rate, amount).round(2)
+
     nepse = _commission
     broker_purchase_commission = commission - nepse
       tds = broker_purchase_commission * 0.15

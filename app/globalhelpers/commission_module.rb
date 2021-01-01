@@ -74,8 +74,8 @@ module CommissionModule
   # end
 
   # get the rates defined for the selected date in the database
-  def get_commission_info(transaction_date)
-    commission_infos = MasterSetup::CommissionInfo.where(" ? >= start_date AND ? <= end_date", transaction_date, transaction_date)
+  def get_commission_info(transaction_date, group = :regular)
+    commission_infos = MasterSetup::CommissionInfo.where(" ? >= start_date AND ? <= end_date", transaction_date, transaction_date).where(group: MasterSetup::CommissionInfo.groups[group])
     if commission_infos.size != 1
       raise ArgumentError
     end
@@ -85,8 +85,8 @@ module CommissionModule
     commission_info
   end
 
-  def get_commission_info_with_detail(transaction_date)
-    commission_info = get_commission_info(transaction_date)
+  def get_commission_info_with_detail(transaction_date, group = :regular)
+    commission_info = get_commission_info(transaction_date, group)
     commission_info.commission_details_array = commission_info.commission_details.order(:start_amount => :asc).to_a
     commission_info
   end
@@ -111,8 +111,8 @@ module CommissionModule
   #   - However, it is to be noted that as amount range increases, commission rate decreases.
   # An example of array returned: ["flat_25", 0.6, 0.55, 0.5, 0.45, 0.4]
   #
-  def get_commission_rate_array_for_date(date)
-    commission_details_array = get_commission_info_with_detail(date).commission_details_array
+  def get_commission_rate_array_for_date(date, group)
+    commission_details_array = get_commission_info_with_detail(date, group).commission_details_array
     commission_rates_desc = commission_details_array .select{|r| r.commission_rate.present?}.map{|r| r.commission_rate}.sort.reverse
 
     flat_rates_desc = commission_details_array.select{|r| r.commission_rate.blank?}.map{|r| r.commission_amount}.sort.reverse.map{|r| "flat_#{r.to_i}"}

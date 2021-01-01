@@ -7,6 +7,7 @@
         %th End Date(AD)
         %th Start Date(BS)
         %th End Date(BS)
+        %th Group
         %th
         %th
         %th
@@ -18,6 +19,7 @@
           %td= master_setup_commission_info.end_date
           %td= ad_to_bs(master_setup_commission_info.start_date)
           %td= ad_to_bs(master_setup_commission_info.end_date)
+          %td= master_setup_commission_info.group
           %td= link_to 'Show', master_setup_commission_info
           - if master_setup_commission_info.is_latest?
             %td= link_to 'Edit', edit_master_setup_commission_info_path(master_setup_commission_info)

@@ -540,8 +540,10 @@ class ShareTransaction < ActiveRecord::Base
     elsif purchase_price/quantity == 100
        calculated_base_price = 100
     else
-      commission_rates_desc = get_commission_rate_array_for_date(date)
-      possible_commission_rate = get_commission_rate(purchase_price, get_commission_info_with_detail(date))
+      commission_group = isin_info.commission_group
+      commission_rates_desc = get_commission_rate_array_for_date(date, commission_group)
+      commission_info = get_commission_info_with_detail(date, commission_group)
+      possible_commission_rate = get_commission_rate(purchase_price, commission_info)
       index_of_possible_commission_rate = commission_rates_desc.index(possible_commission_rate)
       # Remove unwanted commission rate values other than the possible one.
       # The actual commission rate is bigger than or equal to possible commission rate.
@@ -557,7 +559,7 @@ class ShareTransaction < ActiveRecord::Base
         end
         # possible_share_amount = possible_base_price * quantity
         possible_share_amount = possible_base_price
-        commission_rate_for_possible_share_amount = get_commission_rate(possible_share_amount, get_commission_info_with_detail(date))
+        commission_rate_for_possible_share_amount = get_commission_rate(possible_share_amount, commission_info)
         if commission_rate == commission_rate_for_possible_share_amount
           calculated_base_price = possible_base_price
           # The calculate_base_price (above) to this point is actually for the whole transaction, and not a unit of share,

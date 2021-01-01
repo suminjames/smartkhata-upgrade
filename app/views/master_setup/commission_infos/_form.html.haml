@@ -14,6 +14,10 @@
       %div.col-sm-3
         = f.input :nepse_commission_rate, label: "Nepse Commission Rate"
 
+    %div.row
+      %div.col-sm-3
+        = f.input :group, as: :select, collection: MasterSetup::CommissionInfo.groups.map {|k, v| [k.humanize.capitalize, k]}, prompt: 'Select Group'
+
   %br
   .form-inputs
     .box.box-primary.z-light-bg

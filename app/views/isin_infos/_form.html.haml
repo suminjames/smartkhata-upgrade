@@ -4,7 +4,7 @@
   .form-inputs
     = f.input :company
     = f.input :isin
-    = f.input :sector
+    = f.input :sector, as: :select, collection: IsinInfo.pluck(:sector).uniq.compact
 
   .form-actions
     = f.button :submit
