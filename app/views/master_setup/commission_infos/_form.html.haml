@@ -11,8 +11,10 @@
         = f.input :end_date
 
     %div.row
-      %div.col-sm-3
-        = f.input :nepse_commission_rate, label: "Nepse Commission Rate"
+      %div.col-sm-5
+        = f.input :nepse_commission_rate, label: "Nepse Commission Rate (on commission)"
+      %div.col-sm-5
+        = f.input :sebo_rate, label: "Sebo Rate (on share amount)"
 
     %div.row
       %div.col-sm-3

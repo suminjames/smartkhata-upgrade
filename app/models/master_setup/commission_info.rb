@@ -26,6 +26,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   ########################################
   # Validations
   validates :nepse_commission_rate, presence: true, :inclusion => {in: 0..100, message:"is out of range."}
+  validates :sebo_rate, presence: true, :inclusion => {in: 0..100, message:"is out of range."}
   validate :validate_date_range
   validate :validate_details
 
@@ -44,7 +45,7 @@ class MasterSetup::CommissionInfo < ActiveRecord::Base
   enum group: { regular: 0, debenture: 1, mutual_funds: 2 }
 
   def is_latest?
-    self == self.class.all.order(:start_date => :desc).first
+    self == self.class.where(group: self.class.groups[group]).order(:start_date => :desc).first
   end
 
   private

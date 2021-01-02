@@ -76,6 +76,7 @@ module CommissionModule
   # get the rates defined for the selected date in the database
   def get_commission_info(transaction_date, group = :regular)
     commission_infos = MasterSetup::CommissionInfo.where(" ? >= start_date AND ? <= end_date", transaction_date, transaction_date).where(group: MasterSetup::CommissionInfo.groups[group])
+
     if commission_infos.size != 1
       raise ArgumentError
     end
@@ -145,6 +146,11 @@ module CommissionModule
     commission * commission_info.nepse_commission_rate  * 0.01
   end
 
+
+  def sebo_amount(amount, commission_info)
+    amount * commission_info.sebo_rate * 0.01
+  end
+
   # #
   # # get commpliance fee rate
   # #
@@ -184,5 +190,4 @@ module CommissionModule
     # As per http://merolagani.com/NewsDetail.aspx?newsID=27819, the updated commission prices as of July 25, 2016 is implemented.
     Date.parse('2016-7-24')
   end
-
 end

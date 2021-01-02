@@ -9,6 +9,10 @@
 %p
   %b Nepse Commission percentage:
   = @master_setup_commission_info.nepse_commission_rate
+%p
+  %b Sebo percentage:
+  = @master_setup_commission_info.sebo_rate
+
 %br
 - if @master_setup_commission_info.commission_details.size > 0
   %table.table.table-striped

@@ -3,8 +3,8 @@ module Fixes
     include ::CommissionModule
     include ::ApplicationHelper
 
-    def self.call
-      new.call
+    def self.call(ids)
+      new.call(ids)
     end
 
     attr_reader :purchase_commission_ledger, :sales_commission_ledger, :nepse_ledger, :nepse_sales, :tds_ledger, :dp_ledger, :compliance_ledger, :acting_user, :ledger_ids, :value_dates, :transaction_dates
@@ -27,27 +27,38 @@ module Fixes
       @default_ledgers ||=  [purchase_commission_ledger.id, nepse_ledger.id, tds_ledger.id, dp_ledger.id, sales_commission_ledger.id, nepse_sales.id]
     end
 
-    def commission_info
-      @commission_info ||=  get_commission_info_with_detail(Time.current)
+    def commission_info_group(date)
+      @commission_info ||=  begin
+                              {
+                                regular: get_commission_info_with_detail(date, :regular),
+                                debenture:   get_commission_info_with_detail(date, :debenture),
+                                mutual_funds: get_commission_info_with_detail(date, :mutual_funds)
+                              }
+                            end
     end
 
-    def call
+    def call(ids)
       ActiveRecord::Base.transaction do
-      ::ShareTransaction.where('date > ?',"2020-12-26").where('share_amount > 2500').where(commission_rate: 'flat_10').find_each do |x|
+      ::ShareTransaction.where(id: ids).find_each do |x|
+      # ::ShareTransaction.where('date > ?',"2020-12-26").where('share_amount > 2500').where(commission_rate: 'flat_10').find_each do |x|
         @bills |= [x.bill_id]
 
         amount = x.share_amount
         dp = x.dp_fee
+
+        commission_info = commission_info_group(x.date)[x.isin_info.commission_group]
         commission_rate = get_commission_rate(amount, commission_info)
         commission = get_commission_by_rate( commission_rate, amount).round(2)
+
         nepse = nepse_commission_amount(commission, commission_info)
         broker_purchase_commission = commission - nepse
-        sebon = amount * 0.00015
+        sebon = sebo_amount(amount, commission_info)
         tds = broker_purchase_commission * 0.15
         bank_deposit = nepse + tds + sebon + amount
+
         if x.buying?
           client_dr = nepse + sebon + amount + broker_purchase_commission + dp
-          x.update(net_amount: client_dr, commission_amount: commission, commission_rate: commission_rate)
+          x.update(net_amount: client_dr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
 
           particular = Particular.dr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
 
@@ -77,7 +88,7 @@ module Fixes
 
           amount_receivable = x.amount_receivable
           client_cr = amount_receivable - (commission * chargeable_on_sale_rate) - dp
-          x.update(net_amount: client_cr, commission_amount: commission, commission_rate: commission_rate)
+          x.update(net_amount: client_cr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
           particular = Particular.cr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
 
           client_ledger_id = particular.ledger_id

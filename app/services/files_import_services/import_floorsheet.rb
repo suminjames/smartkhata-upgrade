@@ -191,7 +191,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def add_client_account(client_name,client_nepse_code,new_client_accounts)
     client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
     unless new_client_accounts.include?(client_account_hash)
-      new_client_accounts << client_account_hash
+      # new_client_accounts << client_account_hash
+      ClientAccount.create(current_user_id: 1, branch_id: 1, name: client_name, nepse_code: client_nepse_code)
     end
   end
 
@@ -232,7 +233,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     type_of_transaction = @@transaction_type_buying
 
     client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
-
     # client branch id is used to enforce branch cost center
     client_branch_id = client.branch_id
     # check for the bank deposit value which is available only for buying
@@ -272,7 +272,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # get company information to store in the share transaction
     company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-    commission_info = commission_info_group(company_info.commission_group)
+    commission_info = commission_info_group[company_info.commission_group]
     commission_rate = get_commission_rate(amount, commission_info, _commission)
     # commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
     commission = get_commission_by_rate( commission_rate, amount).round(2)
@@ -284,7 +284,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # # since compliance fee is debit from broker purchase commission
     # # reduce amount of the purchase commission in the system.
     # purchase_commission = broker_purchase_commission - compliance_fee
-    sebon = amount * 0.00015
+    sebon = sebo_amount(amount, commission_info)
     bank_deposit = nepse + tds + sebon + amount
 
     # amount to be debited to client account
