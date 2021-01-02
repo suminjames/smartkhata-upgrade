@@ -37,5 +37,8 @@ namespace :data do
     Order.where.not(fy_code: fy_code).delete_all
 
     Audited::Audit.delete_all
+
+    # puts "Vaccuming"
+    # ActiveRecord::Base.connection.execute('VACUUM FULL;')
   end
 end

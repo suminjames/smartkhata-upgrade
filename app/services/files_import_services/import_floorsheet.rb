@@ -191,8 +191,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   def add_client_account(client_name,client_nepse_code,new_client_accounts)
     client_account_hash = {client_name: client_name, client_nepse_code: client_nepse_code}
     unless new_client_accounts.include?(client_account_hash)
-      # new_client_accounts << client_account_hash
-      ClientAccount.create(current_user_id: 1, branch_id: 1, name: client_name, nepse_code: client_nepse_code)
+      new_client_accounts << client_account_hash
+      # ClientAccount.create(current_user_id: 1, branch_id: 1, name: client_name, nepse_code: client_nepse_code)
     end
   end
 
