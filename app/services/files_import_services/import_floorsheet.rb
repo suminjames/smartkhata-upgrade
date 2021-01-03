@@ -1,5 +1,5 @@
 class FilesImportServices::ImportFloorsheet  < ImportFile
-  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code, :value_date
+  attr_reader :date, :error_type, :new_client_accounts, :acting_user, :selected_fy_code, :value_date, :bill_ids, :ledger_ids
 
   include CommissionModule
   include ShareInventoryModule
@@ -15,12 +15,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     @is_partial_upload = is_partial_upload
     @selected_fy_code = selected_fy_code
     # @value_date = value_date
+    @bill_ids = []
+    @ledger_ids = []
     super(file)
-  end
-
-
-  def process
-    process_full_partial(@is_partial_upload)
   end
 
   def tplus3(date)
@@ -30,6 +27,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   def set_value_date(date)
     @value_date = tplus3(date)
+  end
+
+  def process
+    process_full_partial(@is_partial_upload)
   end
 
   def process_full_partial(is_partial)
@@ -146,6 +147,8 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       @raw_data.each do |data_hash|
         process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
       end
+      generate_vouchers
+
       FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id, value_date: value_date)
     end
   end
@@ -317,12 +320,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         branch_id: client_branch_id,
         current_user_id: @acting_user.id
     )
-    # TODO(sarojk): Find a way to fix for pre-uploaded(or pre-processed) share transactions.
-    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
-
-    bill_id = nil
-    bill_number = nil
-    full_bill_number = nil
 
     if type_of_transaction == @@transaction_type_buying
       bill.share_transactions << transaction
@@ -330,98 +327,79 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       bill.balance_to_pay = bill.net_amount
       bill.settlement_date = settlement_date
       bill.save!
-      bill_id = bill.id
-      full_bill_number = "#{fy_code}-#{bill.bill_number}"
+      @bill_ids |= [bill.id]
+    end
 
-      client_group = Group.find_or_create_by!(name: "Clients")
-      client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
+    # arr = Array.new
+    # data_hash.each do |key, value|
+    #   arr.push(value)
+    # end
+    #
+    #  arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
+    # #true
 
-      # find or create predefined ledgers
-      purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
-      nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
-      tds_ledger = find_or_create_ledger_by_name("TDS")
-      dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
-      compliance_ledger = find_or_create_ledger_by_name( "Compliance Fee")
+  end
 
+
+  def generate_vouchers
+    client_group = Group.find_or_create_by!(name: "Clients")
+    purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
+    nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
+    tds_ledger = find_or_create_ledger_by_name("TDS")
+    dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
+    rounding_ledger = find_or_create_ledger_by_name( "Rounding Changes")
+    # find or create predefined ledgers
+
+    Bill.where(id: @bill_ids).find_each do |bill|
+      client_account = bill.client_account
+
+      client_ledger = get_client_ledger(client_account, client_account.nepse_code, client_account.name, client_group)
+
+      transactions = bill.share_transactions.includes(:isin_info).group(:isin_info_id).weighted_average(:share_rate)
+
+      description = transactions.map do |st|
+        "#{st.quantity}*#{st.isin_info.isin}@#{st.weighted_average_share_rate.round(2)}"
+      end.join(',')
 
       # update description
-      description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
+      description = "Shares purchased (#{description})"
+
       # update ledgers value
       # voucher date will be today's date
       # bill date will be earlier
 
+      client_branch_id = client_account.branch_id
+
       voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, current_user_id: @acting_user.id)
       voucher.bills_on_creation << bill
-      voucher.share_transactions << transaction
+      voucher.share_transactions = bill.share_transactions
       voucher.desc = description
       voucher.complete!
       voucher.save!
 
-      #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user, value_date)
-      # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
+      tds = transactions.map{|h| h['tds']}.inject(:+)
+      dp = transactions.map{|h| h['dp_fee']}.inject(:+)
+      nepse_commission = transactions.map{|h| h['nepse_commission']}.inject(:+)
+      commission_amount = transactions.map{|h| h['commission_amount']}.inject(:+)
+      # sebo = transactions.map{|h| h['sebo']}.inject(:+)
+      bank_deposit = transactions.map{|h| h['bank_deposit']}.inject(:+)
+      broker_purchase_commission = commission_amount - nepse_commission
+
+      rounding = bill.net_amount + tds - ( broker_purchase_commission + dp + bank_deposit )
+
+
+      if(rounding.abs != 0)
+        process_accounts(rounding_ledger, voucher, rounding < 0, rounding.abs, description, client_branch_id, @date, @acting_user, value_date)
+      end
+
+      process_accounts(client_ledger, voucher, true, bill.net_amount, description, client_branch_id, @date, @acting_user, value_date)
       process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user, value_date)
       process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user, value_date)
       process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user, value_date) if dp > 0
       process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user, value_date)
     end
-
-    arr = Array.new
-    data_hash.each do |key, value|
-      arr.push(value)
-    end
-
-     arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
-    #true
-
   end
 
-
-
-
-  def repatch_share_transactions_accomodating_partial_upload(processed_share_transactions_for_the_date)
-    processed_share_transactions_for_the_date.each do |share_transaction|
-
-      # Patch dp fee in share transaction (but not quite yet on voucher)
-
-      relevant_share_transactions_count =  relevant_share_transactions_count(share_transaction.date,share_transaction.client_account.id,
-                                                                             share_transaction.isin_info.id,ShareTransaction.transaction_types[share_transaction.transaction_type])
-
-      stale_dp_fee_for_st = share_transaction.dp_fee
-      updated_dp_fee_for_st = 25.0 / relevant_share_transactions_count
-      difference_of_dp_fee_for_st = stale_dp_fee_for_st - updated_dp_fee_for_st
-      share_transaction.dp_fee =  updated_dp_fee_for_st
-      share_transaction.save!
-
-      # Readjustment of dp fee in vouchers, and other voucher related necessary adjustment only required for purchase transactions.
-      # If no changes in (apparently) stale and new dp_fee, no further changes needed.
-      if share_transaction.buying? && difference_of_dp_fee_for_st.abs > 0.1
-        # Readjust share_transaction's net_amount
-        client_dr = share_transaction.net_amount - stale_dp_fee_for_st + share_transaction.dp_fee
-        share_transaction.net_amount = client_dr
-        share_transaction.save!
-
-        # Readjust dp fee in vouchers
-        description = "Reverse entry to accomodate dp fee for transaction number #{share_transaction.contract_no} due to partial uploads for #{ad_to_bs(@date)}."
-        date = share_transaction.date
-        client_branch_id = share_transaction.client_account.branch_id
-        new_voucher = Voucher.create!(date: date, date_bs: ad_to_bs_string(date), branch_id: client_branch_id, current_user_id: @acting_user&.id, desc: description)
-
-
-
-
-        client_ledger = share_transaction.client_account.ledger
-        process_accounts(client_ledger, new_voucher, false, difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user, value_date)
-
-        # Re-process the (dp_fee updated) share transaction
-        dp_ledger = find_or_create_ledger_by_name( "DP Fee/ Transfer")
-        process_accounts(dp_ledger, new_voucher, true,  difference_of_dp_fee_for_st, description, client_branch_id, @date, @acting_user, value_date)
-
-        # Re-adjusting of  bill not needed, as dp fee for a bill is calculated through its share transactions (on the fly).
-      end
-
-    end
-  end
 
   def relevant_share_transactions_count(date, client_account_id,isin_info_id,transaction_type)
     ShareTransaction.where(
@@ -430,198 +408,6 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         isin_info_id: isin_info_id,
         transaction_type: transaction_type
     ).size
-  end
-  # TODO: Change arr to hash (maybe)
-  # arr =[
-  # 	Contract No.,
-  # 	Symbol,
-  # 	Buyer Broking Firm Code,
-  # 	Seller Broking Firm Code,
-  # 	Client Name,
-  # 	Client Code,
-  # 	Quantity,
-  # 	Rate,
-  # 	Amount,
-  # 	Stock Comm.,
-  # 	Bank Deposit,
-  # ]
-  # hash_dp => custom hash to store unique isin , buying/selling, customer per day
-  def process_record_for_partial_upload(arr, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-    contract_no = arr[0].to_i
-    company_symbol = arr[1]
-    buyer_broking_firm_code = arr[2]
-    seller_broking_firm_code = arr[3]
-    client_name = arr[4]
-    client_nepse_code = arr[5].upcase
-    share_quantity = arr[6].to_i
-    share_rate = arr[7]
-    share_net_amount = arr[8]
-    #TODO look into the usage of arr[9] (Stock Commission)
-    _commission = arr[9]
-    bank_deposit = arr[10]
-    # arr[11] = NIL
-    is_purchase = false
-
-    dp = 0
-    bill = nil
-    type_of_transaction = @@transaction_type_buying
-
-    client = ClientAccount.unscoped.find_by!(nepse_code: client_nepse_code)
-
-    # client branch id is used to enforce branch cost center
-    client_branch_id = client.branch_id
-
-    # check for the bank deposit value which is available only for buying
-    # used 25.0 instead of 25 to get number with decimal
-    # hash_dp_count is used for the dp charges
-    # hash_dp is used to group transactions into bill
-    # bill contains all the transactions done for a user for each type( purchase / sales)
-    if bank_deposit.blank?
-      # Sales
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'selling']
-      type_of_transaction = @@transaction_type_selling
-    else
-      # Purchase
-      is_purchase = true
-      # create or find a bill by the number
-      dp = 25.0 / hash_dp_count[client_nepse_code+company_symbol.to_s+'buying']
-
-      # group all the share transactions for a client for the day
-      # The following if logic is first for the first purchase transaction for a client
-      if hash_dp.key?(client_nepse_code+'buying')
-        bill = find_or_create_bill(hash_dp[client_nepse_code+'buying'],fy_code,@date,client.id)
-      else
-        # The following sets key for a client during her first purchase transaction iteration.
-        # Account for pre-processed relevant share transactions' associate bill for the date.
-        _bill_number = nil
-        pre_processed_relevant_share_transactions = ShareTransaction.where(
-            date: @date,
-            client_account_id: client.id,
-            transaction_type: ShareTransaction.transaction_types[:buying]
-        )
-        if pre_processed_relevant_share_transactions.size > 0
-          _bill_number = pre_processed_relevant_share_transactions.first.bill.bill_number
-        else
-          _bill_number = @bill_number
-          @bill_number += 1
-        end
-        hash_dp[client_nepse_code+'buying'] = _bill_number
-        bill = find_or_create_bill(_bill_number,fy_code,date,client.id) do |b|
-          b.bill_type = Bill.bill_types['purchase']
-          b.client_name = client_name
-          b.branch_id = client_branch_id
-        end
-      end
-    end
-
-    # amount: amount of the transaction
-    # commission: Broker commission
-    # nepse: nepse commission
-    # tds: tds amount deducted from the broker commission
-    # sebon: sebon fee
-    # bank_deposit: deposit to nepse
-    cgt = 0
-    amount = share_net_amount
-
-    # commission_rate = get_commission_rate(amount, commission_info)
-    commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)
-    commission = get_commission_by_rate( commission_rate, amount).round(2)
-
-    nepse = _commission
-    broker_purchase_commission = commission - nepse
-      tds = broker_purchase_commission * 0.15
-
-    # # since compliance fee is debit from broker purchase commission
-    # # reduce amount of the purchase commission in the system.
-    # purchase_commission = broker_purchase_commission - compliance_fee
-    sebon = amount * 0.00015
-    bank_deposit = nepse + tds + sebon + amount
-
-    # amount to be debited to client account
-    # @client_dr = nepse + sebon + amount + broker_purchase_commission + dp
-    @client_dr = (bank_deposit + broker_purchase_commission - tds + dp) if bank_deposit.present?
-
-    # get company information to store in the share transaction
-    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
-
-    # TODO: Include base price
-
-    transaction = ShareTransaction.create(
-        contract_no: contract_no,
-        isin_info_id: company_info.id,
-        buyer: buyer_broking_firm_code,
-        seller: seller_broking_firm_code,
-        raw_quantity: share_quantity,
-        quantity: share_quantity,
-        share_rate: share_rate,
-        share_amount: share_net_amount,
-        sebo: sebon,
-        commission_rate: commission_rate,
-        commission_amount: commission,
-        dp_fee: dp,
-        cgt: cgt,
-        net_amount: @client_dr, #calculated as @client_dr = nepse + sebon + amount + purchase_commission + dp. Not to be confused with share_amount
-        bank_deposit: bank_deposit,
-        transaction_type: type_of_transaction,
-        date: @date,
-        client_account_id: client.id,
-        branch_id: client_branch_id,
-        current_user_id: @acting_user.id
-    )
-    update_share_inventory(client.id, company_info.id, transaction.quantity, @acting_user, transaction.buying?)
-
-    bill_id = nil
-    bill_number = nil
-    full_bill_number = nil
-
-    if type_of_transaction ==   @@transaction_type_buying
-      bill.share_transactions << transaction
-      bill.net_amount += transaction.net_amount
-      bill.balance_to_pay += transaction.net_amount
-      if bill.partial? || bill.settled?
-        bill.status = Bill.statuses[:partial]
-      end
-      bill.settlement_date = settlement_date
-      bill.save!
-      bill_id = bill.id
-      full_bill_number = "#{fy_code}-#{bill.bill_number}"
-
-      client_group = Group.find_or_create_by!(name: "Clients")
-      # create client ledger if not exist
-      client_ledger = get_client_ledger(client, client_nepse_code, client_name, client_group)
-
-      # find or create predefined ledgers
-      purchase_commission_ledger = find_or_create_ledger_by_name( "Purchase Commission")
-      nepse_ledger = find_or_create_ledger_by_name( "Nepse Purchase")
-      tds_ledger = find_or_create_ledger_by_name( "TDS")
-      dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
-      compliance_ledger = find_or_create_ledger_by_name("Compliance Fee")
-
-
-      # update description
-      description = "Shares purchased (#{share_quantity}*#{company_symbol}@#{share_rate}) for #{client_name}"
-      # update ledgers value
-      # voucher date will be today's date
-      # bill date will be earlier
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, current_user_id: @acting_user&.id)
-      voucher.bills_on_creation << bill
-      voucher.share_transactions << transaction
-      voucher.desc = description
-      voucher.complete!
-      voucher.save!
-
-      #TODO replace bill from particulars with bill from voucher
-      process_accounts(client_ledger, voucher, true, @client_dr, description, client_branch_id, @date, @acting_user, value_date)
-      # process_accounts(compliance_ledger, voucher, false, compliance_fee, description,client_branch_id, @date) if compliance_fee > 0
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user, value_date)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user, value_date)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date,@acting_user, value_date) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, @date, @acting_user, value_date)
-
-    end
-
-
-    arr.push(@client_dr, tds, commission, bank_deposit, dp, bill_id, is_purchase, @date, client.id, full_bill_number, transaction)
   end
 
   def find_or_create_bill(bill_number, fy_code, date, client_account_id)

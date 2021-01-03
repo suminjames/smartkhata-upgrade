@@ -128,8 +128,6 @@ class Ledgers::ParticularEntry
     ledger.lock!
     dr_amount = 0
     cr_amount = 0
-    opening_balance_org = nil
-    opening_balance_cost_center = nil
     set_current_user = lambda { |o| o.current_user_id = current_user_id }
 
     # need to do the unscoped here for matching the ledger balance
@@ -137,21 +135,6 @@ class Ledgers::ParticularEntry
                         .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
     ledger_blnc_cost_center =  LedgerBalance.by_branch_fy_code(branch_id, fy_code)
                                  .find_or_create_by!(ledger_id: ledger.id, &set_current_user).tap(&set_current_user)
-
-
-    opening_balance_org ||= ledger_blnc_org.closing_balance
-    opening_balance_cost_center ||= ledger_blnc_cost_center.closing_balance
-
-
-
-    daily_report_cost_center = LedgerDaily.by_branch_fy_code(branch_id,fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
-      l.current_user_id = current_user_id
-    end.tap(&set_current_user)
-
-    daily_report_org = LedgerDaily.by_fy_code_org(fy_code).find_or_create_by!(ledger_id: ledger.id, date: accounting_date) do |l|
-      l.current_user_id = current_user_id
-    end.tap(&set_current_user)
-
     if debit
       dr_amount = amount
       ledger_blnc_org.closing_balance += amount
@@ -161,14 +144,7 @@ class Ledgers::ParticularEntry
       ledger_blnc_cost_center.closing_balance -= amount
       cr_amount = amount
     end
-    daily_report_cost_center.dr_amount += dr_amount
-    daily_report_cost_center.cr_amount += cr_amount
-    daily_report_cost_center.save!
 
-    daily_report_org.dr_amount += dr_amount
-    daily_report_org.cr_amount += cr_amount
-    daily_report_org.save!
-#
     ledger_blnc_org.dr_amount += dr_amount
     ledger_blnc_org.cr_amount += cr_amount
     ledger_blnc_cost_center.dr_amount += dr_amount

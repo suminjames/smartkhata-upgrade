@@ -3,6 +3,11 @@ module Accounts
     class PopulateLedgerDailiesService
       include FiscalYearModule
 
+      attr_reader :verbose
+      def initialize(verbose: true)
+        @verbose = verbose
+      end
+
       def fiscal_years all_fiscal_years, fy_code
         if all_fiscal_years
           fy_codes = available_fy_codes
@@ -19,7 +24,7 @@ module Accounts
 
         fy_codes = fiscal_years(all_fiscal_years, fy_code)
 
-        puts "Patching for #{ledger.name}"
+        puts "Patching for #{ledger.name}" if verbose.present?
         set_current_user_id = -> (o) { o.current_user_id = current_user_id }
         fy_codes.each do |fy_code|
           # needed for entering the data balance

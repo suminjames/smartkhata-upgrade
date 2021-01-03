@@ -38,7 +38,7 @@ namespace :data do
 
     Audited::Audit.delete_all
 
-    # puts "Vaccuming"
-    # ActiveRecord::Base.connection.execute('VACUUM FULL;')
+    puts "Vaccuming"
+    ActiveRecord::Base.connection.execute('VACUUM FULL;')
   end
 end
