@@ -362,7 +362,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       end.join(',')
 
       # update description
-      description = "Shares purchased (#{description})"
+      description = "Shares purchased (#{description})  for #{client_account.name}"
 
       # update ledgers value
       # voucher date will be today's date
