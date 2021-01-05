@@ -212,21 +212,22 @@ class ShareTransaction < ActiveRecord::Base
 
 
 
-  scope :weighted_average, lambda{|col|
+  scope :weighted_average, lambda{|col, quantity_col = :quantity|
     select("share_transactions.isin_info_id").
       select(<<-EOQ)
-      (CASE WHEN SUM(quantity) = 0 THEN 0
-            ELSE SUM(#{col} * quantity) / SUM(quantity)
-       END) AS weighted_average_#{col},
-      sum(quantity) as quantity,
+      (CASE WHEN SUM(#{quantity_col}) = 0 THEN 0
+            ELSE SUM(#{col} * #{quantity_col}) / SUM(#{quantity_col})
+       END) AS wa_#{col},
+      sum(#{quantity_col}) as quantity,
       sum(tds) as tds,
       sum(nepse_commission) as nepse_commission,
       sum(commission_amount) as commission_amount,
       sum(dp_fee) as dp_fee,
-      sum(bank_deposit) as bank_deposit
+      sum(bank_deposit) as bank_deposit,
+      sum(amount_receivable) as amount_receivable,
+      sum(closeout_amount) as closeout_amount
     EOQ
   }
-
 
   after_commit :update_inventory, on: :create
 
