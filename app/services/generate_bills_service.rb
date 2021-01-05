@@ -151,7 +151,7 @@ class GenerateBillsService
     nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
     tds_ledger = Ledger.find_or_create_by!(name: "TDS")
     dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-    rounding_ledger = Ledger.find_or_create_by!(name: "Rounding Changes")
+    rounding_ledger = Ledger.find_or_create_by!(name: "Rounding Off Difference ")
 
     Bill.where(id: @bill_ids).find_each do |bill|
       client_account = bill.client_account
@@ -218,7 +218,7 @@ class GenerateBillsService
       end
 
       if(rounding.abs != 0)
-        process_accounts(rounding_ledger, voucher, rounding < 0, rounding.abs, description, cost_center_id, settlement_date, @acting_user, settlement_date)
+        process_accounts(rounding_ledger, voucher, rounding < 0, rounding.abs, description, cost_center_id, settlement_date, @current_user, settlement_date)
       end
 
       process_accounts(dp_ledger, voucher, false, dp, description, cost_center_id, settlement_date, @current_user, settlement_date) if dp > 0

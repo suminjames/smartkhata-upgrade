@@ -35,15 +35,18 @@ class Ledger < ActiveRecord::Base
 
   delegate :nepse_code, to: :client_account, :allow_nil => true
 
-  INTERNALLEDGERS = ["Purchase Commission",
-                     "Sales Commission",
-                     "DP Fee/ Transfer",
-                     "Nepse Purchase",
-                     "Nepse Sales",
-                     "Clearing Account",
-                     "TDS",
-                     "Cash",
-                     "Close Out"].freeze
+  INTERNALLEDGERS = [
+    "Purchase Commission",
+    "Sales Commission",
+    "DP Fee/ Transfer",
+    "Nepse Purchase",
+    "Nepse Sales",
+    "Clearing Account",
+    "TDS",
+    "Cash",
+    "Close Out",
+    "Rounding Off Difference"
+  ].freeze
 
 
 

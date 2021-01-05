@@ -347,7 +347,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
     tds_ledger = find_or_create_ledger_by_name("TDS")
     dp_ledger = find_or_create_ledger_by_name("DP Fee/ Transfer")
-    rounding_ledger = find_or_create_ledger_by_name( "Rounding Changes")
+    rounding_ledger = find_or_create_ledger_by_name( "Rounding Off Difference ")
     # find or create predefined ledgers
 
     Bill.where(id: @bill_ids).find_each do |bill|
@@ -358,7 +358,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       transactions = bill.share_transactions.includes(:isin_info).group(:isin_info_id).weighted_average(:share_rate)
 
       description = transactions.map do |st|
-        "#{st.quantity}*#{st.isin_info.isin}@#{st.weighted_average_share_rate.round(2)}"
+        "#{st.quantity}*#{st.isin_info.isin}@#{st.wa_share_rate.round(2)}"
       end.join(',')
 
       # update description
