@@ -32,6 +32,7 @@ class Particular < ActiveRecord::Base
   include CustomDateModule
   include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode
+  include ChangesTrackable
 
   belongs_to :ledger
   belongs_to :voucher
@@ -99,7 +100,26 @@ class Particular < ActiveRecord::Base
 
   before_validation :assign_default_value_date
   before_save :process_particular
-  after_save :recalculate_interest
+
+  after_commit :calculate_ledger_dailies
+  after_commit :recalculate_interest
+
+
+  def calculate_ledger_dailies
+    date_changes = saved_changes["transaction_date"]
+    if date_changes.present? && complete?
+      dates = date_changes.compact.uniq
+      if dates.present?
+        dates = dates.map{|date| date.to_s}
+        LedgerDailyJob.perform_unique_async(ledger_id, updater_id, fy_code, branch_id, dates)
+      end
+    end
+    # dates = [transaction_date, transaction_date_was].compact.uniq
+    # if dates.present?
+    #   dates = dates.map{|date| date.to_s}
+    #   LedgerDailyJob.perform_later(ledger_id, updater_id, fy_code, branch_id, dates)
+    # end
+  end
 
 
   def value_date_latest_than_date
@@ -110,10 +130,14 @@ class Particular < ActiveRecord::Base
   end
 
   def recalculate_interest
-    _value_date = value_date_was.blank? ? value_date : [value_date, value_date_was].min
-    if (_value_date < Time.current.to_date )
-      InterestJob.perform_later(self.ledger_id, _value_date.to_s)
+    value_date_changes = saved_changes["value_date"]
+    if value_date_changes.present? && complete?
+      _value_date = value_date_changes.compact.min
+      if (_value_date < Time.current.to_date )
+        InterestJob.perform_later(self.ledger_id, _value_date.to_s)
+      end
     end
+
     # if value_date < Time.current.to_date
     #   InterestParticular.calculate_interest(date: value_date, ledger_id: ledger_id)
     #

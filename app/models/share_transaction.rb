@@ -146,7 +146,7 @@ class ShareTransaction < ActiveRecord::Base
       when /^date/
         not_cancelled.order("share_transactions.date #{ direction }")
       when /^isin_info/
-        not_cancelled.order("isin_infos.company #{ direction }")  
+        not_cancelled.order("isin_infos.company #{ direction }")
       when /^close_out/
         order("share_transactions.date asc")
       else
@@ -210,6 +210,30 @@ class ShareTransaction < ActiveRecord::Base
   scope :with_closeout, -> { where(deleted_at: nil).where.not(closeout_amount: 0.0)}
   scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
 
+
+
+  scope :weighted_average, lambda{|col, quantity_col = :quantity|
+    select("share_transactions.isin_info_id").
+      select(<<-EOQ)
+      (CASE WHEN SUM(#{quantity_col}) = 0 THEN 0
+            ELSE SUM(#{col} * #{quantity_col}) / SUM(#{quantity_col})
+       END) AS wa_#{col},
+      sum(#{quantity_col}) as quantity,
+      sum(tds) as tds,
+      sum(nepse_commission) as nepse_commission,
+      sum(commission_amount) as commission_amount,
+      sum(dp_fee) as dp_fee,
+      sum(bank_deposit) as bank_deposit,
+      sum(amount_receivable) as amount_receivable,
+      sum(closeout_amount) as closeout_amount
+    EOQ
+  }
+
+  after_commit :update_inventory, on: :create
+
+  def update_inventory
+    ShareInventoryJob.perform_later(client_account_id, isin_info_id, quantity, updater_id, buying?, false)
+  end
 
   def do_as_per_params (params)
     # TODO
@@ -533,7 +557,7 @@ class ShareTransaction < ActiveRecord::Base
   #  -only two level checking should be sufficient
   #   -this is to check for those prices which fall (just) above a range group
   #
-  def calculate_base_price 
+  def calculate_base_price
     calculated_base_price = nil
     if (buying? || settlement_id.blank? || quantity == 0 || purchase_price == 0)
       calculated_base_price = 0.0
