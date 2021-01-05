@@ -12,21 +12,14 @@ module Accounts
       def call
         res = false
         ActiveRecord::Base.transaction do
-         ledger_not_to_merge = ["Purchase Commission",
-                                "Sales Commission",
-                                "DP Fee/ Transfer",
-                                "Nepse Purchase",
-                                "Nepse Sales",
-                                "Clearing Account",
-                                "Compliance Fee",
-                                "TDS",
-                                "Cash",
-                                "Close Out"]
+          ledger_not_to_merge = Ledger::INTERNALLEDGERS
+
           if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
             raise ActiveRecord::Rollback
           end
           fix_opening_balances
           fix_ledger_dailies_and_closing_balances
+          fix_interests
           merge_client_accounts
           ledger_to_merge_from.delete
           ledger_to_merge_to.client_code = ledger_to_merge_to.client_code.to_s.squish
@@ -37,7 +30,7 @@ module Accounts
           mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
 
           if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
-          #   do nothing
+            #   do nothing
           elsif mandala_mapping_for_deleted_ledger.present?
             mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
@@ -77,6 +70,12 @@ module Accounts
             end
           end
         end
+      end
+
+
+      def fix_interests
+        InterestParticular.where(ledger_id: ledger_to_merge_from.id).delete_all
+        InterestJob.perform_later(ledger_to_merge_to.id, fiscal_year_first_day(get_fy_code).to_s)
       end
 
       # delete client accounts too
