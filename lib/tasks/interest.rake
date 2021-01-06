@@ -1,7 +1,9 @@
 desc "Interest related"
 namespace :interest do
   task :for_yesterday, [:tenant] => 'smartkhata:validate_tenant' do |task,args|
-    InterestParticular.calculate_interest
+    ActiveRecord::Base.transaction do
+      InterestParticular.calculate_interest
+    end
   end
 
   task :full_fiscal_year,[:tenant, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
