@@ -48,6 +48,8 @@ class EdisItemForm
           item.sales_settlement_id = sale_settlement.id
 
           unless item.save
+            next if skip_invalid_transactions?
+
             self.errors.add(:file, "Contains invalid records for #{item.contract_number}, Error: #{item.errors.full_messages.join(",")}")
             break
           end
