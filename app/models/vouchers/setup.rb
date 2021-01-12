@@ -13,7 +13,7 @@ class Vouchers::Setup < Vouchers::Base
     ledger_list_available = []
 
     client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger,selected_branch_id, selected_fy_code)
-    
+
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -34,7 +34,7 @@ class Vouchers::Setup < Vouchers::Base
 
       # Check for availability of default bank accounts for payment and receipt in the current branch.
       # If not available in the current branch, resort to using whichever is available from all available branches.
-      ledger_list_financial = bank_accounts_in_branch.all.includes(:ledger).uniq.collect(&:ledger)
+      ledger_list_financial = bank_accounts_in_branch.all.includes(:ledger).uniq.collect(&:ledger).compact
 
       default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
       default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
