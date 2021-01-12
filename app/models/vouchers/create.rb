@@ -540,7 +540,6 @@ class Vouchers::Create < Vouchers::Base
       # mark the voucher as settled if it is not payment bank
       voucher.creator_id ||= current_user&.id
       voucher.updater_id = current_user&.id
-      voucher.branch_id = selected_branch_id
       voucher.complete! unless voucher.is_payment_bank
       res = true if voucher.save
     end
