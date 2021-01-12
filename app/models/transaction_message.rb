@@ -19,7 +19,7 @@
 #
 
 class TransactionMessage < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   extend CustomDateModule
 
   belongs_to :bill

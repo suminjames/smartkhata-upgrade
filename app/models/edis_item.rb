@@ -1,5 +1,5 @@
 class EdisItem < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   include Models::Updater
 
   belongs_to :sales_settlement, inverse_of: :edis_items

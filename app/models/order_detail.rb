@@ -22,7 +22,7 @@
 
 
 class OrderDetail < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   belongs_to :isin_info
   belongs_to :order
 

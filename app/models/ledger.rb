@@ -26,7 +26,7 @@
 #
 
 class Ledger < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   extend FiscalYearModule
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later

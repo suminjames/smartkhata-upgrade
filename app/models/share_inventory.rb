@@ -32,7 +32,7 @@
 #
 
 class ShareInventory < ActiveRecord::Base
-  include Auditable
+  # include Auditable
   include ::Models::Updater
 
   belongs_to :client_account
