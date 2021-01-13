@@ -83,8 +83,9 @@ class InterestParticular < ActiveRecord::Base
         .find_all_client_ledgers
         .where( id: Particular.where(fy_code: fy_code).distinct(:ledger_id).select(:ledger_id)).select(:id)
     end
-    payable_interest_rate = InterestRate.get_rate(date, :payable)
-    receivable_interest_rate = InterestRate.get_rate(date, :receivable)
+    payable_interest_rate ||= InterestRate.get_rate(date, :payable)
+    receivable_interest_rate ||= InterestRate.get_rate(date, :receivable)
+
     ledgers.find_each do |ledger|
       ledger_id = ledger.id
 
