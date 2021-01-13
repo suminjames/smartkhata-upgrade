@@ -15,4 +15,16 @@ namespace :interest do
       end
     end
   end
+
+
+  task :from_date, [:tenant, :date] =>'smartkhata:validate_tenant' do |task, args|
+    fy_code = args.fy_code || current_fy_code
+    value_date = args.date.to_date
+    final_date =  fiscal_year_last_day(fy_code)
+    (value_date .. [[value_date, Date.current].max, final_date].min).each do |date|
+      ActiveRecord::Base.transaction do
+        InterestParticular.calculate_interest(date: date)
+      end
+    end
+  end
 end

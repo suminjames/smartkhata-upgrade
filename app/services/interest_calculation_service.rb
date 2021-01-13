@@ -15,7 +15,6 @@ class InterestCalculationService
     particular_net_sum = ParticularNetCalculator.new(ledger_id, date).call
     particular_net_sum =  particular_net_sum.to_f + (opening_balance)
     return nil if equal_amounts?(particular_net_sum, 0)
-
     interest_attributes = interest_attributes(particular_net_sum.to_f)
     calculated_interest = (particular_net_sum.to_f.abs * interest_attributes[:value].to_f) / 100.0 / 365
     {interest: calculated_interest, amount: particular_net_sum.to_f.abs, interest_attributes: interest_attributes}
