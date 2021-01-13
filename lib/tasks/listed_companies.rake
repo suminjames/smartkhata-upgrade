@@ -32,6 +32,8 @@ task :fetch_companies => :environment do
           [:sector, 'td[5]/text()'],
         ].each do |name, xpath|
           detail[name] = row.at_xpath(xpath).to_s.strip
+
+
         end
         detail
       end
@@ -54,7 +56,7 @@ task :fetch_companies => :environment do
           [:isin, 'td[4]/text()'],
           [:sector, 'td[5]/text()'],
         ].each do |name, xpath|
-          detail[name] = row.at_xpath(xpath).to_s.strip
+          detail[name] = row.at_xpath(xpath).to_s.squish
         end
         detail
       end
@@ -72,9 +74,9 @@ task :fetch_companies => :environment do
       isin.sector = x[:sector]
     end
     # update the company name if not available already
-    record.update( company: x[:company]) if record.company.nil?
+    record.update( company: x[:company]) if record.company.blank?
     # update the sector if not available already
-    record.update( sector: x[:sector]) if record.sector.nil? && !x[:sector].blank?
+    record.update( sector: x[:sector]) if record.sector.blank? && !x[:sector].blank?
   end
   puts "#{date} : Sucessfully Fetched  Companies"
 end
