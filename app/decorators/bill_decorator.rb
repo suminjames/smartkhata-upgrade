@@ -198,15 +198,15 @@ class BillDecorator < ApplicationDecorator
 
 
   def formatted_net_bill_amount
-    h.arabic_number(object.net_amount)
+    h.arabic_number(object.rounded_net_amount)
   end
 
   def formatted_net_receivable_amount
-    object.purchase? ? h.arabic_number(object.net_amount) : 0.00
+    object.purchase? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_payable_amount
-    object.sales? ? h.arabic_number(object.net_amount) : 0.00
+    object.sales? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_closeout_amount
