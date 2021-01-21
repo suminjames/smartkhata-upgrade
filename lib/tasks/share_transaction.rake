@@ -215,6 +215,6 @@ namespace :share_transaction do
   task :fix_commission, [:tenant, :transaction_ids] => 'smartkhata:validate_tenant' do |task, args|
     tenant = args.tenant
     transaction_ids = args.transaction_ids.split(" ")
-    Fixes::ShareTransaction.call(transaction_ids)
+    Fixes::ShareTransactionV2.call(transaction_ids, tenant)
   end
 end

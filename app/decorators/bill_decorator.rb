@@ -78,7 +78,7 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:raw_quantity] =  st.raw_quantity
       transaction_row[:isin] = st.isin_info.isin
       # Note: arabic_number() method returns a string with a decimal with 2 digits compulsorily. So strip where required. For example: share_rate and raw_quantity are never in decimal values.
-      transaction_row[:share_rate] = h.arabic_number(st.share_rate)[0...-3]
+      transaction_row[:share_rate] = h.arabic_number(st.share_rate)
       transaction_row[:base_price] = st.transaction_type =='selling' ? h.arabic_number(st.base_price)[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(st.share_amount)[0...-3]
       transaction_row[:commission_rate] = get_commission_rate_format(st.commission_rate)
@@ -198,15 +198,15 @@ class BillDecorator < ApplicationDecorator
 
 
   def formatted_net_bill_amount
-    h.arabic_number(object.net_amount)
+    h.arabic_number(object.rounded_net_amount)
   end
 
   def formatted_net_receivable_amount
-    object.purchase? ? h.arabic_number(object.net_amount) : 0.00
+    object.purchase? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_payable_amount
-    object.sales? ? h.arabic_number(object.net_amount) : 0.00
+    object.sales? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_closeout_amount

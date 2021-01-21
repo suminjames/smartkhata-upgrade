@@ -151,7 +151,8 @@ class GenerateBillsService
     nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Sales")
     tds_ledger = Ledger.find_or_create_by!(name: "TDS")
     dp_ledger = Ledger.find_or_create_by!(name: "DP Fee/ Transfer")
-    rounding_ledger = Ledger.find_or_create_by!(name: "Rounding Off Difference ")
+    rounding_ledger = Ledger.find_or_create_by!(name: "Rounding Off Difference")
+
 
     Bill.where(id: @bill_ids).find_each do |bill|
       client_account = bill.client_account
@@ -192,25 +193,25 @@ class GenerateBillsService
       # sales commission is credited
       # dp is credited
 
-      tds = transactions.map{|h| h['tds']}.inject(:+)
-      dp = transactions.map{|h| h['dp_fee']}.inject(:+)
-      nepse_commission = transactions.map{|h| h['nepse_commission']}.inject(:+)
-      commission_amount = transactions.map{|h| h['commission_amount']}.inject(:+)
-      amount_receivable = transactions.map{|h| h['amount_receivable']}.inject(:+)
-      closeout_amount = transactions.map{|h| h['closeout_amount']}.inject(:+)
+      tds = transactions.map{|h| h['tds']}.inject(:+).round(2)
+      dp = transactions.map{|h| h['dp_fee']}.inject(:+).round(2)
+      nepse_commission = transactions.map{|h| h['nepse_commission']}.inject(:+).round(2)
+      commission_amount = transactions.map{|h| h['commission_amount']}.inject(:+).round(2)
+      amount_receivable = transactions.map{|h| h['amount_receivable']}.inject(:+).round(2)
+      closeout_amount = transactions.map{|h| h['closeout_amount']}.inject(:+).round(2)
       sales_commission = commission_amount - nepse_commission
 
       closeout_transactions = []
       # incase of automatic closeout
       # closeout charge is included on bill and charged to client
       # other cases bill doesnt hold the closeout amount
-
+      bill_net_amount = bill.rounded_net_amount
       if @current_tenant.closeout_settlement_automatic
-        rounding = amount_receivable + tds- sales_commission - dp  - bill.net_amount
-        payable_to_client =  bill.net_amount + closeout_amount
+        rounding = amount_receivable + tds- sales_commission - dp  - bill_net_amount
+        payable_to_client =  bill_net_amount + closeout_amount
       else
-        rounding = amount_receivable + closeout_amount + tds - sales_commission - dp - bill.net_amount
-        payable_to_client =  bill.net_amount
+        rounding = amount_receivable + closeout_amount + tds - sales_commission - dp - bill_net_amount
+        payable_to_client =  bill_net_amount
       end
 
       if closeout_amount > 0
@@ -264,7 +265,7 @@ class GenerateBillsService
           end
         end
       else
-        process_accounts(client_ledger, voucher, false, bill.net_amount, description, cost_center_id, settlement_date, @current_user, settlement_date)
+        process_accounts(client_ledger, voucher, false, bill_net_amount, description, cost_center_id, settlement_date, @current_user, settlement_date)
         process_accounts(nepse_ledger, voucher, true, amount_receivable, description, cost_center_id, settlement_date, @current_user, settlement_date)
       end
     end
