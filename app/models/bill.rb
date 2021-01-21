@@ -194,13 +194,20 @@ class Bill < ActiveRecord::Base
     if dp_fee == 0
       dp_fee = 25
     end
-    return dp_fee
+    return up_to_nearest_25(dp_fee)
   end
 
   # Returns total net cgt
   def get_net_cgt
     return self.share_transactions.not_cancelled_for_bill.sum(:cgt);
   end
+
+  def up_to_nearest_25(num)
+    return num if num % 25 == 0
+    num.round
+    # rounded > num ? rounded : rounded + 25
+  end
+
 
   # TODO
   # Returns net amount (either payable or recievable) from all child share_transactions.
