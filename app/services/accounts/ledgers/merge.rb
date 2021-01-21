@@ -2,11 +2,12 @@ module Accounts
   module Ledgers
     class Merge < BaseService
       include FiscalYearModule
-      attr_reader :ledger_to_merge_to, :ledger_to_merge_from
-      def initialize(merge_to, merge_from, current_user)
+      attr_reader :ledger_to_merge_to, :ledger_to_merge_from, :allow_internal
+      def initialize(merge_to, merge_from, current_user, allow_internal = false)
         @current_user = current_user
         @ledger_to_merge_to = Ledger.find(merge_to)
         @ledger_to_merge_from = Ledger.find(merge_from)
+        @allow_internal = allow_internal
       end
 
       def call
@@ -14,7 +15,7 @@ module Accounts
         ActiveRecord::Base.transaction do
           ledger_not_to_merge = Ledger::INTERNALLEDGERS
 
-          if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+          if !allow_internal && ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
             raise ActiveRecord::Rollback
           end
           fix_opening_balances
