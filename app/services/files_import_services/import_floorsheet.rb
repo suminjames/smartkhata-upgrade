@@ -340,8 +340,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   end
 
-
-  def generate_vouchers
+  def generate_vouchers(relevant_bill_ids = @bill_ids)
     client_group = Group.find_or_create_by!(name: "Clients")
     purchase_commission_ledger =find_or_create_ledger_by_name("Purchase Commission")
     nepse_ledger = find_or_create_ledger_by_name("Nepse Purchase")
@@ -350,12 +349,15 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     rounding_ledger = find_or_create_ledger_by_name( "Rounding Off Difference")
     # find or create predefined ledgers
 
-    Bill.where(id: @bill_ids).find_each do |bill|
+    Bill.where(id: relevant_bill_ids).find_each do |bill|
       client_account = bill.client_account
 
       client_ledger = get_client_ledger(client_account, client_account.nepse_code, client_account.name, client_group)
 
       transactions = bill.share_transactions.includes(:isin_info).group(:isin_info_id).weighted_average(:share_rate)
+
+      date_of_transaction = @date || bill.date
+      bill_value_date = value_date || tplus3(date_of_transaction)
 
       description = transactions.map do |st|
         "#{st.quantity}*#{st.isin_info.isin}@#{st.wa_share_rate.round(2)}"
@@ -370,7 +372,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
       client_branch_id = client_account.branch_id
 
-      voucher = Voucher.create!(date: @date, date_bs: ad_to_bs_string(@date), branch_id: client_branch_id, current_user_id: @acting_user.id)
+      voucher = Voucher.create!(date: date_of_transaction, date_bs: ad_to_bs_string(date_of_transaction), branch_id: client_branch_id, current_user_id: @acting_user.id)
       voucher.bills_on_creation << bill
       voucher.share_transactions = bill.share_transactions
       voucher.desc = description
@@ -390,14 +392,14 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
 
       if(rounding.abs != 0)
-        process_accounts(rounding_ledger, voucher, rounding < 0, rounding.abs, description, client_branch_id, @date, @acting_user, value_date)
+        process_accounts(rounding_ledger, voucher, rounding < 0, rounding.abs, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date)
       end
 
-      process_accounts(client_ledger, voucher, true, bill_net_amount, description, client_branch_id, @date, @acting_user, value_date)
-      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, @date, @acting_user, value_date)
-      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, @date, @acting_user, value_date)
-      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, @date, @acting_user, value_date) if dp > 0
-      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, @date, @acting_user, value_date)
+      process_accounts(client_ledger, voucher, true, bill_net_amount, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date)
+      process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date)
+      process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date)
+      process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date) if dp > 0
+      process_accounts(nepse_ledger, voucher, false, bank_deposit, description, client_branch_id, date_of_transaction, @acting_user, bill_value_date)
     end
   end
 

@@ -118,11 +118,6 @@ module Fixes
       fix_interests
     end
 
-
-    def generate_vouchers
-      raise "Must be implemented by Child Class"
-    end
-
     def fix_bills
       Bill.where(id: @bills).find_each do |bill|
         old_net_amount = bill.net_amount

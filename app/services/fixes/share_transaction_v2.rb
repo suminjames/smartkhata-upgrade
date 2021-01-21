@@ -1,13 +1,13 @@
 module Fixes
-  class ShareTransaction
+  class ShareTransactionV2
     include ::CommissionModule
     include ::ApplicationHelper
 
-    def self.call(ids)
-      new.call(ids)
+    def self.call(ids, tenant)
+      new.call(ids, tenant)
     end
 
-    attr_reader :purchase_commission_ledger, :sales_commission_ledger, :nepse_ledger, :nepse_sales, :tds_ledger, :dp_ledger, :compliance_ledger, :acting_user, :ledger_ids, :value_dates, :transaction_dates
+    attr_reader :purchase_commission_ledger, :sales_commission_ledger, :nepse_ledger, :nepse_sales, :tds_ledger, :dp_ledger, :compliance_ledger, :acting_user, :ledger_ids, :value_dates, :transaction_dates, :buying_bills, :selling_bills
     def initialize
       @purchase_commission_ledger = Ledger.find_by(name: "Purchase Commission")
       @sales_commission_ledger = Ledger.find_by(name: "Sales Commission")
@@ -20,7 +20,8 @@ module Fixes
       @ledger_ids = default_ledgers
       @value_dates =[]
       @transaction_dates =[]
-      @bills = []
+      @buying_bills = []
+      @selling_bills = []
     end
 
     def default_ledgers
@@ -37,15 +38,12 @@ module Fixes
                             end
     end
 
-    def call(ids)
+    def call(ids, tenant)
+      current_tenant = Tenant.find_by_name(tenant)
       ActiveRecord::Base.transaction do
-      ::ShareTransaction.where(id: ids).find_each do |x|
-      # ::ShareTransaction.where('date > ?',"2020-12-26").where('share_amount > 2500').where(commission_rate: 'flat_10').find_each do |x|
-        @bills |= [x.bill_id]
-
+        ::ShareTransaction.where(id: ids).find_each do |x|
         amount = x.share_amount
         dp = x.dp_fee
-
         commission_info = commission_info_group(x.date)[x.isin_info.commission_group]
         commission_rate = get_commission_rate(amount, commission_info)
         commission = get_commission_by_rate( commission_rate, amount).round(2)
@@ -54,8 +52,6 @@ module Fixes
         broker_purchase_commission = commission - nepse
         sebon = sebo_amount(amount, commission_info)
         tds = broker_purchase_commission * 0.15
-        bank_deposit = nepse + tds + sebon + amount
-
         if x.buying?
           client_dr = nepse + sebon + amount + broker_purchase_commission + dp
           x.update(net_amount: client_dr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
@@ -63,25 +59,12 @@ module Fixes
           particular = Particular.dr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
 
           client_ledger_id = particular.ledger_id
-          client_ledger = Ledger.find client_ledger_id
-          description = particular.name
-          client_branch_id = particular.branch_id
           date = particular.transaction_date
           value_date = particular.value_date
-          voucher = x.voucher
-
           @ledger_ids |= [client_ledger_id]
           @value_dates |=[value_date]
           @transaction_dates |= [date]
-
-          Particular.where(voucher_id: x.voucher_id).delete_all
-
-          process_accounts(client_ledger, voucher, true, client_dr, description, client_branch_id, date, acting_user, value_date)
-          process_accounts(tds_ledger, voucher, true, tds, description, client_branch_id, date, acting_user, value_date)
-          process_accounts(purchase_commission_ledger, voucher, false, broker_purchase_commission, description, client_branch_id, date, acting_user, value_date)
-          process_accounts(dp_ledger, voucher, false, dp, description, client_branch_id, date, acting_user, value_date) if dp > 0
-          process_accounts(nepse_ledger, voucher, false, bank_deposit, description,client_branch_id, date, acting_user, value_date)
-
+          @buying_bills |= [x.bill_id]
         elsif x.selling?
           tds_rate = 0.15
           chargeable_on_sale_rate = broker_commission_rate(x.date) * (1 - tds_rate)
@@ -92,39 +75,26 @@ module Fixes
           particular = Particular.cr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
 
           client_ledger_id = particular.ledger_id
-          client_ledger = Ledger.find client_ledger_id
-          description = particular.name
-          cost_center_id = particular.branch_id
           settlement_date = particular.transaction_date
           value_date = particular.value_date
-          voucher = x.voucher
 
           @ledger_ids |= [client_ledger_id]
           @value_dates |=[value_date]
           @transaction_dates |= [settlement_date]
-
-          Particular.where(voucher_id: x.voucher_id).delete_all
-
-          process_accounts(client_ledger, voucher, false, client_cr, description, cost_center_id, settlement_date, acting_user, value_date)
-          process_accounts(nepse_sales, voucher, true, x.amount_receivable, description, cost_center_id, settlement_date, acting_user, value_date)
-          process_accounts(tds_ledger, voucher, true, tds, description, cost_center_id, settlement_date, acting_user, value_date)
-          process_accounts(sales_commission_ledger, voucher, false, commission, description, cost_center_id, settlement_date, acting_user, value_date)
-          process_accounts(dp_ledger, voucher, false, dp, description, cost_center_id, settlement_date, acting_user, value_date) if dp > 0
+          @selling_bills |= [x.bill_id]
         end
       end
+
+        fix_bills
+        generate_vouchers(current_tenant)
+        fix_ledger_ids
+        fix_interests
       end
-      fix_bills
-      fix_ledger_ids
-      fix_interests
-    end
-
-
-    def generate_vouchers
-      raise "Must be implemented by Child Class"
     end
 
     def fix_bills
-      Bill.where(id: @bills).find_each do |bill|
+      bills = buying_bills + selling_bills
+      Bill.where(id: bills).find_each do |bill|
         old_net_amount = bill.net_amount
         old_balance_to_pay = bill.balance_to_pay
 
@@ -138,6 +108,23 @@ module Fixes
         end
 
         bill.update(net_amount: net_amount, balance_to_pay: new_balance, status: status)
+
+        #remove vouchers
+        voucher_ids = bill.vouchers_on_creation.pluck(:id)
+        BillVoucherAssociation.where(voucher_id: voucher_ids).delete_all
+        Particular.where(voucher_id: voucher_ids).delete_all
+        Voucher.where(id: voucher_ids).delete_all
+      end
+    end
+
+    def generate_vouchers current_tenant
+      if buying_bills.present?
+        importer = FilesImportServices::ImportFloorsheet.new(nil, acting_user, nil )
+        importer.generate_vouchers(buying_bills)
+      end
+
+      if selling_bills.present?
+        GenerateBillsService.new( manual: true, bill_ids: selling_bills, current_user: acting_user, current_tenant: current_tenant).generate_vouchers
       end
     end
 

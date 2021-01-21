@@ -211,6 +211,10 @@ class Bill < ActiveRecord::Base
     #return self.share_transactions.sum(:sebo);
   end
 
+  def rounded_net_amount
+    net_amount.round(2)
+  end
+
   # Returns client associated to this bill
   def get_client
     return self.client_account
