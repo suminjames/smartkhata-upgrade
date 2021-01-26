@@ -1,27 +1,28 @@
 class IsinInfosController < ApplicationController
-  before_action :set_isin_info, only: %i[show edit update destroy]
+  before_action :set_isin_info, only: [:show, :edit, :update, :destroy]
 
-  before_action :authorize_isin_class, only: %i[index new create combobox_ajax_filter]
-  before_action :authorize_isin_record, only: %i[show edit update destroy]
+  before_action :authorize_isin_class, only: [:index, :new, :create, :combobox_ajax_filter]
+  before_action :authorize_isin_record, only: [:show, :edit, :update, :destroy]
 
   # GET /isin_infos
   # GET /isin_infos.json
   def index
     @filterrific = initialize_filterrific(
-      IsinInfo,
-      params[:filterrific],
-      select_options: {
-        by_isin_info_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
-        by_sector: IsinInfo.options_for_sector_select,
-        by_isin: IsinInfo.options_for_isin_select
-      },
-      persistence_id: false
+        IsinInfo,
+        params[:filterrific],
+        select_options: {
+            by_isin_info_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
+            by_sector: IsinInfo.options_for_sector_select,
+            by_isin: IsinInfo.options_for_isin_select
+        },
+        persistence_id: false
     ) or return
     @isin_infos = @filterrific.find.page(params[:page]).per(20).order(:isin)
+
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = e.message.to_s
+      flash.now[:error] = "#{ e.message }"
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
@@ -31,7 +32,7 @@ class IsinInfosController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
@@ -93,28 +94,30 @@ class IsinInfosController < ApplicationController
     search_term = params[:q]
     isin_infos = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
-    isin_infos = IsinInfo.find_similar_to_term(search_term, params[:full_record]) if search_term && search_term.length >= 3
+    if search_term && search_term.length >= 3
+     isin_infos = IsinInfo.find_similar_to_term(search_term, params[:full_record])
+    end
     respond_to do |format|
       format.json { render json: isin_infos, status: :ok }
     end
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_isin_info
-    @isin_info = IsinInfo.find(params[:id])
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_isin_info
+      @isin_info = IsinInfo.find(params[:id])
+    end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def isin_info_params
-    params.require(:isin_info).permit(:company, :isin, :sector)
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def isin_info_params
+      params.require(:isin_info).permit(:company, :isin, :sector)
+    end
 
-  def authorize_isin_class
-    authorize IsinInfo
-  end
+    def authorize_isin_class
+      authorize IsinInfo
+    end
 
-  def authorize_isin_record
-    authorize @isin_info
-  end
+    def authorize_isin_record
+      authorize @isin_info
+    end
 end

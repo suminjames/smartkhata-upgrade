@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_08_062557) do
+ActiveRecord::Schema.define(version: 2021_01_21_094447) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -200,8 +200,8 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
   create_table "bills", id: :serial, force: :cascade do |t|
     t.integer "bill_number"
     t.string "client_name"
-    t.decimal "net_amount", precision: 15, scale: 2, default: "0.0"
-    t.decimal "balance_to_pay", precision: 15, scale: 2, default: "0.0"
+    t.decimal "net_amount", precision: 15, scale: 4, default: "0.0"
+    t.decimal "balance_to_pay", precision: 15, scale: 4, default: "0.0"
     t.integer "bill_type"
     t.integer "status", default: 0
     t.integer "special_case", default: 0
@@ -217,7 +217,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.integer "branch_id"
     t.bigint "nepse_settlement_id"
     t.integer "settlement_approval_status", default: 0
-    t.decimal "closeout_charge", precision: 15, scale: 2, default: "0.0"
+    t.decimal "closeout_charge", precision: 15, scale: 4, default: "0.0"
     t.index ["branch_id"], name: "index_bills_on_branch_id"
     t.index ["client_account_id"], name: "index_bills_on_client_account_id"
     t.index ["creator_id"], name: "index_bills_on_creator_id"
@@ -795,6 +795,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.integer "branch_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "value_date"
     t.index ["branch_id"], name: "index_file_uploads_on_branch_id"
     t.index ["creator_id"], name: "index_file_uploads_on_creator_id"
     t.index ["updater_id"], name: "index_file_uploads_on_updater_id"
@@ -824,6 +825,30 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_groups_on_creator_id"
     t.index ["updater_id"], name: "index_groups_on_updater_id"
+  end
+
+  create_table "interest_particulars", id: :serial, force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "interest", precision: 12, scale: 2, default: "0.0"
+    t.decimal "rate", precision: 4, scale: 2
+    t.date "date"
+    t.integer "interest_type"
+    t.string "date_bs"
+    t.integer "ledger_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_interest_particulars_on_date"
+    t.index ["ledger_id", "date"], name: "index_interest_particulars_on_ledger_id_and_date", unique: true
+    t.index ["ledger_id"], name: "index_interest_particulars_on_ledger_id"
+  end
+
+  create_table "interest_rates", id: :serial, force: :cascade do |t|
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "interest_type"
+    t.integer "rate"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "isin_infos", id: :serial, force: :cascade do |t|
@@ -950,6 +975,8 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.float "nepse_commission_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group", default: 0
+    t.float "sebo_rate"
   end
 
   create_table "menu_items", id: :serial, force: :cascade do |t|
@@ -1032,6 +1059,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "type"
+    t.date "value_date"
     t.index ["creator_id"], name: "index_nepse_settlements_on_creator_id"
     t.index ["updater_id"], name: "index_nepse_settlements_on_updater_id"
   end
@@ -1138,6 +1166,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.integer "voucher_id"
     t.integer "bank_payment_letter_id"
     t.boolean "hide_for_client", default: false
+    t.date "value_date"
     t.index ["branch_id"], name: "index_particulars_on_branch_id"
     t.index ["creator_id"], name: "index_particulars_on_creator_id"
     t.index ["fy_code"], name: "index_particulars_on_fy_code"
@@ -1347,23 +1376,23 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.integer "raw_quantity"
     t.integer "quantity"
     t.decimal "share_rate", precision: 12, scale: 2, default: "0.0"
-    t.decimal "share_amount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "share_amount", precision: 15, scale: 4, default: "0.0"
     t.decimal "sebo", precision: 15, scale: 4, default: "0.0"
     t.string "commission_rate"
-    t.decimal "commission_amount", precision: 12, scale: 2, default: "0.0"
-    t.decimal "dp_fee", precision: 12, scale: 2, default: "0.0"
-    t.decimal "cgt", precision: 12, scale: 2, default: "0.0"
+    t.decimal "commission_amount", precision: 15, scale: 4, default: "0.0"
+    t.decimal "dp_fee", precision: 15, scale: 4, default: "0.0"
+    t.decimal "cgt", precision: 15, scale: 4, default: "0.0"
     t.decimal "net_amount", precision: 15, scale: 4, default: "0.0"
-    t.decimal "bank_deposit", precision: 12, scale: 2, default: "0.0"
+    t.decimal "bank_deposit", precision: 15, scale: 4, default: "0.0"
     t.integer "transaction_type"
     t.decimal "settlement_id", precision: 18
     t.decimal "base_price", precision: 12, scale: 2, default: "0.0"
-    t.decimal "amount_receivable", precision: 12, scale: 2, default: "0.0"
-    t.decimal "closeout_amount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "amount_receivable", precision: 15, scale: 4, default: "0.0"
+    t.decimal "closeout_amount", precision: 15, scale: 4, default: "0.0"
     t.string "remarks"
-    t.decimal "purchase_price", precision: 12, scale: 2, default: "0.0"
-    t.decimal "capital_gain", precision: 12, scale: 2, default: "0.0"
-    t.decimal "adjusted_sell_price", precision: 12, scale: 2, default: "0.0"
+    t.decimal "purchase_price", precision: 15, scale: 4, default: "0.0"
+    t.decimal "capital_gain", precision: 15, scale: 4, default: "0.0"
+    t.decimal "adjusted_sell_price", precision: 15, scale: 4, default: "0.0"
     t.date "date"
     t.date "deleted_at"
     t.datetime "created_at", null: false
@@ -1380,8 +1409,8 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.integer "transaction_cancel_status", default: 0
     t.date "settlement_date"
     t.boolean "closeout_settled", default: false
-    t.decimal "tds", precision: 12, scale: 2, default: "0.0"
-    t.decimal "nepse_commission", precision: 12, scale: 2, default: "0.0"
+    t.decimal "tds", precision: 15, scale: 4, default: "0.0"
+    t.decimal "nepse_commission", precision: 15, scale: 4, default: "0.0"
     t.index ["bill_id"], name: "index_share_transactions_on_bill_id"
     t.index ["branch_id"], name: "index_share_transactions_on_branch_id"
     t.index ["client_account_id"], name: "index_share_transactions_on_client_account_id"
@@ -1737,6 +1766,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
     t.boolean "is_payment_bank"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "value_date"
     t.index ["branch_id"], name: "index_vouchers_on_branch_id"
     t.index ["creator_id"], name: "index_vouchers_on_creator_id"
     t.index ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true
@@ -1759,6 +1789,7 @@ ActiveRecord::Schema.define(version: 2020_07_08_062557) do
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "edis_items", "sales_settlements"
+  add_foreign_key "interest_particulars", "ledgers"
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
   add_foreign_key "menu_permissions", "menu_items"

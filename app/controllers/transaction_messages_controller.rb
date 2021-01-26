@@ -9,14 +9,14 @@ class TransactionMessagesController < ApplicationController
   # GET /transaction_messages.json
   def index
     @filterrific = initialize_filterrific(
-      TransactionMessage.by_branch(selected_branch_id),
-      params[:filterrific],
-      select_options: {
-        by_client_id: ClientAccount.options_for_client_select(params[:filterrific])
-      },
-      persistence_id: false
+        TransactionMessage.by_branch(selected_branch_id),
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+        },
+        persistence_id: false
     ) or return
-    items_per_page = params[:no_paginate] == 'true' ? TransactionMessage.all.count : 20
+    items_per_page = params[:no_paginate] == 'true' ?  TransactionMessage.all.count : 20
     @transaction_messages = @filterrific.find.includes(:bill, :client_account).page(params[:page]).per(items_per_page).decorate
 
     respond_to do |format|
@@ -27,7 +27,7 @@ class TransactionMessagesController < ApplicationController
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
       flash.now[:error] = 'One of the search options provided is invalid.'
       format.html { render :index }
@@ -39,7 +39,7 @@ class TransactionMessagesController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
@@ -63,39 +63,44 @@ class TransactionMessagesController < ApplicationController
 
   def send_email
     transaction_message_ids = params[:transaction_message_ids] || []
-    transaction_message_ids.each do |transaction_message_id|
+    transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
-      SmartkhataMailer.delay(retry: false).transaction_message_email(transaction_message.id, current_tenant.id) if transaction_message.can_email?
+      if transaction_message.can_email?
+        SmartkhataMailer.delay(:retry => false).transaction_message_email(transaction_message.id, current_tenant.id)
+      end
     end
     respond_to do |format|
       format.js
-      format.json { render json: { success: "success", status_code: "200" } }
+      format.json { render :json => { :success => "success", :status_code => "200" } }
     end
   end
 
   def send_sms
     transaction_message_ids = params[:transaction_message_ids] || []
-    transaction_message_ids.each do |transaction_message_id|
+    transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find_by(id: transaction_message_id)
-      SmsMessage.sparrow_send_bill_sms(transaction_message.id, current_user) if transaction_message.can_sms?
+      if transaction_message.can_sms?
+        SmsMessage.sparrow_send_bill_sms(transaction_message.id, current_user)
+      end
     end
     respond_to do |format|
       format.js
-      format.json { render json: { success: "success", status_code: "200" } }
+      format.json { render :json => { :success => "success", :status_code => "200" } }
     end
   end
 
   def sent_status
     transaction_message_ids = params[:transaction_message_ids] || []
     @transaction_messages = []
-    transaction_message_ids.each do |transaction_message_id|
+    transaction_message_ids.each do | transaction_message_id |
       transaction_message = TransactionMessage.find(transaction_message_id)
       @transaction_messages << transaction_message
     end
     respond_to do |format|
       format.js
-      format.json { render json: @transaction_messages }
+      format.json { render :json => @transaction_messages }
     end
+
   end
 
   # GET /transaction_messages/1/edit
@@ -118,18 +123,20 @@ class TransactionMessagesController < ApplicationController
     end
   end
 
+
   def create_multiple
     transaction_date = params[:transaction_date]
     error_msg = "Error creating the transaction message"
     if transaction_date.present?
       create_sms_result = CreateSmsService.new(transaction_date: transaction_date, broker_code: current_tenant.broker_code)
       create_sms_result.create_by_floorsheet_date
-      redirect_to transaction_messages_path(no_paginate: true, 'filterrific[by_date]': ad_to_bs(transaction_date)) and return if create_sms_result.error.blank?
-
+      unless create_sms_result.error.present?
+        redirect_to transaction_messages_path(:no_paginate => true, 'filterrific[by_date]': ad_to_bs(transaction_date)) and return
+      end
       error_msg = create_sms_result.error
     end
 
-    redirect_to transaction_messages_path, flash: { error: error_msg }
+    redirect_to transaction_messages_path, :flash => { :error => error_msg  }
   end
 
   # PATCH/PUT /transaction_messages/1

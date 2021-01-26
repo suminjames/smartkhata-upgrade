@@ -1,0 +1,6 @@
+- provide(:section_title, 'FloorSheet Details')
+- if @error
+  = link_to 'Change ValueDate', edit_files_floorsheet_path(@file_upload)
+- else
+  %h4= "Updated Successfully"
+  = link_to "Floor sheets", files_floorsheets_path

@@ -1,0 +1,19 @@
+<% provide(:section_title, "Assign Value date") %>
+<% date = ad_to_bs_string(@file_upload.value_date || Date.today) %>
+<div>
+  <%= form_for :file_upload, url: change_files_floorsheet_path(@file_upload) do %>
+    <label for="value_date">Value Date</label>
+    <div class="form-group">
+      <div class="form-inputs row new-voucher">
+        <div class="col-sm-3">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">B.S.</span>
+            <%= text_field_tag :value_date_bs, date, class: "string optional form-control nepali-datepicker", placeholder: "YYYY-MM-DD" %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <%= button_tag "Update", { data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Changing..." } , :class => 'btn btn-primary btn-flat'}  %>
+  <% end %>
+</div>

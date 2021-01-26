@@ -60,13 +60,44 @@ class BillDecorator < ApplicationDecorator
       transaction_row[:share_rate] = h.arabic_number(transaction_row[:share_rate])[0...-3]
       transaction_row[:base_price] = transaction_row[:type] =='selling' ? h.arabic_number(transaction_row[:base_price])[0...-3] : 'N/A'
       transaction_row[:share_amount] = h.arabic_number(transaction_row[:share_amount])[0...-3]
-      transaction_row[:commission_rate] = transaction_row[:commission_rate] == "flat_25" ? "Flat NRs 25" : transaction_row[:commission_rate].to_f.to_s + "%"
+      transaction_row[:commission_rate] = get_commission_rate_format(transaction_row[:commission_rate])
       transaction_row[:commission_amount] = h.arabic_number(transaction_row[:commission_amount])
       transaction_row[:capital_gain] = h.arabic_number(transaction_row[:capital_gain])
 
       formatted_share_transactions << transaction_row
     end
     formatted_share_transactions
+  end
+
+
+  def formatted_share_transactions
+    formatted_share_transactions = []
+    object.share_transactions.not_cancelled_for_bill.includes(:isin_info).order(contract_no: :asc).each do |st|
+      transaction_row = Hash.new
+      transaction_row[:contract_no] = st.contract_no.to_s
+      transaction_row[:raw_quantity] =  st.raw_quantity
+      transaction_row[:isin] = st.isin_info.isin
+      # Note: arabic_number() method returns a string with a decimal with 2 digits compulsorily. So strip where required. For example: share_rate and raw_quantity are never in decimal values.
+      transaction_row[:share_rate] = h.arabic_number(st.share_rate)
+      transaction_row[:base_price] = st.transaction_type =='selling' ? h.arabic_number(st.base_price)[0...-3] : 'N/A'
+      transaction_row[:share_amount] = h.arabic_number(st.share_amount)[0...-3]
+      transaction_row[:commission_rate] = get_commission_rate_format(st.commission_rate)
+      transaction_row[:commission_amount] = h.arabic_number(st.commission_amount)
+      transaction_row[:capital_gain] = h.arabic_number( st.cgt)
+
+      formatted_share_transactions << transaction_row
+    end
+    formatted_share_transactions
+  end
+
+  def get_commission_rate_format(commission_rate)
+    if commission_rate == "flat_25"
+      "Flat NRs 25"
+    elsif commission_rate == "flat_10"
+      "Flat NRs 10"
+    else
+      commission_rate.to_f.to_s + "%"
+    end
   end
 
   # For an array of strings, returns the length upto which all strings in the array are same.
@@ -113,6 +144,10 @@ class BillDecorator < ApplicationDecorator
 
   def formatted_client_name
     client.name.titleize
+  end
+
+  def formatted_nepse_code
+    client.nepse_code
   end
 
   def formatted_bill_dates
@@ -163,15 +198,15 @@ class BillDecorator < ApplicationDecorator
 
 
   def formatted_net_bill_amount
-    h.arabic_number(object.net_amount)
+    h.arabic_number(object.rounded_net_amount)
   end
 
   def formatted_net_receivable_amount
-    object.purchase? ? h.arabic_number(object.net_amount) : 0.00
+    object.purchase? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_payable_amount
-    object.sales? ? h.arabic_number(object.net_amount) : 0.00
+    object.sales? ? h.arabic_number(object.rounded_net_amount) : 0.00
   end
 
   def formatted_net_closeout_amount

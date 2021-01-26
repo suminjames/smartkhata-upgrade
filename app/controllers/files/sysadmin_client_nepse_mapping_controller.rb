@@ -1,4 +1,5 @@
 class Files::SysadminClientNepseMappingController < Files::FilesController
+
   def index
     authorize self
   end
@@ -10,7 +11,6 @@ class Files::SysadminClientNepseMappingController < Files::FilesController
   def nepse_phone
     authorize self
   end
-
   def nepse_boid
     authorize self
   end
@@ -29,7 +29,7 @@ class Files::SysadminClientNepseMappingController < Files::FilesController
 
     if file_upload.error_message
       file_error(file_upload.error_message)
-      nil
+      return
     end
 
     # else redirect to settlement path

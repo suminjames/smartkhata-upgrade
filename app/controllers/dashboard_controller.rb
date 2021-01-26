@@ -10,6 +10,8 @@ class DashboardController < ApplicationController
     @amount = 0
     @fy_code = get_fy_code
 
+
+
     @isin_with_largest_quantity = ShareInventory.with_most_quantity
 
     @purchase_bills_pending_count = Bill.purchase.find_not_settled.count
@@ -21,6 +23,7 @@ class DashboardController < ApplicationController
     # ]
 
     @identifier = get_common_name_from_dn(request.headers.env["HTTP_X_SSL_CLIENT_S_DN"])
+
   end
 
   def client_index
@@ -30,7 +33,7 @@ class DashboardController < ApplicationController
     @clients_info_arr = []
     client_accounts = current_user.client_accounts.order(:name)
     client_accounts.each do |client_account|
-      client_account = ClientAccount.find_by(id: client_account.id)
+      client_account = ClientAccount.find_by_id(client_account.id)
       client_info_hash = {}
       client_info_hash[:client_account] = client_account
       client_info_hash[:pending_bills_count] = client_account.bills.pending.size
@@ -41,4 +44,5 @@ class DashboardController < ApplicationController
       @clients_info_arr << client_info_hash
     end
   end
+
 end

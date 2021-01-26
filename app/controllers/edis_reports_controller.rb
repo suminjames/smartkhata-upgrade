@@ -1,5 +1,5 @@
 class EdisReportsController < ApplicationController
-  before_action :set_edis_report, only: %i[show edit update destroy]
+  before_action :set_edis_report, only: [:show, :edit, :update, :destroy]
 
   before_action -> { authorize EdisReport }
 
@@ -14,7 +14,7 @@ class EdisReportsController < ApplicationController
     respond_to do |format|
       format.html
       format.json
-      format.csv do
+      format.csv {
         report, file_name = @edis_report.csv_report(current_tenant)
         if report.present?
           send_data report, filename: file_name, type: 'text/csv; charset=utf-8'
@@ -23,7 +23,7 @@ class EdisReportsController < ApplicationController
           error = "No changes to download" if file_name.present?
           redirect_to @edis_report, flash: { error: error }
         end
-      end
+      }
     end
   end
 
@@ -41,7 +41,9 @@ class EdisReportsController < ApplicationController
     @edis_report_form = EdisReportForm.new(edis_report_form_params)
     if @edis_report_form.valid?
       @edis_report_form.import_file
-      redirect_to import_edis_reports_path, notice: 'Successfully imported' and return if @edis_report_form.errors.blank?
+      if @edis_report_form.errors.blank?
+        redirect_to import_edis_reports_path, notice: 'Successfully imported' and return
+      end
     end
     render 'import'
   end
@@ -62,7 +64,6 @@ class EdisReportsController < ApplicationController
       else
         format.html do
           redirect_to edis_report_path(@edis_report.previous_record, format: :csv) and return if @edis_report.previous_record.present?
-
           render :new
         end
         format.json { render json: @edis_report.errors, status: :unprocessable_entity }
@@ -95,18 +96,18 @@ class EdisReportsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_edis_report
-    @edis_report = EdisReport.find(params[:id])
-    authorize(@edis_report)
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_edis_report
+      @edis_report = EdisReport.find(params[:id])
+      authorize(@edis_report)
+    end
 
   def edis_report_form_params
-    params.require(:edis_report_form).permit(:file, :current_user_id)
+    params.require(:edis_report_form).permit( :file, :current_user_id)
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def edis_report_params
-    with_branch_user_params(params.require(:edis_report).permit(:nepse_provisional_settlement_id, :business_date), false)
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def edis_report_params
+      with_branch_user_params(params.require(:edis_report).permit(:nepse_provisional_settlement_id, :business_date), false)
+    end
 end

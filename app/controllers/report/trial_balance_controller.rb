@@ -4,16 +4,18 @@ class Report::TrialBalanceController < ApplicationController
 
   def index
     @date = ad_to_bs_string(Date.today)
-    @date = ad_to_bs_string(fiscal_year_last_day(selected_fy_code)) if selected_fy_code != get_fy_code
+    if selected_fy_code != get_fy_code
+      @date = ad_to_bs_string(fiscal_year_last_day(selected_fy_code))
+    end
 
-    @download_path_xlsx = report_trial_balance_index_path(@ledger, params.permit(:format).merge({format: 'xlsx'}))
+    @download_path_xlsx =  report_trial_balance_index_path(@ledger, {format:'xlsx'}.merge(params))
 
-    @sort_by = %w[name closing_balance].include?(params[:sort_by]) ? params[:sort_by] : 'name'
+    @sort_by = ['name', 'closing_balance'].include?(params[:sort_by]) ? params[:sort_by] : 'name';
     _order = @sort_by == 'closing_balance' ? 'desc' : 'asc'
 
     if params[:search_by] == 'all'
       @balance = Group.trial_balance
-      @balance_report = {}
+      @balance_report = Hash.new
 
       @balance.each do |balance|
         modified_ledger_list = []
@@ -23,11 +25,11 @@ class Report::TrialBalanceController < ApplicationController
 
         ledger_ids = balance.descendent_ledgers.pluck(:id)
 
-        b = if branch_id == 0
-              LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
-            else
-              LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
-            end
+        if branch_id == 0
+          b = LedgerBalance.includes(:ledger).where(branch_id: nil, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by } #{_order}").as_json
+        else
+          b = LedgerBalance.includes(:ledger).where(branch_id: branch_id, fy_code: fy_code).where('opening_balance != 0 OR closing_balance != 0 OR ledger_balances.dr_amount != 0 OR ledger_balances.cr_amount != 0').where(ledgers: {id: ledger_ids}).order("#{@sort_by} #{_order}").as_json
+        end
         @balance_report[balance.name] = b
       end
     elsif params[:search_by] && params[:search_term]
@@ -39,7 +41,7 @@ class Report::TrialBalanceController < ApplicationController
         date_bs = search_term
         if is_valid_bs_date? date_bs
           @balance = Group.balance_sheet
-          @balance_report = {}
+          @balance_report = Hash.new
           date_ad = bs_to_ad(date_bs)
           @date = date_bs
           branch_id = selected_branch_id == 0 ? nil : selected_branch_id
@@ -54,6 +56,7 @@ class Report::TrialBalanceController < ApplicationController
               ledger_daily[:closing_balance] = ledger_daily[:opening_balance] + ledger_daily[:dr_amount] - ledger_daily[:cr_amount]
               ledger_daily.as_json({ ledger_name: ledger_daily[:lname] })
             end
+
 
             ledgers_with_no_transactons = Ledger.where(id: ledger_ids, ledger_dailies: { id: nil }).joins("left outer join ledger_dailies on ledger_dailies.ledger_id = ledgers.id and ledger_dailies.fy_code = #{fy_code} and ledger_dailies.branch_id #{branch_id ? '= ' + branch_id.to_s : 'IS NULL'} AND ledger_dailies.date <= '#{date_ad}'").pluck(:id)
 

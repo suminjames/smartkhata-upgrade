@@ -1,7 +1,7 @@
 class ChequeEntriesController < ApplicationController
-  before_action :set_cheque_entry, only: %i[show edit update destroy bounce_show bounce_do represent_show represent_do void_show void_do]
-  before_action -> {authorize @cheque_entry}, only: %i[show edit update destroy bounce_show bounce_do represent_show represent_do void_show void_do]
-  before_action -> {authorize ChequeEntry}, except: %i[show edit update destroy bounce_show bounce_do represent_show represent_do void_show void_do]
+  before_action :set_cheque_entry, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
+  before_action -> {authorize @cheque_entry}, only: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
+  before_action -> {authorize ChequeEntry}, except: [:show, :edit, :update, :destroy, :bounce_show, :bounce_do, :represent_show, :represent_do, :void_show, :void_do]
 
   # GET /cheque_entries
   # GET /cheque_entries.json
@@ -9,22 +9,22 @@ class ChequeEntriesController < ApplicationController
     # default landing action for '/cheque_entries'
     if params[:filterrific].blank?
       respond_to do |format|
-        format.html { redirect_to cheque_entries_path('filterrific[by_cheque_entry_status]': 'assigned') }
+        format.html { redirect_to cheque_entries_path('filterrific[by_cheque_entry_status]':'assigned') }
       end
       return
     end
 
     @filterrific = initialize_filterrific(
-      ChequeEntry.by_branch_id(selected_branch_id),
-      params[:filterrific],
-      select_options: {
-        by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-        by_beneficiary_name: ChequeEntry.by_branch_id(selected_branch_id).options_for_beneficiary_name(params[:filterrific]),
-        by_bank_account_id: ChequeEntry.by_branch_id(selected_branch_id).options_for_bank_account_select(selected_branch_id),
-        by_cheque_entry_status: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_entry_status,
-        by_cheque_issued_type: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_issued_type
-      },
-      persistence_id: false
+        ChequeEntry.by_branch_id(selected_branch_id),
+        params[:filterrific],
+        select_options: {
+            by_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_beneficiary_name: ChequeEntry.by_branch_id(selected_branch_id).options_for_beneficiary_name(params[:filterrific]),
+            by_bank_account_id: ChequeEntry.by_branch_id(selected_branch_id).options_for_bank_account_select(selected_branch_id),
+            by_cheque_entry_status: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_entry_status,
+            by_cheque_issued_type: ChequeEntry.by_branch_id(selected_branch_id).options_for_cheque_issued_type
+        },
+        persistence_id: false
     ) or return
     items_per_page = params[:paginate] == 'false' ? ChequeEntry.by_branch_id(selected_branch_id).all.count : 20
     @cheque_entries = @filterrific.find.order(cheque_number: :asc).includes(:bank_account, :additional_bank).page(params[:page]).per(items_per_page).decorate
@@ -36,7 +36,7 @@ class ChequeEntriesController < ApplicationController
       # Recover from 'invalid date' error in particular, among other RuntimeErrors.
       # OPTIMIZE(sarojk): Propagate particular error to specific field inputs in view.
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
       flash.now[:error] = 'One of the search options provided is invalid.'
       format.html { render :index }
@@ -48,14 +48,14 @@ class ChequeEntriesController < ApplicationController
       # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   # GET /cheque_entries/1
   # GET /cheque_entries/1.json
   def show
-    cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, current_user.id, selected_branch_id, selected_fy_code)
+     cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, current_user.id, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
     respond_to do |format|
       format.html
@@ -74,7 +74,7 @@ class ChequeEntriesController < ApplicationController
       format.js
       format.pdf do
         pdf = Print::PrintMultipleChequeEntries.new(@cheque_entry_ids, current_tenant)
-        send_data pdf.render, filename: "MultipleChequeEntries#{@cheque_entry_ids}.pdf", type: 'application/pdf', disposition: "inline"
+        send_data pdf.render, filename: "MultipleChequeEntries#{@cheque_entry_ids.to_s}.pdf", type: 'application/pdf', disposition: "inline"
       end
     end
   end
@@ -90,7 +90,7 @@ class ChequeEntriesController < ApplicationController
   def edit
   end
 
-  # TODO: fix this hack
+  # TODO fix this hack
   def get_cheque_number
     @bank_account_ledger_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
 
@@ -98,6 +98,7 @@ class ChequeEntriesController < ApplicationController
       ledger = Ledger.find_by(id: @bank_account_ledger_id)
       cheque_entry = ChequeEntry.next_available_serial_cheque(ledger.bank_account_id)
     end
+
 
     cheque_number = cheque_entry.nil? ? 0 : cheque_entry.cheque_number
 
@@ -150,10 +151,10 @@ class ChequeEntriesController < ApplicationController
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
       flash[:alert] = cheque_activity.error_message
-      render :void_show and return
+      render :void_show  and return
     end
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    redirect_to @cheque_entry, flash: {notice: 'Cheque voided succesfully'} and return
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque voided succesfully'} and return
   end
 
   # get
@@ -171,15 +172,15 @@ class ChequeEntriesController < ApplicationController
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
       flash[:alert] = cheque_activity.error_message
-      render :bounce_show and return
+      render :bounce_show  and return
     end
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    redirect_to @cheque_entry, flash: {notice: 'Cheque bounced succesfully'} and return
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque bounced succesfully'} and return
   end
 
   def represent_show
     # TODO(sarojk): Representing disabled for now.  Revive later.
-    redirect_to @cheque_entry, flash: {alert: 'Automatic representing of cheques is disabled. Please re-create a receipt voucher using the same cheque number to record representing of cheque.'} and return
+    redirect_to @cheque_entry, :flash => {:alert => 'Automatic representing of cheques is disabled. Please re-create a receipt voucher using the same cheque number to record representing of cheque.'} and return
     cheque_activity = ChequeEntries::Activity.new(@cheque_entry, current_tenant.full_name, current_user.id, selected_branch_id, selected_fy_code)
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
   end
@@ -192,10 +193,10 @@ class ChequeEntriesController < ApplicationController
     if cheque_activity.error_message.present?
       @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
       flash[:alert] = cheque_activity.error_message
-      render :represent_show and return
+      render :represent_show  and return
     end
     @bank, @name, @cheque_date = cheque_activity.get_bank_name_and_date
-    redirect_to @cheque_entry, flash: {notice: 'Cheque represented succesfully'} and return
+    redirect_to @cheque_entry, :flash => {:notice => 'Cheque represented succesfully'} and return
   end
 
   # GET
@@ -204,7 +205,7 @@ class ChequeEntriesController < ApplicationController
     message = ""
     cheque_entry_ids = params[:cheque_entry_ids]
     cheque_entry_ids.each do |cheque_entry_id|
-      cheque = ChequeEntry.by_branch_id(selected_branch_id).find_by(id: cheque_entry_id)
+      cheque = ChequeEntry.by_branch_id(selected_branch_id).find_by_id(cheque_entry_id)
       if cheque.to_be_printed?
         cheque.printed!
         status = true
@@ -223,11 +224,11 @@ class ChequeEntriesController < ApplicationController
     cheque_entries = ChequeEntry.by_branch_id(selected_branch_id).find(cheque_entry_ids.split(','))
     settlement_ids = []
     cheque_entries.each do |cheque_entry|
-      settlements = if cheque_entry.payment?
-                      cheque_entry.dr_settlements
-                    else
-                      cheque_entry.cr_settlements
-                    end
+      if cheque_entry.payment?
+        settlements = cheque_entry.dr_settlements
+      else
+        settlements = cheque_entry.cr_settlements
+      end
       settlements.each do |settlement|
         settlement_ids << settlement.id
       end
@@ -256,7 +257,9 @@ class ChequeEntriesController < ApplicationController
     cheque_entry_ids = params[:cheque_entry_ids]
     cheque_entries = ChequeEntry.by_branch_id(selected_branch_id).find(cheque_entry_ids.split(','))
     cheque_entries.each do |cheque_entry|
-      status = false unless cheque_entry.to_be_printed!
+      unless cheque_entry.to_be_printed!
+        status = false
+      end
     end
     cheque_entries = ChequeEntry.by_branch_id(selected_branch_id).where(id: cheque_entry_ids.split(',')).pluck_to_hash(:id, :print_status)
     respond_to do |format|
@@ -275,15 +278,16 @@ class ChequeEntriesController < ApplicationController
     existing_cheque_numbers = ChequeEntry.by_branch_id(active_record_branch_id).where(bank_account_id: @bank_account_id).pluck(:cheque_number)
     has_error = true
 
-    error_message = if @bank_account_id.blank?
+    error_message = case
+                    when @bank_account_id.blank?
                       "Bank Account cannot be empty"
-                    elsif @start_cheque_number.blank?
+                    when @start_cheque_number.blank?
                       "Start Cheque Number cannot be empty"
-                    elsif @start_cheque_number <= 0 || @end_cheque_number <= 0
+                    when @start_cheque_number <= 0 || @end_cheque_number <= 0
                       "Cheque numbers cannot be negative"
-                    elsif @start_cheque_number > @end_cheque_number
+                    when @start_cheque_number > @end_cheque_number
                       "Last cheque number should be greater than the first"
-                    elsif (@end_cheque_number - @start_cheque_number) > 501
+                    when (@end_cheque_number - @start_cheque_number) > 501
                       "Maximum of 500 cheque entries allowed"
                       # when existing_cheque_numbers.any? {|n| (n.between?(@start_cheque_number, @end_cheque_number) && (n.bank_account_id == @bank_account_id) )}
                       #   "Cheque number cannot be duplicate for a bank"
@@ -291,7 +295,7 @@ class ChequeEntriesController < ApplicationController
                       has_error = false
                     end
 
-    unless has_error
+    if !has_error
       ActiveRecord::Base.transaction do
         (@start_cheque_number..@end_cheque_number).each do |cheque_number|
           cheque_entry_params = with_branch_user_params({cheque_number: cheque_number, bank_account_id: @bank_account_id})
@@ -308,11 +312,14 @@ class ChequeEntriesController < ApplicationController
         end
       end
     end
-    flash.now[:error] = error_message if has_error
+    if has_error
+      flash.now[:error] = error_message
+    end
+
 
     respond_to do |format|
       if !has_error
-        format.html { redirect_to cheque_entries_path('filterrific[by_bank_account_id]': @bank_account_id), notice: 'Cheque entry was successfully created.' }
+        format.html { redirect_to cheque_entries_path('filterrific[by_bank_account_id]':@bank_account_id), notice: 'Cheque entry was successfully created.' }
         format.json { render :show, status: :created, location: @cheque_entry }
       else
         format.html { render :new }
@@ -352,7 +359,9 @@ class ChequeEntriesController < ApplicationController
     search_term = params[:q]
     beneficiary_names = []
     # 3 is the minimum search_term length to invoke find_similar_to_name
-    beneficiary_names = ChequeEntry.by_branch_id(selected_branch_id).find_beneficiary_name_similar_to_term(search_term) if search_term && search_term.length >= 3
+    if search_term && search_term.length >= 3
+      beneficiary_names = ChequeEntry.by_branch_id(selected_branch_id).find_beneficiary_name_similar_to_term(search_term)
+    end
     respond_to do |format|
       format.json { render json: beneficiary_names, status: :ok }
     end
@@ -366,7 +375,8 @@ class ChequeEntriesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def cheque_entry_params(assign_branch = true)
-    permitted_params = params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, :bounce_date, :bounce_narration, particulars_attributes: %i[ledger_id description amount transaction_type])
-    with_branch_user_params(permitted_params, assign_branch)
+   permitted_params = params.require(:cheque_entry).permit(:cheque_date, :beneficiary_name, :date_bs, :desc, :bounce_date, :bounce_narration, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type])
+   with_branch_user_params(permitted_params, assign_branch)
   end
+
 end

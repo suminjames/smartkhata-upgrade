@@ -1,3 +1,4 @@
+
 # == Schema Information
 #
 # Table name: ledgers
@@ -25,58 +26,64 @@
 #
 
 class Ledger < ApplicationRecord
-  include Auditable
+   # include Auditable
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation, :changed_in_fiscal_year
   attr_reader :closing_balance
 
-  delegate :nepse_code, to: :client_account, allow_nil: true
+  delegate :nepse_code, to: :client_account, :allow_nil => true
 
-  INTERNALLEDGERS = ["Purchase Commission",
-                     "Sales Commission",
-                     "DP Fee/ Transfer",
-                     "Nepse Purchase",
-                     "Nepse Sales",
-                     "Clearing Account",
-                     "TDS",
-                     "Cash",
-                     "Close Out"].freeze
+  INTERNALLEDGERS = [
+    "Purchase Commission",
+    "Sales Commission",
+    "DP Fee/ Transfer",
+    "Nepse Purchase",
+    "Nepse Sales",
+    "Clearing Account",
+    "TDS",
+    "Cash",
+    "Close Out",
+    "Rounding Off Difference"
+  ].freeze
+
+
 
   has_many :particulars
-  has_many :vouchers, through: :particulars
+  has_many :vouchers, :through => :particulars
   belongs_to :group
-  belongs_to :bank_account, optional: true
-  belongs_to :client_account, optional: true
-  belongs_to :vendor_account, optional: true
+  belongs_to :bank_account
+  belongs_to :client_account
+  belongs_to :vendor_account
   has_many :ledger_dailies
   has_many :ledger_balances
   has_many :employee_ledger_associations
   has_many :employee_accounts, through: :employee_ledger_associations
 
-  validates :name, presence: true
+  validates_presence_of :name
   before_save :format_name, if: :name_changed?
   before_save :format_client_code, if: :client_code_changed?
   before_destroy :delete_associated_records
-  validate :name_from_reserved?, on: :create
-  validates :group_id, presence: { if: :enforce_validation }
+  validate :name_from_reserved?, :on => :create
+  validates_presence_of :group_id, if: :enforce_validation
 
   # accepts_nested_attributes_for :ledger_balances, allow_destroy: true
   accepts_nested_attributes_for :ledger_balances
 
   scope :find_all_internal_ledgers, -> { where(client_account_id: nil) }
   scope :find_all_client_ledgers, -> { where.not(client_account_id: nil) }
-  scope :find_by_ledger_name, ->(ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
-  scope :find_by_ledger_id, ->(ledger_id) { where(id: ledger_id) }
+  scope :find_by_ledger_name, -> (ledger_name) { where("name ILIKE ?", "%#{ledger_name}%") }
+  scope :find_by_ledger_id, -> (ledger_id) { where(id: ledger_id) }
   scope :non_bank_ledgers, -> { where(bank_account_id: nil) }
   scope :restricted, -> { where(restricted: true) }
   scope :unrestricted, -> { where(restricted: false) }
+  # scope :with_particulars_from_client_ledger, -> (date) { find_all_client_ledgers.joins("inner join particulars on particulars.ledger_id = ledgers.id and particulars.fy_code = #{get_fy_code(date)}")}
 
   scope :cashbook_ledgers, lambda {
     ledger_ids = []
-    cash_ledger = Ledger.find_by(name: 'Cash')
+    cash_ledger = Ledger.find_by_name('Cash')
     ledger_ids << cash_ledger.id
-    BankAccount.all.find_each do |bank_account|
+    BankAccount.all.each do |bank_account|
       ledger_ids << bank_account.ledger.id
     end
     where(id: ledger_ids)
@@ -87,37 +94,41 @@ class Ledger < ApplicationRecord
   }
 
   filterrific(
-    default_filter_params: { sorted_by: 'name_asc' },
-    available_filters: %i[
-      sorted_by
-      by_ledger_id
-      by_ledger_type
-      from_ledger_id
-      to_ledger_id
-    ]
+      default_filter_params: { sorted_by: 'name_asc' },
+      available_filters: [
+          :sorted_by,
+          :by_ledger_id,
+          :by_ledger_type,
+          :from_ledger_id,
+          :to_ledger_id,
+      ]
   )
   # scopes for filterrific
   scope :sorted_by, lambda { |sort_option|
-    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^name/
-        order("ledgers.name #{direction}")
+        order("ledgers.name #{ direction }")
       else
-        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
-  scope :by_ledger_type, lambda { |type|
+  scope :by_ledger_type, -> (type) {
     if type == 'client'
       where.not(client_account_id: nil)
     else
       where(client_account_id: nil)
     end
   }
-  scope :by_ledger_id, ->(id) { where(id: id) }
-  scope :by_branch_id, ->(id) { where(branch_id: id) if id }
+  scope :by_ledger_id, -> (id) { where(id: id) }
+  scope :by_branch_id, -> (id) { where(branch_id: id) if id }
 
-  def self.allowed(show_restricted)
-    show_restricted ? self.all : self.unrestricted
+  def self.allowed show_restricted
+    if(show_restricted)
+      self.all
+    else
+      self.unrestricted
+    end
   end
 
   def self.user_can_view_restricted?(user, path)
@@ -126,7 +137,7 @@ class Ledger < ApplicationRecord
 
   # class methods for filterrific
   def self.options_for_ledger_type
-    %w[client internal]
+    ['client', 'internal']
   end
 
   def self.options_for_ledger_select(filterrific_params)
@@ -138,9 +149,10 @@ class Ledger < ApplicationRecord
   end
 
   def unscoped_ledger_balances(fy_code, branch_id)
-    LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code).where(branch_id: branch_id) unless branch_id == 0
+    balances = LedgerBalance.unscoped.where(ledger_id: self.id, fy_code: fy_code)
+    balances = balances.where(branch_id: branch_id ) unless branch_id == 0
+    balances
   end
-
   #
   # Where applicable,
   #   - Strip name of trailing and leading white space.
@@ -149,8 +161,10 @@ class Ledger < ApplicationRecord
   def format_name
     if self.name.present?
       name_is_strippable = self.name.strip != self.name
-      name_has_more_than_one_space_in_between_words = (self.name.split(" ").count - 1) != self.name.count(" ")
-      self.name = self.name.strip if name_is_strippable
+      name_has_more_than_one_space_in_between_words = (self.name.split(" ").count - 1 ) != self.name.count(" ")
+      if name_is_strippable
+        self.name =  self.name.strip
+      end
       if name_has_more_than_one_space_in_between_words
         # http://stackoverflow.com/questions/4662015/ruby-reduce-all-whitespace-to-single-spaces
         self.name = self.name.gsub(/\s+/, ' ')
@@ -163,7 +177,7 @@ class Ledger < ApplicationRecord
   # check if the ledger name clashes with system reserved ledger name
   #
   def name_from_reserved?
-    if name.present? && INTERNALLEDGERS.any? { |s| s.casecmp(name) == 0 }
+    if name.present? && INTERNALLEDGERS.any?{ |s| s.casecmp(name)==0 }
       # make sure the closeout ledger is last to be added programmatically
 
       # errors.add :name, "The name is reserved by system" if Ledger.find_by_name("Close Out").present?
@@ -187,10 +201,10 @@ class Ledger < ApplicationRecord
     self.save_custom(nil, fy_code, branch_id)
   end
 
-  def save_custom(params = nil, fy_code = nil, _branch_id = nil)
+  def save_custom(params = nil, fy_code = nil, branch_id = nil)
     self.enforce_validation = true
     begin
-      ApplicationRecord.transaction do
+      ActiveRecord::Base.transaction do
         if params
           self.current_user_id = current_user_id
           if self.update(params)
@@ -207,13 +221,14 @@ class Ledger < ApplicationRecord
     rescue ActiveRecord::RecordNotUnique => e
       self.errors.add(:base, "Please make sure one entry per branch")
     end
-    false
+    return false
   end
 
   # get the particulars with running balance
   def particulars_with_running_balance
     Particular.with_running_total(self.particulars)
   end
+
 
   def closing_balance(fy_code, branch_id = 0)
     if self.ledger_balances.by_branch_fy_code(branch_id, fy_code).first.present?
@@ -249,6 +264,8 @@ class Ledger < ApplicationRecord
     end
   end
 
+
+
   # def self.get_ledger_by_ids(attrs = {})
   #   fy_code = attrs[:fy_code]
   #   ledger_ids = attrs[:ledger_ids] || []
@@ -273,13 +290,14 @@ class Ledger < ApplicationRecord
   # TODO(sarojk): Incorporate other visual identifiers for bank, vendor, employee, group, etc.
   def name_and_code
     # "#{self.name} (#{self.client_code})"
-    self.client_code.present? ? "#{self.name} (#{self.client_code})" : self.name.to_s
+    self.client_code.present? ? "#{self.name} (#{self.client_code})" : "#{self.name}"
     # if self.client_account.present?
     #   "#{self.name} (#{self.client_code})"
     # else
     #   "#{self.name} (**Internal**)"
     # end
   end
+
 
   #
   # Searches for ledgers that have name or client_code similar to search_term provided.
@@ -290,17 +308,19 @@ class Ledger < ApplicationRecord
     search_term = search_term.present? ? search_term.to_s : ''
     search_type = search_type.present? ? search_type.to_s : ''
 
-    ledgers = if search_type == 'client_group_leader_ledger'
-                # voucher#new's client group leader ledger search
-                Ledger.find_all_client_ledgers.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
-              else
-                # generic ledger search
-                Ledger.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
-              end
+    if search_type == 'client_group_leader_ledger'
+      # voucher#new's client group leader ledger search
+      ledgers = Ledger.find_all_client_ledgers.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    else
+      # generic ledger search
+      ledgers = Ledger.where("name ILIKE :search OR client_code ILIKE :search", search: "%#{search_term}%").order(:name).pluck_to_hash(:id, :name, :client_code, :client_account_id, :bank_account_id, :employee_account_id, :vendor_account_id)
+    end
     ledgers.collect do |ledger|
       identifier = "#{ledger['name']} "
       if ledger['client_account_id'].present?
-        identifier += "(#{ledger['client_code']})" if ledger['client_code'].present?
+        if ledger['client_code'].present?
+          identifier += "(#{ledger['client_code']})"
+        end
       elsif ledger['bank_account_id'].present?
         identifier += '(**Bank Account**)'
       elsif ledger['employee_account_id'].present?
@@ -311,7 +331,7 @@ class Ledger < ApplicationRecord
         # Internal Ledger
         identifier += "(**Internal**)"
       end
-      { text: identifier, id: ledger['id'].to_s }
+      { :text=> identifier, :id => ledger['id'].to_s }
     end
   end
 
@@ -319,7 +339,9 @@ class Ledger < ApplicationRecord
   def name_and_identifier
     identifier = ""
     if client_account_id.present?
-      identifier = "(#{client_code})" if client_code.present?
+      if client_code.present?
+        identifier = "(#{client_code})"
+      end
     elsif bank_account_id.present?
       identifier = '(**Bank Account**)'
     elsif employee_account_id.present?
@@ -339,14 +361,15 @@ class Ledger < ApplicationRecord
   end
 
   def effective_branch
-    # TODO: different branch_ids for different type of accounts
+    # todo different branch_ids for different type of accounts
     if self.client_account_id
       self.client_account.branch_id
-      # elsif self.vendor_account_id
-      #   self.vendor_account.branch_id
+    # elsif self.vendor_account_id
+    #   self.vendor_account.branch_id
 
-      # elsif self.employee_account_id
-      #   EmployeeAccount.find(self.employee_account_id).branch_id
+    # elsif self.employee_account_id
+    #   EmployeeAccount.find(self.employee_account_id).branch_id
     end
+
   end
 end

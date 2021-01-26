@@ -1,0 +1,6 @@
+<% if @particular.errors.blank? %>
+  $('#edit-particular-modal').modal('hide');
+  $('#single_particular_<%= @particular.id %>').html("<%= @particular.value_date %>");
+<% else %>
+  $('#edit-particular-modal .error-container').html("<%= @particular.errors.messages[:value_date].join(', ') %>")
+<% end %>

@@ -1,0 +1,26 @@
+= provide(:section_title, "Listing Interest Rates")
+%table.table.table-striped
+  %thead
+    %tr
+      %th Start date
+      %th End date
+      %th Interest type
+      %th Rate
+      %th
+      %th
+      %th
+
+  %tbody
+    - @interest_rates.each do |interest_rate|
+      %tr
+        %td= interest_rate.start_date
+        %td= interest_rate.end_date
+        %td= interest_rate.interest_type
+        %td= interest_rate.rate
+        %td= link_to 'Show', interest_rate
+        %td= link_to 'Edit', edit_interest_rate_path(interest_rate)
+        %td= link_to 'Destroy', interest_rate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Interest rate', new_interest_rate_path

@@ -11,21 +11,16 @@ namespace :db do
 
     with_config do |app, host, db, user|
       if ENV['RAILS_ENV'].present?
-        cmd = "pg_dump --host #{host} --username #{user} --verbose --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{Time.now.strftime("%Y%m%d%H%M%S")}_#{db}.psql"
+        cmd = "pg_dump --host #{host} --username #{user} --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{Time.now.strftime("%Y%m%d%H%M%S")}_#{db}.psql"
       else
         cmd = "pg_dump --host localhost --verbose --clean --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/backup/#{name}_#{db}.psql"
       end
 
     end
     puts cmd
+    puts "#{Time.current.to_date} : dumped"
     exec cmd
   end
-
-  desc "Dumps the database to db/APP_NAME.dump and backup"
-  task :backup, [:name] => :environment do |task, args|
-
-  end
-
 
   desc "Dumps the database to db/APP_NAME.dump and backup"
   task :dump_backup, [:name] => :environment do |task, args|
@@ -39,13 +34,13 @@ namespace :db do
       backup_filename = "#{Rails.root}/db/backup/#{name}_#{db}.psql"
 
       if ENV['RAILS_ENV'].present?
-        `pg_dump --host #{host} --username #{user} --verbose --clean --no-owner --no-acl --format=c #{db} > #{backup_filename}`
+        `pg_dump --host #{host} --username #{user} --clean --no-owner --no-acl --format=c #{db} > #{backup_filename}`
       else
         `pg_dump --host localhost --verbose --clean --no-owner --no-acl --format=c #{db} >#{backup_filename}`
       end
 
     end
-    puts "dumped"
+    puts "#{Time.current.to_date} : dumped"
 
     name = args.name
     # save to aws-s3
@@ -61,7 +56,7 @@ namespace :db do
     obj = s3.bucket(bucket_name).object(name)
     # Upload it
     obj.upload_file(backup_filename)
-
+    puts "#{Time.current.to_date} : pushed to aws"
   end
 
 

@@ -56,7 +56,8 @@ date_conversion = (value, convertTo, target) ->
     success: (data, textStatus, jqXHR) ->
       $(target).val(data.date).datepicker("update");
       if (convertTo == 'bs')
-        $('.nepali-date-picker').remove()
+#        $('.nepali-date-picker').remove()
+        $(target).closest('.new-voucher').find('.nepali-date-picker').remove();
         $(target).nepaliDatePicker({ dateFormat: "%y-%m-%d", closeOnDateSelect: true})
 
 ready = ->
@@ -77,17 +78,31 @@ ready = ->
       selectOnClose: true,
     })
 
-    $(document).on 'change', '.new-voucher .nepali-datepicker', (e) ->
+    $(document).on 'change', '.new-voucher.date .nepali-datepicker', (e) ->
       date = e.target.value
-      date_conversion(date, 'ad', '.new-voucher .voucher-datepicker');
+      $('.new-voucher.value_date .nepali-datepicker').val(date).datepicker("update");
+      date_conversion(date, 'ad', '.new-voucher.date .voucher-datepicker');
 
-    $(document).on 'dateChange', '.new-voucher .nepali-datepicker', (e) ->
+    $(document).on 'dateChange', '.new-voucher.date .nepali-datepicker', (e) ->
       date = e.target.value
-      date_conversion(date, 'ad', '.new-voucher .voucher-datepicker');
+      $('.new-voucher.value_date .nepali-datepicker').val(date).datepicker("update");
+      date_conversion(date, 'ad', '.new-voucher.date .voucher-datepicker');
+
+    $(document).on 'change', '.new-voucher.value_date .nepali-datepicker', (e) ->
+      date = e.target.value
+      date_conversion(date, 'ad', '.new-voucher.value_date .voucher-value-datepicker');
+
+    $(document).on 'dateChange', '.new-voucher.value_date .nepali-datepicker', (e) ->
+      date = e.target.value
+      date_conversion(date, 'ad', '.new-voucher.value_date .voucher-value-datepicker');
 
     $('.voucher-datepicker').datepicker({ format: 'yyyy-mm-dd'}).on 'changeDate', (e) ->
       date = e.target.value
-      date_conversion(date, 'bs', '.new-voucher .nepali-datepicker');
+      date_conversion(date, 'bs', '.new-voucher.date .nepali-datepicker');
+
+    $('.voucher-value-datepicker').datepicker({ format: 'yyyy-mm-dd'}).on 'changeDate', (e) ->
+      date = e.target.value
+      date_conversion(date, 'bs', '.new-voucher.value_date .nepali-datepicker');
 
     fix_autocomplete()
 

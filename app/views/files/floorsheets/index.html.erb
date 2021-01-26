@@ -9,32 +9,7 @@
         List of files uploaded
       </div>
       <div class="panel-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-            <tr>
-              <th>Report Date</th>
-              <th>Upload Date</th>
-            </thead>
-            <tbody>
-            <% @file_list.each do |file| %>
-                <tr>
-                  <td>
-                    <%= "#{ad_to_bs_string(file.report_date)} BS" %>
-                    <br>
-                    <%= "#{file.report_date.to_date} AD" %>
-                  </td>
-                  <td>
-                    <%= "#{ad_to_bs_string(file.updated_at)} BS" %>
-                    <br>
-                    <%= "#{file.updated_at.to_date} AD" %>
-                  </td>
-                  <td><%= link_to 'view', share_transactions_path(:paginate => false, 'filterrific[by_date]': ad_to_bs_string(file.report_date)) %></td>
-                </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
+        <%= render 'files/floorsheets/list' %>
       </div>
     </div>
 

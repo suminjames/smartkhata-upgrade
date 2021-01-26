@@ -80,7 +80,7 @@ class DealCancelService
           client_ledger_id = @share_transaction.client_account.ledger.id
 
           voucher.particulars.each do |particular|
-            _particular = reverse_accounts(particular, new_voucher, description, dp_fee_adjustment)
+            _particular = reverse_accounts(particular, new_voucher, description, acting_user, dp_fee_adjustment)
 
             # assign the client particular to transaction
             @share_transaction.particulars_on_settlement << _particular if particular.ledger_id == client_ledger_id

@@ -11,5 +11,5 @@ class ParticularsShareTransaction < ApplicationRecord
   include Auditable
   belongs_to :particular
   belongs_to :share_transaction
-  enum association_type: { on_creation: 0, on_settlement: 1, on_payment_by_letter: 2 }
+  enum association_type: [:on_creation, :on_settlement, :on_payment_by_letter]
 end

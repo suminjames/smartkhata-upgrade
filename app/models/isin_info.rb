@@ -19,9 +19,9 @@ class IsinInfo < ApplicationRecord
   # The 'skip_company_validation' flag is true while importing floorsheet file.
   attr_accessor :skip_company_validation
 
-  validates :company, presence: { if: ->(record) { !record.skip_company_validation } }
-  validates :isin, presence: true
-  validates :isin, uniqueness: { case_sensitive: false }
+  validates_presence_of :company, :if => lambda{|record| !record.skip_company_validation }
+  validates_presence_of :isin, :sector
+  validates_uniqueness_of :isin, :case_sensitive => false
   has_many :order_request_details
 
   scope :by_isin_info_id, ->(isin_info_id) { where(id: isin_info_id) }
@@ -29,22 +29,31 @@ class IsinInfo < ApplicationRecord
   scope :by_isin, ->(isin) { where(isin: isin) }
 
   filterrific(
-    default_filter_params: {},
-    available_filters: %i[
-      by_isin_info_id
-      by_sector
-      by_isin
-    ]
+      default_filter_params: { },
+      available_filters: [
+          :by_isin_info_id,
+          :by_sector,
+          :by_isin
+      ]
   )
+
+
+  def commission_group
+    return :debenture if sector == 'Corporate Debenture'
+    return :mutual_funds if sector == 'Mutual Fund'
+    :regular
+  end
 
   # Used by combobox in view
   # In rare circumstances, the data crawled from nepse's site has (apparently errorenous) numeric(eg: 001) value as isin code for a company. This method makes it easier to identify a company in these cases.
-  def name_and_code(opts = {})
+  def name_and_code(opts={})
     if opts[:line_break] == true
-      _str = self.company.present? ? "#{self.isin}\n(#{self.company})" : self.isin.to_s
-      _str = _str.gsub("\n", "<br>").html_safe if opts[:html_safe] == true
+      _str =  self.company.present? ? "#{self.isin}\n(#{self.company})" : "#{self.isin}"
+      if opts[:html_safe] == true
+        _str = _str.gsub("\n", "<br>").html_safe
+      end
     else
-      _str = self.company.present? ? "#{self.isin} (#{self.company})" : self.isin.to_s
+      _str = self.company.present? ? "#{self.isin} (#{self.company})" : "#{self.isin}"
     end
     _str
   end
@@ -61,7 +70,9 @@ class IsinInfo < ApplicationRecord
   def self.options_for_sector_select
     options = []
     IsinInfo.select('DISTINCT sector').each do |isin_info|
-      options << [isin_info.sector] * 2 if isin_info.sector.present?
+      if isin_info.sector.present?
+        options << [isin_info.sector] * 2
+      end
     end
     options
   end
@@ -73,9 +84,11 @@ class IsinInfo < ApplicationRecord
       if isin_only
         isin_info
       else
-        identifier = (isin_info['isin']).to_s
-        identifier += " (#{isin_info['company']})" if isin_info['company'].present?
-        { text: identifier, id: isin_info['id'].to_s }
+        identifier = "#{isin_info['isin']}"
+        if isin_info['company'].present?
+          identifier += " (#{isin_info['company']})"
+        end
+        { :text=> identifier, :id => isin_info['id'].to_s }
       end
     end
   end
@@ -83,7 +96,7 @@ class IsinInfo < ApplicationRecord
   def self.find_or_create_new_by_symbol(company_symbol)
     # company_info = IsinInfo.find_by_isin(company_symbol)
     company_info = IsinInfo.where('isin ilike ?', company_symbol).first
-    if company_info.blank?
+    unless company_info.present?
       new_isin_info = IsinInfo.new
       new_isin_info.skip_company_validation = true
       new_isin_info.isin = company_symbol
@@ -96,4 +109,5 @@ class IsinInfo < ApplicationRecord
   def self.options_for_isin_select
     IsinInfo.all.order(:isin).pluck(:isin)
   end
+
 end

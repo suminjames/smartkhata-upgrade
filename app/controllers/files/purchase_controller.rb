@@ -6,9 +6,9 @@ class Files::PurchaseController < ApplicationController
 
   def import
     # authorize self
-    @file = params[:file]
+    @file = params[:file];
 
-    if @file.nil?
+    if @file == nil
       flash.now[:error] = "Please Upload a valid file"
       @error = true
     else
@@ -19,9 +19,9 @@ class Files::PurchaseController < ApplicationController
       end
 
       # @x = Date.parse(xlsx.sheet(0).row(5)[9].tr('()',""))
-      @x = []
+      @x= []
       (5..(xlsx.sheet(0).last_row)).each do |i|
-        break if xlsx.sheet(0).row(i)[0].nil?
+        break if xlsx.sheet(0).row(i)[0] == nil
       end
     end
   end

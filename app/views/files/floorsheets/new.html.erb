@@ -1,3 +1,4 @@
+<% date = ad_to_bs_string(Date.today) %>
 <% provide(:section_title, "Upload FloorSheet File") %>
 <p class="text-muted"> Note: Upload file should be in xls format</p>
 
@@ -6,6 +7,7 @@
       <div class="form-group">
         <%= file_field_tag :file %>
       </div>
+
       <div class="form-group">
         <%= check_box_tag  'is_partial_upload' %>
         <a class='no-hover warning-text' data-toggle='tooltip' title='Only select this if the floorsheet being uploaded is partial for its date.'>Partial Upload</a>
@@ -23,33 +25,7 @@
   </div>
   <div class="panel-body">
     <% if @file_list.present? %>
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <th>Report Date</th>
-            <th>Upload Date</th>
-          </tr>
-          </thead>
-          <tbody>
-          <% @file_list.each do |file| %>
-              <tr>
-                <td>
-                  <%= "#{ad_to_bs_string(file.report_date)} BS" %>
-                  <br>
-                  <%= "#{file.report_date.to_date} AD" %>
-                </td>
-                <td>
-                  <%= "#{ad_to_bs_string(file.updated_at)} BS" %>
-                  <br>
-                  <%= "#{file.updated_at.to_date} AD" %>
-                </td>
-                <td><%= link_to 'view', share_transactions_path(:paginate => false, 'filterrific[by_date]': ad_to_bs_string(file.report_date)) %></td>
-              </tr>
-          <% end %>
-          </tbody>
-        </table>
-      </div>
+      <%= render 'files/floorsheets/list' %>
       <% if @list_incomplete %>
         <div class="text-center">
           <%= link_to "View Full List", files_floorsheets_path %>

@@ -4,6 +4,7 @@ class Vouchers::Setup < Vouchers::Base
   end
 
   def voucher_setup(voucher_type, client_account_id, bill_ids, clear_ledger, selected_branch_id, selected_fy_code)
+
     bill_ids ||= []
 
     is_payment_receipt = false
@@ -11,7 +12,8 @@ class Vouchers::Setup < Vouchers::Base
     # ledger_list_available will be filled conditionally (for wide array of cases)
     ledger_list_available = []
 
-    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids, voucher_type, clear_ledger, selected_branch_id, selected_fy_code)
+    client_account, bills, amount, voucher_type, settlement_by_clearance, ledger_balance_adjustment = set_bill_client(client_account_id, bill_ids,voucher_type, clear_ledger,selected_branch_id, selected_fy_code)
+
 
     # do not create voucher if bills have pending deal cancel
     bills_have_pending_deal_cancel, bill_number_with_deal_cancel = bills_have_pending_deal_cancel(@bills)
@@ -27,15 +29,15 @@ class Vouchers::Setup < Vouchers::Base
 
       bank_accounts_in_branch = BankAccount.by_branch_id(selected_branch_id)
 
-      default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(default_for_payment: true).first
-      default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(default_for_receipt: true).first
+      default_for_payment_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_payment => true).first
+      default_for_receipt_bank_account_in_branch = bank_accounts_in_branch.where(:default_for_receipt => true).first
 
       # Check for availability of default bank accounts for payment and receipt in the current branch.
       # If not available in the current branch, resort to using whichever is available from all available branches.
-      ledger_list_financial = bank_accounts_in_branch.all.includes(:ledger).uniq.collect(&:ledger)
+      ledger_list_financial = bank_accounts_in_branch.all.includes(:ledger).uniq.collect(&:ledger).compact
 
-      default_bank_payment = default_for_payment_bank_account_in_branch.presence || BankAccount.where(default_for_payment: true).first
-      default_bank_receive = default_for_receipt_bank_account_in_branch.presence || BankAccount.where(default_for_receipt: true).first
+      default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
+      default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
 
       cash_ledger = Ledger.find_by(name: "Cash")
 
@@ -50,17 +52,19 @@ class Vouchers::Setup < Vouchers::Base
       ledger_list_financial = ledger_list_financial.uniq
 
       # default ledger selection for most of the cases
-      default_ledger_id = if voucher.is_bank_related_receipt?
-                            default_bank_receive ? default_bank_receive.ledger.id : cash_ledger.id
-                          elsif voucher.is_bank_related_payment?
-                            default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
-                          else
-                            cash_ledger.id
-                          end
+      if voucher.is_bank_related_receipt?
+        default_ledger_id = default_bank_receive ? default_bank_receive.ledger.id : cash_ledger.id
+      elsif voucher.is_bank_related_payment?
+        default_ledger_id = default_bank_payment ? default_bank_payment.ledger.id : cash_ledger.id
+      else
+        default_ledger_id = cash_ledger.id
+      end
 
       bill_id_names = bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')
 
-      bill_ids = bills.map(&:id) if bill_ids.size == 0
+      if bill_ids.size == 0
+        bill_ids = bills.map { |a| a.id }
+      end
 
       voucher.desc = "Settled for Bill No: #{bill_id_names}" if bills.size > 0
 
@@ -77,6 +81,7 @@ class Vouchers::Setup < Vouchers::Base
     vendor_account_list = VendorAccount.all
     client_ledger_list = []
 
+
     # cases for payment and receipt, if client account is present
     client_transaction_type = voucher.is_payment? ? Particular.transaction_types[:dr] : Particular.transaction_types[:cr]
 
@@ -86,12 +91,12 @@ class Vouchers::Setup < Vouchers::Base
       voucher.desc = "Settled for Bill No: #{bills.map { |a| "#{a.fy_code}-#{a.bill_number}" }.join(',')}" if bills.size > 0
 
       voucher.particulars << Particular.new(
-        ledger_id: client_account.ledger.id,
-        amount: amount,
-        bills_selection: bill_ids.join(','),
-        selected_bill_names: bill_id_names,
-        transaction_type: client_transaction_type,
-        ledger_balance_adjustment: ledger_balance_adjustment
+          ledger_id: client_account.ledger.id,
+          amount: amount,
+          bills_selection: bill_ids.join(','),
+          selected_bill_names: bill_id_names,
+          transaction_type: client_transaction_type,
+          ledger_balance_adjustment: ledger_balance_adjustment
       )
       ledger_list_available << client_account.ledger
     else
@@ -102,12 +107,15 @@ class Vouchers::Setup < Vouchers::Base
                                               bills_selection: bill_ids.join(','),
                                               selected_bill_names: bill_id_names,
                                               transaction_type: client_transaction_type,
-                                              ledger_balance_adjustment: ledger_balance_adjustment)
+                                              ledger_balance_adjustment: ledger_balance_adjustment
+        )
         ledger_list_available << client_account.ledger
       end
       # a general particular for the voucher
-      voucher.particulars << Particular.new if client_account.nil?
+      if client_account.nil?
+        voucher.particulars << Particular.new
+      end
     end
-    [voucher, is_payment_receipt, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, vendor_account_list, client_ledger_list]
+    return voucher, is_payment_receipt, ledger_list_financial, ledger_list_available, default_ledger_id, voucher_type, vendor_account_list, client_ledger_list
   end
 end

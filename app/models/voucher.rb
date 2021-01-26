@@ -26,12 +26,12 @@ class Voucher < ApplicationRecord
   include ::Models::UpdaterWithBranchFycode
   include CustomDateModule
 
-  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant
+  attr_accessor :skip_cheque_assign, :skip_number_assign, :current_tenant, :value_date_bs
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-  enum voucher_type: { journal: 0, payment: 1, receipt: 2, contra: 3, payment_cash: 4, receipt_cash: 5, payment_bank: 6, receipt_bank: 7, receipt_bank_deposit: 8 }
-  enum voucher_status: { pending: 0, complete: 1, rejected: 2, reversed: 3 }
+  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit]
+  enum voucher_status: [:pending, :complete, :rejected, :reversed]
 
   ########################################
   # Callbacks
@@ -44,42 +44,41 @@ class Voucher < ApplicationRecord
   # Relationships
   has_many :particulars
   has_many :share_transactions
-  has_many :ledgers, through: :particulars
-  has_many :cheque_entries, through: :particulars
+  has_many :ledgers, :through => :particulars
+  has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
 
   # defunct assumed
   has_many :settlements, dependent: :destroy
   # this might be the one in use
-  has_many :payment_receipts, through: :particulars, source: :settlements
+  has_many :payment_receipts, :through => :particulars, source: :settlements
   has_one :nepse_chalan
-
-  has_many :bill_voucher_associations, dependent: :destroy
-  has_many :bills_on_creation,
-           -> { where(bill_voucher_associations: { association_type: :on_creation }) },
-           through: :bill_voucher_associations,
-           source: :bill
-  has_many :bills_on_settlement,
-           -> { where(bill_voucher_associations: { association_type: :on_settlement }) },
-           through: :bill_voucher_associations,
-           source: :bill
+  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
+  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
+  has_many :bill_voucher_associations,  dependent: :destroy
+  has_many :bills_on_creation, through: :on_creation, source: :bill
+  has_many :bills_on_settlement, through: :on_settlement, source: :bill
   has_many :bills, through: :bill_voucher_associations
-  belongs_to :reviewer, class_name: 'User', optional: true
+  belongs_to :reviewer, class_name: 'User'
 
   has_one :mandala_voucher, class_name: "Mandala::Voucher"
   ########################################
   # Validations
   # validate :date_valid_for_fy_code?
-  validates :voucher_number, uniqueness: { scope: %i[voucher_type fy_code], allow_nil: true }
+  validates_uniqueness_of :voucher_number, :scope => [ :voucher_type, :fy_code ], :allow_nil => true
+
+
+  # validate :value_date_after_date
+
   ########################################
   # scopes
-  scope :by_branch_fy_code, lambda { |branch_id, fy_code|
+  scope :by_branch_fy_code, ->(branch_id, fy_code) do
     if branch_id == 0
       where(fy_code: fy_code)
     else
       where(branch_id: branch_id, fy_code: fy_code)
     end
-  }
+  end
 
   def voucher_code
     case self.voucher_type.to_sym
@@ -128,42 +127,44 @@ class Voucher < ApplicationRecord
     self.payment? || self.payment_bank?
   end
 
+
   def map_payment_receipt_to_new_types
     if self.receipt? || self.payment?
-      self.voucher_type = if self.receipt?
-                            if self.cheque_entries.count > 0
-                              :receipt_bank
-                            else
-                              :receipt_cash
-                            end
-                          else
-                            if self.cheque_entries.count > 0
-                              :payment_bank
-                            else
-                              :payment_cash
-                            end
-                          end
+      if self.receipt?
+        if self.cheque_entries.count > 0
+          self.voucher_type = :receipt_bank
+        else
+          self.voucher_type = :receipt_cash
+        end
+      else
+        if self.cheque_entries.count > 0
+          self.voucher_type = :payment_bank
+        else
+          self.voucher_type = :payment_cash
+        end
+      end
     end
   end
 
   def has_incorrect_fy_code?
     true_fy_code = get_fy_code(self.date)
     return true if true_fy_code != self.fy_code
-
     false
   end
 
   private
-
   def process_voucher
     self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
+    self.value_date ||= self.date
+    self.value_date ||= bs_to_ad(self.value_date_bs)
     fy_code = get_fy_code(self.date)
-    # TODO: double check the query for enum
+
+    # TODO double check the query for enum
     # rails enum and query not working properly
     unless skip_number_assign
       last_voucher = Voucher.unscoped.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).where.not(voucher_number: nil).order(voucher_number: :desc).first
-      self.voucher_number ||= last_voucher.present? ? (last_voucher.voucher_number + 1) : 1
+      self.voucher_number ||= last_voucher.present? ? ( last_voucher.voucher_number + 1 ): 1
     end
     self.fy_code = fy_code
   end
@@ -175,7 +176,7 @@ class Voucher < ApplicationRecord
   def assign_cheque
     if self.is_payment?
       cheque_entries = self.cheque_entries.payment.uniq
-      dr_particulars = self.particulars.select(&:dr?)
+      dr_particulars = self.particulars.select{ |x| x.dr? }
 
       dr_particulars.each do |particular|
         if particular.cheque_entries_on_payment.size <= 0
@@ -187,26 +188,26 @@ class Voucher < ApplicationRecord
       cheque_entries.each do |cheque|
         if dr_particulars.size > 0
 
-          beneficiary_name = if dr_particulars.first.has_bank?
-                               current_tenant.full_name
-                             else
-                               dr_particulars.first.ledger.name
-                             end
+          if dr_particulars.first.has_bank?
+            beneficiary_name = current_tenant.full_name
+          else
+            beneficiary_name = dr_particulars.first.ledger.name
+          end
         end
         cheque.beneficiary_name ||= beneficiary_name
         cheque.save!
       end
       # Check to see if transaction between internal banks.
       # If so, add beneficiary names to the other as current tenant's full name.
-      cr_particulars = self.particulars.select(&:cr?)
+      cr_particulars = self.particulars.select{ |x| x.cr? }
       if dr_particulars.size > 0 && cr_particulars.size > 0 && dr_particulars.first.has_bank? && cr_particulars.first.has_bank?
         cheque_entries = self.cheque_entries.receipt.uniq
         cheque_entries.each do |cheque|
-          beneficiary_name = if cr_particulars.first.has_bank?
-                               current_tenant.full_name
-                             else
-                               cr_particulars.first.ledger.name
-                             end
+          if cr_particulars.first.has_bank?
+            beneficiary_name = current_tenant.full_name
+          else
+            beneficiary_name = cr_particulars.first.ledger.name
+          end
           cheque.beneficiary_name ||= beneficiary_name
           cheque.save!
         end
@@ -222,11 +223,11 @@ class Voucher < ApplicationRecord
       end
 
       cheque_entries.each do |cheque|
-        beneficiary_name = if particulars.first.has_bank?
-                             current_tenant.full_name
-                           else
-                             particulars.first.ledger.name
-                           end
+        if particulars.first.has_bank?
+          beneficiary_name = current_tenant.full_name
+        else
+          beneficiary_name = particulars.first.ledger.name
+        end
         cheque.beneficiary_name ||= beneficiary_name
         cheque.save!
       end
@@ -234,5 +235,9 @@ class Voucher < ApplicationRecord
     end
   end
 
-  #   Voucher.includes(:mandala_voucher).where('voucher.id is NULL').references(:mandala_voucher)
+  # def value_date_after_date
+  #   if value_date.present? && value_date < date
+  #     errors.add(:value_date, "can not be of past date")
+  #   end
+  # end
 end

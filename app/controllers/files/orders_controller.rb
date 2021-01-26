@@ -2,7 +2,7 @@ class Files::OrdersController < Files::FilesController
   before_action -> {authorize self}
   helper_method :is_active_sub_menu_option
 
-  @@file_type = FileUpload.file_types[:orders]
+  @@file_type = FileUpload::file_types[:orders]
   @@file_name_contains = "order"
 
   def index
@@ -38,5 +38,7 @@ class Files::OrdersController < Files::FilesController
         end
       end
     end
+
   end
+
 end

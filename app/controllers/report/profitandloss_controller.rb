@@ -8,10 +8,10 @@ class Report::ProfitandlossController < ApplicationController
 
     @selected_drill_level = drill_level || 1
     @balance = Group.pnl
-    @profit = {}
+    @profit = Hash.new
     @profit_total = 0
     @loss_total = 0
-    @loss = {}
+    @loss = Hash.new
     @amount = 0
     @balance.each do |balance|
       if balance.sub_report == Group.sub_reports['Income']
@@ -25,7 +25,8 @@ class Report::ProfitandlossController < ApplicationController
       end
     end
 
-    @loss_total -= @amount if @amount.negative?
-    @profit_total += @amount if @amount > 0
+    @loss_total -= @amount if @amount < 0
+    @profit_total += @amount if @amount >0
+
   end
 end

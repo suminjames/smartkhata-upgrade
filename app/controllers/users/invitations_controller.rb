@@ -4,6 +4,7 @@ class Users::InvitationsController < Devise::InvitationsController
     authorize self
     require 'securerandom'
 
+
     url = request.referer || client_accounts_path
 
     ids_with_email_initial = params[:ids_for_invite].map(&:to_i) if params[:ids_for_invite].present?
@@ -16,20 +17,20 @@ class Users::InvitationsController < Devise::InvitationsController
     ids_with_email = ids_with_email_initial - ids_without_email
     ids_with_email ||= []
 
-    redirect_to url, alert: "Select atleast one client" and return if ids_with_email.blank? && ids_without_email.blank?
+    if ids_with_email.blank? and ids_without_email.blank?
+      redirect_to url, :alert => "Select atleast one client" and return
+    end
 
     ids_with_email.each do |id|
       account = ClientAccount.find_by(id: id)
       accounts = ClientAccount.where(email: account.email)
       # update the accounts to invited.
       ActiveRecord::Base.transaction do
-        if valid_email?(account.email)
-          user = User.invite!(
-            email: account.email,
-            role: :client,
-            branch_id: @selected_branch_id
-          )
-        end
+        user = User.invite!(
+            :email => account.email,
+            :role => :client,
+            :branch_id => @selected_branch_id
+        ) if valid_email?(account.email)
 
         accounts.each do |a|
           a.skip_validation_for_system = true
@@ -46,16 +47,16 @@ class Users::InvitationsController < Devise::InvitationsController
 
       ActiveRecord::Base.transaction do
         new_user = User.create!(
-          {
-            username: account.nepse_code,
-            role: :client,
-            branch_id: @selected_branch_id,
-            password: temp_password,
-            password_confirmation: temp_password,
-            confirmed_at: Time.zone.now,
-            temp_password: temp_password,
-            email: nil
-          }
+            {
+                :username => account.nepse_code,
+                :role => :client,
+                :branch_id => @selected_branch_id,
+                :password => temp_password,
+                :password_confirmation => temp_password,
+                confirmed_at: Time.now,
+                temp_password: temp_password,
+                email: nil
+            }
         )
 
         account.user_id = new_user.id
@@ -64,7 +65,7 @@ class Users::InvitationsController < Devise::InvitationsController
     end
 
     notice = "Action completed successfully"
-    redirect_to url, notice: notice
+    redirect_to url, :notice => notice
   end
 
   private

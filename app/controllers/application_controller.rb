@@ -1,11 +1,12 @@
 class ApplicationController < ActionController::Base
+
   before_action :configure_permitted_parameters, if: :devise_controller?
   attr_reader :selected_fy_code, :selected_branch_id
   include Pundit
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
-  before_action :set_mailer_host
+  before_filter :set_mailer_host
 
   # extend ActiveSupport::Concern
 
@@ -13,11 +14,11 @@ class ApplicationController < ActionController::Base
   include ApplicationHelper
 
   # Callbacks
-  before_action :authenticate_user!, unless: :devise_controller?
+  before_action :authenticate_user!, :unless => :devise_controller?
   before_action :set_branch_fy_params
-  after_action :verify_authorized, unless: :devise_controller?
-  before_action :validate_certificate, unless: :devise_controller?
-  before_action :verify_absence_of_temp_password, unless: :devise_controller?
+  after_action :verify_authorized, :unless => :devise_controller?
+  before_action :validate_certificate, :unless => :devise_controller?
+  before_action :verify_absence_of_temp_password, :unless => :devise_controller?
 
   # method from menu permission module
   before_action :get_blocked_path_list, if: :user_signed_in?
@@ -29,7 +30,7 @@ class ApplicationController < ActionController::Base
   def record_not_found
     #  raise ActiveRecord::RecordNotFound.new('Record Not Found')
     #TODO Create a custom 'Record Not Found' or similar 405 page instead of using 404.html
-    render file: "#{Rails.root}/public/404.html", status: 404
+    render :file => "#{Rails.root}/public/404.html", :status => 404
   end
 
   private
@@ -41,6 +42,7 @@ class ApplicationController < ActionController::Base
     @current_tenant ||= Tenant.find_by(name: 'smartkhata')
   end
   helper_method :current_tenant
+
 
   def set_mailer_host
     # subdomain = current_tenant ? "#{current_tenant.name}." : ""
@@ -80,13 +82,15 @@ class ApplicationController < ActionController::Base
 
   def user_not_authorized
     flash[:alert] = "Access denied."
-    redirect_to(request.referer || root_path)
+    redirect_to (request.referrer || root_path)
   end
 
   def verify_absence_of_temp_password
     # check if the user has temp password
     # if yes force user to change password
-    redirect_to edit_user_registration_path, alert: "You must change your password before logging in for the first time" if user_signed_in? && current_user.temp_password.present?
+    if user_signed_in? && current_user.temp_password.present?
+      redirect_to edit_user_registration_path, alert: "You must change your password before logging in for the first time"
+    end
   end
 
   #   set the default fycode and branch params
@@ -94,7 +98,9 @@ class ApplicationController < ActionController::Base
     @selected_fy_code = params[:selected_fy_code].nil? ? get_fy_code : params[:selected_fy_code].to_i
     _branch_id = params[:selected_branch_id].to_i
 
-    _branch_id = current_user.available_branch_ids.first if current_user && !current_user.available_branch_ids.include?(_branch_id)
+    if current_user && !current_user.available_branch_ids.include?(_branch_id)
+      _branch_id = current_user.available_branch_ids.first
+    end
 
     @selected_branch_id = _branch_id
     if current_user
@@ -106,7 +112,7 @@ class ApplicationController < ActionController::Base
 
   # added username as permitted parameters
   def configure_permitted_parameters
-    added_attrs = %i[username email password password_confirmation remember_me]
+    added_attrs = [:username, :email, :password, :password_confirmation, :remember_me]
     devise_parameter_sanitizer.permit :sign_up, keys: added_attrs
     devise_parameter_sanitizer.permit :account_update, keys: added_attrs
   end
@@ -136,16 +142,16 @@ class ApplicationController < ActionController::Base
 
   def default_url_options
     {
-      selected_fy_code: @selected_fy_code,
-      selected_branch_id: @selected_branch_id
+        selected_fy_code: @selected_fy_code,
+        selected_branch_id: @selected_branch_id
     }
   end
 
-  def with_branch_user_params(permitted_params, assign_branch = true)
-    branch_id = branch_id_for_entry(permitted_params[:branch_id])
+  def with_branch_user_params permitted_params, assign_branch = true
+    branch_id = branch_id_for_entry( permitted_params[:branch_id] )
     _additional_params = { current_user_id: current_user.id }
     # update method needs to explicitly provide branch_id
-    _additional_params[:branch_id] = branch_id if assign_branch && params[:action] != 'update'
+    _additional_params.merge!({ branch_id: branch_id }) if assign_branch && params[:action] != 'update'
     permitted_params.merge!(_additional_params)
   end
 end

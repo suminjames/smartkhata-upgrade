@@ -13,8 +13,10 @@ Note:
   # Client associated with the bill
   @client = bill.get_client
 %>
-
+<p id="notice"><%= notice %></p>
 <%= link_to "View(pdf)", bill_path(format: 'pdf', t: Time.current.to_i), :target => "_blank" %>
+
+<%= link_to 'Send Email', send_email_bills_path(:bill_id => bill.id), remote: true, class: 'btn btn-sm btn-default',  id: 'send-email' %>
 
 <div class="btnPrintPDF btnPrintBillPDF" id="bill-<%= bill.id %>">
   <span class="glyphicon glyphicon-print print-icon"></span>
@@ -133,7 +135,7 @@ Note:
         </colgroup>
         <%
           # bill.share_transactions.each do | share_transaction |
-          bill.formatted_group_same_isin_same_rate_transactions.each do |formatted_share_transaction|
+          bill.formatted_share_transactions.each do |formatted_share_transaction|
             # Only show those share transactions that haven't been 'deal cancelled'
         %>
             <tr>

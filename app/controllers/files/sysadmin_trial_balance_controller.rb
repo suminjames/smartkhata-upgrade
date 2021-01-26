@@ -2,9 +2,11 @@ class Files::SysadminTrialBalanceController < Files::FilesController
   before_action -> {authorize self}
 
   def index
+
   end
 
   def new
+
   end
 
   def import
@@ -18,7 +20,7 @@ class Files::SysadminTrialBalanceController < Files::FilesController
 
     if file_upload.error_message
       file_error(file_upload.error_message)
-      nil
+      return
     end
 
     # else redirect to settlement path

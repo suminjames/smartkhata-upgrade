@@ -20,7 +20,9 @@ class MasterSetup::BrokerProfilesController < ApplicationController
   def new
     locale = params[:locale]
     @broker_profile = MasterSetup::BrokerProfile.new
-    @broker_profile.locale = locale if locale.present?
+    if locale.present?
+      @broker_profile.locale = locale
+    end
   end
 
   # GET /broker_profiles/1/edit
@@ -80,10 +82,10 @@ class MasterSetup::BrokerProfilesController < ApplicationController
   def check_for_maximum_limit_reached
     if MasterSetup::BrokerProfile.has_maximum_records?
       redirect_to(
-        {
-          action: 'index'
-        },
-        alert: "Broker Profile number exceeded."
+          {
+              action: 'index'
+          },
+          alert: "Broker Profile number exceeded."
       ) and return
     end
   end

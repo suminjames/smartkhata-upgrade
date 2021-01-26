@@ -6,15 +6,15 @@ class Files::FloorsheetsController < Files::FilesController
   include ShareInventoryModule
   include FiscalYearModule
 
-  @@file_type = FileUpload.file_types[:floorsheet]
+  @@file_type = FileUpload::file_types[:floorsheet]
   @@file_name_contains = "floor_sheet"
 
   # amount above which it has to be settled within brokers.
-  THRESHOLD_NEPSE_AMOUNT_LIMIT = 5_000_000
+  THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
 
   def new
     floorsheets = FileUpload.where(file_type: @@file_type)
-    @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT)
+    @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
     @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
   end
 
@@ -28,8 +28,20 @@ class Files::FloorsheetsController < Files::FilesController
     #              (Sample files: test/fixtures/files/invalid_files)
     # get file from import
     @file = params[:file]
+    # begin
+    #   @value_date = bs_to_ad(params[:value_date_bs])
+    #   unless parsable_date?(@value_date) && date_valid_for_fy_code(@value_date, selected_fy_code)
+    #     file_error("Value date should lie within the current fiscal year!") and return
+    #   end
+    # rescue
+    #   file_error("Value date should lie within the current fiscal year!") and return
+    # end
+
+
     @is_partial_upload = params[:is_partial_upload] == '1'
-    file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return if is_invalid_file(@file, @@file_name_contains)
+    if (is_invalid_file(@file, @@file_name_contains))
+      file_error("Please Upload a valid file and make sure the file name contains floor_sheet.") and return
+    end
 
     floorsheet_upload = FilesImportServices::ImportFloorsheet.new(@file, current_user, selected_fy_code, @is_partial_upload)
     floorsheet_upload.process
@@ -50,4 +62,25 @@ class Files::FloorsheetsController < Files::FilesController
       end
     end
   end
+
+  def edit
+    @file_upload = FileUpload.find(params[:id])
+  end
+
+  def change
+    @file_upload = FileUpload.find(params[:id])
+    begin
+      @value_date = bs_to_ad(params[:value_date_bs])
+      unless parsable_date?(@value_date) && date_valid_for_fy_code(@value_date, selected_fy_code, @file_upload.report_date)
+        file_error("Value date should lie within the current fiscal year!") and return
+      end
+    rescue
+      file_error("Value date should lie within the current fiscal year!") and return
+    end
+
+    unless @file_upload.update({ value_date: @value_date})
+      file_error("Value date change was not successful") and return
+    end
+  end
 end
+

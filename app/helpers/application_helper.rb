@@ -11,10 +11,11 @@ module ApplicationHelper
     id = new_object.object_id
     fields = f.fields_for(association, new_object, child_index: id) do |builder|
       # render(association.to_s.singularize + "_fields" , f: builder)
-      render partial: association.to_s.singularize + "_fields", locals: { f: builder, extra_info: extra_info, sk_id: id}
+      render :partial => association.to_s.singularize + "_fields", :locals => {:f => builder, :extra_info => extra_info, sk_id: id}
     end
-    link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.delete("\n")})
+    link_to(name, '#', class: "add_fields btn btn-info btn-flat", data: {id: id, fields: fields.gsub("\n", "")})
   end
+
 
   # Get a unique order number based on fiscal year
   # The returned order number is an increment (by 1) of the previously stored order number.
@@ -29,6 +30,7 @@ module ApplicationHelper
     end
   end
 
+
   # Get a unique bill number based on fiscal year
   # The returned bill number is an increment (by 1) of the previously stored bill_number.
   def get_bill_number(fy_code = get_fy_code)
@@ -36,12 +38,12 @@ module ApplicationHelper
   end
 
   # process accounts to make changes on ledgers
-  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date, current_user)
-    Ledgers::ParticularEntry.new(current_user.id).insert(ledger, voucher, debit, amount, descr, branch_id, transaction_date, current_user.id)
+  def process_accounts(ledger, voucher, debit, amount, descr, branch_id, transaction_date, current_user, value_date = nil)
+    Ledgers::ParticularEntry.new(current_user.id).insert(ledger, voucher, debit, amount, descr, branch_id, transaction_date, current_user.id, value_date)
   end
 
-  def reverse_accounts(particular, voucher, descr, _adjustment = 0.0, cheque_entry = nil, current_user_id)
-    Ledgers::ParticularEntry.new(current_user_id).revert(particular, voucher, descr, adjustment = 0.0, cheque_entry, current_user_id)
+  def reverse_accounts(particular,  voucher, descr, current_user_id, adjustment = 0.0,  cheque_entry = nil, value_date = nil)
+    Ledgers::ParticularEntry.new(current_user_id).revert(particular, voucher, descr, adjustment = 0.0, cheque_entry)
   end
 
   # method to calculate the broker commission
@@ -56,7 +58,7 @@ module ApplicationHelper
 
   # 	get the margin of error amount
   def margin_of_error_amount
-    0.01
+    return 0.01
   end
 
   def equal_amounts?(amount_a, amount_b)
@@ -82,8 +84,12 @@ module ApplicationHelper
     session[:user_selected_branch_id] = branch_id
   end
 
+
   # get available branches
-  delegate :available_branches, to: :current_user
+  def available_branches
+    # available_branches_for_user(current_user)
+    current_user.available_branches
+  end
 
   # get the branches that are available for the user
   # for admin and client all the branch are available
@@ -101,6 +107,7 @@ module ApplicationHelper
     _available_branches
   end
 
+
   # @params time - Time object holds time, date and timezone
   def to_ktm_timezone(time)
     time.in_time_zone("Kathmandu")
@@ -117,6 +124,7 @@ module ApplicationHelper
     str.titleize
   end
 
+
   # For serial number in element listing to work properly with kaminari pagination
   def kaminari_serial_number(page_number, per_page)
     params[:page].blank? ? 1 : ((page_number.to_i - 1) * per_page) + 1
@@ -131,17 +139,19 @@ module ApplicationHelper
   end
 
   def get_user_name_from_boid(boid)
-    new_boid = boid[-8, 8]
-    new_boid.sub!(/^[0]+/, '')
-    new_boid = boid[-4, 4] unless new_boid.length >= 4
+    new_boid = boid[-8,8]
+    new_boid.sub!(/^[0]+/,'')
+    unless new_boid.length >= 4
+      new_boid = boid[-4,4]
+    end
     new_boid
   end
 
   def get_common_name_from_dn(string)
     # /C=NP/ST=Bagmati/L=Kathmandu/O=Trishakti Securities/OU=Web/CN=Client
-    if string.present?
+    unless string.blank?
       string_arr = string.split('/')
-      cn_arr = string_arr.select { |x| (x =~ /CN=/).present? }
+      cn_arr = string_arr.select{|x| (x =~ /CN=/).present? }
       if cn_arr.first.present?
         cn_key_pair = cn_arr.first
         return cn_key_pair.split('=')[1]
@@ -150,7 +160,7 @@ module ApplicationHelper
     nil
   end
 
-  def valid_certificate?(_user)
+  def valid_certificate? user
     # return false if request.headers.env["HTTP_X_CLIENT_VERIFY"] != 'SUCCESS'
     #
     # if Rails.env.production?

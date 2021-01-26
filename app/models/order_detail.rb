@@ -20,28 +20,28 @@
 #
 
 class OrderDetail < ApplicationRecord
-  include Auditable
+  #include Auditable
   belongs_to :isin_info
   belongs_to :order
 
-  validates :isin_info_id, presence: true
-  validates :order_id, presence: true
-  validates :order_nepse_id, length: { minimum: 5 }
+  validates_presence_of :isin_info_id
+  validates_presence_of :order_id
+  validates_length_of :order_nepse_id, :minimum => 5
 
   # As enum type 'new' is reserved for new object creation, used 'neww' instead.
-  enum state: { cancelled: 0, executed: 1, queued: 2, neww: 3 }
+  enum state: [:cancelled, :executed, :queued, :neww]
 
-  enum typee: { buy: 0, sell: 1 }
+  enum typee: [:buy, :sell]
 
   # ct: continous trade
   # atc: at the time of closing
   # ato: at the time of opening
-  enum segment: { ct: 0, atc: 1, ato: 2 }
+  enum segment: [:ct, :atc, :ato]
 
-  # TODO(sarojk): Find out what is a condition? Possible values?
+  #TODO(sarojk): Find out what is a condition? Possible values?
   # none is reserved, so resorted to 'nonee'
   # ioc: immediate or cancel
   # fok: fill or kill
   # aon: all or none
-  enum condition: { nonee: 0, aon: 1, ioc: 2, fok: 3 }
+  enum condition: [:nonee, :aon, :ioc, :fok]
 end

@@ -46,6 +46,8 @@ class UserAccessRolesController < ApplicationController
     @menu_items = MenuItem.arrange
     @user_access_role = UserAccessRole.new(user_access_role_params)
 
+
+
     respond_to do |format|
       if @user_access_role.save
         format.html { redirect_to @user_access_role, notice: 'User access role was successfully created.' }
@@ -82,13 +84,13 @@ class UserAccessRolesController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_user_access_role
-    @user_access_role = UserAccessRole.find(params[:id])
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_user_access_role
+      @user_access_role = UserAccessRole.find(params[:id])
+    end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def user_access_role_params
-    params.require(:user_access_role).permit(:role_type, :role_name, :description, :access_level, menu_item_ids: [])
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def user_access_role_params
+      params.require(:user_access_role).permit(:role_type, :role_name, :description, :access_level, :menu_item_ids => [])
+    end
 end

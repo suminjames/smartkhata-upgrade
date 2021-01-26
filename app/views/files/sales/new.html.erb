@@ -1,3 +1,4 @@
+<% date = ad_to_bs_string(Date.today) %>
 <% provide(:section_title, "Upload Sales CM File") %>
 
 <div>
@@ -5,12 +6,11 @@
       <label for="settlment_date">Settlement Date (BS)</label>
       <div class="row">
         <div class="col-sm-2">
-
           <div class="form-group">
             <%= text_field_tag :settlement_date, nil, placeholder: "YYYY-MM-DD", :autofocus => true, class: 'form-control'  %>
           </div>
         </div>
-      </div>
+        </div>
 
       <div class="form-group">
         <%= file_field_tag :file %>

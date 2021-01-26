@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   # get '/', to: '/hello/hi', via: [:get]
   # root :to => redirect('visitors#index')
   # scope "#{session[user_selected_fy_code]}/#{session[user_selected_branch_id]}" do
@@ -10,6 +11,8 @@ Rails.application.routes.draw do
   match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
 
   scope "/:selected_fy_code/:selected_branch_id" do
+    resources :interest_particulars
+    resources :interest_rates
     resources :order_request_details do
       collection do
         get :client_report
@@ -152,6 +155,7 @@ Rails.application.routes.draw do
         post 'sales_payment_process'
         get 'select_for_settlement'
         get 'ageing_analysis'
+        get 'send_email'
       end
     end
     resources :transaction_messages do
@@ -179,6 +183,9 @@ Rails.application.routes.draw do
 
       member do
         get 'toggle_restriction'
+        get 'particulars/:particular_id/edit', to: 'ledgers#edit_particular', as: :edit_particular
+        patch 'particulars/:particular_id/update', to: 'ledgers#update_particular', as: :update_particular
+        get 'send_email'
       end
     end
     # end
@@ -205,8 +212,13 @@ Rails.application.routes.draw do
       resources :orders, only: [:new, :index] do
         collection {post :import}
       end
-      resources :floorsheets, only: [:new, :index] do
-        collection {post :import}
+      resources :floorsheets, only: [:new, :index, :edit] do
+        collection do
+          post :import
+        end
+        member do
+          post :change
+        end
       end
       resources :sales, only: [:new, :index] do
         collection {post :import}
@@ -281,6 +293,3 @@ Rails.application.routes.draw do
     collection { get :reset_temporary_password }
   end
 end
-
-
-

@@ -15,7 +15,7 @@ class VouchersController < ApplicationController
 
   def pending_vouchers
     # @vouchers = Voucher.pending.includes(:particulars).order("id ASC").references(:particulars).decorate
-    @vouchers = Voucher.by_branch_fy_code(selected_branch_id, selected_fy_code).pending.includes(particulars: :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
+    @vouchers = Voucher.by_branch_fy_code(selected_branch_id, selected_fy_code).pending.includes(:particulars => :cheque_entries).order("cheque_entries.cheque_number DESC").references(:particulars, :cheque_entries).decorate
     render :index
   end
 
@@ -27,7 +27,7 @@ class VouchersController < ApplicationController
     @particulars = @voucher.particulars
     # this case is for payment by bank and should not affect others
     if @voucher.is_payment_bank && !full_view
-      @from_path = vouchers_path if /new/.match?(@from_path)
+      @from_path = vouchers_path if @from_path.match(/new/)
 
       # TODO remove this hack
       @particulars_with_bank = @particulars.has_bank
@@ -38,11 +38,11 @@ class VouchersController < ApplicationController
       @cheque = @particular_with_bank.cheque_number
 
       # hack to show only the particulars with dr incase of more than one cheque entry in receipt
-      @particulars = if @particulars_with_bank.dr.size > 0
-                       @particulars.has_bank.dr
-                     else
-                       @particulars.general
-                     end
+      if @particulars_with_bank.dr.size > 0
+        @particulars = @particulars.has_bank.dr
+      else
+        @particulars = @particulars.general
+      end
 
     end
     @particulars = @particulars.includes(:ledger, :voucher, :cheque_entries).order("cheque_entries.cheque_number ASC").references(:cheque_entries)
@@ -103,16 +103,16 @@ class VouchersController < ApplicationController
         @voucher = voucher_creation.voucher
         settlements = voucher_creation.settlements
 
-        format.html do
+        format.html {
           if settlements.size > 0 && !@voucher.is_payment_bank?
             # settlement_ids = settlements.pluck(:id)
             settlement_ids = settlements.map(&:id)
-            # TODO: (Remove this hack to show all the settlements)
+            # TODO (Remove this hack to show all the settlements)
             redirect_to show_multiple_settlements_path(settlement_ids: settlement_ids)
           else
             redirect_to @voucher, notice: 'Voucher was successfully created.'
           end
-        end
+        }
         format.json { render :show, status: :created, location: @voucher }
       else
         @voucher = voucher_creation.voucher
@@ -128,14 +128,16 @@ class VouchersController < ApplicationController
         @group_leader_ledger_id = voucher_creation.group_leader_ledger_id
         @vendor_account_id = voucher_creation.vendor_account_id
 
-        flash.now[:error] = voucher_creation.error_message if voucher_creation.error_message
+        if voucher_creation.error_message
+          flash.now[:error] = voucher_creation.error_message
+        end
         format.html { render :new }
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
-  rescue ActiveRecord::RecordInvalid => e
-    flash[:error] = e.message
-    redirect_to :back
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      redirect_to :back
   end
 
   # PATCH/PUT /vouchers/1
@@ -174,14 +176,17 @@ class VouchersController < ApplicationController
       if !@voucher.rejected? && !@voucher.complete?
         if params[:approve]
           Voucher.transaction do
+
             particular_ids = []
             @voucher.particulars.each do |particular|
               Ledgers::ParticularEntry.new(current_user.id).insert_particular(particular)
-              particular_ids << particular.id
+              particular_ids  << particular.id
             end
 
             cheque_ids = ChequeEntryParticularAssociation.where(particular_id: particular_ids).pluck(:cheque_entry_id).uniq
-            ChequeEntry.unscoped.where(id: cheque_ids).each(&:approved!)
+            ChequeEntry.unscoped.where(id: cheque_ids).each do |cheque_entry|
+              cheque_entry.approved!
+            end
 
             @voucher.reviewer_id = current_user&.id
             @voucher.complete!
@@ -205,11 +210,11 @@ class VouchersController < ApplicationController
                 cheque_entry.current_user_id = current_user.id
                 cheque_entry.void!
               else
-                replacement_cheque_entry = ChequeEntry.new
+                replacement_cheque_entry = ChequeEntry.new()
                 replacement_cheque_entry.cheque_number = cheque_entry.cheque_number
-                replacement_cheque_entry.bank_account_id = cheque_entry.bank_account_id
+                replacement_cheque_entry.bank_account_id= cheque_entry.bank_account_id
                 replacement_cheque_entry.branch_id = cheque_entry.branch_id
-                replacement_cheque_entry.fy_code = cheque_entry.fy_code
+                replacement_cheque_entry.fy_code= cheque_entry.fy_code
                 replacement_cheque_entry.current_user_id = current_user.id
                 # The destroy will also delete cheque_entry_particular_associations via model callbacks
                 cheque_entry.destroy!
@@ -244,6 +249,7 @@ class VouchersController < ApplicationController
 
             @voucher.rejected!
             success = true if @voucher.save!
+
           end
 
           message = 'Payment Voucher was successfully rejected'
@@ -251,16 +257,18 @@ class VouchersController < ApplicationController
       else
         error_message = 'Voucher is already processed.'
       end
+
     end
 
     respond_to do |format|
-      format.html do
+      format.html {
         redirect_to from_path, notice: message if success
         redirect_to from_path, alert: error_message unless success
-      end
+      }
       format.json { head :no_content }
     end
   end
+
 
   # returns client account, bill, group of bills and amount to be paid
   def set_bill_client(client_account_id, bill_id, voucher_type)
@@ -280,18 +288,19 @@ class VouchersController < ApplicationController
       bill = nil
     end
 
+
     case voucher_type
       when Voucher.voucher_types[:receipt]
         # check if the client account is present
         # and grab all the bills from which we can receive amount if bill is not present
         # else grab the amount to be paid from the bill
         if client_account.present?
-          if bill.present?
-            bills = [bill]
-            amount = bill.balance_to_pay
-          else
+          unless bill.present?
             bills = client_account.bills.requiring_receive
             amount = bills.sum(:balance_to_pay)
+          else
+            bills = [bill]
+            amount = bill.balance_to_pay
           end
 
           amount = amount.abs
@@ -299,29 +308,32 @@ class VouchersController < ApplicationController
 
       when Voucher.voucher_types[:payment]
         if client_account.present?
-          if bill.present?
-            bills = [bill]
-            amount = bill.balance_to_pay
-          else
+          unless bill.present?
             bills = client_account.bills.requiring_payment
             amount = bills.sum(:balance_to_pay)
+          else
+            bills = [bill]
+            amount = bill.balance_to_pay
           end
           amount = amount.abs
         end
     end
     amount = amount.round(2)
-    [client_account, bill, bills, amount]
+    return client_account, bill, bills, amount
   end
 
+
   def convert_date
-    if params[:convert_to] == 'bs'
-      date = ad_to_bs(params[:date])
-    elsif params[:convert_to] == 'ad'
-      date = bs_to_ad(params[:date])
+    begin
+      if params[:convert_to] == 'bs'
+        date = ad_to_bs(params[:date])
+      elsif params[:convert_to] == 'ad'
+        date = bs_to_ad(params[:date])
+      end
+      render json: { date: date || '' }, status: :ok
+    rescue
+      render json: { error: 'Invalid Date'}, status: :forbidden
     end
-    render json: { date: date || '' }, status: :ok
-  rescue StandardError
-    render json: { error: 'Invalid Date'}, status: :forbidden
   end
 
   private
@@ -340,7 +352,7 @@ class VouchersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
-    permitted_params = params.require(:voucher).permit(:date_bs, :voucher_type, :desc, particulars_attributes: %i[ledger_id description amount transaction_type cheque_number additional_bank_id branch_id bills_selection selected_bill_names ledger_balance_adjustment current_user_id])
+    permitted_params = params.require(:voucher).permit(:date_bs, :value_date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment, :current_user_id])
     with_branch_user_params(permitted_params)
   end
 
@@ -369,7 +381,7 @@ class VouchersController < ApplicationController
   def set_clear_ledger
     clear_ledger = false
     if params[:clear_ledger].present?
-      return true if params[:clear_ledger] == true || params[:clear_ledger] == 'true'
+      return true if (params[:clear_ledger] == true || params[:clear_ledger] == 'true')
     end
     clear_ledger
   end

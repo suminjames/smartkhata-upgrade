@@ -18,12 +18,14 @@ class Files::Cm01Controller < Files::FilesController
     # authorize self
     @file = params[:file]
     skip_missing = params[:skip_missing] || false
-    file_error("Please Upload a valid file") and return if is_invalid_file(@file, @@file_name_contains)
+    file_error("Please Upload a valid file") and return if (is_invalid_file(@file, @@file_name_contains))
 
     cm01_upload = FilesImportServices::ImportCm01.new(@file, skip_missing)
     cm01_upload.process
-    redirect_to new_files_cm01_path(skip_missing_allowed: true), flash: { error: cm01_upload.error_message } and return if cm01_upload.error_message
-
+    if cm01_upload.error_message
+      redirect_to new_files_cm01_path(skip_missing_allowed: true), flash: { error: cm01_upload.error_message } and return
+    end
     redirect_to new_files_cm01_path
   end
 end
+

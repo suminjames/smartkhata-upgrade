@@ -22,7 +22,7 @@ class NepseChalansController < ApplicationController
     search_by = params[:search_by]
     search_term = params[:search_term]
     @bank_ledger_list = BankAccount.by_branch_id(selected_branch_id).all.uniq.collect(&:ledger)
-    default_bank_payment = BankAccount.by_branch_id(selected_branch_id).where(default_for_payment: true).first
+    default_bank_payment = BankAccount.by_branch_id(selected_branch_id).where(:default_for_payment => true).first
     @default_ledger_id = default_bank_payment.ledger.id if default_bank_payment.present?
 
     case search_by
@@ -49,6 +49,7 @@ class NepseChalansController < ApplicationController
     end
   end
 
+
   # GET /nepse_chalans/1/edit
   def edit
   end
@@ -63,41 +64,53 @@ class NepseChalansController < ApplicationController
 
     bank_ledger = Ledger.find_by(id: bank_ledger_id)
 
-    redirect_to new_nepse_chalan_path, flash: {error: 'Bank Ledger is not selected'} and return if bank_ledger.blank?
+    if !bank_ledger.present?
+      redirect_to new_nepse_chalan_path, flash: {error: 'Bank Ledger is not selected'} and return
+    end
 
-    redirect_to new_nepse_chalan_path, flash: {error: 'Try again'} and return if selected_transaction_ids.nil?
+    if selected_transaction_ids.nil?
+      redirect_to new_nepse_chalan_path, flash: {error: 'Try again'} and return
+    end
 
-    redirect_to @back_path, flash: {error: 'Please select the current fiscal year'} and return if @selected_fy_code != get_fy_code
+    if @selected_fy_code != get_fy_code
+      redirect_to @back_path, :flash => {:error => 'Please select the current fiscal year'} and return
+    end
 
     share_transactions = ShareTransaction.buying.where(id: selected_transaction_ids)
-    redirect_to new_nepse_chalan_path, flash: {error: 'No transactions selected'} and return if share_transactions.empty?
+    if share_transactions.size < 1
+      redirect_to new_nepse_chalan_path, flash: {error: 'No transactions selected'} and return
+    end
 
     chalan_amount = share_transactions.sum(:bank_deposit)
-    deposited_date = Time.zone.now
-    deposited_date_bs = ad_to_bs(Time.zone.now)
+    deposited_date = Time.now
+    deposited_date_bs = ad_to_bs(Time.now)
     @nepse_chalan = NepseChalan.new(deposited_date_bs: deposited_date_bs, deposited_date: deposited_date, chalan_amount: chalan_amount)
     @nepse_chalan.nepse_settlement_id = nepse_settlement_id
     nepse_ledger = Ledger.find_or_create_by!(name: "Nepse Purchase")
 
     res = false
     ActiveRecord::Base.transaction do
+
       first_transaction_number = share_transactions.first.contract_no
       last_transaction_number = nil
-      last_transaction_number = share_transactions.last.contract_no if share_transactions.size > 1
+      if share_transactions.size > 1
+        last_transaction_number = share_transactions.last.contract_no
+      end
 
-      description = if last_transaction_number.nil?
-                      "Settlement by Bank Transfer for Transaction number #{first_transaction_number} Settlement ID (#{nepse_settlement_id})"
-                    else
-                      "Settlement by Bank Transfer for Transaction numbers #{first_transaction_number} - #{last_transaction_number} Settlement ID (#{nepse_settlement_id})"
-                    end
+      if last_transaction_number.nil?
+        description = "Settlement by Bank Transfer for Transaction number #{first_transaction_number} Settlement ID (#{nepse_settlement_id})"
+      else
+        description = "Settlement by Bank Transfer for Transaction numbers #{first_transaction_number} - #{last_transaction_number} Settlement ID (#{nepse_settlement_id})"
+      end
 
-      voucher = Voucher.create!(date_bs: ad_to_bs(Time.zone.now))
+
+      voucher = Voucher.create!(date_bs: ad_to_bs(Time.now))
       voucher.desc = description
       voucher.complete!
       voucher.save!
 
-      process_accounts(bank_ledger, voucher, false, chalan_amount, description, session[:user_selected_branch_id], Time.zone.now.to_date)
-      process_accounts(nepse_ledger, voucher, true, chalan_amount, description, session[:user_selected_branch_id], Time.zone.now.to_date)
+      process_accounts(bank_ledger, voucher, false, chalan_amount, description, session[:user_selected_branch_id], Time.now.to_date)
+      process_accounts(nepse_ledger, voucher, true, chalan_amount, description, session[:user_selected_branch_id], Time.now.to_date)
 
       @nepse_chalan.voucher = voucher
       @nepse_chalan.share_transactions = share_transactions

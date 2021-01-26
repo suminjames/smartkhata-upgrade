@@ -1,8 +1,8 @@
 class VendorAccountsController < ApplicationController
-  before_action :set_vendor_account, only: %i[show edit update destroy]
+  before_action :set_vendor_account, only: [:show, :edit, :update, :destroy]
 
-  before_action -> {authorize @vendor_account}, only: %i[show edit update destroy]
-  before_action -> {authorize VendorAccount}, only: %i[index new create]
+  before_action -> {authorize @vendor_account}, only: [:show, :edit, :update, :destroy]
+  before_action -> {authorize VendorAccount}, only: [:index, :new, :create]
 
   # GET /vendor_accounts
   # GET /vendor_accounts.json
@@ -14,7 +14,7 @@ class VendorAccountsController < ApplicationController
   # GET /vendor_accounts/1.json
   def show
     @ledgers = @vendor_account.ledgers
-    @ledgers = @ledgers.order(:name).page(params[:page]).per(20) if @ledgers.present?
+    @ledgers = @ledgers.order(:name).page(params[:page]).per(20) unless @ledgers.blank?
   end
 
   # GET /vendor_accounts/new
@@ -77,4 +77,6 @@ class VendorAccountsController < ApplicationController
     permitted_params = params.require(:vendor_account).permit(:name, :address, :phone_number)
     with_branch_user_params(permitted_params)
   end
+
+
 end

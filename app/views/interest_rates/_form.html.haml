@@ -1,0 +1,12 @@
+= simple_form_for(@interest_rate) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :start_date
+    = f.input :end_date
+    = f.input :interest_type, label: 'Interest Type' do
+      = f.select :interest_type, InterestRate.interest_types.keys.map { |x| [x.humanize, x] }
+    = f.input :rate
+
+  .form-actions
+    = f.button :submit

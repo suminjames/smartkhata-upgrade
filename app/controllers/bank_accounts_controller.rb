@@ -29,6 +29,7 @@ class BankAccountsController < ApplicationController
   # POST /bank_accounts
   # POST /bank_accounts.json
   def create
+
     @bank_account = BankAccount.new(bank_account_params)
     # @bank = Bank.find_by(id: @bank_account.bank_id)
     respond_to do |format|
@@ -72,11 +73,10 @@ class BankAccountsController < ApplicationController
   def set_bank_account
     @bank_account = BankAccount.find(params[:id])
   end
-
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
-    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment,
-                                                            ledger_attributes: [:group_id, ledger_balances_attributes: %i[opening_balance opening_balance_type current_user_id]])
+    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
+                                         ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :current_user_id]])
     with_branch_user_params(permitted_params)
   end
 

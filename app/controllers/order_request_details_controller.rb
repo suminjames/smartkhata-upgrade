@@ -1,12 +1,13 @@
 class OrderRequestDetailsController < ApplicationController
-  before_action :set_order_request_detail, only: %i[approve show edit update destroy reject]
+  before_action :set_order_request_detail, only: [:approve, :show, :edit, :update, :destroy, :reject]
 
-  before_action -> {authorize @order_request_detail}, only: %i[show edit update destroy approve reject]
-  before_action -> {authorize OrderRequestDetail}, only: %i[index client_report new create]
+  before_action -> {authorize @order_request_detail}, only: [:show, :edit, :update, :destroy, :approve, :reject]
+  before_action -> {authorize OrderRequestDetail}, only: [:index, :client_report, :new, :create]
 
   # GET /order_request_details
   # GET /order_request_details.json
   def index
+
     # different page for officials
     if current_user.is_official?
       # @order_request_details = OrderRequestDetail.todays_order.pending
@@ -15,61 +16,62 @@ class OrderRequestDetailsController < ApplicationController
     end
 
     @filterrific = initialize_filterrific(
-      OrderRequestDetail,
-      params[:filterrific],
-      select_options: {
-        with_company_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
-        by_sector: IsinInfo.options_for_sector_select,
-        with_status: OrderRequestDetail.statuses
-      },
-      persistence_id: false
+        OrderRequestDetail,
+        params[:filterrific],
+        select_options: {
+            with_company_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
+            by_sector: IsinInfo.options_for_sector_select,
+            with_status: OrderRequestDetail.statuses
+        },
+        persistence_id: false
     ) or return
     @order_request_details = @filterrific.find.client_order(current_user.id).page(params[:page]).per(20)
     @client_account_id = ClientAccount.find_by(user_id: current_user.id)&.id
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = e.message.to_s
+      flash.now[:error] = "#{ e.message }"
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
-  # Recover from invalid param sets, e.g., when a filter refers to the
-  # database id of a record that doesn’t exist any more.
-  # In this case we reset filterrific and discard all filter params.
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
 
   def client_report
     @filterrific = initialize_filterrific(
-      OrderRequestDetail.branch_scoped,
-      params[:filterrific],
-      select_options: {
-        with_company_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
-        with_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
-        by_sector: IsinInfo.options_for_sector_select,
-        with_status: OrderRequestDetail.statuses
-      },
-      persistence_id: false
+        OrderRequestDetail.branch_scoped,
+        params[:filterrific],
+        select_options: {
+            with_company_id: IsinInfo.options_for_isin_info_select(params[:filterrific]),
+            with_client_id: ClientAccount.options_for_client_select(params[:filterrific]),
+            by_sector: IsinInfo.options_for_sector_select,
+            with_status: OrderRequestDetail.statuses
+        },
+        persistence_id: false
     ) or return
     @order_request_details = @filterrific.find.page(params[:page]).per(20)
   rescue RuntimeError => e
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     respond_to do |format|
-      flash.now[:error] = e.message.to_s
+      flash.now[:error] = "#{ e.message }"
       format.html { render :index }
       format.json { render json: flash.now[:error], status: :unprocessable_entity }
     end
-  # Recover from invalid param sets, e.g., when a filter refers to the
-  # database id of a record that doesn’t exist any more.
-  # In this case we reset filterrific and discard all filter params.
+      # Recover from invalid param sets, e.g., when a filter refers to the
+      # database id of a record that doesn’t exist any more.
+      # In this case we reset filterrific and discard all filter params.
   rescue ActiveRecord::RecordNotFound => e
     # There is an issue with the persisted param_set. Reset it.
-    puts "Had to reset filterrific params: #{e.message}"
+    puts "Had to reset filterrific params: #{ e.message }"
     redirect_to(reset_filterrific_url(format: :html)) and return
   end
+
 
   def approve
     @order_request_detail.update_attribute(:status, OrderRequestDetail.statuses[:acknowledged])
@@ -133,6 +135,7 @@ class OrderRequestDetailsController < ApplicationController
   # DELETE /order_request_details/1
   # DELETE /order_request_details/1.json
   def destroy
+
     @order_request_detail.soft_delete
     respond_to do |format|
       format.html { redirect_to order_request_details_url, notice: 'Order request was successfully destroyed.' }
@@ -140,15 +143,15 @@ class OrderRequestDetailsController < ApplicationController
     end
   end
 
+
   private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_order_request_detail
+      @order_request_detail = OrderRequestDetail.find(params[:id])
+    end
 
-  # Use callbacks to share common setup or constraints between actions.
-  def set_order_request_detail
-    @order_request_detail = OrderRequestDetail.find(params[:id])
-  end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def order_request_detail_params
-    params.require(:order_request_detail).permit(:quantity, :rate, :status, :isin_info_id, :order_request_id)
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def order_request_detail_params
+      params.require(:order_request_detail).permit(:quantity, :rate, :status, :isin_info_id, :order_request_id)
+    end
 end

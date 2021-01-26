@@ -57,6 +57,8 @@ gem 'sankhya'
 gem 'slim'
 gem 'webpacker'
 gem 'whenever', require: false
+gem 'activerecord-import'
+gem 'faker'
 
 group :production do
   gem 'puma', '~>4.3.3'

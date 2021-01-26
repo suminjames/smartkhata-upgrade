@@ -1,5 +1,5 @@
 class EdisItemsController < ApplicationController
-  before_action :set_edis_item, only: %i[show edit update destroy]
+  before_action :set_edis_item, only: [:show, :edit, :update, :destroy]
 
   before_action -> { authorize EdisItem }
 
@@ -7,13 +7,15 @@ class EdisItemsController < ApplicationController
   # GET /edis_items.json
   def index
     @edis_items = EdisItem.all
-    @edis_items = @edis_items.where(edis_report_id: params[:edis_report_id]) if params[:edis_report_id]
+    if params[:edis_report_id]
+      @edis_items = @edis_items.where(edis_report_id: params[:edis_report_id])
+    end
   end
 
   # GET /edis_items/1
   # GET /edis_items/1.json
   def show
-    @edis_item.splitted_records = [EdisItem.first]
+    @edis_item.splitted_records = [ EdisItem.first ]
   end
 
   # GET /edis_items/new
@@ -25,16 +27,20 @@ class EdisItemsController < ApplicationController
   def edit
   end
 
+
   def import
-    #  copy contents from edis report new
+  #  copy contents from edis report new
     @edis_item_form = EdisItemForm.new
   end
+
 
   def process_import
     @edis_item_form = EdisItemForm.new(edis_item_form_params)
     if @edis_item_form.valid?
       @edis_item_form.import_file
-      redirect_to import_edis_items_path, notice: 'Successfully imported' and return if @edis_item_form.errors.blank?
+      if @edis_item_form.errors.blank?
+        redirect_to import_edis_items_path, notice: 'Successfully imported' and return
+      end
     end
     render 'import'
   end
@@ -80,18 +86,18 @@ class EdisItemsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_edis_item
-    @edis_item = EdisItem.find(params[:id])
-    authorize(@edis_item)
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_edis_item
+      @edis_item = EdisItem.find(params[:id])
+      authorize(@edis_item)
+    end
 
   def edis_item_form_params
-    params.require(:edis_item_form).permit(:file, :current_user_id, :skip_invalid_transactions)
+    params.require(:edis_item_form).permit( :file, :current_user_id, :skip_invalid_transactions)
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def edis_item_params
-    params.require(:edis_item).permit(:id, :edis_report_id, :contract_number, :settlement_id, :settlement_date, :scrip, :boid, :client_code, :quantity, :wacc, :reason_code, split_options: %i[wacc quantity reason_code])
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def edis_item_params
+      params.require(:edis_item).permit(:id, :edis_report_id, :contract_number, :settlement_id, :settlement_date, :scrip, :boid, :client_code, :quantity, :wacc, :reason_code, split_options: [:wacc, :quantity, :reason_code])
+    end
 end

@@ -2,30 +2,25 @@ module Accounts
   module Ledgers
     class Merge < BaseService
       include FiscalYearModule
-      attr_reader :ledger_to_merge_to, :ledger_to_merge_from
-      def initialize(merge_to, merge_from, current_user)
+      attr_reader :ledger_to_merge_to, :ledger_to_merge_from, :allow_internal
+      def initialize(merge_to, merge_from, current_user, allow_internal = false)
         @current_user = current_user
         @ledger_to_merge_to = Ledger.find(merge_to)
         @ledger_to_merge_from = Ledger.find(merge_from)
+        @allow_internal = allow_internal
       end
 
       def call
         res = false
         ActiveRecord::Base.transaction do
-          ledger_not_to_merge = ["Purchase Commission",
-                                 "Sales Commission",
-                                 "DP Fee/ Transfer",
-                                 "Nepse Purchase",
-                                 "Nepse Sales",
-                                 "Clearing Account",
-                                 "Compliance Fee",
-                                 "TDS",
-                                 "Cash",
-                                 "Close Out"]
-          raise ActiveRecord::Rollback if ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+          ledger_not_to_merge = Ledger::INTERNALLEDGERS
 
+          if !allow_internal && ledger_not_to_merge.include?(@ledger_to_merge_from.name.squish)
+            raise ActiveRecord::Rollback
+          end
           fix_opening_balances
           fix_ledger_dailies_and_closing_balances
+          fix_interests
           merge_client_accounts
           ledger_to_merge_from.delete
           ledger_to_merge_to.client_code = ledger_to_merge_to.client_code.to_s.squish
@@ -36,14 +31,14 @@ module Accounts
           mandala_mapping_for_remaining_ledger = Mandala::ChartOfAccount.where(ledger_id: ledger_to_merge_to).first
 
           if mandala_mapping_for_deleted_ledger.present? && mandala_mapping_for_remaining_ledger.present?
-          #   do nothing
+            #   do nothing
           elsif mandala_mapping_for_deleted_ledger.present?
             mandala_mapping_for_deleted_ledger.ledger_id = ledger_to_merge_to
             mandala_mapping_for_deleted_ledger.save!
           end
           res = true
         end
-        res
+        return res
       end
 
       def fix_ledger_dailies_and_closing_balances
@@ -63,19 +58,25 @@ module Accounts
 
       def fix_opening_balances
         available_fy_codes.each do |fy_code|
-          Branch.all.pluck(:id).push(nil).each_with_index do |branch_id, _index|
+          Branch.all.pluck(:id).push(nil).each_with_index do |branch_id, index|
             ledger_balance = LedgerBalance.unscoped.where(branch_id: branch_id, ledger_id: ledger_to_merge_to.id, fy_code: fy_code).first
             ledger_balance_other = LedgerBalance.unscoped.where(branch_id: branch_id, ledger_id: ledger_to_merge_from.id, fy_code: fy_code).first
 
-            next unless ledger_balance && ledger_balance_other
-
-            ledger_balance.opening_balance += ledger_balance_other.opening_balance
-            ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr' : 'cr'
-            ledger_balance.current_user_id = @current_user.id
-            ledger_balance.updater_id = ledger_balance.current_user_id
-            ledger_balance.save!
+            if ledger_balance && ledger_balance_other
+              ledger_balance.opening_balance  += ledger_balance_other.opening_balance
+              ledger_balance.opening_balance_type = ledger_balance.opening_balance >= 0 ? 'dr': 'cr'
+              ledger_balance.current_user_id = @current_user.id
+              ledger_balance.updater_id = ledger_balance.current_user_id
+              ledger_balance.save!
+            end
           end
         end
+      end
+
+
+      def fix_interests
+        InterestParticular.where(ledger_id: ledger_to_merge_from.id).delete_all
+        InterestJob.perform_later(ledger_to_merge_to.id, fiscal_year_first_day(get_fy_code).to_s)
       end
 
       # delete client accounts too
@@ -85,7 +86,10 @@ module Accounts
         if client_account_to_delete
           if client_account_to_persist && client_account_to_persist != client_account_to_delete
 
-            raise ActiveRecord::Rollback if Ledger.where(client_account_id: client_account_to_delete).count > 1
+            if Ledger.where(client_account_id: client_account_to_delete).count > 1
+              raise ActiveRecord::Rollback
+            end
+
 
             # for blank nepse codes take nepse code from the deleted ones
             if client_account_to_persist.nepse_code.blank?
