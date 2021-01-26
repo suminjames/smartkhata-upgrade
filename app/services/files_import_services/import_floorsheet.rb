@@ -105,6 +105,13 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       # store the count of transaction for unique client,company, and type of transaction
       transaction_type = bank_deposit.blank? ? :selling : :buying
 
+      # early return if symbol missing in db
+      company_info = IsinInfo.find_by(isin: company_symbol)
+      unless company_info.present?
+        @missing_symbols |= [company_symbol]
+        next
+      end
+
       if !is_partial
         hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
         # Maintain list of new client accounts not in the system yet.
@@ -119,7 +126,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         if client.present?
           if hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s + '_counted_from_db'] == 0
             # add hash_dp_count new key value
-            hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
+            hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count, company_info)
           end
           hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] += 1
         else
@@ -205,14 +212,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     end
   end
 
-  def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
-    # early return if symbol missing in db
-    company_info = IsinInfo.find_by(isin: company_symbol)
-    unless company_info
-      @missing_symbols |= [company_symbol]
-      return
-    end
-
+  def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count, company_info)
     relevant_share_transactions_count = relevant_share_transactions_count(@date,client.id,company_info.id, ShareTransaction.transaction_types[transaction_type] )
 
     hash_dp_count[client_nepse_code + company_symbol.to_s + transaction_type.to_s] = relevant_share_transactions_count
