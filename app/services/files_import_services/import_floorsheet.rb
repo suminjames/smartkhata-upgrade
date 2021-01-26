@@ -17,6 +17,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # @value_date = value_date
     @bill_ids = []
     @ledger_ids = []
+    @missing_symbols =[]
     super(file)
   end
 
@@ -135,6 +136,11 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       import_error(new_client_accounts_error_message(new_client_accounts)) and return
     end
 
+    # IsinInfo check
+    if @missing_symbols.present?
+      import_error("Missing Company Data for #{@missing_symbols.join(',')}") and return
+    end
+
     commission_info = {
       regular: get_commission_info_with_detail(@date, :regular),
       debenture:   get_commission_info_with_detail(@date, :debenture),
@@ -200,7 +206,12 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
   end
 
   def hash_dp_count_increment(transaction_type,client,company_symbol,client_nepse_code,hash_dp_count)
-    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
+    # early return if symbol missing in db
+    company_info = IsinInfo.find_by(isin: company_symbol)
+    unless company_info
+      @missing_symbols |= [company_symbol]
+      return
+    end
 
     relevant_share_transactions_count = relevant_share_transactions_count(@date,client.id,company_info.id, ShareTransaction.transaction_types[transaction_type] )
 
@@ -274,7 +285,9 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     amount = share_net_amount
 
     # get company information to store in the share transaction
-    company_info = IsinInfo.find_or_create_new_by_symbol(company_symbol)
+    company_info = IsinInfo.find_by(isin: company_symbol)
+
+
     commission_info = commission_info_group[company_info.commission_group]
     commission_rate = get_commission_rate(amount, commission_info, _commission)
     # commission_rate = get_commission_rate_from_floorsheet(amount, _commission, commission_info)

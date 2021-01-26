@@ -20,7 +20,7 @@ class IsinInfo < ActiveRecord::Base
   attr_accessor :skip_company_validation
 
   validates_presence_of :company, :if => lambda{|record| !record.skip_company_validation }
-  validates_presence_of :isin
+  validates_presence_of :isin, :sector
   validates_uniqueness_of :isin, :case_sensitive => false
   has_many :order_request_details
 

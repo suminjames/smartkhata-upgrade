@@ -3,7 +3,12 @@ namespace :interest do
   task :for_yesterday, [:tenant] => 'smartkhata:validate_tenant' do |task,args|
     ActiveRecord::Base.transaction do
       InterestParticular.calculate_interest
+      puts "#{Time.current.to_date} : Sucessfully Ran interest calculation"
     end
+  end
+
+  task :for_yesterday_trishakti do
+    Rake::Task["interest:for_yesterday"].invoke('trishakti')
   end
 
   task :full_fiscal_year,[:tenant, :fy_code] => 'smartkhata:validate_tenant' do |task, args|
