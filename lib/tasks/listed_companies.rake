@@ -1,6 +1,5 @@
 desc "Fetch Listed Companies"
-task :fetch_companies => :environment do
-
+task :fetch_companies, [:tenant] => 'smartkhata:validate_tenant' do |task, args|
   require 'nokogiri'
   require 'open-uri'
   require 'mechanize'
@@ -32,8 +31,6 @@ task :fetch_companies => :environment do
           [:sector, 'td[5]/text()'],
         ].each do |name, xpath|
           detail[name] = row.at_xpath(xpath).to_s.strip
-
-
         end
         detail
       end
@@ -69,7 +66,7 @@ task :fetch_companies => :environment do
   details =  get_isin_details
   # store all details into IsinInfo Table
   details.each do |x|
-    record = IsinInfo.find_or_create_by!(isin: x[:isin]) do |isin|
+    record = IsinInfo.find_or_create_by(isin: x[:isin]) do |isin|
       isin.company = x[:company]
       isin.sector = x[:sector]
     end
