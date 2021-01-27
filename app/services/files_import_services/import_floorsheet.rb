@@ -21,13 +21,13 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     super(file)
   end
 
-  def tplus3(date)
-    new_date = date + 3.days
+  def tplus2(date)
+    new_date = date + 2.days
     new_date.wday == 6 ? new_date + 1 : new_date
   end
 
   def set_value_date(date)
-    @value_date = tplus3(date)
+    @value_date = tplus2(date)
   end
 
   def process
