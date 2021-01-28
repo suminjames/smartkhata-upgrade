@@ -1,4 +1,4 @@
-class CreateInterestRates < ActiveRecord::Migration
+class CreateInterestRates < ActiveRecord::Migration[4.2]
   def change
     create_table :interest_rates do |t|
       t.date :start_date

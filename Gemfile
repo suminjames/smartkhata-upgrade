@@ -39,10 +39,12 @@ gem 'uglifier'
 gem 'virtus'
 gem 'zip-zip'
 # Converts array that is returned during ActiveRecord pluck to hash
+gem 'activerecord-import'
 gem 'apartment'
 gem 'aws-sdk-s3', '~> 1'
 gem 'bootstrap-datepicker-rails'
 gem 'exception_notification'
+gem 'faker'
 gem 'haml'
 gem 'haml-rails'
 gem 'jquery-minicolors-rails'
@@ -57,8 +59,6 @@ gem 'sankhya'
 gem 'slim'
 gem 'webpacker'
 gem 'whenever', require: false
-gem 'activerecord-import'
-gem 'faker'
 
 group :production do
   gem 'puma', '~>4.3.3'

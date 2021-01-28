@@ -125,7 +125,7 @@ count = 0
 
     puts "populating commission details"  if verbose
     
-    commission_rate = general_klass_setup({start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25}, MasterSetup::CommissionInfo, nil, {}, false)
+    commission_rate = general_klass_setup({start_date: Date.parse('2011-01-01'), end_date: '2016-07-23', nepse_commission_rate: 25, sebo_rate: 20}, MasterSetup::CommissionInfo, nil, {}, false)
     commission_details = general_klass_setup([
                                  {start_amount: 0, limit_amount: 2500, commission_amount: 25},
                                  {start_amount: 2500, limit_amount: 50000.0, commission_rate: 1.0},
@@ -137,7 +137,7 @@ count = 0
     commission_rate.commission_details << commission_details
     commission_rate.save!
     
-    commission_rate = general_klass_setup({start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20}, MasterSetup::CommissionInfo, nil, {}, false)
+    commission_rate = general_klass_setup({start_date: Date.parse('2016-07-24'), end_date: '2021-12-31', nepse_commission_rate: 20, sebo_rate: 10}, MasterSetup::CommissionInfo, nil, {}, false)
     commission_details = general_klass_setup([
                                  {start_amount: 0, limit_amount: 4166.67, commission_amount: 25},
                                  {start_amount: 4166.67, limit_amount: 50000.0, commission_rate: 0.6},

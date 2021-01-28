@@ -1,4 +1,4 @@
-class CreateInterestParticulars < ActiveRecord::Migration
+class CreateInterestParticulars < ActiveRecord::Migration[4.2]
   def change
     create_table :interest_particulars do |t|
       t.decimal :amount, :precision => 12, :scale => 2, default: 0.0

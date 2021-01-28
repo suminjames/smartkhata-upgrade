@@ -1,4 +1,4 @@
-class ChangeColumnsToShareTransactions < ActiveRecord::Migration
+class ChangeColumnsToShareTransactions < ActiveRecord::Migration[4.2]
   def change
     change_column :share_transactions, :share_amount, :decimal, :precision => 15, :scale => 4
     change_column :share_transactions, :commission_amount, :decimal, :precision => 15, :scale => 4
