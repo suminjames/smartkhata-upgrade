@@ -42,48 +42,43 @@ module Fixes
       current_tenant = Tenant.find_by_name(tenant)
       ActiveRecord::Base.transaction do
         ::ShareTransaction.where(id: ids).find_each do |x|
-        amount = x.share_amount
-        dp = x.dp_fee
-        commission_info = commission_info_group(x.date)[x.isin_info.commission_group]
-        commission_rate = get_commission_rate(amount, commission_info)
-        commission = get_commission_by_rate( commission_rate, amount).round(2)
+          amount = x.share_amount
+          dp = x.dp_fee
+          commission_info = commission_info_group(x.date)[x.isin_info.commission_group]
+          commission_rate = get_commission_rate(amount, commission_info)
+          commission = get_commission_by_rate( commission_rate, amount).round(2)
 
-        nepse = nepse_commission_amount(commission, commission_info)
-        broker_purchase_commission = commission - nepse
-        sebon = sebo_amount(amount, commission_info)
-        tds = broker_purchase_commission * 0.15
-        if x.buying?
-          client_dr = nepse + sebon + amount + broker_purchase_commission + dp
-          x.update(net_amount: client_dr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
+          nepse = nepse_commission_amount(commission, commission_info)
+          broker_purchase_commission = commission - nepse
+          sebon = sebo_amount(amount, commission_info)
+          tds = broker_purchase_commission * 0.15
+          if x.buying?
+            client_dr = nepse + sebon + amount + broker_purchase_commission + dp
+            x.update(net_amount: client_dr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
 
-          particular = Particular.dr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
+            particular = Particular.dr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
+            @buying_bills |= [x.bill_id]
+          elsif x.selling?
+            tds_rate = 0.15
+            chargeable_on_sale_rate = broker_commission_rate(x.date) * (1 - tds_rate)
 
-          client_ledger_id = particular.ledger_id
-          date = particular.transaction_date
-          value_date = particular.value_date
-          @ledger_ids |= [client_ledger_id]
-          @value_dates |=[value_date]
-          @transaction_dates |= [date]
-          @buying_bills |= [x.bill_id]
-        elsif x.selling?
-          tds_rate = 0.15
-          chargeable_on_sale_rate = broker_commission_rate(x.date) * (1 - tds_rate)
+            amount_receivable = x.amount_receivable
+            client_cr = amount_receivable - (commission * chargeable_on_sale_rate) - dp
+            x.update(net_amount: client_cr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
+            particular = Particular.cr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
+            @selling_bills |= [x.bill_id]
+          end
 
-          amount_receivable = x.amount_receivable
-          client_cr = amount_receivable - (commission * chargeable_on_sale_rate) - dp
-          x.update(net_amount: client_cr, commission_amount: commission, commission_rate: commission_rate, sebo: sebon)
-          particular = Particular.cr.where(voucher_id: x.voucher_id).where.not(ledger_id: default_ledgers).first
+          if particular.present?
+            client_ledger_id = particular.ledger_id
+            date = particular.transaction_date
+            value_date = particular.value_date
 
-          client_ledger_id = particular.ledger_id
-          settlement_date = particular.transaction_date
-          value_date = particular.value_date
-
-          @ledger_ids |= [client_ledger_id]
-          @value_dates |=[value_date]
-          @transaction_dates |= [settlement_date]
-          @selling_bills |= [x.bill_id]
+            @ledger_ids |= [client_ledger_id]
+            @value_dates |=[value_date]
+            @transaction_dates |= [date]
+          end
         end
-      end
 
         fix_bills
         generate_vouchers(current_tenant)
