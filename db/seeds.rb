@@ -99,7 +99,7 @@ count = 0
 
     Bank.create([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}])
 
-    puts "populating commission"  if verbose
+    puts "populating commission details"  if verbose
     Rake::Task["setup:commission"].execute
 
     puts " Populating calendar..." if verbose
