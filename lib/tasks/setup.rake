@@ -57,7 +57,7 @@ namespace :setup do
 
 
     # mutual funds
-    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('016-07-24'), end_date: '2026-12-31', nepse_commission_rate: 20, group: 2, sebo_rate: 0.015)
+    commission_rate = MasterSetup::CommissionInfo.new(start_date: Date.parse('2016-07-24'), end_date: '2026-12-31', nepse_commission_rate: 20, group: 2, sebo_rate: 0.015)
 
     commission_details = MasterSetup::CommissionDetail.create([
                                      {start_amount: 0, limit_amount: 6666.67, commission_amount: 10},
