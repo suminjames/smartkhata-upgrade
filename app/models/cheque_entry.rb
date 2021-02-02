@@ -72,7 +72,7 @@ class ChequeEntry < ApplicationRecord
   validates :cheque_number, presence: true, uniqueness: { scope: %i[additional_bank_id bank_account_id cheque_issued_type], message: "should be unique" }
   validates :cheque_number, numericality: { only_integer: true, greater_than: 0 }, unless: :skip_cheque_number_validation
 
-  # TODO: (subas) make sure to do the necessary settings
+  # TODO (subas) make sure to do the necessary settings
   #
   #  pending_approval for payment
   #  pending_clearance for receipt
@@ -146,7 +146,7 @@ class ChequeEntry < ApplicationRecord
   scope :by_cheque_number, ->(cheque_number) { where(cheque_number: cheque_number) }
 
   scope :sorted_by, lambda { |sort_option|
-    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
         order("cheque_entries.id #{direction}")

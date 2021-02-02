@@ -86,7 +86,7 @@ class Vouchers::Base
       #     need to receive from bills and ledger has advances to cover up the bill amount
       #       use the balance and create general voucher, settle all bills
 
-      # TODO: change the voucher types to its sub class for payment receipt
+      # TODO change the voucher types to its sub class for payment receipt
 
       if clear_ledger
         if ledger_balance > 0

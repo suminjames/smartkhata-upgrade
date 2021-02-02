@@ -45,6 +45,7 @@ class Settlement < ApplicationRecord
   belongs_to :client_account, optional: true
   belongs_to :vendor_account, optional: true
 
+  # has_and_belongs_to_many :particulars
   has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
   has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
   has_many :particular_settlement_associations
@@ -111,7 +112,7 @@ class Settlement < ApplicationRecord
   scope :by_client_id, ->(id) { where(client_account_id: id) }
 
   scope :sorted_by, lambda { |sort_option|
-    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
         order("settlements.id #{direction}")
@@ -188,7 +189,7 @@ class Settlement < ApplicationRecord
   end
 
   def self.options_for_settlement_type_select
-    [%w[Receipt receipt], %w[Payment payment]]
+    [["Receipt", "receipt"], ["Payment", "payment"]]
   end
 
   #

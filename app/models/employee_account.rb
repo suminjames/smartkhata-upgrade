@@ -1,3 +1,4 @@
+
 # == Schema Information
 #
 # Table name: employee_accounts

@@ -105,8 +105,8 @@ class User < ApplicationRecord
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
     if login = conditions.delete(:login)
-      where(conditions.to_hash).where(["lower(username) = :value OR lower(email) = :value", { value: login.downcase.strip }]).first
-    elsif conditions.key?(:username) || conditions.key?(:email)
+      where(conditions.to_hash).where(["lower(username) = :value OR lower(email) = :value", { :value => login.downcase.strip }]).first
+    elsif conditions.has_key?(:username) || conditions.has_key?(:email)
       where(conditions.to_hash).first
     end
   end
@@ -162,8 +162,6 @@ class User < ApplicationRecord
   end
 
   def can_access_branch?
-    available_branch_ids.include?(current_url_link.split('/')[2].to_i)
-  rescue
-    false
+    available_branch_ids.include?(current_url_link.split('/')[2].to_i) rescue false
   end
 end

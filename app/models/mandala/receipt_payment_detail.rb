@@ -61,6 +61,6 @@ class Mandala::ReceiptPaymentDetail < ApplicationRecord
   end
 
   def valid_cheque?
-    cheque_no =~ /\A[-+]?\d+\z/ && cheque_no != 'cash' && bank_code.present?
+    /\A[-+]?\d+\z/ === cheque_no && cheque_no != 'cash' && bank_code.present?
   end
 end

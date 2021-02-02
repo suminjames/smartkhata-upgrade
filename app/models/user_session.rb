@@ -36,7 +36,7 @@ class UserSession
     def set_console(tenant, fy_code = nil, selected_branch_id = 0)
       Apartment::Tenant.switch!(tenant)
       UserSession.user = User.first
-      UserSession.tenant = Tenant.find_by(name: tenant)
+      UserSession.tenant = Tenant.find_by_name(tenant)
       UserSession.selected_fy_code = fy_code || Object.new.extend(FiscalYearModule).get_fy_code
       UserSession.selected_branch_id = selected_branch_id
     end

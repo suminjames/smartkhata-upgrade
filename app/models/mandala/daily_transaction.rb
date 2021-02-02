@@ -192,8 +192,10 @@ class Mandala::DailyTransaction < ApplicationRecord
   end
 
   def get_client_account_id
+    begin
     Mandala::CustomerRegistration.where(customer_code: customer_code_from_data).first.find_or_create_smartkhata_client_account.id
-  rescue
-    p 'rescued'
+    rescue
+       p 'rescued'
+    end
   end
 end

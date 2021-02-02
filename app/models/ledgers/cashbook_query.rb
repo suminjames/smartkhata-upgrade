@@ -61,8 +61,8 @@ class Ledgers::CashbookQuery
             @particulars = get_particulars(@params[:page], 20, date_ad, date_ad, no_pagination)
 
             # sum of total credit and debit amount
-            @total_credit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by(date: date_ad).cr.sum(:amount)
-            @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by(date: date_ad).dr.sum(:amount)
+            @total_credit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date(date_ad).cr.sum(:amount)
+            @total_debit = Particular.find_by_ledger_ids(@cashbook_ledger_ids).complete.find_by_date(date_ad).dr.sum(:amount)
 
             # get the closing balance from the previous day of date_from
             previous_day_balance = LedgerDaily.sum_of_closing_balance_of_ledger_dailies_for_ledgers(@cashbook_ledger_ids, date_ad - 1, selected_fy_code, selected_branch_id)

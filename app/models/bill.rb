@@ -39,15 +39,16 @@ class Bill < ApplicationRecord
   belongs_to :client_account
   has_many :isin_infos, through: :share_transactions
 
-  has_and_belongs_to_many :vouchers
-  has_many :on_creation, -> { on_creation }, class_name: "BillVoucherAssociation"
-  has_many :on_settlement, -> { on_settlement }, class_name: "BillVoucherAssociation"
   has_many :bill_voucher_associations
-
-  has_many :vouchers_on_creation, through: :on_creation, source: :voucher
-  has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
+  has_many :vouchers_on_creation,
+           ->{ where(bill_voucher_associations: {association_type: :on_creation})},
+           through: :bill_voucher_associations,
+           source: :voucher
+  has_many :vouchers_on_settlement,
+           ->{ where(bill_voucher_associations: {association_type: :on_settlement})},
+           through: :bill_voucher_associations,
+           source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
-
 
   attr_accessor :provisional_base_price
 
@@ -94,7 +95,7 @@ class Bill < ApplicationRecord
   #   end
   # end
 
-  scope :by_branch_id, -> (branch_id) {where(branch_id: branch_id) if branch_id !=0}
+  scope :by_branch_id, -> (branch_id) { where(branch_id: branch_id) if branch_id != 0 }
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
@@ -109,20 +110,20 @@ class Bill < ApplicationRecord
   scope :requiring_processing, -> { where(status: ["pending", "partial"]) }
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]).order(date: :asc) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]).order(date: :asc) }
-  scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
-  scope :with_client_bank_account_and_balance_cr, ->{ includes(client_account: :ledger).where.not(:client_accounts => {bank_account: nil}).where('ledgers.closing_blnc < 0').references(:ledger) }
+  scope :with_client_bank_account, -> { includes(:client_account).where.not(:client_accounts => { bank_account: nil }) }
+  scope :with_client_bank_account_and_balance_cr, -> { includes(client_account: :ledger).where.not(:client_accounts => { bank_account: nil }).where('ledgers.closing_blnc < 0').references(:ledger) }
 
-  scope :for_sales_payment_list, ->{with_balance_cr.requiring_processing}
-  scope :for_payment_letter_list, ->{with_balance_cr.requiring_processing}
+  scope :for_sales_payment_list, -> { with_balance_cr.requiring_processing }
+  scope :for_payment_letter_list, -> { with_balance_cr.requiring_processing }
 
   # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :by_bill_number, lambda { |number|
-      actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
-      where("bill_number" => "#{actual_bill_number}")
+    actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
+    where("bill_number" => "#{actual_bill_number}")
   }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
+    where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -170,36 +171,33 @@ class Bill < ApplicationRecord
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
-    return self.share_transactions.not_cancelled_for_bill.sum(:share_amount);
+    self.share_transactions.not_cancelled_for_bill.sum(:share_amount)
   end
 
   # Returns total sebo commission from all child share_transactions
   def get_net_sebo_commission
-    return self.share_transactions.not_cancelled_for_bill.sum(:sebo);
+    self.share_transactions.not_cancelled_for_bill.sum(:sebo)
   end
 
   # Returns total net commission from all child share_transactions
   def get_net_commission
-    return self.share_transactions.not_cancelled_for_bill.sum(:commission_amount);
+    self.share_transactions.not_cancelled_for_bill.sum(:commission_amount)
   end
 
   # TODO: Implement the method.
   def get_name_transfer_amount
-    return 'N/A'
+    'N/A'
   end
 
   # Returns total net dp fee
   def get_net_dp_fee
-    dp_fee = self.share_transactions.not_cancelled_for_bill.sum(:dp_fee);
-    if dp_fee == 0
-      dp_fee = 25
-    end
-    return dp_fee
+    dp_fee = self.share_transactions.not_cancelled_for_bill.sum(:dp_fee)
+    dp_fee == 0 ? 25 : dp_fee.round
   end
 
   # Returns total net cgt
   def get_net_cgt
-    return self.share_transactions.not_cancelled_for_bill.sum(:cgt);
+    self.share_transactions.not_cancelled_for_bill.sum(:cgt).round(2)
   end
 
   # TODO
@@ -209,9 +207,13 @@ class Bill < ApplicationRecord
     #return self.share_transactions.sum(:sebo);
   end
 
+  def rounded_net_amount
+    net_amount.round(2)
+  end
+
   # Returns client associated to this bill
   def get_client
-    return self.client_account
+    self.client_account
   end
 
   def make_provisional
@@ -261,23 +263,15 @@ class Bill < ApplicationRecord
 
   # Returns the age of purchase bill in days.
   def age
-    age = nil
-    if self.purchase?
-      age = (Date.today - self.settlement_date).to_i
-    end
-    age
+    (Date.today - self.settlement_date).to_i if self.purchase?
   end
 
   # get new bill number
   def self.new_bill_number(fy_code)
     bill = Bill.by_fy_code(fy_code).order('bill_number DESC').first
     # initialize the bill with 1 if no bill is present
-    if bill.nil?
-      1
-    else
-      # increment the bill number
-      bill.bill_number + 1
-    end
+    # or increment the bill number
+    bill.nil? ? 1 : bill.bill_number + 1
   end
 
   # get the bill number with fy code prepended

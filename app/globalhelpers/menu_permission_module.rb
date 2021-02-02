@@ -2,7 +2,7 @@ module MenuPermissionModule
   #
   # return the permitted menu list after filtering the blocked menus
   #
-  def permitted_menu_list(menu_list, _user_id)
+  def permitted_menu_list(menu_list, user_id)
     # remove menu items from the list if it contains the blocked path
     blocked_path_list = get_blocked_path_list
     menu_list.each do |menu|
@@ -47,10 +47,7 @@ module MenuPermissionModule
 
   def agnostic_path link
     link_params = link.split('/')
-    begin
-      "/:fy_code/:branch_id/#{link_params[3..-1].join('/')}"
-    rescue StandardError
-      link
-    end
+    "/:fy_code/:branch_id/#{link_params[3..-1].join('/')}" rescue link
   end
+
 end

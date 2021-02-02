@@ -41,15 +41,17 @@ class MasterSetup::CommissionInfo < ApplicationRecord
   ########################################
   # Methods
 
+  enum group: { regular: 0, debenture: 1, mutual_funds: 2 }
+
   def is_latest?
-    self == self.class.all.order(:start_date => :desc).first
+    self == self.class.where(group: self.class.groups[group]).order(:start_date => :desc).first
   end
 
   private
 
   def validate_date_range
     # get the last commission info ordered by start date
-    commission_info_latest = self.class.all.order(:start_date => :desc).first
+    commission_info_latest = self.class.all.order(:start_date => :desc).where(group:  self.class.groups[group]).first
     if start_date >= end_date
       errors.add :start_date, "Start date should be before the end date"
       return

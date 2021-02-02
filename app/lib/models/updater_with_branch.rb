@@ -1,4 +1,4 @@
-# TODO: how to remove the code repetition
+# TODO how to remove the code repetition
 module Models::UpdaterWithBranch
   include FiscalYearModule
 

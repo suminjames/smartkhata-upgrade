@@ -58,7 +58,7 @@ class OrderRequestDetail < ApplicationRecord
   )
 
   scope :sorted_by, lambda { |sort_option|
-    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^created_at_desc/
         order("order_request_details.created_at #{direction}")

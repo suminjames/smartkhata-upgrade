@@ -14,7 +14,7 @@ module Models::WithBranchFycode
 
       # TODO(subas) Remove this once time comes kept here because subas had little time to analyze its effects
 
-      scope :by_branch_fy_code, lambda { |branch_id, fy_code|
+      scope :by_branch_fy_code, ->(branch_id, fy_code) {
         # if branch_id == 0
         #   unscoped.where(fy_code: fy_code)
         # else

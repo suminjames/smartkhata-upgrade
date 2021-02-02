@@ -88,7 +88,7 @@ class ClientAccount < ApplicationRecord
 
   has_many :order_requests
 
-  attr_accessor :current_user_id
+  # attr_accessor :current_user_id
 
   ########################################
   # Callbacks
@@ -162,7 +162,7 @@ class ClientAccount < ApplicationRecord
     end
   }
   scope :sorted_by, lambda { |sort_option|
-    direction = /desc$/.match?(sort_option) ? 'desc' : 'asc'
+    direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^name/
         order("client_accounts.name #{direction}")
@@ -218,7 +218,9 @@ class ClientAccount < ApplicationRecord
   end
 
   def bank_details_present?
-    errors.add :bank_account, "Please fill the required bank details" if bank_account.present? && (bank_name.blank? || bank_address.blank?)
+    if bank_account.present? && (bank_name.blank? || bank_address.blank?)
+      errors.add :bank_account, "Please fill the required bank details"
+    end
   end
 
   def check_client_branch
@@ -459,12 +461,12 @@ class ClientAccount < ApplicationRecord
 
     if self.ledger.present?
       relevant_ledger = self.ledger
-      unless Particular.unscoped.where(ledger_id: relevant_ledger.id).empty?
+      if Particular.unscoped.where(ledger_id: relevant_ledger.id).size != 0
         puts "Relevant ledger has particulars" if verbose
         return_val = false
         return false unless verbose
       end
-      unless LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).empty?
+      if LedgerBalance.unscoped.where(ledger_id: relevant_ledger.id).size !=0
         puts "Relevant ledger has balance(s)." if verbose
         return_val = false
         return false unless verbose
@@ -493,6 +495,8 @@ class ClientAccount < ApplicationRecord
   end
 
   def move_particulars
-    MoveClientParticularJob.perform_later(self.id, self.branch_id, updater_id) if self.branch_changed && (self.move_all_particulars == "1")
+    if self.branch_changed && (self.move_all_particulars == "1")
+      MoveClientParticularJob.perform_later(self.id, self.branch_id, updater_id)
+    end
   end
 end

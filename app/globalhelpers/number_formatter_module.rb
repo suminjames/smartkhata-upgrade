@@ -5,11 +5,11 @@ module NumberFormatterModule
   # Converts a number to its words equivalent Nepali/Indian style (with Lakhs instead of Millions).
   def arabic_word(decimal)
     # Calling arabic number to get the number and wording consistent with rounding off issues.
-    decimal = arabic_number(decimal).delete(',').to_f
+    decimal = arabic_number(decimal).gsub(',','').to_f
     paisa = (('%.2f' % decimal.round(2))[-2..-1]).to_i
     paisa_formatted = "%02d" % paisa
     word = decimal.to_f.to_words
-    if word.is_a?(Array)
+    if word.kind_of?(Array)
       word_before_decimal = word[0]
       word_before_decimal = (word_before_decimal.sub! 'And', '') || word_before_decimal
       word_before_decimal = "#{word_before_decimal} Rupees"

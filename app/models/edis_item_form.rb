@@ -18,7 +18,7 @@ class EdisItemForm
 
   def import_file
     if file.present?
-      converter = ->(header) { header.gsub(/( )/, '_')&.downcase }
+      converter = lambda { |header| header.gsub(/( )/, '_')&.downcase }
       begin
         CSV.read(file.path, headers: true, header_converters: converter).each do |record|
           sale_settlement = SalesSettlement.where(contract_no: record['contract_number']).first

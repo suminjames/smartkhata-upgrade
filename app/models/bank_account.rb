@@ -82,7 +82,7 @@ class BankAccount < ApplicationRecord
     Group.find_by(name: "Current Assets").id
   end
 
-  def save_custom(fy_code, _branch_id, current_user_id)
+  def save_custom(fy_code, branch_id, current_user_id)
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?

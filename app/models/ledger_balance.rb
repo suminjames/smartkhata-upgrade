@@ -83,7 +83,7 @@ class LedgerBalance < ApplicationRecord
   end
 
   def self.update_or_create_org_balance(ledger_id, fy_code, current_user_id)
-    set_current_user = ->(l) { l.current_user_id = current_user_id }
+    set_current_user = lambda { |l| l.current_user_id = current_user_id }
     ledger_balance_org = LedgerBalance.unscoped.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger_id, branch_id: nil, &set_current_user)
     ledger_balance = LedgerBalance.unscoped.by_fy_code(fy_code).where(ledger_id: ledger_id).where.not(branch_id: nil).sum(:opening_balance)
     balance_type = ledger_balance >= 0 ? LedgerBalance.opening_balance_types[:dr] : LedgerBalance.opening_balance_types[:cr]

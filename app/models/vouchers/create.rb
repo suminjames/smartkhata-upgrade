@@ -36,8 +36,7 @@ class Vouchers::Create < Vouchers::Base
 
       # Check for availability of default bank accounts for payment and receipt in the current branch.
       # If not available in the current branch, resort to using whichever is available from all available branches.
-
-      ledger_list_financial = bank_accounts_in_branch.all.uniq.collect(&:ledger)
+      ledger_list_financial = bank_accounts_in_branch.all.uniq.collect(&:ledger).compact
       default_bank_payment = default_for_payment_bank_account_in_branch.present? ? default_for_payment_bank_account_in_branch : BankAccount.where(:default_for_payment => true).first
       default_bank_receive = default_for_receipt_bank_account_in_branch.present? ? default_for_receipt_bank_account_in_branch : BankAccount.where(:default_for_receipt => true).first
 
@@ -81,7 +80,16 @@ class Vouchers::Create < Vouchers::Base
       return
     end
 
+    # convert the bs date to english date for storage
+    begin
+      value_date_ad =bs_to_ad(@voucher.value_date_bs)
+    rescue
+      @error_message = "Invalid Date!"
+      return
+    end
+
     @voucher.date = date_ad
+    @voucher.value_date = value_date_ad
     @voucher.fy_code = get_fy_code(date_ad)
     @voucher.branch_id = get_branch_id_from_session
     # check if the user entered date is valid for that fiscal year
@@ -90,7 +98,10 @@ class Vouchers::Create < Vouchers::Base
       return
     end
 
-
+    if @voucher.value_date < @voucher.date
+      @error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
+      return
+    end
 
     # make sure the group leader and vendor are selected where required.
     if @voucher_settlement_type == 'vendor' && vendor_account.nil?
@@ -319,6 +330,7 @@ class Vouchers::Create < Vouchers::Base
     res = false
     settlement = nil
     settlements = []
+    current_date = Date.today
 
     Voucher.transaction do
 
@@ -345,10 +357,16 @@ class Vouchers::Create < Vouchers::Base
       voucher.particulars.each do |particular|
         particular.transaction_date = voucher.date
         particular.date_bs = voucher.date_bs
+        particular.value_date = voucher.value_date
         particular.creator_id ||= current_user&.id
         particular.updater_id = current_user&.id
         particular.branch_id ||= branch_id
         particular.current_user_id = current_user&.id
+
+        # unless date_valid_for_fy_code(particular.value_date, selected_fy_code, current_date)
+        #   error_message = "Value date must be the greater date than the current date and/or should lie within the current fiscal year!"
+        #   raise ActiveRecord::Rollback
+        # end
         # particular should be shown only when final(after being approved) in case of payment.
         particular.pending!
 
@@ -504,27 +522,53 @@ class Vouchers::Create < Vouchers::Base
 
       # logic to make the voucher comply to new standard
       # splitting the payment and receipt to multiple types
-      if is_payment_receipt && voucher_has_cheque_entry
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_bank]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
-        end
-      elsif is_payment_receipt
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_cash]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
-        end
-      end
+      # if is_payment_receipt && voucher_has_cheque_entry
+      #   if voucher.is_payment?
+      #     voucher.voucher_type = Voucher.voucher_types[:payment_bank]
+      #   else
+      #     voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
+      #   end
+      # elsif is_payment_receipt
+      #   if voucher.is_payment?
+      #     voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+      #   else
+      #     voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+      #   end
+      # end
       # mark the voucher as settled if it is not payment bank
       voucher.creator_id ||= current_user&.id
       voucher.updater_id = current_user&.id
-      voucher.branch_id = selected_branch_id
       voucher.complete! unless voucher.is_payment_bank
       res = true if voucher.save
     end
     return voucher, res, error_message, settlements
+  end
+
+  def get_voucher_type(voucher, is_payment_receipt)
+    voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
+  
+    voucher_type = voucher.voucher_type
+  
+    # logic to make the voucher comply to new standard
+    # splitting the payment and receipt to multiple types
+    if is_payment_receipt && voucher_has_cheque_entry
+      if voucher.is_payment?
+        voucher_type = Voucher.voucher_types[:payment_bank]
+      else
+        voucher_type = Voucher.voucher_types[:receipt_bank]
+      end
+    elsif is_payment_receipt
+      if voucher.is_payment?
+        voucher_type = Voucher.voucher_types[:payment_cash]
+      else
+        voucher_type = Voucher.voucher_types[:receipt_cash]
+      end
+    end
+    return voucher_type
+  end
+
+  def voucher_has_cheque_entry?(voucher)
+    voucher.particulars.find{|p| p.cheque_number}.present?
   end
 
   def purchase_nepse_settlement(voucher, attrs = {})

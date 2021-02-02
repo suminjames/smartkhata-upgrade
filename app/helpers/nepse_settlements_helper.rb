@@ -5,7 +5,7 @@ module NepseSettlementsHelper
   end
 
   def format_sti(action, settlement_type, nepse_settlement)
-    action || nepse_settlement ? "#{format_action(action)}#{settlement_type.underscore}" : settlement_type.underscore.pluralize.to_s
+    action || nepse_settlement ? "#{format_action(action)}#{settlement_type.underscore}" : "#{settlement_type.underscore.pluralize}"
   end
 
   def format_action(action)

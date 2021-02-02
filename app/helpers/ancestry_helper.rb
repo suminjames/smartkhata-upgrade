@@ -28,7 +28,9 @@ module AncestryHelper
     output = ''
 
     # sort the hash key based on sort_by options array
-    hash = Hash[hash.sort_by { |k, _v| options[:sort_by].collect { |sort| k.send(sort)} }] unless options[:sort_by].empty?
+    unless options[:sort_by].empty?
+      hash = Hash[hash.sort_by{|k, _v| options[:sort_by].collect {|sort| k.send(sort)} } ]
+    end
 
     current_depth = 0
     # and here... we... go...

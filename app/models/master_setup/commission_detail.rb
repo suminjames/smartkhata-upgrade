@@ -16,7 +16,7 @@ class MasterSetup::CommissionDetail < ApplicationRecord
   # belongs_to :master_setup_commission_info
   ########################################
   # Constants
-  MAX = 99_999_999_999
+  MAX = 99999999999
   MIN = 0
 
   ########################################

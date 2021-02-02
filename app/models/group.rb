@@ -39,7 +39,7 @@ class Group < ApplicationRecord
     where(report: reports['PNL'])
   }
 
-  # TODO: add some uniqueness other than name
+  # TODO add some uniqueness other than name
   validates :name, uniqueness: true
   # not so good approach
   # kept for performance test later on
@@ -94,7 +94,7 @@ class Group < ApplicationRecord
     self.class.tree_for(self)
   end
 
-  def descendent_ledgers(_fy_code = get_fy_code)
+  def descendent_ledgers(fy_code = get_fy_code)
     subtree = self.class.tree_sql_for(self)
     Ledger.where("group_id IN (#{subtree})").order(name: :asc)
   end
