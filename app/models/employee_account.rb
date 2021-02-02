@@ -70,20 +70,22 @@ class EmployeeAccount < ApplicationRecord
 
   # create employee ledger
   def create_ledger
-    employee_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Employees")
+    # Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Employees")
+    employee_group = Group.find_or_create_by!(name: "Employees")
     Ledger.create(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
       ledger.group_id = employee_group.id
-      ledger.creator_id = current_user_id
-      ledger.updater_id = current_user_id
+      # ledger.current_user_id = current_user_id
+      # ledger.updater_id = current_user_id
       ledger.save!
     end
   end
 
   # assign the employee ledger to 'Employees' group
   def assign_group(group_name)
-    client_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: group_name)
+    # Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: group_name)
+    client_group = Group.find_or_create_by!(name: group_name)
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
     employee_ledger = Ledger.find_by(employee_account_id: self.id)
     client_group.ledgers << employee_ledger

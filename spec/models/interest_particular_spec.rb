@@ -17,9 +17,11 @@ require 'rails_helper'
 RSpec.describe InterestParticular, type: :model do
 
   let(:user) { create(:user) }
-  let(:client_account) { create(:client_account, user: user) }
-  let(:ledger) { create(:ledger, client_account: client_account) }
-  let(:particular) { create(:particular, fy_code: 7778, transaction_type: 0, amount: 500, value_date: Date.today - 15.days) }
+  let(:client_account) { create(:client_account, user: user, branch: branch) }
+  let(:branch){ create(:branch) }
+  let(:ledger) { create(:ledger, client_account: client_account, group: group) }
+  let(:group){ create(:group) }
+  let(:particular) { create(:particular, fy_code: 7778, transaction_type: 0, amount: 500, value_date: Date.today - 15.days, transaction_date: Date.today - 30.days) }
   let!(:interest_rate) { create(:interest_rate) }
   let(:date) { Date.today }
 
@@ -30,7 +32,7 @@ RSpec.describe InterestParticular, type: :model do
   it { should define_enum_for(:interest_type).with([:dr, :cr]) }
 
   describe ".calculate_interest" do
-    let(:subject) { InterestParticular.calculate_interest(date) }
+    let(:subject) { InterestParticular.calculate_interest}
     let(:particular_net_calculator) { instance_double(ParticularNetCalculator) }
 
     context "when client ledger has particular" do

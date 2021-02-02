@@ -26,7 +26,8 @@
 #
 
 class Ledger < ApplicationRecord
-   # include Auditable
+  # include Auditable
+  extend FiscalYearModule
   include ::Models::UpdaterWithFyCode
   # remove enforce and change it to skip validation later
   attr_accessor :opening_balance_type, :opening_balance_trial, :closing_balance_trial, :dr_amount_trial, :cr_amount_trial, :enforce_validation, :changed_in_fiscal_year

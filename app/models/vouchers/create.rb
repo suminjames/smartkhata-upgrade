@@ -520,21 +520,21 @@ class Vouchers::Create < Vouchers::Base
         end
       end
 
-      # logic to make the voucher comply to new standard
-      # splitting the payment and receipt to multiple types
-      # if is_payment_receipt && voucher_has_cheque_entry
-      #   if voucher.is_payment?
-      #     voucher.voucher_type = Voucher.voucher_types[:payment_bank]
-      #   else
-      #     voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
-      #   end
-      # elsif is_payment_receipt
-      #   if voucher.is_payment?
-      #     voucher.voucher_type = Voucher.voucher_types[:payment_cash]
-      #   else
-      #     voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
-      #   end
-      # end
+      logic to make the voucher comply to new standard
+      splitting the payment and receipt to multiple types
+      if is_payment_receipt && voucher_has_cheque_entry
+        if voucher.is_payment?
+          voucher.voucher_type = Voucher.voucher_types[:payment_bank]
+        else
+          voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
+        end
+      elsif is_payment_receipt
+        if voucher.is_payment?
+          voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+        else
+          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+        end
+      end
       # mark the voucher as settled if it is not payment bank
       voucher.creator_id ||= current_user&.id
       voucher.updater_id = current_user&.id
@@ -544,32 +544,32 @@ class Vouchers::Create < Vouchers::Base
     return voucher, res, error_message, settlements
   end
 
-  def get_voucher_type(voucher, is_payment_receipt)
-    voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
-  
-    voucher_type = voucher.voucher_type
-  
-    # logic to make the voucher comply to new standard
-    # splitting the payment and receipt to multiple types
-    if is_payment_receipt && voucher_has_cheque_entry
-      if voucher.is_payment?
-        voucher_type = Voucher.voucher_types[:payment_bank]
-      else
-        voucher_type = Voucher.voucher_types[:receipt_bank]
-      end
-    elsif is_payment_receipt
-      if voucher.is_payment?
-        voucher_type = Voucher.voucher_types[:payment_cash]
-      else
-        voucher_type = Voucher.voucher_types[:receipt_cash]
-      end
-    end
-    return voucher_type
-  end
-
-  def voucher_has_cheque_entry?(voucher)
-    voucher.particulars.find{|p| p.cheque_number}.present?
-  end
+  # def get_voucher_type(voucher, is_payment_receipt)
+  #   voucher_has_cheque_entry = voucher_has_cheque_entry?(voucher)
+  #
+  #   voucher_type = voucher.voucher_type
+  #
+  #   # logic to make the voucher comply to new standard
+  #   # splitting the payment and receipt to multiple types
+  #   if is_payment_receipt && voucher_has_cheque_entry
+  #     if voucher.is_payment?
+  #       voucher_type = Voucher.voucher_types[:payment_bank]
+  #     else
+  #       voucher_type = Voucher.voucher_types[:receipt_bank]
+  #     end
+  #   elsif is_payment_receipt
+  #     if voucher.is_payment?
+  #       voucher_type = Voucher.voucher_types[:payment_cash]
+  #     else
+  #       voucher_type = Voucher.voucher_types[:receipt_cash]
+  #     end
+  #   end
+  #   return voucher_type
+  # end
+  #
+  # def voucher_has_cheque_entry?(voucher)
+  #   voucher.particulars.find{|p| p.cheque_number}.present?
+  # end
 
   def purchase_nepse_settlement(voucher, attrs = {})
     ledger = attrs[:ledger]

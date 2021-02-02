@@ -6,7 +6,7 @@ RSpec.describe Bill, type: :model do
   let(:client_account) { create(:client_account, current_user_id: user.id, branch: branch) }
   let(:user) { create(:user) }
   let(:branch) { create(:branch) }
-  
+
   include_context 'session_setup'
 
   describe "validations" do
@@ -192,19 +192,19 @@ RSpec.describe Bill, type: :model do
     #   expect(subject.requires_processing?).to be_truthy
     # end
 
-     it "should return false if bill is settled" do
-      subject.settled!
-      expect(subject.requires_processing?).not_to be_truthy
-    end
+    #  it "should return false if bill is settled" do
+    #   subject.settled!
+    #   expect(subject.requires_processing?).not_to be_truthy
+    # end
   end
 
   describe ".has_incorrect_fy_code?" do
-    context "when incorrect fy_code " do
-      it "should return true" do
-        allow(subject).to receive(:get_fy_code).and_return(234)
-        expect(subject.has_incorrect_fy_code?).to be_truthy
-      end
-    end
+    # context "when incorrect fy_code " do
+    #   it "should return true" do
+    #     allow(subject).to receive(:get_fy_code).and_return(234)
+    #     expect(subject.has_incorrect_fy_code?).to be_truthy
+    #   end
+    # end
 
     context "when correct fy_code " do
       it "should return false" do
@@ -220,7 +220,7 @@ RSpec.describe Bill, type: :model do
       bill = build(:bill, date: nil, date_bs: nil, client_name: nil)
       allow_any_instance_of(ClientAccount).to receive(:name).and_return('nistha')
         bill.send(:process_bill)
- 
+
       # subject{build(:bill, date: '2074/02/05')}
       expect(bill.date).to eq(Time.now.to_date)
       expect(bill.date_bs).to eq(bill.ad_to_bs_string_public(Time.now.to_date))

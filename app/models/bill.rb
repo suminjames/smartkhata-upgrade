@@ -52,9 +52,6 @@ class Bill < ApplicationRecord
 
   attr_accessor :provisional_base_price
 
-  # validations
-  # validates :client_account, presence: true
-
   # callbacks
   before_save :process_bill
   validates_uniqueness_of :bill_number, :scope => [:fy_code ]
@@ -223,7 +220,7 @@ class Bill < ApplicationRecord
       return self
     end
     # get all the share transaction for the day
-    share_transactions = ShareTransaction.selling.find_by(date: date_ad).where(client_account_id: self.client_account_id)
+    share_transactions = ShareTransaction.selling.find_by_date(date_ad).where(client_account_id: self.client_account_id)
 
     # validates base price and return if error
     if self.provisional_base_price.blank?
@@ -337,7 +334,7 @@ class Bill < ApplicationRecord
   private
 
   def process_bill
-    self.date ||= Time.zone.now
+    self.date ||= Time.now
     self.date_bs ||= ad_to_bs_string(self.date)
     self.client_name ||= self.client_account.name
   end

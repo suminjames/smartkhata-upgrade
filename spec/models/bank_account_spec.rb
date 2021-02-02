@@ -1,11 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject { create(:bank_account, bank_branch: "kathmandu", account_number: 'a2', bank: bank) }
+  subject { create(:bank_account, bank_branch: "kathmandu", account_number: 'a2', bank: bank, branch: branch) }
   let(:bank) { create(:bank) }
   let(:ledger) { create(:ledger) }
   let(:user) { create(:user) }
-  let(:bank_account_1) { create(:bank_account, bank: bank) }
+  let(:branch){ create(:branch) }
+  let(:bank_account_1) { create(:bank_account, bank: bank, branch: branch) }
   include_context 'session_setup'
 
   describe "validations" do

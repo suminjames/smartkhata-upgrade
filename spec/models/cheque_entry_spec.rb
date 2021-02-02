@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ChequeEntry, type: :model do
   subject { build(:cheque_entry, bank_account: bank_account, additional_bank: bank) }
   let(:bank) { create(:bank) }
-  let(:bank_account) { create(:bank_account, branch: branch) }
+  let(:bank_account) { create(:bank_account, branch: branch, bank: bank) }
   let(:branch) { create(:branch) }
   
   include_context 'session_setup'
@@ -21,19 +21,20 @@ RSpec.describe ChequeEntry, type: :model do
     it { should validate_presence_of :cheque_number }
     it { should validate_uniqueness_of(:cheque_number).scoped_to([:additional_bank_id, :bank_account_id, :cheque_issued_type]).with_message('should be unique') }
 
-    context "when additional_bank_id absent" do
-      subject { build(:cheque_entry, additional_bank_id: nil)}
-      it { should validate_presence_of :bank_account }
-    end
+    # Additional Bank ID can't be nil
+    # context "when additional_bank_id absent" do
+    #   subject { build(:cheque_entry, bank: bank, additional_bank_id: nil)}
+    #   it { should validate_presence_of :bank_account }
+    # end
 
     context "numericality validation of cheque_number" do
-      subject { build(:cheque_entry, skip_cheque_number_validation: nil)}
+      subject { build(:cheque_entry, bank: bank, skip_cheque_number_validation: nil)}
       it { should validate_numericality_of(:cheque_number) }
     end
   end
 
   describe "#find_beneficiary_name_similar_to_term" do
-    subject{create(:cheque_entry, additional_bank: bank)}
+    subject{create(:cheque_entry, bank: bank, additional_bank: bank)}
     it "should return beneficiary name when matched" do
       subject
       expect(ChequeEntry.find_beneficiary_name_similar_to_term('su')).to eq([{:text=>"subas", :id=>"subas"}])
@@ -46,8 +47,8 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe "#options_for_bank_account_select" do
-    let(:bank_account1) { create(:bank_account, branch: branch)}
-    let(:bank_account2) { create(:bank_account, branch: branch)}
+    let(:bank_account1) { create(:bank_account, branch: branch, bank: bank) }
+    let(:bank_account2) { create(:bank_account, branch: branch, bank: bank) }
 
     before do
       bank_account2.bank.update_column(:name, 'alpha')

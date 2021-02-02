@@ -28,7 +28,7 @@
 #
 
 class Particular < ApplicationRecord
-  include Auditable
+  # include Auditable
   include CustomDateModule
   include FiscalYearModule
   include ::Models::UpdaterWithBranchFycode

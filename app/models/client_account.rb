@@ -88,8 +88,6 @@ class ClientAccount < ApplicationRecord
 
   has_many :order_requests
 
-  # attr_accessor :current_user_id
-
   ########################################
   # Callbacks
 
@@ -239,14 +237,13 @@ class ClientAccount < ApplicationRecord
   # create client ledger
   def create_ledger
     unless self.skip_ledger_creation
-      client_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Clients")
+      client_group = Group.create_with(current_user_id: current_user_id).find_or_create_by(name: "Clients")
       if self.nepse_code.present?
         client_ledger = Ledger.find_or_create_by(client_code: self.nepse_code) do |ledger|
           ledger.name = self.name
           ledger.client_account_id = self.id
           ledger.group_id = client_group.id
-          ledger.creator_id = current_user_id
-          ledger.updater_id = current_user_id
+          ledger.current_user_id = current_user_id
           ledger.save!
         end
       else
@@ -254,8 +251,7 @@ class ClientAccount < ApplicationRecord
         client_ledger.name = self.name
         client_ledger.client_account_id = self.id
         client_ledger.group_id = client_group.id
-        client_ledger.creator_id = current_user_id
-        client_ledger.updater_id = current_user_id
+        client_ledger.current_user_id = current_user_id
         client_ledger.save!
       end
       client_ledger
@@ -270,7 +266,8 @@ class ClientAccount < ApplicationRecord
 
   # assign the client ledger to 'Clients' group
   def assign_group
-    client_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Clients")
+    # Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Clients")
+    client_group = Group.find_or_create_by!(name: "Clients")
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
     client_ledger = Ledger.find_by(client_account_id: self.id)
     client_group.ledgers << client_ledger

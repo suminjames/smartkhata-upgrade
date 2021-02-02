@@ -34,7 +34,7 @@ FactoryBot.define do
     status { :void }
     cheque_issued_type { :payment }
     amount { 5000 }
-    bank_account { BankAccount.first|| create(:bank_account) }
+    bank_account { BankAccount.first || create(:bank_account) }
     cheque_date { '2016-7-12' }
     branch_id { Branch.first&.id || create(:branch).id }
     beneficiary_name { 'subas' }

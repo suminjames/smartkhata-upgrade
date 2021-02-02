@@ -4,8 +4,10 @@ module Models::UpdaterWithFyCode
 
   def self.included(base)
     base.instance_eval do
-      before_create :set_creator, :add_fy_code
-      before_save :set_updater, :add_fy_code
+      # before_create :set_creator, :add_fy_code
+      # before_save :set_updater, :add_fy_code
+
+      before_validation :set_creator, :set_updater, :add_fy_code
 
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'

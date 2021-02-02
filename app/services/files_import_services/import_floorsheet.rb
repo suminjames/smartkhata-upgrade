@@ -47,7 +47,6 @@ class FilesImportServices::ImportFloorsheet < ImportFile
     import_error("Please verify and Upload a valid file") and return if (is_invalid_file_data(xlsx))
     # grab date from the first record
     date_data = date_from_excel(xlsx)
-    debugger
     # convert a string to date
     @date = Date.parse(date_data) if date_data.present? && parsable_date?(date_data)
 
@@ -69,7 +68,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       # raise soft error and return if the file is already uploaded
       import_error("The file is already uploaded") and return unless floorsheet_file.nil?
     end
-    debugger
+
     settlement_date = Calendar.t_plus_3_working_days(@date)
     fy_code = get_fy_code(@date)
 
