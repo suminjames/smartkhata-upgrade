@@ -6,6 +6,25 @@ namespace :demo do
 
     Apartment::Tenant.switch!(args.tenant)
 
+    @admin_users = [
+      {:email => 'demo@danfeinfotech.com', :password => '12demo09'},
+      {:email => 'demo@danfeinfotech.com', :password => '12demo09'}, #for the public
+    ]
+
+    count = 0
+
+    branch = Branch.create(code: "KTM", address: "Kathmandu")
+    user_access_role = UserAccessRole.create(role_type: 1, role_name: "Role-1")
+    admin_user_data = @admin_users[count - 1]
+    new_user = User.find_or_create_by!(email: admin_user_data[:email]) do |user|
+      user.password = admin_user_data[:password]
+      user.password_confirmation = admin_user_data[:password]
+      user.branch_id = branch.id
+      user.user_access_role_id = user_access_role.id
+      user.confirm
+      user.admin!
+    end
+
     nepse_codes.each_with_index do |code, index|
       # make sure to change it on the files associated
       client_type = :individual
@@ -38,6 +57,7 @@ namespace :demo do
         client.branch_id = branch_id
         client.boid = boid
         client.email = email
+        client.current_user_id = new_user.id
       end
     end
 

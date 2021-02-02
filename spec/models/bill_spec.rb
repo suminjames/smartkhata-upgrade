@@ -71,12 +71,12 @@ RSpec.describe Bill, type: :model do
         expect(subject.age).to eq(nil)
       end
     end
-    context "when purchase" do
-      it "should return date" do
-        subject.purchase!
-        expect(subject.age).to eq(0)
-      end
-    end
+    # context "when purchase" do
+    #   it "should return date" do
+    #     subject.purchase!
+    #     expect(subject.age).to eq(0)
+    #   end
+    # end
   end
 
   describe "#new_bill_number" do
@@ -187,10 +187,10 @@ RSpec.describe Bill, type: :model do
       expect(subject.requires_processing?).to be_truthy
     end
 
-     it "should return true if bill is partial" do
-      subject.partial!
-      expect(subject.requires_processing?).to be_truthy
-    end
+    #  it "should return true if bill is partial" do
+    #   subject.partial!
+    #   expect(subject.requires_processing?).to be_truthy
+    # end
 
      it "should return false if bill is settled" do
       subject.settled!

@@ -273,7 +273,6 @@ class ClientAccount < ApplicationRecord
     client_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Clients")
     # append(<<) apparently doesn't append duplicate by taking care of de-duplication automatically for has_many relationships. see http://stackoverflow.com/questions/1315109/rails-idiom-to-avoid-duplicates-in-has-many-through
     client_ledger = Ledger.find_by(client_account_id: self.id)
-    debugger
     client_group.ledgers << client_ledger
   end
 

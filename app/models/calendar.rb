@@ -22,7 +22,7 @@ class Calendar < ApplicationRecord
   # Populates dates without any prejudices but two -
   # 1. saturday is a holiday.
   # 2. friday is a non-trading day
-  def self.populate_calendar
+  def self.populate_calendar(user_id)
     @cal = NepaliCalendarPlus::CalendarPlus.new
 
     from_date_ad = @cal.bs_to_ad(2073, 1, 1)
@@ -45,7 +45,7 @@ class Calendar < ApplicationRecord
         date_hash[:is_trading_day] = false
         date_hash[:remarks] = 'Friday'
       end
-      Calendar.create(date_hash)
+      Calendar.create(date_hash.merge(current_user_id: user_id))
     end
   end
 

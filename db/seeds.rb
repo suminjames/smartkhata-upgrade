@@ -127,7 +127,7 @@ count = 0
     Rake::Task["setup:commission"].execute
 
     puts " Populating calendar..." if verbose
-    Calendar.populate_calendar
+    Calendar.populate_calendar(current_user_id)
 
     puts "putting the menus"  if verbose
     MenuItemService.call

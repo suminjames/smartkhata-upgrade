@@ -36,16 +36,16 @@ class Bill < ApplicationRecord
 
 
   has_many :share_transactions
-  belongs_to :client_account
+  belongs_to :client_account, optional: true
   has_many :isin_infos, through: :share_transactions
 
   has_many :bill_voucher_associations
   has_many :vouchers_on_creation,
-           ->{ where(bill_voucher_associations: {association_type: :on_creation})},
+           -> { where(bill_voucher_associations: { association_type: :on_creation }) },
            through: :bill_voucher_associations,
            source: :voucher
   has_many :vouchers_on_settlement,
-           ->{ where(bill_voucher_associations: {association_type: :on_settlement})},
+           -> { where(bill_voucher_associations: { association_type: :on_settlement }) },
            through: :bill_voucher_associations,
            source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
@@ -53,7 +53,7 @@ class Bill < ApplicationRecord
   attr_accessor :provisional_base_price
 
   # validations
-  validates_presence_of :client_account
+  # validates :client_account, presence: true
 
   # callbacks
   before_save :process_bill
@@ -63,27 +63,26 @@ class Bill < ApplicationRecord
   # verify this with views everytime before changing
   # bill index
   # bill show
-  enum bill_type: [:purchase, :sales]
+  enum bill_type: { purchase: 0, sales: 1 }
 
   # Bill Status
   # - Pending: No payment has been done.
   # - Partial: Some but not all payment has been done.
   # - Settled: All payment if required ( this includes bills with all share transaction cancelled ) has been done.
   # - Provisional: All the bills that are for view purpose only and have no effect on accounting purpose
-  enum status: [:pending, :partial, :settled, :provisional]
+  enum status: { pending: 0, partial: 1, settled: 2, provisional: 3 }
 
   #
   # Settlement Approval Status
   # - incognito : no action by default, bill rejected will also fall under this catagory
   # - PendingApproval: Approval is required
   # - Approved: Bill is approved
-  enum settlement_approval_status: [:incognito, :pending_approval, :approved]
+  enum settlement_approval_status: { incognito: 0, pending_approval: 1, approved: 2 }
 
   # # Bill cancel Status
   # #  - none : regular
   # #  - deal_cancel: Deal cancelled for atleast one of the share transactions
-  enum special_case: [:regular, :has_deal_cancelled, :has_closeout]
-
+  enum special_case: { regular: 0, has_deal_cancelled: 1, has_closeout: 2 }
 
   # scope based on the branch and fycode selection
   # default_scope do
@@ -95,23 +94,23 @@ class Bill < ApplicationRecord
   #   end
   # end
 
-  scope :by_branch_id, -> (branch_id) { where(branch_id: branch_id) if branch_id != 0 }
+  scope :by_branch_id, ->(branch_id) { where(branch_id: branch_id) if branch_id != 0 }
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
-  scope :by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
-  scope :by_bill_status, -> (status) { where(:status => Bill.statuses[status]) }
-  scope :find_by_date, -> (date) { where(:date => date.beginning_of_day..date.end_of_day) }
-  scope :find_by_date_range, -> (date_from, date_to) { where(:date => date_from.beginning_of_day..date_to.end_of_day) }
-  scope :by_client_id, -> (id) { where(client_account_id: id) }
-  scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
-  scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
+  scope :by_bill_type, ->(type) { where(bill_type: bill_types[:"#{type}"]) }
+  scope :by_bill_status, ->(status) { where(status: Bill.statuses[status]) }
+  scope :find_by_date, ->(date) { where(date: date.beginning_of_day..date.end_of_day) }
+  scope :find_by_date_range, ->(date_from, date_to) { where(date: date_from.beginning_of_day..date_to.end_of_day) }
+  scope :by_client_id, ->(id) { where(client_account_id: id) }
+  scope :find_not_settled_by_client_account_id, ->(id) { find_not_settled.where("client_account_id" => id) }
+  scope :find_not_settled_by_client_account_ids, ->(ids) { find_not_settled.where("client_account_id" => ids) }
 
   # as these are used for accounting purpose do not consider provisional
-  scope :requiring_processing, -> { where(status: ["pending", "partial"]) }
+  scope :requiring_processing, -> { where(status: %w[pending partial]) }
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]).order(date: :asc) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]).order(date: :asc) }
-  scope :with_client_bank_account, -> { includes(:client_account).where.not(:client_accounts => { bank_account: nil }) }
-  scope :with_client_bank_account_and_balance_cr, -> { includes(client_account: :ledger).where.not(:client_accounts => { bank_account: nil }).where('ledgers.closing_blnc < 0').references(:ledger) }
+  scope :with_client_bank_account, -> { includes(:client_account).where.not(client_accounts: { bank_account: nil }) }
+  scope :with_client_bank_account_and_balance_cr, -> { includes(client_account: :ledger).where.not(client_accounts: { bank_account: nil }).where('ledgers.closing_blnc < 0').references(:ledger) }
 
   scope :for_sales_payment_list, -> { with_balance_cr.requiring_processing }
   scope :for_payment_letter_list, -> { with_balance_cr.requiring_processing }
@@ -119,11 +118,11 @@ class Bill < ApplicationRecord
   # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :by_bill_number, lambda { |number|
     actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
-    where("bill_number" => "#{actual_bill_number}")
+    where("bill_number" => actual_bill_number.to_s)
   }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date => date_ad.beginning_of_day..date_ad.end_of_day)
+    where(date: date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -139,18 +138,18 @@ class Bill < ApplicationRecord
   }
 
   filterrific(
-      default_filter_params: { },
-      available_filters: [
-          :sorted_by,
-          :by_client_id,
-          :by_bill_number,
-          :by_bill_type,
-          :by_bill_status,
-          :by_bill_age,
-          :by_date,
-          :by_date_from,
-          :by_date_to
-      ]
+    default_filter_params: {},
+    available_filters: %i[
+      sorted_by
+      by_client_id
+      by_bill_number
+      by_bill_type
+      by_bill_status
+      by_bill_age
+      by_date
+      by_date_from
+      by_date_to
+    ]
   )
 
   # TODO(sarojk): Implement other sort options too.
@@ -158,16 +157,15 @@ class Bill < ApplicationRecord
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^bill_number/
-        order("bills.bill_number #{ direction }")
+        order("bills.bill_number #{direction}")
       when /^net_amount/
-        order("bills.net_amount #{ direction }")
+        order("bills.net_amount #{direction}")
       when /^age/
-        order("bills.settlement_date #{ direction }")
+        order("bills.settlement_date #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
-
 
   # Returns total share amount from all child share_transactions
   def get_net_share_amount
@@ -225,7 +223,7 @@ class Bill < ApplicationRecord
       return self
     end
     # get all the share transaction for the day
-    share_transactions = ShareTransaction.selling.find_by_date(date_ad).where(client_account_id: self.client_account_id)
+    share_transactions = ShareTransaction.selling.find_by(date: date_ad).where(client_account_id: self.client_account_id)
 
     # validates base price and return if error
     if self.provisional_base_price.blank?
@@ -247,7 +245,7 @@ class Bill < ApplicationRecord
       end
       share_transaction.base_price = self.provisional_base_price
       share_transaction.calculate_cgt
-      share_transaction.net_amount = (share_transaction.raw_quantity * share_transaction.share_rate) - (share_transaction.commission_amount) - share_transaction.dp_fee - share_transaction.cgt - share_transaction.sebo
+      share_transaction.net_amount = (share_transaction.raw_quantity * share_transaction.share_rate) - share_transaction.commission_amount - share_transaction.dp_fee - share_transaction.cgt - share_transaction.sebo
       share_transaction.save!
 
       self.share_transactions << share_transaction
@@ -259,7 +257,6 @@ class Bill < ApplicationRecord
     self.bill_number = Bill.new_bill_number(get_fy_code)
     self
   end
-
 
   # Returns the age of purchase bill in days.
   def age
@@ -290,58 +287,58 @@ class Bill < ApplicationRecord
   end
 
   def requires_processing?
-   self.pending? || self.partial?
+    self.pending? || self.partial?
   end
 
   def self.options_for_bill_age_select
     [
-        ["> 1 days", 1],
-        ["> 2 days", 2],
-        ["> 3 days", 3],
-        ["> 1 week", 7],
-        ["> 2 week", 14],
-        ["> 1 month", 30],
-        ["> 3 month", 90],
-        ["> 6 month", 180],
-        ["> 1 year", 364]
+      ["> 1 days", 1],
+      ["> 2 days", 2],
+      ["> 3 days", 3],
+      ["> 1 week", 7],
+      ["> 2 week", 14],
+      ["> 1 month", 30],
+      ["> 3 month", 90],
+      ["> 6 month", 180],
+      ["> 1 year", 364]
     ]
   end
 
   def self.options_for_bill_type_select
     [
-        ["Purchase", "purchase"],
-        ["Sales", "sales"]
+      %w[Purchase purchase],
+      %w[Sales sales]
     ]
   end
 
   def self.options_for_bill_status_select
     [
-        ['Pending', 'pending'],
-        ['Partial', 'partial'],
-        ['Settled', 'settled'],
-        ['Provisional', 'provisional']
+      %w[Pending pending],
+      %w[Partial partial],
+      %w[Settled settled],
+      %w[Provisional provisional]
     ]
   end
 
   def self.options_for_bill_status_select_for_ageing_analysis
     [
-        ['Pending', 'pending'],
-        ['Partial', 'partial'],
+      %w[Pending pending],
+      %w[Partial partial]
     ]
   end
 
   def has_incorrect_fy_code?
     true_fy_code = get_fy_code(self.settlement_date)
     return true if true_fy_code != self.fy_code
+
     false
   end
 
   private
+
   def process_bill
-    self.date ||= Time.now
+    self.date ||= Time.zone.now
     self.date_bs ||= ad_to_bs_string(self.date)
     self.client_name ||= self.client_account.name
   end
-
-
 end
