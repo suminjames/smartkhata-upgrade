@@ -44,6 +44,11 @@ class ImportFile
 
   def import_error(message)
     @error_message = message
+    log_error_file
   end
 
+
+  def log_error_file
+    true
+  end
 end

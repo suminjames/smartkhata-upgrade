@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210121094447) do
+ActiveRecord::Schema.define(version: 20210202124539) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -817,6 +817,7 @@ ActiveRecord::Schema.define(version: 20210121094447) do
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.date     "value_date"
+    t.integer  "status",      default: 0
   end
 
   add_index "file_uploads", ["branch_id"], name: "index_file_uploads_on_branch_id", using: :btree
@@ -917,10 +918,10 @@ ActiveRecord::Schema.define(version: 20210121094447) do
   end
 
   create_table "ledger_balances", force: :cascade do |t|
-    t.decimal  "opening_balance",      precision: 12, scale: 2, default: 0.0
-    t.decimal  "closing_balance",      precision: 12, scale: 2, default: 0.0
-    t.decimal  "dr_amount",            precision: 12, scale: 2, default: 0.0
-    t.decimal  "cr_amount",            precision: 12, scale: 2, default: 0.0
+    t.decimal  "opening_balance",      precision: 15, scale: 2, default: 0.0
+    t.decimal  "closing_balance",      precision: 15, scale: 2, default: 0.0
+    t.decimal  "dr_amount",            precision: 15, scale: 2, default: 0.0
+    t.decimal  "cr_amount",            precision: 15, scale: 2, default: 0.0
     t.integer  "fy_code"
     t.integer  "branch_id"
     t.integer  "creator_id"
@@ -938,8 +939,8 @@ ActiveRecord::Schema.define(version: 20210121094447) do
 
   create_table "ledger_dailies", force: :cascade do |t|
     t.date     "date"
-    t.decimal  "dr_amount",  precision: 12, scale: 2, default: 0.0
-    t.decimal  "cr_amount",  precision: 12, scale: 2, default: 0.0
+    t.decimal  "dr_amount",  precision: 15, scale: 2, default: 0.0
+    t.decimal  "cr_amount",  precision: 15, scale: 2, default: 0.0
     t.string   "date_bs"
     t.integer  "fy_code"
     t.integer  "creator_id"

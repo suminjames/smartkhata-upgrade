@@ -62,12 +62,22 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     # end
     #
 
+    if FileUpload.processing.where(file_type: FILETYPE, report_date: @date).where('created_at > ?', Time.current - 10.minutes).exists?
+      import_error("The file is being processed. Try again after few minutes") and return
+    end
+
+
     if !is_partial
       # do not reprocess file if it is already uploaded
-      floorsheet_file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
-      # raise soft error and return if the file is already uploaded
-      import_error("The file is already uploaded") and return unless floorsheet_file.nil?
+      if FileUpload.processed.where(file_type: FILETYPE, report_date: @date).exists?
+        # raise soft error and return if the file is already uploaded
+        import_error("The file is already uploaded") and return
+      end
     end
+
+    # create or update file upload with processing status
+    FileUpload.find_or_initialize_by(file_type: FILETYPE, report_date: @date).update(status: 1, current_user_id: @acting_user.id)
+
     settlement_date = Calendar::t_plus_3_working_days(@date)
     fy_code = get_fy_code(@date)
 
@@ -157,13 +167,24 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
     # critical functionality happens here
     ActiveRecord::Base.transaction do
-      @raw_data.each do |data_hash|
-        process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
-      end
-      generate_vouchers
+      begin
+        @raw_data.each do |data_hash|
+          process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
+        end
+        generate_vouchers
 
-      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id, value_date: value_date)
+        # the file should exist already
+        file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
+        file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 0)
+      rescue => e
+        log_error_file
+      end
     end
+  end
+
+  def log_error_file
+    file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
+    file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 2)
   end
 
   # rawdata =[

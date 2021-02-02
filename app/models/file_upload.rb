@@ -19,6 +19,7 @@ class FileUpload < ActiveRecord::Base
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
   enum file_type: [:unknown, :floorsheet, :dpa5, :orders]
+  enum status: { processed: 0, processing: 1, errored: 2 }
 
   after_save :patch_particulars
 
