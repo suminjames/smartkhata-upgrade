@@ -194,6 +194,8 @@ FactoryBot.define do
 
   factory :branch_permission do
     current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
   end
 
   factory :particulars do

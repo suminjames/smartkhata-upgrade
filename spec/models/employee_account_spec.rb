@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeAccount, type: :model do
-  subject{build(:employee_account, branch_id: branch.id, current_user_id: user.id)}
+  subject{build(:employee_account, branch_id: branch.id)}
   let(:branch){create(:branch)}
   let(:user){ create(:user) }
   include_context 'session_setup'
@@ -32,7 +32,7 @@ RSpec.describe EmployeeAccount, type: :model do
 
   describe "#find_similar_to_term" do
     context "when search term is present" do
-      subject{create(:employee_account, name: "john", branch: branch)}
+      subject{create(:employee_account, name: "john", branch_id: branch.id)}
       it "should return attributes of employee similar to term" do
         expect(subject.class.find_similar_to_term("jo")).to eq([:text => "john (#{subject.id})", :id => "#{subject.id}"])
       end
@@ -52,7 +52,7 @@ RSpec.describe EmployeeAccount, type: :model do
   # end
 
   describe ".name_with_id" do
-    subject{create(:employee_account, name: "john", branch: branch)}
+    subject{create(:employee_account, name: "john", branch_id: branch.id)}
     it "should append id with name" do
       expect(subject.name_with_id).to eq("john (#{subject.id})")
     end

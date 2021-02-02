@@ -5,7 +5,7 @@ RSpec.describe Bill, type: :model do
   subject { create(:sales_bill_with_transaction, client_account: client_account) }
   let(:client_account) { create(:client_account, current_user_id: user.id, branch: branch) }
   let(:user) { create(:user) }
-  let(:branch){ create(:branch) }
+  let(:branch) { create(:branch) }
   
   include_context 'session_setup'
 
@@ -28,8 +28,6 @@ RSpec.describe Bill, type: :model do
       expect(subject.get_net_share_amount).to eq(115810.0)
     end
   end
-
-  
 
   describe ".get_net_sebo_commission" do
     it "should return total sebo commission" do
@@ -135,7 +133,6 @@ RSpec.describe Bill, type: :model do
           expect(subject.make_provisional.errors[:provisional_base_price]).to include 'Invalid Base Price'
         end
       end
-      
 
        context "when share transaction size is less than 1" do
         subject { build(:bill, provisional_base_price: 100) }
@@ -230,5 +227,4 @@ RSpec.describe Bill, type: :model do
       expect(bill.client_name).to eq('nistha')
     end
   end
-
 end

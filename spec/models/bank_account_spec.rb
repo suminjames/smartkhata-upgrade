@@ -1,20 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe BankAccount, type: :model do
-  subject {create(:bank_account, bank_branch: "kathmandu",account_number:'a2', bank: bank)}
-  let(:bank){create(:bank)}
-  let(:ledger){create(:ledger)}
-  let(:user){create(:user)}
-  let(:bank_account_1) {create(:bank_account)}
+  subject { create(:bank_account, bank_branch: "kathmandu", account_number: 'a2', bank: bank) }
+  let(:bank) { create(:bank) }
+  let(:ledger) { create(:ledger) }
+  let(:user) { create(:user) }
+  let(:bank_account_1) { create(:bank_account, bank: bank) }
   include_context 'session_setup'
 
   describe "validations" do
     it { expect(subject).to be_valid }
-    it { should validate_uniqueness_of(:account_number)}
-    it { should allow_value('S0M3VALU3').for(:account_number)}
+    it { should validate_uniqueness_of(:account_number) }
+    it { should allow_value('S0M3VALU3').for(:account_number) }
     it { should belong_to(:bank) }
-    it { should validate_presence_of(:account_number)}
-    it { should validate_presence_of(:bank_branch)}
+    it { should validate_presence_of(:account_number) }
+    it { should validate_presence_of(:bank_branch) }
     it { should_not allow_values(-947, 'quux', '@123#').for(:account_number).with_message('should be numeric or alphanumeric') }
 
     # it "should not allow opening balance to be negative" do
@@ -27,23 +27,23 @@ RSpec.describe BankAccount, type: :model do
     it "should change default for payment" do
       subject.save!
       accounts = [subject, bank_account_1]
-      accounts.each {|account| account.update_column(:default_for_payment, true) }
+      accounts.each { |account| account.update_column(:default_for_payment, true) }
       subject.change_default
-      accounts.each {|account| account.reload}
+      accounts.each { |account| account.reload }
 
       expect(subject.default_for_payment).to be_truthy
-      expect(bank_account_1.default_for_payment).to be_truthy
+      expect(bank_account_1.default_for_payment).to be_falsey
     end
 
     it "should change default for sales" do
       subject.save!
       accounts = [subject, bank_account_1]
-      accounts.each {|account| account.update_column(:default_for_receipt, true) }
+      accounts.each { |account| account.update_column(:default_for_receipt, true) }
 
       subject.change_default
-      accounts.each {|account| account.reload}
+      accounts.each { |account| account.reload }
       expect(subject.default_for_receipt).to be_truthy
-      expect(bank_account_1.default_for_receipt).to be_truthy
+      expect(bank_account_1.default_for_receipt).to be_falsey
     end
   end
 
@@ -90,8 +90,6 @@ RSpec.describe BankAccount, type: :model do
       expect { subject.update_ledger_name }.to change { subject.ledger.name }.from("something").to("Bank:#{subject.bank.name}(#{subject.account_number})")
     end
   end
-
-
 
   # describe "validations" do
   #   it { expect(subject).to be_valid }

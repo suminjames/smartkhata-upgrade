@@ -47,8 +47,6 @@ class Ledger < ApplicationRecord
     "Rounding Off Difference"
   ].freeze
 
-
-
   has_many :particulars
   has_many :vouchers, :through => :particulars
   belongs_to :group
@@ -359,6 +357,8 @@ class Ledger < ApplicationRecord
     LedgerBalance.unscoped.where(ledger_id: self.id).delete_all
     LedgerDaily.where(ledger_id: self.id).delete_all
   end
+
+
 
   def effective_branch
     # todo different branch_ids for different type of accounts

@@ -4,11 +4,11 @@ RSpec.describe EmployeeLedgerAssociation, type: :model do
 	include_context 'session_setup'
 	
 	describe "#delete_previous_associations_for" do
-		let(:employee_account) { create(:employee_account, branch: branch) }
+		let(:employee_account) { create(:employee_account, branch_id: branch.id) }
 		let(:branch) { create(:branch) }
     let(:ledger){ create(:ledger) }
     let(:user){ create(:user) }
-		subject { EmployeeLedgerAssociation.new(employee_account: employee_account, ledger: ledger, current_user_id: user.id) }
+		subject { EmployeeLedgerAssociation.new(employee_account: employee_account, ledger: ledger) }
 
     it "should destroy all previous associations" do
       subject.save
