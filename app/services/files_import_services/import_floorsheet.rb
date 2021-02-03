@@ -165,20 +165,19 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     }
 
 
-    # critical functionality happens here
-    ActiveRecord::Base.transaction do
-      begin
+    begin
+      # critical functionality happens here
+      ActiveRecord::Base.transaction do
         @raw_data.each do |data_hash|
           process_record_for_full_upload(data_hash, hash_dp, fy_code, hash_dp_count, settlement_date, commission_info)
         end
         generate_vouchers
-
         # the file should exist already
         file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
         file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 0)
-      rescue => e
-        log_error_file
       end
+    rescue => e
+      log_error_file
     end
   end
 
