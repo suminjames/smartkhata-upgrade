@@ -27,7 +27,7 @@ class OrderRequestDetail < ApplicationRecord
   has_one :ledger, through: :order_request
   has_one :client_account, through: :order_request
 
-  validates :isin_info, :rate, :quantity, :order_type, presence: true
+  validates  :rate, :quantity, :order_type, presence: true
 
   enum status: { pending: 0, acknowledged: 1, partial: 2, completed: 3, cancelled: 4, rejected: 5 }
   enum order_type: { buy: 0, sell: 1 }

@@ -26,14 +26,13 @@ RSpec.describe Vouchers::Setup do
 
     it "should build a payment voucher" do
       voucher,
-          is_payment_receipt,
-          ledger_list_financial,
-          ledger_list_available,
-          default_ledger_id,
-          voucher_type,
-          vendor_account_list,
+        is_payment_receipt,
+        ledger_list_financial,
+        ledger_list_available,
+        default_ledger_id,
+        voucher_type,
+        vendor_account_list,
           client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant(1, 7374)
-
       expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
     end

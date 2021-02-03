@@ -70,14 +70,12 @@ class EmployeeAccount < ApplicationRecord
 
   # create employee ledger
   def create_ledger
-    # Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Employees")
-    employee_group = Group.find_or_create_by!(name: "Employees")
+    employee_group = Group.create_with(current_user_id: current_user_id).find_or_create_by!(name: "Employees")
     Ledger.create(name: self.name) do |ledger|
       ledger.name = self.name
       ledger.employee_account_id = self.id
       ledger.group_id = employee_group.id
-      # ledger.current_user_id = current_user_id
-      # ledger.updater_id = current_user_id
+      ledger.current_user_id = current_user_id
       ledger.save!
     end
   end

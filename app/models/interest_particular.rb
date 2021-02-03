@@ -88,7 +88,6 @@ class InterestParticular < ActiveRecord::Base
 
     ledgers.find_each do |ledger|
       ledger_id = ledger.id
-
       balance = LedgerBalance.by_branch_fy_code(0,fy_code).where(ledger_id: ledger_id).first
       opening_principal = balance.dr? ? balance.opening_balance : balance.opening_balance * -1
 

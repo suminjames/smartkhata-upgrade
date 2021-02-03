@@ -3,8 +3,7 @@ module Models::UpdaterWithBranchFycodeBalance
 
   def self.included(base)
     base.instance_eval do
-      before_validation :set_creator
-      before_validation :set_updater
+      before_validation :set_creator, :set_updater
       # to keep track of the user who created and last updated the ledger
       belongs_to :creator,  class_name: 'User'
       belongs_to :updater,  class_name: 'User'

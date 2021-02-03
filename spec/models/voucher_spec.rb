@@ -2,6 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Voucher, type: :model do
   subject{create(:voucher)}
+  let(:bank){ create(:bank) }
+  let(:branch){ create(:branch) }
+  let(:bank_account){ create(:bank_account, bank: bank, branch: branch)}
+  let(:additional_bank){ create(:bank) }
   include_context 'session_setup'
 
   describe ".voucher_code" do
@@ -216,8 +220,12 @@ RSpec.describe Voucher, type: :model do
   describe ".map_payment_receipt_to_new_types" do
     context "when voucher type is receipt" do
       subject{create(:voucher, voucher_type: "receipt")}
-      let!(:particular){create(:particular, voucher_id: subject.id)}
-      let!(:cheque_entry1){create(:cheque_entry)}
+      let!(:particular){create(:particular, voucher_id: subject.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+      let!(:cheque_entry1){create(:cheque_entry, bank_account: bank_account, additional_bank: additional_bank)}
+      let(:bank){ create(:bank) }
+      let(:branch){ create(:branch) }
+      let(:bank_account){ create(:bank_account, bank: bank, branch: branch)}
+      let(:additional_bank){ create(:bank) }
       context "and cheque entries count is greater than 0" do
         it "returns voucher type as receipt bank" do
           particular.cheque_entries << cheque_entry1
@@ -237,8 +245,12 @@ RSpec.describe Voucher, type: :model do
 
     context "when voucher type is payment" do
       subject{create(:voucher, voucher_type: "payment")}
-      let!(:particular){create(:particular, voucher_id: subject.id)}
-      let!(:cheque_entry1){create(:cheque_entry)}
+      let!(:particular){create(:particular, voucher_id: subject.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+      let!(:cheque_entry1){create(:cheque_entry, bank_account: bank_account, additional_bank: additional_bank)}
+      let(:bank){ create(:bank) }
+      let(:branch){ create(:branch) }
+      let(:bank_account){ create(:bank_account, bank: bank, branch: branch)}
+      let(:additional_bank){ create(:bank) }
       context "and cheque entries count is greater than 0" do
         it "returns voucher type as payment bank" do
           particular.cheque_entries << cheque_entry1
@@ -333,9 +345,13 @@ RSpec.describe Voucher, type: :model do
 
   describe ".assign_cheque" do
     subject{create(:voucher)}
-    let!(:particular_dr){create(:particular, voucher_id: subject.id, transaction_type: "dr")}
-    let!(:particular_cr){create(:particular, voucher_id: subject.id, transaction_type: "cr")}
-    let!(:cheque_entry){create(:cheque_entry)}
+    let!(:particular_dr){create(:particular, voucher_id: subject.id, transaction_type: "dr", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+    let!(:particular_cr){create(:particular, voucher_id: subject.id, transaction_type: "cr", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+    let!(:cheque_entry){create(:cheque_entry, bank_account: bank_account, additional_bank: additional_bank)}
+    let(:bank){ create(:bank) }
+    let(:branch){ create(:branch) }
+    let(:bank_account){ create(:bank_account, bank: bank, branch: branch)}
+    let(:additional_bank){ create(:bank) }
 
     context "when voucher is payment voucher" do
       before do
@@ -362,7 +378,7 @@ RSpec.describe Voucher, type: :model do
 
       context "and internal bank payments" do
         it "should assign beneficiary name to both cheques as company" do
-          receipt_cheque_entry = create(:receipt_cheque_entry)
+          receipt_cheque_entry = create(:receipt_cheque_entry, bank_account: bank_account, additional_bank: additional_bank)
           receipt_cheque_entry.particulars_on_receipt << particular_dr
 
           cheque_entry.update_attributes(beneficiary_name: nil)

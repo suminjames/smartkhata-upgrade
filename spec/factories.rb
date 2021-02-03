@@ -34,7 +34,7 @@ FactoryBot.define do
     status { :void }
     cheque_issued_type { :payment }
     amount { 5000 }
-    bank_account { BankAccount.first || create(:bank_account) }
+    bank_account { BankAccount.first }
     cheque_date { '2016-7-12' }
     branch_id { Branch.first&.id || create(:branch).id }
     beneficiary_name { 'subas' }
@@ -102,7 +102,7 @@ FactoryBot.define do
 
   factory :ledger do
     name { 'Ledger' }
-    group
+    group { Group.first || create(:group) }
     current_user_id { User.first&.id || create(:user).id }
     creator_id { User.first&.id || create(:user).id }
     updater_id { User.first&.id || create(:user).id }

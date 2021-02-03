@@ -84,7 +84,7 @@ class Particular < ApplicationRecord
   has_one :bank_payment_letter
 
 
-  validates_presence_of :ledger_id
+  # validates_presence_of :ledger_id
   validate :value_date_latest_than_date
 
   enum transaction_type: [:dr, :cr]
