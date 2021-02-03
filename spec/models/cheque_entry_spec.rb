@@ -28,7 +28,7 @@ RSpec.describe ChequeEntry, type: :model do
     # end
 
     context "numericality validation of cheque_number" do
-      subject { build(:cheque_entry, bank: bank, skip_cheque_number_validation: nil)}
+      subject { build(:cheque_entry, bank: bank, additional_bank: bank, skip_cheque_number_validation: nil)}
       it { should validate_numericality_of(:cheque_number) }
     end
   end
@@ -118,7 +118,7 @@ RSpec.describe ChequeEntry, type: :model do
   end
 
   describe ".associated_bank_particulars" do
-    let(:particular) {create(:particular, cheque_number: subject.cheque_number)}
+    let(:particular) {create(:particular, cheque_number: subject.cheque_number, value_date: Date.today - 5.days, transaction_date: Date.today - 15.days)}
     it "should return associated bank particulars" do
       subject.particulars << particular
       subject.save

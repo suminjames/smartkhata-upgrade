@@ -37,7 +37,7 @@ RSpec.describe Bill, type: :model do
 
   describe ".get_net_commission" do
     it "should return total commission" do
-      expect(subject.get_net_commission.to_f).to eq(636.96)
+      expect(subject.get_net_commission.to_f).to eq(636.955)
     end
   end
 

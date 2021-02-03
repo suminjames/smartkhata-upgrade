@@ -4,10 +4,12 @@ RSpec.describe ChequeEntries::Activity do
   include_context 'session_setup'
   include ActiveSupport::Testing::TimeHelpers
 
+  let(:branch){ create(:branch) }
   let(:bank){create(:bank)}
-  let(:bank_account) { create(:bank_account, bank_id: bank.id) }
-  let(:cheque_entry) { create(:cheque_entry, branch_id: 1) }
-  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', User.first.id, 1, 7576) }
+  let(:bank_account) { create(:bank_account, bank: bank, branch: branch) }
+  let(:additional_bank) { create(:bank) }
+  let(:cheque_entry) { create(:cheque_entry, branch_id: 1, bank: bank, bank_account: bank_account, additional_bank: additional_bank, branch: branch) }
+  subject { ChequeEntries::Activity.new(cheque_entry, 'trishakti', User.first.id, branch.id, 7576) }
 
   before do
     travel_to "2019-01-01".to_date

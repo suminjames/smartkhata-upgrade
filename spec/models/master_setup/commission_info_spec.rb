@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe  MasterSetup::CommissionInfo do
   include_context 'session_setup'
-  let(:master_setup_commission_info){create(:master_setup_commission_info, start_date: "2022-1-1", end_date: "2022-1-10")}
+  let(:master_setup_commission_info){create(:master_setup_commission_info, start_date: "2022-1-1", end_date: "2022-1-10", sebo_rate: 0.15)}
   let(:commission_detail){create(:master_setup_commission_detail, start_amount: 1000, limit_amount: 2000, master_setup_commission_info_id: master_setup_commission_info.id)}
   let(:another_commission_detail){create(:master_setup_commission_detail, start_amount: 500, limit_amount: 1500, master_setup_commission_info_id: master_setup_commission_info.id)}
   subject { MasterSetup::CommissionInfo.new }

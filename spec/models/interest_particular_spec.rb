@@ -21,6 +21,7 @@ RSpec.describe InterestParticular, type: :model do
   let(:branch){ create(:branch) }
   let(:ledger) { create(:ledger, client_account: client_account, group: group) }
   let(:group){ create(:group) }
+  let(:ledger_balance){ create(:ledger_balance, branch: branch, current_user_id: user.id, ledger: ledger, fy_code: 7778) }
   let(:particular) { create(:particular, fy_code: 7778, transaction_type: 0, amount: 500, value_date: Date.today - 15.days, transaction_date: Date.today - 30.days) }
   let!(:interest_rate) { create(:interest_rate) }
   let(:date) { Date.today }
@@ -38,9 +39,11 @@ RSpec.describe InterestParticular, type: :model do
     context "when client ledger has particular" do
       before do
         ledger.particulars << particular
+        ledger.ledger_balances << ledger_balance
       end
 
       it "creates the record for interest particular" do
+        
         expect(subject.num_inserts).to eq(1)
         expect(subject.ids).to include("1")
       end
@@ -53,13 +56,15 @@ RSpec.describe InterestParticular, type: :model do
     end
 
     context "when the total particular amount is negative" do
-      let(:another_particular) { create(:particular, fy_code: 7778, transaction_type: 1, amount: 2000, value_date: Date.today - 10.days) }
+      let(:another_particular) { create(:particular, fy_code: 7778, transaction_type: 1, amount: 2000, value_date: Date.today - 10.days, transaction_date: Date.today - 20.days) }
 
       before do
         ledger.particulars << [particular, another_particular]
+        ledger.ledger_balances << ledger_balance
       end
 
       it "calculates payable interest" do
+        debugger
         expect(subject.num_inserts).to eq(1)
         relevant_interest_particular = InterestParticular.last
         expect(relevant_interest_particular.amount).to eq(150.0)
@@ -68,11 +73,12 @@ RSpec.describe InterestParticular, type: :model do
     end
 
     context "when the total particular amount is positive" do
-      let(:another_particular) { create(:particular, fy_code: 7778, transaction_type: 1, amount: 500, value_date: Date.today - 10.days) }
-      let(:third_particular){ create(:particular, fy_code: 7778, transaction_type: 0, amount: 1000, value_date: Date.today - 10.days) }
+      let(:another_particular) { create(:particular, fy_code: 7778, transaction_type: 1, amount: 500, value_date: Date.today - 10.days, transaction_date: Date.today - 20.days) }
+      let(:third_particular){ create(:particular, fy_code: 7778, transaction_type: 0, amount: 1000, value_date: Date.today - 10.days, transaction_date: Date.today - 20.days) }
 
       before do
         ledger.particulars << [particular, another_particular, third_particular]
+        ledger.ledger_balances << ledger_balance
       end
 
       it "calculates receivable interest" do
