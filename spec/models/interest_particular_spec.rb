@@ -64,7 +64,6 @@ RSpec.describe InterestParticular, type: :model do
       end
 
       it "calculates payable interest" do
-        debugger
         expect(subject.num_inserts).to eq(1)
         relevant_interest_particular = InterestParticular.last
         expect(relevant_interest_particular.amount).to eq(150.0)

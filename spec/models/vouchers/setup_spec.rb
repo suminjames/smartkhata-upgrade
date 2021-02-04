@@ -33,7 +33,6 @@ RSpec.describe Vouchers::Setup do
         voucher_type,
         vendor_account_list,
           client_ledger_list = Vouchers::Setup.new(voucher_type: 1).voucher_and_relevant(1, 7374)
-      debugger
       expect(voucher.voucher_code).to eq("PMT")
       expect(voucher.particulars.size).to eq(2)
     end
