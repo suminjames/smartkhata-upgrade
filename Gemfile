@@ -67,6 +67,7 @@ group :development do
   gem 'traceroute'
   # gem 'rack-mini-profiler'
   gem 'better_errors'
+  gem 'binding_of_caller'
   gem 'annotate'
   gem 'hirb'
   gem 'capistrano', '~> 3.1'

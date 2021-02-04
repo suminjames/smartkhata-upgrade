@@ -1,0 +1,18 @@
+.visitors.index
+  input id="nepseField" placeholder="Enter your nepse code"
+  button.btn.btn-sm.btn-primary#searchNepseBtn disabled=true Submit
+  #waitPrompt.d-none Processing. Please Wait...
+
+#billsContent
+  = render 'list', bills: ''
+
+css:
+  .d-none {
+    visibility: hidden;
+  }
+  #billsContent {
+    margin-top: 30px;
+  }
+  #searchNepseBtn {
+    margin: 10px;
+  }

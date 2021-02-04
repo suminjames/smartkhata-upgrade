@@ -1,6 +1,7 @@
 class BillDecorator < ApplicationDecorator
   delegate_all
   decorates_association :share_transactions
+  # delegate :current_page, :total_pages, :limit_value, to: :_source
 
   # Group same isin (not deal cancelled) transaction with same share rate AND same commission rate AND same base price to be shown in single row in transaction listing.
   def formatted_group_same_isin_same_rate_transactions
