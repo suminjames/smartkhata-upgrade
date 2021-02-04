@@ -436,15 +436,12 @@ class ShareTransactionsController < ApplicationController
         persistence_id: false
     ) or return
 
-
-
-
-
     @total_capital_gain = arabic_number(@filterrific.find.pluck(:cgt).sum.to_f)
     @share_transactions = @filterrific.find.includes(:isin_info, :bill, :client_account)
 
     items_per_page = 20
     if params[:paginate] == 'false'
+      params[:page] = 1
       items_per_page = @share_transactions.size
     end
 
