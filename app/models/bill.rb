@@ -23,6 +23,7 @@
 #  nepse_settlement_id        :integer
 #  settlement_approval_status :integer          default(0)
 #  closeout_charge            :decimal(15, 4)   default(0.0)
+#  payment_transaction_id     :integer
 #
 
 class Bill < ActiveRecord::Base
@@ -48,6 +49,7 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
+  belongs_to :payment_transaction
 
   attr_accessor :provisional_base_price
 

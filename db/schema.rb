@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210202124539) do
+ActiveRecord::Schema.define(version: 20210204125409) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -226,6 +226,7 @@ ActiveRecord::Schema.define(version: 20210202124539) do
     t.integer  "nepse_settlement_id",        limit: 8
     t.integer  "settlement_approval_status",                                    default: 0
     t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
+    t.integer  "payment_transaction_id"
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
@@ -234,6 +235,7 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_index "bills", ["date"], name: "index_bills_on_date", using: :btree
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
+  add_index "bills", ["payment_transaction_id"], name: "index_bills_on_payment_transaction_id", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
 
   create_table "branch_permissions", force: :cascade do |t|
@@ -807,6 +809,31 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
   add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
+  create_table "esewa_payments", force: :cascade do |t|
+    t.integer  "payment_transaction_id"
+    t.string   "username"
+    t.string   "response"
+    t.string   "response_code"
+    t.integer  "status"
+    t.string   "request_sent_at"
+    t.string   "response_received_at"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "esewa_payments", ["payment_transaction_id"], name: "index_esewa_payments_on_payment_transaction_id", using: :btree
+
+  create_table "esewa_transaction_verifications", force: :cascade do |t|
+    t.integer  "esewa_payment_id"
+    t.string   "request_sent_at"
+    t.string   "response_received_at"
+    t.integer  "status"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "esewa_transaction_verifications", ["esewa_payment_id"], name: "index_esewa_transaction_verifications_on_esewa_payment_id", using: :btree
+
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file_type"
     t.date     "report_date"
@@ -1222,6 +1249,17 @@ ActiveRecord::Schema.define(version: 20210202124539) do
 
   add_index "particulars_share_transactions", ["particular_id"], name: "index_particulars_share_transactions_on_particular_id", using: :btree
   add_index "particulars_share_transactions", ["share_transaction_id"], name: "index_particulars_share_transactions_on_share_transaction_id", using: :btree
+
+  create_table "payment_transactions", force: :cascade do |t|
+    t.string   "amount"
+    t.integer  "status"
+    t.string   "response_code"
+    t.string   "response_message"
+    t.string   "start_time"
+    t.string   "end_time"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
 
   create_table "payout_upload", force: :cascade do |t|
     t.string "transaction_no"
@@ -1839,9 +1877,12 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_foreign_key "bank_payment_letters", "vouchers"
   add_foreign_key "bill_voucher_associations", "bills"
   add_foreign_key "bill_voucher_associations", "vouchers"
+  add_foreign_key "bills", "payment_transactions"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "edis_items", "sales_settlements"
+  add_foreign_key "esewa_payments", "payment_transactions"
+  add_foreign_key "esewa_transaction_verifications", "esewa_payments"
   add_foreign_key "interest_particulars", "ledgers"
   add_foreign_key "ledger_balances", "ledgers"
   add_foreign_key "master_setup_commission_details", "master_setup_commission_infos"
