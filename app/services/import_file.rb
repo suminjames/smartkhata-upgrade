@@ -13,7 +13,7 @@ class ImportFile
   end
 
   def extract_csv(file)
-    CSV.foreach(file.path, headers: true) do |row|
+    CSV.foreach(file.path, :headers => true) do |row|
       @processed_data << row.to_hash
     end
   end
@@ -43,5 +43,11 @@ class ImportFile
 
   def import_error(message)
     @error_message = message
+    log_error_file
+  end
+
+
+  def log_error_file
+    true
   end
 end

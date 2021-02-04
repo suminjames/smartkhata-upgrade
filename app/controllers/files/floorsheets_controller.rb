@@ -13,13 +13,13 @@ class Files::FloorsheetsController < Files::FilesController
   THRESHOLD_NEPSE_AMOUNT_LIMIT = 5000000
 
   def new
-    floorsheets = FileUpload.where(file_type: @@file_type)
+    floorsheets = FileUpload.processed.where(file_type: @@file_type)
     @file_list = floorsheets.order("report_date desc").limit(Files::PREVIEW_LIMIT);
     @list_incomplete = floorsheets.count > Files::PREVIEW_LIMIT
   end
 
   def index
-    @file_list = FileUpload.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date DESC")
+    @file_list = FileUpload.processed.where(file_type: @@file_type).page(params[:page]).per(20).order("report_date DESC")
   end
 
   def import
