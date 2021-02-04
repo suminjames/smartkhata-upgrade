@@ -183,7 +183,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
 
   def log_error_file
     file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
-    file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 2)
+    file&.update(current_user_id: @acting_user.id, value_date: value_date, status: 2)
   end
 
   # rawdata =[
