@@ -16,6 +16,18 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :esewa_payments do
+    collection do
+      get :success
+      get :failure
+    end
+  end
+  resources :payment_transactions do
+    collection do
+      get :initiate_payment
+    end
+  end
+
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars
     resources :interest_rates

@@ -1,10 +1,9 @@
-$(document).on("ready page:load", function() {
+$(document).on("ready page:load", function () {
 
 // visitors index page search
   if ($('.visitors.index').length == 0) {
     return false;
   }
-  console.log('visitors bills index')
   var searchBtn = document.querySelector('#searchNepseBtn');
   var nepseField = document.querySelector('#nepseField');
   var waitPrompt = document.querySelector('#waitPrompt');
@@ -18,9 +17,12 @@ $(document).on("ready page:load", function() {
     }
   });
 
-  $(searchBtn).click((e) => {
+  function toggleProcessingAction() {
     waitPrompt.classList.toggle('d-none');
-    searchBtn.disabled = true;
+    searchBtn.disabled = false;
+  }
+
+  function processBillSearch() {
     var request = $.ajax({
       method: "GET",
       url: "/visitor_bills/search/",
@@ -31,16 +33,21 @@ $(document).on("ready page:load", function() {
       }
     });
     request.done(function (msg) {
+      toggleProcessingAction()
       document.querySelector('#billsContent').innerHTML = msg;
-      waitPrompt.classList.toggle('d-none');
-      searchBtn.disabled = false;
     });
 
     request.fail(function () {
       console.log("could not find record");
-      waitPrompt.classList.toggle('d-none');
-      searchBtn.disabled = false;
-    })
+      toggleProcessingAction()
+    });
+  }
 
+  $(searchBtn).click((e) => {
+    waitPrompt.classList.toggle('d-none');
+    searchBtn.disabled = true;
+    processBillSearch();
   });
+
+  //pay using esewa
 });

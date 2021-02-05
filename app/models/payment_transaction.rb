@@ -18,4 +18,5 @@ class PaymentTransaction < ActiveRecord::Base
   has_many :esewa_payments
 
   enum status: [:success, :fail]
+  enum kind: [:esewa, :connectips]
 end

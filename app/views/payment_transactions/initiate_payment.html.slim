@@ -1,0 +1,108 @@
+div#bill_payment_list.table-responsive
+  table.table.table-striped
+    thead
+      th.col-sm-1= 'S.N.'
+      th.col-sm-1= 'Bill No.'
+      th.col-sm-1= 'Date(BS)'
+      th.col-sm-1= 'Client'
+      th.col-sm-1= 'Type'
+      th.col-sm-1= 'Status'
+      th.col-sm-1= 'Amount'.html_safe
+    tbody
+      - if @bills.present?
+        - @bills.each.with_index(1) do |bill, index|
+          tr
+            td = index
+            td = bill.formatted_bill_number
+            td = bill.formatted_bill_dates["bs"][0..-4]
+            td
+              b = bill.formatted_nepse_code
+            td = bill.formatted_type
+            td = bill.formatted_status
+            td = bill.formatted_net_bill_amount
+        tr
+          td colspan="6"
+            b Total Amount
+          td = Draper::ViewContext.current.arabic_number(@total_amount)
+
+  / = link_to "Pay using Esewa", esewa_payments_path(bill_ids: @bill_ids, amount: @total_amount), method: :post, class: 'btn btn-success'
+
+  = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
+  / input type="hidden" value=@bill_ids id="billIds"
+  form action=@esewa_payment_url method="POST" id="esewaPaymentForm"
+    input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
+    input name="amt" type="hidden" value="#{@total_amount.to_i}"
+    input name="txAmt" type="hidden" value="0"
+    input name="psc" type="hidden" value="0"
+    input name="pdc" type="hidden" value="0"
+    input name="scd" type="hidden"
+    input name="pid" type="hidden"
+
+    input name="su" type="hidden"
+    input name="fu" type="hidden"
+
+  button.btn.btn.btn-success#esewaSubmit Pay
+
+  / form action="https://uat.esewa.com.np/epay/main" method="POST"
+  /   input name="tAmt" type="hidden" value="100" /
+  /   input name="amt" type="hidden" value="90" /
+  /   input name="txAmt" type="hidden" value="5" /
+  /   input name="psc" type="hidden" value="2" /
+  /   input name="pdc" type="hidden" value="3" /
+  /   input name="scd" type="hidden" value="epay_payment" /
+  /   input name="pid" type="hidden" value="ee2c3ca1-696b-4cc5-a6be-2c40d929d453" /
+  /   input name="su" type="hidden" value="http://merchant.com.np/page/esewa_payment_success?q=su" /
+  /   input name="fu" type="hidden" value="http://merchant.com.np/page/esewa_payment_failed?q=fu" /
+  /   input type="submit" value="Submit" /
+
+
+javascript:
+  let billIds = document.querySelector('#billIds');
+  let amount = document.querySelector('input[name="amt"]');
+  let serviceCharge = document.querySelector('input[name="psc"]');
+  let deliveryCharge = document.querySelector('input[name="pdc"]');
+  let taxAmount = document.querySelector('input[name="txAmt"]');
+  let totalAmount = document.querySelector('input[name="tAmt"]');
+  let successUrl = document.querySelector('input[name="su"]');
+  let failureUrl = document.querySelector('input[name="fu"]');
+  let securityCode = document.querySelector('input[name="scd"]');
+  let productId = document.querySelector('input[name="pid"]');
+
+  let bills = billIds.value.split(' ');
+
+  let paymentForm = document.querySelector('#esewaPaymentForm');
+
+  document.querySelector('#esewaSubmit').addEventListener('click', function (e) {
+    processPayment();
+  });
+
+  function processPayment() {
+    let token = $("meta[name='csrf-token']").attr('content');
+    var request = $.ajax({
+      method: "POST",
+      url: "/esewa_payments/",
+      data: {
+        amount: parseInt(amount.value),
+        bill_ids: bills,
+        service_charge: parseInt(serviceCharge.value),
+        delivery_charge: parseInt(deliveryCharge.value),
+        tax_amount: parseInt(taxAmount.value),
+        total_amount: parseInt(totalAmount.value),
+        authenticity_token: token,
+      }
+    });
+    request.done(function (res) {
+      debugger
+      successUrl.setAttribute('value', res.payment.success_url);
+      failureUrl.setAttribute('value', res.payment.failure_url);
+      securityCode.setAttribute('value', res.security_code);
+      productId.setAttribute('value', res.payment.id);
+      debugger
+      paymentForm.submit();
+    });
+
+    request.fail(function () {
+      debugger
+      console.log("could not process payment");
+    });
+  }

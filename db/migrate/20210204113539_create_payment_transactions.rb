@@ -4,6 +4,7 @@ class CreatePaymentTransactions < ActiveRecord::Migration
       t.decimal :amount
       t.integer :status
       t.integer :attempts
+      t.integer :kind
 
       t.timestamps null: false
     end
