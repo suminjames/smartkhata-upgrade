@@ -92,6 +92,7 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
   gem 'openssl'
+  gem 'binding_of_caller'
 end
 
 group :development, :test do
