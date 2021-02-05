@@ -1,5 +1,6 @@
 data = "MERCHANTID=303,APPID=MER-303-APP-1,APPNAME=Trishakti,TXNID=8024,TXNDATE=04-02-2021,TXNCRNCY=NPR,TXNAMT=2000,REFERENCEID=1.2.4,REMARKS=123455,PARTICULARS=12345,TOKEN=TOKEN"
 
+data_2 = "MERCHANTID=303,APPID=MER-303-APP-1,REFERENCEID=8024,TXNAMT=2000"
 
 # Gateway URL: https://uat.connectips.com/connectipswebgw/loginpage
 # Merchant id: 303
@@ -26,7 +27,7 @@ def nchl_private_key
   pkcs.key.to_pem
 end
 
-signed_key = signed_data(data, nchl_private_key)
+signed_key = signed_data(data_2, nchl_private_key)
 base_64_encoding = Base64.encode64(signed_key)
 
 puts base_64_encoding
