@@ -1,13 +1,11 @@
 class VisitorBillsController < VisitorsController
   def index
-    @bills = Bill.all.page(params[:page] || 1).per(5).decorate
+    @filterrific = initialize_filterrific(
+        Bill,
+        params[:filterrific],
+        persistence_id: false
+    ) or return
 
-  end
-
-  def search
-    @client_account = ClientAccount.find_by(nepse_code: params[:q][:nepse].upcase) rescue nil
-    @bills = @client_account.bills.page(params[:page] || 1).per(5).decorate if !@client_account.nil?
-
-    render 'search', layout: (params[:page]!='' && !params[:q][:nepse_code])
+    @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account).page(params[:page]).per(5).decorate
   end
 end

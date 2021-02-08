@@ -1,5 +1,4 @@
-/ TODO: add checkbox for multiple payments
-.visitors.list
+#filterrific_results
   div#bill_list.table-responsive
     = form_tag initiate_payment_payment_transactions_path, method: :get do
       table.table.table-striped
@@ -19,7 +18,7 @@
               tr
                 td = index + pagination_count
                 td = bill.formatted_bill_number
-                td = bill.formatted_bill_dates["bs"][0..-4]
+                td = bill.formatted_bill_dates["bs"][0 .. -4]
                 td
                   b = bill.formatted_nepse_code
                 td = bill.formatted_type
@@ -30,44 +29,19 @@
 
 
       - if bills.present?
-        = paginate bills
-        = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm esewaPayBox pull-right'
+        = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm esewaPayBox pull-right btn-flat'
 
-    - if bills.blank?
-      div.row.text-center.top-buffer-md
-        | There are no matching bills. Please enter a valid nepse code
+      - if bills.blank?
+        div.row.text-center.top-buffer-md
+          | There are no matching bills. Please enter a valid nepse code
 
+  = render 'shared/pagination', collection_to_paginate: bills
 
-scss:
-  $theme-color: #3c8dbc;
-  $theme-highlight: #94949b;
-  $bg: f6f9ff;
-  $hover-text: #e8e8e8;
+css:
+  table {
+    margin-top: 15px;
+  }
 
-  .pagination {
-    display: block !important;
-    text-align: right;
-
-    span {
-      a {
-        background: $bg;
-        border-radius: 4px;
-        display: inline-block;
-        padding: 5px 10px;
-        border: 1px solid $theme-color;
-
-        &:hover {
-          border-color: $theme-highlight;
-          color: $hover-text;
-        }
-      }
-
-      &.current {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 4px;
-        border: 1px solid $theme-color;
-        background: $theme-highlight;
-      }
-    }
+  .esewaPayBox {
+    margin: 10px 0px;
   }
