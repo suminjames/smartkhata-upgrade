@@ -18,8 +18,8 @@ class VisitorsController < ApplicationController
 
     end
 
-    html_page = PaymentTransaction::Nchl.new(2000).connect_ips
-    render html: html_page.html_safe
+    # html_page = PaymentTransaction::Nchl.new(2000).connect_ips
+    # render html: html_page.html_safe
 
   end
 end

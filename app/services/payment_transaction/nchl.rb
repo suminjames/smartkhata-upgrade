@@ -1,4 +1,5 @@
 require "net/http"
+require 'open-uri'
 
 class PaymentTransaction::Nchl
   include SignTokenModule
@@ -9,36 +10,38 @@ class PaymentTransaction::Nchl
 
   def initialize(transaction_amt)
     @transaction_amt = transaction_amt
+    @txn_id          = 8024
+    @txn_currency    = "NPR"
+    @ref_id          = 124
+    @remarks         = 123455
+    @particulars     = 12345
   end
 
   def connect_ips
-    data = "MERCHANTID=#{MerchantId},APPID=#{AppId},APPNAME=#{AppName},TXNID=8024,TXNDATE=#{Date.today.to_s},TXNCRNCY=NPR,TXNAMT=#{@transaction_amt},REFERENCEID=124,REMARKS=123455,PARTICULARS=12345,TOKEN=TOKEN"
+    data = "MERCHANTID=#{MerchantId},APPID=#{AppId},APPNAME=#{AppName},TXNID=#{@txn_id},TXNDATE=#{Date.today.to_s},TXNCRNCY=#{@txn_currency},TXNAMT=#{@transaction_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
 
-    uri                     = URI.parse("https://uat.connectips.com/connectipswebgw/loginpage")
-    # request                 = Net::HTTP::Post.new(uri.request_uri)
-    # request["Content-Type"] = "application/json"
+    uri     = URI.parse("https://uat.connectips.com/connectipswebgw/loginpage")
+    request = Net::HTTP::Post.new(uri.request_uri)
 
     parameters = {
         MERCHANTID:  MerchantId,
         APPID:       AppId,
         APPNAME:     AppName,
-        TXNID:       '8024',
+        TXNID:       @txn_id,
         TXNDATE:     Date.today.to_s,
-        TXNCRNCY:    'NPR',
+        TXNCRNCY:    @txn_currency,
         TXNAMT:      @transaction_amt,
-        REFERENCEID: '124',
-        REMARKS:     '123455',
-        PARTICULARS: '12345',
+        REFERENCEID: @ref_id,
+        REMARKS:     @remarks,
+        PARTICULARS: @particulars,
         TOKEN:       get_signed_token(data),
     }
-    # binding.pry
-    # request.body = parameters.to_json
-    #
-    # response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-    #   http.request(request)
-    # end
+    request.set_form_data(parameters)
 
-    response = Net::HTTP.post_form(uri, parameters)
+    response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) do |http|
+      http.request(request)
+    end
+
     response.body
   end
 end
