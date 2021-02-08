@@ -17,9 +17,5 @@ class VisitorsController < ApplicationController
       @invalid_certificate = true
 
     end
-
-    # html_page = PaymentTransaction::Nchl.new(2000).connect_ips
-    # render html: html_page.html_safe
-
   end
 end

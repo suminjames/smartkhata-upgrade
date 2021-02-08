@@ -11,19 +11,3 @@
     <h4>The certificate is not valid!. Please Contact Technical Support</h4>
   <% end %>
 </div>
-
-<form action="https://uat.connectips.com/connectipsgw/loginpage" method="post" id="connectIpsPaymentForm">
-  <input type="hidden" name="MERCHANTID" id="merchantId"/>
-  <input type="hidden" name="APPID" id="appId"/>
-  <input type="hidden" name="APPNAME" id="appName"/>
-  <input type="hidden" name="TXNID" id="txnId"/>
-  <input type="hidden" name="TXNDATE" id="txnDate"/>
-  <input type="hidden" name="TXNCRNCY" id="txnCurrency"/>
-  <input type="hidden" name="TXNAMT" id="txnAmt" value="20000"/>
-  <input type="hidden" name="REFERENCEID" id="refId"/>
-  <input type="hidden" name="REMARKS" id="remarks"/>
-  <input type="hidden" name="PARTICULARS" id="particulars"/>
-  <input type="hidden" name="TOKEN" id="nchlToken"/>
-</form>
-
-<button class="btn btn-success connectIpsBtn">Pay through Connect IPS</button>

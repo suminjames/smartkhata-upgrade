@@ -14,7 +14,7 @@ div#bill_payment_list.table-responsive.payment_transactions.initiate_payment
           tr
             td = index
             td = bill.formatted_bill_number
-            td = bill.formatted_bill_dates["bs"][0..-4]
+            td = bill.formatted_bill_dates["bs"][0 .. -4]
             td
               b = bill.formatted_nepse_code
             td = bill.formatted_type
@@ -39,4 +39,24 @@ div#bill_payment_list.table-responsive.payment_transactions.initiate_payment
     input name="su" type="hidden"
     input name="fu" type="hidden"
 
-  button.btn.btn.btn-success#esewaSubmit Pay
+
+  form#connectIpsPaymentForm action="https://uat.connectips.com/connectipsgw/loginpage" method="post"
+    input#merchantId name="MERCHANTID" type="hidden"
+    input#appId name="APPID" type="hidden"
+    input#appName name="APPNAME" type="hidden"
+    input#txnId name="TXNID" type="hidden"
+    input#txnDate name="TXNDATE" type="hidden"
+    input#txnCurrency name="TXNCRNCY" type="hidden"
+    input#txnAmt name="TXNAMT" type="hidden" value=@total_amount
+    input#refId name="REFERENCEID" type="hidden"
+    input#remarks name="REMARKS" type="hidden"
+    input#particulars name="PARTICULARS" type="hidden"
+    input#nchlToken name="TOKEN" type="hidden"
+
+  button.btn.btn.btn-success#esewaSubmit Pay through Esewa
+  button.btn.btn-success.connectIpsBtn Pay through Connect IPS
+
+css:
+  .connectIpsBtn {
+    margin-left: 10px;
+  }
