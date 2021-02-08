@@ -1,7 +1,7 @@
 class EsewaPaymentsController < VisitorsController
   include EsewaPaymentsHelper
 
-  before_action :set_esewa_payment, only: [:show, :edit, :update, :destroy]
+  before_action :set_esewa_payment, only: [:show, :edit, :update, :destroy, :failure]
 
   def index
     @esewa_payments = EsewaPayment.all
@@ -20,14 +20,26 @@ class EsewaPaymentsController < VisitorsController
   end
 
   def success
+    @esewa_payment = EsewaPayment.find(params[:oid])
 
+    @esewa_payment.success!
+
+    @esewa_payment.set_response_received_time
+    @esewa_payment.set_response_ref(params[:refId])
+    @esewa_payment.set_response_amount(params[:amt])
+
+    @verification_status = send_esewa_transaction_verification(@esewa_payment)
   end
 
   def failure
-
+    @esewa_payment.fail!
+    @esewa_payment.set_response_received_time
   end
 
   private
+  def send_esewa_transaction_verification(payment)
+    verification = payment.esewa_transaction_verifications.create
+  end
 
   def set_esewa_payment
     @esewa_payment = EsewaPayment.find(params[:id])

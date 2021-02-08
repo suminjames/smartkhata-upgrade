@@ -1,1 +1,19 @@
-= render 'list', bills: @bills
+.visitors.search
+  - if params[:page].present?
+    input id="nepseField" placeholder="Enter your nepse code" value="#{params[:q][:nepse] rescue nil}"
+    button.btn.btn-sm.btn-primary#searchNepseBtn disabled=true Submit
+    #waitPrompt.d-none Processing. Please Wait...
+
+#billsContent
+  = render 'list', bills: @bills
+
+css:
+  .d-none {
+    visibility: hidden;
+  }
+  #billsContent {
+    margin-top: 30px;
+  }
+  #searchNepseBtn {
+    margin: 10px;
+  }

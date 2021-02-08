@@ -1,5 +1,5 @@
 .visitors.index
-  input id="nepseField" placeholder="Enter your nepse code"
+  input id="nepseField" placeholder="Enter your nepse code" value="#{params[:q][:nepse] rescue nil}"
   button.btn.btn-sm.btn-primary#searchNepseBtn disabled=true Submit
   #waitPrompt.d-none Processing. Please Wait...
 

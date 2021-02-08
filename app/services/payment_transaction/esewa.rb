@@ -1,3 +1,0 @@
-class PaymentTransaction::Esewa
-
-end

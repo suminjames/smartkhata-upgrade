@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       get :failure
     end
   end
+
   resources :payment_transactions do
     collection do
       get :initiate_payment

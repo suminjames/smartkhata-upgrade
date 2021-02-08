@@ -26,7 +26,7 @@ $(document).on("ready page:load", function () {
     processPayment();
   });
 
-  function fillData() {
+  function fillData(res) {
     successUrl.setAttribute('value', res.payment.success_url);
     failureUrl.setAttribute('value', res.payment.failure_url);
     securityCode.setAttribute('value', res.security_code);
@@ -51,7 +51,7 @@ $(document).on("ready page:load", function () {
     });
 
     request.done(function (res) {
-      fillData();
+      fillData(res);
       paymentForm.submit();
       submitPaymentBtn.disabled = false;
     });

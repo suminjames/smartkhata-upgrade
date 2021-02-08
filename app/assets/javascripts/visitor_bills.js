@@ -1,7 +1,7 @@
 $(document).on("ready page:load", function () {
 
 // visitors index page search
-  if ($('.visitors.index').length == 0) {
+  if ($('.visitors.index, .visitors.search').length == 0) {
     return false;
   }
   var searchBtn = document.querySelector('#searchNepseBtn');
@@ -29,7 +29,8 @@ $(document).on("ready page:load", function () {
       data: {
         q: {
           nepse: nepseField.value
-        }
+        },
+        page: '',
       }
     });
     request.done(function (msg) {
