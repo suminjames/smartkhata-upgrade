@@ -49,5 +49,4 @@ $(document).on("ready page:load", function () {
     processBillSearch();
   });
 
-  //pay using esewa
 });
