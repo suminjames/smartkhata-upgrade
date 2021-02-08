@@ -29,6 +29,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :nchl_payments, only: :create
+
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars
     resources :interest_rates
