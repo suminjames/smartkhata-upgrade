@@ -31,4 +31,12 @@ class NchlPaymentsController < VisitorsController
         signed_token: signed_token
     }
   end
+
+  def success
+
+  end
+
+  def failure
+
+  end
 end

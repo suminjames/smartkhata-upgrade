@@ -31,6 +31,9 @@ Rails.application.routes.draw do
 
   resources :nchl_payments, only: :create
 
+  get '/nchl/success' => 'nchl_payments#success'
+  get '/nchl/failure' => 'nchl_payments#failure'
+
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars
     resources :interest_rates
