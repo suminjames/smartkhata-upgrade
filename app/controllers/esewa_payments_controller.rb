@@ -39,6 +39,7 @@ class EsewaPaymentsController < VisitorsController
   private
   def send_esewa_transaction_verification(payment)
     verification = payment.esewa_transaction_verifications.create
+    PaymentTransactions::Esewa::TransactionVerificationService.new(verification).call
   end
 
   def set_esewa_payment

@@ -12,7 +12,7 @@ class CreateEsewaPayments < ActiveRecord::Migration
       t.string :failure_url #fu
 
       t.string :username
-      t.string :response_ref
+      t.string :response_ref # response reference id sent by esewa
       t.string :response_amount
       t.integer :status
 

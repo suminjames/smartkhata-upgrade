@@ -32,11 +32,11 @@ class EsewaTransactionVerification < ActiveRecord::Base
   ########################################
   # Methods
   def set_request_sent_time
-    self.request_sent_at = Time.now
+    self.update(request_sent_at: Time.now)
   end
 
   def set_response_received_time
-    self.response_received_at = Time.now
+    self.update(response_received_at: Time.now)
   end
 
   def response_status

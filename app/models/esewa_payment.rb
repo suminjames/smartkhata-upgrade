@@ -42,6 +42,14 @@ class EsewaPayment < ActiveRecord::Base
     self.update(response_received_at: Time.now)
   end
 
+  def set_response_ref(ref)
+    self.update(response_ref: ref)
+  end
+
+  def set_response_amount(ref)
+    self.update(amount: ref)
+  end
+
   def verification_status
     self.verification_status.status
   end

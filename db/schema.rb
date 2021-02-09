@@ -39,12 +39,6 @@ ActiveRecord::Schema.define(version: 20210204125409) do
     t.string "fiscal_year"
   end
 
-  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
-    t.string   "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id"
     t.string   "auditable_type"
@@ -62,8 +56,8 @@ ActiveRecord::Schema.define(version: 20210204125409) do
     t.datetime "created_at"
   end
 
-  add_index "audits", ["associated_type", "associated_id"], name: "associated_index", using: :btree
-  add_index "audits", ["auditable_type", "auditable_id"], name: "auditable_index", using: :btree
+  add_index "audits", ["associated_id", "associated_type"], name: "associated_index", using: :btree
+  add_index "audits", ["auditable_id", "auditable_type"], name: "auditable_index", using: :btree
   add_index "audits", ["created_at"], name: "index_audits_on_created_at", using: :btree
   add_index "audits", ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
   add_index "audits", ["user_id", "user_type"], name: "user_index", using: :btree
