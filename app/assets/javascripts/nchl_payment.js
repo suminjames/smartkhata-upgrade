@@ -4,13 +4,22 @@ $(document).on("ready page:load", function () {
         return false;
     }
 
-    // let billIds = document.querySelector('#billIds');
 
     let txnAmt = document.querySelector('#txnAmt');
-    let connectIpsBtn = document.querySelector('.connectIpsBtn');
-    // let bills = billIds.value.split(' ');
     let nchlToken = document.querySelector('#nchlToken');
+    let merchantId = document.querySelector("#merchantId");
+    let appId = document.querySelector("#appId");
+    let appName = document.querySelector("#appName");
+    let txnId = document.querySelector("#txnId");
+    let txnDate = document.querySelector("#txnDate");
+    let txnCurrency = document.querySelector("#txnCurrency");
+    let refId = document.querySelector("#refId");
+    let remarks = document.querySelector("#remarks");
+    let particulars = document.querySelector("#particulars");
+
     let connectIpsPaymentForm = document.querySelector('#connectIpsPaymentForm');
+    let connectIpsBtn = document.querySelector('.connectIpsBtn');
+
     connectIpsBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
@@ -22,13 +31,12 @@ $(document).on("ready page:load", function () {
             method: "POST",
             url: "/nchl_payments/",
             data: {
-                txnAmt: parseInt(txnAmt.value),
-                // bill_ids: bills,
+                txnAmt: txnAmt.value,
                 authenticity_token: token,
             }
         });
         request.done(function (res) {
-            nchlToken.value = res.signed_token;
+            fillData(res);
             connectIpsPaymentForm.submit();
             connectIpsBtn.disabled = false;
         });
@@ -37,5 +45,18 @@ $(document).on("ready page:load", function () {
             console.log("could not process payment");
             connectIpsBtn.disabled = false;
         });
+    }
+
+    function fillData(res) {
+        merchantId.value = res.merchant_id;
+        appId.value = res.app_id;
+        appName.value = res.app_name;
+        txnId.value = res.txn_id;
+        txnDate.value = res.txn_date;
+        txnCurrency.value = res.txn_currency;
+        refId.value = res.ref_id;
+        remarks.value = res.remarks;
+        particulars.value = res.particulars;
+        nchlToken.value = res.signed_token;
     }
 });

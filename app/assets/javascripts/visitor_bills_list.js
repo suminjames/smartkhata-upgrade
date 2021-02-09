@@ -10,14 +10,13 @@ $(document).on("ready page:load", function () {
 
     let currentUrl = window.location.href;
 
-    let billIds = localStorage.getItem('billIdsForPayment');
-    if (!(billIds && currentUrl.includes('visitor_bills?page'))) {
+    if (!(localStorage.getItem('billIdsForPayment') && currentUrl.includes('page'))) {
         localStorage.setItem('billIdsForPayment', JSON.stringify([]));
     }
 
-    if (billIds) {
+    if (localStorage.getItem('billIdsForPayment') && JSON.parse(localStorage.getItem('billIdsForPayment')).length > 0) {
         document.querySelectorAll("input[type='checkbox']").forEach(function (checkbox) {
-            if (JSON.parse(billIds).includes(checkbox.value)) {
+            if (JSON.parse(localStorage.getItem('billIdsForPayment')).includes(checkbox.value)) {
                 checkbox.checked = true
             }
         });
@@ -25,8 +24,7 @@ $(document).on("ready page:load", function () {
 
     document.querySelectorAll("input[type='checkbox']").forEach(function (checkbox) {
         checkbox.addEventListener('click', function () {
-            let billCollection = JSON.parse(billIds);
-
+            let billCollection = JSON.parse(localStorage.getItem('billIdsForPayment'));
             if (checkbox.checked && !billCollection.includes(checkbox.value)) {
                 billCollection.push(checkbox.value);
             } else {
@@ -37,7 +35,7 @@ $(document).on("ready page:load", function () {
     });
 
     proceedToPayBtn.addEventListener('click', function () {
-        JSON.parse(billIds).forEach(function (bill) {
+        JSON.parse(localStorage.getItem('billIdsForPayment')).forEach(function (bill) {
             var billInput = document.createElement('input');
             billInput.value = bill;
             billInput.name = "bill_ids[]";
@@ -54,4 +52,8 @@ $(document).on("ready page:load", function () {
             index = array.indexOf(elem);
         }
     }
+
+    // if(document.querySelectorAll("input[type='checkbox']:checked").length == 0){
+    //     proceedToPayBtn.classList.add('hidden');
+    // }
 });
