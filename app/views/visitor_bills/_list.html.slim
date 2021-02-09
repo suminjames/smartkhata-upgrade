@@ -1,6 +1,6 @@
 #filterrific_results
   div#bill_list.table-responsive
-    = form_tag initiate_payment_payment_transactions_path, method: :get do
+    = form_tag initiate_payment_payment_transactions_path, method: :get, id: 'visitorBill' do
       table.table.table-striped
         thead
           th.col-sm-1= 'S.N.'
@@ -25,11 +25,10 @@
                 td = bill.formatted_status
                 td = bill.formatted_net_bill_amount
                 td
-                  = check_box_tag "bill_ids[]", bill.id
-
+                  = check_box_tag "bills[]", bill.id
 
       - if bills.present?
-        = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm esewaPayBox pull-right btn-flat'
+        = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm proceedToPay pull-right btn-flat'
 
       - if bills.blank?
         div.row.text-center.top-buffer-md
