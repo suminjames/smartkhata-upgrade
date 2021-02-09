@@ -39,4 +39,8 @@ class NchlPaymentsController < VisitorsController
   def failure
 
   end
+
+  def payment_validation
+    PaymentTransactions::Nchl::Validation.new(10, 8024).validate
+  end
 end
