@@ -70,7 +70,7 @@ group :development do
   # gem 'rack-mini-profiler'
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'annotate'
+  gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
   gem 'hirb'
   gem 'capistrano', '~> 3.1'
   gem 'capistrano-bundler'

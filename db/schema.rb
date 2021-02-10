@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210204125409) do
+ActiveRecord::Schema.define(version: 20210210115259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -810,22 +810,15 @@ ActiveRecord::Schema.define(version: 20210204125409) do
   add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
   create_table "esewa_payments", force: :cascade do |t|
-    t.decimal  "amount"
     t.decimal  "service_charge"
     t.decimal  "delivery_charge"
     t.decimal  "tax_amount"
-    t.decimal  "total_amount"
-    t.string   "pid"
     t.string   "success_url"
     t.string   "failure_url"
-    t.string   "username"
     t.string   "response_ref"
     t.string   "response_amount"
-    t.integer  "status"
-    t.string   "request_sent_at"
-    t.string   "response_received_at"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   create_table "esewa_transaction_verifications", force: :cascade do |t|
@@ -1087,6 +1080,14 @@ ActiveRecord::Schema.define(version: 20210204125409) do
     t.string "message_type"
   end
 
+  create_table "nchl_payments", force: :cascade do |t|
+    t.string   "reference_id"
+    t.text     "remarks"
+    t.text     "particular"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 2, default: 0.0
     t.integer  "transaction_type"
@@ -1258,10 +1259,18 @@ ActiveRecord::Schema.define(version: 20210204125409) do
   create_table "payment_transactions", force: :cascade do |t|
     t.decimal  "amount"
     t.integer  "status"
-    t.integer  "attempts"
-    t.integer  "kind"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "transaction_id"
+    t.datetime "request_sent_at"
+    t.datetime "response_received_at"
+    t.integer  "response_code"
+    t.datetime "validation_request_sent_at"
+    t.datetime "validation_response_received_at"
+    t.integer  "validation_response_code"
+    t.date     "transaction_date"
+    t.integer  "payable_id"
+    t.string   "payable_type"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
   create_table "payout_upload", force: :cascade do |t|

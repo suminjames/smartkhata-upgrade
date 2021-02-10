@@ -1,4 +1,22 @@
+# == Schema Information
+#
+# Table name: esewa_payments
+#
+#  id              :integer          not null, primary key
+#  service_charge  :decimal(, )
+#  delivery_charge :decimal(, )
+#  tax_amount      :decimal(, )
+#  success_url     :string
+#  failure_url     :string
+#  response_ref    :string
+#  response_amount :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+
 class EsewaPayment < ActiveRecord::Base
+  has_one :payment_transaction, as: :payable
+
   ########################################
   # Constants
   PAYMENT_URL = Rails.env.production? ? "https://esewa.com.np/epay/main" : "https://uat.esewa.com.np/epay/main"
