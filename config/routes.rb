@@ -29,10 +29,12 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :nchl_payments, only: :create
-
-  get '/nchl/success' => 'nchl_payments#success'
-  get '/nchl/failure' => 'nchl_payments#failure'
+  resources :nchl_payments, only: :create do
+    collection do
+      get :success
+      get :failure
+    end
+  end
 
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars

@@ -2,7 +2,7 @@ require "net/http"
 
 module PaymentTransactions
   module Nchl
-    class Validation
+    class PaymentValidation
       include SignTokenModule
 
       MerchantId = '303'
@@ -19,6 +19,7 @@ module PaymentTransactions
         uri     = URI.parse("https://uat.connectips.com/connectipswebws/api/creditor/validatetxn")
         request = Net::HTTP::Post.new(uri.request_uri)
         request.basic_auth AppId, Rails.application.secrets.nchl_basic_auth_pw
+        request.content_type = 'application/json'
 
         parameters = {
             merchantId:  MerchantId,
@@ -28,7 +29,7 @@ module PaymentTransactions
             token:       get_signed_token(data)
         }
 
-        request.set_form_data(parameters)
+        request.body = parameters.to_json
 
         response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) do |http|
           http.request(request)
