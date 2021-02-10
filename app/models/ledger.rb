@@ -359,8 +359,6 @@ class Ledger < ApplicationRecord
     LedgerDaily.where(ledger_id: self.id).delete_all
   end
 
-
-
   def effective_branch
     # todo different branch_ids for different type of accounts
     if self.client_account_id

@@ -104,7 +104,6 @@ class Particular < ApplicationRecord
   after_commit :calculate_ledger_dailies
   after_commit :recalculate_interest
 
-
   def calculate_ledger_dailies
     date_changes = saved_changes["transaction_date"]
     if date_changes.present? && complete?

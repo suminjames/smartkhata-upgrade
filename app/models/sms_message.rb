@@ -24,7 +24,6 @@ class SmsMessage < ApplicationRecord
 
   include ::Models::UpdaterWithBranchFycode
 
-
   ########################################
   # Notes
 
@@ -197,7 +196,6 @@ class SmsMessage < ApplicationRecord
     sms_message_obj = SmsMessage.new(phone: _mobile_number, sms_type: SmsMessage.sms_types[:transaction_message_sms], transaction_message_id: transaction_message.id, branch_id: _branch_id, current_user_id: current_user.id)
     _full_message = transaction_message.sms_message
 
-
     # 459 is size of max block sendable via sparrow sms
     valid_message_blocks = _full_message.scan(/.{1,459}/)
     sms_failed = false
@@ -210,7 +208,6 @@ class SmsMessage < ApplicationRecord
         sms_message_obj.credit_used += self.sparrow_credit_required(message)
       end
     end
-
 
     if sms_failed
       transaction_message.sms_unsent!
@@ -316,6 +313,5 @@ class SmsMessage < ApplicationRecord
       # Do nothing. If no output to the system, no cron mail notification is sent out.
     end
   end
-
 end
 

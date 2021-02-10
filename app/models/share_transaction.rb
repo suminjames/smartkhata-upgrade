@@ -75,7 +75,6 @@ class ShareTransaction < ApplicationRecord
   validates :base_price, numericality: true
   validates :contract_no, uniqueness: { scope: [:transaction_type] }
 
-
   filterrific(
       default_filter_params: { sorted_by: 'date_asc' },
       available_filters: [
@@ -199,7 +198,6 @@ class ShareTransaction < ApplicationRecord
     includes(:bill).selling.settled_with_bill.cgt_gt_zero.where('bills.fy_code =  ?', fy_code).references(:bills)
   end
 
-
   # used for bill ( it eradicates only with deal cancelled not the closeout onces)
   # data needs to be hidden from client for deal cancel only as it happens between brokers.
   scope :not_cancelled_for_bill, -> { where(deleted_at: nil) }
@@ -209,8 +207,6 @@ class ShareTransaction < ApplicationRecord
   # deleted transactions fall under deal cancel
   scope :with_closeout, -> { where(deleted_at: nil).where.not(closeout_amount: 0.0)}
   scope :above_threshold, ->{ not_cancelled.where("net_amount >= ?", 1000000) }
-
-
 
   scope :weighted_average, lambda{|col, quantity_col = :quantity|
     select("share_transactions.isin_info_id").
@@ -235,9 +231,9 @@ class ShareTransaction < ApplicationRecord
     ShareInventoryJob.perform_later(client_account_id, isin_info_id, quantity, updater_id, buying?, false)
   end
 
-  def do_as_per_params (params)
-    # TODO
-  end
+  # def do_as_per_params (params)
+  #   # TODO
+  # end
 
   def as_json(options={})
     super.as_json(options).merge({date_bs: self.class.ad_to_bs_string_public(date), :isin_info => isin_info, client_account: client_account.as_json})

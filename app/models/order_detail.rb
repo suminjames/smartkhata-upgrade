@@ -24,8 +24,9 @@ class OrderDetail < ApplicationRecord
   belongs_to :isin_info
   belongs_to :order
 
-  validates_presence_of :isin_info_id
-  validates_presence_of :order_id
+  # belongs_to rails 5
+  # validates_presence_of :isin_info_id
+  # validates_presence_of :order_id
   validates_length_of :order_nepse_id, :minimum => 5
 
   # As enum type 'new' is reserved for new object creation, used 'neww' instead.

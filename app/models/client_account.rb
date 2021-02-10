@@ -85,7 +85,6 @@ class ClientAccount < ApplicationRecord
   has_many :share_inventories
   has_many :bills
   belongs_to :branch
-
   has_many :order_requests
 
   ########################################

@@ -86,11 +86,11 @@ class TransactionMessage < ApplicationRecord
   end
 
   def can_email?
-    return self.client_account.email.present?
+    self.client_account.email.present?
   end
 
   def can_sms?
-    return self.client_account.messageable_phone_number.present?
+    self.client_account.messageable_phone_number.present?
   end
 
   def increase_sent_email_count!
@@ -102,5 +102,4 @@ class TransactionMessage < ApplicationRecord
     self.sent_sms_count += 1
     self.save
   end
-
 end

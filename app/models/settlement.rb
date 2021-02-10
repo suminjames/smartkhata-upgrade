@@ -72,7 +72,8 @@ class Settlement < ApplicationRecord
   # Validations
 
   validates :date_bs, presence: true
-  validates :branch_id, :fy_code, presence: true
+  # validates :branch_id, :fy_code, presence: true //Already includes from the module belong
+  validates :fy_code, presence: true
 
   ########################################
   # Enums
@@ -198,11 +199,7 @@ class Settlement < ApplicationRecord
   def self.new_settlement_number(fy_code, branch_id, settlement_type)
     settlement_type = self.settlement_types[settlement_type]
     settlement = Settlement.where(fy_code: fy_code, branch_id: branch_id, settlement_type: settlement_type).order(:settlement_number).last
-    if settlement.nil?
-      1
-    else
-      # increment the bill number
-      settlement.settlement_number + 1
+    settlement.nil? ? 1 : settlement.settlement_number + 1   # increment the bill number
     end
   end
 
@@ -222,4 +219,4 @@ class Settlement < ApplicationRecord
   def belongs_to_batch_payment?
     self.belongs_to_batch_payment
   end
-end
+

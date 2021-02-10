@@ -108,7 +108,6 @@ class InterestParticular < ActiveRecord::Base
     end
   end
 
-
   def process_particular
     self.date_bs ||= ad_to_bs_string(self.date)
   end

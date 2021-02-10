@@ -24,6 +24,8 @@ class NepseSettlement < ApplicationRecord
     self.bills.by_branch_id(branch_id).to_a.select { |bill| bill.requires_processing? && bill.net_amount > 0 }
   end
 
+  # Both of the above and below methods are identical!
+  #
   # since trishakti wants to create cheque for all
   # dont make the payment for sales bills for cases where net amount is less than zero (full closeout cases)
   def bills_for_sales_payment_list(branch_id)
