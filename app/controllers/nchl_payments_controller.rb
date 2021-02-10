@@ -7,7 +7,7 @@ class NchlPaymentsController < VisitorsController
 
   def create
     @txn_amt      = params[:txnAmt]
-    @txn_id       = "8024"
+    @txn_id       = "7879"
     @txn_currency = "NPR"
     @ref_id       = "124"
     @remarks      = "123455"
@@ -33,14 +33,19 @@ class NchlPaymentsController < VisitorsController
   end
 
   def success
-
+    txn_id = params[:TXNID]
+    payment_validation txn_id
   end
 
   def failure
-
+    txn_id = params[:TXNID]
+    payment_validation txn_id
   end
 
-  def payment_validation
-    PaymentTransactions::Nchl::Validation.new(10, 8024).validate
+  def payment_validation txn_id
+    validation_response = PaymentTransactions::Nchl::PaymentValidation.new(2000, txn_id).validate
   end
 end
+
+# => "{\"merchantId\":303,\"appId\":\"MER-303-APP-1\",\"referenceId\":\"7879\",\"txnAmt\":\"2000\",\"token\":null,\"status\":\"FAILED\",\"statusDesc\":\"NO RECORD FETCHED\"}"
+
