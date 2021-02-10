@@ -12,7 +12,6 @@
 #  response_amount :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#
 
 class EsewaPayment < ActiveRecord::Base
   has_one :payment_transaction, as: :payable
