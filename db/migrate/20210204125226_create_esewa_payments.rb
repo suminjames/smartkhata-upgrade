@@ -7,7 +7,6 @@ class CreateEsewaPayments < ActiveRecord::Migration
       t.decimal :delivery_charge #pdc
       t.decimal :tax_amount #txamt
       t.decimal :total_amount #tAmt
-      t.string :pid #pid
       t.string :success_url #su
       t.string :failure_url #fu
 

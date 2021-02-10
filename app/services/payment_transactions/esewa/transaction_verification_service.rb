@@ -19,7 +19,9 @@ module PaymentTransactions
         response = Net::HTTP.post_form(uri, parameters)
         @verification.set_response_received_time
 
-        response.body.include?('success') ? handle_response(true) : handle_response(false)
+        # "<response>\n" + "<response_code>\n" + "Success\n" + "</response_code>\n" + "</response>\n" - success response from esewa
+
+        handle_response(response.body.include?('Success'))
       end
 
       private
