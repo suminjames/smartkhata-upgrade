@@ -1,1 +1,9 @@
-h1 failure
+h2 Your transaction has been failed.
+h4
+  span You can perform another transaction through
+  = link_to "here", visitor_bills_path, class: 'visitorBillLink'
+
+css:
+  .visitorBillLink {
+    margin-left: 5px;
+  }

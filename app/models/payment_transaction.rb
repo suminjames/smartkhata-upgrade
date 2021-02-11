@@ -26,6 +26,8 @@ class PaymentTransaction < ActiveRecord::Base
 
   enum status: [:success, :failure, :fraudulent]
 
+  after_create :set_request_sent_time
+
   def set_request_sent_time
     self.update(request_sent_at: Time.now)
   end
