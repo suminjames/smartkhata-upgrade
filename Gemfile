@@ -55,8 +55,6 @@ gem 'bootstrap-datepicker-rails'
 gem 'webpacker'
 gem 'activerecord-import'
 gem 'faker'
-gem 'httparty'
-gem 'rest-client'
 
 group :production do
   gem 'puma', '~>4.3.3'
@@ -92,7 +90,6 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'guard-minitest', '~> 2.4', '>= 2.4.4'
   gem 'openssl'
-  gem 'binding_of_caller'
 end
 
 group :development, :test do

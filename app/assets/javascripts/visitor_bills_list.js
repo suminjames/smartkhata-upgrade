@@ -52,8 +52,4 @@ $(document).on("ready page:load", function () {
             index = array.indexOf(elem);
         }
     }
-
-    // if(document.querySelectorAll("input[type='checkbox']:checked").length == 0){
-    //     proceedToPayBtn.classList.add('hidden');
-    // }
 });
