@@ -60,8 +60,8 @@ class Ledger < ApplicationRecord
   has_many :employee_accounts, through: :employee_ledger_associations
 
   validates_presence_of :name
-  before_save :format_name, if: :name_changed?
-  before_save :format_client_code, if: :client_code_changed?
+  before_save :format_name, if: :saved_change_to_name?
+  before_save :format_client_code, if: :saved_change_to_client_code?
   before_destroy :delete_associated_records
   validate :name_from_reserved?, :on => :create
   validates_presence_of :group_id, if: :enforce_validation

@@ -27,7 +27,7 @@ module Models::UpdaterWithFyCode
   end
 
   def set_creator
-    self.creator_id = current_user_id
+    self.creator_id ||= current_user_id
     self.ledger_balances.each do |ledger_balance|
       ledger_balance.assign_attributes(creator_id: current_user_id)
     end

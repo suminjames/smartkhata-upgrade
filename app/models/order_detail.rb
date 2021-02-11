@@ -27,22 +27,22 @@ class OrderDetail < ApplicationRecord
   # belongs_to rails 5
   # validates_presence_of :isin_info_id
   # validates_presence_of :order_id
-  validates_length_of :order_nepse_id, :minimum => 5
+  validates :order_nepse_id, length: { minimum: 5 }
 
   # As enum type 'new' is reserved for new object creation, used 'neww' instead.
-  enum state: [:cancelled, :executed, :queued, :neww]
+  enum state: { cancelled: 0, executed: 1, queued: 2, neww: 3 }
 
-  enum typee: [:buy, :sell]
+  enum typee: { buy: 0, sell: 1 }
 
   # ct: continous trade
   # atc: at the time of closing
   # ato: at the time of opening
-  enum segment: [:ct, :atc, :ato]
+  enum segment: { ct: 0, atc: 1, ato: 2 }
 
   #TODO(sarojk): Find out what is a condition? Possible values?
   # none is reserved, so resorted to 'nonee'
   # ioc: immediate or cancel
   # fok: fill or kill
   # aon: all or none
-  enum condition: [:nonee, :aon, :ioc, :fok]
+  enum condition: { nonee: 0, aon: 1, ioc: 2, fok: 3 }
 end
