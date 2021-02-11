@@ -14,7 +14,7 @@ module PaymentTransactions
         parameters = get_params
 
         uri = URI.parse(get_url)
-        
+
         @payment_transaction.set_validation_request_sent_at
         response = Net::HTTP.post_form(uri, parameters)
         @payment_transaction.set_validation_response_received_at
@@ -33,7 +33,7 @@ module PaymentTransactions
         if res
           @payment_transaction.success!
         else
-          @payment_transaction.fail!
+          @payment_transaction.fraudulent!
           false
         end
       end
