@@ -11,7 +11,7 @@ class CreatePaymentTransactions < ActiveRecord::Migration
       t.datetime :validation_response_received_at
       t.integer :validation_response_code
       t.date :transaction_date
-      t.references :payable, polymorphic: true
+      t.belongs_to :payable, polymorphic: true
       t.timestamps null: false
     end
   end

@@ -5,19 +5,19 @@ module PaymentTransactions
   module Esewa
     class TransactionVerificationService
 
-      def initialize(verification)
-        @verification = verification
+      def initialize(esewa_payment)
+        @esewa_payment = esewa_payment
+        @payment_transaction = @esewa_payment.payment_transaction
       end
 
       def call
-        payment = @verification.esewa_payment
-        parameters = get_params(payment)
+        parameters = get_params
 
-        @verification.set_request_sent_time
         uri = URI.parse(get_url)
-
+        
+        @payment_transaction.set_validation_request_sent_at
         response = Net::HTTP.post_form(uri, parameters)
-        @verification.set_response_received_time
+        @payment_transaction.set_validation_response_received_at
 
         # "<response>\n" + "<response_code>\n" + "Success\n" + "</response_code>\n" + "</response>\n" - success response from esewa
 
@@ -31,17 +31,18 @@ module PaymentTransactions
 
       def handle_response(res)
         if res
-          @verification.success!
+          @payment_transaction.success!
         else
-          @verification.fail!
+          @payment_transaction.fail!
+          false
         end
       end
 
-      def get_params(payment)
+      def get_params
         {
-            amt: payment.total_amount,
-            rid: payment.response_ref,
-            pid: payment.id,
+            amt: @payment_transaction.amount,
+            rid: @esewa_payment.response_ref,
+            pid: @esewa_payment.id,
             scd: Rails.application.secrets.esewa_security_code
         }
       end

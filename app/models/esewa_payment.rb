@@ -26,19 +26,15 @@ class EsewaPayment < ActiveRecord::Base
 
   ########################################
   # Relationships
-  has_many :esewa_transaction_verifications
-  has_many :bills
 
   ########################################
   # Callbacks
-  after_create :set_request_sent_time
 
   ########################################
   # Validations
 
   ########################################
   # Enums
-  enum status: [:success, :fail]
 
   ########################################
   # Scopes
@@ -51,23 +47,11 @@ class EsewaPayment < ActiveRecord::Base
 
   ########################################
   # Methods
-  def set_request_sent_time
-    self.update(request_sent_at: Time.now)
-  end
-
-  def set_response_received_time
-    self.update(response_received_at: Time.now)
-  end
-
   def set_response_ref(ref)
     self.update(response_ref: ref)
   end
 
   def set_response_amount(amt)
     self.update(response_amount: amt)
-  end
-
-  def verification_status
-    self.verification_status.status
   end
 end

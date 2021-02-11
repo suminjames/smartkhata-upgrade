@@ -8,23 +8,34 @@ class EsewaPaymentsController < VisitorsController
   end
 
   def create
-    @esewa_payment = EsewaPayment.new(esewa_payment_params)
-    @esewa_payment.success_url  = get_success_url
+    ActiveRecord::Base.transaction do
+      @esewa_payment             = EsewaPayment.new(esewa_payment_params)
+      @esewa_payment.success_url = get_success_url
 
-    if @esewa_payment.save
-      @esewa_payment.update(failure_url: get_failure_url + "&id=#{@esewa_payment.id}")
-      render json: {payment: @esewa_payment, security_code: get_esewa_security_code}
-    else
-      render json: {msg: 'cannot save esewa payment record'}
+      if @esewa_payment.save
+        payment_transaction = PaymentTransaction.create(payable: @esewa_payment, amount: total_amount_params['total_amount'], bill_ids: payment_transaction_params['bill_ids'])
+        # @esewa_payment.payment_transaction.create(payment_transaction_params.merge(amount: total_amount_params))
+        @esewa_payment.update(failure_url: get_failure_url + "&id=#{@esewa_payment.id}")
+        if payment_transaction.persisted?
+          render json: { payment: @esewa_payment, security_code: get_esewa_security_code }
+        else
+          raise ActiveRecord::Rollback
+          render json: { msg: 'cannot save esewa payment transaction record' }
+        end
+      else
+        render json: { msg: 'cannot save esewa payment record' }
+      end
     end
+
   end
 
   def success
-    @esewa_payment = EsewaPayment.find(params[:oid])
+    @esewa_payment      = EsewaPayment.find(params[:oid])
+    payment_transaction = @esewa_payment.payment_transaction
 
-    @esewa_payment.success!
+    payment_transaction.success!
+    payment_transaction.set_response_received_time
 
-    @esewa_payment.set_response_received_time
     @esewa_payment.set_response_ref(params[:refId])
     @esewa_payment.set_response_amount(params[:amt])
 
@@ -32,14 +43,15 @@ class EsewaPaymentsController < VisitorsController
   end
 
   def failure
-    @esewa_payment.fail!
-    @esewa_payment.set_response_received_time
+    payment_transaction = @esewa_payment.payment_transaction
+    payment_transaction.failure!
+    payment_transaction.set_response_received_time
   end
 
   private
+
   def send_esewa_transaction_verification(payment)
-    verification = payment.esewa_transaction_verifications.create
-    PaymentTransactions::Esewa::TransactionVerificationService.new(verification).call
+    PaymentTransactions::Esewa::TransactionVerificationService.new(payment).call
   end
 
   def set_esewa_payment
@@ -47,6 +59,14 @@ class EsewaPaymentsController < VisitorsController
   end
 
   def esewa_payment_params
-    params.permit(:amount, :service_charge, :delivery_charge, :tax_amount, :total_amount, bill_ids: [])
+    params.permit(:amount, :service_charge, :delivery_charge, :tax_amount)
+  end
+
+  def payment_transaction_params
+    params.permit(bill_ids: [])
+  end
+
+  def total_amount_params
+    params.permit(:total_amount)
   end
 end

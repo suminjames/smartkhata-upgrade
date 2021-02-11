@@ -49,7 +49,7 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
-  belongs_to :esewa_payment
+  belongs_to :payment_transaction
 
   attr_accessor :provisional_base_price
 

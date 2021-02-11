@@ -3,6 +3,7 @@ class CreateEsewaPayments < ActiveRecord::Migration
     create_table :esewa_payments do |t|
       t.decimal :service_charge #psc
       t.decimal :delivery_charge #pdc
+      t.decimal :amount #amt
       t.decimal :tax_amount #txamt
       t.string :success_url #su
       t.string :failure_url #fu

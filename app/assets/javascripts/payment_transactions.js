@@ -20,6 +20,7 @@ $(document).on("ready page:load", function () {
   let bills = billIds.value.split(' ');
 
   let paymentForm = document.querySelector('#esewaPaymentForm');
+  let token = $("meta[name='csrf-token']").attr('content');
 
   submitPaymentBtn.addEventListener('click', function (e) {
     e.target.disabled = true;
@@ -33,21 +34,24 @@ $(document).on("ready page:load", function () {
     productId.setAttribute('value', res.payment.id);
   }
 
+  function getPayload(){
+    return({
+      amount: parseInt(amount.value),
+      bill_ids: bills,
+      service_charge: parseInt(serviceCharge.value),
+      delivery_charge: parseInt(deliveryCharge.value),
+      tax_amount: parseInt(taxAmount.value),
+      total_amount: parseInt(totalAmount.value),
+      authenticity_token: token,
+    })
+  }
+
   function processPayment() {
 
-    let token = $("meta[name='csrf-token']").attr('content');
     var request = $.ajax({
       method: "POST",
       url: "/esewa_payments/",
-      data: {
-        amount: parseInt(amount.value),
-        bill_ids: bills,
-        service_charge: parseInt(serviceCharge.value),
-        delivery_charge: parseInt(deliveryCharge.value),
-        tax_amount: parseInt(taxAmount.value),
-        total_amount: parseInt(totalAmount.value),
-        authenticity_token: token,
-      }
+      data: getPayload(),
     });
 
     request.done(function (res) {
