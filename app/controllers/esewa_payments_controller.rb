@@ -1,7 +1,7 @@
 class EsewaPaymentsController < VisitorsController
   include EsewaPaymentsHelper
 
-  before_action :set_esewa_payment, only: [:show, :edit, :update, :destroy, :failure]
+  before_action :set_esewa_payment, only: [:failure]
 
   def index
     @esewa_payments = EsewaPayment.all
@@ -13,33 +13,34 @@ class EsewaPaymentsController < VisitorsController
       @esewa_payment.success_url = get_success_url
 
       if @esewa_payment.save
-        payment_transaction = PaymentTransaction.create(payable: @esewa_payment, amount: total_amount_params['total_amount'], bill_ids: payment_transaction_params['bill_ids'])
-        # @esewa_payment.payment_transaction.create(payment_transaction_params.merge(amount: total_amount_params))
+        payment_transaction = PaymentTransaction.create(payment_transaction_params.merge(payable: @esewa_payment, amount: params['total_amount']))
         @esewa_payment.update(failure_url: get_failure_url + "&id=#{@esewa_payment.id}")
+
         if payment_transaction.persisted?
           render json: { payment: @esewa_payment, security_code: get_esewa_security_code }
         else
           raise ActiveRecord::Rollback
           render json: { msg: 'cannot save esewa payment transaction record' }
         end
+
       else
         render json: { msg: 'cannot save esewa payment record' }
       end
     end
-
   end
 
   def success
     @esewa_payment      = EsewaPayment.find(params[:oid])
     payment_transaction = @esewa_payment.payment_transaction
 
-    payment_transaction.success!
-    payment_transaction.set_response_received_time
+    if payment_transaction.status.nil?
+      payment_transaction.set_response_received_time
 
-    @esewa_payment.set_response_ref(params[:refId])
-    @esewa_payment.set_response_amount(params[:amt])
+      @esewa_payment.set_response_ref(params[:refId])
+      @esewa_payment.set_response_amount(params[:amt])
 
-    @verification_status = send_esewa_transaction_verification(@esewa_payment)
+      @verification_status = send_esewa_transaction_verification(@esewa_payment)
+    end
   end
 
   def failure
@@ -64,9 +65,5 @@ class EsewaPaymentsController < VisitorsController
 
   def payment_transaction_params
     params.permit(bill_ids: [])
-  end
-
-  def total_amount_params
-    params.permit(:total_amount)
   end
 end
