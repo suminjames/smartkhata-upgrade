@@ -21,7 +21,8 @@ module PaymentTransactions
 
         # "<response>\n" + "<response_code>\n" + "Success\n" + "</response_code>\n" + "</response>\n" - success response from esewa
 
-        handle_response(response.body.include?('Success'))
+        hashed_response = Hash.from_xml(res.gsub("\n", ""))
+        handle_response(hashed_response['response']['response_code']=='Success')
       end
 
       private
@@ -29,8 +30,8 @@ module PaymentTransactions
         EsewaPayment::PAYMENT_VERIFICATION_URL
       end
 
-      def handle_response(res)
-        if res
+      def handle_response(success)
+        if success
           @payment_transaction.success!
         else
           @payment_transaction.fraudulent!

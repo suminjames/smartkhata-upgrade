@@ -17,7 +17,7 @@ class NchlPaymentsController < VisitorsController
       )
 
       if nchl_payment.persisted?
-        payment_transaction = nchl_payment.build_payment_transaction(payment_transaction_params.merge(transaction_id: @txn_id, transaction_date: @txn_date))
+        payment_transaction = nchl_payment.build_payment_transaction(payment_transaction_params.merge(transaction_id: @txn_id, transaction_date: @txn_date, request_sent_at: Time.now))
 
         if payment_transaction.save
           render json: {
@@ -46,6 +46,8 @@ class NchlPaymentsController < VisitorsController
   def success
     get_payment_transaction
 
+    # this check is to make sure that the verification request is not sent again when the page is reloaded
+    # as a previous payment_verification process would already have set the status of the transaction
     if @payment_transaction.status.nil?
       response = payment_validation @payment_transaction
       handle_validation_response @payment_transaction, response

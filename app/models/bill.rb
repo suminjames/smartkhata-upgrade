@@ -105,8 +105,7 @@ class Bill < ActiveRecord::Base
   scope :find_by_date_range, -> (date_from, date_to) { where(:date => date_from.beginning_of_day .. date_to.end_of_day) }
   scope :by_client_id, -> (id) { where(client_account_id: id) }
   scope :by_client_nepse_code, lambda { |nepse_code|
-    client = ClientAccount.find_by(nepse_code: nepse_code.upcase)
-    by_client_id(client.id) if client
+    by_client_id(ClientAccount.find_by(nepse_code: nepse_code.upcase).select(:id))
   }
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
   scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }

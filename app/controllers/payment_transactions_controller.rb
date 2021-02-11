@@ -7,5 +7,6 @@ class PaymentTransactionsController < VisitorsController
     @bill_ids = params[:bill_ids]
 
     @esewa_payment_url = EsewaPayment::PAYMENT_URL
+    @nchl_payment_url = NchlPayment::PAYMENT_URL
   end
 end

@@ -17,7 +17,7 @@ module PaymentTransactions
       def validate
         data = "MERCHANTID=#{MerchantId},APPID=#{AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
 
-        uri     = URI.parse("https://uat.connectips.com/connectipswebws/api/creditor/validatetxn")
+        uri     = URI.parse(NchlPayment::PAYMENT_VERIFICATION_URL)
         request = Net::HTTP::Post.new(uri.request_uri)
         request.basic_auth AppId, Rails.application.secrets.nchl_basic_auth_pw
         request.content_type = 'application/json'

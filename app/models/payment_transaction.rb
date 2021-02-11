@@ -24,9 +24,7 @@ class PaymentTransaction < ActiveRecord::Base
 
   has_many :bills
 
-  enum status: [:success, :failure, :fraudulent]
-
-  after_create :set_request_sent_time
+  enum status: { success: 0, failure: 1, fraudulent: 2}
 
   def set_request_sent_time
     self.update(request_sent_at: Time.now)

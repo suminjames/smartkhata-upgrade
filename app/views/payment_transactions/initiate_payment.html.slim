@@ -35,12 +35,11 @@ div#bill_payment_list.table-responsive.payment_transactions.initiate_payment
     input name="pdc" type="hidden" value="0"
     input name="scd" type="hidden"
     input name="pid" type="hidden"
-
     input name="su" type="hidden"
     input name="fu" type="hidden"
 
 
-  form#connectIpsPaymentForm action="https://uat.connectips.com/connectipswebgw/loginpage" method="post"
+  form#connectIpsPaymentForm action=@nchl_payment_url method="post"
     input#merchantId name="MERCHANTID" type="hidden"
     input#appId name="APPID" type="hidden"
     input#appName name="APPNAME" type="hidden"

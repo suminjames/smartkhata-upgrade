@@ -14,18 +14,18 @@
 #  updated_at      :datetime         not null
 
 class EsewaPayment < ActiveRecord::Base
-  has_one :payment_transaction, as: :payable
 
   ########################################
   # Constants
-  PAYMENT_URL = Rails.env.production? ? "https://esewa.com.np/epay/main" : "https://uat.esewa.com.np/epay/main"
-  PAYMENT_VERIFICATION_URL = Rails.env.production? ? "https://esewa.com.np/epay/transrec" : "https://uat.esewa.com.np/epay/transrec"
+  PAYMENT_URL = Rails.application.secrets.esewa_payment_url
+  PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_payment_verification_url
 
   ########################################
   # Includes
 
   ########################################
   # Relationships
+  has_one :payment_transaction, as: :payable
 
   ########################################
   # Callbacks
