@@ -4,7 +4,7 @@ $(document).on("ready page:load", function () {
         return false;
     }
 
-
+    let billIds = document.querySelector('#billIds');
     let txnAmt = document.querySelector('#txnAmt');
     let nchlToken = document.querySelector('#nchlToken');
     let merchantId = document.querySelector("#merchantId");
@@ -20,6 +20,8 @@ $(document).on("ready page:load", function () {
     let connectIpsPaymentForm = document.querySelector('#connectIpsPaymentForm');
     let connectIpsBtn = document.querySelector('.connectIpsBtn');
 
+    let bills = billIds.value.split(' ');
+
     connectIpsBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
@@ -31,11 +33,14 @@ $(document).on("ready page:load", function () {
             method: "POST",
             url: "/nchl_payments/",
             data: {
-                txnAmt: txnAmt.value,
+                amount: txnAmt.value,
+                bill_ids: bills,
                 authenticity_token: token,
             }
         });
         request.done(function (res) {
+            // todo: modal to inform that payment could not be processed
+
             fillData(res);
             connectIpsPaymentForm.submit();
             connectIpsBtn.disabled = false;

@@ -25,4 +25,22 @@ class PaymentTransaction < ActiveRecord::Base
   has_many :bills
 
   enum status: [:success, :failure, :fraudulent]
+
+  after_create :set_request_sent_time
+
+  def set_request_sent_time
+    self.update(request_sent_at: Time.now)
+  end
+
+  def set_response_received_time
+    self.update(response_received_at: Time.now)
+  end
+
+  def set_validation_request_sent_at
+    self.update(validation_request_sent_at: Time.now)
+  end
+
+  def set_validation_response_received_at
+    self.update(validation_response_received_at: Time.now)
+  end
 end

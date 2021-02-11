@@ -8,9 +8,10 @@ module PaymentTransactions
       MerchantId = '303'
       AppId      = 'MER-303-APP-1'
 
-      def initialize(transaction_amt, reference_id)
-        @transaction_amt = transaction_amt
-        @ref_id          = reference_id
+      def initialize(payment_transaction)
+        @payment_transaction = payment_transaction
+        @transaction_amt = @payment_transaction.amount
+        @ref_id          = @payment_transaction.transaction_id
       end
 
       def validate
@@ -31,11 +32,14 @@ module PaymentTransactions
 
         request.body = parameters.to_json
 
+        @payment_transaction.set_validation_request_sent_at
         response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) do |http|
           http.request(request)
         end
 
-        response.body
+        @payment_transaction.set_validation_response_received_at
+
+        JSON.parse(response.body)
       end
     end
   end
