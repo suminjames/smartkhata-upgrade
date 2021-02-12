@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: esewa_payments
+# Table name: esewa_receipts
 #
 #  id              :integer          not null, primary key
 #  service_charge  :decimal(, )
@@ -13,12 +13,12 @@
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 
-class EsewaPayment < ActiveRecord::Base
+class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Constants
-  PAYMENT_URL = Rails.application.secrets.esewa_payment_url
-  PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_payment_verification_url
+  PAYMENT_URL = Rails.application.secrets.esewa_receipt_url
+  PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_receipt_verification_url
 
   ########################################
   # Includes

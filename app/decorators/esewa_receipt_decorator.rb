@@ -1,4 +1,4 @@
-class EsewaPaymentDecorator < ApplicationDecorator
+class EsewaReceiptDecorator < ApplicationDecorator
   delegate_all
 
   # Define presentation-specific methods here. Helpers are accessed through

@@ -6,7 +6,7 @@ class ReceiptTransactionsController < VisitorsController
     @total_amount = all_bills.sum(:net_amount).ceil(0)
     @bill_ids = params[:bill_ids]
 
-    @esewa_payment_url = EsewaPayment::PAYMENT_URL
+    @esewa_receipt_url = EsewaReceipt::PAYMENT_URL
     @nchl_payment_url = NchlPayment::PAYMENT_URL
   end
 end

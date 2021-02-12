@@ -27,7 +27,7 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
 
   = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
 
-  form action=@esewa_payment_url method="POST" id="esewaPaymentForm"
+  form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
     input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
     input name="amt" type="hidden" value="#{@total_amount.to_i}"
     input name="txAmt" type="hidden" value="0"

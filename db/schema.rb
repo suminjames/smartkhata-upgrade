@@ -812,7 +812,7 @@ ActiveRecord::Schema.define(version: 20210212050742) do
   add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
   add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
-  create_table "esewa_payments", force: :cascade do |t|
+  create_table "esewa_receipts", force: :cascade do |t|
     t.decimal  "service_charge"
     t.decimal  "delivery_charge"
     t.decimal  "amount"

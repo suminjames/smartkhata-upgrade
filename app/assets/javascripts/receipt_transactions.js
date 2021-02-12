@@ -50,7 +50,7 @@ $(document).on("ready page:load", function () {
 
     let request = $.ajax({
       method: "POST",
-      url: "/esewa_payments/",
+      url: "/esewa_receipts/",
       data: getPayload(),
     });
 

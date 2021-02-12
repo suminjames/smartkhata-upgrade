@@ -1,6 +1,6 @@
-class CreateEsewaPayments < ActiveRecord::Migration
+class CreateEsewaReceipts < ActiveRecord::Migration
   def change
-    create_table :esewa_payments do |t|
+    create_table :esewa_receipts do |t|
       t.decimal :service_charge #psc
       t.decimal :delivery_charge #pdc
       t.decimal :amount #amt

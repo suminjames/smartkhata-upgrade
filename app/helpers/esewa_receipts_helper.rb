@@ -1,10 +1,10 @@
-module EsewaPaymentsHelper
+module EsewaReceiptsHelper
   def get_success_url
-    request.base_url + '/esewa_payments/success/?q=su'
+    request.base_url + '/esewa_receipts/success/?q=su'
   end
 
   def get_failure_url
-    request.base_url + '/esewa_payments/failure/?q=fu'
+    request.base_url + '/esewa_receipts/failure/?q=fu'
   end
 
   def get_esewa_security_code

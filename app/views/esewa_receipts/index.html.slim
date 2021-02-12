@@ -1,0 +1,49 @@
+h4 Esewa Payments
+
+table.table.table-striped
+  thead
+    tr
+      th Amount
+      th Service Charge
+      th Delivery Charge
+      th Tax Amount
+      th Total Amount
+      th Response Reference ID
+      th Response Amount
+      th Status
+      th Request Sent at
+      th Response Received at
+      th Actions
+  tbody
+    - @esewa_receipts.each.with_index(1) do |esewa_receipt, index|
+      tr
+        td = index
+        td = esewa_receipt.amount
+        td = esewa_receipt.service_charge
+        td = esewa_receipt.delivery_charge
+        td = esewa_receipt.tax_amount
+        td = esewa_receipt.total_amount
+        td = esewa_receipt.response_ref
+        td = esewa_receipt.response_amount
+        td = esewa_receipt.status
+        td = esewa_receipt.request_sent_at
+        td = esewa_receipt.response_received_at
+        td
+          = link_to 'Destroy', esewa_receipt, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: 'btn btn-danger'
+
+          a.btn.btn-link aria-controls="collapse-#{esewa_receipt.id}" aria-expanded="false" data-toggle="collapse" href="#collapse-#{esewa_receipt.id}"
+            | Payment Verification
+
+      tr
+        td colspan="11"
+          .collapse id="collapse-#{esewa_receipt.id}"
+            .row
+              .col-sm-4 Request Sent At
+              .col-sm-4 Request Received At
+              .col-sm-4 Status
+            - esewa_receipt.esewa_transaction_verifications.each do |verification|
+              .row
+                .col-sm-4 = verification.request_sent_at
+                .col-sm-4 = verification.response_received_at
+                .col-sm-4 = verification.status
+

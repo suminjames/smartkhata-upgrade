@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: esewa_payments
+# Table name: esewa_receipts
 #
 #  id              :integer          not null, primary key
 #  service_charge  :decimal(, )
@@ -14,8 +14,14 @@
 #  updated_at      :datetime         not null
 #
 
-require 'rails_helper'
-
-RSpec.describe EsewaPayment, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+FactoryGirl.define do
+  factory :esewa_receipt do
+    receipt_transaction nil
+    username "MyString"
+    response "MyString"
+    response_code "MyString"
+    status "MyString"
+    request_sent_at "MyString"
+    response_received_at "MyString"
+  end
 end

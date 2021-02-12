@@ -4,9 +4,9 @@ module ReceiptTransactions
   module Esewa
     class TransactionVerificationService
 
-      def initialize(esewa_payment)
-        @esewa_payment = esewa_payment
-        @receipt_transaction = @esewa_payment.receipt_transaction
+      def initialize(esewa_receipt)
+        @esewa_receipt = esewa_receipt
+        @receipt_transaction = @esewa_receipt.receipt_transaction
       end
 
       def call
@@ -26,7 +26,7 @@ module ReceiptTransactions
 
       private
       def get_url
-        EsewaPayment::PAYMENT_VERIFICATION_URL
+        EsewaReceipt::PAYMENT_VERIFICATION_URL
       end
 
       def handle_response(success)
@@ -41,8 +41,8 @@ module ReceiptTransactions
       def get_params
         {
             amt: @receipt_transaction.amount,
-            rid: @esewa_payment.response_ref,
-            pid: @esewa_payment.id,
+            rid: @esewa_receipt.response_ref,
+            pid: @esewa_receipt.id,
             scd: Rails.application.secrets.esewa_security_code
         }
       end

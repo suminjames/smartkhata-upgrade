@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :esewa_payments do
+  resources :esewa_receipts do
     collection do
       get :success
       get :failure
