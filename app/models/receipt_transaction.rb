@@ -38,6 +38,7 @@ class ReceiptTransaction < ActiveRecord::Base
   ########################################
   # Validations
   validates :receivable_id, :receivable_type, presence: true
+  validates_uniqueness_of :transaction_id
 
   ########################################
   # Enums

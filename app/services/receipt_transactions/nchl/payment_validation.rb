@@ -5,9 +5,6 @@ module ReceiptTransactions
     class PaymentValidation
       include SignTokenModule
 
-      MerchantId = '303'
-      AppId      = 'MER-303-APP-1'
-
       def initialize(receipt_transaction)
         @receipt_transaction = receipt_transaction
         @transaction_amt = @receipt_transaction.amount
@@ -15,7 +12,7 @@ module ReceiptTransactions
       end
 
       def validate
-        data = "MERCHANTID=#{MerchantId},APPID=#{AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
+        data = "MERCHANTID=#{NchlPayment::MerchantId},APPID=#{NchlPayment::AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
 
         uri     = URI.parse(NchlPayment::PAYMENT_VERIFICATION_URL)
         request = Net::HTTP::Post.new(uri.request_uri)

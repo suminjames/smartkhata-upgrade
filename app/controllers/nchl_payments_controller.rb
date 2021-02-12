@@ -1,10 +1,6 @@
 class NchlPaymentsController < VisitorsController
   include SignTokenModule
 
-  MerchantId = '303'
-  AppId      = 'MER-303-APP-1'
-  AppName    = 'Trishakti'
-
   def create
     signed_token = build_payload_and_get_token
 
@@ -22,9 +18,9 @@ class NchlPaymentsController < VisitorsController
 
     if nchl_payment.save
       render json: {
-          merchant_id:  MerchantId,
-          app_id:       AppId,
-          app_name:     AppName,
+          merchant_id:  NchlPayment::MerchantId,
+          app_id:       NchlPayment::AppId,
+          app_name:     NchlPayment::AppName,
           txn_id:       nchl_payment.receipt_transaction.transaction_id,
           txn_currency: @txn_currency,
           txn_date:     nchl_payment.receipt_transaction.transaction_date,
@@ -67,14 +63,14 @@ class NchlPaymentsController < VisitorsController
 
   def build_payload_and_get_token
     @txn_amt      = params[:amount]
-    @txn_id       = (0 .. 9).to_a.sample(6).join
+    @txn_id       = SecureRandom.hex(10)
     @txn_currency = "NPR"
     @ref_id       = "124"
     @remarks      = "123455"
     @particulars  = "12345"
     @txn_date     = Date.today.to_s
 
-    data = "MERCHANTID=#{MerchantId},APPID=#{AppId},APPNAME=#{AppName},TXNID=#{@txn_id},TXNDATE=#{@txn_date},TXNCRNCY=#{@txn_currency},TXNAMT=#{@txn_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
+    data = "MERCHANTID=#{NchlPayment::MerchantId},APPID=#{NchlPayment::AppId},APPNAME=#{NchlPayment::AppName},TXNID=#{@txn_id},TXNDATE=#{@txn_date},TXNCRNCY=#{@txn_currency},TXNAMT=#{@txn_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
 
     get_signed_token(data)
   end

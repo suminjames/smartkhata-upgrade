@@ -17,6 +17,9 @@ class NchlPayment < ActiveRecord::Base
   # Constants
   PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_payment_verification_url
   PAYMENT_URL              = Rails.application.secrets.nchl_payment_url
+  MerchantId               = Rails.application.secrets.nchl_merchant_id
+  AppId                    = Rails.application.secrets.nchl_app_id
+  AppName                  = Rails.application.secrets.nchl_app_name
 
   ########################################
   # Includes
