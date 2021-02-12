@@ -8,29 +8,17 @@ class EsewaReceiptsController < VisitorsController
   end
 
   def create
-    ActiveRecord::Base.transaction do
-      @esewa_receipt = EsewaReceipt.new(esewa_receipt_params.merge(success_url: get_success_url))
+    @esewa_receipt = EsewaReceipt.new(esewa_receipt_params.merge(success_url: get_success_url))
 
-      if @esewa_receipt.save
+    @esewa_receipt.amount, @esewa_receipt.bill_ids = params['total_amount'], params[:bill_ids]
 
-        receipt_transaction = ReceiptTransaction.create(receipt_transaction_params.merge(receivable:       @esewa_receipt,
-                                                                                         amount:           params['total_amount'],
-                                                                                         transaction_id:   SecureRandom.hex(10),
-                                                                                         transaction_date: Date.today.to_s,
-                                                                                         request_sent_at:  Time.now))
+    if @esewa_receipt.save
 
-        @esewa_receipt.update(failure_url: get_failure_url + "&oid=#{@esewa_receipt.get_transaction_id}")
+      @esewa_receipt.update(failure_url: get_failure_url + "&oid=#{@esewa_receipt.get_transaction_id}")
 
-        if receipt_transaction.persisted?
-          render json: { payment: @esewa_receipt, product_id: @esewa_receipt.get_transaction_id, security_code: get_esewa_security_code }
-        else
-          raise ActiveRecord::Rollback
-          render json: { msg: 'cannot save esewa payment transaction record' }
-        end
-
-      else
-        render json: { msg: 'cannot save esewa payment record' }
-      end
+      render json: { payment: @esewa_receipt, product_id: @esewa_receipt.get_transaction_id, security_code: get_esewa_security_code }
+    else
+      render json: { error: 'cannot save esewa payment transaction record' }
     end
   end
 
@@ -63,7 +51,7 @@ class EsewaReceiptsController < VisitorsController
 
   def set_esewa_receipt
     @receipt_transaction = ReceiptTransaction.find_by(transaction_id: params[:oid])
-    @esewa_receipt      = @receipt_transaction.receivable
+    @esewa_receipt       = @receipt_transaction.receivable
   end
 
   def esewa_receipt_params

@@ -17,7 +17,7 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Constants
-  PAYMENT_URL = Rails.application.secrets.esewa_receipt_url
+  PAYMENT_URL              = Rails.application.secrets.esewa_receipt_url
   PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_receipt_verification_url
 
   ########################################
@@ -29,6 +29,7 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Callbacks
+  after_create :save_receipt_transaction
 
   ########################################
   # Validations
@@ -41,6 +42,7 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Attributes
+  attr_accessor :amount, :bill_ids
 
   ########################################
   # Delegations
@@ -57,5 +59,16 @@ class EsewaReceipt < ActiveRecord::Base
 
   def get_transaction_id
     self.receipt_transaction.transaction_id
+  end
+
+  def save_receipt_transaction
+    receipt_transaction = self.build_receipt_transaction(transaction_id:   SecureRandom.hex(16),
+                                                         transaction_date: Date.today.to_s,
+                                                         request_sent_at:  Time.now,
+                                                         amount:           self.amount,
+                                                         bill_ids:         self.bill_ids)
+    unless receipt_transaction.save
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
   end
 end
