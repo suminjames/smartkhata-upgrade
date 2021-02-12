@@ -4,31 +4,18 @@ $(document).on("ready page:load", function () {
         return false;
     }
 
-    let billIds = document.querySelector('#billIds');
-    let txnAmt = document.querySelector('#txnAmt');
-    let nchlToken = document.querySelector('#nchlToken');
-    let merchantId = document.querySelector("#merchantId");
-    let appId = document.querySelector("#appId");
-    let appName = document.querySelector("#appName");
-    let txnId = document.querySelector("#txnId");
-    let txnDate = document.querySelector("#txnDate");
-    let txnCurrency = document.querySelector("#txnCurrency");
-    let refId = document.querySelector("#refId");
-    let remarks = document.querySelector("#remarks");
-    let particulars = document.querySelector("#particulars");
-
-    let connectIpsPaymentForm = document.querySelector('#connectIpsPaymentForm');
     let connectIpsBtn = document.querySelector('.connectIpsBtn');
-
-    let bills = billIds.value.split(' ');
-
     connectIpsBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
     });
 
     function processPayment() {
+        let billIds = document.querySelector('#billIds');
+        let bills = billIds.value.split(' ');
+        let txnAmt = document.querySelector('#txnAmt');
         let token = $("meta[name='csrf-token']").attr('content');
+
         var request = $.ajax({
             method: "POST",
             url: "/nchl_payments/",
@@ -38,13 +25,21 @@ $(document).on("ready page:load", function () {
                 authenticity_token: token,
             }
         });
+
         request.done(function (res) {
             // todo: modal to inform that payment could not be processed
 
-            fillData(res);
-            connectIpsPaymentForm.submit();
+            if (res.error) {
+                alert('Your transaction can not be processed right now. Please try again.')
+            } else {
+                let connectIpsPaymentForm = document.querySelector('#connectIpsPaymentForm');
+
+                fillData(res);
+                connectIpsPaymentForm.submit();
+            }
             connectIpsBtn.disabled = false;
         });
+
         request.fail(function () {
             // todo: modal to inform that payment could not be processed
             console.log("could not process payment");
@@ -53,6 +48,17 @@ $(document).on("ready page:load", function () {
     }
 
     function fillData(res) {
+        let nchlToken = document.querySelector('#nchlToken');
+        let merchantId = document.querySelector("#merchantId");
+        let appId = document.querySelector("#appId");
+        let appName = document.querySelector("#appName");
+        let txnId = document.querySelector("#txnId");
+        let txnDate = document.querySelector("#txnDate");
+        let txnCurrency = document.querySelector("#txnCurrency");
+        let refId = document.querySelector("#refId");
+        let remarks = document.querySelector("#remarks");
+        let particulars = document.querySelector("#particulars");
+
         merchantId.value = res.merchant_id;
         appId.value = res.app_id;
         appName.value = res.app_name;

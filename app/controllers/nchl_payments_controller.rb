@@ -8,43 +8,39 @@ class NchlPaymentsController < VisitorsController
   def create
     signed_token = build_payload_and_get_token
 
-    ActiveRecord::Base.transaction do
-      nchl_payment = NchlPayment.create(
-          reference_id: @ref_id,
-          remarks:      @remarks,
-          particular:   @particulars,
-          token:        signed_token
-      )
+    nchl_payment = NchlPayment.new(
+        reference_id: @ref_id,
+        remarks:      @remarks,
+        particular:   @particulars,
+        token:        signed_token
+    )
 
-      if nchl_payment.persisted?
-        receipt_transaction = nchl_payment.build_payment_transaction(payment_transaction_params.merge(transaction_id: @txn_id, transaction_date: @txn_date, request_sent_at: Time.now))
+    nchl_payment.amount,
+        nchl_payment.bill_ids,
+        nchl_payment.transaction_id,
+        nchl_payment.transaction_date = params[:amount], params[:bill_ids], @txn_id, @txn_date
 
-        if receipt_transaction.save
-          render json: {
-              merchant_id:  MerchantId,
-              app_id:       AppId,
-              app_name:     AppName,
-              txn_id:       receipt_transaction.transaction_id,
-              txn_currency: @txn_currency,
-              txn_date:     receipt_transaction.transaction_date,
-              ref_id:       nchl_payment.reference_id,
-              remarks:      nchl_payment.remarks,
-              particulars:  nchl_payment.particular,
-              signed_token: nchl_payment.token
-          }
-        else
-          raise ActiveRecord::Rollback
-          render json: { msg: 'cannot save nchl payment transaction record' }
-        end
-
-      else
-        render json: { msg: 'cannot save nchl payment record' }
-      end
+    if nchl_payment.save
+      render json: {
+          merchant_id:  MerchantId,
+          app_id:       AppId,
+          app_name:     AppName,
+          txn_id:       nchl_payment.receipt_transaction.transaction_id,
+          txn_currency: @txn_currency,
+          txn_date:     nchl_payment.receipt_transaction.transaction_date,
+          ref_id:       nchl_payment.reference_id,
+          remarks:      nchl_payment.remarks,
+          particulars:  nchl_payment.particular,
+          signed_token: nchl_payment.token
+      }
+    else
+      render json: { error: 'cannot save nchl payment transaction record' }
     end
+
   end
 
   def success
-    get_payment_transaction
+    get_receipt_transaction
 
     # this check is to make sure that the verification request is not sent again when the page is reloaded
     # as a previous payment_verification process would already have set the status of the transaction
@@ -55,11 +51,11 @@ class NchlPaymentsController < VisitorsController
   end
 
   def failure
-    get_payment_transaction
+    get_receipt_transaction
     @receipt_transaction.failure!
   end
 
-  def get_payment_transaction
+  def get_receipt_transaction
     txn_id               = params[:TXNID]
     @receipt_transaction = ReceiptTransaction.find_by(transaction_id: txn_id)
     @receipt_transaction.set_response_received_time
@@ -89,7 +85,7 @@ class NchlPaymentsController < VisitorsController
 
   private
 
-  def payment_transaction_params
+  def receipt_transaction_params
     params.permit(:amount, bill_ids: [])
   end
 end

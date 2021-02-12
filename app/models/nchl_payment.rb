@@ -16,7 +16,7 @@ class NchlPayment < ActiveRecord::Base
   ########################################
   # Constants
   PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_payment_verification_url
-  PAYMENT_URL = Rails.application.secrets.nchl_payment_url
+  PAYMENT_URL              = Rails.application.secrets.nchl_payment_url
 
   ########################################
   # Includes
@@ -27,6 +27,7 @@ class NchlPayment < ActiveRecord::Base
 
   ########################################
   # Callbacks
+  after_create :save_receipt_transaction
 
   ########################################
   # Validations
@@ -39,10 +40,22 @@ class NchlPayment < ActiveRecord::Base
 
   ########################################
   # Attributes
+  attr_accessor :amount, :bill_ids, :transaction_id, :transaction_date
 
   ########################################
   # Delegations
 
   ########################################
   # Methods
+
+  def save_receipt_transaction
+    receipt_transaction = self.build_receipt_transaction(transaction_id:   self.transaction_id,
+                                                         transaction_date: self.transaction_date,
+                                                         request_sent_at:  Time.now,
+                                                         amount:           self.amount,
+                                                         bill_ids:         self.bill_ids)
+    unless receipt_transaction.save
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+  end
 end
