@@ -54,4 +54,8 @@ class EsewaPayment < ActiveRecord::Base
   def set_response_amount(amt)
     self.update(response_amount: amt)
   end
+
+  def get_transaction_id
+    self.receipt_transaction.transaction_id
+  end
 end

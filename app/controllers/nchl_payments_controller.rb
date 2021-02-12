@@ -71,7 +71,7 @@ class NchlPaymentsController < VisitorsController
 
   def build_payload_and_get_token
     @txn_amt      = params[:amount]
-    @txn_id       = (0 .. 9).to_a.sample(6).join
+    @txn_id       = SecureRandom.hex(10)
     @txn_currency = "NPR"
     @ref_id       = "124"
     @remarks      = "123455"

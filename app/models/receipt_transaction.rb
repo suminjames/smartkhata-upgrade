@@ -37,6 +37,7 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Validations
+  validates_uniqueness_of :transaction_id
 
   ########################################
   # Enums

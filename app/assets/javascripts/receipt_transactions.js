@@ -5,22 +5,7 @@ $(document).on("ready page:load", function () {
     return false;
   }
 
-  let billIds = document.querySelector('#billIds');
-  let amount = document.querySelector('input[name="amt"]');
-  let serviceCharge = document.querySelector('input[name="psc"]');
-  let deliveryCharge = document.querySelector('input[name="pdc"]');
-  let taxAmount = document.querySelector('input[name="txAmt"]');
-  let totalAmount = document.querySelector('input[name="tAmt"]');
-  let successUrl = document.querySelector('input[name="su"]');
-  let failureUrl = document.querySelector('input[name="fu"]');
-  let securityCode = document.querySelector('input[name="scd"]');
-  let productId = document.querySelector('input[name="pid"]');
   let submitPaymentBtn = document.querySelector('#esewaSubmit');
-
-  let bills = billIds.value.split(' ');
-
-  let paymentForm = document.querySelector('#esewaPaymentForm');
-  let token = $("meta[name='csrf-token']").attr('content');
 
   submitPaymentBtn.addEventListener('click', function (e) {
     e.target.disabled = true;
@@ -28,13 +13,27 @@ $(document).on("ready page:load", function () {
   });
 
   function fillData(res) {
+    let successUrl = document.querySelector('input[name="su"]');
+    let failureUrl = document.querySelector('input[name="fu"]');
+    let securityCode = document.querySelector('input[name="scd"]');
+    let productId = document.querySelector('input[name="pid"]');
+
     successUrl.setAttribute('value', res.payment.success_url);
     failureUrl.setAttribute('value', res.payment.failure_url);
     securityCode.setAttribute('value', res.security_code);
-    productId.setAttribute('value', res.payment.id);
+    productId.setAttribute('value', res.product_id);
   }
 
   function getPayload(){
+    let amount = document.querySelector('input[name="amt"]');
+    let serviceCharge = document.querySelector('input[name="psc"]');
+    let deliveryCharge = document.querySelector('input[name="pdc"]');
+    let taxAmount = document.querySelector('input[name="txAmt"]');
+    let totalAmount = document.querySelector('input[name="tAmt"]');
+    let token = $("meta[name='csrf-token']").attr('content');
+    let billIds = document.querySelector('#billIds');
+    let bills = billIds.value.split(' ');
+
     return({
       amount: parseInt(amount.value),
       bill_ids: bills,
@@ -47,8 +46,9 @@ $(document).on("ready page:load", function () {
   }
 
   function processPayment() {
+    let paymentForm = document.querySelector('#esewaPaymentForm');
 
-    var request = $.ajax({
+    let request = $.ajax({
       method: "POST",
       url: "/esewa_payments/",
       data: getPayload(),
