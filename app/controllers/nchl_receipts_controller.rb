@@ -32,33 +32,6 @@ class NchlReceiptsController < VisitorsController
     else
       render json: { error: 'cannot save nchl payment transaction record' }
     end
-
-  end
-
-  def success
-    get_receipt_transaction
-
-    # this check is to make sure that the verification request is not sent again when the page is reloaded
-    # as a previous payment_verification process would already have set the status of the transaction
-    if @receipt_transaction.status.nil?
-      response = payment_validation @receipt_transaction
-      handle_validation_response @receipt_transaction, response
-    end
-  end
-
-  def failure
-    get_receipt_transaction
-    @receipt_transaction.failure!
-  end
-
-  def get_receipt_transaction
-    txn_id               = params[:TXNID]
-    @receipt_transaction = ReceiptTransaction.find_by(transaction_id: txn_id)
-    @receipt_transaction.set_response_received_time
-  end
-
-  def payment_validation receipt_transaction
-    ReceiptTransactions::Nchl::PaymentValidation.new(receipt_transaction).validate
   end
 
   def build_payload_and_get_token
@@ -73,10 +46,6 @@ class NchlReceiptsController < VisitorsController
     data = "MERCHANTID=#{NchlReceipt::MerchantId},APPID=#{NchlReceipt::AppId},APPNAME=#{NchlReceipt::AppName},TXNID=#{@txn_id},TXNDATE=#{@txn_date},TXNCRNCY=#{@txn_currency},TXNAMT=#{@txn_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
 
     get_signed_token(data)
-  end
-
-  def handle_validation_response receipt_transaction, response
-    response["status"] == "SUCCESS" ? receipt_transaction.success! : receipt_transaction.fraudulent!
   end
 
   private

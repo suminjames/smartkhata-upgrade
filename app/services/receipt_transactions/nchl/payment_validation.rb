@@ -7,8 +7,8 @@ module ReceiptTransactions
 
       def initialize(receipt_transaction)
         @receipt_transaction = receipt_transaction
-        @transaction_amt = @receipt_transaction.amount
-        @ref_id          = @receipt_transaction.transaction_id
+        @transaction_amt     = @receipt_transaction.amount
+        @ref_id              = @receipt_transaction.transaction_id
       end
 
       def validate
@@ -36,7 +36,16 @@ module ReceiptTransactions
 
         @receipt_transaction.set_validation_response_received_at
 
-        JSON.parse(response.body)
+        handle_response(JSON.parse(response.body).dig('response') == "SUCCESS")
+      end
+
+      def handle_response(success)
+        if success
+          @receipt_transaction.success!
+        else
+          @receipt_transaction.fraudulent!
+          false
+        end
       end
     end
   end

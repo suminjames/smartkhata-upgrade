@@ -16,25 +16,17 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :esewa_receipts do
-    collection do
-      get :success
-      get :failure
-    end
-  end
+  resources :esewa_receipts
 
   resources :receipt_transactions do
     collection do
       get :initiate_payment
-    end
-  end
-
-  resources :nchl_receipts, only: :create do
-    collection do
       get :success
       get :failure
     end
   end
+
+  resources :nchl_receipts, only: :create
 
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars
