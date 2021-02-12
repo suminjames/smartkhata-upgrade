@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210210115259) do
+ActiveRecord::Schema.define(version: 20210212050742) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -226,7 +226,6 @@ ActiveRecord::Schema.define(version: 20210210115259) do
     t.integer  "nepse_settlement_id",        limit: 8
     t.integer  "settlement_approval_status",                                    default: 0
     t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
-    t.integer  "receipt_transaction_id"
   end
 
   add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
@@ -235,8 +234,12 @@ ActiveRecord::Schema.define(version: 20210210115259) do
   add_index "bills", ["date"], name: "index_bills_on_date", using: :btree
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
-  add_index "bills", ["receipt_transaction_id"], name: "index_bills_on_receipt_transaction_id", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
+
+  create_table "bills_receipt_transactions", force: :cascade do |t|
+    t.integer "bill_id"
+    t.integer "receipt_transaction_id"
+  end
 
   create_table "branch_permissions", force: :cascade do |t|
     t.integer  "branch_id"
@@ -1879,7 +1882,6 @@ ActiveRecord::Schema.define(version: 20210210115259) do
   add_foreign_key "bank_payment_letters", "vouchers"
   add_foreign_key "bill_voucher_associations", "bills"
   add_foreign_key "bill_voucher_associations", "vouchers"
-  add_foreign_key "bills", "receipt_transactions"
   add_foreign_key "cheque_entry_particular_associations", "cheque_entries"
   add_foreign_key "cheque_entry_particular_associations", "particulars"
   add_foreign_key "edis_items", "sales_settlements"

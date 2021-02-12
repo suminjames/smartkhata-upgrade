@@ -13,7 +13,10 @@ class EsewaPaymentsController < VisitorsController
 
       if @esewa_payment.save
 
-        receipt_transaction = ReceiptTransaction.create(receipt_transaction_params.merge(receivable: @esewa_payment, amount: params['total_amount'], request_sent_at: Time.now))
+        receipt_transaction = ReceiptTransaction.create(receipt_transaction_params.merge(receivable: @esewa_payment,
+                                                                                         amount: params['total_amount'],
+                                                                                         transaction_date: Date.today.to_s,
+                                                                                         request_sent_at: Time.now))
 
         @esewa_payment.update(failure_url: get_failure_url + "&id=#{@esewa_payment.id}")
 
