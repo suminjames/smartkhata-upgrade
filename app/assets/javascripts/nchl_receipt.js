@@ -18,7 +18,7 @@ $(document).on("ready page:load", function () {
 
         var request = $.ajax({
             method: "POST",
-            url: "/nchl_payments/",
+            url: "/nchl_receipts/",
             data: {
                 amount: txnAmt.value,
                 bill_ids: bills,

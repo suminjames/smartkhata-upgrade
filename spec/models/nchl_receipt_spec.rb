@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: nchl_payments
+# Table name: nchl_receipts
 #
 #  id           :integer          not null, primary key
 #  reference_id :string
@@ -11,10 +11,8 @@
 #  token        :text
 #
 
-FactoryGirl.define do
-  factory :nchl_payment do
-    reference_id "MyString"
-    remarks "MyText"
-    particular "MyText"
-  end
+require 'rails_helper'
+
+RSpec.describe NchlReceipt, type: :model do
+  pending "add some examples to (or delete) #{__FILE__}"
 end

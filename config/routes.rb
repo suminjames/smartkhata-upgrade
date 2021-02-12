@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :nchl_payments, only: :create do
+  resources :nchl_receipts, only: :create do
     collection do
       get :success
       get :failure

@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: nchl_payments
+# Table name: nchl_receipts
 #
 #  id           :integer          not null, primary key
 #  reference_id :string
@@ -11,12 +11,12 @@
 #  token        :text
 #
 
-class NchlPayment < ActiveRecord::Base
+class NchlReceipt < ActiveRecord::Base
 
   ########################################
   # Constants
-  PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_payment_verification_url
-  PAYMENT_URL              = Rails.application.secrets.nchl_payment_url
+  PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_receipt_verification_url
+  PAYMENT_URL              = Rails.application.secrets.nchl_receipt_url
   MerchantId               = Rails.application.secrets.nchl_merchant_id
   AppId                    = Rails.application.secrets.nchl_app_id
   AppName                  = Rails.application.secrets.nchl_app_name

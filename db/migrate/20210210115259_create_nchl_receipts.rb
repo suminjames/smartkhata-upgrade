@@ -1,6 +1,6 @@
-class CreateNchlPayments < ActiveRecord::Migration
+class CreateNchlReceipts < ActiveRecord::Migration
   def change
-    create_table :nchl_payments do |t|
+    create_table :nchl_receipts do |t|
       t.string :reference_id
       t.text :remarks
       t.text :particular

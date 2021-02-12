@@ -1,33 +1,33 @@
-class NchlPaymentsController < VisitorsController
+class NchlReceiptsController < VisitorsController
   include SignTokenModule
 
   def create
     signed_token = build_payload_and_get_token
 
-    nchl_payment = NchlPayment.new(
+    nchl_receipt = NchlReceipt.new(
         reference_id: @ref_id,
         remarks:      @remarks,
         particular:   @particulars,
         token:        signed_token
     )
 
-    nchl_payment.amount,
-        nchl_payment.bill_ids,
-        nchl_payment.transaction_id,
-        nchl_payment.transaction_date = params[:amount], params[:bill_ids], @txn_id, @txn_date
+    nchl_receipt.amount,
+        nchl_receipt.bill_ids,
+        nchl_receipt.transaction_id,
+        nchl_receipt.transaction_date = params[:amount], params[:bill_ids], @txn_id, @txn_date
 
-    if nchl_payment.save
+    if nchl_receipt.save
       render json: {
-          merchant_id:  NchlPayment::MerchantId,
-          app_id:       NchlPayment::AppId,
-          app_name:     NchlPayment::AppName,
-          txn_id:       nchl_payment.receipt_transaction.transaction_id,
+          merchant_id:  NchlReceipt::MerchantId,
+          app_id:       NchlReceipt::AppId,
+          app_name:     NchlReceipt::AppName,
+          txn_id:       nchl_receipt.receipt_transaction.transaction_id,
           txn_currency: @txn_currency,
-          txn_date:     nchl_payment.receipt_transaction.transaction_date,
-          ref_id:       nchl_payment.reference_id,
-          remarks:      nchl_payment.remarks,
-          particulars:  nchl_payment.particular,
-          signed_token: nchl_payment.token
+          txn_date:     nchl_receipt.receipt_transaction.transaction_date,
+          ref_id:       nchl_receipt.reference_id,
+          remarks:      nchl_receipt.remarks,
+          particulars:  nchl_receipt.particular,
+          signed_token: nchl_receipt.token
       }
     else
       render json: { error: 'cannot save nchl payment transaction record' }
@@ -70,7 +70,7 @@ class NchlPaymentsController < VisitorsController
     @particulars  = "12345"
     @txn_date     = Date.today.to_s
 
-    data = "MERCHANTID=#{NchlPayment::MerchantId},APPID=#{NchlPayment::AppId},APPNAME=#{NchlPayment::AppName},TXNID=#{@txn_id},TXNDATE=#{@txn_date},TXNCRNCY=#{@txn_currency},TXNAMT=#{@txn_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
+    data = "MERCHANTID=#{NchlReceipt::MerchantId},APPID=#{NchlReceipt::AppId},APPNAME=#{NchlReceipt::AppName},TXNID=#{@txn_id},TXNDATE=#{@txn_date},TXNCRNCY=#{@txn_currency},TXNAMT=#{@txn_amt},REFERENCEID=#{@ref_id},REMARKS=#{@remarks},PARTICULARS=#{@particulars},TOKEN=TOKEN"
 
     get_signed_token(data)
   end

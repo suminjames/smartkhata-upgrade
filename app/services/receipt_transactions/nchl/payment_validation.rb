@@ -12,9 +12,9 @@ module ReceiptTransactions
       end
 
       def validate
-        data = "MERCHANTID=#{NchlPayment::MerchantId},APPID=#{NchlPayment::AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
+        data = "MERCHANTID=#{NchlReceipt::MerchantId},APPID=#{NchlReceipt::AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
 
-        uri     = URI.parse(NchlPayment::PAYMENT_VERIFICATION_URL)
+        uri     = URI.parse(NchlReceipt::PAYMENT_VERIFICATION_URL)
         request = Net::HTTP::Post.new(uri.request_uri)
         request.basic_auth AppId, Rails.application.secrets.nchl_basic_auth_pw
         request.content_type = 'application/json'

@@ -1073,7 +1073,7 @@ ActiveRecord::Schema.define(version: 20210212050742) do
     t.string "message_type"
   end
 
-  create_table "nchl_payments", force: :cascade do |t|
+  create_table "nchl_receipts", force: :cascade do |t|
     t.string   "reference_id"
     t.text     "remarks"
     t.text     "particular"
