@@ -21,7 +21,7 @@ module ReceiptTransactions
         # "<response>\n" + "<response_code>\n" + "Success\n" + "</response_code>\n" + "</response>\n" - success response from esewa
 
         hashed_response = Hash.from_xml(response.body.gsub("\n", ""))
-        handle_response(hashed_response['response']['response_code']=='Success')
+        handle_response(hashed_response.dig('response', 'response_code')=='Success')
       end
 
       private
