@@ -4,6 +4,7 @@ class CreateNchlPayments < ActiveRecord::Migration
       t.string :reference_id
       t.text :remarks
       t.text :particular
+      t.text :token
 
       t.timestamps null: false
     end

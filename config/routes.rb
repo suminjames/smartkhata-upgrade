@@ -23,7 +23,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :payment_transactions do
+  resources :receipt_transactions do
     collection do
       get :initiate_payment
     end

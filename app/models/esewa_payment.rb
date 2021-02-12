@@ -25,7 +25,7 @@ class EsewaPayment < ActiveRecord::Base
 
   ########################################
   # Relationships
-  has_one :payment_transaction, as: :payable
+  has_one :receipt_transaction, as: :receivable
 
   ########################################
   # Callbacks

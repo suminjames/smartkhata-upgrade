@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: payment_transactions
+# Table name: receipt_transactions
 #
 #  id                              :integer          not null, primary key
 #  amount                          :decimal(, )
@@ -21,6 +21,6 @@
 
 require 'rails_helper'
 
-RSpec.describe PaymentTransaction, type: :model do
+RSpec.describe ReceiptTransaction, type: :model do
   pending "add some examples to (or delete) #{__FILE__}"
 end

@@ -16,7 +16,7 @@
 
 FactoryGirl.define do
   factory :esewa_payment do
-    payment_transaction nil
+    receipt_transaction nil
     username "MyString"
     response "MyString"
     response_code "MyString"

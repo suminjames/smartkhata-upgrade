@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: payment_transactions
+# Table name: receipt_transactions
 #
 #  id                              :integer          not null, primary key
 #  amount                          :decimal(, )
@@ -19,13 +19,41 @@
 #  updated_at                      :datetime         not null
 #
 
-class PaymentTransaction < ActiveRecord::Base
-  belongs_to :payable, polymorphic: true
+class ReceiptTransaction < ActiveRecord::Base
 
+  ########################################
+  # Constants
+
+  ########################################
+  # Includes
+
+  ########################################
+  # Relationships
+  belongs_to :receivable, polymorphic: true
   has_many :bills
 
-  enum status: { success: 0, failure: 1, fraudulent: 2}
+  ########################################
+  # Callbacks
 
+  ########################################
+  # Validations
+
+  ########################################
+  # Enums
+  enum status: { success: 0, failure: 1, fraudulent: 2 }
+
+
+  ########################################
+  # Scopes
+
+  ########################################
+  # Attributes
+
+  ########################################
+  # Delegations
+
+  ########################################
+  # Methods
   def set_request_sent_time
     self.update(request_sent_at: Time.now)
   end

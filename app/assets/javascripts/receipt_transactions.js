@@ -1,7 +1,7 @@
 $(document).on("ready page:load", function () {
 
 // payment transaction initiate payment
-  if ($('.payment_transactions.initiate_payment').length == 0) {
+  if ($('.receipt_transactions.initiate_payment').length == 0) {
     return false;
   }
 

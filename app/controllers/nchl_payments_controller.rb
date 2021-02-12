@@ -17,16 +17,16 @@ class NchlPaymentsController < VisitorsController
       )
 
       if nchl_payment.persisted?
-        payment_transaction = nchl_payment.build_payment_transaction(payment_transaction_params.merge(transaction_id: @txn_id, transaction_date: @txn_date, request_sent_at: Time.now))
+        receipt_transaction = nchl_payment.build_payment_transaction(payment_transaction_params.merge(transaction_id: @txn_id, transaction_date: @txn_date, request_sent_at: Time.now))
 
-        if payment_transaction.save
+        if receipt_transaction.save
           render json: {
               merchant_id:  MerchantId,
               app_id:       AppId,
               app_name:     AppName,
-              txn_id:       payment_transaction.transaction_id,
+              txn_id:       receipt_transaction.transaction_id,
               txn_currency: @txn_currency,
-              txn_date:     payment_transaction.transaction_date,
+              txn_date:     receipt_transaction.transaction_date,
               ref_id:       nchl_payment.reference_id,
               remarks:      nchl_payment.remarks,
               particulars:  nchl_payment.particular,
@@ -48,25 +48,25 @@ class NchlPaymentsController < VisitorsController
 
     # this check is to make sure that the verification request is not sent again when the page is reloaded
     # as a previous payment_verification process would already have set the status of the transaction
-    if @payment_transaction.status.nil?
-      response = payment_validation @payment_transaction
-      handle_validation_response @payment_transaction, response
+    if @receipt_transaction.status.nil?
+      response = payment_validation @receipt_transaction
+      handle_validation_response @receipt_transaction, response
     end
   end
 
   def failure
     get_payment_transaction
-    @payment_transaction.failure!
+    @receipt_transaction.failure!
   end
 
   def get_payment_transaction
     txn_id               = params[:TXNID]
-    @payment_transaction = PaymentTransaction.find_by(transaction_id: txn_id)
-    @payment_transaction.set_response_received_time
+    @receipt_transaction = ReceiptTransaction.find_by(transaction_id: txn_id)
+    @receipt_transaction.set_response_received_time
   end
 
-  def payment_validation payment_transaction
-    PaymentTransactions::Nchl::PaymentValidation.new(payment_transaction).validate
+  def payment_validation receipt_transaction
+    ReceiptTransactions::Nchl::PaymentValidation.new(receipt_transaction).validate
   end
 
   def build_payload_and_get_token
@@ -83,8 +83,8 @@ class NchlPaymentsController < VisitorsController
     get_signed_token(data)
   end
 
-  def handle_validation_response payment_transaction, response
-    response["status"] == "SUCCESS" ? payment_transaction.success! : payment_transaction.fraudulent!
+  def handle_validation_response receipt_transaction, response
+    response["status"] == "SUCCESS" ? receipt_transaction.success! : receipt_transaction.fraudulent!
   end
 
   private

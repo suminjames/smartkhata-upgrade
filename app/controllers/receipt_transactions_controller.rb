@@ -1,4 +1,4 @@
-class PaymentTransactionsController < VisitorsController
+class ReceiptTransactionsController < VisitorsController
   def initiate_payment
     all_bills = Bill.where(id: params[:bill_ids])
 

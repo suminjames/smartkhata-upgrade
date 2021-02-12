@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: payment_transactions
+# Table name: receipt_transactions
 #
 #  id                              :integer          not null, primary key
 #  amount                          :decimal(, )
@@ -20,7 +20,7 @@
 #
 
 FactoryGirl.define do
-  factory :payment_transaction do
+  factory :receipt_transaction do
     amount "MyString"
     status 1
     response_code "MyString"
