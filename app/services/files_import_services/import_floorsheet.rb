@@ -178,6 +178,10 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       end
     rescue => e
       log_error_file
+      ExceptionNotifier.notify_exception(
+        e,
+        env: request.env, data: { message: 'import floorsheet exception was caught' }
+      )
     end
   end
 
