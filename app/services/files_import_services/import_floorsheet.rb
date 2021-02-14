@@ -180,7 +180,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       log_error_file
       ExceptionNotifier.notify_exception(
         e,
-        env: request.env, data: { message: 'import floorsheet exception was caught' }
+        env: 'Production', data: { message: 'import floorsheet exception was caught' }
       )
     end
   end
