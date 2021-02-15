@@ -12,14 +12,15 @@
 #
 
 class NchlReceipt < ActiveRecord::Base
+  include SignTokenModule
 
   ########################################
   # Constants
   PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_receipt_verification_url
   PAYMENT_URL              = Rails.application.secrets.nchl_receipt_url
-  MerchantId               = Rails.application.secrets.nchl_merchant_id
-  AppId                    = Rails.application.secrets.nchl_app_id
-  AppName                  = Rails.application.secrets.nchl_app_name
+  MERCHANTID               = Rails.application.secrets.nchl_merchant_id
+  APPID                    = Rails.application.secrets.nchl_app_id
+  APPNAME                  = Rails.application.secrets.nchl_app_name
 
   ########################################
   # Includes
@@ -30,6 +31,7 @@ class NchlReceipt < ActiveRecord::Base
 
   ########################################
   # Callbacks
+  before_validation :build_payload
   after_create :save_receipt_transaction
 
   ########################################
@@ -43,7 +45,7 @@ class NchlReceipt < ActiveRecord::Base
 
   ########################################
   # Attributes
-  attr_accessor :amount, :bill_ids, :transaction_id, :transaction_date
+  attr_accessor :amount, :bill_ids, :transaction_id, :transaction_date, :transaction_currency, :merchant_id, :app_name, :app_id
 
   ########################################
   # Delegations
@@ -60,5 +62,28 @@ class NchlReceipt < ActiveRecord::Base
     unless receipt_transaction.save
       raise ActiveRecord::RecordInvalid.new(self)
     end
+  end
+
+  def build_payload
+    self.transaction_id,
+      self.reference_id,
+      self.remarks,
+      self.particular,
+      self.transaction_date,
+      self.transaction_currency,
+      self.merchant_id,
+      self.app_id,
+      self.app_name = payload_values
+
+    data       = "MERCHANTID=#{MERCHANTID},APPID=#{APPID},APPNAME=#{APPNAME},TXNID=#{self.transaction_id},TXNDATE=#{self.transaction_date},TXNCRNCY=#{self.transaction_currency},TXNAMT=#{self.amount},REFERENCEID=#{self.reference_id},REMARKS=#{self.remarks},PARTICULARS=#{self.particular},TOKEN=TOKEN"
+    self.token = get_signed_token(data)
+  end
+
+  def payload_values
+    transaction_id = SecureRandom.hex(10)
+    return transaction_id,
+      transaction_id,
+      self.bill_ids.join(','), '', Date.today.to_s, 'NPR',
+      MERCHANTID, APPID, APPNAME
   end
 end

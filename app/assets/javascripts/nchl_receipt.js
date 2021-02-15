@@ -62,12 +62,12 @@ $(document).on("ready page:load", function () {
         merchantId.value = res.merchant_id;
         appId.value = res.app_id;
         appName.value = res.app_name;
-        txnId.value = res.txn_id;
-        txnDate.value = res.txn_date;
-        txnCurrency.value = res.txn_currency;
-        refId.value = res.ref_id;
+        txnId.value = res.transaction_id;
+        txnDate.value = res.transaction_date;
+        txnCurrency.value = res.transaction_currency;
+        refId.value = res.reference_id;
         remarks.value = res.remarks;
-        particulars.value = res.particulars;
-        nchlToken.value = res.signed_token;
+        particulars.value = res.particular;
+        nchlToken.value = res.token;
     }
 });

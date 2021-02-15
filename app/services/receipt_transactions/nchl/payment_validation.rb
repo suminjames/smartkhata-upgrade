@@ -12,7 +12,7 @@ module ReceiptTransactions
       end
 
       def validate
-        data = "MERCHANTID=#{NchlReceipt::MerchantId},APPID=#{NchlReceipt::AppId},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
+        data = "MERCHANTID=#{NchlReceipt::MERCHANTID},APPID=#{NchlReceipt::APPID},REFERENCEID=#{@ref_id},TXNAMT=#{@transaction_amt}"
 
         uri     = URI.parse(NchlReceipt::PAYMENT_VERIFICATION_URL)
         request = Net::HTTP::Post.new(uri.request_uri)
@@ -20,11 +20,11 @@ module ReceiptTransactions
         request.content_type = 'application/json'
 
         parameters = {
-            merchantId:  MerchantId,
-            appId:       AppId,
-            referenceId: @ref_id,
-            txnAmt:      @transaction_amt,
-            token:       get_signed_token(data)
+          merchantId:  NchlReceipt::MERCHANTID,
+          appId:       NchlReceipt::APPID,
+          referenceId: @ref_id,
+          txnAmt:      @transaction_amt,
+          token:       get_signed_token(data)
         }
 
         request.body = parameters.to_json
