@@ -23,8 +23,6 @@ class ReceiptTransactionsController < VisitorsController
       @receipt_transaction.set_response_received_time
 
       if @receipt_transaction.receivable_type == "NchlPayment"
-        # response = payment_validation @receipt_transaction
-        # handle_validation_response @receipt_transaction, response
         @verification_status = nchl_receipt_verification(@receipt_transaction)
       elsif @receipt_transaction.receivable_type == "EsewaReceipt"
         @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)
@@ -34,8 +32,7 @@ class ReceiptTransactionsController < VisitorsController
 
   def failure
     params[:TXNID] ? get_receipt_transaction(params[:TXNID]) : get_receipt_transaction(params[:oid])
-    @receipt_transaction.failure!
-    @receipt_transaction.set_response_received_time if @receipt_transaction.status.nil?
+    @receipt_transaction.set_failure_response if @receipt_transaction.status.nil?
   end
 
   private

@@ -16,8 +16,7 @@ module ReceiptTransactions
 
         @receipt_transaction.set_validation_request_sent_at
         response = Net::HTTP.post_form(uri, parameters)
-        @receipt_transaction.set_validation_response_received_at
-        @receipt_transaction.set_validation_response_code(response.code)
+        @receipt_transaction.set_validation_response(response.code)
 
         handle_response(response)
       end

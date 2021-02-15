@@ -20,11 +20,11 @@ module ReceiptTransactions
         request.content_type = 'application/json'
 
         parameters = {
-          merchantId:  NchlReceipt::MERCHANTID,
-          appId:       NchlReceipt::APPID,
-          referenceId: @ref_id,
-          txnAmt:      @transaction_amt,
-          token:       get_signed_token(data)
+            merchantId:  NchlReceipt::MERCHANTID,
+            appId:       NchlReceipt::APPID,
+            referenceId: @ref_id,
+            txnAmt:      @transaction_amt,
+            token:       get_signed_token(data)
         }
 
         request.body = parameters.to_json
@@ -33,13 +33,12 @@ module ReceiptTransactions
         response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) do |http|
           http.request(request)
         end
+        @receipt_transaction.set_validation_response(response.code)
 
-        @receipt_transaction.set_validation_response_received_at
-
-        handle_response(JSON.parse(response.body).dig('response') == "SUCCESS")
+        handle_response(response)
       end
 
-      def handle_response(success)
+      def process_response_body(success)
         if success
           @receipt_transaction.success!
         else
@@ -47,6 +46,15 @@ module ReceiptTransactions
           false
         end
       end
+
+      def handle_response(response)
+        if response.code == '200' && !response.body.empty?
+          process_response_body(JSON.parse(response.body).dig('response') == "SUCCESS")
+        else
+          'cannot process'
+        end
+      end
+
     end
   end
 end
