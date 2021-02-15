@@ -37,7 +37,7 @@ module ReceiptTransactions
       end
 
       def handle_response(response)
-        if response.code=='200'
+        if response.code=='200' && !response.body.empty?
           # "<response>\n" + "<response_code>\n" + "Success\n" + "</response_code>\n" + "</response>\n" - success response from esewa
           hashed_response = Hash.from_xml(response.body.gsub("\n", ""))
           process_response_body(hashed_response.dig('response', 'response_code')=='Success')

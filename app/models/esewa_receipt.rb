@@ -17,8 +17,8 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Constants
-  PAYMENT_URL              = Rails.application.secrets.esewa_receipt_url
-  PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_receipt_verification_url
+  PAYMENT_URL              = Rails.application.secrets.esewa_receipt_url.freeze
+  PAYMENT_VERIFICATION_URL = Rails.application.secrets.esewa_receipt_verification_url.freeze
 
   ########################################
   # Includes
@@ -29,7 +29,7 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Callbacks
-  after_create :save_receipt_transaction
+  after_create :save_receipt_transaction, :set_failure_url
 
   ########################################
   # Validations
@@ -42,30 +42,31 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Attributes
-  attr_accessor :amount, :bill_ids
+  attr_accessor :total_amount, :bill_ids, :request_base_url
 
   ########################################
   # Delegations
+  delegate :transaction_id, to: :receipt_transaction
 
   ########################################
   # Methods
-  def set_response_ref(ref)
-    self.update(response_ref: ref)
+  def set_response_ref_and_amt(ref, amt)
+    self.update(response_ref: ref, response_amount: amt)
   end
 
-  def set_response_amount(amt)
-    self.update(response_amount: amt)
+  def validation_amount_mismatched?
+    self.receipt_transaction.amount == self.response_amount
   end
 
-  def get_transaction_id
-    self.receipt_transaction.transaction_id
+  def set_failure_url
+    self.failure_url = self.failure_url + "&oid=#{self.transaction_id}"
   end
 
   def save_receipt_transaction
-    receipt_transaction = self.build_receipt_transaction(transaction_id:   SecureRandom.hex(10),
+    receipt_transaction = self.build_receipt_transaction(transaction_id:   SecureRandom.hex(10) + self.id.to_s,
                                                          transaction_date: Date.today.to_s,
                                                          request_sent_at:  Time.now,
-                                                         amount:           self.amount,
+                                                         amount:           self.total_amount,
                                                          bill_ids:         self.bill_ids)
     unless receipt_transaction.save
       raise ActiveRecord::RecordInvalid.new(self)
