@@ -61,6 +61,10 @@ class EsewaReceipt < ActiveRecord::Base
     self.receipt_transaction.transaction_id
   end
 
+  def validation_amount_mismatched?
+    self.receipt_transaction.amount == self.response_amount
+  end
+
   def save_receipt_transaction
     receipt_transaction = self.build_receipt_transaction(transaction_id:   SecureRandom.hex(10),
                                                          transaction_date: Date.today.to_s,
