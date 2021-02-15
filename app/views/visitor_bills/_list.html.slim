@@ -13,19 +13,17 @@
           th.col-sm-1= 'Actions'
         tbody
           - if bills.present?
-            - pagination_count = kaminari_serial_number(params[:page], bills.limit_value)
             - bills.each_with_index do |bill, index|
               tr
-                td = index + pagination_count
+                td = index + 1
                 td = bill.formatted_bill_number
-                td = bill.formatted_bill_dates["bs"][0 .. -4]
+                td = bill.formatted_bill_dates["bs"][0..-4]
                 td
                   b = bill.formatted_nepse_code
                 td = bill.formatted_type
                 td = bill.formatted_status
                 td = bill.formatted_net_bill_amount
-                td
-                  = check_box_tag "bills[]", bill.id
+                td = check_box_tag "bill_ids[]", bill.id
 
       - if bills.present?
         = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm proceedToPay pull-right btn-flat'
@@ -33,8 +31,6 @@
       - if bills.blank?
         div.row.text-center.top-buffer-md
           | There are no matching bills. Please enter a valid nepse code
-
-  = render 'shared/pagination', collection_to_paginate: bills
 
 css:
   table {

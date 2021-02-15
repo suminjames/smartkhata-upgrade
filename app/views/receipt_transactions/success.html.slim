@@ -1,2 +1,9 @@
-h4 Your payment was successfully completed.
+h4
+  - if @verification_status == 'cannot process'
+    |Your payment was successfully completed. But we could not verify the transaction.
+  - elsif @verification_status
+    |Your payment was successfully completed.
+  - else
+    |Your payment was successfully completed but verification failed.
+
 h5 = link_to 'Go Back', visitor_bills_path

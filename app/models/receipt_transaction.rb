@@ -71,4 +71,8 @@ class ReceiptTransaction < ActiveRecord::Base
   def set_validation_response_received_at
     self.update(validation_response_received_at: Time.now)
   end
+
+  def set_validation_response_code(code)
+    self.update(validation_response_code: code)
+  end
 end

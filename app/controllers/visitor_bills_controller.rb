@@ -6,6 +6,6 @@ class VisitorBillsController < VisitorsController
         persistence_id: false
     ) or return
 
-    @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account).page(params[:page]).per(5).decorate
+    @bills = @filterrific.find.order(created_at: :desc).includes(:client_account).limit(5).decorate
   end
 end
