@@ -54,14 +54,10 @@ class NchlReceipt < ActiveRecord::Base
   # Methods
 
   def save_receipt_transaction
-    receipt_transaction = self.build_receipt_transaction(transaction_id:   self.transaction_id,
-                                                         transaction_date: self.transaction_date,
-                                                         request_sent_at:  Time.now,
-                                                         amount:           self.amount,
-                                                         bill_ids:         self.bill_ids)
-    unless receipt_transaction.save
-      raise ActiveRecord::RecordInvalid.new(self)
-    end
+    transaction_id = self.transaction_id
+    transaction_amount = self.amount
+    transaction_date = self.transaction_date
+    ReceiptTransactions::ReceiptTransactionService.new(self, transaction_id, transaction_date, transaction_amount).call
   end
 
   def build_payload

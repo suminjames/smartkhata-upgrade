@@ -63,13 +63,9 @@ class EsewaReceipt < ActiveRecord::Base
   end
 
   def save_receipt_transaction
-    receipt_transaction = self.build_receipt_transaction(transaction_id:   SecureRandom.hex(10) + self.id.to_s,
-                                                         transaction_date: Date.today.to_s,
-                                                         request_sent_at:  Time.now,
-                                                         amount:           self.total_amount,
-                                                         bill_ids:         self.bill_ids)
-    unless receipt_transaction.save
-      raise ActiveRecord::RecordInvalid.new(self)
-    end
+    transaction_id = SecureRandom.hex(10) + self.id.to_s
+    transaction_amount = self.total_amount
+    transaction_date = Date.today.to_s
+    ReceiptTransactions::ReceiptTransactionService.new(self, transaction_id, transaction_date, transaction_amount).call
   end
 end
