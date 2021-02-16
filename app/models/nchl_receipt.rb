@@ -16,11 +16,11 @@ class NchlReceipt < ActiveRecord::Base
 
   ########################################
   # Constants
-  PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_receipt_verification_url
-  PAYMENT_URL              = Rails.application.secrets.nchl_receipt_url
-  MERCHANTID               = Rails.application.secrets.nchl_merchant_id
-  APPID                    = Rails.application.secrets.nchl_app_id
-  APPNAME                  = Rails.application.secrets.nchl_app_name
+  PAYMENT_VERIFICATION_URL = Rails.application.secrets.nchl_receipt_verification_url.freeze
+  PAYMENT_URL              = Rails.application.secrets.nchl_receipt_url.freeze
+  MERCHANTID               = Rails.application.secrets.nchl_merchant_id.freeze
+  APPID                    = Rails.application.secrets.nchl_app_id.freeze
+  APPNAME                  = Rails.application.secrets.nchl_app_name.freeze
 
   ########################################
   # Includes
