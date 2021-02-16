@@ -56,7 +56,10 @@ $(document).on("ready page:load", function () {
 
         request.done(function (res) {
             if (res.error) {
-                alert('Your transaction can not be processed right now. Please try again.')
+              Swal.fire({
+                icon: 'error',
+                title: 'Your transaction could not be processed right now. Please try again later.',
+              })
             } else {
                 fillData(res);
                 paymentForm.submit();

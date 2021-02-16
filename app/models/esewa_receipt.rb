@@ -44,7 +44,7 @@ class EsewaReceipt < ActiveRecord::Base
 
   ########################################
   # Attributes
-  attr_accessor :total_amount, :bill_ids, :request_base_url
+  attr_accessor :total_amount, :bill_ids
 
   ########################################
   # Delegations
