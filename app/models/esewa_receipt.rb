@@ -5,6 +5,7 @@
 #  id              :integer          not null, primary key
 #  service_charge  :decimal(, )
 #  delivery_charge :decimal(, )
+#  amount          :decimal(, )
 #  tax_amount      :decimal(, )
 #  success_url     :string
 #  failure_url     :string
@@ -12,6 +13,7 @@
 #  response_amount :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#
 
 class EsewaReceipt < ActiveRecord::Base
 
