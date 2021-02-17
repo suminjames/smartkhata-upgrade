@@ -16,7 +16,7 @@ class ProcessSalesBillService
 
   def process
     fy_code = get_fy_code(@date)
-    value_date = @nepse_settlement.value_date
+    # value_date = @nepse_settlement.value_date
     manual_cheque = false
 
 
@@ -61,6 +61,7 @@ class ProcessSalesBillService
 
     # Voucher chahi aajai create hunu parcha.
     @date = DateTime.now
+    value_date = @date
 
     ActiveRecord::Base.transaction do
 
