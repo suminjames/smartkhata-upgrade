@@ -151,7 +151,7 @@ class Bill < ActiveRecord::Base
                                  :by_date,
                                  :by_date_from,
                                  :by_date_to,
-                                 by_client_nepse_code
+                                 :by_client_nepse_code
                              ]
   )
 
