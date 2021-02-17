@@ -68,7 +68,7 @@ class ReceiptTransaction < ActiveRecord::Base
   end
 
   def set_failure_response
-    self.update(validation_response_received_at: Time.now, status: 'failure')
+    self.update(response_received_at: Time.now, status: 'failure')
   end
 
   def set_validation_response(code)
