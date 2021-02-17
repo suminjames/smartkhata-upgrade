@@ -23,7 +23,6 @@
 #  nepse_settlement_id        :integer
 #  settlement_approval_status :integer          default(0)
 #  closeout_charge            :decimal(15, 4)   default(0.0)
-#  payment_transaction_id     :integer
 #
 
 class Bill < ActiveRecord::Base
@@ -49,7 +48,6 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
-  has_and_belongs_to_many :receipt_transactions
 
   attr_accessor :provisional_base_price
 
@@ -58,7 +56,7 @@ class Bill < ActiveRecord::Base
 
   # callbacks
   before_save :process_bill
-  validates_uniqueness_of :bill_number, :scope => [:fy_code]
+  validates_uniqueness_of :bill_number, :scope => [:fy_code ]
 
 
   # verify this with views everytime before changing
@@ -96,29 +94,27 @@ class Bill < ActiveRecord::Base
   #   end
   # end
 
-  scope :by_branch_id, -> (branch_id) { where(branch_id: branch_id) if branch_id != 0 }
+  scope :by_branch_id, -> (branch_id) {where(branch_id: branch_id) if branch_id !=0}
   # not settled bill will not account provisional bill
   scope :find_not_settled, -> { where(status: [statuses[:pending], statuses[:partial]]) }
   scope :by_bill_type, -> (type) { where(bill_type: bill_types[:"#{type}"]) }
   scope :by_bill_status, -> (status) { where(:status => Bill.statuses[status]) }
-  scope :find_by_date, -> (date) { where(:date => date.beginning_of_day .. date.end_of_day) }
-  scope :find_by_date_range, -> (date_from, date_to) { where(:date => date_from.beginning_of_day .. date_to.end_of_day) }
+  scope :find_by_date, -> (date) { where(:date => date.beginning_of_day..date.end_of_day) }
+  scope :find_by_date_range, -> (date_from, date_to) { where(:date => date_from.beginning_of_day..date_to.end_of_day) }
   scope :by_client_id, -> (id) { where(client_account_id: id) }
+  scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
+  scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
   scope :by_client_nepse_code, lambda { |nepse_code|
     by_client_id(ClientAccount.find_by(nepse_code: nepse_code.upcase)&.id)
   }
-  scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
-  scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
 
   # as these are used for accounting purpose do not consider provisional
   scope :requiring_processing, -> { where(status: ["pending", "partial"]) }
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]).order(date: :asc) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]).order(date: :asc) }
-  scope :with_client_bank_account, -> { includes(:client_account).where.not(:client_accounts => { bank_account: nil }) }
-  scope :with_client_bank_account_and_balance_cr, -> { includes(client_account: :ledger).where.not(:client_accounts => { bank_account: nil }).where('ledgers.closing_blnc < 0').references(:ledger) }
+  scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
+  scope :with_client_bank_account_and_balance_cr, ->{ includes(client_account: :ledger).where.not(:client_accounts => {bank_account: nil}).where('ledgers.closing_blnc < 0').references(:ledger) }
 
-  
-  scope :for_payment_letter_list, -> { with_balance_cr.requiring_processing }
   scope :for_sales_payment_list, ->{ requiring_processing.where('net_amount > 0').order(bill_number: :asc)}
 
   # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
@@ -128,7 +124,7 @@ class Bill < ActiveRecord::Base
   }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    where(:date => date_ad.beginning_of_day .. date_ad.end_of_day)
+    where(:date=> date_ad.beginning_of_day..date_ad.end_of_day)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -144,8 +140,8 @@ class Bill < ActiveRecord::Base
   }
 
   filterrific(
-      default_filter_params: {},
-      available_filters:     [
+      default_filter_params: { },
+      available_filters: [
                                  :sorted_by,
                                  :by_client_id,
                                  :by_bill_number,
@@ -155,7 +151,7 @@ class Bill < ActiveRecord::Base
                                  :by_date,
                                  :by_date_from,
                                  :by_date_to,
-                                 :by_client_nepse_code
+                                 by_client_nepse_code
                              ]
   )
 
@@ -208,6 +204,7 @@ class Bill < ActiveRecord::Base
   def get_net_cgt
     return self.share_transactions.not_cancelled_for_bill.sum(:cgt).round(2);
   end
+
 
 
   # TODO
@@ -263,9 +260,9 @@ class Bill < ActiveRecord::Base
       self.share_transactions << share_transaction
       self.net_amount += share_transaction.net_amount
     end
-    self.date        = date_ad
-    self.bill_type   = :sales
-    self.status      = :provisional
+    self.date = date_ad
+    self.bill_type = :sales
+    self.status = :provisional
     self.bill_number = Bill.new_bill_number(get_fy_code)
     self
   end
@@ -301,10 +298,10 @@ class Bill < ActiveRecord::Base
   # Eg: Takes in 7273-1509, returns 1509
   # Even if no fy_code pre-pended, still returns the actual bill number.
   def self.strip_fy_code_from_full_bill_number(full_bill_number)
-    full_bill_number     ||= ''
+    full_bill_number ||= ''
     full_bill_number_str = full_bill_number.to_s
-    hyphen_index         = full_bill_number_str.index('-') || -1
-    full_bill_number_str[(hyphen_index + 1) .. -1]
+    hyphen_index = full_bill_number_str.index('-') || -1
+    full_bill_number_str[(hyphen_index + 1)..-1]
   end
 
   def requires_processing?
@@ -355,10 +352,9 @@ class Bill < ActiveRecord::Base
   end
 
   private
-
   def process_bill
-    self.date        ||= Time.now
-    self.date_bs     ||= ad_to_bs_string(self.date)
+    self.date ||= Time.now
+    self.date_bs ||= ad_to_bs_string(self.date)
     self.client_name ||= self.client_account.name
   end
 
