@@ -18,7 +18,7 @@ class ReceiptTransactionsController < VisitorsController
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
 
-      if @receipt_transaction.receivable_type == "NchlPayment"
+      if @receipt_transaction.receivable_type == "NchlReceipt"
         @verification_status = nchl_receipt_verification(@receipt_transaction)
       elsif @receipt_transaction.receivable_type == "EsewaReceipt"
         @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)

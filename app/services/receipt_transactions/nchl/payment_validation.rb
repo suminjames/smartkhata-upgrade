@@ -49,7 +49,7 @@ module ReceiptTransactions
 
       def handle_response(response)
         if response.code == '200' && !response.body.empty?
-          process_response_body(JSON.parse(response.body).dig('response') == "SUCCESS")
+          process_response_body(JSON.parse(response.body).dig('status') == "SUCCESS")
         else
           'cannot process'
         end
