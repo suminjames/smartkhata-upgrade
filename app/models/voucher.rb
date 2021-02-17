@@ -30,7 +30,7 @@ class Voucher < ActiveRecord::Base
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit]
+  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit, :receipt_esewa, :receipt_nchl]
   enum voucher_status: [:pending, :complete, :rejected, :reversed]
 
   ########################################

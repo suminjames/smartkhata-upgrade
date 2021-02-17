@@ -353,7 +353,10 @@ class VouchersController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def voucher_params
     permitted_params = params.require(:voucher).permit(:date_bs, :value_date_bs, :voucher_type, :desc, particulars_attributes: [:ledger_id, :description, :amount, :transaction_type, :cheque_number, :additional_bank_id, :branch_id, :bills_selection, :selected_bill_names, :ledger_balance_adjustment, :current_user_id])
+    binding.pry
+
     with_branch_user_params(permitted_params)
+    binding.pry
   end
 
   def set_voucher_general_params
@@ -375,6 +378,7 @@ class VouchersController < ApplicationController
     @voucher_settlement_type = params[:voucher_settlement_type] if params[:voucher_settlement_type].present?
     @group_leader_ledger_id = params[:group_leader_ledger_id].to_i if params[:group_leader_ledger_id].present?
     @vendor_account_id = params[:vendor_account_id].to_i if params[:vendor_account_id].present?
+    binding.pry
   end
 
   # special case for which the ledger balance can be cleared all at once
