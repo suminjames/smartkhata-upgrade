@@ -103,6 +103,7 @@ module ReceiptTransactions
         permitted_params = { "date_bs"                => ad_to_bs(Date.today),
                              "value_date_bs"          => ad_to_bs(Date.today),
                              "desc"                   => "",
+                             "receipt_transaction_id" => @receipt_transaction.id.to_s,
                              "particulars_attributes" =>
                                { "0" => { "ledger_id"        => cash_ledger_id,
                                           "description"      => "",

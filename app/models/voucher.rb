@@ -2,22 +2,24 @@
 #
 # Table name: vouchers
 #
-#  id               :integer          not null, primary key
-#  fy_code          :integer
-#  voucher_number   :integer
-#  date             :date
-#  date_bs          :string
-#  desc             :string
-#  beneficiary_name :string
-#  voucher_type     :integer          default(0)
-#  voucher_status   :integer          default(0)
-#  creator_id       :integer
-#  updater_id       :integer
-#  reviewer_id      :integer
-#  branch_id        :integer
-#  is_payment_bank  :boolean
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id                     :integer          not null, primary key
+#  fy_code                :integer
+#  voucher_number         :integer
+#  date                   :date
+#  date_bs                :string
+#  desc                   :string
+#  beneficiary_name       :string
+#  voucher_type           :integer          default(0)
+#  voucher_status         :integer          default(0)
+#  creator_id             :integer
+#  updater_id             :integer
+#  reviewer_id            :integer
+#  branch_id              :integer
+#  is_payment_bank        :boolean
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  value_date             :date
+#  receipt_transaction_id :integer
 #
 
 class Voucher < ActiveRecord::Base
@@ -47,6 +49,7 @@ class Voucher < ActiveRecord::Base
   has_many :ledgers, :through => :particulars
   has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
+  belongs_to :receipt_transaction
 
   # defunct assumed
   has_many :settlements, dependent: :destroy
