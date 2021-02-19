@@ -1,10 +1,10 @@
 module EsewaReceiptsHelper
   def get_success_url
-    request.base_url + '/receipt_transactions/success/?q=su'
+    'https://smartkhata.tk/receipt_transactions/success/?q=su'
   end
 
   def get_failure_url
-    request.base_url + '/receipt_transactions/failure/?q=fu'
+    'https://smartkhata.tk/receipt_transactions/failure/?q=fu'
   end
 
   def get_esewa_security_code
