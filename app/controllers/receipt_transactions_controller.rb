@@ -1,4 +1,5 @@
 class ReceiptTransactionsController < VisitorsController
+  before_action :get_receipt_transaction, only: [:success, :failure]
 
   def initiate_payment
     all_bills = Bill.includes(:client_account).where(id: params[:bill_ids])
@@ -9,15 +10,11 @@ class ReceiptTransactionsController < VisitorsController
 
     @esewa_receipt_url = EsewaReceipt::PAYMENT_URL
     @nchl_receipt_url  = NchlReceipt::PAYMENT_URL
-
   end
 
   def success
-    params[:TXNID] ? get_receipt_transaction(params[:TXNID]) : get_receipt_transaction(params[:oid])
-
     # this check is to make sure that the verification request is not sent again when the page is reloaded
     # as a previous payment_verification process would already have set the status of the transaction
-    create_voucher
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
       if @receipt_transaction.receivable_type == "NchlReceipt"
@@ -25,17 +22,18 @@ class ReceiptTransactionsController < VisitorsController
       elsif @receipt_transaction.receivable_type == "EsewaReceipt"
         @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)
       end
+      create_voucher if @verification_status
     end
   end
 
   def failure
-    params[:TXNID] ? get_receipt_transaction(params[:TXNID]) : get_receipt_transaction(params[:oid])
     @receipt_transaction.set_failure_response if @receipt_transaction.status.nil?
   end
 
   private
 
-  def get_receipt_transaction(transaction_id)
+  def get_receipt_transaction
+    transaction_id       = params[:TXNID] ? params[:TXNID] : params[:oid]
     @receipt_transaction = ReceiptTransaction.find_by(transaction_id: transaction_id)
   end
 
