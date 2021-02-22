@@ -53,46 +53,23 @@ class ReceiptTransactionsController < VisitorsController
 
   def create_voucher
     voucher_creation = ReceiptTransactions::Vouchers::VoucherCreationService.new(params, selected_branch_id, selected_fy_code, current_tenant).call
-    respond_to do |format|
-      if voucher_creation.process
-
-        @voucher    = voucher_creation.voucher
-        settlements = voucher_creation.settlements
-
-        format.html {
-          if settlements.size > 0 && !@voucher.is_payment_bank?
-            # settlement_ids = settlements.pluck(:id)
-            settlement_ids = settlements.map(&:id)
-            # TODO (Remove this hack to show all the settlements)
-            redirect_to show_multiple_settlements_path(settlement_ids: settlement_ids)
-          else
-            redirect_to @voucher, notice: 'Voucher was successfully created.'
-          end
-        }
-        format.json { render :show, status: :created, location: @voucher }
-      else
-        @voucher = voucher_creation.voucher
-        # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
-        # ledger list financial contains only bank ledgers and cash ledger
-        # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
-        @ledger_list_financial   = voucher_creation.ledger_list_financial
-        @ledger_list_available   = voucher_creation.ledger_list_available
-        @vendor_account_list     = voucher_creation.vendor_account_list
-        @client_ledger_list      = voucher_creation.client_ledger_list
-        @is_payment_receipt      = voucher_creation.is_payment_receipt?(@voucher_type)
-        @voucher_settlement_type = voucher_creation.voucher_settlement_type
-        @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
-        @vendor_account_id       = voucher_creation.vendor_account_id
-
-        if voucher_creation.error_message
-          flash.now[:error] = voucher_creation.error_message
-        end
-        format.html { render :success }
-        format.json { render json: @voucher.errors, status: :unprocessable_entity }
-      end
+    if voucher_creation.process
+      @voucher = voucher_creation.voucher
+    else
+      @voucher = voucher_creation.voucher
+      # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
+      # ledger list financial contains only bank ledgers and cash ledger
+      # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
+      @ledger_list_financial   = voucher_creation.ledger_list_financial
+      @ledger_list_available   = voucher_creation.ledger_list_available
+      @vendor_account_list     = voucher_creation.vendor_account_list
+      @client_ledger_list      = voucher_creation.client_ledger_list
+      @is_payment_receipt      = voucher_creation.is_payment_receipt?(@voucher_type)
+      @voucher_settlement_type = voucher_creation.voucher_settlement_type
+      @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
+      @vendor_account_id       = voucher_creation.vendor_account_id
     end
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = e.message
-    redirect_to :back
   end
 end

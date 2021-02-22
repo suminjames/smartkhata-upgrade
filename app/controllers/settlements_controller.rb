@@ -1,12 +1,8 @@
 class SettlementsController < ApplicationController
-  skip_before_filter :authenticate_user!, only: :show_multiple
-  skip_after_action :verify_authorized, only: :show_multiple
-  skip_before_action :validate_certificate, only: :show_multiple
-
   before_action :set_settlement, only: [:show, :edit, :update, :destroy]
 
   before_action -> {authorize @settlement}, only: [:show, :edit, :update, :destroy]
-  before_action -> {authorize Settlement}, only: [:index, :new, :create]
+  before_action -> {authorize Settlement}, only: [:index, :new, :create, :show_multiple]
 
   # GET /settlements
   # GET /settlements.json
