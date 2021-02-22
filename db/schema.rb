@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210218115950) do
+ActiveRecord::Schema.define(version: 20210222042202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -69,13 +69,15 @@ ActiveRecord::Schema.define(version: 20210218115950) do
     t.boolean  "default_for_receipt"
     t.integer  "creator_id"
     t.integer  "updater_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.integer  "bank_id"
     t.integer  "branch_id"
     t.string   "bank_branch"
     t.text     "address"
     t.string   "contact_no"
+    t.boolean  "default_for_esewa_receipt"
+    t.boolean  "default_for_nchl_receipt"
   end
 
   add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree

@@ -15,7 +15,7 @@ module ReceiptTransactions
         set_voucher_creation_params(params)
 
         #initiating method for new voucher
-        initiate_new_voucher
+        # initiate_new_voucher
       end
 
       def call
@@ -36,7 +36,6 @@ module ReceiptTransactions
                                selected_fy_code:        @selected_fy_code,
                                selected_branch_id:      @selected_branch_id,
                                current_user:            User.last)
-
       end
 
       private
@@ -98,14 +97,20 @@ module ReceiptTransactions
         amount           = @receipt_transaction.amount.to_s
         client_branch_id = client_account.branch_id.to_s
         bill_ids         = @receipt_transaction.bill_ids
-        cash_ledger_id   = Ledger.find_by(name: Ledger::INTERNALLEDGERS[7]).id.to_s
+        # cash_ledger_id   = Ledger.find_by(name: Ledger::INTERNALLEDGERS[7]).id.to_s
+
+        dr_ledger_id = if @receipt_transaction.receivable_type == "NchlReceipt"
+                         BankAccount.by_default_nchl_receipt.ledger.id
+                       elsif @receipt_transaction.receivable_type == "EsewaReceipt"
+                         BankAccount.by_default_esewa_receipt.ledger.id
+                       end
 
         permitted_params = { "date_bs"                => ad_to_bs(Date.today),
                              "value_date_bs"          => ad_to_bs(Date.today),
                              "desc"                   => "",
                              "receipt_transaction_id" => @receipt_transaction.id.to_s,
                              "particulars_attributes" =>
-                               { "0" => { "ledger_id"        => cash_ledger_id,
+                               { "0" => { "ledger_id"        => dr_ledger_id,
                                           "description"      => "",
                                           "amount"           => amount,
                                           "transaction_type" => "dr",

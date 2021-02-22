@@ -130,6 +130,10 @@ class Voucher < ActiveRecord::Base
     self.payment? || self.payment_bank?
   end
 
+  def is_receipt_transaction?
+    self.receipt_esewa? || self.receipt_nchl?
+  end
+
 
   def map_payment_receipt_to_new_types
     if self.receipt? || self.payment?
