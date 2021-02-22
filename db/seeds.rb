@@ -23,7 +23,7 @@ tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, La
     {:email => 'demo@danfeinfotech.com', :password => '12demo09'}, #for the public
 ]
 
-
+@system_user = {:email => 'system@danfeinfotech.com', :password => '12demo09'}
 
 count = 0
 @tenants.each do |t|
@@ -40,6 +40,14 @@ count = 0
       Apartment::Tenant.switch!("public")
       next if User.count > 0
     end
+
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.confirm
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
 
     branch = Branch.create(code: "KTM", address: "Kathmandu")
     admin_user_data = @admin_users[count - 1]
