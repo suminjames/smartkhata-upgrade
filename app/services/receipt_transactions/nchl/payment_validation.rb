@@ -7,7 +7,9 @@ module ReceiptTransactions
 
       def initialize(receipt_transaction)
         @receipt_transaction = receipt_transaction
-        @transaction_amt     = @receipt_transaction.amount
+        # amount is saved as rs in database, but api needs amount to be passed as paisa
+        # so multiplying it by 100
+        @transaction_amt     = @receipt_transaction.amount * 100
         @ref_id              = @receipt_transaction.transaction_id
       end
 

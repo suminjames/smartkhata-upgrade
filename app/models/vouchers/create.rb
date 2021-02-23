@@ -1,4 +1,3 @@
-
 class Vouchers::Create < Vouchers::Base
   attr_reader :settlement, :voucher, :ledger_list_financial, :ledger_list_available, :vendor_account_list, :client_ledger_list, :voucher_settlement_type, :group_leader_ledger_id, :vendor_account_id, :settlements, :selected_fy_code, :selected_branch_id, :current_user, :current_user_id
 
@@ -267,14 +266,16 @@ class Vouchers::Create < Vouchers::Base
     is_payment_receipt = false
     # ledgers need to be pre populated for sales and purchase type
     case voucher_type
-      when Voucher.voucher_types[:receipt],
-          Voucher.voucher_types[:payment],
-          Voucher.voucher_types[:payment_cash],
-          Voucher.voucher_types[:receipt_cash],
-          Voucher.voucher_types[:receipt_bank],
-          Voucher.voucher_types[:payment_bank],
-          Voucher.voucher_types[:receipt_bank_deposit]
-        is_payment_receipt = true
+    when Voucher.voucher_types[:receipt],
+      Voucher.voucher_types[:payment],
+      Voucher.voucher_types[:payment_cash],
+      Voucher.voucher_types[:receipt_cash],
+      Voucher.voucher_types[:receipt_bank],
+      Voucher.voucher_types[:payment_bank],
+      Voucher.voucher_types[:receipt_bank_deposit],
+      Voucher.voucher_types[:receipt_esewa],
+      Voucher.voucher_types[:receipt_nchl]
+      is_payment_receipt = true
     end
     is_payment_receipt
   end
@@ -523,17 +524,20 @@ class Vouchers::Create < Vouchers::Base
 
       # logic to make the voucher comply to new standard
       # splitting the payment and receipt to multiple types
-      if is_payment_receipt && voucher_has_cheque_entry
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_bank]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
-        end
-      elsif is_payment_receipt
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_cash]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+
+      if !voucher.is_receipt_transaction?
+        if is_payment_receipt && voucher_has_cheque_entry
+          if voucher.is_payment?
+            voucher.voucher_type = Voucher.voucher_types[:payment_bank]
+          else
+            voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
+          end
+        elsif is_payment_receipt
+          if voucher.is_payment?
+            voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+          else
+            voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+          end
         end
       end
       # mark the voucher as settled if it is not payment bank
@@ -560,7 +564,7 @@ class Vouchers::Create < Vouchers::Base
 
     # incase of multiple settlement or default take the amount from particular
     if !is_single_settlement
-      if voucher.is_receipt?
+      if voucher.is_receipt? || voucher.is_receipt_transaction?
         receipt_amount += (particular.cr?) ? particular.amount : 0
       elsif voucher.is_payment?
         receipt_amount += (particular.dr?) ? particular.amount : 0
@@ -590,17 +594,17 @@ class Vouchers::Create < Vouchers::Base
       settler_name = ledger.name
     end
     if is_single_settlement
-      settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement_type           = Settlement.settlement_types[:payment]
+      settlement_type           = Settlement.settlement_types[:receipt] if voucher.is_receipt?
+      settlement                = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
-    #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
-    elsif voucher.is_receipt? && particular.cr? || voucher.is_payment? && particular.dr?
-      settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
+      #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
+    elsif voucher.is_receipt? && particular.cr? || voucher.is_payment? && particular.dr? || voucher.is_receipt_transaction? && particular.cr?
+      settlement_type   = Settlement.settlement_types[:payment]
+      settlement_type   = Settlement.settlement_types[:receipt] if voucher.is_receipt? || voucher.is_receipt_transaction?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement        = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       # settlement.client_account = client_account
     end
     settlement

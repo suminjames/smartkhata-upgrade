@@ -1,7 +1,7 @@
 class VisitorBillsController < VisitorsController
   def index
     @filterrific = initialize_filterrific(
-        Bill,
+        Bill.find_not_settled,
         params[:filterrific],
         persistence_id: false
     ) or return

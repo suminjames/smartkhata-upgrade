@@ -75,13 +75,14 @@ class BankAccountsController < ApplicationController
   end
   # Never trust parameters from the scary internet, only allow the white list through.
   def bank_account_params
-    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment ,
-                                         ledger_attributes: [ :group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :current_user_id]])
+    permitted_params = params.require(:bank_account).permit(:bank_id, :address, :bank_branch, :branch_id, :contact_no, :account_number, :default_for_receipt, :default_for_payment,
+                                                            :default_for_esewa_receipt, :default_for_nchl_receipt,
+                                                            ledger_attributes: [:group_id, ledger_balances_attributes: [:opening_balance, :opening_balance_type, :current_user_id]])
     with_branch_user_params(permitted_params)
   end
 
   def bank_account_update_params
-    permitted_update_params = params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment)
+    permitted_update_params = params.require(:bank_account).permit(:account_number, :default_for_receipt, :default_for_payment, :default_for_esewa_receipt, :default_for_nchl_receipt)
     with_branch_user_params(permitted_update_params)
   end
 end

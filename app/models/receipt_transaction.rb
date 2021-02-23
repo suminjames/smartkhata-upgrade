@@ -30,6 +30,7 @@ class ReceiptTransaction < ActiveRecord::Base
   # Relationships
   belongs_to :receivable, polymorphic: true
   has_and_belongs_to_many :bills
+  has_one :voucher
 
   ########################################
   # Callbacks

@@ -2,22 +2,24 @@
 #
 # Table name: vouchers
 #
-#  id               :integer          not null, primary key
-#  fy_code          :integer
-#  voucher_number   :integer
-#  date             :date
-#  date_bs          :string
-#  desc             :string
-#  beneficiary_name :string
-#  voucher_type     :integer          default(0)
-#  voucher_status   :integer          default(0)
-#  creator_id       :integer
-#  updater_id       :integer
-#  reviewer_id      :integer
-#  branch_id        :integer
-#  is_payment_bank  :boolean
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id                     :integer          not null, primary key
+#  fy_code                :integer
+#  voucher_number         :integer
+#  date                   :date
+#  date_bs                :string
+#  desc                   :string
+#  beneficiary_name       :string
+#  voucher_type           :integer          default(0)
+#  voucher_status         :integer          default(0)
+#  creator_id             :integer
+#  updater_id             :integer
+#  reviewer_id            :integer
+#  branch_id              :integer
+#  is_payment_bank        :boolean
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  value_date             :date
+#  receipt_transaction_id :integer
 #
 
 class Voucher < ActiveRecord::Base
@@ -30,7 +32,7 @@ class Voucher < ActiveRecord::Base
 
   # purchase and sales kept as per the accounting norm
   # however voucher types will be represented as payment and receive
-  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit]
+  enum voucher_type: [:journal, :payment, :receipt, :contra, :payment_cash, :receipt_cash, :payment_bank, :receipt_bank, :receipt_bank_deposit, :receipt_esewa, :receipt_nchl]
   enum voucher_status: [:pending, :complete, :rejected, :reversed]
 
   ########################################
@@ -47,6 +49,7 @@ class Voucher < ActiveRecord::Base
   has_many :ledgers, :through => :particulars
   has_many :cheque_entries, :through => :particulars
   accepts_nested_attributes_for :particulars
+  belongs_to :receipt_transaction
 
   # defunct assumed
   has_many :settlements, dependent: :destroy
@@ -125,6 +128,10 @@ class Voucher < ActiveRecord::Base
 
   def is_bank_related_payment?
     self.payment? || self.payment_bank?
+  end
+
+  def is_receipt_transaction?
+    self.receipt_esewa? || self.receipt_nchl?
   end
 
 

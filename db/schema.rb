@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210212050742) do
+ActiveRecord::Schema.define(version: 20210222042202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -69,13 +69,15 @@ ActiveRecord::Schema.define(version: 20210212050742) do
     t.boolean  "default_for_receipt"
     t.integer  "creator_id"
     t.integer  "updater_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.integer  "bank_id"
     t.integer  "branch_id"
     t.string   "bank_branch"
     t.text     "address"
     t.string   "contact_no"
+    t.boolean  "default_for_esewa_receipt"
+    t.boolean  "default_for_nchl_receipt"
   end
 
   add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
@@ -1852,22 +1854,24 @@ ActiveRecord::Schema.define(version: 20210212050742) do
     t.string   "date_bs"
     t.string   "desc"
     t.string   "beneficiary_name"
-    t.integer  "voucher_type",     default: 0
-    t.integer  "voucher_status",   default: 0
+    t.integer  "voucher_type",           default: 0
+    t.integer  "voucher_status",         default: 0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "reviewer_id"
     t.integer  "branch_id"
     t.boolean  "is_payment_bank"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.date     "value_date"
+    t.integer  "receipt_transaction_id"
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree
   add_index "vouchers", ["creator_id"], name: "index_vouchers_on_creator_id", using: :btree
   add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree
   add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
+  add_index "vouchers", ["receipt_transaction_id"], name: "index_vouchers_on_receipt_transaction_id", using: :btree
   add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
@@ -1901,4 +1905,5 @@ ActiveRecord::Schema.define(version: 20210212050742) do
   add_foreign_key "settlements", "vouchers"
   add_foreign_key "sms_messages", "transaction_messages"
   add_foreign_key "transaction_messages", "client_accounts"
+  add_foreign_key "vouchers", "receipt_transactions"
 end
