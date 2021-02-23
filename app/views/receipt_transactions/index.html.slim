@@ -1,0 +1,54 @@
+- provide(:section_title, 'Receipt Transactions')
+
+table.table.table-striped
+  thead
+    tr
+      th S.N.
+      th Amount
+      th Txn Id
+      th Status
+      th
+        | Request Sent At /
+        br
+        | Response Received At
+      th
+        | Verification Req Sent At /
+        br
+        | Verification Res Received At
+      th Actions
+  tbody
+    - @receipt_transactions.each.with_index(1) do |receipt_transaction, index|
+      tr
+        td = index
+        td = receipt_transaction.amount
+        td = receipt_transaction.transaction_id
+        td
+          - if receipt_transaction.failure?
+            = "Failure"
+            br
+            = "(#{receipt_transaction.validation_response_code})"
+          - elsif receipt_transaction.fraudulent?
+            = "Fraudulent"
+            br
+            - if receipt_transaction.response_amount
+              = "Response Amount: #{receipt_transaction.response_amount}"
+          - else
+            = receipt_transaction.status
+        td
+          = to_ktm_timezone(receipt_transaction.request_sent_at).strftime('%Y/%m/%d %H:%M') rescue ''
+          br
+          = to_ktm_timezone(receipt_transaction.response_received_at).strftime('%Y/%m/%d %H:%M') rescue ''
+        td
+          = to_ktm_timezone(receipt_transaction.validation_request_sent_at).strftime('%Y/%m/%d %H:%M') rescue ''
+          br
+          = to_ktm_timezone(receipt_transaction.validation_response_received_at).strftime('%Y/%m/%d %H:%M') rescue ''
+        td
+          = link_to 'Destroy', receipt_transaction, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: 'btn btn-sm btn-danger'
+          - unless receipt_transaction.success?
+            = link_to 'Verify', verify_receipt_transaction_path(receipt_transaction), method: :put, class: 'btn btn-sm btn-primary verify-receipt-transaction-btn'
+
+
+scss:
+  .verify-receipt-transaction-btn {
+    margin-left: 4px;
+  }

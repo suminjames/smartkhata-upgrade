@@ -1,4 +1,8 @@
 class ReceiptTransactionsController < VisitorsController
+  def index
+    @receipt_transactions = ReceiptTransaction.includes(:receivable).order(created_at: :desc)
+  end
+
   def initiate_payment
     all_bills = Bill.includes(:client_account).where(id: params[:bill_ids])
 
@@ -29,6 +33,24 @@ class ReceiptTransactionsController < VisitorsController
   def failure
     params[:TXNID] ? get_receipt_transaction(params[:TXNID]) : get_receipt_transaction(params[:oid])
     @receipt_transaction.set_failure_response if @receipt_transaction.status.nil?
+  end
+
+  def verify
+    @receipt_transaction = ReceiptTransaction.find(params[:id])
+    status               = if receipt_transaction.receivable_type == 'EsewaReceipt'
+                             ReceiptTransactions::Esewa::TransactionVerificationService.new(@receipt_transaction.receivable).call
+                           else
+                             ReceiptTransactions::Nchl::PaymentValidation.new(@receipt_transaction).validate
+                           end
+    if status == 'cannot process'
+      flash[:error] = 'Cannot Process Verification'
+    elsif status == true
+      @receipt_transaction.success!
+      flash[:notice] = 'Verification Successful'
+    elsif status == false
+      flash[:error] = 'The transaction was marked as fraudulent'
+    end
+    redirect_to(:back)
   end
 
   private
