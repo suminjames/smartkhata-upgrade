@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     end
     member do
       put :verify
+      get :show_voucher
     end
   end
 

@@ -2,7 +2,16 @@ class ReceiptTransactionsController < VisitorsController
   before_action :get_receipt_transaction, only: [:success, :failure]
 
   def index
-    @receipt_transactions = ReceiptTransaction.includes(:receivable).order(created_at: :desc)
+    @receipt_transactions = ReceiptTransaction.order(created_at: :desc)
+  end
+
+  def show_voucher
+    @settlement = ReceiptTransaction.find(params[:id]).voucher.payment_receipts.last
+    respond_to do |format|
+      format.js {
+        render 'settlements/show'
+      }
+    end
   end
 
   def initiate_payment
@@ -36,7 +45,7 @@ class ReceiptTransactionsController < VisitorsController
 
   def verify
     @receipt_transaction = ReceiptTransaction.find(params[:id])
-    status               = if receipt_transaction.receivable_type == 'EsewaReceipt'
+    status               = if @receipt_transaction.receivable_type == 'EsewaReceipt'
                              ReceiptTransactions::Esewa::TransactionVerificationService.new(@receipt_transaction.receivable).call
                            else
                              ReceiptTransactions::Nchl::PaymentValidation.new(@receipt_transaction).validate
