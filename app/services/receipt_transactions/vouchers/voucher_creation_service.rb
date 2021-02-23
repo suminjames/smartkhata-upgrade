@@ -81,7 +81,7 @@ module ReceiptTransactions
 
       def with_branch_user_params_receipt_transaction(permitted_params, assign_branch = true)
         branch_id          = branch_id_for_entry(permitted_params[:branch_id])
-        _additional_params = {}
+        _additional_params = { current_user_id: User.sys_admin.first.id }
         _additional_params.merge!({ branch_id: branch_id }) if assign_branch
         permitted_params.merge!(_additional_params)
       end
