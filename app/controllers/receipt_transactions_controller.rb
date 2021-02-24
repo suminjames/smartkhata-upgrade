@@ -35,7 +35,7 @@ class ReceiptTransactionsController < VisitorsController
       elsif @receipt_transaction.receivable_type == "EsewaReceipt"
         @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)
       end
-      create_voucher if @verification_status
+      create_voucher(params) if @verification_status
     end
   end
 
@@ -45,15 +45,19 @@ class ReceiptTransactionsController < VisitorsController
 
   def verify
     @receipt_transaction = ReceiptTransaction.find(params[:id])
+    params               = {}
     status               = if @receipt_transaction.receivable_type == 'EsewaReceipt'
+                             params[:oid] = @receipt_transaction.transaction_id
                              ReceiptTransactions::Esewa::TransactionVerificationService.new(@receipt_transaction.receivable).call
                            else
+                             params[:TXNID] = @receipt_transaction.transaction_id
                              ReceiptTransactions::Nchl::PaymentValidation.new(@receipt_transaction).validate
                            end
     if status == 'cannot process'
       flash[:error] = 'Cannot Process Verification'
     elsif status == true
       @receipt_transaction.success!
+      create_voucher(params)
       flash[:notice] = 'Verification Successful'
     elsif status == false
       flash[:error] = 'The transaction was marked as fraudulent'
@@ -82,7 +86,7 @@ class ReceiptTransactionsController < VisitorsController
     ReceiptTransactions::Esewa::TransactionVerificationService.new(esewa_receipt).call
   end
 
-  def create_voucher
+  def create_voucher(params)
     voucher_creation = ReceiptTransactions::Vouchers::VoucherCreationService.new(params, selected_branch_id, selected_fy_code, current_tenant).call
     if voucher_creation.process
       @voucher = voucher_creation.voucher
