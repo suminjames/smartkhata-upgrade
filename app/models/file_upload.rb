@@ -23,6 +23,8 @@ class FileUpload < ApplicationRecord
   after_save :patch_particulars
 
   def patch_particulars
-    FloorsheetValueDateJob.perform_later(report_date.to_s, value_date.to_s) if persisted? && value_date_changed?
+    if persisted? && value_date_changed?
+      FloorsheetValueDateJob.perform_later(report_date.to_s, value_date.to_s)
+    end
   end
 end

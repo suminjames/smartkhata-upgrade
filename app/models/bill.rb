@@ -107,8 +107,9 @@ class Bill < ApplicationRecord
   scope :with_client_bank_account, -> { includes(:client_account).where.not(client_accounts: { bank_account: nil }) }
   scope :with_client_bank_account_and_balance_cr, -> { includes(client_account: :ledger).where.not(client_accounts: { bank_account: nil }).where('ledgers.closing_blnc < 0').references(:ledger) }
 
-  scope :for_sales_payment_list, -> { with_balance_cr.requiring_processing }
-  scope :for_payment_letter_list, -> { with_balance_cr.requiring_processing }
+  # scope :for_sales_payment_list, -> { with_balance_cr.requiring_processing }
+  # scope :for_payment_letter_list, -> { with_balance_cr.requiring_processing }
+  # scope :for_sales_payment_list, ->{ requiring_processing.where('net_amount > 0').order(bill_number: :asc)}
 
   # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :by_bill_number, lambda { |number|
