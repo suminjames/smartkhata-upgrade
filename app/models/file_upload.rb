@@ -19,6 +19,7 @@ class FileUpload < ApplicationRecord
 
   # resorted to nomenclature 'orders' instead of 'order', as order is a Active Record reserved keyword
   enum file_type: { unknown: 0, floorsheet: 1, dpa5: 2, orders: 3 }
+  enum status: { processed: 0, processing: 1, errored: 2 }
 
   after_save :patch_particulars
 
