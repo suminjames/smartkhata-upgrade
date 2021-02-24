@@ -27,6 +27,7 @@ class ClientAccountsController < ApplicationController
     else
       @client_accounts = @filterrific.find.order(:name).page(params[:page]).per(items_per_page)
     end
+
     @download_path_xlsx = client_accounts_path(params.permit(:format).merge({format: 'xlsx'}))
     @download_path_pdf = client_accounts_path(params.permit(:format).merge({format: 'pdf'}))
 

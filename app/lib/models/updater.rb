@@ -14,7 +14,7 @@ module Models::Updater
   private
 
   def set_updater
-    self.updater_id = current_user_id
+    self.updater_id = current_user_id if current_user_id.present?
   end
 
   def set_creator

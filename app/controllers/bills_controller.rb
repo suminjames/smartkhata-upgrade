@@ -45,8 +45,8 @@ class BillsController < ApplicationController
       @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).page(params[:page]).per(20).decorate
     end
 
-    @download_path_xlsx = bills_path({format:'xlsx'}.merge params)
-    @download_path_pdf = bills_path({format:'pdf'}.merge params)
+    @download_path_xlsx = bills_path(params.permit(:format).merge({format: 'xlsx'}))
+    @download_path_pdf = bills_path(params.permit(:format).merge({format: 'pdf'}))
 
     respond_to do |format|
       format.html

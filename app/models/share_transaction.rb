@@ -51,8 +51,8 @@ class ShareTransaction < ApplicationRecord
   extend CustomDateModule
 
   include ::Models::UpdaterWithBranch
-  belongs_to :bill
-  belongs_to :voucher
+  belongs_to :bill, optional: true
+  belongs_to :voucher, optional: true
   belongs_to :isin_info
   belongs_to :client_account
   belongs_to :nepse_chalan, optional: true

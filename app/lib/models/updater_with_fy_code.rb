@@ -20,7 +20,7 @@ module Models::UpdaterWithFyCode
   private
 
   def set_updater
-    self.updater_id = current_user_id
+    self.updater_id = current_user_id if current_user_id.present?
     self.ledger_balances.each do |ledger_balance|
       ledger_balance.assign_attributes(updater_id: current_user_id)
     end

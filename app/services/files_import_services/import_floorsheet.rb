@@ -163,7 +163,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       end
       generate_vouchers
 
-      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id, value_date: value_date)
+      FileUpload.create!(file_type: FILETYPE, report_date: @date, current_user_id: @acting_user.id, value_date: @value_date)
     end
   end
 
@@ -371,7 +371,7 @@ class FilesImportServices::ImportFloorsheet < ImportFile
       transactions = bill.share_transactions.includes(:isin_info).group(:isin_info_id).weighted_average(:share_rate)
 
       date_of_transaction = @date || bill.date
-      bill_value_date = value_date || tplus3(date_of_transaction)
+      bill_value_date = @value_date || tplus2(date_of_transaction)
 
       description = transactions.map do |st|
         "#{st.quantity}*#{st.isin_info.isin}@#{st.wa_share_rate.round(2)}"
