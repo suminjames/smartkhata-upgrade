@@ -32,8 +32,8 @@ table.table.table-striped.text-center
           - elsif receipt_transaction.fraudulent?
             = "Fraudulent"
             br
-            - if receipt_transaction.response_amount
-              = "Response Amount: #{receipt_transaction.response_amount}"
+            - if receipt_transaction.receivable.response_amount
+              = "Response Amount: #{receipt_transaction.receivable.response_amount}"
           - else
             = receipt_transaction.status
         td
