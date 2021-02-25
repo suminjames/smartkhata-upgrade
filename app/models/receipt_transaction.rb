@@ -34,6 +34,7 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Callbacks
+  before_validation :set_transaction_amount_cents, :set_transaction_amount, if: :self.nchl?
 
   ########################################
   # Validations
@@ -43,7 +44,6 @@ class ReceiptTransaction < ActiveRecord::Base
   ########################################
   # Enums
   enum status: { success: 0, failure: 1, fraudulent: 2 }
-
 
   ########################################
   # Scopes
@@ -74,5 +74,21 @@ class ReceiptTransaction < ActiveRecord::Base
 
   def set_validation_response(code)
     self.update(validation_response_code: code, validation_response_received_at: Time.now)
+  end
+
+  def nchl?
+    self.receivable_type == "NchlReceipt"
+  end
+
+  def esewa?
+    self.receivable_type == "EsewaReceipt"
+  end
+
+  def set_transaction_amount
+    amount = (transaction_amount_cents || 1) / 100
+  end
+
+  def set_transaction_amount_cents
+    transaction_amount_cents = amount
   end
 end

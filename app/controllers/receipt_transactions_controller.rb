@@ -1,5 +1,5 @@
 class ReceiptTransactionsController < VisitorsController
-  before_action :get_receipt_transaction, only: [:success, :failure]
+  before_action :set_receipt_transaction, only: [:success, :failure]
 
   def initiate_payment
     all_bills = Bill.includes(:client_account).where(id: params[:bill_ids])
@@ -17,9 +17,9 @@ class ReceiptTransactionsController < VisitorsController
     # as a previous payment_verification process would already have set the status of the transaction
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
-      if @receipt_transaction.receivable_type == "NchlReceipt"
+      if @receipt_transaction.nchl?
         @verification_status = nchl_receipt_verification(@receipt_transaction)
-      elsif @receipt_transaction.receivable_type == "EsewaReceipt"
+      elsif @receipt_transaction.esewa?
         @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)
       end
       create_voucher if @verification_status
@@ -32,8 +32,8 @@ class ReceiptTransactionsController < VisitorsController
 
   private
 
-  def get_receipt_transaction
-    transaction_id       = params[:TXNID] ? params[:TXNID] : params[:oid]
+  def set_receipt_transaction
+    transaction_id       = params[:TXNID].presence || params[:oid]
     @receipt_transaction = ReceiptTransaction.find_by(transaction_id: transaction_id)
   end
 
@@ -56,18 +56,7 @@ class ReceiptTransactionsController < VisitorsController
     if voucher_creation.process
       @voucher = voucher_creation.voucher
     else
-      @voucher = voucher_creation.voucher
-      # ledger list and is purchase sales is required for the extra section to show up for payment and receipt case
-      # ledger list financial contains only bank ledgers and cash ledger
-      # ledger list no banks contains all ledgers except banks (to avoid bank transfers using voucher)
-      @ledger_list_financial   = voucher_creation.ledger_list_financial
-      @ledger_list_available   = voucher_creation.ledger_list_available
-      @vendor_account_list     = voucher_creation.vendor_account_list
-      @client_ledger_list      = voucher_creation.client_ledger_list
-      @is_payment_receipt      = voucher_creation.is_payment_receipt?(@voucher_type)
-      @voucher_settlement_type = voucher_creation.voucher_settlement_type
-      @group_leader_ledger_id  = voucher_creation.group_leader_ledger_id
-      @vendor_account_id       = voucher_creation.vendor_account_id
+      @verification_status = "cannot process voucher"
     end
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = e.message

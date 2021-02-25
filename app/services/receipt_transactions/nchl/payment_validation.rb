@@ -7,9 +7,7 @@ module ReceiptTransactions
 
       def initialize(receipt_transaction)
         @receipt_transaction = receipt_transaction
-        # amount is saved as rs in database, but api needs amount to be passed as paisa
-        # so multiplying it by 100
-        @transaction_amt     = @receipt_transaction.amount * 100
+        @transaction_amt     = @receipt_transaction.transaction_amount_cents
         @ref_id              = @receipt_transaction.transaction_id
       end
 
@@ -53,7 +51,7 @@ module ReceiptTransactions
         if response.code == '200' && !response.body.empty?
           process_response_body(JSON.parse(response.body).dig('status') == "SUCCESS")
         else
-          'cannot process'
+          'cannot process verification'
         end
       end
 

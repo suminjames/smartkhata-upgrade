@@ -55,9 +55,7 @@ class NchlReceipt < ActiveRecord::Base
 
   def save_receipt_transaction
     transaction_id = self.transaction_id
-    # here we are getting amount as paisa cause connect ips api needs amount to be passed as paisa
-    # so converting it into rs while saving into database
-    transaction_amount = (self.amount.to_i / 100).to_s
+    transaction_amount = self.amount
     transaction_date = self.transaction_date
     ReceiptTransactions::ReceiptTransactionService.new(self, transaction_id, transaction_date, transaction_amount).call
   end
