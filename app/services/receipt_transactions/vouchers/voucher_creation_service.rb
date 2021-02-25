@@ -20,7 +20,8 @@ module ReceiptTransactions
                                tenant_full_name:        @current_tenant.full_name,
                                selected_fy_code:        @selected_fy_code,
                                selected_branch_id:      @selected_branch_id,
-                               current_user:            User.sys_admin&.first&.id)
+                               current_user:            User.sys_admin.first)
+
       end
 
       private

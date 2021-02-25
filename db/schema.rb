@@ -1322,6 +1322,7 @@ ActiveRecord::Schema.define(version: 20210222042202) do
 
   create_table "receipt_transactions", force: :cascade do |t|
     t.decimal  "amount"
+    t.decimal  "transaction_amount_cents"
     t.integer  "status"
     t.string   "transaction_id"
     t.datetime "request_sent_at"
