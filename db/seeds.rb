@@ -41,14 +41,6 @@ count = 0
       next if User.count > 0
     end
 
-    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
-      user.password = @system_user[:password]
-      user.password_confirmation = @system_user[:password]
-      user.confirm
-      user.sys_admin!
-    end
-    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
-
     branch = Branch.create(code: "KTM", address: "Kathmandu")
     admin_user_data = @admin_users[count - 1]
     new_user = User.find_or_create_by!(email: admin_user_data[:email]) do |user|
@@ -59,6 +51,16 @@ count = 0
       user.admin!
     end
     puts 'CREATED ADMIN USER: ' << new_user.email  if verbose
+
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.branch_id = branch.id
+      user.confirm
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
+
     UserSession.user = new_user
 
     Group.create!([
