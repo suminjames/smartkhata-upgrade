@@ -1,19 +1,19 @@
-- error_message = "<p>Your support id is: #{@receipt_transaction.transaction.id}</p><p>Please contact the administrator</p>"
-h4
-  - if @verification_status == 'cannot process verification'
-    | Your payment was successfully completed. But we could not verify the transaction.
-    == error_message
-
-  - elsif @verification_status == "cannot process voucher"
-    | Your payment was successfully completed. But we could not generate a voucher.
-    == error_message
-
-  - elsif @verification_status
-    | Your payment was successfully completed.
-    = render 'settlements/show', settlement: @receipt_transaction.voucher.payment_receipts.first
-
-  - else
-    | Your payment was successfully completed but verification failed.
-    == error_message
+- error_message = "<p>Your support id is: #{@receipt_transaction.transaction_id}</p><p>Please contact the administrator</p>"
+- if @verification_status == 'cannot process verification'
+  h4
+    b Your payment was successfully completed. But we could not verify the transaction.
+  == error_message
+- elsif @verification_status == "cannot process voucher"
+  h4
+    b Your payment was successfully completed. But we could not generate a voucher.
+  == error_message
+- elsif @verification_status
+  h4
+    b Your payment was successfully completed.
+  = render 'settlements/show', settlement: @receipt_transaction.voucher.payment_receipts.first
+- else
+  h4
+    b Your payment was successfully completed but verification failed.
+  == error_message
 
 h5 = link_to 'Go Back', visitor_bills_path

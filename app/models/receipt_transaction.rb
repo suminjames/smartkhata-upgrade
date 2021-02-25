@@ -34,7 +34,7 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Callbacks
-  before_validation :set_transaction_amount_cents, :set_transaction_amount, if: :self.nchl?
+  before_validation :set_transaction_amount_cents, :set_transaction_amount, if: :nchl?, on: :create
 
   ########################################
   # Validations
@@ -85,10 +85,10 @@ class ReceiptTransaction < ActiveRecord::Base
   end
 
   def set_transaction_amount
-    amount = (transaction_amount_cents || 1) / 100
+    self.amount = (self.transaction_amount_cents || 1) / 100
   end
 
   def set_transaction_amount_cents
-    transaction_amount_cents = amount
+    self.transaction_amount_cents = self.amount
   end
 end
