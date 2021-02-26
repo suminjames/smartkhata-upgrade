@@ -10,7 +10,7 @@ RSpec.describe ChequeEntries::BounceActivity do
   let(:branch){ create(:branch) }
   let(:bank){create(:bank)}
   let(:bank_account) { create(:bank_account, bank: bank, branch: branch) }
-  let(:ledger){ create(:ledger) }
+  let(:ledger){ create(:ledger, branch_id: branch.id) }
   let(:additional_bank) { create(:bank) }
   let(:voucher) { create(:voucher, branch: branch) }
   subject { create(:receipt_cheque_entry, bank_account: bank_account, additional_bank: additional_bank) }
@@ -56,6 +56,7 @@ RSpec.describe ChequeEntries::BounceActivity do
   it "should bounce the cheque for voucher with single cheque entry and bill with full amount" do
     cheque_entry             = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: cheque_date_ad, branch_id: branch.id, additional_bank: additional_bank, bank: bank)
     cheque_entry.cheque_date = cheque_date_ad
+
     dr_particular = create(:bank_particular, voucher: voucher, amount: 5000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
     cr_particular = create(:credit_particular_non_bank, voucher: voucher, amount: 5000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
     client_account_a = create(:client_account, ledger: cr_particular.ledger, branch: branch)
@@ -79,8 +80,8 @@ RSpec.describe ChequeEntries::BounceActivity do
   it "should bounce the cheque for voucher with single cheque entry and bill with partial amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 4000, cheque_date: cheque_date_ad, branch_id: branch.id, additional_bank: additional_bank, bank: bank)
 
-    dr_particular = create(:bank_particular, voucher: voucher, amount: 4000)
-    cr_particular = create(:credit_particular_non_bank, voucher: voucher, amount: 4000)
+    dr_particular = create(:bank_particular, voucher: voucher, amount: 4000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
+    cr_particular = create(:credit_particular_non_bank, voucher: voucher, amount: 4000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
     client_account_a = create(:client_account, ledger: cr_particular.ledger)
     bill_a = create(:purchase_bill, client_account: client_account_a, net_amount: 5000, balance_to_pay: 0)
 
@@ -103,8 +104,8 @@ RSpec.describe ChequeEntries::BounceActivity do
   it "should bounce the cheque for voucher with single cheque entry and bills with full amount" do
     cheque_entry = create(:receipt_cheque_entry, status: :approved, amount: 5000, cheque_date: cheque_date_ad, branch_id: branch.id, bank_account: bank_account, additional_bank: additional_bank)
 
-    dr_particular = create(:bank_particular, voucher: voucher, amount: 5000, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
-    cr_particular = create(:credit_particular_non_bank, voucher: voucher, amount: 5000, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)
+    dr_particular = create(:bank_particular, voucher: voucher, amount: 5000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days, branch_id: branch.id)
+    cr_particular = create(:credit_particular_non_bank, voucher: voucher, amount: 5000, ledger: ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days, branch_id: branch.id)
     client_account_a = create(:client_account, ledger: cr_particular.ledger)
     bill_a = create(:purchase_bill, client_account: client_account_a, net_amount: 3000, balance_to_pay: 0)
     bill_b = create(:purchase_bill, client_account: client_account_a, net_amount: 2000, balance_to_pay: 0)
