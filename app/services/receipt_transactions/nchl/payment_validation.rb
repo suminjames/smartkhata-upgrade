@@ -51,7 +51,7 @@ module ReceiptTransactions
         if response.code == '200' && !response.body.empty?
           process_response_body(JSON.parse(response.body).dig('status') == "SUCCESS")
         else
-          'cannot process verification'
+          @receipt_transaction.unprocessed_verification!
         end
       end
 

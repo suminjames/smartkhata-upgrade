@@ -41,7 +41,7 @@ module ReceiptTransactions
           hashed_response = Hash.from_xml(response.body.gsub("\n", ""))
           process_response_body(hashed_response.dig('response', 'response_code')=='Success')
         else
-          'cannot process verification'
+          @receipt_transaction.unprocessed_verification!
         end
       end
 

@@ -18,11 +18,11 @@ class ReceiptTransactionsController < VisitorsController
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
       if @receipt_transaction.nchl?
-        @verification_status = nchl_receipt_verification(@receipt_transaction)
+        nchl_receipt_verification(@receipt_transaction)
       elsif @receipt_transaction.esewa?
-        @verification_status = esewa_receipt_verification(@receipt_transaction.receivable)
+        esewa_receipt_verification(@receipt_transaction.receivable)
       end
-      create_voucher if @verification_status
+      create_voucher if @receipt_transaction.success?
     end
   end
 
@@ -56,7 +56,7 @@ class ReceiptTransactionsController < VisitorsController
     if voucher_creation.process
       @voucher = voucher_creation.voucher
     else
-      @verification_status = "cannot process voucher"
+      @receipt_transaction.unprocessed_voucher!
     end
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = e.message

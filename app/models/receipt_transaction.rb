@@ -43,7 +43,7 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Enums
-  enum status: { success: 0, failure: 1, fraudulent: 2 }
+  enum status: { success: 0, failure: 1, fraudulent: 2, unprocessed_verification: 3, unprocessed_voucher: 4 }
 
   ########################################
   # Scopes

@@ -1,13 +1,13 @@
 - error_message = "<p>Your support id is: #{@receipt_transaction.transaction_id}</p><p>Please contact the administrator</p>"
-- if @verification_status == 'cannot process verification'
+- if @receipt_transaction.unprocessed_verification?
   h4
     b Your payment was successfully completed. But we could not verify the transaction.
   == error_message
-- elsif @verification_status == "cannot process voucher"
+- elsif @receipt_transaction.unprocessed_voucher?
   h4
     b Your payment was successfully completed. But we could not generate a voucher.
   == error_message
-- elsif @verification_status
+- elsif @receipt_transaction.success?
   h4
     b Your payment was successfully completed.
   = render 'settlements/show', settlement: @receipt_transaction.voucher.payment_receipts.first
