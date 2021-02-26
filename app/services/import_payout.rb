@@ -137,7 +137,7 @@ class ImportPayout < ImportFile
             transaction.quantity = transaction.raw_quantity - shortage_quantity
           end
           if shortage_quantity > 0 && transaction.deleted_at.nil?
-            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, true)
+            update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user.id, true)
           end
 
           # net amount is the amount that is payble to the client after charges
@@ -170,9 +170,15 @@ class ImportPayout < ImportFile
         # that track the file uploads for different settlement
         settlement_ids.each do |settlement_id|
           if multiple_settlement_ids_allowed
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id).id
+            nepse_sale_settlement = NepseSaleSettlement.find_or_initialize_by(settlement_id: settlement_id)
+            nepse_sale_settlement.current_user_id = @current_user.id
+            nepse_sale_settlement.save
+            @nepse_settlement_ids << nepse_sale_settlement.id
           else
-            @nepse_settlement_ids << NepseSaleSettlement.find_or_create_by!(settlement_id: settlement_id,  value_date: @nepse_settlement_date, settlement_date: @nepse_settlement_date).id
+            nepse_sale_settlement = NepseSaleSettlement.find_or_initialize_by(settlement_id: settlement_id,  value_date: @nepse_settlement_date, settlement_date: @nepse_settlement_date)
+            nepse_sale_settlement.current_user_id = @current_user.id
+            nepse_sale_settlement.save
+            @nepse_settlement_ids << nepse_sale_settlement.id
           end
 
         end
