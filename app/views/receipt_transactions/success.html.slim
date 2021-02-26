@@ -9,7 +9,7 @@
   == error_message
 - elsif @receipt_transaction.success?
   h4
-    b Your payment was successfully completed.
+    b Your payment was successfully completed. An email has been sent with attached voucher.
   = render 'settlements/show', settlement: @receipt_transaction.voucher.payment_receipts.first
 - else
   h4
