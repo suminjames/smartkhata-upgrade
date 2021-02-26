@@ -98,13 +98,13 @@ class SmartkhataMailer < ApplicationMailer
     @client_account = receipt_transaction.bills.last.client_account
 
     email = @client_account.email
-    subject = "Your voucher from #{@current_tenant.full_name}"
+    subject = "Your receipt from #{@current_tenant.full_name}"
 
     @settlement = receipt_transaction.voucher.payment_receipts.first
 
     settlement_pdf = Print::PrintSettlement.new(@settlement.decorate, @current_tenant)
     settlement_pdf.call
-    attachments["Settlement_#{@settlement.date_bs}_#{@settlement.settlement_number}.pdf"] = settlement_pdf.render
+    attachments["Receipt_#{@settlement.date_bs}_#{@settlement.settlement_number}.pdf"] = settlement_pdf.render
 
     mail(
       from: sender,
