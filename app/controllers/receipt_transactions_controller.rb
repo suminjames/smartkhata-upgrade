@@ -55,6 +55,7 @@ class ReceiptTransactionsController < VisitorsController
     voucher_creation = ReceiptTransactions::Vouchers::VoucherCreationService.new(params, selected_branch_id, selected_fy_code, current_tenant).call
     if voucher_creation.process
       @voucher = voucher_creation.voucher
+      SmartkhataMailer.delay(:retry => false).voucher_creation_email_to_client(@receipt_transaction.id,current_tenant.id)
     else
       @receipt_transaction.unprocessed_voucher!
     end
