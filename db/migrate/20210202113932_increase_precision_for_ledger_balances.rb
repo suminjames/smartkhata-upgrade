@@ -1,4 +1,4 @@
-class IncreasePrecisionForLedgerBalances < ActiveRecord::Migration
+class IncreasePrecisionForLedgerBalances < ActiveRecord::Migration[4.2]
   def change
     change_column :ledger_balances, :opening_balance, :decimal, :precision => 15, :scale => 2
     change_column :ledger_balances, :closing_balance, :decimal, :precision => 15, :scale => 2

@@ -85,20 +85,20 @@ class ClientAccount < ApplicationRecord
   has_many :share_inventories
   has_many :bills
   belongs_to :branch
-
   has_many :order_requests
 
   ########################################
   # Callbacks
 
+  # https://www.fastruby.io/blog/rails/upgrades/active-record-5-1-api-changes
   # before_validation is heirarchically called before before_save
-  before_validation :format_nepse_code, if: :nepse_code_changed?
-  before_validation :check_client_branch, if: :branch_id_changed?
+  before_validation :format_nepse_code, if: :saved_change_to_nepse_code?
+  before_validation :check_client_branch, if: :saved_change_to_branch_id?
   before_save :format_name, if: :name_changed?
   after_save :move_particulars
   after_create :create_ledger
-  after_update :change_ledger_name, if: :name_changed?
-  after_update :change_ledger_code, if: :nepse_code_changed?
+  after_update :change_ledger_name, if: :saved_change_to_name?
+  after_update :change_ledger_code, if: :saved_change_to_nepse_code?
   ########################################
   # Validations
   # Too many fields present. Validate accordingly!
@@ -191,11 +191,11 @@ class ClientAccount < ApplicationRecord
   )
 
   def change_ledger_name
-    self.ledger.update(name: self.name)
+    self.ledger.update(name: self.name, current_user_id: current_user_id)
   end
 
   def change_ledger_code
-    self.ledger.update(client_code: self.nepse_code)
+    self.ledger.update(client_code: self.nepse_code, current_user_id: current_user_id)
   end
 
   def format_nepse_code

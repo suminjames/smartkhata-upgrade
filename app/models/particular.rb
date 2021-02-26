@@ -38,14 +38,14 @@ class Particular < ApplicationRecord
   belongs_to :voucher
   delegate :bills, :to => :voucher, :allow_nil => true
 
-  has_and_belongs_to_many :settlements
+  # has_and_belongs_to_many :settlements
   has_many :for_dr, -> { dr }, class_name: "ParticularSettlementAssociation"
   has_many :for_cr, -> { cr }, class_name: "ParticularSettlementAssociation"
   has_many :particular_settlement_associations, dependent: :destroy
+  has_many :settlements, through: :particular_settlement_associations
 
   has_many :debit_settlements, through: :for_dr, source: :settlement
   has_many :credit_settlements, through: :for_cr, source: :settlement
-  has_many :settlements, through: :particular_settlement_associations
 
   attr_accessor :running_total, :bills_selection, :selected_bill_names, :clear_ledger, :ledger_balance_adjustment, :reverse_transaction
 
@@ -84,7 +84,7 @@ class Particular < ApplicationRecord
   has_one :bank_payment_letter
 
 
-  validates_presence_of :ledger_id
+  # validates_presence_of :ledger_id
   validate :value_date_latest_than_date
 
   enum transaction_type: [:dr, :cr]
@@ -103,7 +103,6 @@ class Particular < ApplicationRecord
 
   after_commit :calculate_ledger_dailies
   after_commit :recalculate_interest
-
 
   def calculate_ledger_dailies
     date_changes = saved_changes["transaction_date"]

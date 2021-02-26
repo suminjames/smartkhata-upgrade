@@ -26,8 +26,8 @@ class TransactionMessage < ApplicationRecord
   belongs_to :client_account
 
   has_many :share_transactions
-  enum sms_status: [:sms_unsent, :sms_queued, :sms_sent]
-  enum email_status: [:email_unsent, :email_queued, :email_sent]
+  enum sms_status: { sms_unsent: 0, sms_queued: 1, sms_sent: 2 }
+  enum email_status: { email_unsent: 0, email_queued: 1, email_sent: 2 }
 
   scope :not_cancelled, -> { where(deleted_at: nil) }
   scope :cancelled, -> { where.not(deleted_at: nil) }
@@ -42,19 +42,19 @@ class TransactionMessage < ApplicationRecord
   end
 
   filterrific(
-      default_filter_params: { sorted_by: 'id_desc' },
-      available_filters: [
-          :sorted_by,
-          :by_date,
-          :by_date_from,
-          :by_date_to,
-          :by_client_id,
-      ]
+    default_filter_params: { sorted_by: 'id_desc' },
+    available_filters: %i[
+      sorted_by
+      by_date
+      by_date_from
+      by_date_to
+      by_client_id
+    ]
   )
 
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
-    includes(:client_account, :bill).select("client_accounts.*, bills.*").references([:client_accounts, :bills]).where(:transaction_date => date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
+    includes(:client_account, :bill).select("client_accounts.*, bills.*").references(%i[client_accounts bills]).where(transaction_date: date_ad.beginning_of_day..date_ad.end_of_day).order(id: :desc)
   }
   scope :by_date_from, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -65,32 +65,32 @@ class TransactionMessage < ApplicationRecord
     where('transaction_date <= ?', date_ad.end_of_day).order(id: :desc)
   }
 
-  scope :by_client_id, -> (id) { where(client_account_id: id).order(id: :desc) }
+  scope :by_client_id, ->(id) { where(client_account_id: id).order(id: :desc) }
 
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
       when /^id/
-        order("transaction_messages.id #{ direction }")
+        order("transaction_messages.id #{direction}")
       else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+        raise(ArgumentError, "Invalid sort option: #{sort_option.inspect}")
     end
   }
 
-  scope :by_branch, ->(branch_id) do
-    includes(:client_account).where(client_accounts: {branch_id: branch_id}) unless branch_id == 0
-  end
+  scope :by_branch, lambda { |branch_id|
+    includes(:client_account).where(client_accounts: { branch_id: branch_id }) unless branch_id.zero?
+  }
 
   def self.latest_transaction_date
     self.maximum("transaction_date")
   end
 
   def can_email?
-    return self.client_account.email.present?
+    self.client_account.email.present?
   end
 
   def can_sms?
-    return self.client_account.messageable_phone_number.present?
+    self.client_account.messageable_phone_number.present?
   end
 
   def increase_sent_email_count!
@@ -102,5 +102,4 @@ class TransactionMessage < ApplicationRecord
     self.sent_sms_count += 1
     self.save
   end
-
 end

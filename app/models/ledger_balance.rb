@@ -62,7 +62,6 @@ class LedgerBalance < ApplicationRecord
       elsif self.opening_balance_changed?
         self.closing_balance = (self.opening_balance - self.opening_balance_was) + self.closing_balance
       end
-
     end
   end
 
@@ -82,6 +81,7 @@ class LedgerBalance < ApplicationRecord
     LedgerBalance.new(branch_id: params[:branch_id], opening_balance_type: params[:opening_balance_type], opening_balance: params[:opening_balance])
   end
 
+  # Doubtful method because of branch id in ledgerbalance creation
   def self.update_or_create_org_balance(ledger_id, fy_code, current_user_id)
     set_current_user = lambda { |l| l.current_user_id = current_user_id }
     ledger_balance_org = LedgerBalance.unscoped.by_fy_code(fy_code).find_or_create_by!(ledger_id: ledger_id, branch_id: nil, &set_current_user)

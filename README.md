@@ -27,7 +27,11 @@ Next, execute
 
 `rake demo:populate_client_accounts[demo]`
 
-###Uploading floorsheet
+### Fetching listed Companies
+
+`rake fetch_companies['demo']`
+
+### Uploading floorsheet
 
 Visit `http://demo.lvh.me:3000/files/floorsheets/new`
 

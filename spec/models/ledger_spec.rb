@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Ledger, type: :model do
-  subject{build(:ledger, group: group) }
+  subject{build(:ledger, group: group, current_user_id: user.id) }
+  let(:user){ create(:user) }
   let(:group){ create(:group) }
   include_context 'session_setup'
 
@@ -175,8 +176,8 @@ RSpec.describe Ledger, type: :model do
 
   # this needs to be fixed
   describe ".particulars_with_running_balance" do
-    let(:particular1){create(:particular, amount: 1000)}
-    let(:particular2){create(:particular, amount: 3000)}
+    let(:particular1){create(:particular, amount: 1000, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+    let(:particular2){create(:particular, amount: 1000, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
     it "should return particulars with running balance" do
       ledger = create(:ledger)
       # particular1

@@ -37,7 +37,6 @@ class IsinInfo < ApplicationRecord
       ]
   )
 
-
   def commission_group
     return :debenture if sector == 'Corporate Debenture'
     return :mutual_funds if sector == 'Mutual Fund'

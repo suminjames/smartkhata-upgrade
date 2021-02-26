@@ -41,9 +41,11 @@ class ImportFile
     end
   end
 
-  def import_error(message)
+  def import_error(message, log_error_to_db =  false)
     @error_message = message
-    log_error_file
+    log_error_file if log_error_to_db
+    # needed for early break
+    true
   end
 
 

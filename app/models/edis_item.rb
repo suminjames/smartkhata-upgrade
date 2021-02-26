@@ -23,7 +23,7 @@ class EdisItem < ApplicationRecord
 
   delegate :settlement_id, to: :sales_settlement, allow_nil: true
   # before_validation :set_default_reason_code
-  before_save :change_status, if: :data_changed?
+  before_save :change_status, if: :saved_change_to_data?
 
   after_update :split_record, if: :valid_for_split?
 

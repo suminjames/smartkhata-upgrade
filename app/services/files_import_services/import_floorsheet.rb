@@ -63,7 +63,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
     #
 
     if FileUpload.processing.where(file_type: FILETYPE, report_date: @date).where('created_at > ?', Time.current - 10.minutes).exists?
-      import_error("The file is being processed. Try again after few minutes") and return
+      import_error("The file is being processed. Try again after few minutes", true) and return
     end
 
 
@@ -173,17 +173,21 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
         end
         generate_vouchers
         # the file should exist already
-        file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
+        file = FileUpload.find_by(file_type: FILETYPE, report_date: @date)
         file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 0)
       end
     rescue => e
       log_error_file
+      ExceptionNotifier.notify_exception(
+        e,
+        data: { message: 'import floorsheet exception was caught' }
+      )
     end
   end
 
   def log_error_file
     file = FileUpload.processing.find_by(file_type: FILETYPE, report_date: @date)
-    file.update!(current_user_id: @acting_user.id, value_date: value_date, status: 2)
+    file&.update(current_user_id: @acting_user.id, value_date: value_date, status: 2)
   end
 
   # rawdata =[
@@ -390,7 +394,7 @@ class FilesImportServices::ImportFloorsheet  < ImportFile
       transactions = bill.share_transactions.includes(:isin_info).group(:isin_info_id).weighted_average(:share_rate)
 
       date_of_transaction = @date || bill.date
-      bill_value_date = value_date || tplus3(date_of_transaction)
+      bill_value_date = @value_date || tplus2(date_of_transaction)
 
       description = transactions.map do |st|
         "#{st.quantity}*#{st.isin_info.isin}@#{st.wa_share_rate.round(2)}"

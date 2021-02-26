@@ -45,8 +45,8 @@ class BillsController < ApplicationController
       @bills = @filterrific.find.order(bill_number: :asc).includes(:client_account, :share_transactions, :isin_infos).page(params[:page]).per(20).decorate
     end
 
-    @download_path_xlsx = bills_path({format:'xlsx'}.merge params)
-    @download_path_pdf = bills_path({format:'pdf'}.merge params)
+    @download_path_xlsx = bills_path(params.permit(:format).merge({format: 'xlsx'}))
+    @download_path_pdf = bills_path(params.permit(:format).merge({format: 'pdf'}))
 
     respond_to do |format|
       format.html
@@ -152,7 +152,7 @@ class BillsController < ApplicationController
   # GET /bills/1.json
   def show
     @from_path = request.referer
-    @bill = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).find(params[:id])
+    @bill = Bill.by_branch_id(selected_branch_id).includes(:share_transactions => :isin_info).find_by(id: params[:id])
     authorize @bill
     @bill = @bill.decorate
     @has_voucher_pending_approval = false
@@ -338,7 +338,8 @@ class BillsController < ApplicationController
     # @bill = Bill.find(params[:id])
     # Used 'find_by_id' instead of 'find' to as the former returns nil if the object with the id not found
     # The bang operator '!' after find_by_id raises an error and halts the script
-    @bill = Bill.by_branch_id(selected_branch_id).find_by_id!(params[:id]).decorate
+    @bill = Bill.by_branch_id(selected_branch_id).find_by_id(params[:id])&.decorate
+    redirect_to bills_path if @bill.blank?
   end
 
   def authorize_bill

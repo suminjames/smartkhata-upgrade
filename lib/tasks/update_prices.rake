@@ -1,5 +1,5 @@
   desc "Update Prices"
-task :update_isin_prices => :environment do
+task :update_isin_prices, [:tenant] => 'smartkhata:validate_tenant' do |task, args|
   # TODO: Scrape individual pages and find the last traded price of each isin. Currently, scraping of the last traded price of companies that had trading in the last day is only done.
 
   require 'nokogiri'

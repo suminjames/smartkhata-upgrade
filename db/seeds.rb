@@ -68,7 +68,7 @@ count = 0
                      {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}
                  ], Group, current_user_id)
 
-    group = general_klass_setup({name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}, Group, current_user_id)
+    group = general_klass_setup([{name: "Reserve & Surplus", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities']}], Group, current_user_id)
     general_klass_setup([
                     { name: "Profit & Loss Account", for_trial_balance: true},
                     {name: "General Reserve"},
@@ -79,7 +79,7 @@ count = 0
                     {name: "Indirect Income", report: Group.reports['PNL'], sub_report: Group.sub_reports['Income'], for_trial_balance: true},
                     { name: "Direct Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true},
                     {name: "Indirect Expense", report: Group.reports['PNL'], sub_report: Group.sub_reports['Expense'], for_trial_balance: true}
-                  ], Group, current_user_id,  { parent_id: group.id })
+                  ], Group, current_user_id,  { parent_id: group.first&.id })
 
     group = Group.find_by(name: "Direct Income")
     general_klass_setup([
@@ -87,39 +87,40 @@ count = 0
                    {name: "Sales Commission" }
                  ], Ledger, current_user_id, { group_id: group.id })
 
-    group = general_klass_setup({name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    group = general_klass_setup([{name: "Loan", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}], Group, current_user_id)
     general_klass_setup([
                    { name: "Secured Loan"},
                    {name: "Unsecured Loan"}
-                 ], Group, current_user_id, { parent_id: group.id })
+                 ], Group, current_user_id, { parent_id: group.first&.id })
 
-    group = general_klass_setup({name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}, Group, current_user_id)
+    group = general_klass_setup([{name: "Current Liabilities", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true}], Group, current_user_id)
     general_klass_setup([
                    { name: "Duties & Taxes"},
                    {name: "Sundry Creditors"},
                    {name: "Account Payables"}
-                 ], Group, current_user_id, { parent_id: group.id })
+                 ], Group, current_user_id, { parent_id: group.first&.id })
     general_klass_setup([
                    {name: "DP Fee/ Transfer"},
                    {name: "Nepse Purchase"},
                    {name: "Nepse Sales"},
                    {name: "Clearing Account"},
                    {name: 'Compliance Fee'}
-                 ], Ledger, current_user_id, { group_id: group.id })
+                 ], Ledger, current_user_id, { group_id: group.first&.id })
     
-    group = general_klass_setup({name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}, Group, current_user_id)
+    group = general_klass_setup([{name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}], Group, current_user_id)
     general_klass_setup([
                    { name: "Advances and Receivables"},
                    {name: "Sundry Debtors"},
                    {name: "Account Receivables"},
                    {name: "Clients"},
                    {name: "Clearing Account"}
-                 ], Group, current_user_id, { parent_id: group.id })
+                 ], Group, current_user_id, { parent_id: group.first&.id })
     general_klass_setup([
                    {name: "TDS"},
                    {name: "Cash"},
-                   {name: 'Close Out'}
-                 ], Ledger, current_user_id, { group_id: group.id })
+                   {name: 'Close Out'},
+                   {name: "Rounding Off Difference"}
+                 ], Ledger, current_user_id, { group_id: group.first&.id })
 
     general_klass_setup([{name: "Nepal Investment Pvt. Ltd", bank_code: "NIBL"},{name: "Global IME ", bank_code: "GIME"}, {name: "Nabil Bank Ltd", bank_code:'NBL'}], Bank, current_user_id)
 

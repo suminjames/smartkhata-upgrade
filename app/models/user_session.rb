@@ -20,11 +20,7 @@ class UserSession
     #   user.employee_acount.present? ? user.employee_acount.name : 'asdf'
     # end
 
-    attr_writer :selected_fy_code
-
-    attr_writer :selected_branch_id
-
-    attr_writer :tenant
+    attr_writer :selected_fy_code, :selected_branch_id, :tenant
 
     # def branch_id
     #   user.branch_id

@@ -152,6 +152,7 @@ class Ledgers::ParticularEntry
     ledger_blnc_org.save!
     ledger_blnc_cost_center.save!
 
+    ledger.current_user_id = current_user_id
     ledger.save!
   end
 end

@@ -68,7 +68,7 @@ class ChequeEntry < ApplicationRecord
   has_many :vouchers, through: :particulars
 
   # validate foreign key: ensures that the bank account exists
-  validates :bank_account, presence: true, unless: :additional_bank_id?
+  # validates :bank_account, presence: true, unless: :additional_bank_id?
   validates :cheque_number, presence: true, uniqueness: { scope: %i[additional_bank_id bank_account_id cheque_issued_type], message: "should be unique" }
   validates :cheque_number, numericality: { only_integer: true, greater_than: 0 }, unless: :skip_cheque_number_validation
 
@@ -133,7 +133,6 @@ class ChequeEntry < ApplicationRecord
   }
 
   scope :by_beneficiary_name, ->(name) { where("beneficiary_name ILIKE ?", "%#{name}%") }
-
   scope :by_bank_account_id, ->(id) { where(bank_account_id: id) }
   scope :by_cheque_entry_status, lambda { |status|
     if status == 'assigned'
