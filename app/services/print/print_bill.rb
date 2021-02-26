@@ -114,6 +114,7 @@ class Print::PrintBill < Prawn::Document
   end
 
   def calculation_section
+    start_new_page if cursor < 100
     row_cursor = cursor
     bounding_box([0, row_cursor], :width => col(6)) do
       tr_data = [
@@ -171,7 +172,7 @@ class Print::PrintBill < Prawn::Document
       end
 
       data << th_data
-      @bill.formatted_share_transactions.each do |formatted_share_transaction|
+      @bill.formatted_share_transactions[0..50].each do |formatted_share_transaction|
         row_data = [
             formatted_share_transaction[:contract_no],
             formatted_share_transaction[:raw_quantity],
