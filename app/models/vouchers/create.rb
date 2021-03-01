@@ -520,8 +520,8 @@ class Vouchers::Create < Vouchers::Base
         end
       end
 
-      logic to make the voucher comply to new standard
-      splitting the payment and receipt to multiple types
+      # logic to make the voucher comply to new standard
+      # splitting the payment and receipt to multiple types
       if is_payment_receipt && voucher_has_cheque_entry
         if voucher.is_payment?
           voucher.voucher_type = Voucher.voucher_types[:payment_bank]
