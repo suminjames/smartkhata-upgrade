@@ -3,6 +3,7 @@ class ShareInventoryJob < ActiveJob::Base
 
   queue_as :default
   def perform(client_id, isin_info_id, quantity, current_user_id, is_incremented, is_deal_cancelled)
+    UserSession.set_console('demo')
     update_share_inventory(client_id, isin_info_id, quantity, current_user_id, is_incremented, is_deal_cancelled)
   end
 end
