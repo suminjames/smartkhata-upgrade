@@ -200,6 +200,7 @@ var calendarFunctions = {};
             var bsYear = adYear + 57,
                 bsMonth = (adMonth + 9) % 12,
                 bsDate = 1;
+            bsMonth = bsMonth === 0 ? 12 : bsMonth;
             if (adMonth < 4) bsYear -= 1;
             else if (4 === adMonth) {
                 var bsYearFirstAdDate = calendarFunctions.getAdDateByBsDate(bsYear, 1, 1);
