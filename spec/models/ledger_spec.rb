@@ -147,16 +147,16 @@ RSpec.describe Ledger, type: :model do
       context "and params is present" do
         it "should update ledger balance for org" do
           ledger = create(:ledger)
-          create(:ledger_balance, branch_id: 2, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
-          ledger_balance = create(:ledger_balance, branch_id: 1, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
-          create(:ledger_balance, branch_id: nil, opening_balance: "10000", current_user_id: User.first.id, ledger: ledger)
+          ledger.ledger_balances << build(:ledger_balance, branch_id: 2, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
+          ledger_balance = build(:ledger_balance, branch_id: 1, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
+          ledger.ledger_balances << ledger_balance
+          ledger.ledger_balances << build(:ledger_balance, branch_id: nil, opening_balance: "10000", current_user_id: User.first.id, ledger: ledger)
 
           params = {"ledger_balances_attributes"=>{"0"=>{"opening_balance"=>"6000.0", "opening_balance_type"=>"dr", "branch_id"=>"1", "id"=> ledger_balance.id }}}
 
           expect { ledger.save_custom(params, 7374, @branch.id) }.to change {LedgerBalance.unscoped.count }.by(0)
           # edit on individual balance should update org balance too
           # org balance has branch id nil
-          # binding.pry
           expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(11000)
           expect(LedgerBalance.unscoped.where(branch_id: 1, ledger_id: ledger.reload.id).first.closing_balance).to eq(6000)
         end
@@ -312,7 +312,8 @@ RSpec.describe Ledger, type: :model do
 
       # fix this, see how it is defined on the model
       context "when bank account id is present" do
-        let(:bank_account){create(:bank_account)}
+        let(:bank){create(:bank)}
+        let(:bank_account){create(:bank_account, bank: bank)}
         it "should return attributes for bank account" do
           bank_account
           expect(Ledger.find_similar_to_term("Ba", nil)).to eq([{:text=>"Bank:#{bank_account.bank.name}(#{bank_account.account_number}) (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
@@ -358,14 +359,15 @@ RSpec.describe Ledger, type: :model do
         it "should return name and identifier for client account" do
           subject
           client_account
-          expect(subject.name_and_identifier).to eq("Ledger (CODE)")
+          expect(subject.name_and_identifier).to eq("Ledger (code)")
         end
       end
     end
 
     context "when bank account id is present" do
       subject{build(:ledger)}
-      let(:bank_account){create(:bank_account, ledger: subject)}
+      let(:bank){create(:bank)}
+      let(:bank_account){create(:bank_account, ledger: subject, bank: bank)}
       it "should return name and identifier for bank account" do
         subject
         bank_account
@@ -405,8 +407,8 @@ RSpec.describe Ledger, type: :model do
 
   describe ".delete_associated_records" do
     subject{create(:ledger)}
-    let(:ledger_balance){create(:ledger_balance)}
-    let(:ledger_daily){create(:ledger_daily, date: Date.today)}
+    let(:ledger_balance){create(:ledger_balance, ledger: subject)}
+    let(:ledger_daily){create(:ledger_daily, date: Date.today, ledger: subject)}
     it "should delete ledger balance" do
       subject
       subject.ledger_balances << ledger_balance

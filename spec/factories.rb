@@ -190,6 +190,9 @@ FactoryBot.define do
 
   factory :settlement do
     date_bs { "2074/03/05" }
+    current_user_id { User.first&.id || create(:user).id }
+    creator_id { User.first&.id || create(:user).id }
+    updater_id { User.first&.id || create(:user).id }
   end
 
   factory :branch_permission do
