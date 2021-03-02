@@ -147,16 +147,16 @@ RSpec.describe Ledger, type: :model do
       context "and params is present" do
         it "should update ledger balance for org" do
           ledger = create(:ledger)
-          ledger.ledger_balances << create(:ledger_balance, branch_id: 2, opening_balance: "5000", current_user_id: User.first.id)
-          ledger_balance = create(:ledger_balance, branch_id: 1, opening_balance: "5000", current_user_id: User.first.id)
-          ledger.ledger_balances << ledger_balance
-          ledger.ledger_balances << create(:ledger_balance, branch_id: nil, opening_balance: "10000", current_user_id: User.first.id)
+          create(:ledger_balance, branch_id: 2, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
+          ledger_balance = create(:ledger_balance, branch_id: 1, opening_balance: "5000", current_user_id: User.first.id, ledger: ledger)
+          create(:ledger_balance, branch_id: nil, opening_balance: "10000", current_user_id: User.first.id, ledger: ledger)
 
           params = {"ledger_balances_attributes"=>{"0"=>{"opening_balance"=>"6000.0", "opening_balance_type"=>"dr", "branch_id"=>"1", "id"=> ledger_balance.id }}}
 
           expect { ledger.save_custom(params, 7374, @branch.id) }.to change {LedgerBalance.unscoped.count }.by(0)
           # edit on individual balance should update org balance too
           # org balance has branch id nil
+          # binding.pry
           expect(LedgerBalance.unscoped.where(branch_id: nil, ledger_id: ledger.reload.id).first.closing_balance).to eq(11000)
           expect(LedgerBalance.unscoped.where(branch_id: 1, ledger_id: ledger.reload.id).first.closing_balance).to eq(6000)
         end

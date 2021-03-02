@@ -8,7 +8,7 @@ RSpec.describe EmployeeLedgerAssociation, type: :model do
 		let(:branch) { create(:branch) }
     let(:ledger){ create(:ledger) }
     let(:user){ create(:user) }
-		subject { EmployeeLedgerAssociation.new(employee_account: employee_account, ledger: ledger) }
+		subject { EmployeeLedgerAssociation.new(employee_account: employee_account, ledger: ledger, creator_id: user.id, updater_id: user.id) }
 
     it "should destroy all previous associations" do
       subject.save

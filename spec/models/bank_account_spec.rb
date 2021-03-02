@@ -65,7 +65,7 @@ RSpec.describe BankAccount, type: :model do
     let(:group) { create(:group, name: "Current Assets") }
     it "should get group id" do
       group
-      expect(subject.get_current_assets_group).to eq(14)
+      expect(subject.get_current_assets_group).to eq(group.id)
     end
   end
 

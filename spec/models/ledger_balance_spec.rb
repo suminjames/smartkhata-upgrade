@@ -80,7 +80,7 @@ RSpec.describe LedgerBalance, type: :model do
     let(:ledger) { create(:ledger) }
     let(:another_branch){ create(:branch)}
     let(:yet_another_branch){ create(:branch)}
-    subject(:ledger_balance) { create(:ledger_balance, ledger: ledger, branch: branch) }
+    subject(:ledger_balance) { create(:ledger_balance_org, ledger: ledger) }
     let(:ledger_balance1) { create(:ledger_balance, ledger: ledger, opening_balance: 2000, branch: another_branch) }
     let(:ledger_balance2) { create(:ledger_balance, ledger: ledger, opening_balance: 1000, branch: yet_another_branch) }
     context "when org balance is not present" do
