@@ -44,7 +44,7 @@ RSpec.describe Settlement, type: :model do
 
   		context "when settlement is present" do
         let(:voucher) {create(:voucher)}
-        subject{create(:settlement, branch_id: 1, settlement_type: 0, date_bs: "2074-03-05", fy_code: 7374, voucher: voucher)}
+				subject{create(:settlement, branch_id: @branch.id, settlement_type: 0, date_bs: "2074-03-05", fy_code: 7374, voucher: voucher)}
   			it "should get new settlement number" do
           expect(Settlement.new_settlement_number("7374",subject.branch_id,subject.settlement_type)).to eq(2)
   			end
@@ -53,7 +53,7 @@ RSpec.describe Settlement, type: :model do
 
   	describe ".assign_settlement_number" do
 			let(:voucher) {create(:voucher)}
-			subject{create(:settlement, fy_code: "7374", branch_id:1, settlement_type: 0,date_bs: "2074-03-05", voucher: voucher)}
+			subject{create(:settlement, fy_code: "7374", branch_id: @branch.id, settlement_type: 0,date_bs: "2074-03-05", voucher: voucher)}
   		it "should assign settlement number" do
   			allow(Settlement).to receive(:new_settlement_number).and_return(2)
   			# subject.assign_settlement_number // cannot call private method error produced by it

@@ -220,7 +220,7 @@ RSpec.describe Ledger, type: :model do
     context "when session branch is branch office" do
       it "should return closing balance" do
         subject
-        create(:ledger_balance, ledger: subject, fy_code: 7374, branch_id: 1, opening_balance: 3000)
+        create(:ledger_balance, ledger: subject, fy_code: 7374, branch_id: @branch.id, opening_balance: 3000)
         expect(subject.closing_balance(7374, @branch.id)).to eq(3000)
       end
     end
@@ -313,7 +313,7 @@ RSpec.describe Ledger, type: :model do
       # fix this, see how it is defined on the model
       context "when bank account id is present" do
         let(:bank){create(:bank)}
-        let(:bank_account){create(:bank_account, bank: bank)}
+        let(:bank_account){ create(:bank_account, bank: bank, branch: @branch)}
         it "should return attributes for bank account" do
           bank_account
           expect(Ledger.find_similar_to_term("Ba", nil)).to eq([{:text=>"Bank:#{bank_account.bank.name}(#{bank_account.account_number}) (**Bank Account**)", :id=>"#{bank_account.ledger.id}"}])
@@ -321,7 +321,7 @@ RSpec.describe Ledger, type: :model do
       end
 
       context "when employee account id is present" do
-        let(:employee_account){create(:employee_account, name: "john")}
+        let(:employee_account){create(:employee_account, name: "john", branch: @branch)}
         subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
         it "should return attributes for employee account" do
           employee_account
@@ -367,7 +367,7 @@ RSpec.describe Ledger, type: :model do
     context "when bank account id is present" do
       subject{build(:ledger)}
       let(:bank){create(:bank)}
-      let(:bank_account){create(:bank_account, ledger: subject, bank: bank)}
+      let(:bank_account){create(:bank_account, ledger: subject, bank: bank, branch: @branch)}
       it "should return name and identifier for bank account" do
         subject
         bank_account
@@ -376,7 +376,7 @@ RSpec.describe Ledger, type: :model do
     end
 
     context "when employee account id is present" do
-      let(:employee_account){create(:employee_account, name: "john")}
+      let(:employee_account){create(:employee_account, name: "john", branch: @branch)}
       subject{create(:ledger, name: "ledger1", employee_account_id: employee_account.id)}
       it "should return name and identifier for employee account" do
         employee_account

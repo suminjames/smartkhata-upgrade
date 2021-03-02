@@ -1,8 +1,5 @@
 shared_context 'session_setup' do
-  # in every example, new branch was created when used @branch.id is called
-  # so removing before with before(:all), such that only once it will be called for
-  # all example
-  before(:all) do
+  before do
     @branch = create(:branch)
     @fy_code = 7374
     Ledger.find_or_create_by(name: "Cash")
