@@ -4,9 +4,9 @@ module ReceiptTransactions
   module Esewa
     class TransactionVerificationService
 
-      def initialize(esewa_receipt)
-        @esewa_receipt = esewa_receipt
-        @receipt_transaction = @esewa_receipt.receipt_transaction
+      def initialize(receipt_transaction)
+        @receipt_transaction = receipt_transaction
+        @esewa_receipt = @receipt_transaction.receivable
       end
 
       def call
