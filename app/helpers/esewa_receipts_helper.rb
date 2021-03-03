@@ -16,7 +16,7 @@ module EsewaReceiptsHelper
   end
 
   def get_base_url
-    Rails.env.production? ? request.base_url+'/receipt_transactions/' : 'https://smartkhata.tk/receipt_transactions/'
+    Rails.application.secrets.epay_redirection_url+'/receipt_transactions/'
   end
 
   def get_total_amount payment
