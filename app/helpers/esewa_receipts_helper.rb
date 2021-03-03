@@ -1,10 +1,10 @@
 module EsewaReceiptsHelper
   def get_success_url
-    request.base_url + '/receipt_transactions/success/?q=su'
+    get_base_url + 'success/?q=su'
   end
 
   def get_failure_url
-    request.base_url + '/receipt_transactions/failure/?q=fu'
+    get_base_url + 'failure/?q=fu'
   end
 
   def get_esewa_security_code
@@ -13,6 +13,10 @@ module EsewaReceiptsHelper
 
   def zero_if_nil(amt)
     amt || 0
+  end
+
+  def get_base_url
+    Rails.env.production? ? request.base_url+'/receipt_transactions/' : 'https://smartkhata.tk/receipt_transactions/'
   end
 
   def get_total_amount payment

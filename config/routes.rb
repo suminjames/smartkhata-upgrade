@@ -18,11 +18,15 @@ Rails.application.routes.draw do
 
   resources :esewa_receipts
 
-  resources :receipt_transactions do
+  resources :receipt_transactions, only: [:index, :destroy] do
     collection do
       get :initiate_payment
       get :success
       get :failure
+    end
+    member do
+      put :verify
+      get :show_voucher
     end
   end
 

@@ -63,6 +63,15 @@ count = 0
 
     UserSession.user = new_user
 
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.confirm
+      user.branch = Branch.first
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
+
     Group.create!([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},
                      {name: "Fixed Assets", report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}])
