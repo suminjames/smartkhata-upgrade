@@ -1,10 +1,6 @@
 class EsewaReceiptsController < VisitorsController
   include EsewaReceiptsHelper
 
-  def index
-    @esewa_receipts = EsewaReceipt.all
-  end
-
   def create
     @esewa_receipt = EsewaReceipt.new(esewa_receipt_params.merge(success_url: get_success_url, failure_url: get_failure_url))
 
