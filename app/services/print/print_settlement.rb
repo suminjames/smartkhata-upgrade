@@ -128,6 +128,7 @@ class Print::PrintSettlement < Prawn::Document
       end
     end
 
+    end
   end
 
   def settlement_no_row

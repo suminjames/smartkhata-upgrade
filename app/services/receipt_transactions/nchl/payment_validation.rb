@@ -7,7 +7,7 @@ module ReceiptTransactions
 
       def initialize(receipt_transaction)
         @receipt_transaction = receipt_transaction
-        @transaction_amt     = @receipt_transaction.transaction_amount_cents
+        @transaction_amt     = @receipt_transaction.amount * 100
         @ref_id              = @receipt_transaction.transaction_id
       end
 

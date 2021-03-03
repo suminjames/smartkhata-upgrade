@@ -34,7 +34,6 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Callbacks
-  before_validation :set_transaction_amount_cents, :set_transaction_amount, if: :nchl?, on: :create
 
   ########################################
   # Validations
@@ -82,13 +81,5 @@ class ReceiptTransaction < ActiveRecord::Base
 
   def esewa?
     self.receivable_type == "EsewaReceipt"
-  end
-
-  def set_transaction_amount
-    self.amount = (self.transaction_amount_cents || 1) / 100
-  end
-
-  def set_transaction_amount_cents
-    self.transaction_amount_cents = self.amount
   end
 end

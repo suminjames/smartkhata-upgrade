@@ -2,7 +2,6 @@ class CreateReceiptTransactions < ActiveRecord::Migration
   def change
     create_table :receipt_transactions do |t|
       t.decimal :amount
-      t.decimal :transaction_amount_cents
       t.integer :status
       t.string :transaction_id, unique: true
       t.datetime :request_sent_at

@@ -52,10 +52,13 @@ class NchlReceipt < ActiveRecord::Base
 
   ########################################
   # Methods
+  def amount_in_rs
+    self.amount = self.amount.to_i > 0 ? (self.amount.to_i) / 100 : 0
+  end
 
   def save_receipt_transaction
     transaction_id = self.transaction_id
-    transaction_amount = self.amount
+    transaction_amount = self.amount_in_rs
     transaction_date = self.transaction_date
     ReceiptTransactions::ReceiptTransactionService.new(self, transaction_id, transaction_date, transaction_amount).call
   end
