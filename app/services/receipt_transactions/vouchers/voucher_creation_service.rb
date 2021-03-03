@@ -3,11 +3,10 @@ module ReceiptTransactions
     class VoucherCreationService
       include CustomDateModule
 
-      def initialize(params, selected_branch_id, selected_fy_code, current_tenant)
+      def initialize(receipt_transaction, selected_branch_id, selected_fy_code, current_tenant)
         @selected_branch_id, @selected_fy_code, @current_tenant = selected_branch_id, selected_fy_code, current_tenant
-
-        # set voucher general params
-        set_voucher_general_params(params)
+        @receipt_transaction = receipt_transaction
+        set_voucher_general_params
       end
 
       def call
@@ -26,19 +25,14 @@ module ReceiptTransactions
 
       private
 
-      def set_voucher_general_params(params)
-        @receipt_transaction = params[:TXNID] ? get_receipt_transaction(params[:TXNID]) : get_receipt_transaction(params[:oid])
+      def set_voucher_general_params
         # get parameters for voucher types and assign it as journal if not available
         @bill_ids     = []
-        @voucher_type = params[:TXNID] ? Voucher.voucher_types[:receipt_nchl] : Voucher.voucher_types[:receipt_esewa]
+        @voucher_type = @receipt_transaction.nchl? ? Voucher.voucher_types[:receipt_nchl] : Voucher.voucher_types[:receipt_esewa]
         # client account id ensures the vouchers are on the behalf of the client
         @client_account   = @receipt_transaction.bills.last.client_account
         @client_branch_id = @client_account.branch_id.to_s
         @bill_ids         = @receipt_transaction.bill_ids
-      end
-
-      def get_receipt_transaction(transaction_id)
-        ReceiptTransaction.find_by(transaction_id: transaction_id)
       end
 
       def get_bill_names(bill_ids)

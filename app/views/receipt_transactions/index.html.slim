@@ -48,7 +48,7 @@ table.table.table-striped.text-center
           - unless receipt_transaction.success?
             = link_to 'Verify', verify_receipt_transaction_path(receipt_transaction), method: :put, class: 'btn btn-sm btn-primary btn-gap'
           - else
-            = link_to 'Voucher', show_voucher_receipt_transaction_path(receipt_transaction), remote: true, class: 'btn btn-sm btn-link btn-gap'
+            = link_to 'Voucher', show_receipt_receipt_transaction_path(receipt_transaction), remote: true, class: 'btn btn-sm btn-link btn-gap'
           = link_to 'Destroy', receipt_transaction, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: 'btn btn-sm btn-danger'
 
 scss:

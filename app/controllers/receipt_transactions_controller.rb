@@ -5,7 +5,7 @@ class ReceiptTransactionsController < VisitorsController
     @receipt_transactions = ReceiptTransaction.order(created_at: :desc)
   end
 
-  def show_voucher
+  def show_receipt
     @settlement = ReceiptTransaction.find(params[:id]).voucher.payment_receipts.last
     respond_to do |format|
       format.js {
@@ -30,11 +30,7 @@ class ReceiptTransactionsController < VisitorsController
     # as a previous payment_verification process would already have set the status of the transaction
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
-      if @receipt_transaction.nchl?
-        nchl_receipt_verification(@receipt_transaction)
-      elsif @receipt_transaction.esewa?
-        esewa_receipt_verification(@receipt_transaction)
-      end
+      verify_receipt_transaction
       create_voucher if @receipt_transaction.success?
     end
   end
@@ -45,22 +41,19 @@ class ReceiptTransactionsController < VisitorsController
 
   def verify
     @receipt_transaction = ReceiptTransaction.find(params[:id])
-    status               = if @receipt_transaction.receivable_type == 'EsewaReceipt'
-                             params[:oid] = @receipt_transaction.transaction_id
-                             ReceiptTransactions::Esewa::TransactionVerificationService.new(@receipt_transaction.receivable).call
-                           else
-                             params[:TXNID] = @receipt_transaction.transaction_id
-                             ReceiptTransactions::Nchl::PaymentValidation.new(@receipt_transaction).validate
-                           end
-    if status == 'cannot process'
-      flash[:error] = 'Cannot Process Verification'
-    elsif status == true
-      @receipt_transaction.success!
-      create_voucher
-      flash[:notice] = 'Verification Successful'
-    elsif status == false
-      flash[:error] = 'The transaction was marked as fraudulent'
+    verify_receipt_transaction
+    create_voucher if @receipt_transaction.success?
+
+    if @receipt_transaction.unprocessed_verification?
+      flash[:error] = "Transaction Verification Failed."
+    elsif @receipt_transaction.unprocessed_voucher?
+      flash[:error] = "Voucher Generation Failed."
+    elsif @receipt_transaction.success?
+      flash[:notice] = "Transaction Verification Successful."
+    else
+      flash[:error] = "Transaction Verification Failed."
     end
+
     redirect_to(:back)
   end
 
@@ -85,11 +78,19 @@ class ReceiptTransactionsController < VisitorsController
     ReceiptTransactions::Esewa::TransactionVerificationService.new(receipt_transaction).call
   end
 
+  def verify_receipt_transaction
+    if @receipt_transaction.nchl?
+      nchl_receipt_verification(@receipt_transaction)
+    elsif @receipt_transaction.esewa?
+      esewa_receipt_verification(@receipt_transaction)
+    end
+  end
+
   def create_voucher
-    voucher_creation = ReceiptTransactions::Vouchers::VoucherCreationService.new(params, selected_branch_id, selected_fy_code, current_tenant).call
+    voucher_creation = ReceiptTransactions::Vouchers::VoucherCreationService.new(@receipt_transaction, selected_branch_id, selected_fy_code, current_tenant).call
     if voucher_creation.process
       @voucher = voucher_creation.voucher
-      SmartkhataMailer.delay(:retry => false).voucher_creation_email_to_client(@receipt_transaction.id,current_tenant.id)
+      SmartkhataMailer.delay(:retry => false).voucher_creation_email_to_client(@receipt_transaction.id, current_tenant.id)
     else
       @receipt_transaction.unprocessed_voucher!
     end

@@ -1,2 +1,4 @@
-h4 There was an error while performing the transaction. Please try again.
+h4
+  | There was an error while performing the transaction. Please try again.
+  = "If the error persists, contact the administrator with support ID: #{@receipt_transaction.transaction_id}"
 h5 = link_to 'Go Back', visitor_bills_path
