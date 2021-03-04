@@ -520,8 +520,8 @@ class Vouchers::Create < Vouchers::Base
         end
       end
 
-      logic to make the voucher comply to new standard
-      splitting the payment and receipt to multiple types
+      # logic to make the voucher comply to new standard
+      # splitting the payment and receipt to multiple types
       if is_payment_receipt && voucher_has_cheque_entry
         if voucher.is_payment?
           voucher.voucher_type = Voucher.voucher_types[:payment_bank]
@@ -618,7 +618,7 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id, voucher: voucher)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
     #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
@@ -626,7 +626,7 @@ class Vouchers::Create < Vouchers::Base
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id, voucher: voucher)
       # settlement.client_account = client_account
     end
     settlement

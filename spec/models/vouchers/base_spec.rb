@@ -11,7 +11,7 @@ RSpec.describe Vouchers::Base do
   before do
     # user session needs to be set for doing any activity
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
-      voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger, false, 1, 7374)}
+      voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, nil, clear_ledger, 1, 7374)}
     }
   end
 
@@ -158,7 +158,7 @@ RSpec.describe Vouchers::Base do
       @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false)
     end
 
-    it "should return error for sales bill with ledger balanc greater than zero" do
+    it "should return error for sales bill with ledger balance greater than zero" do
       ledger_balance = create(:ledger_balance, ledger_id: ledger.id, opening_balance: nil, closing_balance: -2000)
       client_account_id = client_account.id
 
@@ -174,12 +174,14 @@ RSpec.describe Vouchers::Base do
       bill_b = create(:purchase_bill, client_account: client_account_b, net_amount: 2000, balance_to_pay: 2000)
       bill_ids = [purchase_bill.id, bill_b.id]
       voucher_base = Vouchers::Base.new(bill_ids: bill_ids, client_account_id: client_account_id)
-      
+
+      # codes on base.rb set_bill_client method has been commented which might have raised the
+      # expected error scenario, due to which its failing for now
       expect { @assert_smartkhata_error.call(voucher_base, client_account_id, bill_ids, false) }.to raise_error(SmartKhataError)
     end
 
 
-    it "should return error when other client account id are nto sent for clear ledgers and bills" do
+    it "should return error when other client account id are not sent for clear ledgers and bills" do
       bill_ids = [purchase_bill.id]
       expect { Vouchers::Base.new(bill_ids: bill_ids) }.to raise_error(SmartKhataError)
       expect { Vouchers::Base.new(clear_ledger: true) }.to raise_error(SmartKhataError)

@@ -13,9 +13,9 @@ RSpec.describe Vouchers::Create do
   let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
   let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
   let(:client_particular) {build(:particular, ledger: another_ledger, amount: 5000)}
-  let(:voucher) { build(:voucher, voucher_type: 0) }
-  let(:dr_particular) { build(:debit_particular, voucher: voucher, amount: 5000, ledger: another_ledger) }
-  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000, ledger: another_ledger) }
+  let(:voucher) { build(:voucher, voucher_type: 0, value_date_bs: '2073-09-24') }
+  let(:dr_particular) { build(:debit_particular, voucher: voucher, amount: 5000, ledger: another_ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
+  let(:cr_particular) { build(:credit_particular, voucher: voucher, amount: 5000, ledger: another_ledger, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
 
   before do
     travel_to "2017-01-01".to_date
@@ -23,14 +23,14 @@ RSpec.describe Vouchers::Create do
     @assert_smartkhata_error = lambda { |voucher_base, client_account_id, bill_ids, clear_ledger|
       expect { voucher_base.instance_eval{ set_bill_client(client_account_id, bill_ids, clear_ledger)} }.to raise_error(SmartKhataError)
     }
-     # create( :ledger, name: "Cash")
+    create( :ledger, name: "Cash")
   end
   describe "vouchers" do
     context "when journal voucher" do
       context "when particular description is not present" do
-        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration", date: Date.today)}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration", date: Date.today, value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display voucher narration" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -39,7 +39,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1,
+                                                  selected_branch_id: Branch.first.id,
                                                   )
           
           expect(voucher_creation.process).to be_truthy
@@ -50,9 +50,9 @@ RSpec.describe Vouchers::Create do
       end
 
       context "when particular description is  present" do
-        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration")}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        let(:voucher) {create(:voucher, voucher_type: 0, desc: "voucher narration", value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display particular description" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -61,7 +61,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1)
+                                                  selected_branch_id: Branch.first.id)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.pluck :description).to match_array(["description for dr particular", 'description for cr particular'])
           # expect(voucher_creation.voucher.particulars.first.description).to eq("description for dr particular")
@@ -72,9 +72,9 @@ RSpec.describe Vouchers::Create do
 
     context "when payment voucher" do
       context "when particular description is not present" do
-        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration")}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration", value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display voucher narration" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -84,7 +84,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1)
+                                                  selected_branch_id: Branch.first.id)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
@@ -92,9 +92,9 @@ RSpec.describe Vouchers::Create do
       end
 
       context "when particular description is  present" do
-        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration")}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        let(:voucher) {create(:voucher, voucher_type: 1, desc: "voucher narration", value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display particular description" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -104,7 +104,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1)
+                                                  selected_branch_id: Branch.first.id)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
                           ["description for dr particular", 'description for cr particular'])
@@ -114,9 +114,9 @@ RSpec.describe Vouchers::Create do
 
     context "when receipt voucher" do
       context "when particular description is not present" do
-        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration")}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0)}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1)}
+        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration", value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display voucher narration" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -126,7 +126,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1)
+                                                  selected_branch_id: Branch.first.id)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.first.description).to eq("voucher narration")
           expect(voucher_creation.voucher.particulars.last.description).to eq("voucher narration")
@@ -134,9 +134,9 @@ RSpec.describe Vouchers::Create do
       end
 
       context "when particular description is  present" do
-        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration")}
-        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular")}
-        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular")}
+        let(:voucher) {create(:voucher, voucher_type: 2, desc: "voucher narration", value_date_bs: '2073-09-24')}
+        let(:d_particular) {create(:particular, amount: 1000, transaction_type: 0, description: "description for dr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
+        let(:c_particular) {create(:particular, amount: 1000, transaction_type: 1, description: "description for cr particular", value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
         it "should display particular description" do
           voucher.particulars << d_particular
           voucher.particulars << c_particular
@@ -146,7 +146,7 @@ RSpec.describe Vouchers::Create do
                                                   tenant_full_name: "Trishakti",
                                                   current_user: User.first,
                                                   selected_fy_code: get_fy_code,
-                                                  selected_branch_id: 1)
+                                                  selected_branch_id: Branch.first.id)
           expect(voucher_creation.process).to be_truthy
           expect(voucher_creation.voucher.particulars.pluck :description).to match_array(
                 ["description for dr particular", 'description for cr particular'])
@@ -166,7 +166,7 @@ RSpec.describe Vouchers::Create do
                                               tenant_full_name: "Trishakti",
                                               current_user: User.first,
                                               selected_fy_code: get_fy_code,
-                                              selected_branch_id: 1)
+                                              selected_branch_id: Branch.first.id)
 
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("JVR")
@@ -184,7 +184,7 @@ RSpec.describe Vouchers::Create do
                                               tenant_full_name: "Trishakti",
                                               current_user: User.first,
                                               selected_fy_code: get_fy_code,
-                                              selected_branch_id: 1)
+                                              selected_branch_id: Branch.first.id)
       expect(voucher_creation.process).to be_truthy
       expect(voucher_creation.voucher.voucher_code).to eq("PMT")
     end
