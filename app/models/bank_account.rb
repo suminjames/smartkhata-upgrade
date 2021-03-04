@@ -92,7 +92,6 @@ class BankAccount < ApplicationRecord
       self.bank_name = _bank.name
       begin
         ActiveRecord::Base.transaction do
-          binding.pry
           if self.save
             LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, current_user_id)
             return true

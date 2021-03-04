@@ -273,6 +273,7 @@ class ChequeEntriesController < ApplicationController
     branch_id = selected_branch_id
     @bank_accounts = BankAccount.by_branch_id(selected_branch_id).all
     @bank_account_id = params[:bank_account_id].to_i if params[:bank_account_id].present?
+    @bank_id = BankAccount.find(params[:bank_account_id]).bank.id
     @start_cheque_number = params[:start_cheque_number].to_i if params[:start_cheque_number].present?
     @end_cheque_number = params[:end_cheque_number].present? ? params[:end_cheque_number].to_i : 0
     existing_cheque_numbers = ChequeEntry.by_branch_id(active_record_branch_id).where(bank_account_id: @bank_account_id).pluck(:cheque_number)
@@ -298,7 +299,7 @@ class ChequeEntriesController < ApplicationController
     if !has_error
       ActiveRecord::Base.transaction do
         (@start_cheque_number..@end_cheque_number).each do |cheque_number|
-          cheque_entry_params = with_branch_user_params({cheque_number: cheque_number, bank_account_id: @bank_account_id})
+          cheque_entry_params = with_branch_user_params({cheque_number: cheque_number, bank_account_id: @bank_account_id, additional_bank_id: @bank_id})
           cheque_entry = ChequeEntry.new(cheque_entry_params)
 
           if cheque_entry.valid?
