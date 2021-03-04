@@ -50,7 +50,7 @@ class Ledger < ApplicationRecord
 
   has_many :particulars
   has_many :vouchers, :through => :particulars
-  belongs_to :group
+  belongs_to :group, optional: true
   belongs_to :bank_account, optional: true
   belongs_to :client_account, optional: true
   belongs_to :vendor_account, optional: true

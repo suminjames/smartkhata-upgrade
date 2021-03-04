@@ -54,7 +54,7 @@ class Settlement < ApplicationRecord
   has_many :debited_particulars, through: :for_dr, source: :particular
   has_many :credited_particulars, through: :for_cr, source: :particular
 
-  belongs_to :voucher
+  belongs_to :voucher, optional: true
 
   # # Father of all hacks :)
   # # careful with the mapping between the type i.e settlement and cr dr of association

@@ -24,7 +24,7 @@ class BankAccount < ApplicationRecord
   attr_reader :bank_account_name
   # attr_accessor :opening_balance, :opening_balance_type
   before_save :change_default
-  after_save :update_ledger_name
+  before_validation :set_ledger_name
   # before_create :assign_group
 
   # default scope for branch account
@@ -85,10 +85,12 @@ class BankAccount < ApplicationRecord
   def save_custom(fy_code, branch_id, current_user_id)
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
+    self.ledger.current_user_id = current_user_id
     if _bank.present?
       self.bank_name = _bank.name
       begin
         ActiveRecord::Base.transaction do
+          binding.pry
           if self.save
             LedgerBalance.update_or_create_org_balance(self.ledger.id, fy_code, current_user_id)
             return true
@@ -105,8 +107,8 @@ class BankAccount < ApplicationRecord
     "Bank:" + bank.name + "(#{account_number})"
   end
 
-  def update_ledger_name
-    self.ledger.update_columns(name: ledger_name)
+  def set_ledger_name
+    self.ledger.name = ledger_name
   end
 
   # assign the ledgers to group name bank accounts

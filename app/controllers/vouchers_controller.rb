@@ -137,7 +137,7 @@ class VouchersController < ApplicationController
     end
     rescue ActiveRecord::RecordInvalid => e
       flash[:error] = e.message
-      redirect_to :back
+      redirect_back fallback_location: root_path
   end
 
   # PATCH/PUT /vouchers/1
