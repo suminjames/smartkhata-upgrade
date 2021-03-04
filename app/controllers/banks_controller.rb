@@ -29,8 +29,9 @@ class BanksController < ApplicationController
   # POST /banks.json
   def create
     @bank = Bank.new(bank_params)
-
+    @bank.current_user_id = current_user.id
     respond_to do |format|
+      binding.pry
       if @bank.save
         format.html { redirect_to @bank, notice: 'Bank was successfully created.' }
         format.json { render :show, status: :created, location: @bank }
