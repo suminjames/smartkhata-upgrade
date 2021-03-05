@@ -44,7 +44,7 @@ class UserAccessRolesController < ApplicationController
   # POST /user_access_roles.json
   def create
     @menu_items = MenuItem.arrange
-    @user_access_role = UserAccessRole.new(user_access_role_params)
+    @user_access_role = UserAccessRole.new(user_access_role_params.merge(current_user_id: current_user.id))
 
 
 
@@ -63,7 +63,7 @@ class UserAccessRolesController < ApplicationController
   # PATCH/PUT /user_access_roles/1.json
   def update
     respond_to do |format|
-      if @user_access_role.update(user_access_role_params)
+      if @user_access_role.update(user_access_role_params.merge(current_user_id: current_user.id))
         format.html { redirect_to @user_access_role, notice: 'User access role was successfully updated.' }
         format.json { render :show, status: :ok, location: @user_access_role }
       else
