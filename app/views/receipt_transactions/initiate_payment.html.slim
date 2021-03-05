@@ -1,0 +1,65 @@
+= link_to 'Back', :back
+div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
+  - if @bills.present?
+    table.table.table-striped
+      thead
+        th.col-sm-1= 'S.N.'
+        th.col-sm-1= 'Bill No.'
+        th.col-sm-1= 'Date(BS)'
+        th.col-sm-1= 'Client'
+        th.col-sm-1= 'Type'
+        th.col-sm-1= 'Status'
+        th.col-sm-1= 'Amount'.html_safe
+      tbody
+        - @bills.each.with_index(1) do |bill, index|
+          tr
+            td = index
+            td = bill.formatted_bill_number
+            td = bill.formatted_bill_dates["bs"][0..-4]
+            td
+              b = bill.formatted_nepse_code
+            td = bill.formatted_type
+            td = bill.formatted_status
+            td = bill.formatted_net_bill_amount
+        tr
+          td colspan="6"
+            b Total Amount
+          td = Draper::ViewContext.current.arabic_number(@total_amount)
+
+    = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
+
+    button.btn.btn.btn-success#esewaSubmit.btn-flat Pay through Esewa
+    button.btn.btn-success.connectIpsBtn.btn-flat Pay through Connect IPS
+
+  - else
+    h4.text-center Please Select Bills in order to make payment
+
+  form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
+    input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
+    input name="amt" type="hidden" value="#{@total_amount.to_i}"
+    input name="txAmt" type="hidden" value="0"
+    input name="psc" type="hidden" value="0"
+    input name="pdc" type="hidden" value="0"
+    input name="scd" type="hidden"
+    input name="pid" type="hidden"
+    input name="su" type="hidden"
+    input name="fu" type="hidden"
+
+
+  form#connectIpsPaymentForm action=@nchl_receipt_url method="post"
+    input#merchantId name="MERCHANTID" type="hidden"
+    input#appId name="APPID" type="hidden"
+    input#appName name="APPNAME" type="hidden"
+    input#txnId name="TXNID" type="hidden"
+    input#txnDate name="TXNDATE" type="hidden"
+    input#txnCurrency name="TXNCRNCY" type="hidden"
+    input#txnAmt name="TXNAMT" type="hidden" value="#{@total_amount.to_i * 100}"
+    input#refId name="REFERENCEID" type="hidden"
+    input#remarks name="REMARKS" type="hidden"
+    input#particulars name="PARTICULARS" type="hidden"
+    input#nchlToken name="TOKEN" type="hidden"
+
+css:
+  .connectIpsBtn {
+    margin-left: 10px;
+  }

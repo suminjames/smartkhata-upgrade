@@ -82,23 +82,30 @@ class Print::PrintSettlement < Prawn::Document
     move_down(1)
 
     # Legacy code
-    if @settlement.cash_amount.blank?
-      if @settlement.cheque_entries.size > 0
-        text 'By Cheque:'
-        @settlement.cheque_entries.uniq.each do |cheque|
-          bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
-          text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
-        end
+    if @settlement.particulars.first.voucher&.receipt_esewa? || @settlement.particulars.first.voucher&.receipt_nchl?
+      if @settlement.particulars.first.voucher&.receipt_esewa?
+        text "By Esewa: Rs. #{arabic_number(@settlement.amount)}"
+      elsif @settlement.particulars.first.voucher&.receipt_nchl?
+        text "By Nchl: Rs. #{arabic_number(@settlement.amount)}"
       end
     else
-      if @settlement.cheque_entries.size > 0
-        text 'By Cheque:'
-        amount = 0
-        if @settlement.receipt?  || @settlement.belongs_to_batch_payment?
-          _particulars = @settlement.debited_particulars.uniq
-        else
-          _particulars = @settlement.credited_particulars.uniq
+      if @settlement.cash_amount.blank?
+        if @settlement.cheque_entries.size > 0
+          text 'By Cheque:'
+          @settlement.cheque_entries.uniq.each do |cheque|
+            bank = cheque.receipt? ? cheque.additional_bank.name : cheque.bank_account.bank_name
+            text nbsp * 4 + "Cheque Number: <i>#{cheque.cheque_number}</i>   Bank: <i>#{bank}</i>   Amount: <i>#{cheque.amount}</i>", :inline_format => true
+          end
         end
+      else
+        if @settlement.cheque_entries.size > 0
+          text 'By Cheque:'
+          amount = 0
+          if @settlement.receipt? || @settlement.belongs_to_batch_payment?
+            _particulars = @settlement.debited_particulars.uniq
+          else
+            _particulars = @settlement.credited_particulars.uniq
+          end
 
         _particulars.each do |p|
           p.cheque_entries.uniq.each do |cheque|
@@ -121,6 +128,7 @@ class Print::PrintSettlement < Prawn::Document
       end
     end
 
+    end
   end
 
   def settlement_no_row

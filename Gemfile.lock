@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/ctran/annotate_models.git
+  revision: 111640d077836ced23cfffb882c93e40968ab9d9
+  specs:
+    annotate (2.7.5)
+      activerecord (>= 3.2, < 7.0)
+      rake (>= 10.4, < 13.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -43,9 +51,6 @@ GEM
       sshkit (>= 1.6.1, != 1.7.0)
     ancestry (2.1.0)
       activerecord (>= 3.0.0)
-    annotate (2.7.1)
-      activerecord (>= 3.2, < 6.0)
-      rake (>= 10.4, < 12.0)
     ansi (1.5.0)
     apartment (1.1.0)
       activerecord (>= 3.1.2, < 5.0)
@@ -88,6 +93,8 @@ GEM
       coderay (>= 1.0.0)
       erubis (>= 2.6.6)
       rack (>= 0.9.0)
+    binding_of_caller (1.0.0)
+      debug_inspector (>= 0.0.1)
     bootstrap-datepicker-rails (1.9.0.1)
       railties (>= 3.0)
     bootstrap-kaminari-views (0.0.5)
@@ -549,7 +556,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-import
   ancestry
-  annotate
+  annotate!
   apartment
   apartment-sidekiq
   audited (~> 4.3)
@@ -557,6 +564,7 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1)
   axlsx
   better_errors
+  binding_of_caller
   bootstrap-datepicker-rails
   bootstrap-kaminari-views
   bootstrap-sass

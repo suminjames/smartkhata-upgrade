@@ -91,5 +91,27 @@ class SmartkhataMailer < ApplicationMailer
       "Your transaction message from #{tenant.full_name}"
     end
   end
+
+  def voucher_creation_email_to_client(receipt_transaction_id, current_tenant_id)
+    @current_tenant = Tenant.find_by_id(current_tenant_id)
+    receipt_transaction = ReceiptTransaction.find_by_id(receipt_transaction_id)
+    @client_account = receipt_transaction.bills.last.client_account
+
+    email = @client_account.email
+    subject = "Your receipt from #{@current_tenant.full_name}"
+
+    @settlement = receipt_transaction.voucher.payment_receipts.first
+
+    settlement_pdf = Print::PrintSettlement.new(@settlement.decorate, @current_tenant)
+    settlement_pdf.call
+    attachments["Receipt_#{@settlement.date_bs}_#{@settlement.settlement_number}.pdf"] = settlement_pdf.render
+
+    mail(
+      from: sender,
+      to: email,
+      subject: subject,
+      template_path: 'smartkhata_mailer'
+    )
+  end
 end
 

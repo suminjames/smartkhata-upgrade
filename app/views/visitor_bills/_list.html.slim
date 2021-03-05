@@ -1,0 +1,42 @@
+#filterrific_results
+  div#bill_list.table-responsive
+    = form_tag initiate_payment_receipt_transactions_path, method: :get, id: 'visitorBill' do
+      table.table.table-striped
+        thead
+          th.col-sm-1= 'S.N.'
+          th.col-sm-1= 'Bill No.'
+          th.col-sm-1= 'Date(BS)'
+          th.col-sm-1= 'Client'
+          th.col-sm-1= 'Type'
+          th.col-sm-1= 'Status'
+          th.col-sm-1= 'Amount'.html_safe
+          th.col-sm-1= 'Actions'
+        tbody
+          - if bills.present?
+            - bills.each_with_index do |bill, index|
+              tr
+                td = index + 1
+                td = bill.formatted_bill_number
+                td = bill.formatted_bill_dates["bs"][0..-4]
+                td
+                  b = bill.formatted_nepse_code
+                td = bill.formatted_type
+                td = bill.formatted_status
+                td = bill.formatted_net_bill_amount
+                td = check_box_tag "bill_ids[]", bill.id
+
+      - if bills.present?
+        = submit_tag "Proceed to Pay", class: 'btn btn-success btn-sm proceedToPay pull-right btn-flat'
+
+      - if bills.blank?
+        div.row.text-center.top-buffer-md
+          | There are no matching bills. Please enter a valid nepse code
+
+css:
+  table {
+    margin-top: 15px;
+  }
+
+  .proceedToPay {
+    margin: 10px 0px;
+  }

@@ -23,7 +23,7 @@ tenant.update(full_name: 'Danphe InfoTech Private Ltd.', address: 'Kupondole, La
     {:email => 'demo@danfeinfotech.com', :password => '12demo09'}, #for the public
 ]
 
-
+@system_user = {:email => 'system@danfeinfotech.com', :password => '12demo09'}
 
 count = 0
 @tenants.each do |t|
@@ -51,7 +51,26 @@ count = 0
       user.admin!
     end
     puts 'CREATED ADMIN USER: ' << new_user.email  if verbose
+
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.branch_id = branch.id
+      user.confirm
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
+
     UserSession.user = new_user
+
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.confirm
+      user.branch = Branch.first
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
 
     Group.create!([
                      { name: "Capital", report: Group.reports['Balance'], sub_report: Group.sub_reports['Liabilities'], for_trial_balance: true},

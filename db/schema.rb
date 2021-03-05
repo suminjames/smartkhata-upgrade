@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210202124539) do
+ActiveRecord::Schema.define(version: 20210222042202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -69,13 +69,15 @@ ActiveRecord::Schema.define(version: 20210202124539) do
     t.boolean  "default_for_receipt"
     t.integer  "creator_id"
     t.integer  "updater_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.integer  "bank_id"
     t.integer  "branch_id"
     t.string   "bank_branch"
     t.text     "address"
     t.string   "contact_no"
+    t.boolean  "default_for_esewa_receipt"
+    t.boolean  "default_for_nchl_receipt"
   end
 
   add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
@@ -235,6 +237,11 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
   add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
   add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
+
+  create_table "bills_receipt_transactions", force: :cascade do |t|
+    t.integer "bill_id"
+    t.integer "receipt_transaction_id"
+  end
 
   create_table "branch_permissions", force: :cascade do |t|
     t.integer  "branch_id"
@@ -807,6 +814,19 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
   add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
 
+  create_table "esewa_receipts", force: :cascade do |t|
+    t.decimal  "service_charge"
+    t.decimal  "delivery_charge"
+    t.decimal  "amount"
+    t.decimal  "tax_amount"
+    t.string   "success_url"
+    t.string   "failure_url"
+    t.string   "response_ref"
+    t.string   "response_amount"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
   create_table "file_uploads", force: :cascade do |t|
     t.integer  "file_type"
     t.date     "report_date"
@@ -1055,6 +1075,15 @@ ActiveRecord::Schema.define(version: 20210202124539) do
     t.string "message_type"
   end
 
+  create_table "nchl_receipts", force: :cascade do |t|
+    t.string   "reference_id"
+    t.text     "remarks"
+    t.text     "particular"
+    t.text     "token"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
   create_table "nepse_chalans", force: :cascade do |t|
     t.decimal  "chalan_amount",       precision: 15, scale: 2, default: 0.0
     t.integer  "transaction_type"
@@ -1290,6 +1319,23 @@ ActiveRecord::Schema.define(version: 20210202124539) do
 
   add_index "receipt_payment_slip", ["voucher_code"], name: "index_receipt_payment_slip_on_voucher_code", using: :btree
   add_index "receipt_payment_slip", ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no", using: :btree
+
+  create_table "receipt_transactions", force: :cascade do |t|
+    t.decimal  "amount"
+    t.decimal  "transaction_amount_cents"
+    t.integer  "status"
+    t.string   "transaction_id"
+    t.datetime "request_sent_at"
+    t.datetime "response_received_at"
+    t.datetime "validation_request_sent_at"
+    t.datetime "validation_response_received_at"
+    t.integer  "validation_response_code"
+    t.date     "transaction_date"
+    t.integer  "receivable_id"
+    t.string   "receivable_type"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
 
   create_table "sales_settlements", force: :cascade do |t|
     t.integer  "settlement_id",                   limit: 8
@@ -1809,22 +1855,24 @@ ActiveRecord::Schema.define(version: 20210202124539) do
     t.string   "date_bs"
     t.string   "desc"
     t.string   "beneficiary_name"
-    t.integer  "voucher_type",     default: 0
-    t.integer  "voucher_status",   default: 0
+    t.integer  "voucher_type",           default: 0
+    t.integer  "voucher_status",         default: 0
     t.integer  "creator_id"
     t.integer  "updater_id"
     t.integer  "reviewer_id"
     t.integer  "branch_id"
     t.boolean  "is_payment_bank"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.date     "value_date"
+    t.integer  "receipt_transaction_id"
   end
 
   add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree
   add_index "vouchers", ["creator_id"], name: "index_vouchers_on_creator_id", using: :btree
   add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree
   add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
+  add_index "vouchers", ["receipt_transaction_id"], name: "index_vouchers_on_receipt_transaction_id", using: :btree
   add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
   add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
 
@@ -1858,4 +1906,5 @@ ActiveRecord::Schema.define(version: 20210202124539) do
   add_foreign_key "settlements", "vouchers"
   add_foreign_key "sms_messages", "transaction_messages"
   add_foreign_key "transaction_messages", "client_accounts"
+  add_foreign_key "vouchers", "receipt_transactions"
 end
