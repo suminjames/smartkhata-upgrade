@@ -168,6 +168,12 @@ class Voucher < ApplicationRecord
     # rails enum and query not working properly
     unless skip_number_assign
       last_voucher = Voucher.unscoped.where(fy_code: fy_code, voucher_type: Voucher.voucher_types[self.voucher_type]).where.not(voucher_number: nil).order(voucher_number: :desc).first
+      # faced voucher_number uniqueness validation error.
+      # scenario to create:
+      # when first voucher is created as receipt, while saving it changes to receipt_bank or receipt_cash(create.rb line 525) and voucher_number is 1
+      # again when another voucher is created as receipt, last_voucher is empty as last voucher type is saved as receipt_bank or receipt_cash
+      # so second voucher also get voucher number 1
+      # due to which uniqueness validation error is generated
       self.voucher_number ||= last_voucher.present? ? (last_voucher.voucher_number + 1) : 1
     end
     self.fy_code = fy_code

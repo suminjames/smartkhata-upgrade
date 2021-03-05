@@ -186,7 +186,10 @@ RSpec.describe Vouchers::Create do
                                               selected_fy_code: get_fy_code,
                                               selected_branch_id: Branch.first.id)
       expect(voucher_creation.process).to be_truthy
-      expect(voucher_creation.voucher.voucher_code).to eq("PMT")
+      # since voucher type payment and receipt has splitted to multiple types,
+      # in our case voucher type payment changes to payment_cash, hence changing the
+      # voucher code to PVR from PMT
+      expect(voucher_creation.voucher.voucher_code).to eq("PVR")
     end
 
     it "should create a receipt voucher" do
@@ -201,9 +204,12 @@ RSpec.describe Vouchers::Create do
                                               tenant_full_name: "Trishakti",
                                               current_user: User.first,
                                               selected_fy_code: get_fy_code,
-                                              selected_branch_id: 1)
+                                              selected_branch_id: Branch.first.id)
       expect(voucher_creation.process).to be_truthy
-      expect(voucher_creation.voucher.voucher_code).to eq("RCV")
+      # since voucher type payment and receipt has splitted to multiple types,
+      # in our case voucher type receipt changes to receipt_cash, hence changing the
+      # voucher code to RCP from RCV
+      expect(voucher_creation.voucher.voucher_code).to eq("RCP")
     end
   end
 
@@ -212,7 +218,7 @@ RSpec.describe Vouchers::Create do
       voucher_type = 2
       bank_ledger = create(:bank_ledger)
       client_ledger = ledger
-      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+      voucher_params = {"date_bs"=>"2073-10-21", "value_date_bs" => "2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>Branch.first.id, "value_date"=> Date.today - 5.days, "transaction_date"=> Date.today - 10.days}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>client_ledger.client_account.branch_id, "bills_selection"=>"", "selected_bill_names"=>"", "value_date"=> Date.today - 5.days, "transaction_date"=> Date.today - 10.days}}}
 
       voucher_1 = Voucher.new(voucher_params)
       voucher_creation_1 = Vouchers::Create.new(
@@ -222,7 +228,7 @@ RSpec.describe Vouchers::Create do
           tenant_full_name: "Trishakti",
           current_user: User.first,
           selected_fy_code: get_fy_code,
-          selected_branch_id: 1
+          selected_branch_id: Branch.first.id
       )
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
@@ -235,7 +241,7 @@ RSpec.describe Vouchers::Create do
           tenant_full_name: "Trishakti",
           current_user: User.first,
           selected_fy_code: get_fy_code,
-          selected_branch_id: 1
+          selected_branch_id: Branch.first.id
       )
       expect(voucher_creation_2.process).to_not be_truthy
       expect(voucher_creation_2.error_message).to eq("Cheque number is already taken. If reusing the cheque is really necessary, it must be bounced first.")
@@ -245,7 +251,7 @@ RSpec.describe Vouchers::Create do
       voucher_type = 2
       bank_ledger = create(:bank_ledger)
       client_ledger = ledger
-      voucher_params = {"date_bs"=>"2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>"1"}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>"1", "bills_selection"=>"", "selected_bill_names"=>""}}}
+      voucher_params = {"date_bs"=>"2073-10-21", "value_date_bs" => "2073-10-21", "desc"=>"", "particulars_attributes"=>{"0"=>{"ledger_id"=>bank_ledger.id, "amount"=>"12", "transaction_type"=>"dr", "cheque_number"=>"234234", "additional_bank_id"=>"1", "branch_id"=>Branch.first.id, "value_date"=> Date.today - 5.days, "transaction_date"=> Date.today - 10.days}, "3"=>{"ledger_id"=>client_ledger.id, "amount"=>"12", "transaction_type"=>"cr", "branch_id"=>client_ledger.client_account.branch_id, "bills_selection"=>"", "selected_bill_names"=>"", "value_date"=> Date.today - 5.days, "transaction_date"=> Date.today - 10.days}}}
 
       voucher_1 = Voucher.new(voucher_params)
       voucher_creation_1 = Vouchers::Create.new(
@@ -255,9 +261,9 @@ RSpec.describe Vouchers::Create do
           tenant_full_name: "Trishakti",
           current_user: User.first,
           selected_fy_code: get_fy_code,
-          selected_branch_id: 1
+          selected_branch_id: Branch.first.id
       )
-      
+
       expect(voucher_creation_1.process).to be_truthy
       expect(voucher_creation_1.voucher.voucher_code).to eq("RCB")
 
@@ -273,8 +279,9 @@ RSpec.describe Vouchers::Create do
           tenant_full_name: "Trishakti",
           current_user: User.first,
           selected_fy_code: get_fy_code,
-          selected_branch_id: 1
+          selected_branch_id: Branch.first.id
       )
+      # error explained on voucher.rb line 172
       expect(voucher_creation_2.process).to be_truthy
       expect(voucher_creation_2.error_message).to be_nil
     end
@@ -298,7 +305,7 @@ RSpec.describe Vouchers::Create do
                                               tenant_full_name: "Trishakti",
                                               current_user: User.first,
                                               selected_fy_code: get_fy_code,
-                                              selected_branch_id: 1)
+                                              selected_branch_id: Branch.first.id)
       voucher_creation.process
 
       expect(voucher_creation.error_message).to be_nil
@@ -535,11 +542,11 @@ RSpec.describe Vouchers::Create do
     let(:bank_account2) { create(:bank_account)}
     let(:ledger1) { create(:ledger, bank_account_id: bank_account1.id, branch_id: @branch.id)}
     let(:ledger2) { create(:ledger, bank_account_id: bank_account2.id, branch_id: @branch.id)}
-    let(:voucher) { build(:voucher, voucher_type: 0)}
-    let(:voucher1) { build(:voucher, voucher_type: 1)}
-    let(:voucher2) { build(:voucher, voucher_type: 2)}
-    let(:debit_particular) { build(:particular, amount: 200, transaction_type: 0, ledger_id: ledger1.id) }
-    let(:credit_particular) { build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger2.id) }
+    let(:voucher) { build(:voucher, voucher_type: 0, value_date_bs: '2073-09-24' )}
+    let(:voucher1) { build(:voucher, voucher_type: 1, value_date_bs: '2073-09-24')}
+    let(:voucher2) { build(:voucher, voucher_type: 2, value_date_bs: '2073-09-24')}
+    let(:debit_particular) { build(:particular, amount: 200, transaction_type: 0, ledger_id: ledger1.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
+    let(:credit_particular) { build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger2.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
 
     context 'when non client particulars' do
       it 'should return true' do
@@ -557,21 +564,21 @@ RSpec.describe Vouchers::Create do
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                 voucher: voucher1,
                                                 voucher_settlement_type: "default",
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                 voucher: voucher2,
                                                 voucher_settlement_type: "default",
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
 
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
@@ -602,21 +609,21 @@ RSpec.describe Vouchers::Create do
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                  voucher: voucher1,
                                                  voucher_settlement_type: "default",
                                                  tenant_full_name: "Trishakti",
                                                  current_user: User.first,
                                                  selected_fy_code: get_fy_code,
-                                                 selected_branch_id: 1)
+                                                 selected_branch_id: Branch.first.id)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                  voucher: voucher2,
                                                  voucher_settlement_type: "default",
                                                  tenant_full_name: "Trishakti",
                                                  current_user: User.first,
                                                  selected_fy_code: get_fy_code,
-                                                 selected_branch_id: 1)
+                                                 selected_branch_id: Branch.first.id)
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
         expect(voucher_creation2.process).to be_truthy
@@ -629,11 +636,11 @@ RSpec.describe Vouchers::Create do
       let(:client_account) {create(:client_account, branch_id: branch2.id)}
       let(:ledgerb) { create(:ledger, bank_account_id: bank_account.id)}
       let(:ledgerc) { create(:ledger, client_account_id: client_account.id, branch_id: branch2.id)}
-      let(:voucher) { build(:voucher, voucher_type: 0)}
-      let(:voucher1) { build(:voucher, voucher_type: 1)}
-      let(:voucher2) { build(:voucher, voucher_type: 2)}
-      let(:debit_particular) { build(:particular, amount: 100, transaction_type: 0, ledger_id: ledgerb.id) }
-      let(:credit_particular) { build(:particular, amount: 100, transaction_type: 1, ledger_id: ledgerc.id, branch_id: branch2.id) }
+      let(:voucher) { build(:voucher, voucher_type: 0, value_date_bs: '2073-09-24')}
+      let(:voucher1) { build(:voucher, voucher_type: 1, value_date_bs: '2073-09-24')}
+      let(:voucher2) { build(:voucher, voucher_type: 2, value_date_bs: '2073-09-24')}
+      let(:debit_particular) { build(:particular, amount: 100, transaction_type: 0, ledger_id: ledgerb.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
+      let(:credit_particular) { build(:particular, amount: 100, transaction_type: 1, ledger_id: ledgerc.id, branch_id: branch2.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
 
       it 'should return true' do
         voucher.particulars << debit_particular
@@ -653,21 +660,21 @@ RSpec.describe Vouchers::Create do
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         voucher_creation1 = Vouchers::Create.new(voucher_type: 1,
                                                 voucher: voucher1,
                                                 voucher_settlement_type: "default",
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         voucher_creation2 = Vouchers::Create.new(voucher_type: 2,
                                                 voucher: voucher2,
                                                 voucher_settlement_type: "default",
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         expect(voucher_creation.process).to be_truthy
         expect(voucher_creation1.process).to be_truthy
         expect(voucher_creation2.process).to be_truthy
@@ -681,9 +688,9 @@ RSpec.describe Vouchers::Create do
       let(:client2) {create(:client_account, branch_id: branch2.id)}
       let(:ledger1) {create(:ledger, client_account_id: client1.id, branch_id: branch1.id)}
       let(:ledger2) {create(:ledger, client_account_id: client2.id, branch_id: branch2.id)}
-      let(:voucher) {build(:voucher, voucher_type: 0)}
-      let(:debit_particular) {build(:particular, amount: 300, transaction_type: 0, ledger_id: ledger1.id, branch_id: branch1.id) }
-      let(:credit_particular) {build(:particular, amount: 300, transaction_type: 1, ledger_id: ledger2.id, branch_id: branch2.id) }
+      let(:voucher) {build(:voucher, voucher_type: 0, value_date_bs: '2073-09-24')}
+      let(:debit_particular) {build(:particular, amount: 300, transaction_type: 0, ledger_id: ledger1.id, branch_id: branch1.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
+      let(:credit_particular) {build(:particular, amount: 300, transaction_type: 1, ledger_id: ledger2.id, branch_id: branch2.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days) }
 
       it 'should return true' do
         voucher.particulars << debit_particular
@@ -693,7 +700,7 @@ RSpec.describe Vouchers::Create do
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         expect(voucher_creation.process).to be_truthy
       end
     end
@@ -702,7 +709,7 @@ RSpec.describe Vouchers::Create do
       let(:branch) {create(:branch)}
       let(:employee_account) {create(:employee_account, branch_id: branch.id)}
       let(:ledger_e) {create(:ledger, employee_account_id: employee_account.id, branch_id: branch.id)}
-      let(:credit_particular) {build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger_e.id, branch_id: branch.id)}
+      let(:credit_particular) {build(:particular, amount: 200, transaction_type: 1, ledger_id: ledger_e.id, branch_id: branch.id, value_date: Date.today - 5.days, transaction_date: Date.today - 10.days)}
 
       it 'should return true' do
         voucher.particulars << debit_particular
@@ -712,7 +719,7 @@ RSpec.describe Vouchers::Create do
                                                 tenant_full_name: "Trishakti",
                                                 current_user: User.first,
                                                 selected_fy_code: get_fy_code,
-                                                selected_branch_id: 1)
+                                                selected_branch_id: Branch.first.id)
         expect(voucher_creation.process).to be_truthy
       end
     end
