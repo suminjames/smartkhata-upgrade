@@ -5,7 +5,13 @@ RSpec.describe GenerateBillsService  do
   let(:sales_share_transaction) {create(:sales_share_transaction_processed, settlement_id: nepse_settlement.settlement_id)}
   let(:sales_share_transaction_with_closeout) {create(:sales_share_transaction_processed_with_closeout, settlement_id: nepse_settlement.settlement_id)}
   let(:sales_share_transaction_with_full_closeout) {create(:sales_share_transaction_processed_with_full_closeout, settlement_id: nepse_settlement.settlement_id)}
-  let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
+  # let(:nepse_ledger){ Ledger.find_or_create_by!(name: "Nepse Sales")}
+  let(:sales_commission_ledger) { create(:ledger, name: 'Sales Commission') }
+  let(:nepse_ledger) { create(:ledger, name: 'Nepse Sales') }
+  let(:tds_ledger) { create(:ledger, name: 'TDS') }
+  let(:transfer_ledger) { create(:ledger, name: 'DP Fee/ Transfer') }
+  let(:rounding_off_ledger) { create(:ledger, name: 'Rounding Off Difference') }
+  let(:close_out_ledger) { create(:ledger, name: 'Close Out') }
 
   let(:current_user){create(:user)}
   let(:branch) {create(:branch)}
@@ -22,7 +28,13 @@ RSpec.describe GenerateBillsService  do
   context "when bills are generated based on settlement id" do
     context "automatic settlement by system" do
       it 'should generate the bill for normal transaction' do
+
         sales_share_transaction
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -35,6 +47,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should generate the bill for partial closeout and ledger entry' do
         sales_share_transaction_with_closeout
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
+        close_out_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -54,6 +72,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should not generate the bill for full closeout and ledger entry' do
         sales_share_transaction_with_full_closeout
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
+        close_out_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -77,6 +101,11 @@ RSpec.describe GenerateBillsService  do
     context "automatic settlement by system" do
       it 'should generate the bill for normal transaction' do
         sales_share_transaction
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -89,6 +118,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should generate the bill for partial closeout and ledger entry' do
         sales_share_transaction_with_closeout
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
+        close_out_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -108,6 +143,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should not generate the bill for full closeout and ledger entry' do
         sales_share_transaction_with_full_closeout
+        sales_share_transaction
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: true), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -130,6 +171,11 @@ RSpec.describe GenerateBillsService  do
     context "manual interventions for closeouts" do
       it 'should generate the bill for normal transaction' do
         sales_share_transaction
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: false), current_user: current_user, branch: branch)
         generate_bill_service.process
         expect(Bill.count).to eq 1
@@ -142,6 +188,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should generate the bill for partial closeout and ledger entry' do
         sales_share_transaction_with_closeout
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
+        close_out_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: false), current_user: current_user, branch: branch)
 
         generate_bill_service.process
@@ -162,6 +214,12 @@ RSpec.describe GenerateBillsService  do
 
       it 'should generate the bill for full closeout and ledger entry' do
         sales_share_transaction_with_full_closeout
+        sales_commission_ledger
+        nepse_ledger
+        tds_ledger
+        transfer_ledger
+        rounding_off_ledger
+        close_out_ledger
         generate_bill_service = GenerateBillsService.new(nepse_settlement: nepse_settlement, current_tenant: Tenant.new(closeout_settlement_automatic: false),  current_user: current_user, branch: branch)
 
         generate_bill_service.process

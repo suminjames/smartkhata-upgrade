@@ -227,7 +227,7 @@ class GenerateBillsService
       process_accounts(sales_commission_ledger, voucher, false, sales_commission, description, cost_center_id, settlement_date, @current_user, settlement_date)
 
 
-      # closeout amout is positive meaning there is a closeout on sales
+      # closeout amount is positive meaning there is a closeout on sales
       # closeout on buy is handled on deal cancel
       if closeout_amount > 0
         # if quantity is zero meaning all transaction is shorted all the amount is moved to closeout

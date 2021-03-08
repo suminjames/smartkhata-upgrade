@@ -7,16 +7,17 @@ RSpec.describe CreateSmsService do
   let(:user) { create(:user) }
   let(:isin_info) { create(:isin_info, isin: "SHPC") }
   let(:another_isin_info) { create(:isin_info, isin: "EBL") }
+  let (:branch) { create(:branch) }
 
-  let(:client_account_first) { create(:client_account, name: "John", branch_id: 1, creator_id: user.id, updater_id: user.id) }
-  let(:client_account_second) { create(:client_account, name: "Ben", branch_id: 1, creator_id: user.id, updater_id: user.id) }
+  let(:client_account_first) { create(:client_account, name: "John", branch_id: branch.id, creator_id: user.id, updater_id: user.id) }
+  let(:client_account_second) { create(:client_account, name: "Ben", branch_id: branch.id, creator_id: user.id, updater_id: user.id) }
 
-  let(:share_transaction_purchase) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: 1, transaction_type: 0, isin_info_id: isin_info.id, contract_no: 12345678, quantity: 100, share_rate: 200) }
-  let(:share_transaction_second_purchase) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: 1, transaction_type: 0, isin_info_id: another_isin_info.id, contract_no: 12345679, quantity: 50, share_rate: 300) }
-  let(:share_transaction_third_purchase){ create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: 1, transaction_type: 0, isin_info_id: another_isin_info.id, contract_no: 12345684, quantity: 55, share_rate: 305) }
-  let(:share_transaction_sell) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: 1, transaction_type: 1, isin_info_id: another_isin_info.id, contract_no: 12345680, quantity: 150, share_rate: 500) }
+  let(:share_transaction_purchase) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: branch.id, transaction_type: 0, isin_info_id: isin_info.id, contract_no: 12345678, quantity: 100, share_rate: 200) }
+  let(:share_transaction_second_purchase) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: branch.id, transaction_type: 0, isin_info_id: another_isin_info.id, contract_no: 12345679, quantity: 50, share_rate: 300) }
+  let(:share_transaction_third_purchase){ create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: branch.id, transaction_type: 0, isin_info_id: another_isin_info.id, contract_no: 12345684, quantity: 55, share_rate: 305) }
+  let(:share_transaction_sell) { create(:share_transaction, client_account_id: client_account_first.id, date: date, branch_id: branch.id, transaction_type: 1, isin_info_id: another_isin_info.id, contract_no: 12345680, quantity: 150, share_rate: 500) }
 
-  let(:share_transaction_random) { create(:share_transaction, client_account_id: client_account_second.id, date: date, branch_id: 1, transaction_type: 1, isin_info_id: isin_info.id, contract_no: 12345681, quantity: 200, share_rate: 700) }
+  let(:share_transaction_random) { create(:share_transaction, client_account_id: client_account_second.id, date: date, branch_id: branch.id, transaction_type: 1, isin_info_id: isin_info.id, contract_no: 12345681, quantity: 200, share_rate: 700) }
 
   describe ".create_by_floorsheet_date" do
     context "when the transaction message for the day are not created" do
