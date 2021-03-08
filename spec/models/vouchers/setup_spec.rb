@@ -8,6 +8,7 @@ RSpec.describe Vouchers::Setup do
   let(:ledger) { client_account.ledger }
   let(:purchase_bill) { create(:purchase_bill, client_account: client_account, net_amount: 3000) }
   let(:sales_bill) { create(:sales_bill, client_account: client_account, net_amount: 2000) }
+  let(:cash_ledger) { create(:ledger, name: 'Cash') }
 
   describe "basic vouchers" do
     it "should build  a journal voucher" do
@@ -25,6 +26,7 @@ RSpec.describe Vouchers::Setup do
     end
 
     it "should build a payment voucher" do
+      cash_ledger
       voucher,
         is_payment_receipt,
         ledger_list_financial,
@@ -38,6 +40,7 @@ RSpec.describe Vouchers::Setup do
     end
 
     it "should build a receipt voucher" do
+      cash_ledger
       voucher,
           is_payment_receipt,
           ledger_list_financial,
@@ -55,6 +58,7 @@ RSpec.describe Vouchers::Setup do
   describe "clear ledgers advanced vouchers" do
     it "should build a payment voucher when ledger balance is in cr" do
       ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: -3000 )
+      cash_ledger
       voucher,
           is_payment_receipt,
           ledger_list_financial,
@@ -69,6 +73,7 @@ RSpec.describe Vouchers::Setup do
 
     it "should build a receipt voucher when ledger balance is in dr" do
       ledger_balance = create(:ledger_balance, ledger: ledger, opening_balance: 3000 )
+      cash_ledger
       voucher,
           is_payment_receipt,
           ledger_list_financial,
