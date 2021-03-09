@@ -121,8 +121,10 @@ class FilesImportServices::ImportCm31 < ImportFile
 
         # return list of sales settlement ids
         # that track the file uploads for different settlement
+        set_current_user = lambda { |l| l.current_user_id = @current_user.id }
+
         settlement_ids.each do |settlement_id|
-          @nepse_settlement_ids << NepsePurchaseSettlement.find_or_create_by!(settlement_id: settlement_id, status: NepseSettlement.statuses[:complete]).id
+          @nepse_settlement_ids << NepsePurchaseSettlement.find_or_create_by!(settlement_id: settlement_id, status: NepseSettlement.statuses[:complete], &set_current_user).id
         end
       end
     end
