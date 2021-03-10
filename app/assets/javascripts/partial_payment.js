@@ -4,18 +4,18 @@ $(document).on("ready page:load", function () {
         return false;
     }
 
-    let txnAmtField = document.querySelector('#txnAmt');
-    let validAmountText = document.querySelector('#validAmountText');
-
     let payAmountField = document.querySelector('.payAmount');
     payAmountField.addEventListener('keyup',function (){
         validateAmount(this);
     });
 
     function validateAmount(amountField){
+        let txnAmtField = document.querySelector('#txnAmt');
+        let validAmountText = document.querySelector('#validAmountText');
         let amount = parseFloat(amountField.value);
         let txnAmt = parseFloat(txnAmtField.value);
         let minimumTxnAmount = 10
+
         if (isNaN(amount) || amount < minimumTxnAmount || amount > txnAmt ){
             $('.ePayBtn').addClass('disabled');
             validAmountText.classList.remove('d-none');
