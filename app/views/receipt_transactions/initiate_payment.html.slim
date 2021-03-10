@@ -28,8 +28,14 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
 
     = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
 
-    button.btn.btn.btn-success#esewaSubmit.btn-flat Pay through Esewa
-    button.btn.btn-success.connectIpsBtn.btn-flat Pay through Connect IPS
+
+    .payment-section
+      button.btn#esewaSubmit.btn-flat.disabled
+        = image_tag 'esewa-logo', size: '105x52.5'
+      button.btn.connectIpsBtn.btn-flat
+        = image_tag 'connectips-logo', size: '105x52.5'
+      h5.text-danger#validAmountText.valid-amount-text
+        | * Please enter a valid amount to continue
 
   - else
     h4.text-center Please Select Bills in order to make payment
@@ -62,4 +68,41 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
 css:
   .connectIpsBtn {
     margin-left: 10px;
+  }
+
+  .payment-section{
+    display: inline-block;
+    position: relative;
+    background-color: #f8f9fb;
+    padding: 30px 30px 5px 30px;
+  }
+
+  .payment-section::before{
+    content: 'Pay Online Using:';
+    position: absolute;
+    top: 4px;
+    font-weight: bold;
+  }
+
+  .payment-section button{
+    padding: 0;
+  }
+
+  .payment-section button:hover{
+    opacity: 0.9;
+    border: 1px solid #9487ff;
+  }
+
+  .disabled {
+    pointer: none;
+    filter: grayscale(100%);
+  }
+
+  .disabled {
+    border: 0px !important;
+    opacity: 1 !important;
+  }
+
+  .valid-amount-text {
+    visibility: hidden;
   }

@@ -1,16 +1,27 @@
 $(document).on("ready page:load", function () {
-
-// payment transaction initiate payment
+    // payment transaction initiate payment
     if ($('.receipt_transactions.initiate_payment').length == 0) {
         return false;
     }
 
     let submitPaymentBtn = document.querySelector('#esewaSubmit');
+    let amountField = document.querySelector('#amountField');
+    let validAmountText = document.querySelector('#validAmountText');
 
-    submitPaymentBtn.addEventListener('click', function (e) {
+    amountField.addEventListener('change', function (e) {
+      if(true){ //check amount to pay validation
+        validAmountText.style.visibility  = 'visible';
+      } else {
+        validAmountText.style.visibility = 'hidden';
+      }
+    });
+
+    if(submitPaymentBtn) {
+      submitPaymentBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
-    });
+      });
+    }
 
     function fillData(res) {
         let successUrl = document.querySelector('input[name="su"]');
