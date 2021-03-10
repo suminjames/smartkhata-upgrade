@@ -294,7 +294,7 @@ class Vouchers::Create < Vouchers::Base
         # incase of receipt , we need to adjust the sales bill amount
         # by adding the amount twice, making sure that one is for reduction that is used in the function below
         # the other is the actual effect, ie we are adding it from our part (payment)
-        if voucher_type == :receipt.to_s
+        if is_voucher_receipt?(voucher_type)
           if bill.sales?
             net_usable_blnc += (bill.balance_to_pay * 2.00)
           end
@@ -655,5 +655,9 @@ class Vouchers::Create < Vouchers::Base
       end
     end
     return true
+  end
+
+  def is_voucher_receipt?(voucher_type)
+    voucher_type == :receipt.to_s || :receipt_nchl.to_s || :receipt_esewa.to_s
   end
 end

@@ -14,6 +14,8 @@ $(document).on("ready page:load", function () {
         let billIds = document.querySelector('#billIds');
         let bills = billIds.value.split(' ');
         let txnAmt = document.querySelector('#txnAmt');
+        let payAmountField = document.querySelector('.payAmount');
+        txnAmt.value = parseInt(payAmountField.value) * 100
         let token = $("meta[name='csrf-token']").attr('content');
 
         var request = $.ajax({
