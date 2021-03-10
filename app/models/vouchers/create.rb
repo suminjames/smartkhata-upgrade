@@ -658,6 +658,6 @@ class Vouchers::Create < Vouchers::Base
   end
 
   def is_voucher_receipt?(voucher_type)
-    voucher_type == :receipt.to_s || :receipt_nchl.to_s || :receipt_esewa.to_s
+    [:receipt.to_s,:receipt_nchl.to_s,:receipt_esewa.to_s].include?(voucher_type)
   end
 end
