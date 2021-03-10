@@ -20,7 +20,7 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
               b = bill.formatted_nepse_code
             td = bill.formatted_type
             td = bill.formatted_status
-            td = bill.formatted_net_bill_amount
+            td = bill.balance_to_pay
         tr
           td colspan="6"
             b Total Amount
@@ -28,22 +28,29 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
 
     = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
 
-    p Pay Online:
-    label Amount to pay
-    input type="number" min="3" value="#{@total_amount.to_i}" class="payAmount"
-    button.btn.btn.btn-success#esewaSubmit.btn-flat Pay through Esewa
-    button.btn.btn-success.connectIpsBtn.btn-flat Pay through Connect IPS
+    .text-right
+      .amount-section
+        label Amount to pay (Min Rs.10):
+        input type="number" min="10" value="#{@total_amount.to_i}" class="payAmount"
+        h5.text-danger#validAmountText.d-none
+          | * Please enter a valid amount to continue
 
-    form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
-      input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
-      input name="amt" type="hidden" value="#{@total_amount.to_i}"
-      input name="txAmt" type="hidden" value="0"
-      input name="psc" type="hidden" value="0"
-      input name="pdc" type="hidden" value="0"
-      input name="scd" type="hidden"
-      input name="pid" type="hidden"
-      input name="su" type="hidden"
-      input name="fu" type="hidden"
+      .payment-section
+        / button.btn#esewaSubmit.btn-flat.ePayBtn
+          = image_tag 'esewa-logo', size: '105x52.5'
+        button.btn.connectIpsBtn.btn-flat.ePayBtn
+          = image_tag 'connectips-logo', size: '105x52.5'
+
+    / form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
+    /   input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
+    /   input name="amt" type="hidden" value="#{@total_amount.to_i}"
+    /   input name="txAmt" type="hidden" value="0"
+    /   input name="psc" type="hidden" value="0"
+    /   input name="pdc" type="hidden" value="0"
+    /   input name="scd" type="hidden"
+    /   input name="pid" type="hidden"
+    /   input name="su" type="hidden"
+    /   input name="fu" type="hidden"
 
     form#connectIpsPaymentForm action=@nchl_receipt_url method="post"
       input#merchantId name="MERCHANTID" type="hidden"
@@ -66,6 +73,47 @@ css:
     margin-left: 10px;
   }
 
+  .amount-section{
+      margin-bottom: 15px;
+  }
+
   .payAmount{
       margin: 0px 10px 5px 5px;
+  }
+
+  .payment-section{
+    display: inline-block;
+    position: relative;
+    background-color: #f8f9fb;
+    padding: 30px;
+  }
+
+  .payment-section::before{
+    content: 'Pay Online Using:';
+    position: absolute;
+    top: 4px;
+    font-weight: bold;
+  }
+
+  .payment-section button{
+    padding: 0;
+  }
+
+  .payment-section button:hover{
+    opacity: 0.9;
+    border: 1px solid #9487ff;
+  }
+
+  .disabled {
+    pointer: none;
+    filter: grayscale(100%);
+  }
+
+  .disabled {
+    border: 0px !important;
+    opacity: 1 !important;
+  }
+
+  .d-none {
+      visibility: hidden;
   }

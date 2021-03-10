@@ -1,16 +1,17 @@
 $(document).on("ready page:load", function () {
-
-// payment transaction initiate payment
+    // payment transaction initiate payment
     if ($('.receipt_transactions.initiate_payment').length == 0) {
         return false;
     }
 
     let submitPaymentBtn = document.querySelector('#esewaSubmit');
 
-    submitPaymentBtn.addEventListener('click', function (e) {
+    if(submitPaymentBtn) {
+      submitPaymentBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
-    });
+      });
+    }
 
     function fillData(res) {
         let successUrl = document.querySelector('input[name="su"]');

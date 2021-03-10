@@ -5,7 +5,7 @@ $(document).on("ready page:load", function () {
     }
 
     let txnAmtField = document.querySelector('#txnAmt');
-    let connectIpsBtn = document.querySelector('.connectIpsBtn');
+    let validAmountText = document.querySelector('#validAmountText');
 
     let payAmountField = document.querySelector('.payAmount');
     payAmountField.addEventListener('keyup',function (){
@@ -13,13 +13,15 @@ $(document).on("ready page:load", function () {
     });
 
     function validateAmount(amountField){
-        let amount = parseInt(amountField.value);
-        let txnAmt = parseInt(txnAmtField.value);
-        let minimumTxnAmount = 3
-        if (amount < minimumTxnAmount || amount > txnAmt ){
-            connectIpsBtn.disabled = true;
+        let amount = parseFloat(amountField.value);
+        let txnAmt = parseFloat(txnAmtField.value);
+        let minimumTxnAmount = 10
+        if (isNaN(amount) || amount < minimumTxnAmount || amount > txnAmt ){
+            $('.ePayBtn').addClass('disabled');
+            validAmountText.classList.remove('d-none');
         } else{
-            connectIpsBtn.disabled = false;
+            $('.ePayBtn').removeClass('disabled');
+            validAmountText.classList.add('d-none')
         }
     }
 

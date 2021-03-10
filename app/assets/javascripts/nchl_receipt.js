@@ -1,14 +1,17 @@
 $(document).on("ready page:load", function () {
-// payment transaction initiate payment
+    // payment transaction initiate payment
     if ($('.receipt_transactions.initiate_payment').length == 0) {
         return false;
     }
 
     let connectIpsBtn = document.querySelector('.connectIpsBtn');
-    connectIpsBtn.addEventListener('click', function (e) {
+
+    if(connectIpsBtn) {
+      connectIpsBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
         processPayment();
-    });
+      });
+    }
 
     function processPayment() {
         let billIds = document.querySelector('#billIds');
