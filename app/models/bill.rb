@@ -106,7 +106,7 @@ class Bill < ActiveRecord::Base
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
   scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
   scope :by_client_nepse_code, lambda { |nepse_code|
-    by_client_id(ClientAccount.find_by(nepse_code: nepse_code.upcase)&.id)
+    by_client_id(ClientAccount.find_by(nepse_code: nepse_code.to_s.upcase)&.id)
   }
 
   # as these are used for accounting purpose do not consider provisional
