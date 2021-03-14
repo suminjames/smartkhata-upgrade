@@ -18,7 +18,7 @@ class ReceiptTransactionsController < VisitorsController
     all_bills = Bill.includes(:client_account).where(id: params[:bill_ids])
 
     @bills        = all_bills.decorate
-    @total_amount = all_bills.sum(:net_amount).ceil(0)
+    @total_amount = all_bills.sum(:balance_to_pay).ceil(0)
     @bill_ids     = params[:bill_ids]
 
     @esewa_receipt_url = EsewaReceipt::PAYMENT_URL

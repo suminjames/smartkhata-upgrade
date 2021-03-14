@@ -22,7 +22,7 @@
                   b = bill.formatted_nepse_code
                 td = bill.formatted_type
                 td = bill.formatted_status
-                td = bill.formatted_net_bill_amount
+                td = bill.balance_to_pay
                 td = check_box_tag "bill_ids[]", bill.id
 
       - if bills.present?
