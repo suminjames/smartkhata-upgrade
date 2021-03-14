@@ -4,8 +4,7 @@ $(document).on("ready page:load", function () {
         return false;
     }
 
-    let payAmountField = document.querySelector('.payAmount');
-    payAmountField.addEventListener('keyup',function (){
+    document.querySelector('.payAmount').addEventListener('keyup',function (){
         validateAmount(this);
     });
 
