@@ -48,6 +48,7 @@ class Bill < ActiveRecord::Base
   has_many :vouchers_on_settlement, through: :on_settlement, source: :voucher
   has_many :vouchers, through: :bill_voucher_associations
 
+  has_and_belongs_to_many :receipt_transactions
 
   attr_accessor :provisional_base_price
 
@@ -104,6 +105,9 @@ class Bill < ActiveRecord::Base
   scope :by_client_id, -> (id) { where(client_account_id: id) }
   scope :find_not_settled_by_client_account_id, -> (id) { find_not_settled.where("client_account_id" => id) }
   scope :find_not_settled_by_client_account_ids, -> (ids) { find_not_settled.where("client_account_id" => ids) }
+  scope :by_client_nepse_code, lambda { |nepse_code|
+    by_client_id(ClientAccount.find_by(nepse_code: nepse_code.to_s.upcase)&.id)
+  }
 
   # as these are used for accounting purpose do not consider provisional
   scope :requiring_processing, -> { where(status: ["pending", "partial"]) }
@@ -116,8 +120,8 @@ class Bill < ActiveRecord::Base
 
   # scope :by_bill_number, -> (number) { where("bill_number" => "#{number}") }
   scope :by_bill_number, lambda { |number|
-      actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
-      where("bill_number" => "#{actual_bill_number}")
+    actual_bill_number = self.strip_fy_code_from_full_bill_number(number)
+    where("bill_number" => "#{actual_bill_number}")
   }
   scope :by_date, lambda { |date_bs|
     date_ad = bs_to_ad(date_bs)
@@ -139,30 +143,31 @@ class Bill < ActiveRecord::Base
   filterrific(
       default_filter_params: { },
       available_filters: [
-          :sorted_by,
-          :by_client_id,
-          :by_bill_number,
-          :by_bill_type,
-          :by_bill_status,
-          :by_bill_age,
-          :by_date,
-          :by_date_from,
-          :by_date_to
-      ]
+                                 :sorted_by,
+                                 :by_client_id,
+                                 :by_bill_number,
+                                 :by_bill_type,
+                                 :by_bill_status,
+                                 :by_bill_age,
+                                 :by_date,
+                                 :by_date_from,
+                                 :by_date_to,
+                                 :by_client_nepse_code
+                             ]
   )
 
   # TODO(sarojk): Implement other sort options too.
   scope :sorted_by, lambda { |sort_option|
     direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
     case sort_option.to_s
-      when /^bill_number/
-        order("bills.bill_number #{ direction }")
-      when /^net_amount/
-        order("bills.net_amount #{ direction }")
-      when /^age/
-        order("bills.settlement_date #{ direction }")
-      else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+    when /^bill_number/
+      order("bills.bill_number #{ direction }")
+    when /^net_amount/
+      order("bills.net_amount #{ direction }")
+    when /^age/
+      order("bills.settlement_date #{ direction }")
+    else
+      raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
     end
   }
 
@@ -301,7 +306,7 @@ class Bill < ActiveRecord::Base
   end
 
   def requires_processing?
-   self.pending? || self.partial?
+    self.pending? || self.partial?
   end
 
   def self.options_for_bill_age_select

@@ -10,6 +10,28 @@ Rails.application.routes.draw do
   match '/convert_date' => 'vouchers#convert_date', via: [:get]
   match "/isin_infos/combobox_ajax_filter" => "isin_infos#combobox_ajax_filter", via: [:get]
 
+  resources :visitor_bills, only:[:index] do
+    collection do
+      get :search
+    end
+  end
+
+  resources :esewa_receipts
+
+  resources :receipt_transactions, only: [:index, :destroy] do
+    collection do
+      get :initiate_payment
+      get :success
+      get :failure
+    end
+    member do
+      put :verify
+      get :show_receipt
+    end
+  end
+
+  resources :nchl_receipts, only: :create
+
   scope "/:selected_fy_code/:selected_branch_id" do
     resources :interest_particulars
     resources :interest_rates

@@ -1,0 +1,19 @@
+- error_message = "<p>Your support id is: #{@receipt_transaction.transaction_id}</p><p>Please contact the administrator</p>"
+- if @receipt_transaction.unprocessed_verification?
+  h4
+    b Your payment was successfully completed. But we could not verify the transaction.
+  == error_message
+- elsif @receipt_transaction.unprocessed_voucher?
+  h4
+    b Your payment was successfully completed. But we could not generate a voucher.
+  == error_message
+- elsif @receipt_transaction.success?
+  h4
+    b Your payment was successfully completed. We will send you the copy of receipt on your email.
+  = render 'settlements/show', settlement: @receipt_transaction.voucher.payment_receipts.first
+- else
+  h4
+    b Your payment was successfully completed but verification failed.
+  == error_message
+
+h5 = link_to 'Go Back', visitor_bills_path

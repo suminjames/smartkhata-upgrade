@@ -80,7 +80,7 @@ class SettlementsController < ApplicationController
 
   def show_multiple
     @settlement_ids = params[:settlement_ids].map(&:to_i) if params[:settlement_ids].present?
-    @settlements = Settlement.where(id: @settlement_ids)
+    @settlements    = Settlement.includes(particulars: :voucher).where(id: @settlement_ids)
     respond_to do |format|
       format.html
       format.js

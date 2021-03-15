@@ -63,17 +63,17 @@ class VouchersController < ApplicationController
     # either clear_ledger and client_account_id or client_account_id and bill_ids
 
     @voucher,
-    @is_payment_receipt,
-    @ledger_list_financial,
-    @ledger_list_available,
-    @default_ledger_id,
-    @voucher_type,
-    @vendor_account_list,
-    @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
-                                              client_account_id: @client_account_id,
-                                              # bill_id: @bill_id,
-                                              clear_ledger: @clear_ledger,
-                                              bill_ids: @bill_ids).voucher_and_relevant(selected_branch_id, selected_fy_code)
+        @is_payment_receipt,
+        @ledger_list_financial,
+        @ledger_list_available,
+        @default_ledger_id,
+        @voucher_type,
+        @vendor_account_list,
+        @client_ledger_list = Vouchers::Setup.new(voucher_type: @voucher_type,
+                                                  client_account_id: @client_account_id,
+                                                  # bill_id: @bill_id,
+                                                  clear_ledger: @clear_ledger,
+                                                  bill_ids: @bill_ids).voucher_and_relevant(selected_branch_id, selected_fy_code)
   end
 
   # POST /vouchers
@@ -135,9 +135,9 @@ class VouchersController < ApplicationController
         format.json { render json: @voucher.errors, status: :unprocessable_entity }
       end
     end
-    rescue ActiveRecord::RecordInvalid => e
-      flash[:error] = e.message
-      redirect_to :back
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:error] = e.message
+    redirect_to :back
   end
 
   # PATCH/PUT /vouchers/1

@@ -1,0 +1,40 @@
+<%
+  client = @client_account
+  current_tenant = @current_tenant
+%>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+</head>
+<body>
+<p>
+  Dear <%= client.name %> (<%= client.nepse_code %>),
+</p>
+<p>
+  Please find the file in attachment to see your receipt dated <%= @settlement.date_bs %>.
+</p>
+<p>
+  Thank you.
+</p>
+<br>
+<p>
+  Regards,
+  <br>
+  <br>
+  <%= current_tenant.full_name %> <br>
+  <%= current_tenant.address %> <br>
+  Broker No: <%= current_tenant.broker_code %> <br>
+  Phone: <%= current_tenant.phone_number %> <br>
+  Fax: <%= current_tenant.fax_number %> <br>
+  PAN: <%= current_tenant.pan_number %> <br>
+</p>
+<p>
+  <br>
+  <br>
+  <i>
+    This is an auto-generated email. Please DO NOT REPLY to this email.
+  </i>
+</p>
+</body>
+</html>

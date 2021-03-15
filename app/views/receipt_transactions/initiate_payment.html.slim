@@ -1,0 +1,119 @@
+= link_to 'Back', :back
+div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
+  - if @bills.present?
+    table.table.table-striped
+      thead
+        th.col-sm-1= 'S.N.'
+        th.col-sm-1= 'Bill No.'
+        th.col-sm-1= 'Date(BS)'
+        th.col-sm-1= 'Client'
+        th.col-sm-1= 'Type'
+        th.col-sm-1= 'Status'
+        th.col-sm-1= 'Amount'.html_safe
+      tbody
+        - @bills.each.with_index(1) do |bill, index|
+          tr
+            td = index
+            td = bill.formatted_bill_number
+            td = bill.formatted_bill_dates["bs"][0..-4]
+            td
+              b = bill.formatted_nepse_code
+            td = bill.formatted_type
+            td = bill.formatted_status
+            td = bill.balance_to_pay
+        tr
+          td colspan="6"
+            b Total Amount
+          td = Draper::ViewContext.current.arabic_number(@total_amount)
+
+    = hidden_field_tag "bill_ids[]", @bill_ids, id: 'billIds'
+
+    .text-right
+      .amount-section
+        label Amount to pay (Min Rs.10):
+        input type="number" min="10" value="#{@total_amount.to_i}" class="payAmount"
+        h5.text-danger#validAmountText.d-none
+          | * Please enter a valid amount to continue
+
+      .payment-section
+        / button.btn#esewaSubmit.btn-flat.ePayBtn
+          = image_tag 'esewa-logo', size: '105x52.5'
+        button.btn.connectIpsBtn.btn-flat.ePayBtn
+          = image_tag 'connectips-logo', size: '105x52.5'
+
+    / form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
+    /   input name="tAmt" type="hidden" value="#{@total_amount.to_i}"
+    /   input name="amt" type="hidden" value="#{@total_amount.to_i}"
+    /   input name="txAmt" type="hidden" value="0"
+    /   input name="psc" type="hidden" value="0"
+    /   input name="pdc" type="hidden" value="0"
+    /   input name="scd" type="hidden"
+    /   input name="pid" type="hidden"
+    /   input name="su" type="hidden"
+    /   input name="fu" type="hidden"
+
+    form#connectIpsPaymentForm action=@nchl_receipt_url method="post"
+      input#merchantId name="MERCHANTID" type="hidden"
+      input#appId name="APPID" type="hidden"
+      input#appName name="APPNAME" type="hidden"
+      input#txnId name="TXNID" type="hidden"
+      input#txnDate name="TXNDATE" type="hidden"
+      input#txnCurrency name="TXNCRNCY" type="hidden"
+      input#txnAmt name="TXNAMT" type="hidden" value=@total_amount.to_i
+      input#refId name="REFERENCEID" type="hidden"
+      input#remarks name="REMARKS" type="hidden"
+      input#particulars name="PARTICULARS" type="hidden"
+      input#nchlToken name="TOKEN" type="hidden"
+
+  - else
+    h4.text-center Please Select Bills in order to make payment
+
+css:
+  .connectIpsBtn {
+    margin-left: 10px;
+  }
+
+  .amount-section{
+      margin-bottom: 15px;
+  }
+
+  .payAmount{
+      margin: 0px 10px 5px 5px;
+  }
+
+  .payment-section{
+    display: inline-block;
+    position: relative;
+    background-color: #f8f9fb;
+    padding: 30px;
+  }
+
+  .payment-section::before{
+    content: 'Pay Online Using:';
+    position: absolute;
+    top: 4px;
+    font-weight: bold;
+  }
+
+  .payment-section button{
+    padding: 0;
+  }
+
+  .payment-section button:hover{
+    opacity: 0.9;
+    border: 1px solid #9487ff;
+  }
+
+  .disabled {
+    pointer: none;
+    filter: grayscale(100%);
+  }
+
+  .disabled {
+    border: 0px !important;
+    opacity: 1 !important;
+  }
+
+  .d-none {
+      visibility: hidden;
+  }
