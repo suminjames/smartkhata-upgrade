@@ -18,7 +18,7 @@ module ReceiptTransactions
                                voucher_settlement_type: 'default',
                                tenant_full_name:        @current_tenant.full_name,
                                selected_fy_code:        @selected_fy_code,
-                               selected_branch_id:      @selected_branch_id,
+                               selected_branch_id:      @voucher[:branch_id],
                                current_user:            User.sys_admin.first)
 
       end
@@ -56,21 +56,22 @@ module ReceiptTransactions
                        elsif @receipt_transaction.esewa?
                          default_for_esewa_receipt_bank_account_in_branch.present? ? default_for_esewa_receipt_bank_account_in_branch.ledger.id : BankAccount.by_default_esewa_receipt.ledger.id
                        end
+        description =  @receipt_transaction.particulars
 
         {
           "date_bs"                => ad_to_bs(Date.today),
           "value_date_bs"          => ad_to_bs(Date.today),
-          "desc"                   => "",
+          "desc"                   => description,
           "receipt_transaction_id" => @receipt_transaction.id.to_s,
           "particulars_attributes" =>
             [{ "ledger_id"        => dr_ledger_id,
-               "description"      => "",
+               "description"      => description,
                "amount"           => amount,
                "transaction_type" => "dr",
                "branch_id"        => @client_branch_id
              },
              { "ledger_id"                 => @client_account.ledger.id.to_s,
-               "description"               => "",
+               "description"               => description,
                "amount"                    => amount,
                "transaction_type"          => "cr",
                "branch_id"                 => @client_branch_id,

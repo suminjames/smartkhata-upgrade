@@ -82,4 +82,14 @@ class ReceiptTransaction < ActiveRecord::Base
   def esewa?
     self.receivable_type == "EsewaReceipt"
   end
+
+  def particulars
+    bills = Bill.where(id: self.bill_ids)
+    bill_number = bills.select(:fy_code,:bill_number).map{|x| "#{x.fy_code}-#{x.bill_number}"}.join(',')
+    "Settled for Bill No:#{bill_number}-#{particulars_identifier}/ACXFR:#{transaction_id}:#{bills.first&.client_account&.name}"
+  end
+
+  def particulars_identifier
+    nchl? ? 'CIPS' : 'ESEWA'
+  end
 end
