@@ -7,12 +7,12 @@ $(document).on("ready page:load", function () {
     return false;
   }
 
-  function submitPaymentBtn() {
+  function getSubmitPaymentBtn() {
     return document.querySelector('#esewaSubmit');
   }
 
   function addEsewaSubmitEvent() {
-    let submitPaymentBtn = submitPaymentBtn();
+    let submitPaymentBtn = getSubmitPaymentBtn();
     if(submitPaymentBtn) {
       submitPaymentBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
@@ -56,7 +56,7 @@ $(document).on("ready page:load", function () {
 
   function processPayment() {
     let paymentForm = document.querySelector('#esewaPaymentForm');
-    let submitPaymentBtn = submitPaymentBtn();
+    let submitPaymentBtn = getSubmitPaymentBtn();
 
     let request = $.ajax({
       method: "POST",

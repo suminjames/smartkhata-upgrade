@@ -4,12 +4,12 @@ $(document).on("ready page:load", function () {
     return false;
   }
 
-  function submitPaymentBtn() {
+  function getSubmitPaymentBtn() {
     return document.querySelector('.connectIpsBtn');
   }
 
   function addConnectIpsSubmitEvent() {
-    let submitPaymentBtn = submitPaymentBtn();
+    let submitPaymentBtn = getSubmitPaymentBtn();
     if(submitPaymentBtn) {
       submitPaymentBtn.addEventListener('click', function (e) {
         e.target.disabled = true;
@@ -39,7 +39,7 @@ $(document).on("ready page:load", function () {
 
     request.done(function (res) {
       // todo: modal to inform that payment could not be processed
-      let connectIpsBtn = submitPaymentBtn();
+      let connectIpsBtn = getSubmitPaymentBtn();
 
       if (res.error) {
         Swal.fire({
@@ -58,7 +58,7 @@ $(document).on("ready page:load", function () {
     request.fail(function () {
       // todo: modal to inform that payment could not be processed
       console.log("could not process payment");
-      let connectIpsBtn = submitPaymentBtn();
+      let connectIpsBtn = getSubmitPaymentBtn();
       connectIpsBtn.disabled = false;
     });
   }
