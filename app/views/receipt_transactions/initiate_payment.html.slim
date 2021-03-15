@@ -37,9 +37,9 @@ div#bill_payment_list.table-responsive.receipt_transactions.initiate_payment
 
       .payment-section
         / button.btn#esewaSubmit.btn-flat.ePayBtn
-          = image_tag 'esewa-logo', size: '105x52.5'
+          = image_tag 'esewa-logo.png', size: '105x52.5'
         button.btn.connectIpsBtn.btn-flat.ePayBtn
-          = image_tag 'connectips-logo', size: '105x52.5'
+          = image_tag 'connectips-logo.png', size: '105x52.5'
 
     / form action=@esewa_receipt_url method="POST" id="esewaPaymentForm"
     /   input name="tAmt" type="hidden" value="#{@total_amount.to_i}"

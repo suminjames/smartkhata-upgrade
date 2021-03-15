@@ -103,6 +103,10 @@ class Voucher < ActiveRecord::Base
         "RCB"
       when :receipt_bank_deposit
         "CDB"
+      when :receipt_esewa
+        "RCE"
+      when :receipt_nchl
+        "RCN"
       else
         "NA"
     end
