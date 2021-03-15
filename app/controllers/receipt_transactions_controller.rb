@@ -1,9 +1,9 @@
 class ReceiptTransactionsController < VisitorsController
   before_action :set_receipt_transaction, only: [:success, :failure]
 
-  def index
-    @receipt_transactions = ReceiptTransaction.order(created_at: :desc)
-  end
+  # def index
+  #   @receipt_transactions = ReceiptTransaction.order(created_at: :desc)
+  # end
 
   def show_receipt
     @settlement = ReceiptTransaction.find(params[:id]).voucher.payment_receipts.last
