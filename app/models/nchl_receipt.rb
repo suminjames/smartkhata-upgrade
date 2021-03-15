@@ -80,9 +80,12 @@ class NchlReceipt < ActiveRecord::Base
 
   def payload_values
     transaction_id = SecureRandom.hex(10)
+    bills = Bill.where(id: self.bill_ids)
+    bill_number = bills.select(:fy_code,:bill_number).map{|x| "#{x.fy_code}-#{x.bill_number}"}.join(',')
+    particulars = "Settled for Bill No:#{bill_number}-CIPS/ACXFR:#{transaction_id}:#{bills.first.client_account.name}"
     return transaction_id,
       transaction_id,
-      self.bill_ids.join(','), '', Date.today.to_s, 'NPR',
+      self.bill_ids.join(','), particulars, Date.today.to_s, 'NPR',
       MERCHANTID, APPID, APPNAME
   end
 end
