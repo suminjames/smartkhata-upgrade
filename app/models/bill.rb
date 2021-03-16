@@ -112,6 +112,7 @@ class Bill < ActiveRecord::Base
   # as these are used for accounting purpose do not consider provisional
   scope :requiring_processing, -> { where(status: ["pending", "partial"]) }
   scope :requiring_receive, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]).order(date: :asc) }
+  scope :requiring_receive_desc, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:purchase]).order(date: :desc) }
   scope :requiring_payment, -> { where(status: [Bill.statuses[:pending], Bill.statuses[:partial]], bill_type: Bill.bill_types[:sales]).order(date: :asc) }
   scope :with_client_bank_account, ->{ includes(:client_account).where.not(:client_accounts => {bank_account: nil}) }
   scope :with_client_bank_account_and_balance_cr, ->{ includes(client_account: :ledger).where.not(:client_accounts => {bank_account: nil}).where('ledgers.closing_blnc < 0').references(:ledger) }
