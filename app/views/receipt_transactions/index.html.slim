@@ -4,6 +4,7 @@ table.table.table-striped.text-center
   thead
     tr
       th S.N.
+      th Client
       th Amount
       th Transaction Id
       th Type
@@ -21,6 +22,7 @@ table.table.table-striped.text-center
     - @receipt_transactions.each.with_index(1) do |receipt_transaction, index|
       tr
         td = index
+        td = receipt_transaction.bills.last.client_account.format_name
         td = receipt_transaction.amount
         td = receipt_transaction.transaction_id
         td = receipt_transaction.receivable_type.gsub('Receipt', '')
