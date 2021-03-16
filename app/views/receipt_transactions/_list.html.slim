@@ -1,0 +1,52 @@
+#filterrific_results
+  table.table.table-striped.text-center
+    thead
+      tr
+        th S.N.
+        th Client
+        th Amount
+        th Transaction Id
+        th Type
+        th Status
+        th
+          | Request Sent At /
+          br
+          | Response Received At
+        th
+          | Verification Req Sent At /
+          br
+          | Verification Res Received At
+        th Actions
+    tbody
+      - receipt_transactions.each.with_index(1) do |receipt_transaction, index|
+        tr
+          td = index
+          td = receipt_transaction.bills.last.client_account.format_name
+          td = receipt_transaction.amount
+          td = receipt_transaction.transaction_id
+          td = receipt_transaction.receivable_type.gsub('Receipt', '')
+          td
+            - if receipt_transaction.failure?
+              = "Failure"
+              br
+              = "(#{receipt_transaction.validation_response_code})"
+            - elsif receipt_transaction.fraudulent?
+              = "Fraudulent"
+              br
+              - if(receipt_transaction.receivable.response_amount rescue nil)
+                = "Response Amount: #{receipt_transaction.receivable.response_amount}"
+            - else
+              = receipt_transaction.status
+          td
+            = to_ktm_timezone(receipt_transaction.request_sent_at).strftime('%Y/%m/%d %H:%M') rescue ''
+            br
+            = to_ktm_timezone(receipt_transaction.response_received_at).strftime('%Y/%m/%d %H:%M') rescue ''
+          td
+            = to_ktm_timezone(receipt_transaction.validation_request_sent_at).strftime('%Y/%m/%d %H:%M') rescue ''
+            br
+            = to_ktm_timezone(receipt_transaction.validation_response_received_at).strftime('%Y/%m/%d %H:%M') rescue ''
+          td
+            - unless receipt_transaction.success?
+              = link_to 'Verify', verify_receipt_transaction_path(receipt_transaction), method: :put, class: 'btn btn-sm btn-primary btn-gap'
+            - else
+              = link_to 'Receipt', show_receipt_receipt_transaction_path(receipt_transaction), remote: true, class: 'btn btn-sm btn-link btn-gap'
