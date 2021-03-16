@@ -31,7 +31,12 @@ class ReceiptTransactionsController < VisitorsController
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
       verify_receipt_transaction
-      create_voucher if @receipt_transaction.success?
+      if valid_redirection?
+        create_voucher if @receipt_transaction.success?
+      else
+        flash[:error] = "Redirection was from an invalid url. Please try again."
+        redirect_to visitor_bills_path
+      end
     end
   end
 
@@ -96,5 +101,9 @@ class ReceiptTransactionsController < VisitorsController
     end
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = e.message
+  end
+
+  def valid_redirection?
+    [Rails.application.secrets.esewa_epay_url, Rails.application.secrets.nchl_epay_url].include?(request.referrer)
   end
 end
