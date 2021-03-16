@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   scope "/:selected_fy_code/:selected_branch_id" do
     match "/receipt_transactions/" => "receipt_transactions#index", via: [:get]
+    match "/receipt_transactions/combobox_ajax_filter" => "receipt_transactions#combobox_ajax_filter", via: [:get]
     resources :interest_particulars
     resources :interest_rates
     resources :order_request_details do
