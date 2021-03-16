@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
   resources :esewa_receipts
 
-  resources :receipt_transactions, only: [:index, :destroy] do
+  resources :receipt_transactions, only: [], controller: 'receipt_transactions_visitors' do
     collection do
       get :initiate_payment
       get :success
@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   resources :nchl_receipts, only: :create
 
   scope "/:selected_fy_code/:selected_branch_id" do
+    match "/receipt_transactions/" => "receipt_transactions#index", via: [:get]
     resources :interest_particulars
     resources :interest_rates
     resources :order_request_details do

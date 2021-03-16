@@ -46,6 +46,15 @@ class ReceiptTransaction < ActiveRecord::Base
 
   ########################################
   # Scopes
+  scope :by_client_id, -> (id) {
+    client_account = ClientAccount.find(id)
+    receipt_transactions = []
+    Bill.where(id: client_account.bill_ids).each do |bill|
+      receipt_transactions << bill.receipt_transactions
+    end
+    receipt_id = receipt_transactions.flatten.uniq.compact.map{|x| x.id}
+    where(id: receipt_id)
+  }
 
   ########################################
   # Attributes
@@ -92,4 +101,20 @@ class ReceiptTransaction < ActiveRecord::Base
   def particulars_identifier
     nchl? ? 'CIPS' : 'ESEWA'
   end
+
+  def self.options_for_client_select(filterrific_params)
+    client_arr = []
+    if filterrific_params.present? && filterrific_params[:by_client_id].present?
+      client_id = filterrific_params[:by_client_id]
+      client_arr = self.by_client_id(client_id)
+    end
+    client_arr
+  end
+
+  filterrific(
+      default_filter_params: {},
+      available_filters:     [
+                                 :by_client_id
+                             ]
+  )
 end
