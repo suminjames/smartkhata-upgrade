@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
   resources :esewa_receipts
 
-  resources :receipt_transactions, only: :delete, controller: 'receipt_transactions_visitors' do
+  resources :receipt_transactions, only: :destroy, controller: 'receipt_transactions_visitors' do
     collection do
       get :initiate_payment
       get :success
