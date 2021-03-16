@@ -6,7 +6,7 @@ module SignTokenModule
   end
 
   def nchl_private_key
-    pkcs = OpenSSL::PKCS12.new(File.read("config/trishakti.pfx"), Rails.application.secrets.nchl_passphrase)
+    pkcs = OpenSSL::PKCS12.new(File.read("tmp/CREDITOR.pfx"), Rails.application.secrets.nchl_passphrase)
     pkcs.key.to_pem
   end
 
