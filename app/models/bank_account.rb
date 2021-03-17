@@ -43,8 +43,8 @@ class BankAccount < ActiveRecord::Base
   validates_presence_of :bank, :account_number, :bank_branch
   accepts_nested_attributes_for :ledger
 
-  scope :by_default_nchl_receipt, -> { where(:default_for_nchl_receipt => true).first }
-  scope :by_default_esewa_receipt, -> { where(:default_for_esewa_receipt => true).first }
+  scope :by_default_esewa_receipt, -> { where(:default_for_esewa_receipt => true) }
+  scope :by_default_nchl_receipt, -> { where(:default_for_nchl_receipt => true)}
 
 
   def test_dummy

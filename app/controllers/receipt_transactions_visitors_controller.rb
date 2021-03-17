@@ -26,8 +26,8 @@ class ReceiptTransactionsVisitorsController < VisitorsController
     # as a previous payment_verification process would already have set the status of the transaction
     if @receipt_transaction.status.nil?
       @receipt_transaction.set_response_received_time
-      verify_receipt_transaction
       if valid_redirection?
+        verify_receipt_transaction
         create_voucher if @receipt_transaction.success?
       else
         flash[:error] = "Redirection was from an invalid url. Please try again."

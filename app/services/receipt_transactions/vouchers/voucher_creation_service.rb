@@ -48,8 +48,8 @@ module ReceiptTransactions
 
         bank_accounts_in_branch = BankAccount.by_branch_id(@selected_branch_id)
 
-        default_for_nchl_receipt_bank_account_in_branch  = bank_accounts_in_branch.by_default_nchl_receipt
-        default_for_esewa_receipt_bank_account_in_branch = bank_accounts_in_branch.by_default_esewa_receipt
+        default_for_nchl_receipt_bank_account_in_branch  = bank_accounts_in_branch.by_default_nchl_receipt.first
+        default_for_esewa_receipt_bank_account_in_branch = bank_accounts_in_branch.by_default_esewa_receipt.first
 
         dr_ledger_id = if @receipt_transaction.nchl?
                          default_for_nchl_receipt_bank_account_in_branch.present? ? default_for_nchl_receipt_bank_account_in_branch.ledger.id : BankAccount.by_default_nchl_receipt.ledger.id
