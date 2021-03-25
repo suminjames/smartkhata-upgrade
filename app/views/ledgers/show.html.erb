@@ -21,7 +21,7 @@
   <h5>
     <%= link_to "Search by Date Range", ledger_path(@ledger, search_by: "date_range"), {:class => (is_active_sub_menu_option("date_range") ? "active-link" : "")} %>
     |
-    <%= link_to "View all", ledgers_path %>
+    <%= link_to "View all", ledger_path(@ledger), {:class => (is_active_sub_menu_option("") ? "active-link" : "")} %>
   </h5>
 </div>
 
