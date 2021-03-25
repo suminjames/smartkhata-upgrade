@@ -11,6 +11,8 @@
 #  access_level  :integer        default: 0
 
 class UserAccessRole < ApplicationRecord
+  attr_accessor :current_user_id
+
   has_many :menu_permissions, dependent: :destroy
   has_many :menu_items, through: :menu_permissions
 
@@ -20,6 +22,12 @@ class UserAccessRole < ApplicationRecord
   enum  access_level: { read_only: 0, read_and_write: 1 }
 
   has_many :users
+
+  before_validation :assign_current_user
+
+  def assign_current_user
+    self.menu_permissions.map{|x| x.current_user_id = self.current_user_id}
+  end
 
   def self.access_level_types_select
     self.access_levels.keys.map { |x| [x.titleize, x] }

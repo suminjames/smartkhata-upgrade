@@ -229,7 +229,8 @@ class ShareTransaction < ApplicationRecord
   after_commit :update_inventory, on: :create
 
   def update_inventory
-    ShareInventoryJob.perform_later(client_account_id, isin_info_id, quantity, updater_id, buying?, false)
+    current_tenant = Tenant.first.name
+    ShareInventoryJob.perform_later(client_account_id, isin_info_id, quantity, updater_id, buying?, false, current_tenant)
   end
 
   # def do_as_per_params (params)

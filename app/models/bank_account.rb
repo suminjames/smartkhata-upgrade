@@ -89,6 +89,7 @@ class BankAccount < ApplicationRecord
   def save_custom(fy_code, branch_id, current_user_id)
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
+    self.ledger.current_user_id = current_user_id
     if _bank.present?
       self.ledger.name = ledger_name
       self.ledger.group_id = _group_id

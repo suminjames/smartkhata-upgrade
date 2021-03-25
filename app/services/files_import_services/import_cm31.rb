@@ -91,7 +91,7 @@ class FilesImportServices::ImportCm31 < ImportFile
           settlement_date = @settlement_date
 
           transaction.quantity = transaction.raw_quantity - shortage_quantity if transaction.closeout_amount.present? && transaction.closeout_amount > 0
-          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user, false) if shortage_quantity > 0 && transaction.deleted_at.nil?
+          update_share_inventory(transaction.client_account_id, transaction.isin_info_id, shortage_quantity, @current_user.id, false) if shortage_quantity > 0 && transaction.deleted_at.nil?
 
           description = "Shortage Share Adjustment(#{shortage_quantity}*#{company_symbol}@#{share_rate}) Transaction number (#{transaction.contract_no}) of #{client_name} purchased on #{ad_to_bs(transaction.date)}"
           voucher = Voucher.create!(date: @nepse_settlement_date, branch_id: cost_center_id, current_user_id: @current_user.id)
@@ -121,8 +121,10 @@ class FilesImportServices::ImportCm31 < ImportFile
 
         # return list of sales settlement ids
         # that track the file uploads for different settlement
+        set_current_user = lambda { |l| l.current_user_id = @current_user.id }
+
         settlement_ids.each do |settlement_id|
-          @nepse_settlement_ids << NepsePurchaseSettlement.find_or_create_by!(settlement_id: settlement_id, status: NepseSettlement.statuses[:complete]).id
+          @nepse_settlement_ids << NepsePurchaseSettlement.find_or_create_by!(settlement_id: settlement_id, status: NepseSettlement.statuses[:complete], &set_current_user).id
         end
       end
     end

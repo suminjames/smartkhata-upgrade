@@ -10,7 +10,7 @@ displayTickMark = (colorCode) ->
     else
       $(this).find("span").addClass("hidden")
 
-$(document).on 'ready page:load', ->
+$(document).on 'ready page:load turbolinks:load', ->
   colorPicker = $('[data-toggle="colorpicker"]')
 
   #setting the color values of boxes from the data attribute

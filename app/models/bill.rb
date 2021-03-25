@@ -34,7 +34,6 @@ class Bill < ApplicationRecord
   # added the updater and creater user tracking
   include ::Models::UpdaterWithBranchFycode
 
-
   has_many :share_transactions
   belongs_to :client_account, optional: true
   has_many :isin_infos, through: :share_transactions
@@ -55,7 +54,6 @@ class Bill < ApplicationRecord
   # callbacks
   before_save :process_bill
   validates_uniqueness_of :bill_number, :scope => [:fy_code ]
-
 
   # verify this with views everytime before changing
   # bill index
@@ -141,19 +139,19 @@ class Bill < ApplicationRecord
   }
 
   filterrific(
-      default_filter_params: { },
-      available_filters: [
-                                 :sorted_by,
-                                 :by_client_id,
-                                 :by_bill_number,
-                                 :by_bill_type,
-                                 :by_bill_status,
-                                 :by_bill_age,
-                                 :by_date,
-                                 :by_date_from,
-                                 :by_date_to,
-                                 :by_client_nepse_code
-                             ]
+    default_filter_params: {},
+    available_filters: %i[
+      sorted_by
+      by_client_id
+      by_bill_number
+      by_bill_type
+      by_bill_status
+      by_bill_age
+      by_date
+      by_date_from
+      by_date_to
+      by_client_nepse_code
+    ]
   )
 
   # TODO(sarojk): Implement other sort options too.
