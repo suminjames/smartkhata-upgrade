@@ -31,6 +31,7 @@ def general_klass_setup(attrs, klass, user_id = nil, relation_params = {}, creat
   end
   create ? klass.create(attrs) : klass.new(attrs)
 end
+@system_user = {:email => 'system@danfeinfotech.com', :password => '12demo09'}
 
 count = 0
 @tenants.each do |t|
@@ -60,6 +61,16 @@ count = 0
       user.admin!
     end
     puts 'CREATED ADMIN USER: ' << new_user.email  if verbose
+
+    system_user = User.find_or_create_by!(email: @system_user[:email]) do |user|
+      user.password = @system_user[:password]
+      user.password_confirmation = @system_user[:password]
+      user.branch_id = branch.id
+      user.confirm
+      user.sys_admin!
+    end
+    puts 'CREATED SYSTEM USER: ' << system_user.email  if verbose
+
     UserSession.user = new_user
     current_user_id = new_user.id
 
@@ -106,7 +117,7 @@ count = 0
                    {name: "Clearing Account"},
                    {name: 'Compliance Fee'}
                  ], Ledger, current_user_id, { group_id: group.first&.id })
-    
+
     group = general_klass_setup([{name: "Current Assets",report: Group.reports['Balance'], sub_report: Group.sub_reports['Assets'], for_trial_balance: true}], Group, current_user_id)
     general_klass_setup([
                    { name: "Advances and Receivables"},

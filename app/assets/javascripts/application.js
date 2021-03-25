@@ -106,6 +106,26 @@ $(document).on("ready page:load", function(){
           }
       }
   });
+  $('#receipt_transaction_index_combobox').select2({
+    theme: 'bootstrap',
+    allowClear: true,
+    minimumInputLength: 3,
+    ajax: {
+      url: url_prefix_with_fy_code_branch + "/receipt_transactions/combobox_ajax_filter",
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term // search term
+        };
+      },
+      processResults: function (data, params) {
+        return {
+          results: data
+        };
+      }
+    }
+  });
   $('#orders_index_combobox').select2({
       theme: 'bootstrap',
       allowClear: true,

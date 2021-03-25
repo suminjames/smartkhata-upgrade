@@ -43,6 +43,10 @@ class BankAccount < ApplicationRecord
   validates :account_number, :bank_branch, presence: true
   accepts_nested_attributes_for :ledger
 
+  scope :by_default_esewa_receipt, -> { where(:default_for_esewa_receipt => true) }
+  scope :by_default_nchl_receipt, -> { where(:default_for_nchl_receipt => true)}
+
+
   def test_dummy
     raise SmartKhataError
   end
@@ -86,6 +90,8 @@ class BankAccount < ApplicationRecord
     _group_id = get_current_assets_group
     _bank = Bank.find_by(id: self.bank_id)
     if _bank.present?
+      self.ledger.name = ledger_name
+      self.ledger.group_id = _group_id
       self.bank_name = _bank.name
       begin
         ActiveRecord::Base.transaction do

@@ -14,7 +14,7 @@ $(function(){
 
     $(document).on('keyup','.nepali-datepicker', function(){
         date_val = $(this).val();
-        if(date_val){
+        if(date_val ){
             show_clear_button($(this));
         }else{
             hide_clear_button($(this));

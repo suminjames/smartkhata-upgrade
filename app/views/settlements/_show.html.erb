@@ -60,13 +60,20 @@
   <!-- Receipt details END -->
 
   <!--Legacy code-->
-  <% if settlement.cash_amount.blank? %>
+  <% if settlement.particulars.first.voucher&.receipt_esewa? || settlement.particulars.first.voucher&.receipt_nchl? %>
+    <% if settlement.particulars.first.voucher.receipt_esewa? %>
+      <p>By Esewa: Rs. <%= arabic_number(settlement.amount) %></p>
+    <%elsif settlement.particulars.first.voucher.receipt_nchl? %>
+      <p>By Nchl: Rs. <%= arabic_number(settlement.amount) %></p>
+    <%end %>
+  <% else %>
+    <% if settlement.cash_amount.blank? %>
       <% if settlement.cheque_entries.size > 0%>
-          <p>By Cheque:
-            <% settlement.cheque_entries.uniq.each do |cheque| %>
-                <% bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
-                <br>
-                <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+        <p>By Cheque:
+          <% settlement.cheque_entries.uniq.each do |cheque| %>
+            <% bank = cheque.additional_bank.present? ? cheque.additional_bank.name : cheque.bank_account.bank_name %>
+            <br>
+            <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
                   <%= "Cheque Number:#{cheque.cheque_number} &nbsp;&nbsp;Bank:#{bank} &nbsp;&nbsp;Amount:#{cheque.amount},".html_safe %>
                 </span>
 
@@ -98,7 +105,7 @@
                 %>
                     <br>
 
-                    <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
+              <span class="<%= ( cheque.bounced? || cheque.void? ) ? 'text-danger' : '' %>">
                       <%= "&nbsp;&nbsp;&nbsp Cheque Number: <i>#{cheque_number}</i> &nbsp;&nbsp;Bank: <i>#{bank}</i> &nbsp;&nbsp;Amount: <i>#{cheque_amount}</i>".html_safe %> <%= ( cheque.bounced? || cheque.void? ) ? "( cancelled )" : " " %>
                     </span>
 
@@ -113,7 +120,9 @@
           <p>By Cash: Rs. <%= arabic_number(settlement.cash_amount) %></p>
       <% end %>
 
+    <% end %>
   <% end %>
+
 
 
   <br><br>

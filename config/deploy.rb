@@ -13,7 +13,7 @@ set :git_shallow_clone, 1
 # set :log_level, :debug
 set :pty, false
 
-set :linked_files, %w{config/database.yml config/secrets.yml}
+set :linked_files, %w{config/database.yml config/secrets.yml config/trishakti.pfx}
 set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/uploads}
 
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }

@@ -266,14 +266,16 @@ class Vouchers::Create < Vouchers::Base
     is_payment_receipt = false
     # ledgers need to be pre populated for sales and purchase type
     case voucher_type
-      when Voucher.voucher_types[:receipt],
-          Voucher.voucher_types[:payment],
-          Voucher.voucher_types[:payment_cash],
-          Voucher.voucher_types[:receipt_cash],
-          Voucher.voucher_types[:receipt_bank],
-          Voucher.voucher_types[:payment_bank],
-          Voucher.voucher_types[:receipt_bank_deposit]
-        is_payment_receipt = true
+    when Voucher.voucher_types[:receipt],
+      Voucher.voucher_types[:payment],
+      Voucher.voucher_types[:payment_cash],
+      Voucher.voucher_types[:receipt_cash],
+      Voucher.voucher_types[:receipt_bank],
+      Voucher.voucher_types[:payment_bank],
+      Voucher.voucher_types[:receipt_bank_deposit],
+      Voucher.voucher_types[:receipt_esewa],
+      Voucher.voucher_types[:receipt_nchl]
+      is_payment_receipt = true
     end
     is_payment_receipt
   end
@@ -292,7 +294,7 @@ class Vouchers::Create < Vouchers::Base
         # incase of receipt , we need to adjust the sales bill amount
         # by adding the amount twice, making sure that one is for reduction that is used in the function below
         # the other is the actual effect, ie we are adding it from our part (payment)
-        if voucher_type == :receipt.to_s
+        if is_voucher_receipt?(voucher_type)
           if bill.sales?
             net_usable_blnc += (bill.balance_to_pay * 2.00)
           end
@@ -522,17 +524,20 @@ class Vouchers::Create < Vouchers::Base
 
       # logic to make the voucher comply to new standard
       # splitting the payment and receipt to multiple types
-      if is_payment_receipt && voucher_has_cheque_entry
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_bank]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
-        end
-      elsif is_payment_receipt
-        if voucher.is_payment?
-          voucher.voucher_type = Voucher.voucher_types[:payment_cash]
-        else
-          voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+
+      if !voucher.is_receipt_transaction?
+        if is_payment_receipt && voucher_has_cheque_entry
+          if voucher.is_payment?
+            voucher.voucher_type = Voucher.voucher_types[:payment_bank]
+          else
+            voucher.voucher_type = Voucher.voucher_types[:receipt_bank]
+          end
+        elsif is_payment_receipt
+          if voucher.is_payment?
+            voucher.voucher_type = Voucher.voucher_types[:payment_cash]
+          else
+            voucher.voucher_type = Voucher.voucher_types[:receipt_cash]
+          end
         end
       end
       # mark the voucher as settled if it is not payment bank
@@ -586,7 +591,7 @@ class Vouchers::Create < Vouchers::Base
 
     # incase of multiple settlement or default take the amount from particular
     if !is_single_settlement
-      if voucher.is_receipt?
+      if voucher.is_receipt? || voucher.is_receipt_transaction?
         receipt_amount += (particular.cr?) ? particular.amount : 0
       elsif voucher.is_payment?
         receipt_amount += (particular.dr?) ? particular.amount : 0
@@ -618,15 +623,15 @@ class Vouchers::Create < Vouchers::Base
     if is_single_settlement
       settlement_type = Settlement.settlement_types[:payment]
       settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id, voucher: voucher)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       settlement.client_account = client_group_leader_account
       settlement.vendor_account = vendor_account
-    #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
-    elsif voucher.is_receipt? && particular.cr? || voucher.is_payment? && particular.dr?
-      settlement_type = Settlement.settlement_types[:payment]
-      settlement_type = Settlement.settlement_types[:receipt] if voucher.is_receipt?
+      #   create settlement if the condition is satisfied because for a voucher we have both dr and cr particulars
+    elsif voucher.is_receipt? && particular.cr? || voucher.is_payment? && particular.dr? || voucher.is_receipt_transaction? && particular.cr?
+      settlement_type   = Settlement.settlement_types[:payment]
+      settlement_type   = Settlement.settlement_types[:receipt] if voucher.is_receipt? || voucher.is_receipt_transaction?
       client_account_id = client_account.id if client_account.present?
-      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id, voucher: voucher)
+      settlement = Settlement.create(name: settler_name, amount: receipt_amount, description: settlement_description, date_bs: settlement_date_bs, settlement_type: settlement_type, client_account_id: client_account_id, cash_amount: cash_amount, branch_id: voucher.branch_id, fy_code: voucher.fy_code, current_user_id: current_user.id)
       # settlement.client_account = client_account
     end
     settlement
@@ -677,5 +682,9 @@ class Vouchers::Create < Vouchers::Base
       end
     end
     return true
+  end
+
+  def is_voucher_receipt?(voucher_type)
+    [:receipt.to_s,:receipt_nchl.to_s,:receipt_esewa.to_s].include?(voucher_type)
   end
 end

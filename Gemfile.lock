@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/ctran/annotate_models.git
+  revision: 111640d077836ced23cfffb882c93e40968ab9d9
+  specs:
+    annotate (2.7.5)
+      activerecord (>= 3.2, < 7.0)
+      rake (>= 10.4, < 13.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -52,11 +60,16 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
+<<<<<<< HEAD
     ancestry (3.1.0)
       activerecord (>= 4.2.0)
     annotate (3.1.1)
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
+=======
+    ancestry (2.1.0)
+      activerecord (>= 3.0.0)
+>>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     ansi (1.5.0)
     apartment (2.2.1)
       activerecord (>= 3.1.2, < 6.0)
@@ -108,9 +121,14 @@ GEM
       coderay (>= 1.0.0)
       erubi (>= 1.0.0)
       rack (>= 0.9.0)
+<<<<<<< HEAD
     bindex (0.8.1)
     bootsnap (1.4.8)
       msgpack (~> 1.0)
+=======
+    binding_of_caller (1.0.0)
+      debug_inspector (>= 0.0.1)
+>>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     bootstrap-datepicker-rails (1.9.0.1)
       railties (>= 3.0)
     bootstrap-kaminari-views (0.0.5)
@@ -600,7 +618,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-import
   ancestry
-  annotate
+  annotate!
   apartment
   apartment-sidekiq
   audited (~> 4.3)
@@ -608,7 +626,11 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1)
   axlsx
   better_errors
+<<<<<<< HEAD
   bootsnap (>= 1.1.0)
+=======
+  binding_of_caller
+>>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
   bootstrap-datepicker-rails
   bootstrap-kaminari-views
   bootstrap-sass
