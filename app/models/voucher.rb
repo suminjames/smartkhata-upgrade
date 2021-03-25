@@ -49,7 +49,7 @@ class Voucher < ApplicationRecord
   has_many :ledgers, through: :particulars
   has_many :cheque_entries, through: :particulars
   accepts_nested_attributes_for :particulars
-  belongs_to :receipt_transaction
+  belongs_to :receipt_transaction, optional: true
 
   # defunct assumed
   has_many :settlements, dependent: :destroy

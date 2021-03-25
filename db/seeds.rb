@@ -66,6 +66,7 @@ count = 0
       user.password = @system_user[:password]
       user.password_confirmation = @system_user[:password]
       user.branch_id = branch.id
+      user.user_access_role_id = user_access_role.id
       user.confirm
       user.sys_admin!
     end

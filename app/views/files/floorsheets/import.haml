@@ -16,4 +16,4 @@
   - this_floorsheet_date_bs = ad_to_bs_string(@date)
   - no_paginate = 'true'
   %h4= "FloorSheet Uploaded Successfully"
-  = link_to "Create Transaction Messages", create_multiple_transaction_messages_path(transaction_date: @date), {data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Creating Transaction Messages..." } , method: :post, class: "btn btn-sm btn-default"}
+  = button_to "Create Transaction Messages", create_multiple_transaction_messages_path(transaction_date: @date), {data: { disable_with: "<i class='fa fa-refresh fa-spin'></i> Creating Transaction Messages..." } , method: :post, class: "btn btn-sm btn-default"}

@@ -98,8 +98,7 @@ class Particular < ApplicationRecord
 
   scope :find_by_date, -> (date) { where(:transaction_date => date.beginning_of_day..date.end_of_day) }
 
-  before_validation :assign_default_value_date
-  before_save :process_particular
+  before_validation :process_particular, :assign_default_value_date
 
   after_commit :calculate_ledger_dailies
   after_commit :recalculate_interest

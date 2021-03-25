@@ -1,7 +1,5 @@
 class TransactionMessagesController < ApplicationController
   before_action :set_transaction_message, only: [:show, :edit, :update, :destroy]
-
-  before_action :set_transaction_message, only: [:show, :edit, :update, :destroy]
   before_action -> {authorize @transaction_message}, only: [:show, :edit, :update, :destroy]
   before_action -> {authorize TransactionMessage}, except: [:show, :edit, :update, :destroy]
 

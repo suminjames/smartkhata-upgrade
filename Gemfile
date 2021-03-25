@@ -70,7 +70,6 @@ group :development do
   gem 'traceroute'
   gem 'web-console', '~> 3.0'
   # gem 'rack-mini-profiler'
-  gem 'annotate'
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'

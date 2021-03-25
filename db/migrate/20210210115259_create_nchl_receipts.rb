@@ -1,4 +1,4 @@
-class CreateNchlReceipts < ActiveRecord::Migration
+class CreateNchlReceipts < ActiveRecord::Migration[4.2]
   def change
     create_table :nchl_receipts do |t|
       t.string :reference_id

@@ -1,4 +1,4 @@
-class CreateReceiptTransactions < ActiveRecord::Migration
+class CreateReceiptTransactions < ActiveRecord::Migration[4.2]
   def change
     create_table :receipt_transactions do |t|
       t.decimal :amount

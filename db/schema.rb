@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2021_02_02_124539) do
-=======
-ActiveRecord::Schema.define(version: 20210222042202) do
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
+ActiveRecord::Schema.define(version: 2021_02_22_042202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,7 +60,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.index ["user_id", "user_type"], name: "user_index"
   end
 
-<<<<<<< HEAD
   create_table "bank_accounts", id: :serial, force: :cascade do |t|
     t.string "account_number"
     t.string "bank_name"
@@ -79,43 +74,14 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.string "bank_branch"
     t.text "address"
     t.string "contact_no"
+    t.boolean "default_for_esewa_receipt"
+    t.boolean "default_for_nchl_receipt"
     t.index ["bank_id"], name: "index_bank_accounts_on_bank_id"
     t.index ["creator_id"], name: "index_bank_accounts_on_creator_id"
     t.index ["updater_id"], name: "index_bank_accounts_on_updater_id"
   end
 
   create_table "bank_code", id: :serial, force: :cascade do |t|
-=======
-  add_index "audits", ["associated_id", "associated_type"], name: "associated_index", using: :btree
-  add_index "audits", ["auditable_id", "auditable_type"], name: "auditable_index", using: :btree
-  add_index "audits", ["created_at"], name: "index_audits_on_created_at", using: :btree
-  add_index "audits", ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
-  add_index "audits", ["user_id", "user_type"], name: "user_index", using: :btree
-
-  create_table "bank_accounts", force: :cascade do |t|
-    t.string   "account_number"
-    t.string   "bank_name"
-    t.boolean  "default_for_payment"
-    t.boolean  "default_for_receipt"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-    t.integer  "bank_id"
-    t.integer  "branch_id"
-    t.string   "bank_branch"
-    t.text     "address"
-    t.string   "contact_no"
-    t.boolean  "default_for_esewa_receipt"
-    t.boolean  "default_for_nchl_receipt"
-  end
-
-  add_index "bank_accounts", ["bank_id"], name: "index_bank_accounts_on_bank_id", using: :btree
-  add_index "bank_accounts", ["creator_id"], name: "index_bank_accounts_on_creator_id", using: :btree
-  add_index "bank_accounts", ["updater_id"], name: "index_bank_accounts_on_updater_id", using: :btree
-
-  create_table "bank_code", force: :cascade do |t|
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     t.string "bank_code"
     t.string "bank_name"
     t.string "ac_code"
@@ -223,7 +189,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.index ["transaction_type"], name: "index_bill_detail_on_transaction_type"
   end
 
-<<<<<<< HEAD
   create_table "bill_voucher_associations", id: :serial, force: :cascade do |t|
     t.integer "association_type"
     t.integer "bill_id"
@@ -264,69 +229,16 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.index ["updater_id"], name: "index_bills_on_updater_id"
   end
 
+  create_table "bills_receipt_transactions", id: :serial, force: :cascade do |t|
+    t.integer "bill_id"
+    t.integer "receipt_transaction_id"
+  end
+
   create_table "branch_permissions", id: :serial, force: :cascade do |t|
     t.integer "branch_id"
     t.integer "user_id"
     t.integer "creator_id"
     t.integer "updater_id"
-=======
-  add_index "bill_detail", ["bill_no"], name: "index_bill_detail_on_bill_no", using: :btree
-  add_index "bill_detail", ["transaction_no"], name: "index_bill_detail_on_transaction_no", using: :btree
-  add_index "bill_detail", ["transaction_type"], name: "index_bill_detail_on_transaction_type", using: :btree
-
-  create_table "bill_voucher_associations", force: :cascade do |t|
-    t.integer  "association_type"
-    t.integer  "bill_id"
-    t.integer  "voucher_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
-  end
-
-  add_index "bill_voucher_associations", ["bill_id"], name: "index_bill_voucher_associations_on_bill_id", using: :btree
-  add_index "bill_voucher_associations", ["voucher_id"], name: "index_bill_voucher_associations_on_voucher_id", using: :btree
-
-  create_table "bills", force: :cascade do |t|
-    t.integer  "bill_number"
-    t.string   "client_name"
-    t.decimal  "net_amount",                           precision: 15, scale: 4, default: 0.0
-    t.decimal  "balance_to_pay",                       precision: 15, scale: 4, default: 0.0
-    t.integer  "bill_type"
-    t.integer  "status",                                                        default: 0
-    t.integer  "special_case",                                                  default: 0
-    t.datetime "created_at",                                                                  null: false
-    t.datetime "updated_at",                                                                  null: false
-    t.integer  "fy_code"
-    t.date     "date"
-    t.string   "date_bs"
-    t.date     "settlement_date"
-    t.integer  "client_account_id"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "branch_id"
-    t.integer  "nepse_settlement_id",        limit: 8
-    t.integer  "settlement_approval_status",                                    default: 0
-    t.decimal  "closeout_charge",                      precision: 15, scale: 4, default: 0.0
-  end
-
-  add_index "bills", ["branch_id"], name: "index_bills_on_branch_id", using: :btree
-  add_index "bills", ["client_account_id"], name: "index_bills_on_client_account_id", using: :btree
-  add_index "bills", ["creator_id"], name: "index_bills_on_creator_id", using: :btree
-  add_index "bills", ["date"], name: "index_bills_on_date", using: :btree
-  add_index "bills", ["fy_code", "bill_number"], name: "index_bills_on_fy_code_and_bill_number", unique: true, using: :btree
-  add_index "bills", ["fy_code"], name: "index_bills_on_fy_code", using: :btree
-  add_index "bills", ["updater_id"], name: "index_bills_on_updater_id", using: :btree
-
-  create_table "bills_receipt_transactions", force: :cascade do |t|
-    t.integer "bill_id"
-    t.integer "receipt_transaction_id"
-  end
-
-  create_table "branch_permissions", force: :cascade do |t|
-    t.integer  "branch_id"
-    t.integer  "user_id"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -789,7 +701,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.string "district_name"
   end
 
-<<<<<<< HEAD
   create_table "edis_items", id: :serial, force: :cascade do |t|
     t.bigint "contract_number"
     t.bigint "settlement_id"
@@ -882,6 +793,19 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.index ["updater_id"], name: "index_employee_ledger_associations_on_updater_id"
   end
 
+  create_table "esewa_receipts", id: :serial, force: :cascade do |t|
+    t.decimal "service_charge"
+    t.decimal "delivery_charge"
+    t.decimal "amount"
+    t.decimal "tax_amount"
+    t.string "success_url"
+    t.string "failure_url"
+    t.string "response_ref"
+    t.string "response_amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "file_uploads", id: :serial, force: :cascade do |t|
     t.integer "file_type"
     t.date "report_date"
@@ -899,134 +823,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
   end
 
   create_table "fiscal_year_para", id: :serial, force: :cascade do |t|
-=======
-  create_table "edis_items", force: :cascade do |t|
-    t.integer  "contract_number",     limit: 8
-    t.integer  "settlement_id",       limit: 8
-    t.date     "settlement_date"
-    t.string   "scrip"
-    t.string   "boid"
-    t.string   "client_code"
-    t.integer  "quantity"
-    t.integer  "reference_id",        limit: 8
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "reason_code"
-    t.integer  "status",                                                 default: 0
-    t.decimal  "wacc",                          precision: 12, scale: 2, default: 0.0
-    t.datetime "created_at",                                                           null: false
-    t.datetime "updated_at",                                                           null: false
-    t.integer  "sales_settlement_id"
-    t.text     "status_message"
-  end
-
-  add_index "edis_items", ["reference_id"], name: "index_edis_items_on_reference_id", unique: true, using: :btree
-  add_index "edis_items", ["sales_settlement_id"], name: "index_edis_items_on_sales_settlement_id", using: :btree
-
-  create_table "edis_reports", force: :cascade do |t|
-    t.integer  "nepse_provisional_settlement_id", limit: 8
-    t.integer  "sequence_number",                           default: 1
-    t.integer  "status",                                    default: 0
-    t.datetime "created_at",                                            null: false
-    t.datetime "updated_at",                                            null: false
-    t.date     "business_date"
-    t.string   "file_name"
-  end
-
-  create_table "employee_accounts", force: :cascade do |t|
-    t.string   "name"
-    t.string   "address1",                  default: " "
-    t.string   "address1_perm"
-    t.string   "address2",                  default: " "
-    t.string   "address2_perm"
-    t.string   "address3"
-    t.string   "address3_perm"
-    t.string   "city",                      default: " "
-    t.string   "city_perm"
-    t.string   "state"
-    t.string   "state_perm"
-    t.string   "country",                   default: " "
-    t.string   "country_perm"
-    t.string   "phone"
-    t.string   "phone_perm"
-    t.string   "dob"
-    t.string   "sex"
-    t.string   "nationality"
-    t.string   "email"
-    t.string   "father_mother"
-    t.string   "citizen_passport"
-    t.string   "granfather_father_inlaw"
-    t.string   "husband_spouse"
-    t.string   "citizen_passport_date"
-    t.string   "citizen_passport_district"
-    t.string   "pan_no"
-    t.string   "dob_ad"
-    t.string   "bank_name"
-    t.string   "bank_account"
-    t.string   "bank_address"
-    t.string   "company_name"
-    t.string   "company_id"
-    t.integer  "branch_id"
-    t.boolean  "invited",                   default: false
-    t.integer  "has_access_to",             default: 2
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "user_id"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
-  end
-
-  add_index "employee_accounts", ["branch_id"], name: "index_employee_accounts_on_branch_id", using: :btree
-  add_index "employee_accounts", ["creator_id"], name: "index_employee_accounts_on_creator_id", using: :btree
-  add_index "employee_accounts", ["updater_id"], name: "index_employee_accounts_on_updater_id", using: :btree
-  add_index "employee_accounts", ["user_id"], name: "index_employee_accounts_on_user_id", using: :btree
-
-  create_table "employee_ledger_associations", force: :cascade do |t|
-    t.integer  "employee_account_id"
-    t.integer  "ledger_id"
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-  end
-
-  add_index "employee_ledger_associations", ["creator_id"], name: "index_employee_ledger_associations_on_creator_id", using: :btree
-  add_index "employee_ledger_associations", ["employee_account_id"], name: "index_employee_ledger_associations_on_employee_account_id", using: :btree
-  add_index "employee_ledger_associations", ["ledger_id"], name: "index_employee_ledger_associations_on_ledger_id", using: :btree
-  add_index "employee_ledger_associations", ["updater_id"], name: "index_employee_ledger_associations_on_updater_id", using: :btree
-
-  create_table "esewa_receipts", force: :cascade do |t|
-    t.decimal  "service_charge"
-    t.decimal  "delivery_charge"
-    t.decimal  "amount"
-    t.decimal  "tax_amount"
-    t.string   "success_url"
-    t.string   "failure_url"
-    t.string   "response_ref"
-    t.string   "response_amount"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
-  end
-
-  create_table "file_uploads", force: :cascade do |t|
-    t.integer  "file_type"
-    t.date     "report_date"
-    t.boolean  "ignore",      default: false
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "branch_id"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.date     "value_date"
-    t.integer  "status",      default: 0
-  end
-
-  add_index "file_uploads", ["branch_id"], name: "index_file_uploads_on_branch_id", using: :btree
-  add_index "file_uploads", ["creator_id"], name: "index_file_uploads_on_creator_id", using: :btree
-  add_index "file_uploads", ["updater_id"], name: "index_file_uploads_on_updater_id", using: :btree
-
-  create_table "fiscal_year_para", force: :cascade do |t|
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     t.string "fiscal_year"
     t.string "fy_start_date"
     t.string "fy_end_date"
@@ -1248,7 +1044,15 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.string "message_type"
   end
 
-<<<<<<< HEAD
+  create_table "nchl_receipts", id: :serial, force: :cascade do |t|
+    t.string "reference_id"
+    t.text "remarks"
+    t.text "particular"
+    t.text "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "nepse_chalans", id: :serial, force: :cascade do |t|
     t.decimal "chalan_amount", precision: 15, scale: 2, default: "0.0"
     t.integer "transaction_type"
@@ -1274,75 +1078,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-=======
-  create_table "nchl_receipts", force: :cascade do |t|
-    t.string   "reference_id"
-    t.text     "remarks"
-    t.text     "particular"
-    t.text     "token"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-  end
-
-  create_table "nepse_chalans", force: :cascade do |t|
-    t.decimal  "chalan_amount",       precision: 15, scale: 2, default: 0.0
-    t.integer  "transaction_type"
-    t.string   "deposited_date_bs"
-    t.date     "deposited_date"
-    t.string   "nepse_settlement_id"
-    t.integer  "voucher_id"
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "fy_code"
-    t.integer  "branch_id"
-  end
-
-  add_index "nepse_chalans", ["branch_id"], name: "index_nepse_chalans_on_branch_id", using: :btree
-  add_index "nepse_chalans", ["creator_id"], name: "index_nepse_chalans_on_creator_id", using: :btree
-  add_index "nepse_chalans", ["fy_code"], name: "index_nepse_chalans_on_fy_code", using: :btree
-  add_index "nepse_chalans", ["updater_id"], name: "index_nepse_chalans_on_updater_id", using: :btree
-  add_index "nepse_chalans", ["voucher_id"], name: "index_nepse_chalans_on_voucher_id", using: :btree
-
-  create_table "nepse_provisional_settlements", force: :cascade do |t|
-    t.integer  "settlement_id", limit: 8
-    t.integer  "status"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-  end
-
-  create_table "nepse_settlements", force: :cascade do |t|
-    t.decimal  "settlement_id",   precision: 18
-    t.integer  "status",                         default: 0
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.date     "settlement_date"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
-    t.string   "type"
-    t.date     "value_date"
-  end
-
-  add_index "nepse_settlements", ["creator_id"], name: "index_nepse_settlements_on_creator_id", using: :btree
-  add_index "nepse_settlements", ["updater_id"], name: "index_nepse_settlements_on_updater_id", using: :btree
-
-  create_table "order_details", force: :cascade do |t|
-    t.integer  "order_id"
-    t.string   "order_nepse_id"
-    t.integer  "isin_info_id"
-    t.decimal  "price"
-    t.integer  "quantity"
-    t.decimal  "amount"
-    t.integer  "pending_quantity"
-    t.integer  "typee"
-    t.integer  "segment"
-    t.integer  "condition"
-    t.integer  "state"
-    t.datetime "date_time"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
   end
 
   create_table "nepse_settlements", id: :serial, force: :cascade do |t|
@@ -1544,32 +1279,24 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.index ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no"
   end
 
-<<<<<<< HEAD
-  create_table "sales_settlements", id: :serial, force: :cascade do |t|
-    t.bigint "settlement_id"
-=======
-  add_index "receipt_payment_slip", ["voucher_code"], name: "index_receipt_payment_slip_on_voucher_code", using: :btree
-  add_index "receipt_payment_slip", ["voucher_no"], name: "index_receipt_payment_slip_on_voucher_no", using: :btree
-
-  create_table "receipt_transactions", force: :cascade do |t|
-    t.decimal  "amount"
-    t.integer  "status"
-    t.string   "transaction_id"
+  create_table "receipt_transactions", id: :serial, force: :cascade do |t|
+    t.decimal "amount"
+    t.integer "status"
+    t.string "transaction_id"
     t.datetime "request_sent_at"
     t.datetime "response_received_at"
     t.datetime "validation_request_sent_at"
     t.datetime "validation_response_received_at"
-    t.integer  "validation_response_code"
-    t.date     "transaction_date"
-    t.integer  "receivable_id"
-    t.string   "receivable_type"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.integer "validation_response_code"
+    t.date "transaction_date"
+    t.string "receivable_type"
+    t.integer "receivable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "sales_settlements", force: :cascade do |t|
-    t.integer  "settlement_id",                   limit: 8
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
+  create_table "sales_settlements", id: :serial, force: :cascade do |t|
+    t.bigint "settlement_id"
     t.datetime "tradestartdate"
     t.datetime "tradeenddate"
     t.datetime "secpayindt"
@@ -2069,7 +1796,6 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.string "status"
   end
 
-<<<<<<< HEAD
   create_table "vouchers", id: :serial, force: :cascade do |t|
     t.integer "fy_code"
     t.integer "voucher_number"
@@ -2087,46 +1813,17 @@ ActiveRecord::Schema.define(version: 20210222042202) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "value_date"
+    t.integer "receipt_transaction_id"
     t.index ["branch_id"], name: "index_vouchers_on_branch_id"
     t.index ["creator_id"], name: "index_vouchers_on_creator_id"
     t.index ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true
     t.index ["fy_code"], name: "index_vouchers_on_fy_code"
+    t.index ["receipt_transaction_id"], name: "index_vouchers_on_receipt_transaction_id"
     t.index ["reviewer_id"], name: "index_vouchers_on_reviewer_id"
     t.index ["updater_id"], name: "index_vouchers_on_updater_id"
   end
 
   create_table "zone_para", id: :serial, force: :cascade do |t|
-=======
-  create_table "vouchers", force: :cascade do |t|
-    t.integer  "fy_code"
-    t.integer  "voucher_number"
-    t.date     "date"
-    t.string   "date_bs"
-    t.string   "desc"
-    t.string   "beneficiary_name"
-    t.integer  "voucher_type",           default: 0
-    t.integer  "voucher_status",         default: 0
-    t.integer  "creator_id"
-    t.integer  "updater_id"
-    t.integer  "reviewer_id"
-    t.integer  "branch_id"
-    t.boolean  "is_payment_bank"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.date     "value_date"
-    t.integer  "receipt_transaction_id"
-  end
-
-  add_index "vouchers", ["branch_id"], name: "index_vouchers_on_branch_id", using: :btree
-  add_index "vouchers", ["creator_id"], name: "index_vouchers_on_creator_id", using: :btree
-  add_index "vouchers", ["fy_code", "voucher_number", "voucher_type"], name: "index_vouchers_on_fy_code_and_voucher_number_and_voucher_type", unique: true, using: :btree
-  add_index "vouchers", ["fy_code"], name: "index_vouchers_on_fy_code", using: :btree
-  add_index "vouchers", ["receipt_transaction_id"], name: "index_vouchers_on_receipt_transaction_id", using: :btree
-  add_index "vouchers", ["reviewer_id"], name: "index_vouchers_on_reviewer_id", using: :btree
-  add_index "vouchers", ["updater_id"], name: "index_vouchers_on_updater_id", using: :btree
-
-  create_table "zone_para", force: :cascade do |t|
->>>>>>> ab4b42a4fe7f048a7d2589abd0ff0df892f2bc22
     t.string "regional_code"
     t.string "zone_code"
     t.string "zone_name"

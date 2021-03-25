@@ -1,4 +1,4 @@
-class CreateEsewaReceipts < ActiveRecord::Migration
+class CreateEsewaReceipts < ActiveRecord::Migration[4.2]
   def change
     create_table :esewa_receipts do |t|
       t.decimal :service_charge #psc
